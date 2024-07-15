@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "name": "server",
+  "builds": [
+    {
+      "src": "app.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/app.js"
+    }
+  ],
+  "env": {
+    "DATABASE": "mongodb+srv://sanghamitralearn:sanghamitra%4007@platform.tzqhhat.mongodb.net/sanghamitralearn?retryWrites=true&w=majority&appName=Platform",
+    "SECRET_KEY": "SANGHAMITRAISBUILDINGLEARNINGPLATFORM",
+    "PORT": "4000"
+  }
+}
