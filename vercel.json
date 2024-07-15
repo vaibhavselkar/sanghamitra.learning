@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "name": "Sanghamitra.learning",
+  "builds": [
+    {
+      "src": "server/app.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/app.js"
+    },
+    {
+      "src": "/",
+      "dest": "frontend/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
+    }
+  ],
+  "env": {
+    "DATABASE": "mongodb+srv://sanghamitralearn:sanghamitra%4007@platform.tzqhhat.mongodb.net/sanghamitralearn?retryWrites=true&w=majority&appName=Platform",
+    "SECRET_KEY": "SANGHAMITRAISBUILDINGLEARNINGPLATFORM",
+    "PORT": "4000"
+  }
+}
