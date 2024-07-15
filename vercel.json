@@ -3,22 +3,22 @@
   "name": "Sanghamitra.learning",
   "builds": [
     {
-      "src": "server/app.js",
+      "src": "Server/app.js",
       "use": "@vercel/node"
     },
     {
-      "src": "front/public/**/*",
+      "src": "Front/public/**/*",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server/app.js"
+      "dest": "/Server/app.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/front/public/$1"
+      "dest": "/Front/public/$1"
     }
   ],
   "env": {
