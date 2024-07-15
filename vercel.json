@@ -3,14 +3,14 @@
   "name": "Sanghamitra.learning",
   "builds": [
     {
-      "src": "server/app.js",
+      "src": "Server/app.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/",
-      "dest": "frontend/public/index.html"
+      "dest": "Front/public/index.html"
     }
   ],
   "env": {
