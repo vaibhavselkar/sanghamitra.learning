@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkAuth() {
-        fetch('https://sanghamitra-learning-backend.vercel.app/check-auth', {
+        fetch('https://sanghamitra-learnworld.vercel.app/api/check-auth', {
             method: 'GET',
             credentials: 'include'
         })
@@ -39,14 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const confirmLogout = window.confirm("Do you really want to logout?");
                     if (confirmLogout) {
                         try {
-                            const response = await fetch('https://sanghamitra-learning-backend.vercel.app/logout', {
+                            const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/logout', {
                                 method: 'GET',
                                 credentials: 'include'
                             });
-                        
+
                             if (response.ok) {
                                 console.log("Logout successful");
-                                document.cookie = 'jwtoken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                                // Clear sessionId cookie
+                                document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
                                 location.replace('index.html');
                             } else {
                                 console.error('Logout failed');
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     } else {
                         console.log("Logout cancelled");
-                    } 
+                    }
                 };
             } else {
                 console.log("User is not authenticated");
