@@ -33,7 +33,10 @@ app.use(session({
     store: MongoStore.create({
         mongoUrl: process.env.DATABASE,
         collectionName: 'sessions'
-    })
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 // 1 day, you can customize this
+    }
 }));
 
 // Connect to MongoDB
