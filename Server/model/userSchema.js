@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
         {
             token: {
                 type: String,
-                required: true
+                required: true,
             }
         }
     ],
@@ -44,6 +44,16 @@ userSchema.pre('save', async function (next) {
     }
     next();
 })  
+
+// we are tracking the login record
+userSchema.methods.updateLoginHistory = async function () {
+    try {
+        this.loginHistory.push({ loginTimestamp: Date.now() });
+        await this.save();
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 
 // we are generating token
