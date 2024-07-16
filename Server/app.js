@@ -51,6 +51,12 @@ mongoose.connect(process.env.DATABASE, {
     console.log("Connected to MongoDB");
 }).catch(err => console.error("MongoDB connection error:", err));
 
+// Check the value of req.session.userId
+app.use((req, res, next) => {
+    console.log('Session ID:', req.session.userId); 
+    next();
+});
+
 // Routes
 app.use('/api', authRouter);
 
