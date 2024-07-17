@@ -72,6 +72,41 @@ router.post('/signin', async (req, res) => {
     }
 });
 
+// Check if email exists
+router.post('/reset-password/check-email', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ error: 'User not found' });
+        }
+        res.status(200).json({ message: 'Email found, proceed to reset password' });
+    } catch (error) {
+        console.error('Error checking email:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+router.post('/reset-password/set-new-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ error: 'User not found' });
+        }
+
+        // Update password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // Middleware to check for the JWT token
 router.get('/check-auth', (req, res) => {
     if (req.session.userId) {
