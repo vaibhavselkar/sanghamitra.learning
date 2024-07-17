@@ -72,7 +72,6 @@ router.post('/signin', async (req, res) => {
     }
 });
 
-// Check if email exists
 router.post('/reset-password/check-email', async (req, res) => {
     const { email } = req.body;
     try {
@@ -95,8 +94,15 @@ router.post('/reset-password/set-new-password', async (req, res) => {
             return res.status(400).json({ error: 'User not found' });
         }
 
+        // Validate new password
+        if (!newPassword || newPassword.length < 8) {
+            return res.status(400).json({ error: 'Invalid password' });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+
         // Update password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
         await user.save();
 
