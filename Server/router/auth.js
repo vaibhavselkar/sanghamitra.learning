@@ -87,30 +87,25 @@ router.post('/reset-password/check-email', async (req, res) => {
 });
 
 router.post('/reset-password/set-new-password', async (req, res) => {
-    const { email, newPassword } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ error: 'User not found' });
-        }
-
-        // Validate new password
-        if (!newPassword || newPassword.length < 8) {
-            return res.status(400).json({ error: 'Invalid password' });
-        }
-
-        // Hash new password
-        const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-        // Update password
-        user.password = hashedPassword;
-        await user.save();
-
-        res.status(200).json({ message: 'Password reset successful' });
-    } catch (error) {
-        console.error('Error resetting password:', error);
-        res.status(500).json({ error: 'Server error' });
+  const { email, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
     }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 // Middleware to check for the JWT token
