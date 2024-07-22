@@ -206,6 +206,7 @@
 
                 const userData = await response.json();
                 console.log(userData);
+                console.log(userData.name)
 
                 document.getElementById('userName').textContent = userData.name;
                 document.getElementById('userEmail').textContent = userData.email;
