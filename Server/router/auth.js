@@ -151,7 +151,7 @@ router.get('/logout', (req, res) => {
 });
 
 // Endpoint to get all vocabulary questions
-router.get('/vocab-questions', async (req, res) => {
+router.get('/vocab-questions', authenticate, async (req, res) => {
   try {
     const questions = await VocabQuestion.find();
     res.json(questions);
@@ -159,5 +159,38 @@ router.get('/vocab-questions', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+// Endpoint to get vocab scores
+router.get('/vocabscores', async (req, res) => {
+    try {
+      const scores = await VocabScore.find({});
+      res.status(200).json(scores);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // POST route to add a new score
+  router.post('/vocabscoreadd', async (req, res) => {
+      const { username, email, assessments } = req.body;
+  
+      if (!username || !email || !assessments) {
+          return res.status(400).json({ error: 'Please provide all required fields' });
+      }
+  
+      try {
+          const newScore = new VocabScore({
+              username,
+              email,
+              assessments
+          });
+  
+          const savedScore = await newScore.save();
+          res.status(201).json({ message: 'Score added successfully', data: savedScore });
+      } catch (error) {
+          console.error('Error adding score:', error);
+          res.status(500).json({ error: 'Server error, failed to add score' });
+      }
+  });
 
 module.exports = router
