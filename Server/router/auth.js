@@ -66,6 +66,7 @@ router.post('/signin', async (req, res) => {
         req.session.token = token;
         req.session.username = user.username;
         req.session.email = user.email;
+        console.log(req.session.email, req.session.username);
         res.status(200).json({ message: 'User signed in successfully' });
 
     } catch (error) {
@@ -79,7 +80,8 @@ router.get('/session-info', (req, res) => {
     if (req.session.userId) {
         return res.status(200).json({
             email: req.session.email,
-            username: req.session.username
+            username: req.session.username,
+            userid: req.session.username
         });
     } else {
         return res.status(401).json({ error: 'Unauthorized access' });
