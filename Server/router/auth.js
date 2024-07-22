@@ -74,6 +74,18 @@ router.post('/signin', async (req, res) => {
     }
 });
 
+// Endpoint to get session data
+router.get('/session-info', (req, res) => {
+    if (req.session.userId) {
+        return res.status(200).json({
+            email: req.session.email,
+            username: req.session.username
+        });
+    } else {
+        return res.status(401).json({ error: 'Unauthorized access' });
+    }
+});
+
 router.post('/reset-password/check-email', async (req, res) => {
     const { email } = req.body;
     try {
