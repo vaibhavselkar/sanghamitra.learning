@@ -64,6 +64,8 @@ router.post('/signin', async (req, res) => {
         const token = await user.generateAuthToken();
         req.session.userId = user._id;
         req.session.token = token;
+        req.session.username = user.username;
+        req.session.email = user.email;
         res.status(200).json({ message: 'User signed in successfully' });
 
     } catch (error) {
