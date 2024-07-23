@@ -9,7 +9,7 @@ router.use(cookieParser());
 env = require('dotenv').config();
 const authenticate = require('../middleware/authenticate');
 const VocabQuestion = require('../model/vocabSchema');
-const VocabScore = require('../model/vocabScoreSchema');
+const { VocabScore, addOrUpdateAssessment } = require('../model/vocabScoreSchema');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -174,26 +174,24 @@ router.get('/vocabscores', async (req, res) => {
   });
   
   // POST route to add a new score
-  router.post('/vocabscoreadd', async (req, res) => {
-      const { username, email, assessments } = req.body;
-  
-      if (!username || !email || !assessments) {
-          return res.status(400).json({ error: 'Please provide all required fields' });
-      }
-  
-      try {
-          const newScore = new VocabScore({
-              username,
-              email,
-              assessments
-          });
-  
-          const savedScore = await newScore.save();
-          res.status(201).json({ message: 'Score added successfully', data: savedScore });
-      } catch (error) {
-          console.error('Error adding score:', error);
-          res.status(500).json({ error: 'Server error, failed to add score' });
-      }
-  });
+router.post('/vocabscoreadd', async (req, res) => {
+  const { username, email, assessments } = req.body;
+
+  if (!username || !email || !assessments) {
+    return res.status(400).json({ error: 'Please provide all required fields' });
+  }
+
+  try {
+    // Assume assessments is an array of assessment objects
+    const newAssessment = assessments[0];
+
+    await addOrUpdateAssessment(username, email, newAssessment);
+
+    res.status(201).json({ message: 'Score added successfully' });
+  } catch (error) {
+    console.error('Error adding score:', error);
+    res.status(500).json({ error: 'Server error, failed to add score' });
+  }
+});
 
 module.exports = router
