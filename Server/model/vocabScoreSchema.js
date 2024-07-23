@@ -28,4 +28,27 @@ const vocabScoreSchema = new mongoose.Schema({
 
 const VocabScore = mongoose.model('VocabScore', vocabScoreSchema, 'vocab_scores');
 
-module.exports = VocabScore;
+// Function to add or update assessment for a user
+async function addOrUpdateAssessment(username, email, newAssessment) {
+  try {
+    const user = await VocabScore.findOne({ username, email });
+    if (user) {
+      // Append new assessment to existing user
+      user.assessments.push(newAssessment);
+      await user.save();
+    } else {
+      // Create new user document with the assessment
+      const newUser = new VocabScore({
+        username,
+        email,
+        assessments: [newAssessment]
+      });
+      await newUser.save();
+    }
+    console.log('Assessment saved successfully.');
+  } catch (err) {
+    console.error('Error saving assessment:', err);
+  }
+}
+
+module.exports = { VocabScore, addOrUpdateAssessment };
