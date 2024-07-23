@@ -10,7 +10,7 @@
     <!-- Fonts and Vendor CSS Files -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/vendor/aos/aos.css" rel="stylesheet">
@@ -256,10 +256,6 @@
             </nav>
         </div>
 
-        <div id="home" class="page active">
-            <h1>Welcome to the Diagnostic Vocabulary Assessment</h1>
-            <button id="start-button">Start Quiz</button>
-        </div>
         <div id="quiz" class="page hidden">
             <div class="container quiz-container">
                 <div class="row">
@@ -367,13 +363,11 @@
 
             await fetchSessionInfo();
 
-            const startButton = document.getElementById('start-button');
             const nextButton = document.getElementById('next-button');
             const previousButton = document.getElementById('previous-button');
             const endButton = document.getElementById('end-button');
             const restartButton = document.getElementById('restart-button');
             
-            const homePage = document.getElementById('home');
             const quizPage = document.getElementById('quiz');
             const resultPage = document.getElementById('result');
             
@@ -407,7 +401,7 @@
 
                     if (!response.ok) {
                         // If the response is not ok, redirect to the login page
-                        location.replace('user_login.html');
+                        location.replace('user_login.html?redirectPath=vocabulary-diagnostic-test.html');
                         return; // Exit the function
                     }
                     
@@ -427,8 +421,6 @@
                 }
                 console.log('Starting quiz...');
                 
-                homePage.classList.add('hidden');
-                homePage.classList.remove('active');
                 quizPage.classList.remove('hidden');
                 quizPage.classList.add('active');
                 currentQuestionIndex = 0;
@@ -626,15 +618,11 @@
                 vocabularyLevelElement.innerHTML = `<h3>Your Vocabulary Level is: ${level}</h3>`;
             }
         
-            startButton.addEventListener('click', () => {
-                console.log('Start button clicked!');
-                if (quizRunning) {
-                    console.log('Quiz is already running. Ignoring start button click.');
-                    return; // Ignore if the quiz is already running
-                }
-                startButton.disabled = true;
-                fetchQuestions();
-            });
+            if (!username || !email) {
+                window.location.href = 'user_login.html?redirectPath=vocabulary-diagnostic-test.html'; // Redirect to login if not logged in
+            } else {
+                fetchQuestions(); // Start the quiz if logged in
+            }
             
             nextButton.addEventListener('click', () => {
                 console.log('Next button clicked');
@@ -657,12 +645,10 @@
             
             restartButton.addEventListener('click', () => {
                 console.log('Restart button clicked');
-                startButton.disabled = false;
                 resultPage.classList.add('hidden');
                 resultPage.classList.remove('active');
-                homePage.classList.remove('hidden');
-                homePage.classList.add('active');
                 quizRunning = false; // Reset state on restart
+                fetchQuestions(); // Restart the quiz
                 console.log('Quiz restarted.');
             });
             
