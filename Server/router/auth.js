@@ -123,7 +123,7 @@ router.post('/reset-password/set-new-password', async (req, res) => {
 });
 
 // Route to get all topics
-router.get('/gre_writing_topics', async (req, res) => {
+router.get('/gre_writing_topics', authenticate, async (req, res) => {
   try {
     const topics = await Topic.find({});
     res.status(200).json(topics);
