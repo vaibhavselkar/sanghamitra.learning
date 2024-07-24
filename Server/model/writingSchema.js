@@ -14,6 +14,7 @@ const essaySchema = new mongoose.Schema({
   topic_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', required: true },
   topic_text: { type: String, required: true },
   response_text: { type: String, required: true },
+  time: { type: Number, required: true },
   date_submitted: { type: Date, default: Date.now }
 });
 
