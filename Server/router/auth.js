@@ -10,7 +10,7 @@ env = require('dotenv').config();
 const authenticate = require('../middleware/authenticate');
 const VocabQuestion = require('../model/vocabSchema');
 const { VocabScore, addOrUpdateAssessment } = require('../model/vocabScoreSchema');
-const { Topic, WritingResponse } = require('../models/writingSchema'); 
+const { Topic, WritingResponse } = require('../model/writingSchema'); 
 
 require('../db/conn');
 const User = require('../model/userSchema');
