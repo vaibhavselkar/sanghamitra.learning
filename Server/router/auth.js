@@ -163,15 +163,29 @@ router.get('/vocab-questions', authenticate, async (req, res) => {
   }
 });
 
-// Endpoint to get vocab scores
+// Route to get vocab scores
 router.get('/vocabscores', async (req, res) => {
-    try {
+  const { email } = req.query;
+
+  try {
+    if (!email) {
+      // Fetch all scores if no email is provided
       const scores = await VocabScore.find({});
-      res.status(200).json(scores);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+      return res.status(200).json(scores);
     }
-  });
+
+    // Fetch scores for the specific user
+    const userScores = await VocabScore.findOne({ email: email });
+    
+    if (!userScores) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.status(200).json(userScores);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
   
   // POST route to add a new score
 router.post('/vocabscoreadd', async (req, res) => {
