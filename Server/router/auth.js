@@ -150,6 +150,7 @@ router.post('/gre_writing_response', async (req, res) => {
         topic_id,
         topic_text,
         response_text,
+        time,
         date_submitted: new Date()
       });
     } else {
@@ -161,6 +162,7 @@ router.post('/gre_writing_response', async (req, res) => {
           topic_id,
           topic_text,
           response_text,
+          time,
           date_submitted: new Date()
         }]
       });
