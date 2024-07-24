@@ -10,7 +10,7 @@ env = require('dotenv').config();
 const authenticate = require('../middleware/authenticate');
 const VocabQuestion = require('../model/vocabSchema');
 const { VocabScore, addOrUpdateAssessment } = require('../model/vocabScoreSchema');
-const {Topic} = require('../models/WritingModels'); 
+const { Topic, WritingResponse } = require('../models/writingSchema'); 
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -127,6 +127,48 @@ router.get('/gre_writing_topics', async (req, res) => {
   try {
     const topics = await Topic.find({});
     res.status(200).json(topics);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Route to save writing response
+router.post('/gre_writing_response', async (req, res) => {
+  const { username, email, topic_id, topic_text, response_text } = req.body;
+
+  if (!username || !email || !topic_id || !topic_text || !response_text) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    // Find existing entry for the user by email
+    let userResponse = await WritingResponse.findOne({ email });
+
+    if (userResponse) {
+      // Add new response to the existing user's responses array
+      userResponse.responses.push({
+        topic_id,
+        topic_text,
+        response_text,
+        date_submitted: new Date()
+      });
+    } else {
+      // Create a new entry for the user
+      userResponse = new WritingResponse({
+        username,
+        email,
+        responses: [{
+          topic_id,
+          topic_text,
+          response_text,
+          date_submitted: new Date()
+        }]
+      });
+    }
+
+    // Save the document
+    await userResponse.save();
+    res.status(200).json({ message: 'Response saved successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
