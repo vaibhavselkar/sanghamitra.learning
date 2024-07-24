@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Writing</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXhW+ALEwIH" crossorigin="anonymous">
   <link href="https://getbootstrap.com/docs/5.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
@@ -245,7 +245,7 @@
     }
 
     // Function to save user input
-    function saveInput(event) {
+    async function saveInput(event) {
       event.preventDefault();
       const response = document.getElementById("response").value;
       const topicText = document.getElementById("promptContainer").innerText;
@@ -265,79 +265,77 @@
         "time": timeInSeconds
       };
 
-      // Send data to the server
-      fetch('https://sanghamitra-learnworld.vercel.app/api/gre_writing_response', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dataToSend)
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Submission received:', data);
-        // Log the error and handle it accordingly
-        clearInterval(timerInterval);
-        // Disable form elements
-        document.getElementById("response").disabled = true;
-        // Hide submit button
-        document.getElementById('submitBtn').style.display = 'none';
-        // Show submission confirmation message
-        document.getElementById('submitResponse').innerHTML = '<span style="font-size: 24px;">Thank you for your submission, ' + username + '!</span>';
-        document.getElementById('submitResponse').style.display = 'block';
-        // Show feedback and corrections
-        showFeedback(response.feedback);
-        // Show home button
-        document.getElementById('homeBtn').style.display = 'inline-block';
-      })
-      .catch(error => {
+      try {
+        const saveResponse = await fetch('https://sanghamitra-learnworld.vercel.app/api/gre_writing_response', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dataToSend)
+        });
+        
+        if (saveResponse.ok) {
+          const saveData = await saveResponse.json();
+          console.log('Submission received:', saveData);
+          clearInterval(timerInterval);
+          document.getElementById("response").disabled = true;
+          document.getElementById('submitBtn').style.display = 'none';
+          document.getElementById('submitResponse').innerHTML = '<span style="font-size: 24px;">Thank you for your submission, ' + username + '!</span>';
+          document.getElementById('submitResponse').style.display = 'block';
+          showFeedback(dataToSend.response_text);  // Pass response_text to feedback function
+          document.getElementById('homeBtn').style.display = 'inline-block';
+        } else {
+          console.error('Error saving data:', saveResponse.statusText);
+          alert('Error submitting data. Please try again.');
+        }
+      } catch (error) {
         console.error('Error saving data:', error);
         alert('Error submitting data. Please try again.');
-      });
+      }
     }
 
     // Function to show feedback
-    function showFeedback(response) {
-      const dataToSend = {
-        "feedback": response
-      };
+    async function showFeedback(responseText) {
+      const dataToSend = { "response_text": responseText };
 
-      fetch('https://flask-hello-world-2-eta.vercel.app/feedback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dataToSend)
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Feedback received:', data);
-        document.getElementById('feedbackResponse').textContent = 'Original Feedback: ' + data['Original Feedback'];
+      try {
+        const feedbackResponse = await fetch('https://flask-hello-world-2-eta.vercel.app/feedback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dataToSend)
+        });
         
-        // Display corrections if available
-        if (data['Corrections']) {
-          const correctionsList = document.createElement('ul');
-          for (const [original, corrected] of Object.entries(data['Corrections'])) {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${original} :- ${corrected}`;
-            correctionsList.appendChild(listItem);
+        if (feedbackResponse.ok) {
+          const feedbackData = await feedbackResponse.json();
+          console.log('Feedback received:', feedbackData);
+          document.getElementById('feedbackResponse').textContent = 'Original Feedback: ' + feedbackData['Original Feedback'];
+          
+          if (feedbackData['Corrections']) {
+            const correctionsList = document.createElement('ul');
+            for (const [original, corrected] of Object.entries(feedbackData['Corrections'])) {
+              const listItem = document.createElement('li');
+              listItem.textContent = `${original} :- ${corrected}`;
+              correctionsList.appendChild(listItem);
+            }
+            document.getElementById('corrections').innerHTML = '<strong>Corrections:</strong>';
+            document.getElementById('corrections').appendChild(correctionsList);
+            document.getElementById('corrections').style.display = 'block';
+          } else {
+            document.getElementById('corrections').textContent = 'No corrections needed.';
+            document.getElementById('corrections').style.display = 'block';
           }
-          document.getElementById('corrections').innerHTML = '<strong>Corrections:</strong>';
-          document.getElementById('corrections').appendChild(correctionsList);
-          document.getElementById('corrections').style.display = 'block'; // Show corrections element
         } else {
-          document.getElementById('corrections').textContent = 'No corrections needed.';
-          document.getElementById('corrections').style.display = 'block'; // Show corrections element
+          console.error('Error receiving feedback:', feedbackResponse.statusText);
+          alert('Error receiving feedback. Please try again later.');
         }
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error receiving feedback:', error);
-        // Handle errors accordingly
         alert('Error receiving feedback. Please try again later.');
-      });
+      }
     }
 
-    // Call fetchAndDisplayPrompt function when the page loads
     window.onload = function() {
       fetchSessionInfo();
       startTimer();
