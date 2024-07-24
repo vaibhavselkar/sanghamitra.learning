@@ -7,7 +7,7 @@ const topicSchema = new mongoose.Schema({
   date_added: { type: Date, default: Date.now }
 });
 
-const Topic = mongoose.model('Topic', topicSchema);
+const Topic = mongoose.model('Topic', topicSchema, 'gre_writing_topics');
 
 // Schema for individual essay response
 const essaySchema = new mongoose.Schema({
@@ -24,6 +24,6 @@ const writingResponseSchema = new mongoose.Schema({
   responses: { type: [essaySchema], default: [] }
 });
 
-const WritingResponse = mongoose.model('WritingResponse', writingResponseSchema);
+const WritingResponse = mongoose.model('WritingResponse', writingResponseSchema, 'gre_writing_response');
 
 module.exports = { Topic, WritingResponse };
