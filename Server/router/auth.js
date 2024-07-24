@@ -10,6 +10,7 @@ env = require('dotenv').config();
 const authenticate = require('../middleware/authenticate');
 const VocabQuestion = require('../model/vocabSchema');
 const { VocabScore, addOrUpdateAssessment } = require('../model/vocabScoreSchema');
+const {Topic} = require('../models/WritingModels'); 
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -118,6 +119,16 @@ router.post('/reset-password/set-new-password', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Route to get all topics
+router.get('/gre_writing_topics', async (req, res) => {
+  try {
+    const topics = await Topic.find({});
+    res.status(200).json(topics);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 
