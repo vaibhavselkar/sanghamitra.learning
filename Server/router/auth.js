@@ -134,9 +134,9 @@ router.get('/gre_writing_topics', authenticate, async (req, res) => {
 
 // Route to save writing response
 router.post('/gre_writing_response', async (req, res) => {
-  const { username, email, topic_id, topic_text, response_text } = req.body;
+  const { username, email, topic_id, topic_text, time, response_text } = req.body;
 
-  if (!username || !email || !topic_id || !topic_text || !response_text) {
+  if (!username || !email || !topic_id || !topic_text || !time || !response_text) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
