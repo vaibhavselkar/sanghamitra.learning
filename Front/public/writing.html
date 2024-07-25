@@ -170,6 +170,7 @@
     let randomTopic = {};
     let timerInterval;
     let timeElapsed = 0;
+    let topic_id;
 
     async function fetchSessionInfo() {
       try {
@@ -194,6 +195,7 @@
         .then(data => {
           const randomIndex = Math.floor(Math.random() * data.length);
           randomTopic = data[randomIndex];
+          topic_id = randomTopic._id; // Set topic_id from the fetched topic
           const promptElement = document.createElement('p');
           promptElement.textContent = randomTopic.topic_text;
           document.getElementById('promptContainer').innerHTML = '';
@@ -255,8 +257,8 @@
       const dataToSend = {
         "username": username,
         "email": email,
-        "topic_id": randomTopic._id, // Use the actual ObjectId from the fetched topic
-        "topic_text": topicText,
+        "topic_id": topic_id, // Use the actual ObjectId from the fetched topic
+        "topic_text": randomTopic.topic_text, // Use topic text from the fetched topic
         "response_text": response,
         "time": timeInSeconds
       };
