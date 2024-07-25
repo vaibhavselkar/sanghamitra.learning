@@ -132,7 +132,12 @@
             </div>
             <div class="card">
                 <h2>Accuracy</h2>
-                <p id="accuracy">N/A</p>
+                <p id="accuracy">N/A <span id="accuracyDetails" style="display: none;"></span></p>
+                <div>
+                    <p id="correctAnswers">Correct: N/A</p>
+                    <p id="incorrectAnswers">Incorrect: N/A</p>
+                    <p id="skippedQuestions">Skipped: N/A</p>
+                </div>
             </div>
             <div class="card chart-container">
                 <canvas id="difficultyChart"></canvas>
@@ -146,12 +151,12 @@
                     <thead>
                         <tr>
                             <th>Question</th>
+                            <th>Topic</th>
+                            <th>CEFR Level</th>
+                            <th>Difficulty</th>
                             <th>Your Response</th>
                             <th>Correct Answer</th>
                             <th>Points Awarded</th> 
-                            <th>Difficulty</th> 
-                            <th>CEFR Level</th>
-                            <th>Topic</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -252,6 +257,8 @@
 
         const totalQuestions = assessments.questions.length;
         const correctAnswers = assessments.questions.filter(q => q.is_correct).length;
+        const incorrectAnswers = assessments.questions.filter(q => !q.is_correct && q.user_response !== "").length;
+        const skippedQuestions = assessments.questions.filter(q => q.user_response === "").length;
         const accuracy = (correctAnswers / totalQuestions) * 100;
 
         const topicScores = {};
@@ -280,6 +287,10 @@
 
         document.getElementById('totalScore').innerText = assessments.total_score;
         document.getElementById('accuracy').innerText = accuracy.toFixed(2) + '%';
+        document.getElementById('accuracy').setAttribute('title', `${correctAnswers}/${totalQuestions}`);
+        document.getElementById('correctAnswers').innerText = `Correct: ${correctAnswers}`;
+        document.getElementById('incorrectAnswers').innerText = `Incorrect: ${incorrectAnswers}`;
+        document.getElementById('skippedQuestions').innerText = `Skipped: ${skippedQuestions}`;
 
         createCharts({
             difficultyScores,
@@ -338,12 +349,12 @@
         questions.forEach(question => {
             const row = tableBody.insertRow();
             row.insertCell(0).innerText = question.question_text;
-            row.insertCell(1).innerText = question.user_response;
-            row.insertCell(2).innerText = question.correct_option;
-            row.insertCell(3).innerText = question.points_awarded;
-            row.insertCell(4).innerText = question.difficulty_level;
-            row.insertCell(5).innerText = question.CEFR_level;
-            row.insertCell(6).innerText = question.topic;
+            row.insertCell(1).innerText = question.topic;
+            row.insertCell(2).innerText = question.CEFR_level;
+            row.insertCell(3).innerText = question.difficulty_level;
+            row.insertCell(4).innerText = question.user_response;
+            row.insertCell(5).innerText = question.correct_option;
+            row.insertCell(6).innerText = question.points_awarded;
         });
     }
 
