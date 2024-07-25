@@ -503,47 +503,99 @@
                     topic: question.topic
                 };
             }
+
+        function determineVocabularyLevel() {
+            const levelThresholds = {
+                A1: 0.6,
+                A2: 0.6,
+                B1: 0.6,
+                B2: 0.6,
+                C1: 0.6,
+                C2: 0.6
+            };
+    
+            const minCorrectAnswers = {
+                A1: 3,
+                A2: 3,
+                B1: 3,
+                B2: 3,
+                C1: 3,
+                C2: 3
+            };
+
+            let determinedLevel = 'A1';
+            let maxScore = 0;
         
-            function determineVocabularyLevel() {
-                const levelThresholds = {
-                    A1: 0.6,
-                    A2: 0.6,
-                    B1: 0.6,
-                    B2: 0.6,
-                    C1: 0.6,
-                    C2: 0.6
-                };
-                
-                const minCorrectAnswers = {
-                    A1: 3,
-                    A2: 3,
-                    B1: 3,
-                    B2: 3,
-                    C1: 3,
-                    C2: 3
-                };
-    
-                let determinedLevel = 'A1';
-                let maxScore = 0;
-    
-                // Calculate scores considering both correct and incorrect answers
-                for (let level in cefrScores) {
-                    const totalQuestionsAtLevel = totalQuestions[level] || 1;  // Avoid division by zero
-                    const correctAnswersAtLevel = correctAnswers[level] || 0;
-                    const incorrectAnswersAtLevel = totalQuestionsAtLevel - correctAnswersAtLevel;
-                    const percentageCorrect = correctAnswersAtLevel / totalQuestionsAtLevel;
-                    const score = percentageCorrect - (incorrectAnswersAtLevel / totalQuestionsAtLevel * 0.5);  // Penalize wrong answers
-    
-                    if (percentageCorrect >= levelThresholds[level] && correctAnswersAtLevel >= minCorrectAnswers[level]) {
-                        if (score > maxScore) {
-                            maxScore = score;
-                            determinedLevel = level;
-                        }
+            // Calculate scores considering correct, incorrect, and skipped answers
+            for (let level in cefrScores) {
+                const totalQuestionsAtLevel = totalQuestions[level] || 1;  // Avoid division by zero
+                const correctAnswersAtLevel = correctAnswers[level] || 0;
+                const incorrectAnswersAtLevel = (totalQuestionsAtLevel - correctAnswersAtLevel) || 0;
+                const percentageCorrect = correctAnswersAtLevel / totalQuestionsAtLevel;
+                const score = (percentageCorrect) - (incorrectAnswersAtLevel / totalQuestionsAtLevel * 0.2);  // Smaller penalty for wrong answers
+
+                if (percentageCorrect >= levelThresholds[level] && correctAnswersAtLevel >= minCorrectAnswers[level]) {
+                    if (score > maxScore) {
+                        maxScore = score;
+                        determinedLevel = level;
                     }
                 }
-    
-                return determinedLevel;
             }
+        
+            return determinedLevel;
+        }
+
+function endQuiz() {
+    // Evaluate unanswered questions as skipped
+    for (let i = 0; i < questions.length; i++) {
+        if (answers[i] === null) {
+            answers[i] = {
+                question_id: questions[i]._id,
+                question_text: questions[i].question,
+                user_response: "You did not answer this question.",
+                correct_option: questions[i].correctOption,
+                is_correct: false,
+                points_awarded: 0,
+                difficulty_level: questions[i].difficultyLevel || 'Unknown',
+                CEFR_level: questions[i].CEFRLevel,
+                topic: questions[i].topic
+            };
+        }
+    }
+
+    // Call original function logic
+    quizPage.classList.add('hidden');
+    quizPage.classList.remove('active');
+    resultPage.classList.remove('hidden');
+    resultPage.classList.add('active');
+    totalScoreElement.textContent = `Total Points: ${totalPoints}`;
+    displayComprehensiveAnalysis();
+    displayVocabularyLevel();
+    quizRunning = false; // Reset state when quiz ends
+    console.log('Quiz ended. Total points:', totalPoints);
+
+    // Post user data
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const userData = {
+        username: username,
+        email: email,
+        assessments: [
+            {
+                total_score: totalPoints,
+                questions: answers
+            }
+        ]
+    };
+    postUserData(userData);
+}
+
+        
+            
+                
+                
+    
+               
 
         
             async function postUserData(userData) {
