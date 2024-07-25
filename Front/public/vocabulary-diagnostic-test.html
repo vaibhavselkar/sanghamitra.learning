@@ -505,17 +505,46 @@
             }
         
             function determineVocabularyLevel() {
+                const levelThresholds = {
+                    A1: 0.6,
+                    A2: 0.6,
+                    B1: 0.6,
+                    B2: 0.6,
+                    C1: 0.6,
+                    C2: 0.6
+                };
+                
+                const minCorrectAnswers = {
+                    A1: 3,
+                    A2: 3,
+                    B1: 3,
+                    B2: 3,
+                    C1: 3,
+                    C2: 3
+                };
+    
+                let determinedLevel = 'A1';
                 let maxScore = 0;
-                let vocabularyLevel = 'A1';
+    
+                // Calculate scores considering both correct and incorrect answers
                 for (let level in cefrScores) {
-                    const score = correctAnswers[level] / (totalQuestions[level] || 1);
-                    if (score > maxScore) {
-                        maxScore = score;
-                        vocabularyLevel = level;
+                    const totalQuestionsAtLevel = totalQuestions[level] || 1;  // Avoid division by zero
+                    const correctAnswersAtLevel = correctAnswers[level] || 0;
+                    const incorrectAnswersAtLevel = totalQuestionsAtLevel - correctAnswersAtLevel;
+                    const percentageCorrect = correctAnswersAtLevel / totalQuestionsAtLevel;
+                    const score = percentageCorrect - (incorrectAnswersAtLevel / totalQuestionsAtLevel * 0.5);  // Penalize wrong answers
+    
+                    if (percentageCorrect >= levelThresholds[level] && correctAnswersAtLevel >= minCorrectAnswers[level]) {
+                        if (score > maxScore) {
+                            maxScore = score;
+                            determinedLevel = level;
+                        }
                     }
                 }
-                return vocabularyLevel;
+    
+                return determinedLevel;
             }
+
         
             async function postUserData(userData) {
                 try {
