@@ -296,7 +296,7 @@
 
     // Function to show feedback
     async function showFeedback(responseText) {
-      const dataToSend = { "response_text": responseText };
+      const dataToSend = { "feedback": responseText };
 
       try {
         const feedbackResponse = await fetch('https://flask-hello-world-2-eta.vercel.app/feedback', {
