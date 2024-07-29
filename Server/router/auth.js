@@ -243,7 +243,7 @@ router.get('/vocabscores', async (req, res) => {
       if (!assessment) {
         return res.status(404).json({ message: 'Assessment not found for the provided date' });
       }
-      return res.status(200).json({ email: userScores.email, assessment });
+      return res.status(200).json({ email: userScores.email, assessments: [assessment] });
     }
 
     // Return all scores for the user if no date is provided or if date is 'null'
