@@ -444,17 +444,17 @@
                 optionButtons.forEach(button => {
                     const optionKey = button.getAttribute('data-option');
                     button.textContent = question.options[optionKey];
-                    button.classList.remove('selected');
+                    button.classList.remove('selected', 'correct', 'incorrect');
                 });
                 feedbackSection.classList.add('hidden'); // Hide feedback section initially
-                nextButton.classList.add('hidden'); // Hide next button initially
-                endButton.classList.add('hidden'); // Hide end button initially
+                
             
                 // Restore the previously selected option, if any
                 const savedAnswer = answers[currentQuestionIndex];
                 if (savedAnswer) {
-                    const selectedOption = optionButtons[savedAnswer.selectedOptionIndex];
-                    selectedOption.classList.add('selected');
+                    const selectedOption = Array.from(optionButtons).find(button => button.getAttribute('data-option') === savedAnswer.selectedOption);
+                    if (selectedOption) {
+                        selectedOption.classList.add('selected');
                 }
             
                 // Show or hide the "Previous" button
@@ -503,6 +503,25 @@
                     topic: question.topic
                 };
             }
+            nextButton.addEventListener('click', () => {
+                console.log('Next button clicked');
+                currentQuestionIndex++;
+                showQuestion();
+            });
+
+            previousButton.addEventListener('click', () => {
+                console.log('Previous button clicked');
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    showQuestion();
+                }
+            });
+
+        optionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                recordAnswer(button);
+            });
+        });
 
         function determineVocabularyLevel() {
             const levelThresholds = {
