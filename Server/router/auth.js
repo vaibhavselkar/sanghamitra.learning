@@ -220,7 +220,7 @@ router.get('/vocab-questions', authenticate, async (req, res) => {
 
 // Route to get vocab scores
 router.get('/vocabscores', async (req, res) => {
-  const { email } = req.query;
+  const { email, date } = req.query;
 
   try {
     if (!email) {
@@ -230,17 +230,27 @@ router.get('/vocabscores', async (req, res) => {
     }
 
     // Fetch scores for the specific user
-    const userScores = await VocabScore.findOne({ email: email });
+    let userScores = await VocabScore.findOne({ email: email });
     
     if (!userScores) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
+    // If date is provided, filter the assessments by the exact timestamp
+    if (date) {
+      const assessments = userScores.assessments.filter(assessment => {
+        return new Date(assessment.date).toISOString() === new Date(date).toISOString();
+      });
+      return res.status(200).json({ email: userScores.email, assessments: assessments });
+    }
+
+    // If no date is provided, return all assessments
     res.status(200).json(userScores);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
   
   // POST route to add a new score
 router.post('/vocabscoreadd', async (req, res) => {
