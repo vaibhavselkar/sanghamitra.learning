@@ -241,7 +241,7 @@ router.get('/vocabscores', async (req, res) => {
       const assessments = userScores.assessments.filter(assessment => {
         return new Date(assessment.date).toISOString() === new Date(date).toISOString();
       });
-      return res.status(200).json({ email: userScores.email, assessments: assessments });
+      return res.status(200).json({ username: userScores.userName, email: userScores.email, assessments: assessments });
     }
 
     // If no date is provided, return all assessments
