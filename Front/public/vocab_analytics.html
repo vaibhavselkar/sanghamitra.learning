@@ -244,10 +244,11 @@
     }
 
     function processUserData(userData) {
-        if (!userData || !userData.assessment) {
-            console.error('Invalid user data', userData);
-            return;
-        }
+        if (!userData || !userData.assessments || userData.assessments.length === 0) {
+        console.error('Invalid user data', userData);
+        return;
+    }
+
 
         const assessment = userData.assessment[0];
         const totalQuestions = assessment.questions.length;
