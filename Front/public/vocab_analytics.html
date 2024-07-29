@@ -250,7 +250,7 @@
         }
 
 
-        const assessment = userData.assessment[0];
+        const assessment = userData.assessment;
         const totalQuestions = assessment.questions.length;
         const correctAnswers = assessment.questions.filter(q => q.is_correct).length;
         const incorrectAnswers = assessment.questions.filter(q => !q.is_correct && q.user_response !== "").length;
