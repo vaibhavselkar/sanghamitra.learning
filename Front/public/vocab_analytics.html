@@ -237,7 +237,6 @@
                 throw new Error('Network response was not ok ' + response.statusText);
             }
             const userData = await response.json();
-            console.log('Fetched User Data:', userData); 
             processUserData(userData);
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
@@ -245,13 +244,13 @@
     }
 
     function processUserData(userData) {
-        if (!userData || !userData.assessments) {
-            console.error('Invalid user data', userData);
-            return;
-        }
+        if (!userData || !userData.assessments || userData.assessments.length === 0) {
+        console.error('Invalid user data', userData);
+        return;
+    }
 
 
-        const assessment = userData.assessments;
+        const assessment = userData.assessment[0];
         const totalQuestions = assessment.questions.length;
         const correctAnswers = assessment.questions.filter(q => q.is_correct).length;
         const incorrectAnswers = assessment.questions.filter(q => !q.is_correct && q.user_response !== "").length;
