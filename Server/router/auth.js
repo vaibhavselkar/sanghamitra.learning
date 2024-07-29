@@ -219,6 +219,7 @@ router.get('/vocab-questions', authenticate, async (req, res) => {
 });
 
 // Route to get vocab scores
+// Route to get vocab scores
 router.get('/vocabscores', async (req, res) => {
   const { email, date } = req.query;
 
@@ -236,7 +237,7 @@ router.get('/vocabscores', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (date) {
+    if (date && date !== 'null') {
       // Find the specific assessment by date
       const assessment = userScores.assessments.find(assessment => assessment.date.toISOString() === date);
       if (!assessment) {
@@ -245,12 +246,13 @@ router.get('/vocabscores', async (req, res) => {
       return res.status(200).json({ email: userScores.email, assessment });
     }
 
-    // Return all scores for the user if no date is provided
+    // Return all scores for the user if no date is provided or if date is 'null'
     res.status(200).json(userScores);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
   
   // POST route to add a new score
