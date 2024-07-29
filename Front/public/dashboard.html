@@ -26,7 +26,14 @@
             box-shadow: 0 0 10px #6c757d;
         }
         .card-custom h2, .card-custom h3 {
-            margin: 0 0 10px;
+            margin: 0 0 10px;               
+        }
+        .btn-custom-small {
+            font-size: 0.75rem; /* Adjust font size */
+            padding: 0.25rem 0.5rem; /* Adjust padding */
+            border-radius: 0.2rem; /* Adjust border radius */
+            background-color: #007bff; /* Custom background color */
+            color: white; /* Custom text color */
         }
         .card-container {
             display: flex;
@@ -252,7 +259,7 @@
         processedData.quizScores.forEach(quiz => {
             const listItem = document.createElement('li');
             const quizDate = new Date(quiz.date).toLocaleDateString();
-            listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-sm btn-primary" onclick="goToQuizAnalytics('${quiz.id}')">View Analytics</button>`;
+            listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-primary btn-custom-small" onclick="goToQuizAnalytics('${quiz.id}')">View Analytics</button>`;
             quizScoresList.appendChild(listItem);
         });
     }
