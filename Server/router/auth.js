@@ -230,21 +230,22 @@ router.get('/vocabscores', async (req, res) => {
     }
 
     // Fetch scores for the specific user
-    let userScores = await VocabScore.findOne({ email: email });
+    const userScores = await VocabScore.findOne({ email: email });
     
     if (!userScores) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // If date is provided, filter the assessments by the exact timestamp
     if (date) {
-      const assessments = userScores.assessments.filter(assessment => {
-        return new Date(assessment.date).toISOString() === new Date(date).toISOString();
-      });
-      return res.status(200).json({ username: userScores.username, email: userScores.email, assessments: assessments });
+      // Find the specific assessment by date
+      const assessment = userScores.assessments.find(assessment => assessment.date.toISOString() === date);
+      if (!assessment) {
+        return res.status(404).json({ message: 'Assessment not found for the provided date' });
+      }
+      return res.status(200).json({ email: userScores.email, assessment });
     }
 
-    // If no date is provided, return all assessments
+    // Return all scores for the user if no date is provided
     res.status(200).json(userScores);
   } catch (error) {
     res.status(500).json({ message: error.message });
