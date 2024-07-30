@@ -1,7 +1,7 @@
 // models/MathTestQuestion.js
 const mongoose = require('mongoose');
 
-const testSchema = new mongoose.Schema({
+const fractionTestSchema = new mongoose.Schema({
     question: {
         type: String,
         required: true
@@ -66,5 +66,5 @@ const testSchema = new mongoose.Schema({
     }
 });
 
-const TestQuestion = mongoose.model('TestQuestion', mathtestSchema);
-module.exports = TestQuestion;
+const FractionTestQuestion = mongoose.model('FractionTestQuestion', fractionTestSchema);
+module.exports = FractionTestQuestion;
