@@ -11,6 +11,7 @@ const authenticate = require('../middleware/authenticate');
 const VocabQuestion = require('../model/vocabSchema');
 const { VocabScore, addOrUpdateAssessment } = require('../model/vocabScoreSchema');
 const { Topic, WritingResponse } = require('../model/writingSchema'); 
+const FractionQuestion = require('../model/MathData');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -274,6 +275,15 @@ router.post('/vocabscoreadd', async (req, res) => {
     console.error('Error adding score:', error);
     res.status(500).json({ error: 'Server error, failed to add score' });
   }
+});
+
+app.get('/fraction_questions', async (req, res) => {
+    try {
+        const questions = await FractionQuestion.find();
+        res.json(questions);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 });
 
 module.exports = router
