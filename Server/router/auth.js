@@ -277,7 +277,7 @@ router.post('/vocabscoreadd', async (req, res) => {
   }
 });
 
-app.get('/fraction_questions', async (req, res) => {
+router.get('/fraction_questions', async (req, res) => {
     try {
         const questions = await FractionQuestion.find();
         res.json(questions);
