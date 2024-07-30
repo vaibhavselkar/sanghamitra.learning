@@ -18,15 +18,13 @@
     <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
     <link href="assets/css/main.css" rel="stylesheet">
     <style>
-        body {
+         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
 
-        .header,
-        .main,
-        .footer {
+        .header, .main, .footer {
             display: block;
             width: 100%;
         }
@@ -101,18 +99,33 @@
             margin-top: 20px;
         }
 
+        /* Specific rules for Next and Previous buttons */
+        #next-button, #previous-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #5fcf80; /* New background color */
+            color: rgb(10, 10, 10);
+            transition: background-color 0.3s;
+        }
+
+        #next-button:hover, #previous-button:hover {
+            background-color: #e6e6e6; /* New hover background color */
+        }
+
         button {
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            background-color: #007bff;
+            background-color: #007bff; /* Original background color */
             color: white;
             transition: background-color 0.3s;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #525456; /* Hover background color */
         }
 
         #feedback {
