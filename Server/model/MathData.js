@@ -66,5 +66,5 @@ const fractionTestSchema = new mongoose.Schema({
     }
 });
 
-const FractionTestQuestion = mongoose.model('FractionTestQuestion', fractionTestSchema);
+const FractionTestQuestion = mongoose.model('FractionTestQuestion', fractionTestSchema, 'fraction_questions');
 module.exports = FractionTestQuestion;
