@@ -12,6 +12,8 @@ const VocabQuestion = require('../model/vocabSchema');
 const { VocabScore, addOrUpdateAssessment } = require('../model/vocabScoreSchema');
 const { Topic, WritingResponse } = require('../model/writingSchema'); 
 const FractionQuestion = require('../model/MathData');
+const AlgebraQuestion = require('../model/algebraSchema');
+const AlgebraScores = require('../model/algebraScoreAdd');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -209,6 +211,63 @@ router.get('/logout', (req, res) => {
     });
 });
 
+// Route to get all algebra questions
+router.get('/algebra_questions', async (req, res) => {
+  const { topic, difficultyLevel } = req.query;
+
+  try {
+    let questions;
+
+    if (topic) {
+      if (difficultyLevel) {
+        // Fetch questions for the specific topic and difficulty level
+        questions = await AlgebraQuestion.find({ topic: topic, difficultyLevel: difficultyLevel });
+      } else {
+        // Fetch questions for the specific topic only
+        questions = await AlgebraQuestion.find({ topic: topic });
+      }
+    } else {
+      // Fetch all questions if no topic is provided
+      questions = await AlgebraQuestion.find({});
+    }
+
+    return res.status(200).json(questions);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'An error occurred while fetching algebra questions' });
+  }
+});
+
+// Store algebra quiz attempt
+router.post('/algebra_score_add', async (req, res) => {
+  const { username, email, topic, questionId, answer, correct, difficultyLevel } = req.body;
+
+  try {
+    let userScore = await UserScore.findOne({ username, email });
+
+    if (!userScore) {
+      userScore = new UserScore({ username, email, topics: [{ topic, questions: [{ questionId, answer, correct, difficultyLevel }] }] });
+    } else {
+      let topicIndex = userScore.topics.findIndex(t => t.topic === topic);
+
+      if (topicIndex === -1) {
+        userScore.topics.push({ topic, questions: [{ questionId, answer, correct, difficultyLevel }] });
+      } else {
+        userScore.topics[topicIndex].questions.push({ questionId, answer, correct, difficultyLevel });
+      }
+    }
+
+    await userScore.save();
+
+    return res.status(200).json(userScore);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'An error occurred while storing quiz attempt' });
+  }
+});
+
+
+
 // Endpoint to get all vocabulary questions
 router.get('/vocab-questions', authenticate, async (req, res) => {
   try {
@@ -225,7 +284,7 @@ router.get('/vocab-questions', authenticate, async (req, res) => {
   }
 });
 
-// Route to get vocab scores
+
 // Route to get vocab scores
 router.get('/vocabscores', async (req, res) => {
   const { email, date } = req.query;
