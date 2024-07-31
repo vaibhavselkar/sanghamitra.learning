@@ -212,7 +212,13 @@ router.get('/logout', (req, res) => {
 // Endpoint to get all vocabulary questions
 router.get('/vocab-questions', authenticate, async (req, res) => {
   try {
-    const questions = await VocabQuestion.find();
+    const { cefrLevel } = req.query;
+    let questions;
+    if (cefrLevel) {
+      questions = await VocabQuestion.find({ CEFRLevel: cefrLevel });
+    } else {
+      questions = await VocabQuestion.find();
+    }
     res.json(questions);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
