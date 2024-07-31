@@ -228,6 +228,36 @@
             left: 5px;
             font-size: 14px;
         }
+        .question-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .question-nav .question-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .question-nav .question-circle.active {
+            background-color: #5fcf80;
+            color: #fff;
+        }
+        .question-nav .question-circle.attempted::after {
+            content: "✔";
+            color: #5fcf80;
+            font-weight: bold;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -274,6 +304,7 @@
         <div id="quiz" class="page hidden">
             <div class="container quiz-container">
                 <div class="row">
+                    <div class="question-nav" id="question-nav"></div>
                     <div class="col-lg-8 mx-auto">
                         <h2 id="question" class="mb-4">Question</h2>
                         <div id="options" class="mb-4">
@@ -428,6 +459,22 @@
                 }
             }
 
+            function createQuestionNav() {
+            const questionNav = document.getElementById('question-nav');
+            questionNav.innerHTML = '';
+            for (let i = 0; i < questions.length; i++) {
+                const questionCircle = document.createElement('div');
+                questionCircle.classList.add('question-circle');
+                questionCircle.textContent = i + 1;
+                questionCircle.dataset.questionIndex = i;
+                questionCircle.addEventListener('click', () => {
+                    currentQuestionIndex = i;
+                    showQuestion();
+                });
+                questionNav.appendChild(questionCircle);
+            }
+        }
+            
             function startQuiz() {
                 if (quizRunning) {
                     console.log('Quiz already running. Ignoring start request.');
@@ -448,77 +495,89 @@
             }
 
             function showQuestion() {
-                console.log('Showing question:', currentQuestionIndex);
-                if (currentQuestionIndex >= questions.length) {
-                    console.log('No more questions. Ending quiz.');
-                    endQuiz();
-                    return;
-                }
-                const question = questions[currentQuestionIndex];
-                questionElement.textContent = question.question;
-                optionButtons.forEach(button => {
-                    const optionKey = button.getAttribute('data-option');
-                    button.textContent = question.options[optionKey];
-                    button.classList.remove('selected');
-                });
-                feedbackSection.classList.add('hidden'); // Hide feedback section initially
-                nextButton.classList.add('hidden'); // Hide next button initially
-                endButton.classList.add('hidden'); // Hide end button initially
+            console.log('Showing question:', currentQuestionIndex);
+            if (currentQuestionIndex >= questions.length) {
+                console.log('No more questions. Ending quiz.');
+                endQuiz();
+                return;
+            }
+            const question = questions[currentQuestionIndex];
+            questionElement.textContent = question.question;
+            optionButtons.forEach(button => {
+                const optionKey = button.getAttribute('data-option');
+                button.textContent = question.options[optionKey];
+                button.classList.remove('selected', 'correct', 'incorrect');
+            });
+            feedbackSection.classList.add('hidden'); // Hide feedback section initially
 
-                // Restore the previously selected option, if any
-                const savedAnswer = answers[currentQuestionIndex];
-                if (savedAnswer) {
-                    const selectedOption = optionButtons[savedAnswer.selectedOptionIndex];
+            // Restore the previously selected option, if any
+            const savedAnswer = answers[currentQuestionIndex];
+            if (savedAnswer) {
+                const selectedOption = Array.from(optionButtons).find(button => button.getAttribute('data-option') === savedAnswer.selectedOption);
+                if (selectedOption) {
                     selectedOption.classList.add('selected');
                 }
-
-                // Show or hide the "Previous" button
-                if (currentQuestionIndex === 0) {
-                    previousButton.classList.add('hidden');
-                } else {
-                    previousButton.classList.remove('hidden');
-                }
-
-                // Show "Next Question" or "End Quiz" button
-                if (currentQuestionIndex === questions.length - 1) {
-                    nextButton.classList.add('hidden');
-                    endButton.classList.remove('hidden');
-                } else {
-                    nextButton.classList.remove('hidden');
-                    endButton.classList.add('hidden');
-                }
             }
+
+            // Show or hide the "Previous" button
+            if (currentQuestionIndex === 0) {
+                previousButton.classList.add('hidden');
+            } else {
+                previousButton.classList.remove('hidden');
+            }
+
+            // Show "Next Question" or "End Quiz" button
+            if (currentQuestionIndex === questions.length - 1) {
+                nextButton.classList.add('hidden');
+                endButton.classList.remove('hidden');
+            } else {
+                nextButton.classList.remove('hidden');
+                endButton.classList.add('hidden');
+            }
+
+            // Highlight current question in nav
+            const questionCircles = document.querySelectorAll('.question-circle');
+            questionCircles.forEach((circle, index) => {
+                circle.classList.toggle('active', index === currentQuestionIndex);
+            });
+        }
 
             function recordAnswer(option) {
-                const question = questions[currentQuestionIndex];
-                const selectedOption = option.getAttribute('data-option');
-                const selectedAnswer = question.options[selectedOption];
-                const isCorrect = selectedAnswer === question.correctOption;
+            const question = questions[currentQuestionIndex];
+            const selectedOption = option.getAttribute('data-option');
+            const selectedAnswer = question.options[selectedOption];
+            const isCorrect = selectedAnswer === question.correctOption;
 
-                optionButtons.forEach(button => button.classList.remove('selected'));
-                option.classList.add('selected');
+            optionButtons.forEach(button => button.classList.remove('selected'));
+            option.classList.add('selected');
 
-                if (isCorrect) {
-                    correctAnswers[question.CEFRLevel]++;
-                    totalPoints += question.points; // Add points for correct answer
-                }
-
-                totalQuestions[question.CEFRLevel]++;
-
-                // Store the answer and feedback
-                answers[currentQuestionIndex] = {
-                    question_id: question._id,
-                    question_text: question.question,
-                    user_response: selectedAnswer,
-                    correct_option: question.correctOption,
-                    is_correct: isCorrect,
-                    points_awarded: isCorrect ? question.points : 0,
-                    difficulty_level: question.difficultyLevel,
-                    CEFR_level: question.CEFRLevel,
-                    topic: question.topic,
-                    selectedOptionIndex: Array.from(optionButtons).indexOf(option)
-                };
+            if (isCorrect) {
+                correctAnswers[question.CEFRLevel]++;
+                totalPoints += question.points; // Add points for correct answer
             }
+
+            totalQuestions[question.CEFRLevel]++;
+
+            // Store the answer and feedback
+            answers[currentQuestionIndex] = {
+                question_id: question._id,
+                question_text: question.question,
+                user_response: selectedAnswer,
+                selectedOption: selectedOption,  // Store the selected option
+                correct_option: question.correctOption,
+                is_correct: isCorrect,
+                points_awarded: isCorrect ? question.points : 0,
+                difficulty_level: question.difficultyLevel,
+                CEFR_level: question.CEFRLevel,
+                topic: question.topic
+            };
+
+            // Mark question as answered in nav
+            const questionCircles = document.querySelectorAll('.question-circle');
+            questionCircles[currentQuestionIndex].classList.add('active', 'attempted');
+        }
+
+
 
             function determineVocabularyLevel() {
                 const levelThresholds = {
