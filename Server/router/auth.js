@@ -243,10 +243,10 @@ router.post('/algebra_score_add', async (req, res) => {
   const { username, email, topic, questionId, answer, correct, difficultyLevel } = req.body;
 
   try {
-    let userScore = await UserScore.findOne({ username, email });
+    let userScore = await AlgebraScores.findOne({ username, email });
 
     if (!userScore) {
-      userScore = new UserScore({ username, email, topics: [{ topic, questions: [{ questionId, answer, correct, difficultyLevel }] }] });
+      userScore = new AlgebraScores({ username, email, topics: [{ topic, questions: [{ questionId, answer, correct, difficultyLevel }] }] });
     } else {
       let topicIndex = userScore.topics.findIndex(t => t.topic === topic);
 
