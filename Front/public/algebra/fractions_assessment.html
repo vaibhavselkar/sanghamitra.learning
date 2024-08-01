@@ -89,7 +89,7 @@
       if (!question) return;
 
       answeredQuestions.push(question._id);
-      await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score', {
+      await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
