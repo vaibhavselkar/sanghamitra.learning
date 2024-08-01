@@ -268,22 +268,26 @@ router.post('/algebra_score_add', async (req, res) => {
 
 
 
-// Endpoint to get all vocabulary questions
+// Endpoint to get all vocabulary questions or filtered by CEFR level and/or topic
 router.get('/vocab-questions', authenticate, async (req, res) => {
   try {
-    const { cefrLevel } = req.query;
-    let questions;
+    const { cefrLevel, topic } = req.query;
+    let filter = {};
+
     if (cefrLevel) {
-      questions = await VocabQuestion.find({ CEFRLevel: cefrLevel });
-    } else {
-      questions = await VocabQuestion.find();
+      filter.CEFRLevel = cefrLevel;
     }
+
+    if (topic) {
+      filter.topic = topic;
+    }
+
+    const questions = await VocabQuestion.find(filter);
     res.json(questions);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 
 // Route to get vocab scores
 router.get('/vocabscores', async (req, res) => {
