@@ -269,7 +269,7 @@ router.post('/algebra_score_add', async (req, res) => {
 
 
 // Endpoint to get all vocabulary questions or filtered by CEFR level and/or topic
-router.get('/vocab-questions', authenticate, async (req, res) => {
+router.get('/vocab-questions', async (req, res) => {
   try {
     const { cefrLevel, topic } = req.query;
     let filter = {};
