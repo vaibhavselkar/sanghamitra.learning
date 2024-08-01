@@ -24,8 +24,6 @@
     <p id="difficulty"></p>
     <p id="question"></p>
     <div id="options"></div>
-    <button id="correct-button" style="display:none;" onclick="submitAnswer(true)">Correct</button>
-    <button id="incorrect-button" style="display:none;" onclick="submitAnswer(false)">Incorrect</button>
   </div>
   <div id="explanation" style="display: none;">
     <p id="explanation-text"></p>
@@ -34,26 +32,26 @@
   <button id="next-topic" style="display: none;">Next Topic</button>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      let username = '';
-      let email = '';
+    let username = '';
+    let email = '';
 
-      async function fetchSessionInfo() {
-        try {
-          const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info');
-          if (response.ok) {
-            const data = await response.json();
-            username = data.username;
-            email = data.email;
-            console.log(username, email);
-          } else {
-            console.error('Failed to fetch session info');
-          }
-        } catch (error) {
-          console.error('Error fetching session info:', error);
+    async function fetchSessionInfo() {
+      try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info');
+        if (response.ok) {
+          const data = await response.json();
+          username = data.username;
+          email = data.email;
+          console.log(username, email);
+        } else {
+          console.error('Failed to fetch session info');
         }
+      } catch (error) {
+        console.error('Error fetching session info:', error);
       }
+    }
 
+    document.addEventListener('DOMContentLoaded', async () => {
       await fetchSessionInfo();
       fetchQuestion();
     });
@@ -70,6 +68,7 @@
       const question = questions.find(q => !answeredQuestions.includes(q._id));
 
       if (question) {
+        currentQuestion = question;
         document.getElementById('difficulty').innerText = `Difficulty: ${difficultyLevel}`;
         document.getElementById('question').innerText = question.question;
 
@@ -81,11 +80,8 @@
           button.onclick = () => submitAnswer(key === question.correctOption, question);
           optionsDiv.appendChild(button);
         }
-
-        currentQuestion = question;
       } else {
         alert('No more questions available for this topic.');
-        return null;
       }
     }
 
