@@ -485,38 +485,32 @@
         let totalQuestions = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 }; // Total questions by CEFR level
         
         async function fetchQuestions() {
-            console.log('Fetching questions...');
-            const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-            const questionsPerLevel = 5;
-            let questions = [];
+    console.log('Fetching questions...');
+    const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const questionsPerLevel = 5;
+    let questions = [];
 
-            try {
-                const fetchPromises = levels.map(level =>
-                    fetch(`https://sanghamitra-learnworld.vercel.app/api/vocab-questions?cefrLevel=${level}`)
-                        .then(response => response.json())
-                        .then(data => data.sort(() => 0.5 - Math.random()).slice(0, questionsPerLevel))
-                );
+    try {
+        const fetchPromises = levels.map(level =>
+            fetch(`https://sanghamitra-learnworld.vercel.app/api/vocab-questions?cefrLevel=${level}`)
+                .then(response => response.json())
+                .then(data => data.sort(() => 0.5 - Math.random()).slice(0, questionsPerLevel))
+        );
 
-                const fetchedQuestions = await Promise.all(fetchPromises);
-                fetchedQuestions.forEach(levelQuestions => {
-                    questions = questions.concat(levelQuestions);
-                });
+        const fetchedQuestions = await Promise.all(fetchPromises);
+        fetchedQuestions.forEach(levelQuestions => {
+            questions = questions.concat(levelQuestions);
+        });
 
-                shuffleArray(questions); // Shuffle the combined questions
-                answers = new Array(questions.length).fill(null); // Initialize answers array
-                startQuiz();
-            } catch (error) {
-                console.error('Error fetching questions:', error);
-            }
-        }
+        shuffleArray(questions); // Shuffle the combined questions
+        this.questions = questions; // Assign the questions array to the global variable
+        answers = new Array(questions.length).fill(null); // Initialize answers array
+        startQuiz();
+    } catch (error) {
+        console.error('Error fetching questions:', error);
+    }
+}
 
-        // Utility function to shuffle the array
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
 
         function createQuestionNav() {
             const questionNav = document.getElementById('question-nav');
