@@ -69,7 +69,6 @@
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
 
       <a href="../index.html" class="logo d-flex align-items-center me-auto">
-        <!-- Uncomment the line below if you also wish to use an image logo -->
         <img src="../img/sbi.logo.png" alt="Logo" width="80" height="80"> 
         <h1 class="">Sanghamitra Learning</h1>
       </a>
@@ -99,7 +98,6 @@
   </main>
 
   <footer id="footer" class="footer position-relative">
-
     <div class="container footer-top">
       <div class="row gy-4">
         <div class="col-lg-4 col-md-6 footer-about">
@@ -119,11 +117,6 @@
             <a href=""><i class="bi bi-linkedin"></i></a>
           </div>
         </div>
-
-        <div class="col-lg-4 col-md-12 footer-newsletter">
-          
-        </div>
-
       </div>
     </div>
 
@@ -137,7 +130,6 @@
         Designed by <a href="index.html">Sanghamitra</a>
       </div>
     </div>
-
   </footer>
   
   <script>
@@ -174,7 +166,6 @@
 
     async function fetchQuestion() {
       document.getElementById('explanation').style.display = 'none';
-      document.getElementById('submit-button').style.display = 'none';
       const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_questions?topic=${topic}&difficultyLevel=${difficultyLevel}`);
       const questions = await response.json();
       const question = questions.find(q => !answeredQuestions.includes(q._id));
@@ -201,14 +192,26 @@
 
     function selectOption(button, correct, question) {
       if (selectedOption) {
-        selectedOption.classList.remove('correct', 'incorrect');
+        selectedOption.classList.remove('selected');
       }
       selectedOption = button;
-      button.classList.add(correct ? 'correct' : 'incorrect');
+      button.classList.add('selected');
       document.getElementById('submit-button').style.display = 'block';
     }
 
     async function showExplanation() {
+      // Disable all option buttons
+      document.querySelectorAll('.option-button').forEach(button => button.disabled = true);
+
+      // Show correct/incorrect colors
+      if (selectedOption.classList.contains('selected')) {
+        const correct = selectedOption.textContent === currentQuestion.options[currentQuestion.correctOption];
+        selectedOption.classList.add(correct ? 'correct' : 'incorrect');
+      }
+
+      // Hide the submit button
+      document.getElementById('submit-button').style.display = 'none';
+
       const correct = selectedOption.classList.contains('correct');
       answeredQuestions.push(currentQuestion._id);
       await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
@@ -255,7 +258,15 @@
     }
   </script>
 
-    <!-- Main JS File -->
+  <!-- Vendor JS Files -->
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/vendor/php-email-form/validate.js"></script>
+  <script src="../assets/vendor/aos/aos.js"></script>
+  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Main JS File -->
   <script src="../assets/js/main.js"></script>
   <script src="../navbar.js"></script>
 </body>
