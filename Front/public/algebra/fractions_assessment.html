@@ -14,7 +14,7 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -49,16 +49,21 @@
       display: block;
       width: 100%;
       margin: 10px 0;
+      cursor: pointer;
     }
     #explanation {
       margin-top: 20px;
     }
-    .correct {
+    .selected {
       background-color: blue;
       color: white;
     }
+    .correct {
+      background-color: green;
+      color: white;
+    }
     .incorrect {
-      background-color: blue;
+      background-color: red;
       color: white;
     }
   </style>
@@ -201,15 +206,15 @@
 
     function selectOption(button, correct, question) {
       if (selectedOption) {
-        selectedOption.classList.remove('correct', 'incorrect');
+        selectedOption.classList.remove('selected');
       }
       selectedOption = button;
-      button.classList.add(correct ? 'correct' : 'incorrect');
+      button.classList.add('selected');
       document.getElementById('submit-button').style.display = 'block';
     }
 
     async function showExplanation() {
-      const correct = selectedOption.classList.contains('correct');
+      const correct = selectedOption.classList.contains('selected') && selectedOption.classList.contains('correct');
       answeredQuestions.push(currentQuestion._id);
       await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
         method: 'POST',
@@ -223,7 +228,7 @@
               questions: [
                 {
                   questionId: currentQuestion._id,
-                  answer: correct ? currentQuestion.correctOption : 'user_answer',
+                  answer: selectedOption ? selectedOption.innerText : 'no_answer',
                   correct,
                   difficultyLevel
                 }
@@ -235,10 +240,20 @@
 
       document.getElementById('explanation').style.display = 'block';
       document.getElementById('explanation-text').innerText = currentQuestion.explanation;
-      if (!correct) {
-        document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+
+      // Disable the submit button
+      document.getElementById('submit-button').disabled = true;
+
+      if (correct) {
+        selectedOption.classList.add('correct');
       } else {
-        document.getElementById('correct-option').innerText = '';
+        selectedOption.classList.add('incorrect');
+        document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+        document.querySelectorAll('.option-button').forEach(button => {
+          if (button.innerText === currentQuestion.options[currentQuestion.correctOption]) {
+            button.classList.add('correct');
+          }
+        });
       }
 
       if (correct) {
