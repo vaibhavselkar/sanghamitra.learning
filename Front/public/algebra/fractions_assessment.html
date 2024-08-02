@@ -208,12 +208,11 @@
 
     async function showExplanation() {
       // Disable all option buttons
-      document.querySelectorAll('.option-button').forEach(button => button.disabled = true);
-
+      
       // Show correct/incorrect colors
       if (selectedOption) {
         const correct = selectedOption.textContent === currentQuestion.options[currentQuestion.correctOption];
-        selectedOption.classList.remove('selected'); // Remove the blue color
+        
         selectedOption.classList.add(correct ? 'correct' : 'incorrect'); // Add correct/incorrect color
       }
 
