@@ -408,92 +408,85 @@
     }
 
    function showExplanation() {
-    const correct = selectedOption && selectedOption.dataset.correct === 'true';
-    answeredQuestions.push(currentQuestion._id);
+  const correct = selectedOption && selectedOption.dataset.correct === 'true';
+  answeredQuestions.push(currentQuestion._id);
 
-    fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username,
-            email,
-            topics: [
-                {
-                    topic,
-                    questions: [
-                        {
-                            questionId: currentQuestion._id,
-                            answer: selectedOption ? selectedOption.innerText : 'no_answer',
-                            correct,
-                            difficultyLevel
-                        }
-                    ]
-                }
-            ]
-        })
-    });
-
-    document.getElementById('feedback').classList.remove('hidden');
-    document.getElementById('explanation-text').innerText = currentQuestion.explanation;
-
-    // Disable the submit button
-    document.getElementById('submit-button').disabled = true;
-    document.getElementById('submit-button').classList.add('hidden');
-
-    // Remove existing icons and disable all option buttons
-    document.querySelectorAll('.option').forEach(button => {
-        button.disabled = true;
-
-        // Remove existing icons
-        const existingCorrectIcon = button.querySelector('.correct-icon');
-        if (existingCorrectIcon) {
-            existingCorrectIcon.remove();
+  fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username,
+      email,
+      topics: [
+        {
+          topic,
+          questions: [
+            {
+              questionId: currentQuestion._id,
+              answer: selectedOption ? selectedOption.innerText : 'no_answer',
+              correct,
+              difficultyLevel
+            }
+          ]
         }
-        const existingIncorrectIcon = button.querySelector('.incorrect-icon');
-        if (existingIncorrectIcon) {
-            existingIncorrectIcon.remove();
-        }
+      ]
+    })
+  });
 
-        // Show correct/incorrect icons
-        if (button.dataset.correct === 'true') {
-            button.classList.add('correct');
-            button.insertAdjacentHTML('afterbegin', '<span class="correct-icon">✔</span>');
-        } else if (button === selectedOption) {
-            button.classList.add('incorrect');
-            button.insertAdjacentHTML('afterbegin', '<span class="incorrect-icon">✘</span>');
-        }
-    });
+  document.getElementById('feedback').classList.remove('hidden');
+  document.getElementById('explanation-text').innerText = currentQuestion.explanation;
 
-    // Always show the correct option with a tick
-    const correctOptionButton = document.querySelector('.option[data-correct="true"]');
-    if (correctOptionButton) {
-        correctOptionButton.classList.add('correct');
-        if (!correctOptionButton.querySelector('.correct-icon')) {
-            correctOptionButton.insertAdjacentHTML('afterbegin', '<span class="correct-icon">✔</span>');
-        }
+  // Disable the submit button
+  document.getElementById('submit-button').disabled = true;
+  document.getElementById('submit-button').classList.add('hidden');
+
+  // Remove existing icons and disable all option buttons
+  document.querySelectorAll('.option').forEach(button => {
+    button.disabled = true;
+
+    // Remove existing icons
+    const existingCorrectIcon = button.querySelector('.correct-icon');
+    if (existingCorrectIcon) {
+      existingCorrectIcon.remove();
+    }
+    const existingIncorrectIcon = button.querySelector('.incorrect-icon');
+    if (existingIncorrectIcon) {
+      existingIncorrectIcon.remove();
     }
 
-    // Highlight the selected option if it's incorrect
-    if (selectedOption && !correct) {
-        selectedOption.classList.add('incorrect');
-        selectedOption.insertAdjacentHTML('afterbegin', '<span class="incorrect-icon">✘</span>');
+    // Show correct/incorrect icons
+    if (button.dataset.correct === 'true') {
+      button.classList.add('correct');
+      button.insertAdjacentHTML('afterbegin', '<span class="correct-icon">✔</span>');
+    } else if (button === selectedOption) {
+      button.classList.add('incorrect');
+      button.insertAdjacentHTML('afterbegin', '<span class="incorrect-icon">✘</span>');
     }
+  });
 
-    document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
-
-    if (correct) {
-        if (difficultyLevel === 'hard') consecutiveCorrect++;
-        difficultyLevel = difficultyLevel === 'easy' ? 'medium' : 'hard';
-    } else {
-        consecutiveCorrect = 0;
-        difficultyLevel = difficultyLevel === 'hard' ? 'medium' : 'easy';
+  // Always show the correct option with a tick
+  const correctOptionButton = document.querySelector('.option[data-correct="true"]');
+  if (correctOptionButton) {
+    correctOptionButton.classList.add('correct');
+    if (!correctOptionButton.querySelector('.correct-icon')) {
+      correctOptionButton.insertAdjacentHTML('afterbegin', '<span class="correct-icon">✔</span>');
     }
+  }
 
-    if (consecutiveCorrect === 4) {
-        document.getElementById('next-topic').classList.remove('hidden');
-    }
+  document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+
+  if (correct) {
+    if (difficultyLevel === 'hard') consecutiveCorrect++;
+    difficultyLevel = difficultyLevel === 'easy' ? 'medium' : 'hard';
+  } else {
+    consecutiveCorrect = 0;
+    difficultyLevel = difficultyLevel === 'hard' ? 'medium' : 'easy';
+  }
+
+  if (consecutiveCorrect === 4) {
+    document.getElementById('next-topic').classList.remove('hidden');
+  }
 }
-
 
 
 
@@ -513,3 +506,4 @@
   <script src="../navbar.js"></script>
 </body>
 </html>
+
