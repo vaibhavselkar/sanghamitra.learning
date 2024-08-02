@@ -54,12 +54,12 @@
       margin-top: 20px;
     }
     .correct {
-      background-color: blue;
-      color: white;
+      background-color: green !important;
+      color: white !important;
     }
     .incorrect {
-      background-color: blue;
-      color: white;
+      background-color: red !important;
+      color: white !important;
     }
   </style>
 </head>
@@ -201,15 +201,50 @@
 
     function selectOption(button, correct, question) {
       if (selectedOption) {
-        selectedOption.classList.remove('correct', 'incorrect');
+        selectedOption.classList.remove('selected');
       }
       selectedOption = button;
-      button.classList.add(correct ? 'correct' : 'incorrect');
+      button.classList.add('selected');
       document.getElementById('submit-button').style.display = 'block';
     }
 
     async function showExplanation() {
-      const correct = selectedOption.classList.contains('correct');
+      document.getElementById('submit-button').disabled = true;
+      
+      // Check if the selected option is correct
+      const correct = selectedOption.textContent === currentQuestion.options[currentQuestion.correctOption];
+
+      // Show the selected option in green if correct, red if incorrect
+      selectedOption.classList.remove('selected');
+      selectedOption.classList.add(correct ? 'correct' : 'incorrect');
+
+      // Show the correct answer in green
+      if (!correct) {
+        document.querySelectorAll('.option-button').forEach(button => {
+          if (button.textContent === currentQuestion.options[currentQuestion.correctOption]) {
+            button.classList.add('correct');
+          }
+        });
+      }
+
+      // Hide the submit button
+      document.getElementById('submit-button').style.display = 'none';
+      // Show explanation
+      document.getElementById('explanation').style.display = 'block';
+      document.getElementById('explanation-text').innerText = currentQuestion.explanation;
+      document.getElementById('correct-option').innerText = correct ? '' : `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+      // Adjust difficulty and show next topic button if needed
+      if (correct) {
+        if (difficultyLevel === 'hard') consecutiveCorrect++;
+        difficultyLevel = difficultyLevel === 'easy' ? 'medium' : 'hard';
+      } else {
+        consecutiveCorrect = 0;
+        difficultyLevel = difficultyLevel === 'hard' ? 'medium' : 'easy';
+      }
+      if (consecutiveCorrect === 4) {
+        document.getElementById('next-topic').style.display = 'block';
+      }
+
       answeredQuestions.push(currentQuestion._id);
       await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
         method: 'POST',
@@ -232,30 +267,18 @@
           ]
         })
       });
-
-      document.getElementById('explanation').style.display = 'block';
-      document.getElementById('explanation-text').innerText = currentQuestion.explanation;
-      if (!correct) {
-        document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
-      } else {
-        document.getElementById('correct-option').innerText = '';
-      }
-
-      if (correct) {
-        if (difficultyLevel === 'hard') consecutiveCorrect++;
-        difficultyLevel = difficultyLevel === 'easy' ? 'medium' : 'hard';
-      } else {
-        consecutiveCorrect = 0;
-        difficultyLevel = difficultyLevel === 'hard' ? 'medium' : 'easy';
-      }
-
-      if (consecutiveCorrect === 4) {
-        document.getElementById('next-topic').style.display = 'block';
-      }
     }
   </script>
 
-    <!-- Main JS File -->
+  <!-- Vendor JS Files -->
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/vendor/php-email-form/validate.js"></script>
+  <script src="../assets/vendor/aos/aos.js"></script>
+  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Main JS File -->
   <script src="../assets/js/main.js"></script>
   <script src="../navbar.js"></script>
 </body>
