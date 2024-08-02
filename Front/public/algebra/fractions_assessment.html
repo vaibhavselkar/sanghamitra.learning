@@ -446,15 +446,27 @@
   document.getElementById('submit-button').disabled = true;
   document.getElementById('submit-button').classList.add('hidden');
 
-  // Disable all option buttons and show correct/incorrect icons
+  // Remove existing icons and disable all option buttons
   document.querySelectorAll('.option').forEach(button => {
     button.disabled = true;
+
+    // Remove existing icons
+    const existingCorrectIcon = button.querySelector('.correct-icon');
+    if (existingCorrectIcon) {
+      existingCorrectIcon.remove();
+    }
+    const existingIncorrectIcon = button.querySelector('.incorrect-icon');
+    if (existingIncorrectIcon) {
+      existingIncorrectIcon.remove();
+    }
+
+    // Show correct/incorrect icons
     if (button.dataset.correct === 'true') {
       button.classList.add('correct');
-      button.insertAdjacentHTML('afterbegin', '<span class="correct-icon"></span>');
+      button.insertAdjacentHTML('afterbegin', '<span class="correct-icon">✔</span>');
     } else if (button === selectedOption) {
       button.classList.add('incorrect');
-      button.insertAdjacentHTML('afterbegin', '<span class="incorrect-icon"></span>');
+      button.insertAdjacentHTML('afterbegin', '<span class="incorrect-icon">✘</span>');
     }
   });
 
@@ -472,6 +484,7 @@
     document.getElementById('next-topic').classList.remove('hidden');
   }
 }
+
 
   </script>
 
