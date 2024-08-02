@@ -266,6 +266,29 @@ router.post('/algebra_score_add', async (req, res) => {
   }
 });
 
+app.get('/api/algebra_scores', async (req, res) => {
+  const { email, topic } = req.query;
+
+  try {
+    let filter = {};
+
+    if (email) {
+      filter.email = email;
+    }
+
+    if (topic) {
+      filter['topics.topic'] = topic;
+    }
+
+    const scores = await AlgebraScores.find(filter).exec();
+
+    res.json(scores);
+  } catch (error) {
+    console.error('Error fetching scores:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 
 // Endpoint to get all vocabulary questions or filtered by CEFR level and/or topic
