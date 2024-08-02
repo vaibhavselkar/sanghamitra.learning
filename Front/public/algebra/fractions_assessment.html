@@ -209,14 +209,22 @@
     async function showExplanation() {
       // Disable all option buttons
       document.querySelectorAll('.option-button').forEach(button => button.disabled = true);
-
-      // Show correct/incorrect colors
-      if (selectedOption) {
-        const correct = selectedOption.textContent === currentQuestion.options[currentQuestion.correctOption];
-        
-        selectedOption.classList.add(correct ? 'correct' : 'incorrect'); // Add correct/incorrect color
+    
+      // Check if the selected option is correct
+      const correct = selectedOption.textContent === currentQuestion.options[currentQuestion.correctOption];
+      
+      // Show the selected option in green if correct, red if incorrect
+      selectedOption.classList.remove('selected');
+      selectedOption.classList.add(correct ? 'correct' : 'incorrect');
+    
+      // Show the correct answer in green
+      if (!correct) {
+        document.querySelectorAll('.option-button').forEach(button => {
+          if (button.textContent === currentQuestion.options[currentQuestion.correctOption]) {
+            button.classList.add('correct');
+          }
+        });
       }
-
       // Hide the submit button
       document.getElementById('submit-button').style.display = 'none';
 
