@@ -3,6 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <title>Fractions Practice</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../assets/img/favicon.png" rel="icon">
+  <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="../https://fonts.googleapis.com" rel="preconnect">
+  <link href="../https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="../https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="../assets/css/main.css" rel="stylesheet">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -26,21 +49,87 @@
     }
   </style>
 </head>
-<body>
-  <h1>Fractions Practice</h1>
-  <div id="question-container">
-    <p id="difficulty"></p>
-    <p id="question"></p>
-    <div id="options"></div>
-    <button id="submit-button" style="display: none;" onclick="showExplanation()">Submit</button>
-  </div>
-  <div id="explanation" style="display: none;">
-    <p id="explanation-text"></p>
-    <p id="correct-option" style="color: green;"></p>
-    <button id="next-button" onclick="fetchQuestion()">Next</button>
-  </div>
-  <button id="next-topic" style="display: none;" onclick="location.href='decimals_assessment.html'">Next Topic: Decimals</button>
 
+<body>
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="../index.html" class="logo d-flex align-items-center me-auto">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <img src="../img/sbi.logo.png" alt="Logo" width="80" height="80"> 
+        <h1 class="">Sanghamitra Learning</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <div id="navbar-placeholder"></div>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+    </div>
+  </header>
+
+  <main class="main">
+
+
+    <h1>Fractions Practice</h1>
+    <div id="question-container">
+      <p id="difficulty"></p>
+      <p id="question"></p>
+      <div id="options"></div>
+      <button id="submit-button" style="display: none;" onclick="showExplanation()">Submit</button>
+    </div>
+    <div id="explanation" style="display: none;">
+      <p id="explanation-text"></p>
+      <p id="correct-option" style="color: green;"></p>
+      <button id="next-button" onclick="fetchQuestion()">Next</button>
+    </div>
+    <button id="next-topic" style="display: none;" onclick="location.href='decimals_assessment.html'">Next Topic: Decimals</button>
+  </main>
+
+  <footer id="footer" class="footer position-relative">
+
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a href="index.html" class="logo d-flex align-items-center">
+            <span class="">Sanghamitra Learning</span>
+          </a>
+          <div class="footer-contact pt-3">
+            <p>GacchiBowli</p>
+            <p>Hyderabad, TS 500032</p>
+            <p class="mt-3"><strong>Phone:</strong> <span>+91 7020102729</span></p>
+            <p><strong>Email:</strong> <span>sanghamitra.learnworlds@gmail.com</span></p>
+          </div>
+          <div class="social-links d-flex mt-4">
+            <a href=""><i class="bi bi-twitter"></i></a>
+            <a href=""><i class="bi bi-facebook"></i></a>
+            <a href=""><i class="bi bi-instagram"></i></a>
+            <a href=""><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+
+        
+
+        <div class="col-lg-4 col-md-12 footer-newsletter">
+          
+        </div>
+
+      </div>
+    </div>
+
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright</span> <strong class="px-1">Sanghamitra Learning</strong> <span>All Rights Reserved</span></p>
+      <div class="credits">
+        <!-- All the links in the footer should remain intact. -->
+        <!-- You can delete the links only if you've purchased the pro version. -->
+        <!-- Licensing information: https://bootstrapmade.com/license/ -->
+        <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
+        Designed by <a href="index.html">Sanghamitra</a>
+      </div>
+    </div>
+
+  </footer>
+  
   <script>
     let username = '';
     let email = '';
@@ -154,5 +243,9 @@
       }
     }
   </script>
+
+    <!-- Main JS File -->
+  <script src="../assets/js/main.js"></script>
+  <script src="../navbar.js"></script>
 </body>
 </html>
