@@ -266,7 +266,7 @@ router.post('/algebra_score_add', async (req, res) => {
   }
 });
 
-app.get('/api/algebra_scores', async (req, res) => {
+router.get('/api/algebra_scores', async (req, res) => {
   const { email, topic } = req.query;
 
   try {
