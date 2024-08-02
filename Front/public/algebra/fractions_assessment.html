@@ -228,7 +228,7 @@
       // Hide the submit button
       document.getElementById('submit-button').style.display = 'none';
 
-      const correct = selectedOption.classList.contains('correct');
+    
       answeredQuestions.push(currentQuestion._id);
       await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
         method: 'POST',
