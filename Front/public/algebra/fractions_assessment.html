@@ -462,6 +462,15 @@
     }
   });
 
+  // Always show the correct option with a tick
+  const correctOptionButton = document.querySelector('.option[data-correct="true"]');
+  if (correctOptionButton) {
+    correctOptionButton.classList.add('correct');
+    if (!correctOptionButton.querySelector('.correct-icon')) {
+      correctOptionButton.insertAdjacentHTML('afterbegin', '<span class="correct-icon">✔</span>');
+    }
+  }
+
   document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
 
   if (correct) {
@@ -476,6 +485,7 @@
     document.getElementById('next-topic').classList.remove('hidden');
   }
 }
+
 
 
   </script>
