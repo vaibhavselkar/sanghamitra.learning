@@ -53,6 +53,10 @@
     #explanation {
       margin-top: 20px;
     }
+    .selected {
+      background-color: #007bff; /* Bootstrap primary color */
+      color: white;
+    }
     .correct {
       background-color: green;
       color: white;
@@ -191,11 +195,14 @@
     }
 
     function selectOption(button, correct, question) {
+      // Deselect previously selected option
       if (selectedOption) {
         selectedOption.classList.remove('selected');
       }
+      // Select the new option
       selectedOption = button;
       button.classList.add('selected');
+      // Show the submit button
       document.getElementById('submit-button').style.display = 'block';
     }
 
@@ -204,9 +211,10 @@
       document.querySelectorAll('.option-button').forEach(button => button.disabled = true);
 
       // Show correct/incorrect colors
-      if (selectedOption.classList.contains('selected')) {
+      if (selectedOption) {
         const correct = selectedOption.textContent === currentQuestion.options[currentQuestion.correctOption];
-        selectedOption.classList.add(correct ? 'correct' : 'incorrect');
+        selectedOption.classList.remove('selected'); // Remove the blue color
+        selectedOption.classList.add(correct ? 'correct' : 'incorrect'); // Add correct/incorrect color
       }
 
       // Hide the submit button
