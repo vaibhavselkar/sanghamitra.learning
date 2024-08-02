@@ -214,11 +214,12 @@
       }
       selectedOption = button;
       button.classList.add('selected');
+      button.dataset.correct = correct;
       document.getElementById('submit-button').style.display = 'block';
     }
 
     async function showExplanation() {
-      const correct = selectedOption && selectedOption.classList.contains('selected') && selectedOption.classList.contains('correct');
+      const correct = selectedOption && selectedOption.classList.contains('selected') && selectedOption.dataset.correct === 'true';
       answeredQuestions.push(currentQuestion._id);
       await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
         method: 'POST',
@@ -249,19 +250,16 @@
       document.getElementById('submit-button').disabled = true;
       document.getElementById('submit-button').style.display = 'none';
 
-      if (selectedOption.classList.contains('selected')) {
-        if (correct) {
-          selectedOption.classList.add('correct');
-        } else {
-          selectedOption.classList.add('incorrect');
+      // Disable all option buttons
+      document.querySelectorAll('.option-button').forEach(button => {
+        button.disabled = true;
+        if (button.dataset.correct === 'true') {
+          button.classList.add('correct');
+        } else if (button === selectedOption && !correct) {
+          button.classList.add('incorrect');
           document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
-          document.querySelectorAll('.option-button').forEach(button => {
-            if (button.innerText === currentQuestion.options[currentQuestion.correctOption]) {
-              button.classList.add('correct');
-            }
-          });
         }
-      }
+      });
 
       if (correct) {
         if (difficultyLevel === 'hard') consecutiveCorrect++;
