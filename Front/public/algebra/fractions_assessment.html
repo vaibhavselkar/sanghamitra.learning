@@ -62,6 +62,10 @@
       background-color: green !important;
       color: white !important;
     }
+    .incorrect {
+      background-color: red !important;
+      color: white !important;
+    }
   </style>
 </head>
 
@@ -230,15 +234,19 @@
       document.getElementById('submit-button').disabled = true;
       document.getElementById('submit-button').style.display = 'none';
 
-      // Disable all option buttons and show correct option in green
+      // Disable all option buttons
       document.querySelectorAll('.option-button').forEach(button => {
         button.disabled = true;
         if (button.dataset.correct === 'true') {
           button.classList.add('correct');
+        } else {
+          button.classList.add('incorrect');
         }
       });
 
-      document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+      if (!correct) {
+        document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+      }
 
       if (correct) {
         if (difficultyLevel === 'hard') consecutiveCorrect++;
