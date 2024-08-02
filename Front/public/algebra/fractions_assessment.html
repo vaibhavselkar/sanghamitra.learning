@@ -404,60 +404,66 @@
       document.getElementById('submit-button').classList.remove('hidden');
     }
 
-    async function showExplanation() {
-      const correct = selectedOption && selectedOption.dataset.correct === 'true';
-      answeredQuestions.push(currentQuestion._id);
-      await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username,
-          email,
-          topics: [
+    function showExplanation() {
+  const correct = selectedOption && selectedOption.dataset.correct === 'true';
+  answeredQuestions.push(currentQuestion._id);
+
+  fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username,
+      email,
+      topics: [
+        {
+          topic,
+          questions: [
             {
-              topic,
-              questions: [
-                {
-                  questionId: currentQuestion._id,
-                  answer: selectedOption ? selectedOption.innerText : 'no_answer',
-                  correct,
-                  difficultyLevel
-                }
-              ]
+              questionId: currentQuestion._id,
+              answer: selectedOption ? selectedOption.innerText : 'no_answer',
+              correct,
+              difficultyLevel
             }
           ]
-        })
-      });
-
-      document.getElementById('feedback').classList.remove('hidden');
-      document.getElementById('explanation-text').innerText = currentQuestion.explanation;
-
-      // Disable the submit button
-      document.getElementById('submit-button').disabled = true;
-      document.getElementById('submit-button').classList.add('hidden');
-
-      // Disable all option buttons and show correct option in green
-      document.querySelectorAll('.option').forEach(button => {
-        button.disabled = true;
-        if (button.dataset.correct === 'true') {
-          button.classList.add('correct');
         }
-      });
+      ]
+    })
+  });
 
-      document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+  document.getElementById('feedback').classList.remove('hidden');
+  document.getElementById('explanation-text').innerText = currentQuestion.explanation;
 
-      if (correct) {
-        if (difficultyLevel === 'hard') consecutiveCorrect++;
-        difficultyLevel = difficultyLevel === 'easy' ? 'medium' : 'hard';
-      } else {
-        consecutiveCorrect = 0;
-        difficultyLevel = difficultyLevel === 'hard' ? 'medium' : 'easy';
-      }
+  // Disable the submit button
+  document.getElementById('submit-button').disabled = true;
+  document.getElementById('submit-button').classList.add('hidden');
 
-      if (consecutiveCorrect === 4) {
-        document.getElementById('next-topic').classList.remove('hidden');
-      }
+  // Disable all option buttons and show correct/incorrect icons
+  document.querySelectorAll('.option').forEach(button => {
+    button.disabled = true;
+    if (button.dataset.correct === 'true') {
+      button.classList.add('correct');
+      button.insertAdjacentHTML('afterbegin', '<span class="correct-icon"></span>');
+    } else if (button === selectedOption) {
+      button.classList.add('incorrect');
+      button.insertAdjacentHTML('afterbegin', '<span class="incorrect-icon"></span>');
     }
+  });
+
+  document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+
+  if (correct) {
+    if (difficultyLevel === 'hard') consecutiveCorrect++;
+    difficultyLevel = difficultyLevel === 'easy' ? 'medium' : 'hard';
+  } else {
+    consecutiveCorrect = 0;
+    difficultyLevel = difficultyLevel === 'hard' ? 'medium' : 'easy';
+  }
+
+  if (consecutiveCorrect === 4) {
+    document.getElementById('next-topic').classList.remove('hidden');
+  }
+}
+
   </script>
 
   <!-- Vendor JS Files -->
