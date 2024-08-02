@@ -68,13 +68,15 @@
     }
 
     .option {
-      padding: 10px;
+      display: block;
+      width: 80%; /* Increase width to 80% */
+      padding: 20px; /* Increase padding for larger option boxes */
+      margin: 10px auto; /* Center the option boxes */
+      font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 5px;
-      background-color: #fff;
       cursor: pointer;
-      transition: background-color 0.3s;
-      color: black;
+      transition: background-color 0.3s ease;
     }
 
     .option.selected {
@@ -405,7 +407,7 @@
       document.getElementById('submit-button').classList.remove('hidden');
     }
 
-    function showExplanation() {
+   function showExplanation() {
   const correct = selectedOption && selectedOption.dataset.correct === 'true';
   answeredQuestions.push(currentQuestion._id);
 
@@ -485,6 +487,7 @@
     document.getElementById('next-topic').classList.remove('hidden');
   }
 }
+
 
 
 
