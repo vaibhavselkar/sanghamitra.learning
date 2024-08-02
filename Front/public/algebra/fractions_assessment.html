@@ -12,9 +12,9 @@
   <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Fonts -->
-  <link href="../https://fonts.googleapis.com" rel="preconnect">
-  <link href="../https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="../https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -28,13 +28,27 @@
 
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Open Sans', sans-serif;
+    }
+    #main-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 80vh;
     }
     #question-container {
-      margin-top: 20px;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
     }
-    button {
-      margin: 10px;
+    .option-button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
     }
     #explanation {
       margin-top: 20px;
@@ -68,22 +82,20 @@
     </div>
   </header>
 
-  <main class="main">
-
-
-    <h1>Fractions Practice</h1>
+  <main id="main-content" class="main">
     <div id="question-container">
+      <h1>Fractions Practice</h1>
       <p id="difficulty"></p>
-      <p id="question"></p>
+      <p id="question" class="h4"></p>
       <div id="options"></div>
-      <button id="submit-button" style="display: none;" onclick="showExplanation()">Submit</button>
+      <button id="submit-button" class="btn btn-primary mt-3" style="display: none;" onclick="showExplanation()">Submit</button>
+      <div id="explanation" style="display: none;">
+        <p id="explanation-text" class="mt-3"></p>
+        <p id="correct-option" class="mt-2" style="color: green;"></p>
+        <button id="next-button" class="btn btn-secondary mt-3" onclick="fetchQuestion()">Next</button>
+      </div>
+      <button id="next-topic" class="btn btn-info mt-3" style="display: none;" onclick="location.href='decimals_assessment.html'">Next Topic: Decimals</button>
     </div>
-    <div id="explanation" style="display: none;">
-      <p id="explanation-text"></p>
-      <p id="correct-option" style="color: green;"></p>
-      <button id="next-button" onclick="fetchQuestion()">Next</button>
-    </div>
-    <button id="next-topic" style="display: none;" onclick="location.href='decimals_assessment.html'">Next Topic: Decimals</button>
   </main>
 
   <footer id="footer" class="footer position-relative">
@@ -107,8 +119,6 @@
             <a href=""><i class="bi bi-linkedin"></i></a>
           </div>
         </div>
-
-        
 
         <div class="col-lg-4 col-md-12 footer-newsletter">
           
@@ -179,6 +189,7 @@
         optionsDiv.innerHTML = '';
         for (const [key, value] of Object.entries(question.options)) {
           const button = document.createElement('button');
+          button.classList.add('btn', 'btn-outline-primary', 'option-button');
           button.innerText = value;
           button.onclick = () => selectOption(button, key === question.correctOption, question);
           optionsDiv.appendChild(button);
