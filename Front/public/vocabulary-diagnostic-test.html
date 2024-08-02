@@ -482,16 +482,30 @@
         
         async function fetchQuestions() {
             console.log('Fetching questions...');
+            const cefrLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+            let allQuestions = [];
+        
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/vocab-questions');
-                const data = await response.json();
-                questions = data.sort(() => 0.5 - Math.random()).slice(0, 20); // Randomly select 20 questions
+                const fetchPromises = cefrLevels.map(level =>
+                    fetch(`https://sanghamitra-learnworld.vercel.app/api/vocab-questions?cefrLevel=${level}`)
+                        .then(response => response.json())
+                        .then(data => data.slice(0, 5)) // Select only 5 questions per level
+                );
+        
+                const questionsByLevel = await Promise.all(fetchPromises);
+                questionsByLevel.forEach(levelQuestions => {
+                    allQuestions = allQuestions.concat(levelQuestions);
+                });
+        
+                // Shuffle all questions
+                questions = allQuestions.sort(() => 0.5 - Math.random());
                 answers = new Array(questions.length).fill(null); // Initialize answers array
                 startQuiz();
             } catch (error) {
                 console.error('Error fetching questions:', error);
             }
         }
+
 
         function createQuestionNav() {
             const questionNav = document.getElementById('question-nav');
