@@ -234,12 +234,12 @@
       document.getElementById('submit-button').disabled = true;
       document.getElementById('submit-button').style.display = 'none';
 
-      // Disable all option buttons
+      // Disable all option buttons and show correct option in green and incorrect options in red
       document.querySelectorAll('.option-button').forEach(button => {
         button.disabled = true;
         if (button.dataset.correct === 'true') {
           button.classList.add('correct');
-        } else {
+        } else if (button === selectedOption) {
           button.classList.add('incorrect');
         }
       });
