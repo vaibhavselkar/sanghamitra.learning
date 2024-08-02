@@ -489,7 +489,7 @@
                 const fetchPromises = cefrLevels.map(level =>
                     fetch(`https://sanghamitra-learnworld.vercel.app/api/vocab-questions?cefrLevel=${level}`)
                         .then(response => response.json())
-                        .then(data => data.slice(0, 5)) // Select only 5 questions per level
+                        .then(data => data.slice(0, 1)) // Select only 1 question per level
                 );
         
                 const questionsByLevel = await Promise.all(fetchPromises);
