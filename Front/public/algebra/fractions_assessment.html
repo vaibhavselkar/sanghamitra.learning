@@ -257,9 +257,9 @@
       document.getElementById('explanation').style.display = 'block';
       document.getElementById('explanation-text').innerText = currentQuestion.explanation;
       if (!correct) {
-        document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
+        document.getElementById('correct').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
       } else {
-        document.getElementById('correct-option').innerText = '';
+        document.getElementById('correct').innerText = '';
       }
 
       if (correct) {
