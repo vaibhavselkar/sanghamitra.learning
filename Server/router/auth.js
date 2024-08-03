@@ -277,11 +277,15 @@ router.get('/algebra_scores', async (req, res) => {
     }
 
     if (topic) {
-      filter['topics.topic'] = topic;
+      filter['topics'] = { $elemMatch: { topic: topic } };
     }
-    
-    const scores = await AlgebraScores.find(filter).exec();
-    console.log(scores)
+
+    console.log('Filter:', JSON.stringify(filter)); // Debug log to see the filter object
+
+    const scores = await AlgebraScore.find(filter).exec();
+
+    console.log('Scores:', scores); // Debug log to see the scores being returned
+
     res.json(scores);
   } catch (error) {
     console.error('Error fetching scores:', error);
