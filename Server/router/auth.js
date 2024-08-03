@@ -266,31 +266,34 @@ router.post('/algebra_score_add', async (req, res) => {
 });
 
 router.get('/algebra_scores', async (req, res) => {
-  const { email, topic } = req.query;
-
   try {
-    let filter = {};
-
-    if (email) {
-      filter.email = email;
+    const { email, topic } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
     }
+
+    let query = { email: email };
 
     if (topic) {
-      filter['topics'] = { $elemMatch: { topic: topic } };
+      query['topics.topic'] = topic;
     }
 
-    console.log('Filter:', JSON.stringify(filter)); // Debug log to see the filter object
+    const userScores = await UserScore.find(query).exec();
 
-    const scores = await AlgebraScores.find(filter).exec();
+    if (topic) {
+      // Filter topics by the given topic
+      userScores.forEach(userScore => {
+        userScore.topics = userScore.topics.filter(t => t.topic === topic);
+      });
+    }
 
-    console.log('Scores:', scores); // Debug log to see the scores being returned
-
-    res.json(scores);
+    res.json(userScores);
   } catch (error) {
-    console.error('Error fetching scores:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
