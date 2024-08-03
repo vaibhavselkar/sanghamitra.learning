@@ -183,7 +183,6 @@
         const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}&topic=${topic}`);
         if (response.ok) {
           const data = await response.json();
-          console.log("scores are: " data, email, topic)
           calculateProgress(data);
         } else {
           console.error('Failed to fetch score data');
