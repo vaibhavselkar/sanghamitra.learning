@@ -212,29 +212,28 @@ router.get('/logout', (req, res) => {
 });
 
 // Route to get all algebra questions
-router.get('/algebra_questions', async (req, res) => {
-  const { topic, difficultyLevel } = req.query;
+router.get('/api/algebra_scores', async (req, res) => {
+  const { email, topic } = req.query;
 
   try {
-    let questions;
+    let scores;
 
-    if (topic) {
-      if (difficultyLevel) {
-        // Fetch questions for the specific topic and difficulty level
-        questions = await AlgebraQuestion.find({ topic: topic, difficultyLevel: difficultyLevel });
-      } else {
-        // Fetch questions for the specific topic only
-        questions = await AlgebraQuestion.find({ topic: topic });
-      }
+    if (email) {
+      scores = await UserScore.find({ email }).exec();
     } else {
-      // Fetch all questions if no topic is provided
-      questions = await AlgebraQuestion.find({});
+      scores = await UserScore.find().exec();
     }
 
-    return res.status(200).json(questions);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'An error occurred while fetching algebra questions' });
+    if (topic) {
+      scores = scores.filter(score => score.topics.some(t => t.topic === topic));
+    }
+
+    console.log('Filtered Scores:', JSON.stringify(scores, null, 2)); // Debug log to see the scores being returned
+
+    res.json(scores);
+  } catch (error) {
+    console.error('Error fetching scores:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
