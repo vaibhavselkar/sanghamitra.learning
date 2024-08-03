@@ -282,7 +282,7 @@ router.get('/algebra_scores', async (req, res) => {
 
     console.log('Filter:', JSON.stringify(filter)); // Debug log to see the filter object
 
-    const scores = await AlgebraScore.find(filter).exec();
+    const scores = await AlgebraScores.find(filter).exec();
 
     console.log('Scores:', scores); // Debug log to see the scores being returned
 
