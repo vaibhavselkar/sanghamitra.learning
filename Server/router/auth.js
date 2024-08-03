@@ -280,7 +280,7 @@ router.get('/algebra_scores', async (req, res) => {
       query['topics.topic'] = topic;
     }
 
-    const userScores = await UserScore.find(query).exec();
+    const userScores = await AlgebraScore.find(query).exec();
 
     if (topic) {
       // Filter topics by the given topic
