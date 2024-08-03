@@ -266,26 +266,30 @@
     async function showExplanation() {
       const correct = selectedOption && selectedOption.dataset.correct === 'true';
       answeredQuestions.push(currentQuestion._id);
+      const payload = {
+        username,
+        email,
+        topics: [
+          {
+            topic,
+            questions: [
+              {
+                questionId: currentQuestion._id,
+                answer: selectedOption ? selectedOption.innerText : 'no_answer',
+                correct,
+                difficultyLevel
+              }
+            ]
+          }
+        ]
+      };
+
+      console.log("Submitting score data:", payload);
+
       await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username,
-          email,
-          topics: [
-            {
-              topic,
-              questions: [
-                {
-                  questionId: currentQuestion._id,
-                  answer: selectedOption ? selectedOption.innerText : 'no_answer',
-                  correct,
-                  difficultyLevel
-                }
-              ]
-            }
-          ]
-        })
+        body: JSON.stringify(payload)
       });
 
       document.getElementById('explanation').style.display = 'block';
