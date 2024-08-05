@@ -10,7 +10,7 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
     <!-- Vendor CSS Files -->
     <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -319,13 +319,6 @@
             <div class="row d-flex justify-content-center text-center">
                 <div class="col-lg-8">
                     <h2>Take our diagnostic test to pinpoint your vocabulary gaps and boost your learning effectively!</h2>
-                    <div class="mb-4">
-                        <input type="text" id="username" class="form-control" placeholder="Enter your username" required>
-                    </div>
-                    <div class="mb-4">
-                        <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
-                    </div>
-                    <button id="start-button" class="btn btn-primary mt-4">Start Quiz</button>
                 </div>
             </div>
         </div>
@@ -436,7 +429,7 @@
   <script>
     console.log("Javascript Loaded");
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         const startButton = document.getElementById('start-button');
         const nextButton = document.getElementById('next-button');
         const previousButton = document.getElementById('previous-button');
@@ -460,6 +453,26 @@
         const comprehensiveAnalysis = document.getElementById('comprehensive-analysis');
         const vocabularyLevelElement = document.createElement('div');
         resultPage.appendChild(vocabularyLevelElement);
+
+        let username = "";
+        let email = "";
+    
+        async function fetchSessionInfo() {
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info');
+                if (response.ok) {
+                    const data = await response.json();
+                    username = data.username;
+                    email = data.email;
+                    console.log(username, email);
+                    fetchQuestions(); // Automatically fetch questions after getting session info
+                } else {
+                    console.error('Failed to fetch session info');
+                }
+            } catch (error) {
+                console.error('Error fetching session info:', error);
+            }
+        }
     
         let questions = [];
         let currentQuestionIndex = 0;
@@ -469,7 +482,7 @@
         let cefrScores = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 }; // To track scores by CEFR level
         let correctAnswers = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 }; // Correct answers by CEFR level
         let totalQuestions = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 }; // Total questions by CEFR level
-        
+    
         async function fetchQuestions() {
             console.log('Fetching questions...');
             try {
@@ -482,7 +495,7 @@
                 console.error('Error fetching questions:', error);
             }
         }
-
+    
         function createQuestionNav() {
             const questionNav = document.getElementById('question-nav');
             questionNav.innerHTML = '';
@@ -498,21 +511,13 @@
                 questionNav.appendChild(questionCircle);
             }
         }
-
+    
         function startQuiz() {
             if (quizRunning) {
                 console.log('Quiz already running. Ignoring start request.');
                 return; // Prevent multiple starts
             }
             console.log('Starting quiz...');
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-
-            if (!username || !email) {
-                alert('Please enter both username and email.');
-                return;
-            }
-
             homePage.classList.add('hidden');
             homePage.classList.remove('active');
             quizPage.classList.remove('hidden');
@@ -527,11 +532,7 @@
             createQuestionNav(); // Add this line
             showQuestion();
         }
-
-
-        
-
-        
+    
         function showQuestion() {
             console.log('Showing question:', currentQuestionIndex);
             if (currentQuestionIndex >= questions.length) {
@@ -547,7 +548,7 @@
                 button.classList.remove('selected', 'correct', 'incorrect');
             });
             feedbackSection.classList.add('hidden'); // Hide feedback section initially
-
+    
             // Restore the previously selected option, if any
             const savedAnswer = answers[currentQuestionIndex];
             if (savedAnswer) {
@@ -556,14 +557,14 @@
                     selectedOption.classList.add('selected');
                 }
             }
-
+    
             // Show or hide the "Previous" button
             if (currentQuestionIndex === 0) {
                 previousButton.classList.add('hidden');
             } else {
                 previousButton.classList.remove('hidden');
             }
-
+    
             // Show "Next Question" or "End Quiz" button
             if (currentQuestionIndex === questions.length - 1) {
                 nextButton.classList.add('hidden');
@@ -572,31 +573,30 @@
                 nextButton.classList.remove('hidden');
                 endButton.classList.add('hidden');
             }
-
+    
             // Highlight current question in nav
             const questionCircles = document.querySelectorAll('.question-circle');
             questionCircles.forEach((circle, index) => {
                 circle.classList.toggle('active', index === currentQuestionIndex);
             });
         }
-
-
+    
         function recordAnswer(option) {
             const question = questions[currentQuestionIndex];
             const selectedOption = option.getAttribute('data-option');
             const selectedAnswer = question.options[selectedOption];
             const isCorrect = selectedAnswer === question.correctOption;
-
+    
             optionButtons.forEach(button => button.classList.remove('selected'));
             option.classList.add('selected');
-
+    
             if (isCorrect) {
                 correctAnswers[question.CEFRLevel]++;
                 totalPoints += question.points; // Add points for correct answer
             }
-
+    
             totalQuestions[question.CEFRLevel]++;
-
+    
             // Store the answer and feedback
             answers[currentQuestionIndex] = {
                 question_id: question._id,
@@ -610,17 +610,15 @@
                 CEFR_level: question.CEFRLevel,
                 topic: question.topic
             };
-
+    
             // Mark question as answered in nav
             const questionCircles = document.querySelectorAll('.question-circle');
             questionCircles[currentQuestionIndex].classList.add('active', 'attempted');
         }
-
-
     
         async function postUserData(userData) {
             try {
-                const response = await fetch('http://localhost:4003/api/vocabscoreadd', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/vocabscoreadd', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -662,10 +660,8 @@
             displayComprehensiveAnalysis();
             quizRunning = false; // Reset state when quiz ends
             console.log('Quiz ended. Total points:', totalPoints);
-
+    
             // Post user data
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
             const userData = {
                 username: username,
                 email: email,
@@ -719,16 +715,6 @@
             });
         }
     
-        startButton.addEventListener('click', () => {
-            console.log('Start button clicked!');
-            if (quizRunning) {
-                console.log('Quiz is already running. Ignoring start button click.');
-                return; // Ignore if the quiz is already running
-            }
-            startButton.disabled = true;
-            fetchQuestions();
-        });
-        
         nextButton.addEventListener('click', () => {
             console.log('Next button clicked');
             currentQuestionIndex++;
@@ -747,23 +733,25 @@
             console.log('End button clicked');
             endQuiz();
         });
-        
+    
         restartButton.addEventListener('click', () => {
             console.log('Restart button clicked');
-            startButton.disabled = false;
             resultPage.classList.add('hidden');
             resultPage.classList.remove('active');
             homePage.classList.remove('hidden');
             homePage.classList.add('active');
             quizRunning = false; // Reset state on restart
             console.log('Quiz restarted.');
+            fetchSessionInfo(); // Fetch session info again when restarting
         });
-        
+    
         optionButtons.forEach(button => {
             button.addEventListener('click', () => {
                 recordAnswer(button);
             });
         });
+    
+        await fetchSessionInfo(); // Fetch session info and start quiz on page load
     });
   </script>
   
