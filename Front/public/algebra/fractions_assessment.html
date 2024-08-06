@@ -201,23 +201,45 @@
       }
     }
 
+    
     function calculateProgress(data) {
       let totalQuestions = 0;
       let correctAnswers = 0;
-
+      let totalRequiredQuestions = 0;
+      let consecutiveCorrect = 0;
+    
       data[0].topics.forEach(topic => {
         totalQuestions += topic.questions.length;
         correctAnswers += topic.questions.filter(q => q.correct).length;
+    
+        topic.questions.forEach(q => {
+          if (q.correct) {
+            consecutiveCorrect++;
+          } else {
+            consecutiveCorrect = 0;
+          }
+        });
       });
-
+    
+      if (consecutiveCorrect >= 4) {
+        totalRequiredQuestions = 4; // If the user gets four correct in a row, they pass with just 4 questions
+      } else {
+        if (correctAnswers > 0) {
+          totalRequiredQuestions = totalQuestions + 2; // Adjust as necessary based on incorrect answers
+        } else {
+          totalRequiredQuestions = totalQuestions + 2; // Minimum requirement when starting over
+        }
+      }
+    
+      // Calculate progress percentage
       if (correctAnswers >= 4 && totalQuestions <= 4) {
         progress = 100;
       } else if (correctAnswers > 0) {
-        progress = (correctAnswers / totalQuestions) * 100;
+        progress = (correctAnswers / totalRequiredQuestions) * 100;
       } else {
         progress = 0;
       }
-
+    
       updateProgressBar();
     }
 
@@ -330,14 +352,35 @@
     }
 
     function updateProgress(correct) {
-      let denominator = 4 + answeredQuestions.length - consecutiveCorrect;
-      if (!correct) {
-        consecutiveCorrect = 0;
-        denominator++;
-      }
-      progress = (consecutiveCorrect / denominator) * 100;
-      updateProgressBar();
+    // Determine the total number of questions required based on correct and incorrect answers
+    let totalRequiredQuestions;
+    if (correct) {
+      consecutiveCorrect++;
+    } else {
+      consecutiveCorrect = 0;
     }
+  
+    if (consecutiveCorrect >= 4) {
+      totalRequiredQuestions = 4; // If the user gets four correct in a row, they pass with just 4 questions
+    } else {
+      if (difficultyLevel === 'easy') {
+        totalRequiredQuestions = 6;
+      } else if (difficultyLevel === 'medium') {
+        totalRequiredQuestions = 6;
+      } else {
+        totalRequiredQuestions = 4;
+      }
+    }
+  
+    // Calculate the progress percentage based on the total required questions
+    progress = (consecutiveCorrect / totalRequiredQuestions) * 100;
+    updateProgressBar();
+  }
+  
+  function updateProgressBar() {
+    const progressFill = document.getElementById('progress-fill');
+    progressFill.style.width = `${progress}%`;
+  }
 
     document.addEventListener('DOMContentLoaded', fetchSessionInfo);
   </script>
