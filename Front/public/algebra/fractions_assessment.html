@@ -185,10 +185,10 @@
         if (response.ok) {
           const data = await response.json();
           console.log("scores are: ", data, email, topic);
-          if (data.topics && data.topics.length > 0) {
+          if (data.length > 0) {
             calculateProgress(data);
             // Find the current topic data
-            const topicData = data.topics.find(t => t.topic === topic);
+            const topicData = data[0].topics.find(t => t.topic === topic);
             if (topicData) {
               answeredQuestions = topicData.answeredQuestions || [];
             }
@@ -205,7 +205,7 @@
       let totalQuestions = 0;
       let correctAnswers = 0;
 
-      data.topics.forEach(topic => {
+      data[0].topics.forEach(topic => {
         totalQuestions += topic.questions.length;
         correctAnswers += topic.questions.filter(q => q.correct).length;
       });
