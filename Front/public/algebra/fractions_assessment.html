@@ -183,18 +183,13 @@
         const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}&topic=${topic}`);
         if (response.ok) {
           const data = await response.json();
+          console.log("scores are: ", data, email, topic)
           calculateProgress(data);
 
           // Find the current topic data
           const topicData = data.topics.find(t => t.topic === topic);
           if (topicData) {
             answeredQuestions = topicData.answeredQuestions || [];
-            const lastQuestion = topicData.lastQuestion;
-
-            if (lastQuestion) {
-              difficultyLevel = lastQuestion.difficultyLevel;
-              currentQuestion = lastQuestion.correct ? null : lastQuestion;
-            }
           }
         } else {
           console.error('Failed to fetch score data');
@@ -242,22 +237,18 @@
       const optionsDiv = document.getElementById('options');
       optionsDiv.innerHTML = '';
 
-      if (currentQuestion) {
-        displayQuestion(currentQuestion);
+      const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_questions?topic=${topic}&difficultyLevel=${difficultyLevel}`);
+      const questions = await response.json();
+
+      // Filter out questions that have been answered already
+      const availableQuestions = questions.filter(q => !answeredQuestions.includes(q._id));
+
+      if (availableQuestions.length > 0) {
+        const question = availableQuestions[0]; // You can randomize or choose as per your requirement
+        currentQuestion = question;
+        displayQuestion(question);
       } else {
-        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_questions?topic=${topic}&difficultyLevel=${difficultyLevel}`);
-        const questions = await response.json();
-
-        // Filter out questions that have been answered already
-        const availableQuestions = questions.filter(q => !answeredQuestions.includes(q._id));
-
-        if (availableQuestions.length > 0) {
-          const question = availableQuestions[0]; // You can randomize or choose as per your requirement
-          currentQuestion = question;
-          displayQuestion(question);
-        } else {
-          alert('No more questions available for this topic.');
-        }
+        alert('No more questions available for this topic.');
       }
     }
 
