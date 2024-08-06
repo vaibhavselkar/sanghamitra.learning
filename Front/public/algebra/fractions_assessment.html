@@ -339,10 +339,7 @@
       updateProgressBar();
     }
 
-    function updateProgressBar() {
-      const progressFill = document.getElementById('progress-fill');
-      progressFill.style.width = `${progress}%`;
-    }
+    document.addEventListener('DOMContentLoaded', fetchSessionInfo);
   </script>
 
   <!-- Vendor JS Files -->
