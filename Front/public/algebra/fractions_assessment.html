@@ -185,12 +185,13 @@
         if (response.ok) {
           const data = await response.json();
           console.log("scores are: ", data, email, topic);
-          calculateProgress(data);
-
-          // Find the current topic data
-          const topicData = data.topics.find(t => t.topic === topic);
-          if (topicData) {
-            answeredQuestions = topicData.answeredQuestions || [];
+          if (data.topics && data.topics.length > 0) {
+            calculateProgress(data);
+            // Find the current topic data
+            const topicData = data.topics.find(t => t.topic === topic);
+            if (topicData) {
+              answeredQuestions = topicData.answeredQuestions || [];
+            }
           }
         } else {
           console.error('Failed to fetch score data');
@@ -224,10 +225,6 @@
       const progressFill = document.getElementById('progress-fill');
       progressFill.style.width = `${progress}%`;
     }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await fetchSessionInfo();
-    });
 
     async function fetchQuestion() {
       document.getElementById('explanation').style.display = 'none';
