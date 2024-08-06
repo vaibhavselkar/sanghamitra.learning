@@ -252,7 +252,6 @@ router.post('/algebra_score_add', async (req, res) => {
         topics: [{
           topic,
           answeredQuestions: [questionId],
-          lastQuestion: { questionId, difficultyLevel, correct },
           questions: [{ questionId, answer, correct, difficultyLevel }]
         }]
       });
@@ -263,7 +262,6 @@ router.post('/algebra_score_add', async (req, res) => {
         userScore.topics.push({
           topic,
           answeredQuestions: [questionId],
-          lastQuestion: { questionId, difficultyLevel, correct },
           questions: [{ questionId, answer, correct, difficultyLevel }]
         });
       } else {
