@@ -246,14 +246,36 @@ router.post('/algebra_score_add', async (req, res) => {
     let userScore = await AlgebraScores.findOne({ username, email });
 
     if (!userScore) {
-      userScore = new AlgebraScores({ username, email, topics: [{ topic, questions: [{ questionId, answer, correct, difficultyLevel }] }] });
+      userScore = new AlgebraScores({
+        username,
+        email,
+        topics: [{
+          topic,
+          answeredQuestions: [questionId],
+          lastQuestion: { questionId, difficultyLevel, correct },
+          questions: [{ questionId, answer, correct, difficultyLevel }]
+        }]
+      });
     } else {
       let topicIndex = userScore.topics.findIndex(t => t.topic === topic);
 
       if (topicIndex === -1) {
-        userScore.topics.push({ topic, questions: [{ questionId, answer, correct, difficultyLevel }] });
+        userScore.topics.push({
+          topic,
+          answeredQuestions: [questionId],
+          lastQuestion: { questionId, difficultyLevel, correct },
+          questions: [{ questionId, answer, correct, difficultyLevel }]
+        });
       } else {
         userScore.topics[topicIndex].questions.push({ questionId, answer, correct, difficultyLevel });
+
+        // Add the question ID to the answered questions list if not already present
+        if (!userScore.topics[topicIndex].answeredQuestions.includes(questionId)) {
+          userScore.topics[topicIndex].answeredQuestions.push(questionId);
+        }
+
+        // Update the last question
+        userScore.topics[topicIndex].lastQuestion = { questionId, difficultyLevel, correct };
       }
     }
 
@@ -265,6 +287,7 @@ router.post('/algebra_score_add', async (req, res) => {
     return res.status(500).json({ error: 'An error occurred while storing quiz attempt' });
   }
 });
+
 
 router.get('/algebra_scores', async (req, res) => {
   try {
