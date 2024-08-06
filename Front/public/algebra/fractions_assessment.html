@@ -203,33 +203,44 @@
 
     
     function calculateProgress(data) {
-    let totalQuestions = 0;
-    let correctAnswers = 0;
-    let totalRequiredQuestions = 4; // Always aim for 4 consecutive correct answers
-    let consecutiveCorrect = 0;
-  
-    data[0].topics.forEach(topic => {
-      totalQuestions += topic.questions.length;
-      correctAnswers += topic.questions.filter(q => q.correct).length;
-  
-      topic.questions.forEach(q => {
-        if (q.correct) {
-          consecutiveCorrect++;
-        } else {
-          consecutiveCorrect = 0;
-        }
+      let totalQuestions = 0;
+      let correctAnswers = 0;
+      let totalRequiredQuestions = 0;
+      let consecutiveCorrect = 0;
+    
+      data[0].topics.forEach(topic => {
+        totalQuestions += topic.questions.length;
+        correctAnswers += topic.questions.filter(q => q.correct).length;
+    
+        topic.questions.forEach(q => {
+          if (q.correct) {
+            consecutiveCorrect++;
+          } else {
+            consecutiveCorrect = 0;
+          }
+        });
       });
-    });
-  
-    // Calculate progress percentage based on consecutive correct answers
-    progress = (consecutiveCorrect / totalRequiredQuestions) * 100;
-  
-    updateProgressBar();
-  }
-
-    function updateProgressBar() {
-      const progressFill = document.getElementById('progress-fill');
-      progressFill.style.width = `${progress}%`;
+    
+      if (consecutiveCorrect >= 4) {
+        totalRequiredQuestions = 4; // If the user gets four correct in a row, they pass with just 4 questions
+      } else {
+        if (correctAnswers > 0) {
+          totalRequiredQuestions = totalQuestions + 2; // Adjust as necessary based on incorrect answers
+        } else {
+          totalRequiredQuestions = totalQuestions + 2; // Minimum requirement when starting over
+        }
+      }
+    
+      // Calculate progress percentage
+      if (correctAnswers >= 4 && totalQuestions <= 4) {
+        progress = 100;
+      } else if (correctAnswers > 0) {
+        progress = (correctAnswers / totalRequiredQuestions) * 100;
+      } else {
+        progress = 0;
+      }
+    
+      updateProgressBar();
     }
 
     async function fetchQuestion() {
