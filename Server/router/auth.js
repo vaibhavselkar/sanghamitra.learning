@@ -271,9 +271,6 @@ router.post('/algebra_score_add', async (req, res) => {
         if (!userScore.topics[topicIndex].answeredQuestions.includes(questionId)) {
           userScore.topics[topicIndex].answeredQuestions.push(questionId);
         }
-
-        // Update the last question
-        userScore.topics[topicIndex].lastQuestion = { questionId, difficultyLevel, correct };
       }
     }
 
