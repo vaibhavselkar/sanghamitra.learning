@@ -203,45 +203,29 @@
 
     
     function calculateProgress(data) {
-      let totalQuestions = 0;
-      let correctAnswers = 0;
-      let totalRequiredQuestions = 0;
-      let consecutiveCorrect = 0;
-    
-      data[0].topics.forEach(topic => {
-        totalQuestions += topic.questions.length;
-        correctAnswers += topic.questions.filter(q => q.correct).length;
-    
-        topic.questions.forEach(q => {
-          if (q.correct) {
-            consecutiveCorrect++;
-          } else {
-            consecutiveCorrect = 0;
-          }
-        });
-      });
-    
-      if (consecutiveCorrect >= 4) {
-        totalRequiredQuestions = 4; // If the user gets four correct in a row, they pass with just 4 questions
-      } else {
-        if (correctAnswers > 0) {
-          totalRequiredQuestions = totalQuestions + 2; // Adjust as necessary based on incorrect answers
+    let totalQuestions = 0;
+    let correctAnswers = 0;
+    let totalRequiredQuestions = 4; // Always aim for 4 consecutive correct answers
+    let consecutiveCorrect = 0;
+  
+    data[0].topics.forEach(topic => {
+      totalQuestions += topic.questions.length;
+      correctAnswers += topic.questions.filter(q => q.correct).length;
+  
+      topic.questions.forEach(q => {
+        if (q.correct) {
+          consecutiveCorrect++;
         } else {
-          totalRequiredQuestions = totalQuestions + 2; // Minimum requirement when starting over
+          consecutiveCorrect = 0;
         }
-      }
-    
-      // Calculate progress percentage
-      if (correctAnswers >= 4 && totalQuestions <= 4) {
-        progress = 100;
-      } else if (correctAnswers > 0) {
-        progress = (correctAnswers / totalRequiredQuestions) * 100;
-      } else {
-        progress = 0;
-      }
-    
-      updateProgressBar();
-    }
+      });
+    });
+  
+    // Calculate progress percentage based on consecutive correct answers
+    progress = (consecutiveCorrect / totalRequiredQuestions) * 100;
+  
+    updateProgressBar();
+  }
 
     function updateProgressBar() {
       const progressFill = document.getElementById('progress-fill');
@@ -352,29 +336,29 @@
     }
 
     function updateProgress(correct) {
-    // Determine the total number of questions required based on correct and incorrect answers
-    let totalRequiredQuestions;
+    let totalRequiredQuestions = 4; // Always aim for 4 consecutive correct answers
+  
     if (correct) {
       consecutiveCorrect++;
     } else {
-      consecutiveCorrect = 0;
-    }
-  
-    if (consecutiveCorrect >= 4) {
-      totalRequiredQuestions = 4; // If the user gets four correct in a row, they pass with just 4 questions
-    } else {
-      if (difficultyLevel === 'easy') {
-        totalRequiredQuestions = 6;
-      } else if (difficultyLevel === 'medium') {
-        totalRequiredQuestions = 6;
-      } else {
-        totalRequiredQuestions = 4;
-      }
+      consecutiveCorrect = 0; // Reset on incorrect answer
     }
   
     // Calculate the progress percentage based on the total required questions
     progress = (consecutiveCorrect / totalRequiredQuestions) * 100;
+  
     updateProgressBar();
+  
+    // Check if the user has passed by getting 4 consecutive correct answers
+    if (consecutiveCorrect >= totalRequiredQuestions) {
+      // Handle passing logic, e.g., showing a message or progressing to the next topic
+      console.log('Passed with 4 consecutive correct answers!');
+    }
+  }
+  
+  function updateProgressBar() {
+    const progressFill = document.getElementById('progress-fill');
+    progressFill.style.width = `${progress}%`;
   }
   
   function updateProgressBar() {
