@@ -9,6 +9,8 @@ const questionSchema = new mongoose.Schema({
 
 const topicSchema = new mongoose.Schema({
   topic: String,
+  answeredQuestions: [String],
+  lastQuestion: { questionId: String, difficultyLevel: String, correct: Boolean },
   questions: [questionSchema]
 });
 
