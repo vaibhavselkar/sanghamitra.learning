@@ -268,19 +268,11 @@
       const payload = {
         username,
         email,
-        topics: [
-          {
-            topic,
-            questions: [
-              {
-                questionId: currentQuestion._id,
-                answer: selectedOption ? selectedOption.innerText : 'no_answer',
-                correct,
-                difficultyLevel
-              }
-            ]
-          }
-        ]
+        topic,
+        questionId: currentQuestion._id,
+        answer: selectedOption ? selectedOption.innerText : 'no_answer',
+        correct,
+        difficultyLevel
       };
 
       console.log("Submitting score data:", payload);
