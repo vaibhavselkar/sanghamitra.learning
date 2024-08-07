@@ -233,27 +233,17 @@
             data[0].topics.forEach(topic => {
               const correctAnswers = topic.questions.filter(q => q.correct).length;
               const totalQuestions = topic.questions.length;
-              let consecutiveCorrect = 0;
-              let maxConsecutiveCorrect = 0;
-
-              // Check for consecutive correct answers at hard level
-              topic.questions.forEach(q => {
+              const consecutiveCorrect = topic.questions.reduce((count, q) => {
                 if (q.correct && q.level === 'hard') {
-                  consecutiveCorrect++;
-                  if (consecutiveCorrect > maxConsecutiveCorrect) {
-                    maxConsecutiveCorrect = consecutiveCorrect;
-                  }
+                  return count + 1;
                 } else {
-                  consecutiveCorrect = 0;
+                  return 0;
                 }
-              });
-
-              console.log(`Topic: ${topic.topicName}, Max Consecutive Correct (Hard Level): ${maxConsecutiveCorrect}`);
-
+              }, 0);
               const progress = (correctAnswers / totalQuestions) * 100;
-              const starColor = maxConsecutiveCorrect >= 4 ? 'gold' : 'grey';
+              const starColor = consecutiveCorrect >= 4 ? 'gold' : 'grey';
 
-              topicsProgress.set(topic.topicName, {
+              topicsProgress.set(topic.topic, {
                 correctAnswers,
                 totalQuestions,
                 progress,
