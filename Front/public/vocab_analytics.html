@@ -131,6 +131,11 @@
                 <p id="totalScore">N/A</p>
             </div>
             <div class="card">
+                <h2>Vocabulary Level</h2>
+                <p id="vocabularyLevel">N/A</p>
+            </div>
+
+            <div class="card">
                 <h2>Accuracy</h2>
                 <p id="accuracy">N/A <span id="accuracyDetails" style="display: none;"></span></p>
                 <div>
@@ -243,63 +248,112 @@
         }
     }
 
-    function processUserData(userData) {
-        if (!userData || !userData.assessments || userData.assessments.length === 0) {
-            console.error('Invalid user data', userData);
-            return;
-        }
+    function determineVocabularyLevel(correctAnswers, totalQuestions) {
+    const levelThresholds = {
+        A1: 0.6,
+        A2: 0.6,
+        B1: 0.6,
+        B2: 0.6,
+        C1: 0.6,
+        C2: 0.6
+    };
 
-        // Get the last entry in the assessments array
-        const assessments = userData.assessments[userData.assessments.length - 1];
-        if (!assessments) {
-            console.error('No assessments found for user', userData);
-            return;
-        }
+    const minCorrectAnswers = {
+        A1: 3,
+        A2: 3,
+        B1: 3,
+        B2: 3,
+        C1: 3,
+        C2: 3
+    };
 
-        const totalQuestions = assessments.questions.length;
-        const correctAnswers = assessments.questions.filter(q => q.is_correct).length;
-        const incorrectAnswers = assessments.questions.filter(q => !q.is_correct && q.user_response !== "").length;
-        const skippedQuestions = assessments.questions.filter(q => q.user_response === "").length;
-        const accuracy = (correctAnswers / totalQuestions) * 100;
+    let determinedLevel = 'A1';
+    let maxScore = 0;
 
-        const topicScores = {};
-        const difficultyScores = {};
-        const cefrScores = {};
+    for (let level in correctAnswers) {
+        const totalQuestionsAtLevel = totalQuestions[level] || 1;  // Avoid division by zero
+        const correctAnswersAtLevel = correctAnswers[level] || 0;
+        const incorrectAnswersAtLevel = totalQuestionsAtLevel - correctAnswersAtLevel;
+        const percentageCorrect = correctAnswersAtLevel / totalQuestionsAtLevel;
+        const score = percentageCorrect - (incorrectAnswersAtLevel / totalQuestionsAtLevel * 0.5);  // Penalize wrong answers
 
-        assessments.questions.forEach(question => {
-            const topic = question.topic;
-            const difficulty = question.difficulty_level;
-            const cefr = question.CEFR_level;
-
-            if (!topicScores[topic]) topicScores[topic] = { correct: 0, total: 0 };
-            if (!difficultyScores[difficulty]) difficultyScores[difficulty] = { correct: 0, total: 0 };
-            if (!cefrScores[cefr]) cefrScores[cefr] = { correct: 0, total: 0 };
-
-            topicScores[topic].total++;
-            difficultyScores[difficulty].total++;
-            cefrScores[cefr].total++;
-
-            if (question.is_correct) {
-                topicScores[topic].correct++;
-                difficultyScores[difficulty].correct++;
-                cefrScores[cefr].correct++;
+        if (percentageCorrect >= levelThresholds[level] && correctAnswersAtLevel >= minCorrectAnswers[level]) {
+            if (score > maxScore) {
+                maxScore = score;
+                determinedLevel = level;
             }
-        });
-
-        document.getElementById('totalScore').innerText = assessments.total_score;
-        document.getElementById('accuracy').innerText = accuracy.toFixed(2) + '%';
-        document.getElementById('accuracy').setAttribute('title', `${correctAnswers}/${totalQuestions}`);
-        document.getElementById('correctAnswers').innerText = `Correct: ${correctAnswers}`;
-        document.getElementById('incorrectAnswers').innerText = `Incorrect: ${incorrectAnswers}`;
-        document.getElementById('skippedQuestions').innerText = `Skipped: ${skippedQuestions}`;
-
-        createCharts({
-            difficultyScores,
-            cefrScores
-        });
-
-        populateQuestionTable(assessments.questions);
+        }
     }
+
+    return determinedLevel;
+}
+
+function processUserData(userData) {
+    if (!userData || !userData.assessments || userData.assessments.length === 0) {
+        console.error('Invalid user data', userData);
+        return;
+    }
+
+    const assessments = userData.assessments[userData.assessments.length - 1];
+    if (!assessments) {
+        console.error('No assessments found for user', userData);
+        return;
+    }
+
+    const totalQuestions = assessments.questions.length;
+    const correctAnswers = assessments.questions.filter(q => q.is_correct).length;
+    const incorrectAnswers = assessments.questions.filter(q => !q.is_correct && q.user_response !== "").length;
+    const skippedQuestions = assessments.questions.filter(q => q.user_response === "").length;
+    const accuracy = (correctAnswers / totalQuestions) * 100;
+
+    const topicScores = {};
+    const difficultyScores = {};
+    const cefrScores = {};
+    const correctAnswersByCEFR = {};
+    const totalQuestionsByCEFR = {};
+
+    assessments.questions.forEach(question => {
+        const topic = question.topic;
+        const difficulty = question.difficulty_level;
+        const cefr = question.CEFR_level;
+
+        if (!topicScores[topic]) topicScores[topic] = { correct: 0, total: 0 };
+        if (!difficultyScores[difficulty]) difficultyScores[difficulty] = { correct: 0, total: 0 };
+        if (!cefrScores[cefr]) cefrScores[cefr] = { correct: 0, total: 0 };
+        if (!correctAnswersByCEFR[cefr]) correctAnswersByCEFR[cefr] = 0;
+        if (!totalQuestionsByCEFR[cefr]) totalQuestionsByCEFR[cefr] = 0;
+
+        topicScores[topic].total++;
+        difficultyScores[difficulty].total++;
+        cefrScores[cefr].total++;
+        totalQuestionsByCEFR[cefr]++;
+
+        if (question.is_correct) {
+            topicScores[topic].correct++;
+            difficultyScores[difficulty].correct++;
+            cefrScores[cefr].correct++;
+            correctAnswersByCEFR[cefr]++;
+        }
+    });
+
+    document.getElementById('totalScore').innerText = assessments.total_score;
+    document.getElementById('accuracy').innerText = accuracy.toFixed(2) + '%';
+    document.getElementById('accuracy').setAttribute('title', `${correctAnswers}/${totalQuestions}`);
+    document.getElementById('correctAnswers').innerText = `Correct: ${correctAnswers}`;
+    document.getElementById('incorrectAnswers').innerText = `Incorrect: ${incorrectAnswers}`;
+    document.getElementById('skippedQuestions').innerText = `Skipped: ${skippedQuestions}`;
+
+    createCharts({
+        difficultyScores,
+        cefrScores
+    });
+
+    populateQuestionTable(assessments.questions);
+
+    const vocabularyLevel = determineVocabularyLevel(correctAnswersByCEFR, totalQuestionsByCEFR);
+    document.getElementById('vocabularyLevel').innerText = vocabularyLevel;
+}
+
 
     function createCharts(data) {
         const ctxDifficulty = document.getElementById('difficultyChart').getContext('2d');
