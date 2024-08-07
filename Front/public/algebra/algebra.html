@@ -90,10 +90,16 @@
 
     .course-content .bi-star {
       font-size: 1.5rem;
+      color: #ffc107;
     }
 
     .course-content .bi-star.filled {
-      color: #ffc107;
+      color: #ffc107; /* Gold color for filled star */
+    }
+
+    .course-content .bi-star.empty {
+      color: #e9ecef; /* Light grey color for empty star */
+    }
     }
   </style>
 
@@ -228,8 +234,14 @@
             data[0].topics.forEach(topic => {
               const correctAnswers = topic.questions.filter(q => q.correct).length;
               const totalQuestions = topic.questions.length;
-              const consecutiveCorrect = topic.questions.reduce((count, q) => q.correct ? count + 1 : 0, 0);
-              const progress = (correctAnswers / Math.max(totalQuestions, 1)) * 100;
+              const consecutiveCorrect = topic.questions.reduce((count, q) => {
+                if (q.correct && q.level === 'hard') {
+                  return count + 1;
+                } else {
+                  return 0;
+                }
+              }, 0);
+              const progress = (correctAnswers / totalQuestions) * 100;
               const starColor = consecutiveCorrect >= 4 ? 'gold' : 'grey';
 
               topicsProgress.set(topic.topic, {
