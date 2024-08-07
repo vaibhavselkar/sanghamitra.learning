@@ -103,7 +103,7 @@
   <!-- Fonts -->
   <link href="../https://fonts.googleapis.com" rel="preconnect">
   <link href="../https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="../https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+  <link href="../https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -191,6 +191,12 @@
   <script>
     let username = '';
     let email = '';
+    const topicsList = [
+      { topic: 'fractions', url: 'fractions.html' },
+      { topic: 'decimals', url: 'decimals.html' },
+      { topic: 'ratio', url: 'ratio.html' },
+      { topic: 'percentages', url: 'percentages.html' }
+    ];
 
     async function fetchSessionInfo() {
       try {
@@ -215,6 +221,9 @@
         if (response.ok) {
           const data = await response.json();
           console.log("scores are: ", data, email);
+
+          // Create a map of topics with their progress
+          const topicsProgress = new Map();
           if (data.length > 0) {
             data[0].topics.forEach(topic => {
               const correctAnswers = topic.questions.filter(q => q.correct).length;
@@ -223,29 +232,48 @@
               const progress = (correctAnswers / Math.max(totalQuestions, 1)) * 100;
               const starColor = consecutiveCorrect >= 4 ? 'gold' : 'grey';
 
-              // Create topic item
-              const topicItem = document.createElement('div');
-              topicItem.className = 'topic-item';
-              topicItem.innerHTML = `
+              topicsProgress.set(topic.topic, {
+                correctAnswers,
+                totalQuestions,
+                progress,
+                starColor
+              });
+            });
+          }
+
+          // Populate the topic progress list
+          topicsList.forEach(({ topic, url }) => {
+            let topicData = topicsProgress.get(topic);
+            if (!topicData) {
+              topicData = {
+                correctAnswers: 0,
+                totalQuestions: 0,
+                progress: 0,
+                starColor: 'grey'
+              };
+            }
+
+            const topicItem = `
+              <div class="topic-item">
                 <div class="course-item">
                   <div class="course-content">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <a href="${topic.topic}.html"><button class="category">${topic.topic.charAt(0).toUpperCase() + topic.topic.slice(1)}</button></a>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <button class="category" onclick="location.href='${url}'">${topic}</button>
+                      <i class="bi bi-star ${topicData.starColor === 'gold' ? 'filled' : ''}"></i>
                     </div>
                     <div class="progress">
-                      <div class="progress-bar" role="progressbar" id="${topic.topic}-progress" style="width: ${progress}%;"></div>
+                      <div class="progress-bar" style="width: ${topicData.progress}%"></div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                      <span id="${topic.topic}-status">${correctAnswers}/${totalQuestions} Correct</span>
-                      <i id="${topic.topic}-star" class="bi bi-star" style="color: ${starColor};"></i>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span>${topicData.correctAnswers} / ${topicData.totalQuestions} Questions Correct</span>
+                      <button class="category">Algebra</button>
                     </div>
                   </div>
                 </div>
-              `;
-
-              document.getElementById('topic-progress-list').appendChild(topicItem);
-            });
-          }
+              </div>
+            `;
+            document.getElementById('topic-progress-list').insertAdjacentHTML('beforeend', topicItem);
+          });
         } else {
           console.error('Failed to fetch topic progress');
         }
@@ -254,8 +282,21 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', fetchSessionInfo);
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchSessionInfo();
+    });
   </script>
-  <script src="../navbar.js"></script>
+
+  <!-- Vendor JS Files -->
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/vendor/aos/aos.js"></script>
+  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="../assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="../assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Main JS File -->
+  <script src="../assets/js/main.js"></script>
 </body>
 </html>
