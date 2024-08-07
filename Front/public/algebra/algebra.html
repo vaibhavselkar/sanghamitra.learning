@@ -59,72 +59,38 @@
 
     <!-- Page Title -->
     <div class="page-title" data-aos="fade">
-          <div class="heading">
-            <div class="container">
-              <div class="row d-flex justify-content-center text-center">
-                <div class="col-lg-8">
-                  <h1>Algebra</h1>
-                  <p class="mb-0">Welcome to our Algebra Learning Hub</p>
-                </div>
+        <div class="heading">
+          <div class="container">
+            <div class="row d-flex justify-content-center text-center">
+              <div class="col-lg-8">
+                <h1>Algebra</h1>
+                <p class="mb-0">Welcome to our Algebra Learning Hub</p>
               </div>
             </div>
           </div>
-          <nav class="breadcrumbs">
-            <div class="container">
-              <ol>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="maths.html">Maths</a></li>
-                <li><a href="algebra.html">Algebra</a></li>
-                <li class="current">Algebra</li>
-              </ol>
-            </div>
-          </nav>
-        </div><!-- End Page Title -->
-  
-      <!-- Courses List Section -->
-      <section id="courses-list" class="section courses-list">
-  
-        <div class="container">
-  
-    <div class="row">
-  
-      <div class="col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="zoom-in" data-aos-delay="100">
-        <div class="course-item">
-          <div class="course-content">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <a href="decimals.html"><button class="category">Decimals</button></a>
-            </div>
-            <div class="progress">
-              <div class="progress-bar" role="progressbar" id="decimals-progress" style="width: 0%;"></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <span id="decimals-status">0/0 Correct</span>
-              <i id="decimals-star" class="bi bi-star" style="color: grey;"></i>
-            </div>
-          </div>
         </div>
-      </div> <!-- End Course Item-->
-  
-      <div class="col-lg-4 col-md-6 d-flex align-items-stretch" data-aos="zoom-in" data-aos-delay="100">
-        <div class="course-item">
-          <div class="course-content">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <a href="fraction.html"><button class="category">Fractions</button></a>
-            </div>
-            <div class="progress">
-              <div class="progress-bar" role="progressbar" id="fractions-progress" style="width: 0%;"></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <span id="fractions-status">0/0 Correct</span>
-              <i id="fractions-star" class="bi bi-star" style="color: grey;"></i>
-            </div>
+        <nav class="breadcrumbs">
+          <div class="container">
+            <ol>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="maths.html">Maths</a></li>
+              <li><a href="algebra.html">Algebra</a></li>
+              <li class="current">Algebra</li>
+            </ol>
           </div>
+        </nav>
+      </div><!-- End Page Title -->
+
+    <!-- Courses List Section -->
+    <section id="courses-list" class="section courses-list">
+
+      <div class="container">
+
+        <div class="row" id="topic-progress-list">
+          <!-- Dynamic content will be inserted here -->
         </div>
-      </div> <!-- End Course Item-->
-  
-    </div>
-  
-  </div>
+
+      </div>
 
     </section><!-- /Courses List Section -->
 
@@ -152,8 +118,6 @@
           </div>
         </div>
 
-        
-
         <div class="col-lg-4 col-md-12 footer-newsletter">
           
         </div>
@@ -164,69 +128,12 @@
     <div class="container copyright text-center mt-4">
       <p>© <span>Copyright</span> <strong class="px-1">Sanghamitra Learning</strong> <span>All Rights Reserved</span></p>
       <div class="credits">
-        <!-- All the links in the footer should remain intact. -->
-        <!-- You can delete the links only if you've purchased the pro version. -->
-        <!-- Licensing information: https://bootstrapmade.com/license/ -->
-        <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
         Designed by <a href="index.html">Sanghamitra</a>
       </div>
     </div>
 
   </footer>
 
-
-
-  <script>
-    document.addEventListener('DOMContentLoaded', fetchSessionInfo);
-
-let username = '';
-let email = '';
-
-async function fetchSessionInfo() {
-  try {
-    const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info');
-    if (response.ok) {
-      const data = await response.json();
-      username = data.username;
-      email = data.email;
-      console.log(username, email);
-      fetchTopicProgress(); // Fetch and display topic progress after retrieving user info
-    } else {
-      console.error('Failed to fetch session info');
-    }
-  } catch (error) {
-    console.error('Error fetching session info:', error);
-  }
-}
-
-async function fetchTopicProgress() {
-  try {
-    const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
-    if (response.ok) {
-      const data = await response.json();
-      console.log("scores are: ", data, email);
-      if (data.length > 0) {
-        data[0].topics.forEach(topic => {
-          const correctAnswers = topic.questions.filter(q => q.correct).length;
-          const totalQuestions = topic.questions.length;
-          const consecutiveCorrect = topic.questions.reduce((count, q) => q.correct ? count + 1 : 0, 0);
-          const progress = (correctAnswers / Math.max(totalQuestions, 1)) * 100;
-          const starColor = consecutiveCorrect >= 4 ? 'gold' : 'grey';
-
-          document.getElementById(`${topic.topic}-progress`).style.width = `${progress}%`;
-          document.getElementById(`${topic.topic}-status`).innerText = `${correctAnswers}/${totalQuestions} Correct`;
-          document.getElementById(`${topic.topic}-star`).style.color = starColor;
-        });
-      }
-    } else {
-      console.error('Failed to fetch topic progress');
-    }
-  } catch (error) {
-    console.error('Error fetching topic progress:', error);
-  }
-}
-
-  </script>
   <!-- Scroll Top -->
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
@@ -245,6 +152,77 @@ async function fetchTopicProgress() {
   <script src="../assets/js/main.js"></script>
   <script src="../navbar.js"></script>
 
-</body>
+  <!-- Custom JS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', fetchSessionInfo);
 
+    let username = '';
+    let email = '';
+
+    async function fetchSessionInfo() {
+      try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info');
+        if (response.ok) {
+          const data = await response.json();
+          username = data.username;
+          email = data.email;
+          console.log(username, email);
+          fetchTopicProgress(); // Fetch and display topic progress after retrieving user info
+        } else {
+          console.error('Failed to fetch session info');
+        }
+      } catch (error) {
+        console.error('Error fetching session info:', error);
+      }
+    }
+
+    async function fetchTopicProgress() {
+      try {
+        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("scores are: ", data, email);
+          if (data.length > 0) {
+            data[0].topics.forEach(topic => {
+              const correctAnswers = topic.questions.filter(q => q.correct).length;
+              const totalQuestions = topic.questions.length;
+              const consecutiveCorrect = topic.questions.reduce((count, q) => q.correct ? count + 1 : 0, 0);
+              const progress = (correctAnswers / Math.max(totalQuestions, 1)) * 100;
+              const starColor = consecutiveCorrect >= 4 ? 'gold' : 'grey';
+
+              // Create topic item
+              const topicItem = document.createElement('div');
+              topicItem.className = 'col-lg-4 col-md-6 d-flex align-items-stretch';
+              topicItem.setAttribute('data-aos', 'zoom-in');
+              topicItem.setAttribute('data-aos-delay', '100');
+              topicItem.innerHTML = `
+                <div class="course-item">
+                  <div class="course-content">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <a href="${topic.topic}.html"><button class="category">${topic.topic.charAt(0).toUpperCase() + topic.topic.slice(1)}</button></a>
+                    </div>
+                    <div class="progress">
+                      <div class="progress-bar" role="progressbar" id="${topic.topic}-progress" style="width: ${progress}%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <span id="${topic.topic}-status">${correctAnswers}/${totalQuestions} Correct</span>
+                      <i id="${topic.topic}-star" class="bi bi-star" style="color: ${starColor};"></i>
+                    </div>
+                  </div>
+                </div>
+              `;
+
+              document.getElementById('topic-progress-list').appendChild(topicItem);
+            });
+          }
+        } else {
+          console.error('Failed to fetch topic progress');
+        }
+      } catch (error) {
+        console.error('Error fetching topic progress:', error);
+      }
+    }
+  </script>
+
+</body>
 </html>
