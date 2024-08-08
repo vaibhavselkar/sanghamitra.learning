@@ -226,6 +226,7 @@
               const totalQuestions = topic.questions.length;
               const progress = (correctAnswers / totalQuestions) * 100;
               const starColor = calculateStarColor(topic.questions);
+              console.log(starColor)
 
               topicsProgress.set(topic.topic, {
                 correctAnswers,
