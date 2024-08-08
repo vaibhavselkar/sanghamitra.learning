@@ -280,7 +280,7 @@
       console.log("called")
       let consecutiveCorrect = 0;
       for (const q of questions) {
-        if (q.correct && q.level === 'hard') {
+        if (q.correct && q.difficultyLevel === 'hard') {
           consecutiveCorrect++;
           if (consecutiveCorrect >= 4) {
             console.log("gold")
