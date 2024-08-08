@@ -277,6 +277,7 @@
     }
 
     function calculateStarColor(questions) {
+      console.log("called")
       let consecutiveCorrect = 0;
       for (const q of questions) {
         if (q.correct && q.level === 'hard') {
