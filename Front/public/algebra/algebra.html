@@ -255,7 +255,8 @@
                   <div class="course-content">
                     <div class="d-flex justify-content-between align-items-center">
                       <button class="category" onclick="location.href='${url}'">${topic}</button>
-                      <i class="bi bi-star-fill ${topicData.starColor}"></i>
+                      console.log(starColor)
+                      <i class="bi bi-star ${topicData.starColor}"></i>
                     </div>
                     <div class="progress">
                       <div class="progress-bar" style="width: ${topicData.progress}%"></div>
