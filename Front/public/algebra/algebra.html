@@ -211,7 +211,7 @@
           username = data.username;
           email = data.email;
           console.log(username, email);
-          fetchTopicProgress();
+          fetchTopicProgress(); // Fetch and display topic progress after retrieving user info
         } else {
           console.error('Failed to fetch session info');
         }
@@ -227,27 +227,21 @@
           const data = await response.json();
           console.log("scores are: ", data, email);
 
+          // Create a map of topics with their progress
           const topicsProgress = new Map();
           if (data.length > 0) {
             data[0].topics.forEach(topic => {
               const correctAnswers = topic.questions.filter(q => q.correct).length;
               const totalQuestions = topic.questions.length;
-              let consecutiveCorrect = 0;
-              let maxConsecutiveCorrect = 0;
-
-              topic.questions.forEach((q, index) => {
+              const consecutiveCorrect = topic.questions.reduce((count, q) => {
                 if (q.correct && q.level === 'hard') {
-                  consecutiveCorrect++;
-                  if (consecutiveCorrect > maxConsecutiveCorrect) {
-                    maxConsecutiveCorrect = consecutiveCorrect;
-                  }
+                  return count + 1;
                 } else {
-                  consecutiveCorrect = 0;
+                  return 0;
                 }
-              });
-
+              }, 0);
               const progress = (correctAnswers / totalQuestions) * 100;
-              const starColor = maxConsecutiveCorrect >= 4 ? 'gold' : 'grey';
+              const starColor = consecutiveCorrect >= 4 ? 'gold' : 'grey';
 
               topicsProgress.set(topic.topic, {
                 correctAnswers,
@@ -258,6 +252,7 @@
             });
           }
 
+          // Populate the topic progress list
           topicsList.forEach(({ topic, url }) => {
             let topicData = topicsProgress.get(topic);
             if (!topicData) {
@@ -269,27 +264,26 @@
               };
             }
 
-            const topicHTML = `
+            const topicItem = `
               <div class="topic-item">
                 <div class="course-item">
                   <div class="course-content">
                     <div class="d-flex justify-content-between align-items-center">
-                      <a href="${url}">
-                        <button type="button" class="category">${topic}</button>
-                      </a>
-                      <span class="bi bi-star ${topicData.starColor}"></span>
+                      <button class="category" onclick="location.href='${url}'">${topic}</button>
+                      <i class="bi bi-star-fill ${topicData.starColor}"></i>
                     </div>
                     <div class="progress">
                       <div class="progress-bar" style="width: ${topicData.progress}%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span>${topicData.correctAnswers} / ${topicData.totalQuestions} Questions Correct</span>
                     </div>
                   </div>
                 </div>
               </div>
             `;
-
-            document.getElementById('topic-progress-list').innerHTML += topicHTML;
+            document.getElementById('topic-progress-list').insertAdjacentHTML('beforeend', topicItem);
           });
-
         } else {
           console.error('Failed to fetch topic progress');
         }
@@ -298,9 +292,10 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', fetchSessionInfo);
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchSessionInfo();
+    });
   </script>
-
 
   <!-- Vendor JS Files -->
   <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
