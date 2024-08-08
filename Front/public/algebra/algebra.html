@@ -282,6 +282,7 @@
         if (q.correct && q.level === 'hard') {
           consecutiveCorrect++;
           if (consecutiveCorrect >= 4) {
+            console.log("gold")
             return 'gold';
           }
         } else {
