@@ -598,17 +598,17 @@
             const selectedOption = option.getAttribute('data-option');
             const selectedAnswer = question.options[selectedOption];
             const isCorrect = selectedAnswer === question.correctOption;
-
+        
             optionButtons.forEach(button => button.classList.remove('selected'));
             option.classList.add('selected');
-
+        
             if (isCorrect) {
-                correctAnswers[question.CEFRLevel]++;
+                correctAnswers[question.CEFRLevel]++; // Increment correct answers for the corresponding level
                 totalPoints += question.points; // Add points for correct answer
             }
-
-            totalQuestions[question.CEFRLevel]++;
-
+        
+            totalQuestions[question.CEFRLevel]++; // Increment total questions for the corresponding level
+        
             // Store the answer and feedback
             answers[currentQuestionIndex] = {
                 question_id: question._id,
@@ -774,7 +774,7 @@
         }
 
         function displayVocabularyLevel() {
-            const level = determineVocabularyLevel();
+            const level = determineVocabularyLevel(totalQuestions, correctAnswers);
             vocabularyLevelElement.innerHTML = `<h3>Your Vocabulary Level is: ${level}</h3>`;
         }
 
