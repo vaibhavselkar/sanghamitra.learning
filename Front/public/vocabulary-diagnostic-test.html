@@ -628,43 +628,49 @@
             questionCircles[currentQuestionIndex].classList.add('active', 'attempted');
         }
 
-        function determineVocabularyLevel() {
-            const levelThresholds = {
-                A1: 0.6,
-                A2: 0.6,
-                B1: 0.6,
-                B2: 0.6,
-                C1: 0.6,
-                C2: 0.6
-            };
-            
-            const minCorrectAnswers = {
-                A1: 3,
-                A2: 3,
-                B1: 3,
-                B2: 3,
-                C1: 3,
-                C2: 3
-            };
-
+        function determineVocabularyLevel(totalQuestions, correctAnswers) {
+            const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
             let determinedLevel = 'A1';
-            let maxScore = 0;
-
-            // Calculate scores considering both correct and incorrect answers
-            for (let level in cefrScores) {
-                const totalQuestionsAtLevel = totalQuestions[level] || 1;  // Avoid division by zero
-                const correctAnswersAtLevel = correctAnswers[level] || 0;
-                const incorrectAnswersAtLevel = totalQuestionsAtLevel - correctAnswersAtLevel;
-                const percentageCorrect = correctAnswersAtLevel / totalQuestionsAtLevel;
-                const score = percentageCorrect - (incorrectAnswersAtLevel / totalQuestionsAtLevel * 0.5);  // Penalize wrong answers
-
-                if (percentageCorrect >= levelThresholds[level] && correctAnswersAtLevel >= minCorrectAnswers[level]) {
-                    if (score > maxScore) {
-                        maxScore = score;
-                        determinedLevel = level;
-                    }
-                }
+          
+            // Penalty weights, ensuring penalties are less harsh and proportional
+            const penaltyWeights = {
+              A1: 0.5,
+              A2: 0.4,
+              B1: 0.2,
+              B2: 0.2,
+              C1: 0.1,
+              C2: 0.05
+            };
+          
+            // Threshold levels, reduced to account for difficulty
+            const thresholds = {
+              A1: 3,
+              A2: 3,
+              B1: 2.5,
+              B2: 2.5,
+              C1: 2.5,
+              C2: 2.5
+            };
+          
+            for (let level of levels) {
+              const totalQuestionsAtLevel = totalQuestions[level] || 1;
+              const correctAnswersAtLevel = correctAnswers[level] || 0;
+          
+              const incorrectAnswersAtLevel = totalQuestionsAtLevel - correctAnswersAtLevel;
+              const penalty = penaltyWeights[level] * incorrectAnswersAtLevel;
+          
+              const effectiveScore = correctAnswersAtLevel - penalty;
+          
+              if (effectiveScore >= thresholds[level]) {
+                determinedLevel = level;
+              } else {
+                break;  // Stop if the user fails to meet the criteria
+              }
             }
+          
+            return determinedLevel;
+          }
+
 
             return determinedLevel;
         }
