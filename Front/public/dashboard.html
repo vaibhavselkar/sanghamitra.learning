@@ -254,14 +254,13 @@
             weaknessesList.appendChild(listItem);
         });
 
-        const quizScoresList = document.getElementById('quiz-scores-list');
-        quizScoresList.innerHTML = ''; // Clear previous list
-        processedData.quizScores.forEach(quiz => {
-            const listItem = document.createElement('li');
-            const quizDate = new Date(quiz.date).toLocaleDateString();
-            listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-custom-small" onclick="goToQuizAnalytics('${quiz.date}')">View Analytics</button>`;
-            quizScoresList.appendChild(listItem);
-        });
+        const lastThreeScores = processedData.quizScores.slice(0, 3); // Get the first three items after sorting
+            lastThreeScores.forEach(quiz => {
+                const listItem = document.createElement('li');
+                const quizDate = new Date(quiz.date).toLocaleDateString();
+                listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-custom-small" onclick="goToQuizAnalytics('${quiz.id}')">View Analytics</button>`;
+                quizScoresList.appendChild(listItem);
+            });
     }
 
     function goToQuizAnalytics(quizId) {
