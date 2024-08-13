@@ -234,40 +234,35 @@
     }
 
     function displayUserData(user) {
-            const processedData = processUserData(user);
-            document.getElementById('total-score').innerText = processedData.totalScore;
-            document.getElementById('quiz-count').innerText = processedData.quizCount;
-        
-            const strengthsList = document.getElementById('strengths-list');
-            strengthsList.innerHTML = ''; // Clear previous list
-            processedData.strengths.forEach(topic => {
-                const listItem = document.createElement('li');
-                listItem.innerText = topic;
-                strengthsList.appendChild(listItem);
-            });
-        
-            const weaknessesList = document.getElementById('weaknesses-list');
-            weaknessesList.innerHTML = ''; // Clear previous list
-            processedData.weaknesses.forEach(topic => {
-                const listItem = document.createElement('li');
-                listItem.innerText = topic;
-                weaknessesList.appendChild(listItem);
-            });
-        
-            const quizScoresList = document.getElementById('quiz-scores-list');
-            quizScoresList.innerHTML = ''; // Clear previous list
-        
-            // Show only the last three test scores
-            const lastThreeScores = processedData.quizScores.slice(0, 3); // Get the first three items after sorting
-            lastThreeScores.forEach(quiz => {
-                const listItem = document.createElement('li');
-                const quizDate = new Date(quiz.date).toLocaleDateString();
+        const processedData = processUserData(user);
+        document.getElementById('total-score').innerText = processedData.totalScore;
+        document.getElementById('quiz-count').innerText = processedData.quizCount;
 
-                listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-custom-small" onclick="goToQuizAnalytics('${quiz._id}')">View Analytics</button>`;
-                quizScoresList.appendChild(listItem);
-            });
-        }
+        const strengthsList = document.getElementById('strengths-list');
+        strengthsList.innerHTML = ''; // Clear previous list
+        processedData.strengths.forEach(topic => {
+            const listItem = document.createElement('li');
+            listItem.innerText = topic;
+            strengthsList.appendChild(listItem);
+        });
 
+        const weaknessesList = document.getElementById('weaknesses-list');
+        weaknessesList.innerHTML = ''; // Clear previous list
+        processedData.weaknesses.forEach(topic => {
+            const listItem = document.createElement('li');
+            listItem.innerText = topic;
+            weaknessesList.appendChild(listItem);
+        });
+
+        const quizScoresList = document.getElementById('quiz-scores-list');
+        quizScoresList.innerHTML = ''; // Clear previous list
+        processedData.quizScores.forEach(quiz => {
+            const listItem = document.createElement('li');
+            const quizDate = new Date(quiz.date).toLocaleDateString();
+            listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-custom-small" onclick="goToQuizAnalytics('${quiz.date}')">View Analytics</button>`;
+            quizScoresList.appendChild(listItem);
+        });
+    }
 
     function goToQuizAnalytics(quizId) {
         window.location.href = `vocab_analytics.html?quizId=${encodeURIComponent(quizId)}`;
