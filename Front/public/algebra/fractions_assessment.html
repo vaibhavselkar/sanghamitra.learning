@@ -36,14 +36,12 @@
     body {
       font-family: 'Open Sans', sans-serif;
     }
-
     #main-content {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 80vh;
     }
-
     #question-container {
       background: #f8f9fa;
       padding: 20px;
@@ -54,14 +52,12 @@
       text-align: center;
       position: relative;
     }
-
     .option-button {
       background-color: white; /* Background color */
       color: black; /* Text color */
       border: 1px solid #ddd;
       transition: background-color 0.3s, color 0.3s;
     }
-
     .option-button:hover {
       background-color: #ddd; /* Hover color */
       color: white; /* Text color on hover */
@@ -70,11 +66,8 @@
     .option-button:focus,
     .option-button:active {
       outline: none; /* Remove default outline */
-      box-shadow: none; /* Prevent any box shadow that may cause blue effects */
-      background-color: #5fcf80; /* Immediate green background when clicked */
-      border-color: #5fcf80; /* Matches the border color to green */
-      color: white; /* Ensure text is white when selected */
     }
+
 
     #options {
       display: grid;
@@ -85,7 +78,6 @@
     #explanation {
       margin-top: 20px;
     }
-
     .selected {
       background-color: #5fcf80; /* Green color for selected option */
       color: white; /* White text */
@@ -95,12 +87,10 @@
       background-color: green !important;
       color: white !important;
     }
-
     .incorrect {
       background-color: red !important;
       color: white !important;
     }
-
     .progress-bar {
       position: static;
       margin-bottom: 20px;
@@ -110,15 +100,14 @@
       border-radius: 5px; /* Less rounded corners */
       overflow: hidden;
     }
-
+    
     .progress-fill {
       height: 100%;
       background-color: #5fcf80;
       width: 0;
       transition: width 0.5s;
     }
-
-    /* Styling for progress bar */
+    // added a styling for progress bar
     #question-container label {
       display: block;
       text-align: left;
@@ -126,7 +115,6 @@
       font-weight: 600; /* Make the label bold */
       color: #007bff; /* You can customize the color */
     }
-
     #question-container label i {
       margin-right: 8px;
       color: #FFD700; /* Golden color */
@@ -140,14 +128,14 @@
       border-color: #5fcf80;
       color: white; /* White text color */
     }
-
+    
     .btn-primary:hover,
     .btn-secondary:hover,
     .btn-info:hover {
       background-color: #4db970; /* Slightly darker green on hover */
       border-color: #4db970;
     }
-
+    
     .btn-primary:focus,
     .btn-secondary:focus,
     .btn-info:focus,
@@ -156,7 +144,10 @@
     .btn-info:active {
       outline: none; /* Remove focus and active outlines */
     }
-</style>
+
+
+  </style>
+
 
 </head>
 
