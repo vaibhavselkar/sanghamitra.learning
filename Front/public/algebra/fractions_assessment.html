@@ -47,10 +47,15 @@
       position: relative;
     }
     .option-button {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      cursor: pointer;
+      background-color: white; /* New background color */
+      color: #333;
+      border: 1px solid #ddd;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .option-button:hover {
+      background-color: ##525456; /* Hover color */
+      color: white; /* Text color on hover */
     }
     #options {
       display: grid;
@@ -62,7 +67,7 @@
       margin-top: 20px;
     }
     .selected {
-      background-color: blue;
+      background-color: #5fcf80;
       color: white;
     }
     .correct {
