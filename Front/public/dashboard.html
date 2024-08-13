@@ -263,7 +263,7 @@
                 const listItem = document.createElement('li');
                 const quizDate = new Date(quiz.date).toLocaleDateString();
 
-                listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-custom-small" onclick="goToQuizAnalytics('${quiz.id}')">View Analytics</button>`;
+                listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-custom-small" onclick="goToQuizAnalytics('${quiz._id}')">View Analytics</button>`;
                 quizScoresList.appendChild(listItem);
             });
         }
