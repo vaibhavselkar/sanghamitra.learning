@@ -94,6 +94,14 @@
       width: 0;
       transition: width 0.5s;
     }
+    // added a styling for progress bar
+    #question-container label {
+      display: block;
+      text-align: left;
+      margin-bottom: 10px;
+      font-weight: 600; /* Make the label bold */
+      color: #007bff; /* You can customize the color */
+    }
 
   </style>
 </head>
@@ -114,6 +122,9 @@
 
   <main id="main-content" class="main">
     <div id="question-container">
+    // added label for the progress bar  
+    <label for="progress-fill" class="h5">Mastery Meter</label>
+
       <div class="progress-bar">
         <div class="progress-fill" id="progress-fill"></div>
       </div>
