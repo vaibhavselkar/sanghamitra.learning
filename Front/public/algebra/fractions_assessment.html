@@ -63,7 +63,14 @@
       background-color: #ccc; /* Hover color */
       color: white; /* Text color on hover */
     }
-    
+
+    .option-button:focus,
+    .option-button:active {
+      outline: none; /* Remove default outline */
+      background-color: white; /* Keep background white */
+      color: black; /* Ensure text color stays black */
+    }
+
 
     #options {
       display: grid;
@@ -75,9 +82,11 @@
       margin-top: 20px;
     }
     .selected {
-      background-color: #5fcf80;
-      color: white;
+      background-color: #5fcf80; /* Green color */
+      color: white; /* White text */
+      outline: none; /* Remove outline */
     }
+
     .correct {
       background-color: green !important;
       color: white !important;
@@ -114,6 +123,30 @@
       margin-right: 8px;
       color: #FFD700; /* Golden color */
       font-size: 1.2em; /* Adjust size if needed */
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-info {
+      background-color: #5fcf80; /* Green color */
+      border-color: #5fcf80;
+      color: white; /* White text color */
+    }
+    
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    .btn-info:hover {
+      background-color: #4db970; /* Slightly darker green on hover */
+      border-color: #4db970;
+    }
+    
+    .btn-primary:focus,
+    .btn-secondary:focus,
+    .btn-info:focus,
+    .btn-primary:active,
+    .btn-secondary:active,
+    .btn-info:active {
+      outline: none; /* Remove focus and active outlines */
     }
 
 
