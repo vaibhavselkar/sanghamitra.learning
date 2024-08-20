@@ -389,7 +389,8 @@
       if (!correct) {
         document.getElementById('correct-option').innerText = `Correct Option: ${currentQuestion.options[currentQuestion.correctOption]}`;
       }
-
+      // Render LaTeX for explanation and correct option
+      MathJax.typeset();
       updateProgress(correct);
       if (correct) {
         if (difficultyLevel === 'hard') consecutiveCorrect++;
