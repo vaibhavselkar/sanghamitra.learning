@@ -170,6 +170,10 @@
         <p id="explanation-text" class="mt-3"></p>
         <p id="correct-option" class="mt-2" style="color: green;"></p>
         <button id="next-button" class="btn btn-secondary mt-3" onclick="fetchQuestion()">Next</button>
+        <div id="feedback-message" class="mt-3" style="font-size: 1.2em;">
+          <i id="feedback-icon" class="fas"></i> <span id="feedback-text"></span>
+        </div>
+
       </div>
       <button id="next-topic" class="btn btn-info mt-3" style="display: none;" onclick="location.href='decimals_assessment.html'">Next Topic: Decimals</button>
     </div>
@@ -375,6 +379,18 @@
       // Disable the submit button
       document.getElementById('submit-button').disabled = true;
       document.getElementById('submit-button').style.display = 'none';
+
+      // Feedback message and icon
+      const feedbackMessage = document.getElementById('feedback-text');
+      const feedbackIcon = document.getElementById('feedback-icon');
+  
+      if (correct) {
+          feedbackMessage.innerHTML = "Hurray!! You've got the correct answer!";
+          feedbackIcon.className = "fas fa-smile text-success"; // Happy face icon in green
+      } else {
+          feedbackMessage.innerHTML = "Oops! That's not correct.";
+          feedbackIcon.className = "fas fa-frown text-danger"; // Sad face icon in red
+      }
 
       // Disable all option buttons and show correct option in green and incorrect options in red
       document.querySelectorAll('.option-button').forEach(button => {
