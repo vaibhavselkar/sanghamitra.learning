@@ -6,8 +6,6 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <meta content="" name="description">
   <meta content="" name="keywords">
-  
-
 
   <!-- Favicons -->
   <link href="../assets/img/favicon.png" rel="icon">
@@ -16,7 +14,7 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -26,16 +24,14 @@
   <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-
 
   <!-- Main CSS File -->
   <link href="../assets/css/main.css" rel="stylesheet">
 
+  <!-- MathJax for LaTeX rendering -->
   <script type="text/javascript" async
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
   </script>
 
   <style>
@@ -59,36 +55,31 @@
       position: relative;
     }
     .option-button {
-      background-color: white; /* Background color */
-      color: black; /* Text color */
+      background-color: white;
+      color: black;
       border: 1px solid #ddd;
       transition: background-color 0.3s, color 0.3s;
     }
     .option-button:hover {
-      background-color: #ddd; /* Hover color */
-      color: white; /* Text color on hover */
+      background-color: #ddd;
+      color: white;
     }
-
     .option-button:focus,
     .option-button:active {
-      outline: none; /* Remove default outline */
+      outline: none;
     }
-
-
     #options {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
-
     #explanation {
       margin-top: 20px;
     }
     .selected {
-      background-color: #5fcf80; /* Green color for selected option */
-      color: white; /* White text */
+      background-color: #5fcf80;
+      color: white;
     }
-
     .correct {
       background-color: green !important;
       color: white !important;
@@ -101,60 +92,51 @@
       position: static;
       margin-bottom: 20px;
       width: 100%;
-      height: 25px; /* Slightly larger height */
+      height: 25px;
       background-color: #e0e0e0;
-      border-radius: 5px; /* Less rounded corners */
+      border-radius: 5px;
       overflow: hidden;
     }
-    
     .progress-fill {
       height: 100%;
       background-color: #5fcf80;
       width: 0;
       transition: width 0.5s;
     }
-    // added a styling for progress bar
     #question-container label {
       display: block;
       text-align: left;
       margin-bottom: 10px;
-      font-weight: 600; /* Make the label bold */
-      color: #007bff; /* You can customize the color */
+      font-weight: 600;
+      color: #007bff;
     }
     #question-container label i {
       margin-right: 8px;
-      color: #FFD700; /* Golden color */
-      font-size: 1.2em; /* Adjust size if needed */
+      color: #FFD700;
+      font-size: 1.2em;
     }
-
     .btn-primary,
     .btn-secondary,
     .btn-info {
-      background-color: #5fcf80; /* Green color */
+      background-color: #5fcf80;
       border-color: #5fcf80;
-      color: white; /* White text color */
+      color: white;
     }
-    
     .btn-primary:hover,
     .btn-secondary:hover,
     .btn-info:hover {
-      background-color: #4db970; /* Slightly darker green on hover */
+      background-color: #4db970;
       border-color: #4db970;
     }
-    
     .btn-primary:focus,
     .btn-secondary:focus,
     .btn-info:focus,
     .btn-primary:active,
     .btn-secondary:active,
     .btn-info:active {
-      outline: none; /* Remove focus and active outlines */
+      outline: none;
     }
-
-
   </style>
-
-
 </head>
 
 <body>
@@ -173,13 +155,13 @@
 
   <main id="main-content" class="main">
     <div id="question-container">
-    <label for="progress-fill" class="h5">
-      <i class="fas fa-trophy"></i> Mastery Meter
-    </label>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress-fill"></div>
-    </div>
-    
+      <label for="progress-fill" class="h5">
+        <i class="fas fa-trophy"></i> Mastery Meter
+      </label>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+
       <p id="difficulty"></p>
       <p id="question" class="h4"></p>
       <div id="options"></div>
@@ -223,7 +205,7 @@
       </div>
     </div>
   </footer>
-  
+
   <script>
     let username = '';
     let email = '';
@@ -275,17 +257,16 @@
       }
     }
 
-    
     function calculateProgress(data) {
       let totalQuestions = 0;
       let correctAnswers = 0;
       let totalRequiredQuestions = 0;
       let consecutiveCorrect = 0;
-    
+
       data[0].topics.forEach(topic => {
         totalQuestions += topic.questions.length;
         correctAnswers += topic.questions.filter(q => q.correct).length;
-    
+
         topic.questions.forEach(q => {
           if (q.correct) {
             consecutiveCorrect++;
@@ -294,7 +275,7 @@
           }
         });
       });
-    
+
       if (consecutiveCorrect >= 4) {
         totalRequiredQuestions = 4; // If the user gets four correct in a row, they pass with just 4 questions
       } else {
@@ -304,7 +285,7 @@
           totalRequiredQuestions = totalQuestions + 2; // Minimum requirement when starting over
         }
       }
-    
+
       // Calculate progress percentage
       if (correctAnswers >= 4 && totalQuestions <= 4) {
         progress = 100;
@@ -313,7 +294,7 @@
       } else {
         progress = 0;
       }
-    
+
       updateProgressBar();
     }
 
@@ -343,7 +324,7 @@
     function displayQuestion(question) {
       selectedOption = null;
       document.getElementById('difficulty').innerText = `Difficulty: ${difficultyLevel}`;
-      document.getElementById('question').innerText = question.question;
+      document.getElementById('question').innerHTML = question.question;
 
       for (const [key, value] of Object.entries(question.options)) {
         const button = document.createElement('button');
@@ -352,6 +333,9 @@
         button.onclick = () => selectOption(button, key === question.correctOption, question);
         document.getElementById('options').appendChild(button);
       }
+
+      // Re-render MathJax for the question to ensure fractions display correctly
+      MathJax.typeset();
     }
 
     function selectOption(button, correct, question) {
@@ -421,16 +405,15 @@
     }
 
     function updateProgress(correct) {
-      // Determine the total number of questions required based on correct and incorrect answers
       let totalRequiredQuestions;
       if (correct) {
         consecutiveCorrect++;
       } else {
         consecutiveCorrect = 0;
       }
-    
+
       if (consecutiveCorrect >= 4) {
-        totalRequiredQuestions = 4; // If the user gets four correct in a row, they pass with just 4 questions
+        totalRequiredQuestions = 4;
       } else {
         if (difficultyLevel === 'easy') {
           totalRequiredQuestions = 6;
@@ -440,17 +423,15 @@
           totalRequiredQuestions = 4;
         }
       }
-    
-      // Calculate the progress percentage based on the total required questions
+
       progress = (consecutiveCorrect / totalRequiredQuestions) * 100;
       updateProgressBar();
     }
-    
+
     function updateProgressBar() {
       const progressFill = document.getElementById('progress-fill');
       progressFill.style.width = `${progress}%`;
     }
-  
 
     document.addEventListener('DOMContentLoaded', fetchSessionInfo);
   </script>
