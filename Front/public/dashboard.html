@@ -187,19 +187,20 @@
         }
     }
 
-    async function fetchMathScores(email) {
-        try {
-            const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
+    async function fetchAlgebraScores(email) {
+            try {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebrascores?email=${email}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                const algebraData = await response.json();
+                return algebraData;
+            } catch (error) {
+                console.error('There has been a problem with your fetch operation:', error);
+                return null;
             }
-            const mathData = await response.json();
-            return mathData;
-        } catch (error) {
-            console.error('There has been a problem with your fetch operation:', error);
-            return null;
         }
-    }
+
 
     function processUserData(user) {
         const assessments = user.assessments;
@@ -249,16 +250,26 @@
         };
     }
 
-    function processMathData(mathData) {
-        const fractionsTopic = mathData.topics.find(topic => topic.topic === 'fractions');
-        if (!fractionsTopic) return { totalQuestions: 0, correctAnswers: 0, incorrectAnswers: 0 };
+    function processAlgebraData(algebraData) {
+            // Check if algebraData or algebraData.topics is undefined or empty
+            if (!algebraData || !algebraData.topics || algebraData.topics.length === 0) {
+                return { totalQuestions: 0, correctAnswers: 0, incorrectAnswers: 0 };
+            }
+        
+            const fractionsTopic = algebraData.topics.find(topic => topic.topic === 'fractions');
+            
+            // Check if fractionsTopic is undefined (i.e., topic not found)
+            if (!fractionsTopic || !fractionsTopic.questions) {
+                return { totalQuestions: 0, correctAnswers: 0, incorrectAnswers: 0 };
+            }
+        
+            const totalQuestions = fractionsTopic.questions.length;
+            const correctAnswers = fractionsTopic.questions.filter(q => q.correct).length;
+            const incorrectAnswers = totalQuestions - correctAnswers;
+        
+            return { totalQuestions, correctAnswers, incorrectAnswers };
+        }
 
-        const totalQuestions = fractionsTopic.questions.length;
-        const correctAnswers = fractionsTopic.questions.filter(q => q.correct).length;
-        const incorrectAnswers = totalQuestions - correctAnswers;
-
-        return { totalQuestions, correctAnswers, incorrectAnswers };
-    }
 
     function displayUserData(user) {
         const processedData = processUserData(user);
@@ -291,12 +302,13 @@
         });
     }
 
-    function displayMathData(mathData) {
-        const processedMathData = processMathData(mathData);
-        document.getElementById('fraction-total-questions').innerText = processedMathData.totalQuestions;
-        document.getElementById('fraction-correct-answers').innerText = processedMathData.correctAnswers;
-        document.getElementById('fraction-incorrect-answers').innerText = processedMathData.incorrectAnswers;
-    }
+    function displayAlgebraData(algebraData) {
+            const processedAlgebraData = processAlgebraData(algebraData);
+            document.getElementById('fraction-total-questions').innerText = processedAlgebraData.totalQuestions;
+            document.getElementById('fraction-correct-answers').innerText = processedAlgebraData.correctAnswers;
+            document.getElementById('fraction-incorrect-answers').innerText = processedAlgebraData.incorrectAnswers;
+        }
+
 
     function goToQuizAnalytics(quizId) {
         window.location.href = `vocab_analytics.html?quizId=${encodeURIComponent(quizId)}`;
@@ -308,22 +320,23 @@
             console.error('Failed to fetch user dashboard data');
             return;
         }
-
+    
         const vocabScoresData = await fetchVocabscores(userDashboardData.email);
         if (!vocabScoresData) {
             console.error('Failed to fetch vocab scores data');
             return;
         }
-
-        const mathScoresData = await fetchMathScores(userDashboardData.email);
-        if (!mathScoresData) {
-            console.error('Failed to fetch math scores data');
+    
+        const algebraScoresData = await fetchAlgebraScores(userDashboardData.email);
+        if (!algebraScoresData) {
+            console.error('Failed to fetch algebra scores data');
             return;
         }
-
+    
         displayUserData(vocabScoresData);
-        displayMathData(mathScoresData);
+        displayAlgebraData(algebraScoresData);
     }
+
 
     init();
 </script>
