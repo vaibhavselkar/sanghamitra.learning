@@ -154,7 +154,7 @@
 <script>
     async function fetchVocabscores(email) {
         try {
-            const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/vocabscores?email=${email}`);
+            const response = await fetch(`http://localhost:4000/api/vocabscores?email=${email}`);
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
@@ -168,7 +168,7 @@
 
     async function fetchFractionsScores(email) {
         try {
-            const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
+            const response = await fetch(`http://localhost:4000/api/algebra_scores?email=${email}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch fractions scores data: ' + response.statusText);
             }
@@ -182,7 +182,7 @@
 
     async function fetchUserDashboard() {
         try {
-            const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/dashboard', {
+            const response = await fetch('http://localhost:4000/api/dashboard', {
                 method: 'GET',
                 headers: {
                     Accept: "application/json",
@@ -317,17 +317,19 @@
         function renderMathPerformanceChart(correctAnswers, incorrectAnswers) {
             const ctx = document.getElementById('mathPerformanceChart').getContext('2d');
             new Chart(ctx, {
-                type: 'oughnut',
+                type: 'doughnut', // Changed from 'pie' to 'doughnut' for annular ring
                 data: {
-                    labels: ['Correct Answers', 'Incorrect Answers'], // Only two categories
+                    labels: ['Correct Answers', 'Incorrect Answers'],
                     datasets: [{
-                        data: [correctAnswers, incorrectAnswers], // Show only correct and incorrect answers
-                        backgroundColor: ['#1C4E80', '#A5D8DD'], // Colors for correct and incorrect answers
-                        hoverBackgroundColor: ['#1C4E80', '#A5D8DD'] // Colors on hover
+                        data: [correctAnswers, incorrectAnswers],
+                        backgroundColor: ['#1C4E80', '#A5D8DD'], // Updated colors as requested
+                        hoverBackgroundColor: ['#1C4E80', '#A5D8DD'],
+                        borderWidth: 2 // Optional: Adjust border width if needed
                     }]
                 },
                 options: {
                     responsive: true,
+                    cutout: '70%', // Creates the annular ring effect
                     plugins: {
                         legend: {
                             position: 'top',
@@ -343,6 +345,7 @@
                 }
             });
         }
+
    
     
     function goToQuizAnalytics(quizId) {
