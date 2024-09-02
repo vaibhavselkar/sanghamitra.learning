@@ -35,7 +35,7 @@
             font-size: 0.70rem; /* Adjust font size */
             padding: 0.12rem 0.3rem; /* Adjust padding */
             border-radius: 0.1rem; /* Adjust border radius */
-            background-color: #5fcf80; /* Custom background color */
+            background-color: #A5D8DD; /* Custom background color */
             color: black; /* Custom text color */
         }
         .card-container {
@@ -317,13 +317,13 @@
         function renderMathPerformanceChart(correctAnswers, incorrectAnswers) {
             const ctx = document.getElementById('mathPerformanceChart').getContext('2d');
             new Chart(ctx, {
-                type: 'pie',
+                type: 'oughnut',
                 data: {
                     labels: ['Correct Answers', 'Incorrect Answers'], // Only two categories
                     datasets: [{
                         data: [correctAnswers, incorrectAnswers], // Show only correct and incorrect answers
-                        backgroundColor: ['#27ae60', '#e74c3c'], // Colors for correct and incorrect answers
-                        hoverBackgroundColor: ['#2ecc71', '#c0392b'] // Colors on hover
+                        backgroundColor: ['#1C4E80', '#A5D8DD'], // Colors for correct and incorrect answers
+                        hoverBackgroundColor: ['#1C4E80', '#A5D8DD'] // Colors on hover
                     }]
                 },
                 options: {
