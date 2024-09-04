@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 authButton.classList.remove('btn-danger');
                 authButton.classList.add('btn-success');
                 authButton.onclick = () => {
-                    window.location.href = 'user_login.html';
+                    window.location.href = '../public/user_login.html';
                 };
             }
         })
