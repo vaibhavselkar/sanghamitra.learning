@@ -240,42 +240,56 @@ router.get('/algebra_questions', async (req, res) => {
 
 // Store algebra quiz attempt
 router.post('/algebra_score_add', async (req, res) => {
-  const { username, email, topic, questionId, answer, correct, difficultyLevel } = req.body;
+  const { username, email, topic, questionId, answer, correct, difficultyLevel, current_level } = req.body;
 
   try {
+    // Find user by username and email
     let userScore = await AlgebraScores.findOne({ username, email });
 
     if (!userScore) {
+      // If user doesn't exist, create a new entry with default level
       userScore = new AlgebraScores({
         username,
         email,
         topics: [{
           topic,
           answeredQuestions: [questionId],
+          current_level,  // Ensure current_level is saved here
           questions: [{ questionId, answer, correct, difficultyLevel }]
+         
         }]
       });
     } else {
+      // Find the topic index
       let topicIndex = userScore.topics.findIndex(t => t.topic === topic);
 
       if (topicIndex === -1) {
+        // If topic doesn't exist, create a new topic entry with current_level
         userScore.topics.push({
           topic,
           answeredQuestions: [questionId],
+          current_level,  // Ensure current_level is saved here
           questions: [{ questionId, answer, correct, difficultyLevel }]
+          
         });
       } else {
+        // Add the new question to the existing topic
         userScore.topics[topicIndex].questions.push({ questionId, answer, correct, difficultyLevel });
 
-        // Add the question ID to the answered questions list if not already present
+        // Add the question ID to the answeredQuestions array if not already present
         if (!userScore.topics[topicIndex].answeredQuestions.includes(questionId)) {
           userScore.topics[topicIndex].answeredQuestions.push(questionId);
         }
+
+        // Update the current_level in the existing topic
+        userScore.topics[topicIndex].current_level = current_level;
       }
     }
 
+    // Save the updated userScore to the database
     await userScore.save();
 
+    // Return the updated user score as a response
     return res.status(200).json(userScore);
   } catch (err) {
     console.error(err);
