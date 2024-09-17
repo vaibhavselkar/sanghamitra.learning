@@ -10,7 +10,12 @@ const questionSchema = new mongoose.Schema({
 const topicSchema = new mongoose.Schema({
   topic: String,
   answeredQuestions: [String],
-  questions: [questionSchema]
+  questions: [questionSchema],
+  current_level: {
+    type: String,
+    enum: ['easy', 'medium', 'hard', 'mastered'],
+    default: 'easy'
+  }
 });
 
 const userScoreSchema = new mongoose.Schema({
