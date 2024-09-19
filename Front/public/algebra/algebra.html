@@ -225,7 +225,7 @@
               const correctAnswers = topic.questions.filter(q => q.correct).length;
               const totalQuestions = topic.questions.length;
               const progress = (correctAnswers / totalQuestions) * 100;
-              const starColor = calculateStarColor(topic.questions);
+              const starColor = topic.current_level === 'mastered' ? 'gold' : 'grey';
 
               topicsProgress.set(topic.topic, {
                 correctAnswers,
@@ -274,21 +274,6 @@
       } catch (error) {
         console.error('Error fetching topic progress:', error);
       }
-    }
-
-    function calculateStarColor(questions) {
-      let consecutiveCorrect = 0;
-      for (const q of questions) {
-        if (q.correct && q.difficultyLevel === 'hard') {
-          consecutiveCorrect++;
-          if (consecutiveCorrect >= 4) {
-            return 'gold';
-          }
-        } else {
-          consecutiveCorrect = 0;
-        }
-      }
-      return 'grey';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
