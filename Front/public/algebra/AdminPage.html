@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Algebra Topic Scores Visualization</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #f0f2f5 40%, #dfe4ea 100%);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .container:hover {
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      color: #010912;
+    }
+
+    /* Dropdown Styling */
+    select {
+      width: 60%;
+      padding: 10px 15px;
+      margin: 15px 0 25px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      background: #f9f9f9;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      transition: border-color 0.3s;
+    }
+
+    select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    /* Chart Container */
+    canvas {
+      margin-top: 20px;
+      width: 100% !important;
+      height: auto !important;
+    }
+
+    /* Error Message */
+    #errorMsg {
+      color: #d9534f;
+      font-weight: 500;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Algebra Scores by Topic</h1>
+    <select id="topicSelect">
+      <option value="">Select a topic</option>
+    </select>
+    <canvas id="topicScoresChart"></canvas>
+    <p id="errorMsg"></p>
+  </div>
+
+  <script>
+    const apiUrl = 'https://sanghamitra-learnworld.vercel.app/api/algebra_scores?topic=fractions';
+    let chart;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const topicSelect = document.getElementById('topicSelect');
+      try {
+        const response = await fetch(apiUrl);
+        const userScores = await response.json();
+
+        const topics = new Set(userScores.flatMap(user => user.topics.map(t => t.topic)));
+        
+        topics.forEach(topic => {
+          const option = document.createElement('option');
+          option.value = topic;
+          option.textContent = topic;
+          topicSelect.appendChild(option);
+        });
+
+        topicSelect.addEventListener('change', () => {
+          const selectedTopic = topicSelect.value;
+          if (selectedTopic) {
+            const topicData = userScores.map(user => {
+              const topicInfo = user.topics.find(t => t.topic === selectedTopic);
+              return {
+                username: user.username,
+                email: user.email,
+                mastered: topicInfo?.current_level === 'mastered',
+                scores: topicInfo?.questions.map(q => ({
+                  questionId: q.questionId,
+                  correct: q.correct,
+                  difficultyLevel: q.difficultyLevel
+                })) || []
+              };
+            });
+            renderChart(topicData, selectedTopic);
+          }
+        });
+      } catch (error) {
+        document.getElementById('errorMsg').textContent = 'Failed to load data: ' + error.message;
+      }
+    });
+
+    function renderChart(data, topic) {
+      const usernames = data.map(user => user.username);
+      const correctScores = data.map(user => user.scores.filter(q => q.correct).length);
+      const totalScores = data.map(user => user.scores.length);
+      const masteryColors = data.map(user => user.mastered ? 'rgba(54, 162, 235, 0.8)' : 'rgba(75, 192, 192, 0.6)');
+      const borderColorMastery = data.map(user => user.mastered ? 'rgba(54, 162, 235, 1)' : 'rgba(75, 192, 192, 1)');
+
+      const ctx = document.getElementById('topicScoresChart').getContext('2d');
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: usernames,
+          datasets: [
+            {
+              label: `Correct Answers in ${topic}`,
+              data: correctScores,
+              backgroundColor: masteryColors,
+              borderColor: borderColorMastery,
+              borderWidth: 1
+            },
+            {
+              label: `Total Questions in ${topic}`,
+              data: totalScores,
+              backgroundColor: 'rgba(153, 102, 255, 0.6)',
+              borderColor: 'rgba(153, 102, 255, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const user = data[context.dataIndex];
+                  return `${context.dataset.label}: ${context.raw} (${user.mastered ? 'Mastered' : 'Not Mastered'})`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
