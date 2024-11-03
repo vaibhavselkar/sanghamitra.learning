@@ -138,7 +138,7 @@
       const correctScores = data.map(user => user.scores.filter(q => q.correct).length);
       const totalScores = data.map(user => user.scores.length);
       const masteryColors = data.map(user => user.mastered ? 'rgba(54, 162, 235, 0.8)' : 'rgba(75, 192, 192, 0.6)');
-      const borderColorMastery = data.map(user => user.mastered ? 'rgba(54, 162, 235, 1)' : 'rgba(75, 192, 192, 1)');
+      const borderColorMastery = data.map(user => user.mastered ? 'rgba(75, 192, 192, 1)' : 'rgba(54, 162, 235, 1)');
 
       const ctx = document.getElementById('topicScoresChart').getContext('2d');
       if (chart) {
