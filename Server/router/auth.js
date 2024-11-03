@@ -301,31 +301,37 @@ router.post('/algebra_score_add', async (req, res) => {
 router.get('/algebra_scores', async (req, res) => {
   try {
     const { email, topic } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+
+    // Step 1: Fetch all data
+    let userScores = await AlgebraScores.find().exec();
+
+    // Step 2: Filter by email if provided
+    if (email) {
+      userScores = userScores.filter(userScore => userScore.email === email);
     }
 
-    let query = { email: email };
-
+    // Step 3: Filter by topic if provided
     if (topic) {
-      query['topics.topic'] = topic;
+      userScores = userScores.map(userScore => {
+        return {
+          ...userScore.toObject(),
+          topics: userScore.topics.filter(t => t.topic === topic)
+        };
+      }).filter(userScore => userScore.topics.length > 0);
     }
 
-    const userScores = await AlgebraScores.find(query).exec();
-
-    if (topic) {
-      // Filter topics by the given topic
-      userScores.forEach(userScore => {
-        userScore.topics = userScore.topics.filter(t => t.topic === topic);
-      });
+    // Step 4: Return response based on the presence of filtered data
+    if (userScores.length === 0) {
+      return res.status(404).json({ error: 'No scores found for the given criteria' });
     }
 
+    // Step 5: Return the filtered data or all data if no filters applied
     res.json(userScores);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 
