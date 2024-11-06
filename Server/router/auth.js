@@ -80,6 +80,35 @@ router.post('/signin', async (req, res) => {
     }
 });
 
+// Endpoint to fetch login history for a specific user by email
+router.get('/login-history', async (req, res) => {
+  const { email } = req.query; // Expect email as a query parameter
+
+  try {
+    // Check if the email parameter is provided
+    if (!email) {
+      return res.status(400).json({ message: 'Email parameter is required' });
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Extract the login history
+    const loginHistory = user.loginHistory || [];
+
+    // Return the login history
+    res.status(200).json({ email: user.email, loginHistory });
+  } catch (error) {
+    console.error('Error fetching login history:', error);
+    res.status(500).json({ message: 'Server error, failed to fetch login history'});
+  }
+});
+
 // Endpoint to get session data
 router.get('/session-info', (req, res) => {
     if (req.session.userId) {
