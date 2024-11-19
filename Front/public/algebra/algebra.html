@@ -220,7 +220,7 @@
 
           // Create a map of topics with their progress
           const topicsProgress = new Map();
-          if (data.length > 0) {
+          if (data.length >= 0) {
             data[0].topics.forEach(topic => {
               const correctAnswers = topic.questions.filter(q => q.correct).length;
               const totalQuestions = topic.questions.length;
@@ -292,6 +292,6 @@
 
   <!-- Main JS File -->
   <script src="../assets/js/main.js"></script>
-  <script src="../navbar.js"></script>
+  <script src="navbar.js"></script>
 </body>
 </html>
