@@ -351,7 +351,7 @@ router.get('/algebra_scores', async (req, res) => {
 
     // Step 4: Return response based on the presence of filtered data
     if (userScores.length === 0) {
-      return res.status(404).json({ error: 'No scores found for the given criteria' });
+      return res.json({});
     }
 
     // Step 5: Return the filtered data or all data if no filters applied
