@@ -94,21 +94,34 @@
     const apiUrl = 'https://sanghamitra-learnworld.vercel.app/api/algebra_scores?topic=fractions';
     let chart;
 
-    document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', async () => {
       const topicSelect = document.getElementById('topicSelect');
+      const errorMsg = document.getElementById('errorMsg');
+
       try {
+        // Fetch all scores from the API
         const response = await fetch(apiUrl);
+        if (!response.ok) {
+          throw new Error(`Error fetching data: ${response.statusText}`);
+        }
+
         const userScores = await response.json();
 
-        const topics = new Set(userScores.flatMap(user => user.topics.map(t => t.topic)));
-        
+        // Extract unique topics from the data
+        const topics = new Set();
+        userScores.forEach(user => {
+          user.topics.forEach(topicObj => topics.add(topicObj.topic));
+        });
+
+        // Populate the dropdown with topics
         topics.forEach(topic => {
           const option = document.createElement('option');
           option.value = topic;
-          option.textContent = topic;
+          option.textContent = topic.charAt(0).toUpperCase() + topic.slice(1); // Capitalize
           topicSelect.appendChild(option);
         });
 
+        // Add event listener for topic selection
         topicSelect.addEventListener('change', () => {
           const selectedTopic = topicSelect.value;
           if (selectedTopic) {
@@ -129,7 +142,8 @@
           }
         });
       } catch (error) {
-        document.getElementById('errorMsg').textContent = 'Failed to load data: ' + error.message;
+        console.error('Error loading topics:', error);
+        errorMsg.textContent = `Failed to load topics: ${error.message}`;
       }
     });
 
