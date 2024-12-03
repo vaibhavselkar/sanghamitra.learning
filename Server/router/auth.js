@@ -14,6 +14,8 @@ const { Topic, WritingResponse } = require('../model/writingSchema');
 const FractionQuestion = require('../model/MathData');
 const AlgebraQuestion = require('../model/algebraSchema');
 const AlgebraScores = require('../model/algebraScoreAdd');
+const RC_Guide = require('../model/readingcomprehensionguide');
+
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -450,6 +452,70 @@ router.get('/fraction_questions', async (req, res) => {
     } catch (err) {
         res.status(500).send(err);
     }
+});
+
+//Reading Comprehension 
+
+// Save or Update Progress
+router.post('/save-rc-guide', async (req, res) => {
+  const { email, categoryName, value } = req.body;
+
+  if (!email || !categoryName || value === undefined) {
+    return res.status(400).json({ message: 'Email, category name, and value are required' });
+  }
+
+  try {
+    // Check if the categoryName is valid
+    const validCategories = ['mainIdea', 'authorsPurpose', 'supportingDetails', 'inferences', 'vocabulary'];
+    if (!validCategories.includes(categoryName)) {
+      return res.status(400).json({ message: 'Invalid category name' });
+    }
+
+    // Find guide by email
+    let guide = await RC_Guide.findOne({ email });
+
+    if (!guide) {
+      // If guide does not exist, create it with default values
+      guide = new RC_Guide({
+        email,
+        categories: { [categoryName]: value },
+      });
+    } else {
+      // Update only the specified category
+      guide.categories[categoryName] = value;
+      guide.updatedAt = Date.now(); // Update timestamp
+    }
+
+    await guide.save();
+    res.status(200).json({ message: `Category '${categoryName}' updated successfully`, guide });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
+// Fetch Progress by Email
+router.get('/progress-rc-guide', async (req, res) => {
+  const { email } = req.query; // Extract email from the query parameter
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required' });
+  }
+
+  try {
+    // Find guide by email
+    const guide = await RC_Guide.findOne({ email });
+
+    if (!guide) {
+      return res.status(404).json({ message: 'Guide not found for the provided email' });
+    }
+
+    res.status(200).json({
+      message: 'User progress fetched successfully',
+      guide,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
 });
 
 module.exports = router
