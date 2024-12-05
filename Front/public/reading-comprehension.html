@@ -265,87 +265,64 @@
   <!-- Add this script to your existing HTML before the closing </body> tag -->
 
 <script>
-  // Define the API endpoint and email
-  const apiEndpoint = `https://sanghamitra-learnworld.vercel.app/api/progress-rc-guide?email=${email}`;
+        // Fetch Reading Comprehension Data
+        async function fetchReadingComprehensionData(email) {
+            try {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/progress-rc-guide?email=${email}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return null;
+            }
+        }
 
-  // Function to fetch progress data and update the progress bars
-    async function fetchAndUpdateProgress() {
-    try {
-      const response = await fetch(apiEndpoint);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data) {
-        const progress = data.guide.categories;
-        updateProgressBar('progress-fill-main-idea', progress.mainIdea, 10);
-        updateProgressBar('progress-fill-author-purpose', progress.authorsPurpose, 10);
-        updateProgressBar('progress-fill-details', progress.specificDetails, 10);
-        updateProgressBar('progress-fill-inference', progress.inferences, 10);
-        updateProgressBar('progress-fill-vocab', progress.vocabulary, 10);
-        updateProgressBar('progress-fill-title', progress.titleOfThePassage, 10);
+        // Update Progress Bars
+        async function updateReadingComprehensionProgress(email) {
+            const userData = await fetchReadingComprehensionData(email);
+            if (userData && userData.guide && userData.guide.categories) {
+                const progress = userData.guide.categories;
 
-      } else {
-        console.error("Failed to fetch user progress:", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching progress data:", error);
-    }
-  }
+                updateProgressBar('progress-fill-main-idea', progress.mainIdea, 10);
+                updateProgressBar('progress-fill-author-purpose', progress.authorsPurpose, 10);
+                updateProgressBar('progress-fill-inference', progress.inferences, 10);
+                updateProgressBar('progress-fill-details', progress.specificDetails, 10);
+                updateProgressBar('progress-fill-title', progress.titleOfThePassage, 10);
+                updateProgressBar('progress-fill-vocab', progress.vocabulary, 10);
+            } else {
+                console.error("Invalid or incomplete data received from the API.");
+            }
+        }
 
+        // Dynamic Progress Bar Update Function
+        function updateProgressBar(barClass, completed, total) {
+            const progressBar = document.querySelector(`.${barClass}`);
+            if (progressBar) {
+                const progressPercentage = (completed / total) * 100;
+                progressBar.style.width = `${progressPercentage}%`;
 
-  // Function to calculate and set progress width and percentage
-  function updateProgressBar(barClass, completed, total) {
-    const progressBar = document.querySelector(`.${barClass}`);
-    if (progressBar) {
-      const progressPercentage = Math.round((completed / total) * 100);
-      progressBar.style.width = `${progressPercentage}%`;
+                let percentageText = progressBar.parentElement.querySelector('.progress-percentage');
+                if (!percentageText) {
+                    percentageText = document.createElement('span');
+                    percentageText.classList.add('progress-percentage');
+                    progressBar.parentElement.appendChild(percentageText);
+                }
+                percentageText.textContent = `${Math.round(progressPercentage)}%`;
+            }
+        }
 
-      // Check if percentage span already exists
-      let percentageText = progressBar.parentElement.querySelector('.progress-percentage');
-      if (!percentageText) {
-        // Create a new span for percentage if not already present
-        percentageText = document.createElement('span');
-        percentageText.classList.add('progress-percentage');
-        percentageText.style.position = 'absolute';
-        percentageText.style.right = '10px';
-        percentageText.style.top = '0';
-        percentageText.style.fontSize = '14px';
-        percentageText.style.fontWeight = 'bold';
-        progressBar.parentElement.appendChild(percentageText);
-      }
-      // Update the percentage text
-      percentageText.textContent = `${progressPercentage}%`;
-    }
-  }
-
-  // Function to fetch progress data and update the progress bars
-  async function fetchAndUpdateProgress() {
-    try {
-      const response = await fetch(apiEndpoint);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data) {
-        const progress = data.guide.categories;
-        updateProgressBar('progress-fill-main-idea', progress.mainIdea, 10);
-        updateProgressBar('progress-fill-author-purpose', progress.authorsPurpose, 10);
-        updateProgressBar('progress-fill-details', progress.specificDetails, 10);
-        updateProgressBar('progress-fill-inference', progress.inferences, 10);
-        updateProgressBar('progress-fill-vocab', progress.vocabulary, 10);
-        updateProgressBar('progress-fill-title', progress.titleOfThePassage, 10);
-      } else {
-        console.error("Failed to fetch user progress:", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching progress data:", error);
-    }
-  }
-
-  // Call the function to fetch and update progress on page load
-  document.addEventListener("DOMContentLoaded", fetchAndUpdateProgress);
-</script>
+        // Trigger Progress Update on Page Load
+        document.addEventListener("DOMContentLoaded", () => {
+            const email = localStorage.getItem('userEmail');
+            if (email) {
+                updateReadingComprehensionProgress(email);
+            } else {
+                console.error("User email not found. Please log in.");
+            }
+        });
+    </script>
 
 
 </body>
