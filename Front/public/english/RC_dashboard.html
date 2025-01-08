@@ -50,7 +50,7 @@
 
     async function fetchSessionInfo() {
         try {
-            const response = await fetch('http://localhost:4000/api/session-info', {
+            const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
             credentials: 'include'
             });
             if (response.ok) {
@@ -70,8 +70,8 @@
         // Fetch the data from the API
         const topic = new URLSearchParams(window.location.search).get('topic'); // Get topic if available
         const apiUrl = topic 
-            ? `http://localhost:4000/api/readingcomprehensionscore?email=${Email}&topic=${topic}`
-            : `http://localhost:4000/api/readingcomprehensionscore?email=${Email}`;
+            ? `https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${Email}&topic=${topic}`
+            : `https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${Email}`;
 
         async function fetchScores() {
             try {
