@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkAuth() {
-        fetch('http://localhost:4000/api/check-auth', {
+        fetch('https://sanghamitra-learnworld.vercel.app/api/check-auth', {
             method: 'GET',
             credentials: 'include'
         })
