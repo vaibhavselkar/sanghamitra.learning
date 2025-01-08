@@ -208,7 +208,7 @@
         // Fetch user scores for the topic
         async function fetchUserProgress() {
             try {
-                const response = await fetch(`http://localhost:4000/api/readingcomprehensionscore?email=${email}&topics=${topic}`);
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${email}&topics=${topic}`);
                 if (response.ok) {
                     const progressData = await response.json();
                     const topicData = progressData?.topics?.[topic];
