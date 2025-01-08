@@ -190,7 +190,7 @@
         async function initializeQuiz() {
             try {
                 // Fetch session info
-                const sessionResponse = await fetch('http://localhost:4000/api/session-info', { credentials: 'include' });
+                const sessionResponse = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', { credentials: 'include' });
                 if (sessionResponse.ok) {
                     const sessionData = await sessionResponse.json();
                     email = sessionData.email;
@@ -238,7 +238,7 @@
                 } else if (currentLevel === 'hard') {
                     currentLevel = 'Hard';
                 }
-                const response = await fetch(`http://localhost:4000/api/reading_passages?topic=${topic}&level=${currentLevel}`);
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/reading_passages?topic=${topic}&level=${currentLevel}`);
                 if (response.ok) {
                     const data = await response.json(); // Get the quiz data from the response
                     console.log("Raw response from API:", data);
@@ -359,7 +359,7 @@
                     
 
             try {
-                const response = await fetch('http://localhost:4000/api/rc_score', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/rc_score', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(scoreData),
@@ -387,7 +387,7 @@
 
         async function checkLevelUpgrade() {
             try {
-                const response = await fetch(`http://localhost:4000/api/readingcomprehensionscore?email=${email}&topic=${topic}`);
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${email}&topic=${topic}`);
                 if (!response.ok) throw new Error('Failed to fetch progress for level upgrade check.');
 
                 const progressData = await response.json();
