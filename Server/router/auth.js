@@ -15,7 +15,8 @@ const FractionQuestion = require('../model/MathData');
 const AlgebraQuestion = require('../model/algebraSchema');
 const AlgebraScores = require('../model/algebraScoreAdd');
 const RC_Guide = require('../model/readingcomprehensionguide');
-
+const ReadingPassages = require('../model/readingPassages');
+const ReadingComprehensionScore = require('../model/readingcomprehensionscore');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -517,5 +518,178 @@ router.get('/progress-rc-guide', async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 });
+
+// Endpoint to fetch passages by topic and level
+router.get('/reading_passages', async (req, res) => {
+  const { topic, level } = req.query;
+
+  // Validate input
+  if (!topic || !level) {
+      return res.status(400).send({ message: 'Both topic and level are required.' });
+  }
+
+  try {
+      // Fetch passages matching the topic and level
+      const passages = await ReadingPassages.find({
+          topic_category: topic,
+          passage_level: level
+      });
+
+      // Check if passages are found
+      if (passages.length === 0) {
+          return res.status(404).send({ message: 'No passages found for the specified topic and level.' });
+      }
+
+      // Respond with the retrieved passages
+      res.status(200).send({
+          message: 'Passages retrieved successfully.',
+          passages
+      });
+  } catch (error) {
+      console.error('Error fetching passages:', error);
+      res.status(500).send({
+          message: 'Failed to fetch passages.',
+          error
+      });
+  }
+});
+
+// Save quiz data and score
+router.post('/rc_score', async (req, res) => {
+  const { email, topic, level, correctAnswers, totalQuestions, solvedPassages, passageName, quizData } = req.body;
+
+  // Validation for required fields
+  if (!email || !topic ) {
+      return res.status(400).send({ message: 'Invalid data' });
+  }
+
+  const normalizedLevel = level.toLowerCase();
+  const scorePercentage = (correctAnswers / totalQuestions) * 100;
+
+  try {
+      // Find or create user progress
+      let userProgress = await ReadingComprehensionScore.findOne({ email });
+
+      if (!userProgress) {
+          userProgress = new ReadingComprehensionScore({ email });
+      }
+
+      // Check if the topic exists, if not, initialize it
+      if (!userProgress.topics.has(topic)) {
+          userProgress.topics.set(topic, {
+              topic,
+              solvedPassages: [],
+              currentPassage: null,
+              current_level: 'easy',
+              consecutivePerfectScores: 0,
+          });
+      }
+
+      const topicData = userProgress.topics.get(topic);
+
+      // Prevent re-solving the same passage
+      if (topicData.solvedPassages.some((passage) => passage.passageId.toString() === solvedPassages)) {
+          return res.status(400).send({ message: 'Passage already solved' });
+      }
+
+      // Add the solved passage data
+      topicData.solvedPassages.push({
+          passageId: solvedPassages,
+          passageName: passageName,
+          score: scorePercentage,
+          timestamp: new Date(),
+          quizData, // Include full quiz data
+      });
+
+      // Handle consecutive perfect scores for level upgrade
+      if (scorePercentage === 100) {
+          topicData.consecutivePerfectScores += 1;
+
+          if (topicData.consecutivePerfectScores >= 3) {
+              topicData.current_level = getNextLevel(normalizedLevel);
+              topicData.consecutivePerfectScores = 0;
+
+              userProgress.topics.set(topic, topicData);
+              await userProgress.save();
+
+              return res.status(200).send({
+                  message: 'Score saved successfully.',
+                  upgraded: true,
+                  newLevel: topicData.current_level,
+              });
+          }
+      } else {
+          topicData.consecutivePerfectScores = 0;
+      }
+
+      // Update current level
+      topicData.current_level = normalizedLevel;
+      userProgress.topics.set(topic, topicData);
+
+      // Save the progress
+      await userProgress.save();
+
+      res.status(201).send({ message: 'Score saved successfully.', upgraded: false });
+  } catch (error) {
+      console.error('Error saving score:', error);
+      res.status(500).send({ message: 'Failed to save score', error });
+  }
+});
+
+// Helper function to determine the next level
+function getNextLevel(currentLevel) {
+  const levels = ['easy', 'medium', 'hard', 'mastered'];
+  const currentIndex = levels.indexOf(currentLevel);
+  return currentIndex < levels.length - 1 ? levels[currentIndex + 1] : currentLevel;
+}
+
+router.get('/readingcomprehensionscore', async (req, res) => {
+  const { topic, email } = req.query;
+
+  try {
+      if (!email && !topic) {
+          const allData = await ReadingComprehensionScore.find();
+          return res.status(200).send(allData);
+      }
+
+      if (!email && topic) {
+          const topicData = await ReadingComprehensionScore.find({ [`topics.${topic}`]: { $exists: true } });
+          if (topicData.length === 0) {
+              return res.status(404).send({ message: `No data found for topic: ${topic}` });
+          }
+          return res.status(200).send(topicData);
+      }
+
+      if (email && !topic) {
+          const userData = await ReadingComprehensionScore.findOne({ email });
+          if (!userData) {
+              return res.status(404).send({ message: `No data found for email: ${email}` });
+          }
+          return res.status(200).send(userData);
+      }
+
+      if (email && topic) {
+          const userData = await ReadingComprehensionScore.findOne({ email });
+          if (!userData) {
+              return res.status(404).send({ message: `No data found for email: ${email}` });
+          }
+          const topicData = userData.topics.get(topic);
+          if (!topicData) {
+              return res.status(404).send({ message: `No data found for topic: ${topic}` });
+          }
+          return res.status(200).send(topicData);
+      }
+
+      return res.status(400).send({ message: 'Invalid query parameters' });
+  } catch (error) {
+      console.error('Error fetching scores:', error);
+      res.status(500).send({ message: 'Failed to fetch scores', error });
+  }
+});
+
+
+
+
+
 
 module.exports = router
