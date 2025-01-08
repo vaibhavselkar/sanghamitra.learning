@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Scores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        .loading {
+            text-align: center;
+            font-size: 1.2em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reading Comprehension Scores</h1>
+        <div id="table-container" class="loading">Loading scores...</div>
+    </div>
+
+    <script>
+        let username = '';
+        let Email = '';
+
+        
+
+    async function fetchSessionInfo() {
+        try {
+            const response = await fetch('http://localhost:4000/api/session-info', {
+            credentials: 'include'
+            });
+            if (response.ok) {
+            const data = await response.json();
+            username = data.username;
+            Email = data.email;
+            console.log(username, Email);
+            fetchScores(); // Fetch and display topic progress after retrieving user info
+            } else {
+            console.error('Failed to fetch session info');
+            }
+        } catch (error) {
+            console.error('Error fetching session info:', error);
+        }
+        }
+
+        // Fetch the data from the API
+        const topic = new URLSearchParams(window.location.search).get('topic'); // Get topic if available
+        const apiUrl = topic 
+            ? `http://localhost:4000/api/readingcomprehensionscore?email=${Email}&topic=${topic}`
+            : `http://localhost:4000/api/readingcomprehensionscore?email=${Email}`;
+
+        async function fetchScores() {
+            try {
+                const response = await fetch(apiUrl);
+
+                // Check if the response is successful
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
+                // Parse the response JSON
+                const data = await response.json();
+                console.log("API Response:", data); // Debugging log
+
+                // Display the scores
+                displayScores(data);
+            } catch (error) {
+                // Handle and display error messages in the UI
+                document.getElementById('table-container').innerHTML = `
+                    <p style="color:red;">Error: ${error.message}</p>
+                `;
+            }
+        }
+        function displayScores(dataArray) {
+            // Ensure dataArray is an array
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                document.getElementById('table-container').innerHTML = `
+                    <p style="text-align:center;">No scores available</p>
+                `;
+                return;
+            }
+
+            // Retrieve email and topic from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const emailFilter = urlParams.get('email');
+            const topicFilter = urlParams.get('topic');
+
+            // Filter users by email if provided
+            const filteredData = emailFilter
+                ? dataArray.filter((user) => user.email === emailFilter)
+                : dataArray;
+
+            // Prepare an array to collect table rows
+            const rows = [];
+
+            filteredData.forEach((user, userIndex) => {
+                const email = user.email || 'N/A';
+                const topics = user.topics || {};
+
+                // If a topic filter is applied, only show data for that topic
+                const relevantTopics = topicFilter
+                    ? { [topicFilter]: topics[topicFilter] }
+                    : topics;
+
+                // Iterate over topics to extract passage data
+                Object.entries(relevantTopics).forEach(([topicName, topicDetails]) => {
+                    const solvedPassages = topicDetails.solvedPassages || [];
+
+                    // Iterate over solved passages
+                    solvedPassages.forEach((passage, passageIndex) => {
+                        const passageName = passage.passageName || 'Unnamed Passage';
+                        const timestamp = new Date(passage.timestamp).toLocaleString(); // Format timestamp
+                        const passageLevel = passage.quizData?.passage_level || 'N/A';
+                        const percentage = passage.score || "0.00";
+                        const passageId = passage.passageId;
+
+                        // Add the row for this passage
+                        rows.push(`
+                            <tr>
+                                <td>${rows.length + 1}</td>
+                                <td>${timestamp}</td>
+                                ${!topicFilter ? `<td>${topicName}</td>` : ""} <!-- Show topic column only if no topic is provided -->
+                                <td>${passageName}</td>
+                                <td>${passageLevel}</td>
+                                <td>${percentage}%</td>
+                                <td>
+                                    <button onclick="reviewPassage('${email}', '${topicName}', '${passageId}')">
+                                        Review
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                });
+            });
+
+            // Prepare the table structure
+            const table = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sr. No.</th>
+                            <th>Date</th>
+                            ${!topicFilter ? `<th>Topic</th>` : ""} <!-- Show header only if no topic is provided -->
+                            <th>Name of the Passage</th>
+                            <th>Level of Passage</th>
+                            <th>Percentage</th>
+                            <th>Review</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.length > 0 
+                            ? rows.join('') 
+                            : '<tr><td colspan="7" style="text-align:center;">No scores available</td></tr>'
+                        }
+                    </tbody>
+                </table>
+            `;
+
+        // Function to handle review button clicks
+        function reviewPassage(email, topic) {
+            // Replace this with actual review functionality, such as redirecting to a review page
+            // or showing detailed stats for the passage.
+        }
+
+
+            document.getElementById('table-container').innerHTML = table;
+        }
+
+        // Fetch and display data on page load
+        fetchSessionInfo();
+    </script>
+</body>
+</html>
