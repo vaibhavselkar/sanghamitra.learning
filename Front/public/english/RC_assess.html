@@ -498,8 +498,14 @@
                 </div>
             `;
 
+            // Refresh the current page when 'Next Passage' is clicked
             document.getElementById('next-passage-btn').addEventListener('click', function () {
-                window.location.href = 'RC_dashboard.html';
+                window.location.reload(); // Refresh the page
+            });
+
+            // Navigate to the progress dashboard when 'Your Progress' is clicked
+            document.getElementById('your-progress-btn').addEventListener('click', function () {
+                window.location.href = `RC_dashboard.html?topic=${topic}`;
             });
 
             renderScoreChart(quizData.questions);
