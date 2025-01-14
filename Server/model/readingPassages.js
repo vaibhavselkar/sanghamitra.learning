@@ -26,6 +26,7 @@ const rcquizSchema = new mongoose.Schema({
             options: [{ type: String, required: true }], // List of answer options
             correct_answer: { type: String, required: true }, // Could store the index of the correct answer or value
             question_category: { type: String, required: false },
+            explanation: { type: String, required: false }
         }
     ],
     created_at: {
