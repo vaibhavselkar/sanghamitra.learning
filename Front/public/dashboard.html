@@ -100,41 +100,58 @@
                         <h2 class="mb-0">Student Dashboard</h2>
                     </div>
                     <div class="card-body">
+                        <!-- User Information Section -->
                         <div class="card-custom mb-4">
                             <h3>User Information</h3>
                             <p><strong>Username:</strong> <span id="userName"></span></p>
                             <p><strong>Email:</strong> <span id="userEmail"></span></p>
                             <div class="streak-container">
-                                <!-- <h4>Streak</h4> -->
                                 <div class="streak-info">
                                     <i class="bi bi-fire"></i> <!-- Add fire icon from Bootstrap icons -->
                                     <span id="userStreak">0</span> days
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="card-container">
-                            <div class="card-custom">
-                                <h3>Vocabulary</h3>
-                                <p><strong>Total Points Earned:</strong> <span id="total-score"></span></p>
-                                <p><strong>Number of Quizzes Taken:</strong> <span id="quiz-count"></span></p>
-                                <div id="quiz-scores">
-                                    <h4>Individual Scores</h4>
-                                    <ul id="quiz-scores-list"></ul>
+
+                        <!-- Vocabulary and Mathematics Section -->
+                        <div class="row mb-4">
+                            <div class="col-lg-6 col-md-12">
+                                <div class="card-custom">
+                                    <h3>Vocabulary</h3>
+                                    <p><strong>Total Points Earned:</strong> <span id="total-score"></span></p>
+                                    <p><strong>Number of Quizzes Taken:</strong> <span id="quiz-count"></span></p>
+                                    <div id="quiz-scores">
+                                        <h4>Individual Scores</h4>
+                                        <ul id="quiz-scores-list"></ul>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card-custom">
-                                <h3>Mathematics</h3>
-                                <div id="fractions-container">
-                                    <h4>Fractions Performance</h4>
-                                    <p><strong>Accuracy:</strong> <span id="fractions-accuracy">N/A</span></p>
-                                </div>
-                                <div class="canvas-container">
-                                    <canvas id="mathPerformanceChart" width="500" height="500"></canvas>
+                            <div class="col-lg-6 col-md-12">
+                                <div class="card-custom">
+                                    <h3>Mathematics</h3>
+                                    <div id="fractions-container">
+                                        <h4>Fractions Performance</h4>
+                                        <p><strong>Accuracy:</strong> <span id="fractions-accuracy">N/A</span></p>
+                                    </div>
+                                    <div class="canvas-container">
+                                        <canvas id="mathPerformanceChart" width="500" height="500"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                            
                         </div>
+
+                        <!-- Full-Width Reading Comprehension Section -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card-custom">
+                                    <h3>Reading Comprehension</h3>
+                                    <p><strong>Track your reading progress and review your answers.</strong></p>
+                                    <div id="rc-table-container" class="loading">Loading Reading Comprehension Data...</div>
+                                    <div id="quiz-review-container" style="display: none; margin-top: 20px;"></div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -175,6 +192,10 @@
 </footer>
 
 <script>
+
+    let email = '';
+    let username = '';
+    
     async function fetchVocabscores(email) {
         try {
             const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/vocabscores?email=${email}`);
@@ -218,6 +239,9 @@
                 location.replace('user_login.html');
                 return null;
             }
+
+            // call fetch user info
+            fetchSessionInfo()
 
             const userData = await response.json();
             document.getElementById('userName').textContent = userData.name;
@@ -403,6 +427,89 @@
         return streak;
     }
 
+    async function fetchRCScores(email) {
+        const apiUrl = `https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${email}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            console.log("url is working")
+            if (!response.ok) throw new Error('Failed to fetch RC scores data.');
+
+            const topicData = await response.json();
+            console.log("show the data", topicData);
+            displayRCScores(topicData);
+        } catch (error) {
+            document.getElementById('rc-table-container').innerHTML = `
+                <p style="color:red; text-align:center;">Error: ${error.message}</p>
+            `;
+        }
+    }
+
+    function displayRCScores(topicData) {
+        if (!topicData || typeof topicData.topics !== 'object' || Object.keys(topicData.topics).length === 0) {
+            document.getElementById('rc-table-container').innerHTML = `
+                <p class="no-data">No Reading Comprehension Scores available</p>
+            `;
+            return;
+        }
+
+        // Collect high-level topic data
+        const rows = [];
+        Object.entries(topicData.topics).forEach(([topicName, topicDetails]) => {
+            if (Array.isArray(topicDetails.solvedPassages)) {
+                const totalPassages = topicDetails.solvedPassages.length;
+                const currentLevel = topicDetails.current_level || 'N/A';
+
+                rows.push(`
+                    <tr>
+                        <td>${rows.length + 1}</td>
+                        <td>${topicName}</td>
+                        <td>${totalPassages}</td>
+                        <td>${currentLevel}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="exploreTopic('${topicName}')">Explore</button>
+                        </td>
+                    </tr>
+                `);
+            }
+        });
+
+        // Check if there are rows to display
+        if (rows.length === 0) {
+            document.getElementById('rc-table-container').innerHTML = `
+                <p class="no-data">No Reading Comprehension Scores available</p>
+            `;
+            return;
+        }
+
+        // Create the table HTML
+        const tableHTML = `
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Sr. No.</th>
+                        <th>Topic</th>
+                        <th>Total Passages Solved</th>
+                        <th>Current Level</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>${rows.join('')}</tbody>
+            </table>
+        `;
+
+        // Inject the table into the container
+        document.getElementById('rc-table-container').innerHTML = tableHTML;
+    }
+
+    // Example function for the Explore button
+    // Example function for the Explore button
+    function exploreTopic(topicName) {
+        const topic = topicName; // Use the topic name provided as the argument
+        // Redirect to the RC Dashboard
+        window.location.href = `english/RC_dashboard.html?email=${email}&topic=${topic}`;
+    }
+
 
     // Main function to fetch login history and calculate the streak
     async function fetchUserStreak(email) {
@@ -428,6 +535,26 @@
             return 0;
         }
     }
+
+    async function fetchSessionInfo() {
+        try {
+            const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                username = data.username;
+                email = data.email;
+                fetchScores(); // Fetch scores after retrieving user info
+            } else {
+                console.error('Failed to fetch session info');
+            }
+        } catch (error) {
+            console.error('Error fetching session info:', error);
+        }
+    }
+
 
 
 
