@@ -574,6 +574,11 @@
         const userStreak = await fetchUserStreak(userDashboardData.email);
         document.getElementById('userStreak').textContent = userStreak;
 
+        //fetch RC section
+        if (userDashboardData) {
+            await fetchRCScores(userDashboardData.email); // Fetch RC scores and display them
+        }
+
         // Fetch and display other user data
         const vocabScoresData = await fetchVocabscores(userDashboardData.email);
         if (vocabScoresData) {
@@ -590,6 +595,7 @@
             console.error('Failed to fetch fractions scores data');
         }
     }
+    
 
     // Call the init function when the page loads
     init();
