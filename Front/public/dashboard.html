@@ -129,13 +129,7 @@
                             <div class="col-lg-6 col-md-12">
                                 <div class="card-custom">
                                     <h3>Mathematics</h3>
-                                    <div id="fractions-container">
-                                        <h4>Fractions Performance</h4>
-                                        <p><strong>Accuracy:</strong> <span id="fractions-accuracy">N/A</span></p>
-                                    </div>
-                                    <div class="canvas-container">
-                                        <canvas id="mathPerformanceChart" width="500" height="500"></canvas>
-                                    </div>
+                                    <div id="topics-container" class="row"></div>
                                 </div>
                             </div>
                         </div>
@@ -210,14 +204,14 @@
         }
     }
 
-    async function fetchFractionsScores(email) {
+    async function fetchMathTopicsScores(email) {
         try {
             const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
             if (!response.ok) {
-                throw new Error('Failed to fetch fractions scores data: ' + response.statusText);
+                throw new Error('Failed to fetch topics scores data: ' + response.statusText);
             }
-            const fractionsData = await response.json();
-            return fractionsData;
+            const topicsData = await response.json();
+            return topicsData;
         } catch (error) {
             console.error('Error:', error);
             return null;
@@ -285,51 +279,6 @@
         }
 
 
-    function processFractionsData(fractionsData) {
-            // Ensure the data is properly structured
-            if (!Array.isArray(fractionsData) || fractionsData.length === 0) {
-                console.error('Fractions data is missing or invalid');
-                return null;  // Safely exit if data is not available
-            }
-
-            // Access the first object in the array to find user data
-            const user = fractionsData[0];
-
-            // Validate the presence of topics
-            if (!user.topics || !Array.isArray(user.topics)) {
-                console.error('Topics data is missing or invalid');
-                return null;
-            }
-
-            // Find the "fractions" topic within the topics array
-            const fractionsTopic = user.topics.find(topic => topic.topic === 'fractions');
-            if (!fractionsTopic) {
-                console.log('Fractions topic not found');
-                return null;
-            }
-
-            // Ensure questions are properly structured
-            const { questions } = fractionsTopic;
-            if (!questions || !Array.isArray(questions)) {
-                console.error('Questions data is missing or invalid');
-                return null;
-            }
-
-            // Calculate total questions, correct answers, and incorrect answers
-            const totalQuestions = questions.length; // Total questions solved
-            const correctAnswers = questions.filter(q => q.correct).length; // Correct answers count
-            const incorrectAnswers = totalQuestions - correctAnswers; // Incorrect answers count
-
-            // Return structured data
-            return {
-                accuracy: `${correctAnswers}/${totalQuestions}`,
-                totalQuestions, // Added for clarity
-                correctAnswers, // Added for clarity
-                incorrectAnswers // Added for clarity
-            };
-        }
-
-
         function displayUserData(user) {
             const processedData = processUserData(user);
             document.getElementById('total-score').innerText = processedData.totalScore;
@@ -351,39 +300,70 @@
         }
 
 
-    function displayFractionsData(fractionsData) {
-            if (!fractionsData) return;
+    function displayMathTopicsData(topicsData) {
+            if (!topicsData || topicsData.length === 0) {
+                document.getElementById('topics-container').innerHTML = `
+                    <p class="no-data">No data available for any topic</p>
+                `;
+                return;
+            }
 
-            // Update the accuracy section to show correct/total questions solved
-            document.getElementById('fractions-accuracy').innerText = fractionsData.accuracy;
+            const topicsContainer = document.getElementById('topics-container');
+            topicsContainer.innerHTML = ''; // Clear any existing content
 
-            // Render Pie Chart with only correct and incorrect answers
-            renderMathPerformanceChart(fractionsData.correctAnswers, fractionsData.incorrectAnswers);
+            topicsData.forEach((topic) => {
+                const { topic: topicName, questions, current_level } = topic;
+
+                // Calculate correct/incorrect answers
+                const correctAnswers = questions.filter((q) => q.correct).length;
+                const incorrectAnswers = questions.length - correctAnswers;
+
+                // Create a card for each topic
+                const topicCard = document.createElement('div');
+                topicCard.classList.add('col-lg-6', 'col-md-12', 'mb-4');
+                topicCard.innerHTML = `
+                    <div class="card-custom">
+                        <h3>${capitalizeFirstLetter(topicName)}</h3>
+                        <div>
+                            <h4>${capitalizeFirstLetter(topicName)} Performance</h4>
+                            <p><strong>Accuracy:</strong> ${correctAnswers}/${questions.length}</p>
+                            <p><strong>Current Level:</strong> ${capitalizeFirstLetter(current_level)}</p>
+                        </div>
+                        <div class="canvas-container">
+                            <canvas id="${topicName}-performance-chart" width="500" height="500"></canvas>
+                        </div>
+                    </div>
+                `;
+                topicsContainer.appendChild(topicCard);
+
+                // Render chart for the topic
+                renderTopicPerformanceChart(`${topicName}-performance-chart`, correctAnswers, incorrectAnswers);
+            });
         }
 
-        function renderMathPerformanceChart(correctAnswers, incorrectAnswers) {
-            const ctx = document.getElementById('mathPerformanceChart').getContext('2d');
+        function renderTopicPerformanceChart(chartId, correctAnswers, incorrectAnswers) {
+            const ctx = document.getElementById(chartId).getContext('2d');
             new Chart(ctx, {
-                type: 'doughnut', // Changed from 'pie' to 'doughnut' for annular ring
+                type: 'doughnut',
                 data: {
                     labels: ['Correct Answers', 'Incorrect Answers'],
                     datasets: [{
                         data: [correctAnswers, incorrectAnswers],
-                        backgroundColor: ['#1C4E80', '#A5D8DD'], // Updated colors as requested
+                        backgroundColor: ['#1C4E80', '#A5D8DD'],
                         hoverBackgroundColor: ['#1C4E80', '#A5D8DD'],
-                        borderWidth: 2 // Optional: Adjust border width if needed
+                        borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
-                    cutout: '70%', // Creates the annular ring effect
+                    cutout: '70%',
                     plugins: {
                         legend: {
                             position: 'top',
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(tooltipItem) {
+                                label: function (tooltipItem) {
                                     return tooltipItem.label + ': ' + tooltipItem.raw;
                                 }
                             }
@@ -392,7 +372,6 @@
                 }
             });
         }
-
    
     
     function goToQuizAnalytics(quizId) {
@@ -467,7 +446,7 @@
                         <td>${totalPassages}</td>
                         <td>${currentLevel}</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" onclick="exploreTopic('${topicName}')">Explore</button>
+                            <button class="btn btn-sm btn-primary" onclick="exploreRCTopic('${topicName}')">Explore</button>
                         </td>
                     </tr>
                 `);
@@ -504,7 +483,7 @@
 
     // Example function for the Explore button
     // Example function for the Explore button
-    function exploreTopic(topicName) {
+    function exploreRCTopic(topicName) {
         const topic = topicName; // Use the topic name provided as the argument
         // Redirect to the RC Dashboard
         window.location.href = `english/RC_dashboard.html?email=${email}&topic=${topic}`;
@@ -555,6 +534,9 @@
         }
     }
 
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
 
 
@@ -587,12 +569,12 @@
             console.error('Failed to fetch vocab scores data');
         }
 
-        const fractionsScoresData = await fetchFractionsScores(userDashboardData.email);
-        if (fractionsScoresData) {
-            const processedFractionsData = processFractionsData(fractionsScoresData);
-            displayFractionsData(processedFractionsData);
+        // Fetch and display all topics data
+        const topicsMathScoresData = await fetchMathTopicsScores(userDashboardData.email);
+        if (topicsMathScoresData) {
+            displayMathTopicsData(topicsMathScoresData[0].topics);
         } else {
-            console.error('Failed to fetch fractions scores data');
+            console.error('Failed to fetch topics scores data');
         }
     }
     
