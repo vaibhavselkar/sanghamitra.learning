@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -357,8 +358,8 @@
                         console.log('working');
                         const passageData = await response.json();
                         passageContent = passageData.passage || 'No passage available.';
+                        console.log('Passage Content:', passageData);
                         passage = passageContent.passage || 'No passage available.';
-                        console.log('Passage Content:', passage);
                         passageExplanations = passageData.questions.reduce((acc, question) => {
                             acc[question.question_text] = question.explanation || 'No explanation provided.';
                             return acc;
@@ -382,12 +383,12 @@
                         <h3 style="color: #3498db;"><i class="bi bi-file-text"></i> Passage Details</h3>
                         <p><strong>Passage Name:</strong> ${quizData.passageName || 'Unnamed Passage'}</p>
                         <p><strong>Passage:</strong></p>
-                        <p>${passageData.passage}</p>
+                        <p>${passage}</p>
                     </div>
 
                     <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
                         <h3 style="color: #27ae60;"><i class="bi bi-bar-chart"></i> Performance Overview</h3>
-                        <p><strong>Score:</strong> ${quizData.score}%</p>
+                        <p><strong>Score:</strong> ${quizData.score || '0.00'}%</p>
                         <p><strong>Level:</strong> ${quizData.quizData?.passage_level || 'N/A'}</p>
                     </div>
 
