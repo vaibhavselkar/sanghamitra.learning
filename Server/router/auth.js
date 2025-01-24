@@ -519,38 +519,59 @@ router.get('/progress-rc-guide', async (req, res) => {
   }
 });
 
-// Endpoint to fetch passages by topic and level
+// Endpoint to fetch passages by topic and level and by _id
 router.get('/reading_passages', async (req, res) => {
-  const { topic, level } = req.query;
-
-  // Validate input
-  if (!topic || !level) {
-      return res.status(400).send({ message: 'Both topic and level are required.' });
-  }
+  const { topic, level, _id } = req.query;
 
   try {
-      // Fetch passages matching the topic and level
-      const passages = await ReadingPassages.find({
-          topic_category: topic,
-          passage_level: level
-      });
-
-      // Check if passages are found
-      if (passages.length === 0) {
-          return res.status(404).send({ message: 'No passages found for the specified topic and level.' });
+    // If passage_id is provided, fetch the passage by its ID
+    if (_id) {
+      // Validate passage_id
+      if (!mongoose.Types.ObjectId.isValid(_id)) {
+        return res.status(400).send({ message: 'Invalid passage ID.' });
       }
 
-      // Respond with the retrieved passages
-      res.status(200).send({
-          message: 'Passages retrieved successfully.',
-          passages
+      const passage = await ReadingPassages.findById(_id);
+
+      // Check if passage exists
+      if (!passage) {
+        return res.status(404).send({ message: 'No passage found with the specified ID.' });
+      }
+
+      // Respond with the specific passage
+      return res.status(200).send({
+        message: 'Passage retrieved successfully.',
+        passage
       });
+    }
+
+    // Validate topic and level if passage_id is not provided
+    if (!topic || !level) {
+      return res.status(400).send({ message: 'Both topic and level are required unless passage_id is provided.' });
+    }
+
+    // Fetch passages matching the topic and level
+    const passages = await ReadingPassages.find({
+      topic_category: topic,
+      passage_level: level
+    });
+
+    // Check if passages are found
+    if (passages.length === 0) {
+      return res.status(404).send({ message: 'No passages found for the specified topic and level.' });
+    }
+
+    // Respond with the retrieved passages
+    res.status(200).send({
+      message: 'Passages retrieved successfully.',
+      passages
+    });
   } catch (error) {
-      console.error('Error fetching passages:', error);
-      res.status(500).send({
-          message: 'Failed to fetch passages.',
-          error
-      });
+    console.error('Error fetching passages:', error);
+    res.status(500).send({
+      message: 'Failed to fetch passages.',
+      error
+    });
   }
 });
 
