@@ -382,12 +382,12 @@
                         <h3 style="color: #3498db;"><i class="bi bi-file-text"></i> Passage Details</h3>
                         <p><strong>Passage Name:</strong> ${quizData.passageName || 'Unnamed Passage'}</p>
                         <p><strong>Passage:</strong></p>
-                        <p>${passage}</p>
+                        <p>${passageData.passage}</p>
                     </div>
 
                     <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
                         <h3 style="color: #27ae60;"><i class="bi bi-bar-chart"></i> Performance Overview</h3>
-                        <p><strong>Score:</strong> ${Math.ceil(passage.score || "0.00")}%</p>
+                        <p><strong>Score:</strong> ${quizData.score}%</p>
                         <p><strong>Level:</strong> ${quizData.quizData?.passage_level || 'N/A'}</p>
                     </div>
 
