@@ -74,6 +74,60 @@
             color: #e74c3c; /* Fire icon color */
         }
 
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .table th,
+        .table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        .table-striped tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #00b306;
+        }
+
+        /* Add styles for the actions column */
+        .actions-cell {
+            text-align: center; /* Center-align content */
+        }
+
+        .actions-cell button {
+            margin-left: 30px; /* Adjust left margin for better spacing */
+        }
+
+        .score-column {
+            width: 150px; /* Set a custom width for the Score column */
+            text-align: center; /* Optional: Center-align the text */
+        }
+
        
     </style>
 </head>
@@ -96,7 +150,7 @@
         <div class="row">
             <div class="col-lg-12 mx-auto" data-aos="fade-up">
                 <div class="card shadow-sm mb-4 bg-light">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header text-black" style="background-color: #3498db;">
                         <h2 class="mb-0">Student Dashboard</h2>
                     </div>
                     <div class="card-body">
@@ -114,15 +168,11 @@
                         </div>
 
                         <!-- Vocabulary and Mathematics Section -->
+                        <!-- Vocabulary and Mathematics Section -->
                         <div class="row mb-4">
                             <div class="col-lg-6 col-md-12">
                                 <div class="card-custom">
-                                    <h3>Vocabulary</h3>
-                                    <p><strong>Total Points Earned:</strong> <span id="total-score"></span></p>
-                                    <p><strong>Number of Quizzes Taken:</strong> <span id="quiz-count"></span></p>
-                                    <div id="quiz-scores">
-                                        <h4>Individual Scores</h4>
-                                        <ul id="quiz-scores-list"></ul>
+                                    <div id="vocab-quiz-summary">
                                     </div>
                                 </div>
                             </div>
@@ -204,6 +254,54 @@
         }
     }
 
+    function displayVocabScores(user) {
+        if (!user || !user.assessments || user.assessments.length === 0) {
+            document.getElementById('vocab-quiz-summary').innerHTML = `
+                <p class="no-data">No quizzes taken yet.</p>
+            `;
+            return;
+        }
+
+        // Get the last 6 quizzes (if there are more than 6)
+        const recentAssessments = user.assessments.slice(-7).reverse(); // Reverse for recent-to-oldest order
+        iterable = 1;
+
+        const tableHtml = `
+            <div class="quiz-summary-container">
+                <h3>Vocabulary </h4>
+                <table class="table table-striped table-bordered">
+                    
+                    <thead>
+                        <tr>
+                            <th>Sr. no.</th>
+                            <th class="score-column">Date</th>
+                            <th class="score-column">Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recentAssessments
+                            .map((assessment, index) => `
+                                <tr>
+                                    <td>${iterable++}</td>
+                                    <td class="score-column">${new Date(assessment.date).toLocaleDateString()}</td>
+                                    <td class="score-column">${assessment.total_score}</td>
+                                    <td>
+                                        <button class="btn btn-primary" onclick="viewAnalytics(${index})">
+                                            View Analytics
+                                        </button>
+                                    </td>
+                                </tr>
+                            `)
+                            .join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        document.getElementById('vocab-quiz-summary').innerHTML = tableHtml;
+    }
+
     async function fetchMathTopicsScores(email) {
         try {
             const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
@@ -276,27 +374,6 @@
                 quizCount: assessments.length,
                 quizScores // Contains all quiz scores sorted by assessment date
             };
-        }
-
-
-        function displayUserData(user) {
-            const processedData = processUserData(user);
-            document.getElementById('total-score').innerText = processedData.totalScore;
-            document.getElementById('quiz-count').innerText = processedData.quizCount;
-
-            // Display Last Three Quizzes Taken
-            const quizScoresList = document.getElementById('quiz-scores-list');
-            quizScoresList.innerHTML = ''; // Clear previous list
-
-            // Get the last three quizzes (if less than 3, get as many as available)
-            const lastThreeQuizzes = processedData.quizScores.slice(-3).reverse(); // Ensure the most recent quiz is first
-
-            lastThreeQuizzes.forEach(quiz => {
-                const listItem = document.createElement('li');
-                const quizDate = new Date(quiz.date).toLocaleDateString();
-                listItem.innerHTML = `Date: ${quizDate}, Score: ${quiz.score} <button class="btn btn-custom-small" onclick="goToQuizAnalytics('${quiz.id}')">View Analytics</button>`;
-                quizScoresList.appendChild(listItem);
-            });
         }
 
 
@@ -563,7 +640,7 @@
         // Fetch and display other user data
         const vocabScoresData = await fetchVocabscores(userDashboardData.email);
         if (vocabScoresData) {
-            displayUserData(vocabScoresData);
+            displayVocabScores(vocabScoresData);
         } else {
             console.error('Failed to fetch vocab scores data');
         }
