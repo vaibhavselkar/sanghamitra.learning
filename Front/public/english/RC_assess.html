@@ -7,7 +7,9 @@
     <style>
         /* CSS Styles */
         .quiz-container {
-            
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
             max-width: 1300px;
             margin: 40px auto;
             font-family: 'Poppins', Arial, sans-serif;
@@ -21,12 +23,23 @@
             text-align: center;
         }
         /* Title and Passage Container */
-        #passage-container {
+        #passage-container, #question-container {
+            flex: 1;
+            max-height: 500px;
             text-align: center; /* Center-align text */
+            overflow-y: auto;
             margin-bottom: 20px; /* Add spacing between passage and questions */
             padding: 15px;
             background-color: #f9f9f9;
             border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        #passage-container::-webkit-scrollbar, #question-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #passage-container::-webkit-scrollbar-thumb, #question-container::-webkit-scrollbar-thumb {
+            background-color: #ccc;
             border-radius: 10px;
         }
 
@@ -41,7 +54,7 @@
         #passage {
             
             
-            font-size: 1.4em;
+            font-size: 1.0em;
             margin-bottom: 20px;
             padding: 40px;
             background-color: #f9f9f9;
@@ -55,16 +68,44 @@
             font-weight: bold;
         }
         .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 0;
             list-style-type: none;
-            padding: 10;
+            padding: 0;
         }
         .option {
-            margin: 10px 0;
+            display: flex;
+            align-items: center; /* Center-align the radio button and text vertically */
+            padding: 10px 15px; /* Add padding for the option box */
+            border: 1px solid #ccc; /* Add a border */
+            border-radius: 8px; /* Round the corners */
+            background-color: #f9f9f9; /* Light background for the box */
+            gap: 10px;
+            transition: background-color 0.3s, box-shadow 0.3s; /* Smooth hover effects */
+            cursor: pointer; /* Change cursor to pointer for better UX */
+        }
+        .option:hover {
+            background-color: #e6f7ff; /* Highlight on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow effect */
+        }
+
+        .option input[type="radio"] {
+            margin-right: 10px; /* Space between radio button and text */
+        }
+        .option-label {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #a3aeb6; /* Stylish blue for letters */
+            margin-right: 10px; /* Add space between letter and input */
         }
         button {
+            margin-top: 2000px; /* Add space above the button */
             padding: 10px 20px;
             font-size: 1em;
             cursor: pointer;
+            display: block;
         }
         /* Result Styling */
         #result h1 {
@@ -96,8 +137,33 @@
             background: #2980b9;
             transform: scale(1.05);
         }
+        #question-container button {
+            margin-top: 20px; /* Add space above the button */
+            padding: 10px 20px; /* Adjust padding */
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #747d84; /* Desired button color */
+            color: white; /* Text color */
+            border: none; /* Remove border */
+            border-radius: 5px; /* Add rounded corners */
+            transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover effect */
+            display: inline-block; /* Ensure proper alignment */
+        }
 
+        #question-container button:hover {
+            background-color: #090e12; /* Darker shade for hover effect */
+            transform: scale(1.05); /* Slight hover scale effect */
+        }
+        /* added this line of code. */
+        #scoreChart {
+            display: block;
+            margin: 0 auto;
+            max-width: 200px; /* Restrict maximum size */
+            max-height: 200px; /* Restrict maximum size */
+        }
     </style>
+
+    
 
     <link href="../assets/img/favicon.png" rel="icon">
     <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
@@ -128,16 +194,19 @@
     </header>
 
     <div class="quiz-container">
-        <h1>Reading Comprehension Quiz</h1>
+        <!-- Passage Section -->
         <div id="passage-container">
-            <h2 id="passage-title"></h2> <!-- Title -->
-            <div id="passage"></div> <!-- Passage -->
+            <h2 id="passage-title"></h2>
+            <div id="passage"></div>
         </div>
+    
+        <!-- Question Section -->
         <div id="question-container">
             <div class="question" id="question-text"></div>
             <ul class="options" id="options-list"></ul>
-            <button type="submit" class="btn btn-primary mr-2" onclick="nextQuestion()">Next</button>
+            <button type="submit" class="btn btn-primary mr-2" onclick="nextQuestion()">Submit</button>
         </div>
+    
         <div id="result" class="result"></div>
     </div>
 
@@ -179,9 +248,13 @@
         let currentPassageId = '';
         let record = {};
 
-        // Extract topic and level from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const topic = urlParams.get('topic') || 'default_topic';
+        const emailFromQuery = urlParams.get('email'); // Extract email from query parameters
+        const topic = urlParams.get('topic'); // Extract topic if available
+
+        const apiUrl = topic
+        ? `https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${emailFromQuery}&topic=${topic}`
+        : `https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${emailFromQuery}`;
 
         if (!topic) alert("Topic not specified in the URL.");
 
@@ -440,109 +513,150 @@
             }, 5000);
         }
 
-
-
-
-
         // Display results at the end of the quiz
-        function showResults() {
-            saveScore(); // Save the score to the backend
+        // Display results in the question container
+    // Display results in the question container with navigation buttons
+    function finishPassage() {
+        //call save score
+        saveScore();
+        const questionContainer = document.getElementById('question-container');
+        questionContainer.innerHTML = ''; // Clear existing content
 
-            // Hide the question container
-            document.getElementById('question-container').style.display = 'none';
+        // Add result content
+        questionContainer.innerHTML += `
+            <h1>Your Results</h1>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <canvas id="scoreChart" width="1000" height="1000"></canvas>
+            </div>
+            <h2>Question Review</h2>
+            <ul id="question-review" style="list-style: none; padding: 0;"></ul>
+            <div style="display: flex; justify-content: center; margin-top: 20px; gap: 20px;">
+                <button 
+                    id="next-passage-btn" 
+                    style="padding: 10px 20px; font-size: 0.8em; cursor: pointer; border: none; background: #2ecc71; color: white; border-radius: 8px;">
+                    Next Passage
+                </button>
+                <button 
+                    id="your-progress-btn" 
+                    style="padding: 10px 20px; font-size: 0.8em; cursor: pointer; border: none; background: #3498db; color: white; border-radius: 8px;">
+                    Your Progress
+                </button>
+            </div>
+        `;
 
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = ''; // Clear previous content
+        renderScoreChart(quizData.questions); // Render the doughnut chart
+        addQuestionDetails(quizData.questions); // Add question details
 
-            // Add a heading for the result
-            resultDiv.innerHTML += `<h1>Your Results</h1>`;
+        // Add event listeners for buttons
+        document.getElementById('next-passage-btn').addEventListener('click', function () {
+            loadNextPassage(); // Function to navigate to the next passage
+        });
 
-            // Add a canvas for the score visualization
-            resultDiv.innerHTML += `
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <canvas id="scoreChart" width="400" height="200"></canvas>
-                </div>
-            `;
+        // Navigate to the progress dashboard when 'Your Progress' is clicked
+        document.getElementById('your-progress-btn').addEventListener('click', function () {
+            window.location.href = `RC_dashboard.html?email=${email}&topic=${topic}`;
+        });
+    }
 
-            // Add a detailed question review section
-            resultDiv.innerHTML += '<h2>Question Review</h2>';
-            resultDiv.innerHTML += '<div style="margin-top: 20px;"><ul id="question-review" style="list-style: none; padding: 0;"></ul></div>';
+    // Add a function to handle loading the next passage
+    function loadNextPassage() {
+        // Logic for loading the next passage
+        window.location.reload(); // Reload the page to fetch and display the next passage
+    }
 
-            // Loop through each question to display answers
-            quizData.questions.forEach((question, index) => {
-                const isCorrect = question.user_answer === question.correct_answer;
-                const questionHtml = `
-                    <li style="margin-bottom: 20px; padding: 10px; border-radius: 8px; background-color: ${isCorrect ? '#d4edda' : '#f8d7da'};">
-                        <p><strong>Q${index + 1}:</strong> ${question.question_text}</p>
-                        <p><strong>Your Answer:</strong> ${question.user_answer || 'No Answer'} ${
-                    isCorrect
-                        ? '<span style="color: green; font-weight: bold;">(Correct)</span>'
-                        : '<span style="color: red; font-weight: bold;">(Incorrect)</span>'
-                }</p>
-                        <p><strong>Correct Answer:</strong> ${question.correct_answer}</p>
-                    </li>
-                `;
-                document.getElementById('question-review').innerHTML += questionHtml;
-            });
+// Render a smaller doughnut chart
+function renderScoreChart(questions) {
+    const totalQuestions = questions.length;
+    const correctAnswers = questions.filter(q => q.user_answer === q.correct_answer).length;
+    const incorrectAnswers = totalQuestions - correctAnswers;
+    
 
-            // Add navigation buttons
-            resultDiv.innerHTML += `
-                <div style="display: flex; justify-content: center; margin-top: 20px; gap: 20px;">
-                    <button id="next-passage-btn" style="padding: 10px 20px; font-size: 0.8em; cursor: pointer; border: none; background: #2ecc71; color: white; border-radius: 8px;">Next Passage</button>
-                    <button 
-                        id="your-progress-btn" 
-                        style="padding: 10px 20px; font-size: 0.8em; cursor: pointer; border: none; background: #3498db; color: white; border-radius: 8px;"
-                        onclick="location.href='RC_dashboard.html?topic=${topic}'">
-                        Your Progress
-                    </button>
-                </div>
-            `;
-
-            // Refresh the current page when 'Next Passage' is clicked
-            document.getElementById('next-passage-btn').addEventListener('click', function () {
-                window.location.reload(); // Refresh the page
-            });
-
-            // Navigate to the progress dashboard when 'Your Progress' is clicked
-            document.getElementById('your-progress-btn').addEventListener('click', function () {
-                window.location.href = `RC_dashboard.html?topic=${topic}`;
-            });
-
-            renderScoreChart(quizData.questions);
-        }
-
-
-
-        function renderScoreChart(questions) {
-            const totalQuestions = questions.length;
-            const correctAnswers = questions.filter(q => q.user_answer === q.correct_answer).length;
-            const incorrectAnswers = totalQuestions - correctAnswers;
-
-            // Chart.js configuration
-            const ctx = document.getElementById('scoreChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut', // Use 'bar', 'pie', or 'doughnut' for different visualizations
-                data: {
-                    labels: ['Correct', 'Incorrect'],
-                    datasets: [
-                        {
-                            label: 'Score',
-                            data: [correctAnswers, incorrectAnswers],
-                            backgroundColor: ['#28a745', '#dc3545'], // Colors for correct and incorrect
-                            hoverOffset: 4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top'
-                        }
-                    }
+    // Chart.js configuration
+    const ctx = document.getElementById('scoreChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Correct', 'Incorrect'],
+            datasets: [
+                {
+                    data: [correctAnswers, incorrectAnswers],
+                    backgroundColor: ['#28a745', '#dc3545'], // Green for correct, red for incorrect
+                    hoverOffset: 8 // Increase hover effect
                 }
+            ]
+        },
+        options: {
+            responsive: false, // Disable responsiveness for precise control
+            maintainAspectRatio: false, // Prevent distortion
+            plugins: {
+                legend: {
+                    position: 'bottom', // Position legend below the chart
+                    labels: {
+                        font: {
+                            size: 50 // Increase legend font size
+                        },
+                        color: '#000', // Legend text color
+                        padding: 20 // Space around legend items
+                    }
+                },
+                tooltip: {
+                    bodyFont: {
+                        size: 16 // Tooltip text size
+                    },
+                    padding: 10 // Space inside the tooltip box
+                }
+            },
+            layout: {
+                padding: 20 // Padding around the chart
+            },
+            cutout: '50%', // Adjust the size of the center cutout
+            radius: '80%' // Control the chart's overall size
+        }
+    });
+}
+
+
+        function addQuestionDetails(questions) {
+            const reviewList = document.getElementById('question-review');
+            reviewList.innerHTML = ''; // Clear existing content
+            console.log(questions)
+
+            questions.forEach((q, index) => {
+                const isCorrect = q.user_answer === q.correct_answer;
+
+                // Create a styled container for each question
+                const reviewItem = document.createElement('div');
+                reviewItem.style.border = '1px solid #ccc';
+                reviewItem.style.borderRadius = '8px';
+                reviewItem.style.padding = '15px';
+                reviewItem.style.marginBottom = '10px';
+                reviewItem.style.backgroundColor = isCorrect ? '#eaf8e6' : '#fdecea'; // Green for correct, red for incorrect
+
+                // Add question details
+                reviewItem.innerHTML = `
+                    <p style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px;">
+                        Question ${index + 1}:
+                    </p>
+                    <p style="margin: 0 0 10px 0;">${q.question_text}</p>
+                    <p style="color: ${isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                        ${isCorrect ? 'Correct' : 'Incorrect'}
+                    </p>
+                    <p style="margin: 0;">
+                        <strong>Your Answer:</strong> ${q.user_answer || 'None'}
+                    </p>
+                    <p style="margin: 0;">
+                        <strong>Correct Answer:</strong> ${q.correct_answer}
+                    </p>
+                    <p style="margin-top: 10px; font-style: italic; color: #6c757d;">
+                        <strong>Explanation:</strong> ${q.explanation || 'Explanation not available'}
+                    </p>
+                `;
+
+                // Append the question review to the list
+                reviewList.appendChild(reviewItem);
             });
         }
+
 
 
 
