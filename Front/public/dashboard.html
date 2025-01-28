@@ -268,7 +268,7 @@
 
         const tableHtml = `
             <div class="quiz-summary-container">
-                <h3>Vocabulary </h4>
+                <h3>Vocabulary Topic Wise Performance</h4>
                 <table class="table table-striped table-bordered">
                     
                     <thead>
@@ -281,18 +281,25 @@
                     </thead>
                     <tbody>
                         ${recentAssessments
-                            .map((assessment, index) => `
-                                <tr>
-                                    <td>${iterable++}</td>
-                                    <td class="score-column">${new Date(assessment.date).toLocaleDateString()}</td>
-                                    <td class="score-column">${assessment.total_score}</td>
-                                    <td>
-                                        <button class="btn btn-primary" onclick="goToQuizAnalytics('${assessment.date}')">
-                                            View Analytics
-                                        </button>
-                                    </td>
-                                </tr>
-                            `)
+                            .map((assessment, index) => {
+                                // Calculate the percentage of correct answers
+                                const totalQuestions = assessment.questions.length;
+                                const correctAnswers = assessment.questions.filter(q => q.is_correct).length;
+                                const percentage = totalQuestions > 0 ? ((correctAnswers / totalQuestions) * 100).toFixed(2) : '0.00';
+
+                                return `
+                                    <tr>
+                                        <td>${assessment.assess_topic || 'N/A'}</td>
+                                        <td class="score-column">${new Date(assessment.date).toLocaleDateString()}</td>
+                                        <td class="score-column">${percentage}</td>
+                                        <td>
+                                            <button class="btn btn-primary" onclick="goToQuizAnalytics('${assessment.date}')">
+                                                Analytics
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            })
                             .join('')}
                     </tbody>
                 </table>
