@@ -263,7 +263,7 @@
         }
 
         // Get the last 6 quizzes (if there are more than 6)
-        const recentAssessments = user.assessments.slice(-7).reverse(); // Reverse for recent-to-oldest order
+        const recentAssessments = user.assessments.slice(-6).reverse(); // Reverse for recent-to-oldest order
         iterable = 1;
 
         const tableHtml = `
@@ -275,7 +275,7 @@
                         <tr>
                             <th>Sr. no.</th>
                             <th class="score-column">Date</th>
-                            <th class="score-column">Score</th>
+                            <th class="score-column">Percentage</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
