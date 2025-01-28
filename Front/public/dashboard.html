@@ -264,7 +264,6 @@
 
         // Get the last 6 quizzes (if there are more than 6)
         const recentAssessments = user.assessments.slice(-6).reverse(); // Reverse for recent-to-oldest order
-        iterable = 1;
 
         const tableHtml = `
             <div class="quiz-summary-container">
@@ -273,7 +272,7 @@
                     
                     <thead>
                         <tr>
-                            <th>Sr. no.</th>
+                            <th>Topic</th>
                             <th class="score-column">Date</th>
                             <th class="score-column">Percentage</th>
                             <th>Actions</th>
@@ -522,12 +521,23 @@
                 const totalPassages = topicDetails.solvedPassages.length;
                 const currentLevel = topicDetails.current_level || 'N/A';
 
+                // Get the last activity date
+                const lastActivity = topicDetails.solvedPassages.reduce((latest, passage) => {
+                    const passageDate = new Date(passage.timestamp);
+                    return passageDate > latest ? passageDate : latest;
+                }, new Date(0)); // Default to the epoch if no passages exist
+
+                const lastActivityFormatted = lastActivity.getTime() !== 0
+                    ? lastActivity.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : 'N/A';
+
                 rows.push(`
                     <tr>
                         <td>${rows.length + 1}</td>
                         <td>${topicName}</td>
                         <td>${totalPassages}</td>
                         <td>${currentLevel}</td>
+                        <td>${lastActivityFormatted}</td>
                         <td>
                             <button class="btn btn-sm btn-primary" onclick="exploreRCTopic('${topicName}')">Explore</button>
                         </td>
@@ -553,6 +563,7 @@
                         <th>Topic</th>
                         <th>Total Passages Solved</th>
                         <th>Current Level</th>
+                        <th>Last Activity</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
