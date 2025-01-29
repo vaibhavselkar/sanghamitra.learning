@@ -83,6 +83,22 @@ router.post('/signin', async (req, res) => {
     }
 });
 
+router.get('/students-count', async (req, res) => {
+  try {
+    // Fetch all users (excluding sensitive fields like password)
+    const users = await User.find({}, { password: 0 });
+
+    // Count the total number of users
+    const totalUsers = await User.countDocuments();
+
+    // Return both the count and the list of users
+    res.status(200).json({ totalUsers, users });
+  } catch (err) {
+      console.error('Error fetching users and count:', err);
+      res.status(500).json({ error: 'Server error, failed to fetch users' });
+  }
+});
+
 // Endpoint to fetch login history for a specific user by email
 router.get('/login-history', async (req, res) => {
   const { email } = req.query; // Expect email as a query parameter
