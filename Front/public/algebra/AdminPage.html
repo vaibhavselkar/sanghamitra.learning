@@ -107,7 +107,6 @@
 
         // Populate the student list
         users.forEach((user, index) => {
-          const li = document.createElement('li');
           li.textContent = `${index + 1}. ${user.name}`;
           studentListContent.appendChild(li);
         });
