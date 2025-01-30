@@ -69,6 +69,9 @@ router.post('/signin', async (req, res) => {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
+        // ✅ Ensure login history is updated
+        await user.updateLoginHistory();
+
         const token = await user.generateAuthToken();
         req.session.userId = user._id;
         req.session.token = token;
