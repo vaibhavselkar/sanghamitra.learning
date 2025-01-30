@@ -732,7 +732,7 @@
     async function fetchQuizCounts(email) {
         try {
             // Fetch Math quiz counts
-            const mathResponse = await fetch(`http://localhost:4000/api/algebra_scores?email=${email}`);
+            const mathResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
             if (!mathResponse.ok) throw new Error('Failed to fetch Math quiz data');
             const mathData = await mathResponse.json();
             const mathQuizCount = mathData.length;
@@ -746,13 +746,13 @@
             }
 
             // Fetch Vocabulary quiz counts
-            const vocabResponse = await fetch(`http://localhost:4000/api/vocabscores?email=${email}`);
+            const vocabResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/vocabscores?email=${email}`);
             if (!vocabResponse.ok) throw new Error('Failed to fetch Vocabulary quiz data');
             const vocabData = await vocabResponse.json();
             const vocabQuizCount = vocabData.assessments ? vocabData.assessments.length : 0;
 
             // Fetch Reading Comprehension quiz counts
-            const rcResponse = await fetch(`http://localhost:4000/api/readingcomprehensionscore?email=${email}`);
+            const rcResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${email}`);
             if (!rcResponse.ok) throw new Error('Failed to fetch Reading Comprehension quiz data');
             const rcData = await rcResponse.json();
 
