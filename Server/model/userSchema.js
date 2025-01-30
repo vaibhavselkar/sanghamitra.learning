@@ -26,7 +26,8 @@ const userSchema = new mongoose.Schema({
                 required: true,
             }
         }
-    ]
+    ],
+    loginHistory: [{ loginTimestamp: { type: Date, default: Date.now } }]
 });
 
 // we are hashing the password
