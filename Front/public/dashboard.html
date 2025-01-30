@@ -128,6 +128,42 @@
             text-align: center; /* Optional: Center-align the text */
         }
 
+        /* Flexbox container for User Info & Quiz Count */
+        .info-container {
+            display: flex;
+            justify-content: space-between; /* Pushes left & right apart */
+            align-items: center; /* Align to center vertically */
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Left and Right section width */
+        .user-info, .quiz-count {
+            width: 100%; /* Makes them equal width */
+        }
+
+        /* Aligns the quiz count content to the right */
+        .quiz-count {
+            text-align: right;
+        }
+
+        /* Streak container (for fire icon) */
+        .streak-container {
+            margin-top: 10px;
+            padding: 10px;
+            background: #ffebeb;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .streak-info {
+            color: red;
+            font-size: 18px;
+        }
+
        
     </style>
 </head>
@@ -156,18 +192,36 @@
                     <div class="card-body">
                         <!-- User Information Section -->
                         <div class="card-custom mb-4">
-                            <h3>User Information</h3>
-                            <p><strong>Username:</strong> <span id="userName"></span></p>
-                            <p><strong>Email:</strong> <span id="userEmail"></span></p>
+                            <h3>Student Dashboard</h3>
+                        
+                            <!-- Flexbox Container for User Info & Quiz Count -->
+                            <div class="info-container">
+                                <!-- Left Side: User Information -->
+                                <div class="user-info">
+                                    <h3>User Information</h3>
+                                    <p><strong>Username:</strong> <span id="userName"></span></p>
+                                    <p><strong>Email:</strong> <span id="userEmail"></span></p>
+                                </div>
+                        
+                                <!-- Right Side: Quiz Count -->
+                                <div class="quiz-count">
+                                    <h3>Quiz Count</h3>
+                                    <p>Math: <span id="math-quiz-count"></span></p>
+                                    <p>RC: <span id="rc-quiz-count"></span></p>
+                                    <p>Vocabulary: <span id="vocab-quiz-count"></span></p>
+                                    
+                                </div>
+                            </div>
+                        
+                            <!-- Streak Section -->
                             <div class="streak-container">
                                 <div class="streak-info">
-                                    <i class="bi bi-fire"></i> <!-- Add fire icon from Bootstrap icons -->
-                                    <span id="userStreak">0</span> days
+                                    <i class="bi bi-fire"></i> 
+                                    <span id="userStreak">1</span> days
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Vocabulary and Mathematics Section -->
                         <!-- Vocabulary and Mathematics Section -->
                         <div class="row mb-4">
                             <div class="col-lg-6 col-md-12">
@@ -655,6 +709,9 @@
             await fetchRCScores(userDashboardData.email); // Fetch RC scores and display them
         }
 
+        // Fetch and display quiz counts
+        await fetchQuizCounts(userDashboardData.email);
+
         // Fetch and display other user data
         const vocabScoresData = await fetchVocabscores(userDashboardData.email);
         if (vocabScoresData) {
@@ -671,7 +728,51 @@
             console.error('Failed to fetch topics scores data');
         }
     }
-    
+
+    async function fetchQuizCounts(email) {
+        try {
+            // Fetch Math quiz counts
+            const mathResponse = await fetch(`http://localhost:4000/api/algebra_scores?email=${email}`);
+            if (!mathResponse.ok) throw new Error('Failed to fetch Math quiz data');
+            const mathData = await mathResponse.json();
+            const mathQuizCount = mathData.length;
+
+            let mathTopicsCount = 0;
+
+            if (mathData.length > 0) {
+                mathTopicsCount = mathData.reduce((count, entry) => {
+                    return count + (entry.topics ? entry.topics.length : 0);
+                }, 0);
+            }
+
+            // Fetch Vocabulary quiz counts
+            const vocabResponse = await fetch(`http://localhost:4000/api/vocabscores?email=${email}`);
+            if (!vocabResponse.ok) throw new Error('Failed to fetch Vocabulary quiz data');
+            const vocabData = await vocabResponse.json();
+            const vocabQuizCount = vocabData.assessments ? vocabData.assessments.length : 0;
+
+            // Fetch Reading Comprehension quiz counts
+            const rcResponse = await fetch(`http://localhost:4000/api/readingcomprehensionscore?email=${email}`);
+            if (!rcResponse.ok) throw new Error('Failed to fetch Reading Comprehension quiz data');
+            const rcData = await rcResponse.json();
+
+            // Calculate the total number of passages solved across all topics
+            let rcQuizCount = 0;
+            if (rcData.topics) {
+                rcQuizCount = Object.values(rcData.topics).reduce((total, topic) => {
+                    return total + (topic.solvedPassages ? topic.solvedPassages.length : 0);
+                }, 0);
+            }
+
+            // Display the quiz counts
+            document.getElementById('math-quiz-count').textContent = mathTopicsCount;
+            document.getElementById('vocab-quiz-count').textContent = vocabQuizCount;
+            document.getElementById('rc-quiz-count').textContent = rcQuizCount;
+        } catch (error) {
+            console.error('Error fetching quiz counts:', error);
+        }
+    }
+
 
     // Call the init function when the page loads
     init();
