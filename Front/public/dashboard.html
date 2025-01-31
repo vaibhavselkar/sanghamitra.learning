@@ -164,7 +164,7 @@
             font-size: 18px;
         }
 
-       
+        
     </style>
 </head>
 <body>
@@ -181,13 +181,15 @@
     </div>
 </header>
       
+
+
 <main class="main">
     <section class="container mt-5">
         <div class="row">
             <div class="col-lg-12 mx-auto" data-aos="fade-up">
                 <div class="card shadow-sm mb-4 bg-light">
                     <div class="card-header text-black" style="background-color: #3498db;">
-                        <h2 class="mb-0">Student Dashboard</h2>
+                        <h3 class="mb-1">Student Dashboard</h3>
                     </div>
                     <div class="card-body">
                         <!-- User Information Section -->
@@ -221,19 +223,21 @@
                                 </div>
                             </div>
                         </div>
-
                         <!-- Vocabulary and Mathematics Section -->
                         <div class="row mb-4">
                             <div class="col-lg-6 col-md-12">
                                 <div class="card-custom">
+                                    <h3>Vocabulary Topic Wise Performance</h4>
                                     <div id="vocab-quiz-summary">
                                     </div>
+                                    <button class="btn btn-primary solve-more-btn" onclick="redirectToVocab()">Solve More</button>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-12">
                                 <div class="card-custom">
                                     <h3>Mathematics Quizzes Performance</h3>
                                     <div id="topics-container" class="row"></div>
+                                    <button class="btn btn-primary solve-more-btn" onclick="redirectToMath()">Solve More</button>
                                 </div>
                             </div>
                         </div>
@@ -243,7 +247,7 @@
                             <div class="col-12">
                                 <div class="card-custom">
                                     <h3>Reading Comprehension</h3>
-                                    <p><strong>Track your progress</strong></p>
+                                    <p><strong>Track your progress.</strong></p>
                                     <div id="rc-table-container" class="loading">Loading Reading Comprehension Data...</div>
                                     <div id="quiz-review-container" style="display: none; margin-top: 20px;"></div>
                                 </div>
@@ -256,6 +260,7 @@
         </div>
     </section>
 </main>
+
 
 <footer id="footer" class="footer position-relative">
     <div class="container footer-top">
@@ -293,86 +298,87 @@
 
     let email = '';
     let username = '';
-    
+
     async function fetchVocabscores(email) {
         try {
             const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/vocabscores?email=${email}`);
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
+            
             const userData = await response.json();
+
+            // ✅ Handle case where no assessments exist
+            if (!userData || !userData.assessments || userData.assessments.length === 0) {
+                console.warn('No vocabulary scores found for user:', email);
+                return { assessments: [] };
+            }
+
             return userData;
         } catch (error) {
-            console.error('There has been a problem with your fetch operation:', error);
-            return null;
+            console.error('Error fetching vocabulary scores:', error);
+            return { assessments: [] }; // ✅ Return empty object to prevent UI errors
         }
     }
 
     function displayVocabScores(user) {
+        const container = document.getElementById('vocab-quiz-summary');
+
         if (!user || !user.assessments || user.assessments.length === 0) {
-            document.getElementById('vocab-quiz-summary').innerHTML = `
-                <p class="no-data">No quizzes taken yet.</p>
+            container.innerHTML = `
+                <p class="no-data">Start learning and improve your Vocabulary</p>
+                <button class="btn btn-success start-learning-btn" onclick="redirectToVocab()">Start Learning</button>
             `;
             return;
         }
 
-        // Get the last 6 quizzes (if there are more than 6)
-        const recentAssessments = user.assessments.slice(-6).reverse(); // Reverse for recent-to-oldest order
+        const recentAssessments = user.assessments.slice(-6).reverse();
 
-        const tableHtml = `
-            <div class="quiz-summary-container">
-                <h3>Vocabulary Topic Wise Performance</h4>
-                <table class="table table-striped table-bordered">
-                    
-                    <thead>
-                        <tr>
-                            <th>Topic</th>
-                            <th class="score-column">Date</th>
-                            <th class="score-column">Score(%)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${recentAssessments
-                            .map((assessment, index) => {
-                                // Calculate the percentage of correct answers
-                                const totalQuestions = assessment.questions.length;
-                                const correctAnswers = assessment.questions.filter(q => q.is_correct).length;
-                                const percentage = totalQuestions > 0 ? ((correctAnswers / totalQuestions) * 100).toFixed(2) : '0.00';
+        container.innerHTML = `
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Date</th>
+                        <th>Percentage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${recentAssessments.map((assessment) => {
+                        const totalQuestions = assessment.questions.length;
+                        const correctAnswers = assessment.questions.filter(q => q.is_correct).length;
+                        const percentage = totalQuestions > 0 ? ((correctAnswers / totalQuestions) * 100).toFixed(2) : '0.00';
 
-                                return `
-                                    <tr>
-                                        <td>${assessment.assess_topic || 'N/A'}</td>
-                                        <td class="score-column">${new Date(assessment.date).toLocaleDateString()}</td>
-                                        <td class="score-column">${percentage}</td>
-                                        <td>
-                                            <button class="btn btn-primary" onclick="goToQuizAnalytics('${assessment.date}')">
-                                                Analytics
-                                            </button>
-                                        </td>
-                                    </tr>
-                                `;
-                            })
-                            .join('')}
-                    </tbody>
-                </table>
-            </div>
+                        return `
+                            <tr>
+                                <td>${assessment.assess_topic || 'N/A'}</td>
+                                <td>${new Date(assessment.date).toLocaleDateString()}</td>
+                                <td>${percentage}%</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="goToQuizAnalytics('${assessment.date}')">
+                                        Analytics
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
         `;
-
-        document.getElementById('vocab-quiz-summary').innerHTML = tableHtml;
     }
-
     async function fetchMathTopicsScores(email) {
         try {
             const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch topics scores data: ' + response.statusText);
-            }
+            
             const topicsData = await response.json();
+
+            // ✅ Handle case where no topics exist
+            if (!topicsData || topicsData.length === 0) {
+                return [];
+            }
+
             return topicsData;
         } catch (error) {
-            console.error('Error:', error);
-            return null;
+            console.error('Error fetching topics scores:', error);
+            return []; // ✅ Return empty array instead of error
         }
     }
 
@@ -405,7 +411,7 @@
         }
     }
 
-    function processUserData(user) {
+        function processUserData(user) {
             const assessments = user.assessments || [];
             const latestAssessment = assessments.length > 0 ? assessments[0] : null;
 
@@ -437,7 +443,10 @@
         }
 
 
-    function displayMathTopicsData(topicsData) {
+
+        
+        function displayTopicsData(topicsData) {
+            const topicsContainer = document.getElementById('topics-container');
             if (!topicsData || topicsData.length === 0) {
                 document.getElementById('topics-container').innerHTML = `
                     <p class="no-data">No data available for any topic</p>
@@ -445,7 +454,7 @@
                 return;
             }
 
-            const topicsContainer = document.getElementById('topics-container');
+            
             topicsContainer.innerHTML = ''; // Clear any existing content
 
             topicsData.forEach((topic) => {
@@ -460,8 +469,8 @@
                 topicCard.classList.add('col-lg-6', 'col-md-12', 'mb-4');
                 topicCard.innerHTML = `
                     <div class="card-custom">
-                        <h3>${capitalizeFirstLetter(topicName)}</h3>
                         <div>
+                            <h4>${capitalizeFirstLetter(topicName)} Performance</h4>
                             <p><strong>Accuracy:</strong> ${correctAnswers}/${questions.length}</p>
                             <p><strong>Current Level:</strong> ${capitalizeFirstLetter(current_level)}</p>
                         </div>
@@ -508,11 +517,13 @@
                 }
             });
         }
+
    
     
-    function goToQuizAnalytics(quizId) {
-        window.location.href = `vocab_analytics.html?quizId=${encodeURIComponent(quizId)}`;
-    }
+        function goToQuizAnalytics(quizId) {
+            console.log("called",quizId)
+            window.location.href = `vocab_analytics.html?quizId=${encodeURIComponent(quizId)}`;
+        }
 
     // Function to calculate the streak based on daily consecutive logins up to today
     function calculateStreak(loginHistory) {
@@ -542,29 +553,60 @@
         return streak;
     }
 
-    async function fetchRCScores(email) {
-        const apiUrl = `https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${email}`;
 
+    // Main function to fetch login history and calculate the streak
+    async function fetchUserStreak(email) {
         try {
-            const response = await fetch(apiUrl);
-            console.log("url is working")
-            if (!response.ok) throw new Error('Failed to fetch RC scores data.');
+            
+            const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/login-history?email=${email}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch streak data: ' + response.statusText);
+            }
+
+            // Parse the response to get login history
+            const data = await response.json();
+            const loginHistory = data.loginHistory || [];
+
+            // Calculate the streak based on the login history
+            const streak = calculateStreak(loginHistory);
+            console.log('Current Streak:', streak); // Log the current streak
+
+            // Display streak on the UI
+            document.getElementById('userStreak').textContent = streak;
+            return streak;
+        } catch (error) {
+            console.error('Error fetching streak:', error);
+            return 0;
+        }
+    }
+
+
+    async function fetchRCScores(email) {
+        try {
+            const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${email}`);
 
             const topicData = await response.json();
-            console.log("show the data", topicData);
+
+            // ✅ Handle case where no RC scores exist
+            if (!topicData || Object.keys(topicData).length === 0) {
+                console.warn('No RC scores found for user:', email);
+                document.getElementById('rc-table-container').innerHTML = `<p class="no-data">No Reading Comprehension Scores available</p>`;
+                return;
+            }
+
             displayRCScores(topicData);
         } catch (error) {
-            document.getElementById('rc-table-container').innerHTML = `
-                <p style="color:red; text-align:center;">Error: ${error.message}</p>
-            `;
+            console.error('Error fetching RC scores:', error);
+            document.getElementById('rc-table-container').innerHTML = `<p style="color:red; text-align:center;">Error: ${error.message}</p>`;
         }
     }
 
     function displayRCScores(topicData) {
         if (!topicData || typeof topicData.topics !== 'object' || Object.keys(topicData.topics).length === 0) {
             document.getElementById('rc-table-container').innerHTML = `
-                <p class="no-data">No Reading Comprehension Scores available</p>
-            `;
+                <p class="no-data">Start learning and improve your Reading Comprehension </p>
+                <button class="btn btn-success start-learning-btn" onclick="redirectToRC()">Start Learning</button>
+                `;
             return;
         }
 
@@ -593,7 +635,7 @@
                         <td>${currentLevel}</td>
                         <td>${lastActivityFormatted}</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" onclick="exploreRCTopic('${topicName}')">Explore</button>
+                            <button class="btn btn-sm btn-primary" onclick="exploreTopic('${topicName}')">Explore</button>
                         </td>
                     </tr>
                 `);
@@ -603,7 +645,7 @@
         // Check if there are rows to display
         if (rows.length === 0) {
             document.getElementById('rc-table-container').innerHTML = `
-                <p class="no-data">No Reading Comprehension Scores available</p>
+                <p class="no-data">Start Learning and improve your Reading Comprehension</p>
             `;
             return;
         }
@@ -631,37 +673,45 @@
 
     // Example function for the Explore button
     // Example function for the Explore button
-    function exploreRCTopic(topicName) {
+    function exploreTopic(topicName) {
         const topic = topicName; // Use the topic name provided as the argument
         // Redirect to the RC Dashboard
         window.location.href = `english/RC_dashboard.html?email=${email}&topic=${topic}`;
     }
 
 
-    // Main function to fetch login history and calculate the streak
-    async function fetchUserStreak(email) {
-        try {
-            const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/login-history?email=${email}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch streak data: ' + response.statusText);
-            }
+    
+    async function displayQuizReview(quizData, passageId) {
+        const reviewContainer = document.getElementById('quiz-review-container');
+        reviewContainer.style.display = 'block';
 
-            // Parse the response to get login history
-            const data = await response.json();
-            const loginHistory = data.loginHistory || [];
+        const passage = quizData.quizData?.passage || 'No passage content available.';
+        const questionsHTML = quizData.quizData?.questions
+            ?.map((q, index) => `
+                <li>
+                    <p><strong>Q${index + 1}:</strong> ${q.question_text}</p>
+                    <p><strong>Your Answer:</strong> ${q.user_answer}</p>
+                    <p><strong>Correct Answer:</strong> ${q.correct_answer}</p>
+                </li>
+            `)
+            .join('') || '<li>No questions available.</li>';
 
-            // Calculate the streak based on the login history
-            const streak = calculateStreak(loginHistory);
-            console.log('Current Streak:', streak); // Log the current streak
+        reviewContainer.innerHTML = `
+            <h3>Quiz Review</h3>
+            <p><strong>Passage:</strong> ${passage}</p>
+            <ul>${questionsHTML}</ul>
+        `;
+    }
 
-            // Display streak on the UI
-            document.getElementById('userStreak').textContent = streak;
-            return streak;
-        } catch (error) {
-            console.error('Error fetching streak:', error);
-            return 0;
+    async function initDashboard() {
+        const userDashboardData = await fetchUserDashboard();
+        console.log("initiated")
+        if (userDashboardData) {
+            await fetchRCScores(userDashboardData.email); // Fetch RC scores and display them
         }
     }
+
+    initDashboard();
 
     async function fetchSessionInfo() {
         try {
@@ -686,8 +736,6 @@
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
-
-
     // Function to initialize the dashboard
     async function init() {
         const userDashboardData = await fetchUserDashboard();
@@ -704,15 +752,19 @@
         const userStreak = await fetchUserStreak(userDashboardData.email);
         document.getElementById('userStreak').textContent = userStreak;
 
-        //fetch RC section
-        if (userDashboardData) {
-            await fetchRCScores(userDashboardData.email); // Fetch RC scores and display them
-        }
-
         // Fetch and display quiz counts
         await fetchQuizCounts(userDashboardData.email);
 
-        // Fetch and display other user data
+
+        // Fetch and display all topics data of Math
+        const topicsScoresData = await fetchMathTopicsScores(userDashboardData.email);
+        if (topicsScoresData) {
+            displayTopicsData(topicsScoresData[0].topics);
+        } else {
+            console.error('Failed to fetch topics scores data');
+        }
+
+        // Fetch and display other user data vocab
         const vocabScoresData = await fetchVocabscores(userDashboardData.email);
         if (vocabScoresData) {
             displayVocabScores(vocabScoresData);
@@ -720,62 +772,64 @@
             console.error('Failed to fetch vocab scores data');
         }
 
-        // Fetch and display all topics data
-        const topicsMathScoresData = await fetchMathTopicsScores(userDashboardData.email);
-        if (topicsMathScoresData) {
-            displayMathTopicsData(topicsMathScoresData[0].topics);
-        } else {
-            console.error('Failed to fetch topics scores data');
-        }
     }
+
+    // Call the init function when the page loads
+    init();
 
     async function fetchQuizCounts(email) {
         try {
             // Fetch Math quiz counts
             const mathResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/algebra_scores?email=${email}`);
-            if (!mathResponse.ok) throw new Error('Failed to fetch Math quiz data');
             const mathData = await mathResponse.json();
-            const mathQuizCount = mathData.length;
 
-            let mathTopicsCount = 0;
-
-            if (mathData.length > 0) {
-                mathTopicsCount = mathData.reduce((count, entry) => {
-                    return count + (entry.topics ? entry.topics.length : 0);
-                }, 0);
-            }
+            // ✅ Ensure mathData is an array and not empty
+            let mathTopicsCount = (Array.isArray(mathData) && mathData.length > 0) 
+                ? mathData.reduce((count, entry) => count + (entry.topics ? entry.topics.length : 0), 0)
+                : 0;
 
             // Fetch Vocabulary quiz counts
             const vocabResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/vocabscores?email=${email}`);
-            if (!vocabResponse.ok) throw new Error('Failed to fetch Vocabulary quiz data');
             const vocabData = await vocabResponse.json();
+
+            // ✅ Ensure vocabData has assessments
             const vocabQuizCount = vocabData.assessments ? vocabData.assessments.length : 0;
 
             // Fetch Reading Comprehension quiz counts
             const rcResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/readingcomprehensionscore?email=${email}`);
-            if (!rcResponse.ok) throw new Error('Failed to fetch Reading Comprehension quiz data');
             const rcData = await rcResponse.json();
 
-            // Calculate the total number of passages solved across all topics
-            let rcQuizCount = 0;
-            if (rcData.topics) {
-                rcQuizCount = Object.values(rcData.topics).reduce((total, topic) => {
-                    return total + (topic.solvedPassages ? topic.solvedPassages.length : 0);
-                }, 0);
-            }
+            // ✅ Calculate total passages solved for RC
+            let rcQuizCount = (rcData.topics) 
+                ? Object.values(rcData.topics).reduce((total, topic) => total + (topic.solvedPassages ? topic.solvedPassages.length : 0), 0)
+                : 0;
 
-            // Display the quiz counts
+            // ✅ Display quiz counts
             document.getElementById('math-quiz-count').textContent = mathTopicsCount;
             document.getElementById('vocab-quiz-count').textContent = vocabQuizCount;
             document.getElementById('rc-quiz-count').textContent = rcQuizCount;
         } catch (error) {
             console.error('Error fetching quiz counts:', error);
+
+            // ✅ Show zero if error occurs
+            document.getElementById('math-quiz-count').textContent = 0;
+            document.getElementById('vocab-quiz-count').textContent = 0;
+            document.getElementById('rc-quiz-count').textContent = 0;
         }
     }
 
+    function redirectToRC() {
+        window.location.href = "english/RC_topics.html";
+    }
 
-    // Call the init function when the page loads
-    init();
+    function redirectToMath() {
+        window.location.href = "algebra/algebra.html";
+    }
+
+    function redirectToVocab() {
+        window.location.href = "vocabulary.html";
+    }
+
 
 
 </script>
