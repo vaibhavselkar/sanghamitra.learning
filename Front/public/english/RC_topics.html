@@ -108,6 +108,46 @@
     .course-content .practice-button:hover {
       background-color: #28a745;
     }
+
+    .intro-section {
+      background: linear-gradient(to right, #f7f9fc, #f1f1f1); /* Subtle gradient */
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .intro-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .intro-text {
+      font-size: 1.025rem; /* Slightly larger than normal text */
+      line-height: 1.8;
+      color: #555;
+    }
+
+    .intro-text strong {
+      color: #00070e; /* Highlight brand name with primary color */
+    }
+
+    @media (max-width: 768px) {
+      .intro-section {
+        padding: 1.5rem;
+      }
+
+      .intro-title {
+        font-size: 1.5rem;
+      }
+
+      .intro-text {
+        font-size: 1rem;
+      }
+    }
   </style>
 
     <link href="../assets/img/favicon.png" rel="icon">
@@ -151,7 +191,12 @@
 
   <div class="container">
     <div class="topic-section">
-      <h2>Reading Comprehension Topics</h2>
+      <div class="intro-section">
+        <h2 class="intro-title">Welcome to Reading Comprehension</h2>
+        <p class="intro-text">
+          At <strong>Sanghamitra Learning</strong>, we focus on making reading comprehension both effective and engaging. That’s why we’ve created a collection of passages on diverse topics like science, art, and politics. This variety helps learners stay interested while developing essential skills like critical thinking and pattern recognition. By exploring different subjects and levels, you’ll not only improve your understanding but also make reading more enjoyable. Start your journey to stronger comprehension today!
+        </p>
+      </div>
       <div id="topic-progress-list" class="topic-list">
         <!-- List items will be inserted here by JavaScript -->
       </div>
@@ -223,7 +268,7 @@
           console.log(username, email);
           fetchUserProgress(); // Fetch and display topic progress after retrieving user info
         } else {
-          console.error('Failed to fetch session info');
+          window.location.href = '../user_login.html';
         }
       } catch (error) {
         console.error('Error fetching session info:', error);
