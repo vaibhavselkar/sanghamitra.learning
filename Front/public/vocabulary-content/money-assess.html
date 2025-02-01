@@ -358,7 +358,7 @@
                     <p id="total-score">Total Points: </p>
                     <div id="comprehensive-analysis"></div>
                     <button id="restart-button" class="btn btn-primary mt-4">Restart Quiz</button>
-                    <button id="analytics-button" class="btn btn-secondary mt-4" onclick="window.location.href='assess-analytics.html'">View Analytics</button>
+                    <button id="analytics-button" class="btn btn-secondary mt-4" onclick="window.location.href='vocab_analytics.html'">View Analytics</button>
                 </div>
             </div>
         </div>
@@ -462,7 +462,7 @@
                     console.log(username, email);
                     fetchQuestions(); // Automatically fetch questions after getting session info
                 } else {
-                    window.location.href = 'user_login.html';
+                    window.location.href = '../user_login.html';
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
