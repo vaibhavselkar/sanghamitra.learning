@@ -707,6 +707,17 @@
             quizPage.classList.remove('active');
             resultPage.classList.remove('hidden');
             resultPage.classList.add('active');
+
+            // ✅ Calculate percentage score
+            const totalQuestionsAttempted = questions.length;
+            const correctAnswersCount = answers.filter(answer => answer.is_correct).length;
+            const percentageScore = totalQuestionsAttempted > 0 
+                ? ((correctAnswersCount / totalQuestionsAttempted) * 100).toFixed(2) 
+                : 0;
+        
+            // ✅ Update UI with percentage score
+            totalScoreElement.innerHTML = `<h3>Score: ${percentageScore}%</h3>`;
+            
             displayVocabularyLevel();
             
             displayComprehensiveAnalysis();
