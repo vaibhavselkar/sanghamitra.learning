@@ -707,9 +707,10 @@
             quizPage.classList.remove('active');
             resultPage.classList.remove('hidden');
             resultPage.classList.add('active');
-            totalScoreElement.textContent = `Total Points: ${totalPoints}`;
-            displayComprehensiveAnalysis();
             displayVocabularyLevel();
+            
+            displayComprehensiveAnalysis();
+            
             quizRunning = false; // Reset state when quiz ends
             console.log('Quiz ended. Total points:', totalPoints);
 
