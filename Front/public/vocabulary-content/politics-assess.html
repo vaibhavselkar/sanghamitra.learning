@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Traits Vocabulary Test</title>
+    <title>Vocabulary Test (Politics)</title>
     <link href="../assets/img/favicon.png" rel="icon">
     <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
@@ -270,23 +270,16 @@
 </head>
 <body>
 
-  <header id="header" class="header d-flex align-items-center sticky-top">
+<header id="header" classheader" class="header d-flex align-items-center sticky-top">
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
-
       <a href="../index.html" class="logo d-flex align-items-center me-auto">
-        <img src="../img/sbi.logo.png" alt="Logo" width="80" height="80"> 
+        <img src="../img/sbi.logo.png" alt="Logo" width="80" height="80">
         <h1 class="">Sanghamitra Learning</h1>
       </a>
-
       <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="../index.html" class="">Home</a></li>
-          <li><a href="../about.html" class="">About</a></li>
-          <li><a href="../contact.html">Contact</a></li>
-        </ul>
+        <div id="navbar-placeholder"></div>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
-
     </div>
   </header>
 
@@ -298,18 +291,21 @@
         <div class="container">
           <div class="row d-flex justify-content-center text-center">
             <div class="col-lg-8">
-              <h1>Character Traits Vocabulary Test</h1>
-              <p class="mb-0">Welcome to the Character Traits Vocabulary Test</p>
+              <h1>Politics Vocabulary Test</h1>
+              <p class="mb-0">Welcome to the Politics Vocabulary Test</p>
             </div>
           </div>
         </div>
       </div>
       <nav class="breadcrumbs">
         <div class="container">
-          <ol>
-            <li><a href="../index.html">Home</a></li>
-            <li class="current">Character Traits Vocabulary Test</li>
-          </ol>
+            <ol>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="../english.html">English</a></li>
+              <li><a href="../vocabulary.html">Vocabulary</a></li>
+              <li><a href="main-page.html">Vocabulary Endeavour</a></li>
+              <li class="current">Politics Assessment</li>
+            </ol>
         </div>
       </nav>
     </div><!-- End Page Title -->
@@ -362,7 +358,7 @@
                     <p id="total-score">Total Points: </p>
                     <div id="comprehensive-analysis"></div>
                     <button id="restart-button" class="btn btn-primary mt-4">Restart Quiz</button>
-                    <button id="analytics-button" class="btn btn-secondary mt-4" onclick="window.location.href='assess-analytics.html'">View Analytics</button>
+                    <button id="analytics-button" class="btn btn-secondary mt-4" onclick="window.location.href='../vocab_analytics.html'">View Analytics</button>
                 </div>
             </div>
         </div>
@@ -466,7 +462,7 @@
                     console.log(username, email);
                     fetchQuestions(); // Automatically fetch questions after getting session info
                 } else {
-                    console.error('Failed to fetch session info');
+                    window.location.href = '../user_login.html';
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
@@ -485,7 +481,7 @@
         async function fetchQuestions() {
             console.log('Fetching questions...');
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/vocab-questions?topic=politics');
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/vocab-questions?topic=money');
                 const data = await response.json();
                 questions = data.sort(() => 0.5 - Math.random()).slice(0, 10); // Randomly select 10 questions
                 answers = new Array(questions.length).fill(null); // Initialize answers array
@@ -667,6 +663,7 @@
                 assessments: [
                     {
                         total_score: totalPoints,
+                        assess_topic: "Politics",
                         questions: answers
                     }
                 ]
@@ -753,6 +750,23 @@
         await fetchSessionInfo(); // Fetch session info and start quiz on page load
     });
   </script>
+    <!-- Scroll Top -->
+    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  
+    <!-- Preloader -->
+    <div id="preloader"></div>
+  
+    <!-- Vendor JS Files -->
+    <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/vendor/php-email-form/validate.js"></script>
+    <script src="../assets/vendor/aos/aos.js"></script>
+    <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
+    <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+  
+    <!-- Main JS File -->
+    <script src="../assets/js/main.js"></script>
+    <script src="navbar.js"></script>
   
 </body>
 </html>
