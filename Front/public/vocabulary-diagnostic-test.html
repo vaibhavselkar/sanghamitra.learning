@@ -352,7 +352,6 @@
             <div class="row d-flex justify-content-center text-center">
                 <div class="col-lg-8">
                     <h2>Quiz Completed!</h2>
-                    <p id="total-score">Total Points: </p>
                     <div id="comprehensive-analysis"></div>
                     <button id="restart-button" class="btn btn-primary mt-4">Restart Quiz</button>
                     <button id="analytics-button" class="btn btn-secondary mt-4" onclick="window.location.href='vocab_analytics.html'">View Analytics</button>
@@ -441,9 +440,10 @@
         const pointsElement = document.getElementById('points');
         const cefrElement = document.getElementById('cefr');
         const totalScoreElement = document.getElementById('total-score');
-        const comprehensiveAnalysis = document.getElementById('comprehensive-analysis');
         const vocabularyLevelElement = document.createElement('div');
         resultPage.appendChild(vocabularyLevelElement);
+        const comprehensiveAnalysis = document.getElementById('comprehensive-analysis');
+        
 
         let username = "";
         let email = "";
