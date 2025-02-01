@@ -271,7 +271,7 @@
                     await fetchUserProgress();  // Fetch user scores to set `currentLevel`
                     fetchQuestions();         // Fetch questions after scores are set
                 } else {
-                    alert('Unable to fetch session info.');
+                    window.location.href = '../user_login.html';
                 }
             } catch (error) {
                 console.error('Error initializing quiz:', error);
