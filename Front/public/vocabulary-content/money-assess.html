@@ -462,7 +462,7 @@
                     console.log(username, email);
                     fetchQuestions(); // Automatically fetch questions after getting session info
                 } else {
-                    console.error('Failed to fetch session info');
+                    window.location.href = 'user_login.html';
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
