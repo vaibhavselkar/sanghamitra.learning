@@ -14,6 +14,9 @@
     <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
     <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
     <link href="assets/css/main.css" rel="stylesheet">
+
+      <!-- Main CSS File -->
+      <link href="../assets/css/main.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -94,65 +97,67 @@
     </div>
 </header>
 
-<div class="content">
-    <div class="main-content">
-        <div class="dashboard">
-            <h1>Quiz Analytics for <span id="username">User</span></h1>
-            <nav class="breadcrumbs">
-          <div class="container">
-            <ol>
-              <li><a href="index.html">Home</a></li>
-              <li><a href="../english.html">English</a></li>
-              <li><a href="../vocabulary.html">Vocabulary</a></li>
-              <li><a href="main-page.html">Vocabulary Endeavour</a></li>
-              <li class="current">Money</li>
-            </ol>
-          </div>
-        </nav>
-            <div class="card">
-                <h2>Total Points Earned</h2>
-                <p id="totalScore">N/A</p>
-            </div>
-            <div class="card">
-                <h2>Vocabulary Level</h2>
-                <p id="vocabularyLevel">N/A</p>
-            </div>
-
-            <div class="card">
-                <h2>Accuracy</h2>
-                <p id="accuracy">N/A <span id="accuracyDetails" style="display: none;"></span></p>
-                <div>
-                    <p id="correctAnswers">Correct: N/A</p>
-                    <p id="incorrectAnswers">Incorrect: N/A</p>
-                    <p id="skippedQuestions">Skipped: N/A</p>
+<main>
+    <div class="content">
+        <div class="main-content">
+            <div class="dashboard">
+                <h1>Quiz Analytics for <span id="username">User</span></h1>
+                <nav class="breadcrumbs">
+              <div class="container">
+                <ol>
+                  <li><a href="index.html">Home</a></li>
+                  <li><a href="../english.html">English</a></li>
+                  <li><a href="../vocabulary.html">Vocabulary</a></li>
+                  <li><a href="main-page.html">Vocabulary Endeavour</a></li>
+                  <li class="current">Money</li>
+                </ol>
+              </div>
+            </nav>
+                <div class="card">
+                    <h2>Total Points Earned</h2>
+                    <p id="totalScore">N/A</p>
                 </div>
-            </div>
-            <div class="card chart-container">
-                <canvas id="difficultyChart"></canvas>
-            </div>
-            <div class="card chart-container">
-                <canvas id="cefrChart"></canvas>
-            </div>
-            <div class="card">
-                <h2>Question Analysis</h2>
-                <table id="questionTable">
-                    <thead>
-                        <tr>
-                            <th>Question</th>
-                            <th>Topic</th>
-                            <th>CEFR Level</th>
-                            <th>Difficulty</th>
-                            <th>Your Response</th>
-                            <th>Correct Answer</th>
-                            <th>Points Awarded</th> 
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="card">
+                    <h2>Vocabulary Level</h2>
+                    <p id="vocabularyLevel">N/A</p>
+                </div>
+    
+                <div class="card">
+                    <h2>Accuracy</h2>
+                    <p id="accuracy">N/A <span id="accuracyDetails" style="display: none;"></span></p>
+                    <div>
+                        <p id="correctAnswers">Correct: N/A</p>
+                        <p id="incorrectAnswers">Incorrect: N/A</p>
+                        <p id="skippedQuestions">Skipped: N/A</p>
+                    </div>
+                </div>
+                <div class="card chart-container">
+                    <canvas id="difficultyChart"></canvas>
+                </div>
+                <div class="card chart-container">
+                    <canvas id="cefrChart"></canvas>
+                </div>
+                <div class="card">
+                    <h2>Question Analysis</h2>
+                    <table id="questionTable">
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Topic</th>
+                                <th>CEFR Level</th>
+                                <th>Difficulty</th>
+                                <th>Your Response</th>
+                                <th>Correct Answer</th>
+                                <th>Points Awarded</th> 
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <footer id="footer" class="footer position-relative">
     <div class="container footer-top">
