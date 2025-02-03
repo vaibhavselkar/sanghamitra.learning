@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
+    <title>Activity and Performance Dashboard</title>
     <link rel="stylesheet" href="quiz.css">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -61,17 +61,57 @@
             align-items: center;
         }
 
-        .streak-info {
+        /* Streak Container */
+        .streak-container {
             display: flex;
+            justify-content: space-around;
             align-items: center;
-            font-size: 1.2rem;
-            color: #e74c3c; /* Streak color */
+            padding: 10px;
+            border-radius: 12px;
+            width: 400px;
+            text-align: center;
+            
         }
 
-        .streak-info i {
-            font-size: 1.5rem;
-            margin-right: 8px;
-            color: #e74c3c; /* Fire icon color */
+        /* Circular Streak Indicator */
+        .streak-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid orange;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            position: relative;
+        }
+
+        /* Fire Icon */
+        .streak-circle i {
+            font-size: 20px;
+            color: orange;
+            position: absolute;
+            top: -20px;
+            background: #1E1E1E;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        /* Streak Details */
+        .streak-info {
+            text-align: center;
+        }
+
+        .streak-title {
+            font-size: 18px;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .streak-count {
+            font-size: 30px;
+            font-weight: bold;
         }
 
         .table {
@@ -189,12 +229,11 @@
             <div class="col-lg-12 mx-auto" data-aos="fade-up">
                 <div class="card shadow-sm mb-4 bg-light">
                     <div class="card-header text-black" style="background-color: #3498db;">
-                        <h3 class="mb-1">Student Dashboard</h3>
+                        <h3 class="mb-1">Activity and Performance Dashboard</h3>
                     </div>
                     <div class="card-body">
                         <!-- User Information Section -->
                         <div class="card-custom mb-4">
-                            <h3>Student Dashboard</h3>
                         
                             <!-- Flexbox Container for User Info & Quiz Count -->
                             <div class="info-container">
@@ -217,17 +256,20 @@
                         
                             <!-- Streak Section -->
                             <div class="streak-container">
-                                <div class="streak-info">
-                                    <i class="bi bi-fire"></i> 
-                                    <span id="userStreak">1</span> days
+                                <div class="streak-title">Current Streak</div>
+                                <div class="streak-circle">
+                                    <i class="bi bi-fire"></i>
+                                    
+                                    <span id="userStreak">2</span>
                                 </div>
+                                
                             </div>
                         </div>
                         <!-- Vocabulary and Mathematics Section -->
                         <div class="row mb-4">
                             <div class="col-lg-6 col-md-12">
                                 <div class="card-custom">
-                                    <h3>Vocabulary Topic Wise Performance</h4>
+                                    <h3>Vocabulary</h4>
                                     <div id="vocab-quiz-summary">
                                     </div>
                                     <button class="btn btn-primary solve-more-btn" onclick="redirectToVocab()">Solve More</button>
@@ -235,7 +277,7 @@
                             </div>
                             <div class="col-lg-6 col-md-12">
                                 <div class="card-custom">
-                                    <h3>Mathematics Quizzes Performance</h3>
+                                    <h3>Mathematics</h3>
                                     <div id="topics-container" class="row"></div>
                                     <button class="btn btn-primary solve-more-btn" onclick="redirectToMath()">Solve More</button>
                                 </div>
@@ -247,7 +289,6 @@
                             <div class="col-12">
                                 <div class="card-custom">
                                     <h3>Reading Comprehension</h3>
-                                    <p><strong>Track your progress.</strong></p>
                                     <div id="rc-table-container" class="loading">Loading Reading Comprehension Data...</div>
                                     <div id="quiz-review-container" style="display: none; margin-top: 20px;"></div>
                                 </div>
