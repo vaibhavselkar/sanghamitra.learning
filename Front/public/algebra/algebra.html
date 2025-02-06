@@ -224,7 +224,7 @@
           console.log(username, email);
           fetchTopicProgress(); // Fetch and display topic progress after retrieving user info
         } else {
-          console.error('Failed to fetch session info');
+           window.location.href = 'user_login.html';
         }
       } catch (error) {
         console.error('Error fetching session info:', error);
