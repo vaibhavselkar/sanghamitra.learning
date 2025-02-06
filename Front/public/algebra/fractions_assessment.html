@@ -256,7 +256,7 @@
                 await fetchScoreData(); // Fetch previous score data to determine difficulty and progress
                 fetchQuestion(); // Fetch new question after retrieving score data
             } else {
-                console.error('Failed to fetch session info');
+                 window.location.href = 'user_login.html';
             }
         } catch (error) {
             console.error('Error fetching session info:', error);
