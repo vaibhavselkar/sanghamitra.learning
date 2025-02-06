@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>decimals Practice</title>
+  <title>Decimals Practice</title>
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <meta content="" name="description">
   <meta content="" name="keywords">
@@ -256,7 +256,7 @@
                 await fetchScoreData(); // Fetch previous score data to determine difficulty and progress
                 fetchQuestion(); // Fetch new question after retrieving score data
             } else {
-                console.error('Failed to fetch session info');
+                 window.location.href = 'user_login.html';
             }
         } catch (error) {
             console.error('Error fetching session info:', error);
