@@ -265,83 +265,84 @@
 
         // Display scores in a table
         function displayScores(topicData) {
-            // Check if the topicData is valid and contains solvedPassages
             if (!topicData || !Array.isArray(topicData.solvedPassages) || topicData.solvedPassages.length === 0) {
-                document.getElementById('table-container').innerHTML = `
-                    <p class="no-data">No scores available</p>
-                `;
+                document.getElementById('table-container').innerHTML = `<p class="no-data">No scores available</p>`;
                 return;
             }
 
-            const rows = topicData.solvedPassages.map((passage, index) => {
-                const passageName = passage.passageName || 'Unnamed Passage';
-                const timestamp = new Date(passage.timestamp).toLocaleDateString('en-US', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                });
-                const level = passage.quizData?.passage_level || 'N/A';
-                const score = Math.ceil(passage.score || "0.00");
-                const passageId = passage.passageId;
+            const sortedPassages = topicData.solvedPassages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-                const scoreColor = score >= 75 ? '#2ecc71' : score >= 50 ? '#f1c40f' : '#e74c3c';
-                const progressBar = `
-                    <div style="position: relative; height: 12px; background: #ddd; border-radius: 6px; overflow: hidden;">
-                        <div style="width: ${score}%; height: 100%; background: ${scoreColor};"></div>
+            let showAll = false;
+
+            function renderTable() {
+                const visiblePassages = showAll ? sortedPassages : sortedPassages.slice(0, 5);
+                const rows = visiblePassages.map((passage, index) => {
+                    const passageName = passage.passageName || 'Unnamed Passage';
+                    const timestamp = new Date(passage.timestamp).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const level = passage.quizData?.passage_level || 'N/A';
+                    const score = Math.ceil(passage.score || "0.00");
+                    const passageId = passage.passageId;
+
+                    const scoreColor = score >= 75 ? '#2ecc71' : score >= 50 ? '#f1c40f' : '#e74c3c';
+                    const progressBar = `
+                        <div style="position: relative; height: 12px; background: #ddd; border-radius: 6px; overflow: hidden;">
+                            <div style="width: ${score}%; height: 100%; background: ${scoreColor};"></div>
+                        </div>
+                    `;
+
+                    return `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${timestamp}</td>
+                            <td>${topicData.topic}</td>
+                            <td><span style="font-weight: bold; color: #3498db;">${passageName}</span></td>
+                            <td><span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px;">${level}</span></td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <span style="font-size: 0.9rem; font-weight: bold; color: ${scoreColor};">${score}%</span>
+                                    ${progressBar}
+                                </div>
+                            </td>
+                            <td>
+                                <button class="review-btn btn btn-primary btn-sm" onclick="reviewPassage('${topicData.topic}', '${passageId}')">
+                                    <i class="bi bi-search"></i> Review
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                const tableHTML = `
+                    <div>
+                        <table >
+                            <thead>
+                                <tr>
+                                    <th>Sr. No.</th>
+                                    <th>Date</th>
+                                    <th>Topic</th>
+                                    <th>Name of Passage</th>
+                                    <th>Level</th>
+                                    <th>Percentage</th>
+                                    <th>Review</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows.join('')}</tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button id="toggleTableBtn" class="btn btn-info">${showAll ? 'Show Less' : 'Show More'}</button>
                     </div>
                 `;
 
-                return `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${timestamp}</td>
-                        <td>${topicData.topic}</td>
-                        <td><span style="font-weight: bold; color: #3498db;">${passageName}</span></td>
-                        <td><span class="badge" style="background-color: #3498db; color: white; padding: 4px 8px; border-radius: 4px;">${level}</span></td>
-                        <td>
-                            <div style="display: flex; flex-direction: column; align-items: center;">
-                                <span style="font-size: 0.9rem; font-weight: bold; color: ${scoreColor};">${score}%</span>
-                                ${progressBar}
-                            </div>
-                        </td>
-                        <td>
-                            <button class="review-btn" onclick="reviewPassage('${topicData.topic}', '${passageId}')">
-                                <i class="bi bi-search"></i> Review
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
+                document.getElementById('table-container').innerHTML = tableHTML;
 
-            const tableHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sr. No.</th>
-                            <th>Date</th>
-                            <th>Topic</th>
-                            <th>Name of Passage</th>
-                            <th>Level</th>
-                            <th>Percentage</th>
-                            <th>Review</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows.join('')}
-                    </tbody>
-                </table>
-            `;
+                document.getElementById('toggleTableBtn').addEventListener('click', () => {
+                    showAll = !showAll;
+                    renderTable();
+                });
+            }
 
-            document.getElementById('table-container').innerHTML = tableHTML;
-
-            // Enhance table styling with animations
-            const table = document.querySelector('table');
-            table.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-            table.style.opacity = '0';
-            setTimeout(() => {
-                table.style.opacity = '1';
-                table.style.transform = 'translateY(0)';
-            }, 100);
+            renderTable();
         }
 
         function reviewPassage(topic, passageId) {
