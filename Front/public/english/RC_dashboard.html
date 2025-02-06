@@ -275,7 +275,7 @@
             let showAll = false;
 
             function renderTable() {
-                const visiblePassages = showAll ? sortedPassages : sortedPassages.slice(0, 5);
+                const visiblePassages = showAll ? sortedPassages : sortedPassages.slice(0, 3);
                 const rows = visiblePassages.map((passage, index) => {
                     const passageName = passage.passageName || 'Unnamed Passage';
                     const timestamp = new Date(passage.timestamp).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
