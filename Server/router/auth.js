@@ -556,6 +556,15 @@ router.get('/reading_passages', async (req, res) => {
   const { topic, level, _id } = req.query;
 
   try {
+    //if nothing is provided, fetch all the data
+    if (!topic && !level && !_id) {
+      // Add new response to the existing user's responses array
+      const allpassages = await ReadingPassages.find();
+
+      return res.status(200).send({ allpassages
+      });
+    }
+    
     // If passage_id is provided, fetch the passage by its ID
     if (_id) {
       // Validate passage_id
