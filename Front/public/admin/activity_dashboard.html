@@ -223,8 +223,8 @@
 
 
   <script>
-    const apiUrl = 'http://localhost:4000/api/algebra_scores';
-    const studentCountApi = 'http://localhost:4000/api/students-count'; // Endpoint for student count and list
+    const apiUrl = 'https://sanghamitra-learnworld.vercel.app/algebra_scores';
+    const studentCountApi = 'https://sanghamitra-learnworld.vercel.app/students-count'; // Endpoint for student count and list
     let chart;
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -415,7 +415,7 @@ function renderChart(data, topic = 'Fractions') {
 
     async function fetchVocabData() {
       try {
-          const response = await fetch("http://localhost:4000/api/vocabscores");
+          const response = await fetch("https://sanghamitra-learnworld.vercel.app/vocabscores");
           const data = await response.json();
 
           const userSummary = data.map(user => {
@@ -502,7 +502,7 @@ function renderChart(data, topic = 'Fractions') {
 
       async function fetchReadingComprehensionData() {
             try {
-                const response = await fetch("http://localhost:4000/api/readingcomprehensionscore");
+                const response = await fetch("https://sanghamitra-learnworld.vercel.app/readingcomprehensionscore");
                 if (!response.ok) {
                     throw new Error("Failed to fetch data");
                 }
