@@ -17,7 +17,7 @@ dotenv.config({ path: './.env' });
 app.use(cors({
     origin: [
         'https://sanghamitra-learnworld.vercel.app/api/', 
-        'https://feedback-api-1-5y6e.onrender.com'
+        'https://feedback-api-1-5y6e.onrender.com/feedback/'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
