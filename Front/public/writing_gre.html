@@ -129,6 +129,7 @@
       <div id="submitResponse"></div> <!-- Display thank you message or error -->
       <div id="feedbackResponse"></div> <!-- Display original feedback -->
       <div id="corrections"></div> <!-- Display corrections -->
+      <div id="cefr-summary"></div>
       <button id="homeBtn" class="btn btn-secondary btn-lg" style="display: none;" onclick="goToHomePage()">Home Page</button>
     </div>
   </main>
@@ -323,6 +324,36 @@
           } else {
             document.getElementById('corrections').textContent = 'No corrections needed.';
             document.getElementById('corrections').style.display = 'block';
+          }
+          if (feedbackData['CEFR Table']) {
+            const cefrData = feedbackData['CEFR Table'];
+            
+            // ✅ Create CEFR Summary Table
+            const summaryTable = document.createElement('table');
+            summaryTable.classList.add('table', 'table-bordered', 'mt-3');
+        
+            // ✅ Create Table Header
+            const summaryHeaderRow = document.createElement('tr');
+            summaryHeaderRow.innerHTML = `
+                <th>CEFR Level</th>
+                <th>Word Count</th>
+            `;
+            summaryTable.appendChild(summaryHeaderRow);
+            // ✅ Populate Table with Data
+            for (const [level, count] of Object.entries(cefrData['CEFR Summary'])) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td><strong>${level}</strong></td><td><strong>${count}</strong></td>`;
+                summaryTable.appendChild(row);
+            }
+            // ✅ Append the Table to the Summary Container
+            const cefrSummary = document.getElementById('cefr-summary');
+            cefrSummary.innerHTML = '<strong>CEFR Summary:</strong>';
+            cefrSummary.appendChild(summaryTable);
+            cefrSummary.style.display = 'block';
+        
+          } else {
+              document.getElementById('cefr-summary').textContent = 'No CEFR summary available.';
+              document.getElementById('cefr-summary').style.display = 'block';
           }
         } else {
           console.error('Error receiving feedback:', feedbackResponse.statusText);
