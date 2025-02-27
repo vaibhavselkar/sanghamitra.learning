@@ -108,7 +108,7 @@
     }
     
     /* Table Header */
-    .table thead {
+    .table tr {
         font-weight: bold;
     }
     
@@ -369,7 +369,7 @@
       const dataToSend = { "feedback": responseText };
 
       try {
-        const feedbackResponse = await fetch('https://feedback-api-1-5y6e.onrender.com/feedback/', {
+        const feedbackResponse = await fetch('https://flask-hello-world-2-eta.vercel.app/feedback', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -396,8 +396,8 @@
             document.getElementById('corrections').textContent = 'No corrections needed.';
             document.getElementById('corrections').style.display = 'block';
           }
-          if (feedbackData['CEFR Table']) {
-            const cefrData = feedbackData['CEFR Table'];
+          if (feedbackData['CEFR Summary']) {
+            const cefrData = feedbackData['CEFR Summary'];
             
             // ✅ Create CEFR Summary Table
             const summaryTable = document.createElement('table');
@@ -411,7 +411,7 @@
             `;
             summaryTable.appendChild(summaryHeaderRow);
             // ✅ Populate Table with Data
-            for (const [level, count] of Object.entries(cefrData['CEFR Summary'])) {
+            for (const [level, count] of Object.entries(cefrData)) {
                 const row = document.createElement('tr');
                 row.innerHTML = `<td><strong>${level}</strong></td><td><strong>${count}</strong></td>`;
                 summaryTable.appendChild(row);
