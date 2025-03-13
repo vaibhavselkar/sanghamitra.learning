@@ -803,8 +803,17 @@
 
         endButton.addEventListener('click', () => {
             console.log('End button clicked');
-            endQuiz();
+        
+            // Show confirmation dialog
+            const confirmEnd = confirm("Are you sure you want to end the quiz?");
+        
+            if (confirmEnd) {
+                endQuiz();  // If user confirms, end the quiz
+            } else {
+                console.log('Quiz end cancelled'); // Log cancellation
+            }
         });
+
 
         restartButton.addEventListener('click', () => {
             console.log('Restart button clicked');
