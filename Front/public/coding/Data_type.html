@@ -518,7 +518,7 @@ else:
             const code = cmInstance.getValue();  // Get the code from CodeMirror editor
             const outputDiv = button.nextElementSibling;
 
-            fetch('https://flask-hello-world-2-eta.vercel.app/run-python', {
+            fetch('http://127.0.0.1:5000/execute', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code })
