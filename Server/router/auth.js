@@ -17,6 +17,7 @@ const AlgebraScores = require('../model/algebraScoreAdd');
 const RC_Guide = require('../model/readingcomprehensionguide');
 const ReadingPassages = require('../model/readingPassages');
 const ReadingComprehensionScore = require('../model/readingcomprehensionscore');
+const Programming = require('../model/programming');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -749,7 +750,76 @@ router.get('/readingcomprehensionscore', async (req, res) => {
   }
 });
 
+  router.post('/programming/submit', async (req, res) => {
+    try {
+      console.log("Received submission request:", req.body);
+      const { email, username, submissions } = req.body;
+      
+      if (!email || !username || !submissions) {
+        console.log("Missing required fields");
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      // Calculate quiz score based on test cases passed
+      const totalScore = submissions.reduce((sum, sub) => sum + sub.test_cases_passed, 0);
+      console.log("Calculated score:", totalScore);
+      
+      let user = await Programming.findOne({ email });
+      console.log("Existing user found:", !!user);
+      
+      if (!user) {
+        // Create a new user if not found
+        console.log("Creating new user");
+        user = new Programming({
+          email,
+          username,
+          quizzes: [{
+            score: totalScore,
+            submissions,
+          }]
+        });
+      } else {
+        // Update existing user by adding a new quiz
+        console.log("Updating existing user");
+        user.quizzes.push({
+          score: totalScore,
+          submissions,
+        });
+      }
+      
+      const savedUser = await user.save();
+      console.log("User saved successfully:", savedUser._id);
+      res.status(201).json({ message: "Quiz submitted successfully!", user: savedUser });
+    } catch (error) {
+      console.error("Error in /programming/submit:", error);
+      res.status(500).json({ error: error.message || "Internal Server Error" });
+    }
+  });
 
+  router.get('/programming', async (req, res) => {
+    try {
+        const { email } = req.query;
+
+        if (email) {
+            // Fetch a single user by email
+            const user = await Programming.findOne({ email }, { _id: 0 });
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found!" });
+            }
+
+            return res.json({ email: user.email, username: user.username, quizzes: user.quizzes });
+        } else {
+            // Fetch all users
+            const users = await Programming.find({}, { _id: 0 });
+            return res.json(users);
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
 
 
 
