@@ -951,6 +951,10 @@
                 ? mathData.reduce((count, entry) => count + (entry.topics ? entry.topics.length : 0), 0)
                 : 0;
 
+            // Fetch Programming quiz counts
+            const progResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/programming?email=${email}`);
+            const progData = await progResponse.json();
+            
             // Fetch Vocabulary quiz counts
             const vocabResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/vocabscores?email=${email}`);
             const vocabData = await vocabResponse.json();
