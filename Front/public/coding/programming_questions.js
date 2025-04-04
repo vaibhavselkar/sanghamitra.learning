@@ -10,7 +10,7 @@ export const questions = [
         test_cases: [
           {
             input: [],
-            expected: "25\n5.9\nAlex",
+            expected: "25\n5.9\nAlex\n\nNone",
             description: "Check if all variables are correctly assigned and printed"
           }
         ]
@@ -74,17 +74,17 @@ export const questions = [
       hint: "Convert the string to lowercase using the .lower() method, then iterate through each character and check if it's a vowel.",
       test_cases: [
         {
-          input: ["Hello World"],
+          input: ["'Hello World'"],
           expected: "3",
           description: "Basic test"
         },
         {
-          input: ["AEIOU"],
+          input: ["'AEIOU'"],
           expected: "5",
           description: "All vowels, uppercase"
         },
         {
-          input: ["rhythm"],
+          input: ["'rhythm'"],
           expected: "0",
           description: "No vowels"
         }
@@ -99,12 +99,12 @@ export const questions = [
       hint: "Split the string into words using .split(), convert to lowercase with .lower(), and use a dictionary to count occurrences. You might want to use the string module for removing punctuation.",
       test_cases: [
         {
-          input: ["The quick brown fox jumps over the lazy dog"],
+          input: ["'The quick brown fox jumps over the lazy dog'"],
           expected: "{'the': 2, 'quick': 1, 'brown': 1, 'fox': 1, 'jumps': 1, 'over': 1, 'lazy': 1, 'dog': 1}",
           description: "Basic sentence test"
         },
         {
-          input: ["Hello, hello, HELLO!"],
+          input: ["'Hello, hello, HELLO!'"],
           expected: "{'hello': 3}",
           description: "Test with different cases and punctuation"
         }
@@ -164,12 +164,12 @@ export const questions = [
       hint: "Define the function with three parameters, making the third one optional by providing a default value. Construct the email string using string concatenation or f-strings.",
       test_cases: [
         {
-          input: ["john", "doe"],
+          input: ["'john'", "'doe'"],
           expected: "john.doe@gmail.com",
           description: "Default domain"
         },
         {
-          input: ["jane", "smith", "example.com"],
+          input: ["'jane'", "'smith'", "'example.com'"],
           expected: "jane.smith@example.com",
           description: "Custom domain"
         }
@@ -209,17 +209,17 @@ export const questions = [
       hint: "First, clean the string by removing spaces and punctuation and converting to lowercase. Then compare the cleaned string with its reverse using string slicing [::-1].",
       test_cases: [
         {
-          input: ["A man, a plan, a canal: Panama"],
+          input: ["'A man, a plan, a canal: Panama'"],
           expected: "True",
           description: "Classic palindrome with spaces and punctuation"
         },
         {
-          input: ["race a car"],
+          input: ["'race a car'"],
           expected: "False",
           description: "Not a palindrome"
         },
         {
-          input: ["Was it a car or a cat I saw?"],
+          input: ["'Was it a car or a cat I saw?'"],
           expected: "True",
           description: "Another palindrome with punctuation"
         }
