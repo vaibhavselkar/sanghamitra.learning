@@ -352,7 +352,7 @@
         if (!quizId) {
             try {
                 // Fetch session info to get email
-                const sessionResponse = await fetch('http://localhost:4000/api/session-info', {
+                const sessionResponse = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                     credentials: 'include'
                 });
                 
@@ -364,7 +364,7 @@
                 const email = sessionData.email;
                 
                 // Now fetch programming data
-                const progResponse = await fetch(`http://localhost:4000/api/programming?email=${email}`);
+                const progResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/programming?email=${email}`);
                 
                 if (!progResponse.ok) {
                     throw new Error('Failed to fetch programming data');
@@ -401,7 +401,7 @@
         
         try {
             // Fetch session info to get email
-            const sessionResponse = await fetch('http://localhost:4000/api/session-info', {
+            const sessionResponse = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                 credentials: 'include'
             });
             
@@ -413,7 +413,7 @@
             const email = sessionData.email;
             
             // Now fetch programming data
-            const progResponse = await fetch(`http://localhost:4000/api/programming?email=${email}`);
+            const progResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/programming?email=${email}`);
             
             if (!progResponse.ok) {
                 throw new Error('Failed to fetch programming data');
