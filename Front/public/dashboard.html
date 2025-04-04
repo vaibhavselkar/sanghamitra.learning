@@ -858,12 +858,12 @@
 
     function viewProgrammingQuiz(quizId) {
         // Navigate to a detailed view of this quiz
-        window.location.href = `programming_details.html?quizId=${quizId}`;
+        window.location.href = `coding/programming_details.html?quizId=${quizId}`;
     }
 
     function redirectToProgramming() {
         // Redirect to the programming practice page
-        window.location.href = "programming/programming_quiz.html";
+        window.location.href = "coding/programming.html";
     }
 
     async function initDashboard() {
@@ -871,6 +871,7 @@
         console.log("initiated")
         if (userDashboardData) {
             await fetchRCScores(userDashboardData.email); // Fetch RC scores and display them
+            await fetchProgrammingScores(userDashboardData.email);
         }
     }
 
@@ -954,6 +955,10 @@
             // Fetch Programming quiz counts
             const progResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/programming?email=${email}`);
             const progData = await progResponse.json();
+
+             // Calculate programming quiz count
+            const progQuizCount = progData.quizzes ? progData.quizzes.length : 0;
+            
             
             // Fetch Vocabulary quiz counts
             const vocabResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/vocabscores?email=${email}`);
