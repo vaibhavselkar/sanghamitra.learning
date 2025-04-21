@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>CT Foundation</title>
+  <title>Python Basics</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -21,6 +21,10 @@
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
   <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
   <!-- Main CSS File -->
@@ -29,279 +33,250 @@
 
 <style>
   .container h1 {
-    text-align: center;
-    font-family: "arial", sans-serif;
-  }
+      text-align: center;
+      font-family: "arial", sans-serif;
+    }
 
-  .container h2 {
-    font-family: 'Comic Sans MS', cursive;
-    font-size: 20px;
-  }
+    .container h2 {
+      font-family: 'Comic Sans MS', cursive;
+      font-size: 20px;
+    }
 
-  /* Add to existing style section */
-  .text-success { color: #28a745 !important; }
-  .text-danger { color: #dc3545 !important; }
-  .bi-1-circle, .bi-2-circle, .bi-3-circle { 
-    margin-right: 8px;
-    font-size: 1.2em;
-  }
+    .text-success { color: #28a745 !important; }
+    .text-danger { color: #dc3545 !important; }
+    .bi-1-circle, .bi-2-circle, .bi-3-circle {
+      margin-right: 8px;
+      font-size: 1.2em;
+    }
 
-  .explanation {
-    background: #ffffff;
-    margin: 1.5rem 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
-  
-  code {
-    background-color: var(--light-bg);
-    padding: 0.2em 0.4em;
-    border-radius: 3px;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.9em;
-  }
+    .explanation {
+      background: #ffffff;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+ 
+    code {
+      background-color: var(--light-bg);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9em;
+    }
 
-  @media (max-width: 768px) {
-    .container {
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+        margin: 10px;
+      }
+     
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .code-section {
+      margin: 1.5rem 0;
+      position: relative;
+    }
+
+    .CodeMirror {
+      border-radius: 8px !important;
+      border: 1px solid #e0e0e0 !important;
+      font-size: 0.95rem;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .CodeMirror:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .output {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9rem;
+      min-height: 50px;
+      display: none;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      margin: 1rem 0;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    ul {
+      padding-left: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .guide-content .section {
+      background: #f8f9fa;
+      border-radius: 8px;
       padding: 20px;
-      margin: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    
-    h1 {
-      font-size: 2rem;
+
+    /* Computational Thinking styles */
+    .ct-box {
+      background: #e8f4fc;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #3498db;
     }
-  }
 
-  .code-section {
-    margin: 1.5rem 0;
-    position: relative;
-  }
-
-  .CodeMirror {
-    border-radius: var(--border-radius) !important;
-    border: 1px solid #e0e0e0 !important;
-    font-size: 0.95rem;
-    transition: box-shadow 0.3s ease;
-  }
-
-  .CodeMirror:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .output {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: var(--border-radius);
-    white-space: pre-wrap;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 0.9rem;
-    min-height: 50px;
-    display: none;
-    position: relative;
-  }
-
-  .output::before {
-    display: block;
-    font-weight: 500;
-    color: var(--secondary-color);
-    margin-bottom: 0.5rem;
-  }
-
-  button {
-    padding: 0.8rem 1.5rem;
-    background-color: var(--primary-color);
-    color: rgb(0, 7, 7);
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    margin: 1rem 0;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-  }
-
-  button:hover {
-    background-color: #28a745;
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  ul {
-    padding-left: 1.5rem;
-    margin: 1rem 0;
-  }
-
-  .CodeMirror {
-    width: 100% !important;
-    max-width: 1100px; /* Adjust as per your layout */
-  }
-
-  .guide-content .section {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .flowchart-example {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 15px 0;
-  }
-
-  /* NEW: Side-by-side comparison styles */
-  .comparison-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin: 20px 0;
-  }
-
-  .code-comparison {
-    flex: 1;
-    min-width: 300px;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  .code-header {
-    padding: 10px 15px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-  }
-
-  .correct .code-header {
-    background-color: #d4edda;
-    color: #155724;
-  }
-
-  .incorrect .code-header {
-    background-color: #f8d7da;
-    color: #721c24;
-  }
-
-  .code-header i {
-    margin-right: 8px;
-  }
-
-  .code-body {
-    padding: 15px;
-    background: white;
-  }
-
-  /* Computational Thinking specific styles */
-  .ct-concept-box {
-    background: #e8f4fc;
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    border-left: 4px solid #3498db;
-  }
-
-  .ct-step {
-    padding-left: 25px;
-    position: relative;
-    margin-bottom: 10px;
-  }
-
-  .ct-step-number {
-    position: absolute;
-    left: 0;
-    font-weight: bold;
-    color: #3498db;
-  }
-
-  .ct-example {
-    background: #e8f8f5;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 15px 0;
-    border-left: 4px solid #2ecc71;
-  }
-
-  .ct-vocabulary {
-    background: #fef9e7;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 20px 0;
-    border-left: 4px solid #f39c12;
-  }
-
-  .ct-question {
-    background: #f5eef8;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 20px 0;
-  }
-
-  .ct-option {
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 5px;
-    background: #fff;
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 1px solid #ddd;
-  }
-
-  .ct-option:hover {
-    background-color: #eaf2f8;
-    border-color: #3498db;
-  }
-
-  .ct-option.selected {
-    background-color: #d4e6f1;
-    border-left: 4px solid #3498db;
-  }
-
-  .ct-feedback {
-    padding: 12px;
-    margin-top: 15px;
-    border-radius: 5px;
-    display: none;
-  }
-
-  .ct-feedback.correct {
-    background-color: #d5f5e3;
-    border-left: 4px solid #2ecc71;
-  }
-
-  .ct-feedback.incorrect {
-    background-color: #fadbd8;
-    border-left: 4px solid #e74c3c;
-  }
-
-  .ct-btn {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s;
-    font-weight: bold;
-  }
-
-  .ct-btn:hover {
-    background-color: #2980b9;
-  }
-
-  @media (max-width: 768px) {
-    .comparison-container {
-      flex-direction: column;
+    .ct-step {
+      padding-left: 25px;
+      position: relative;
+      margin-bottom: 10px;
     }
-    
-    .code-comparison {
-      min-width: 100%;
+
+    .ct-step-number {
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+      color: #3498db;
     }
-  }
+
+    .ct-example {
+      background: #e8f8f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #2ecc71;
+    }
+
+    .ct-vocab {
+      background: #fef9e7;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #f39c12;
+    }
+
+    .ct-quiz {
+      background: #f5eef8;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .ct-option {
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 1px solid #ddd;
+    }
+
+    .ct-option:hover {
+      background-color: #eaf2f8;
+      border-color: #3498db;
+    }
+
+    .ct-option.selected {
+      background-color: #d4e6f1;
+      border-left: 4px solid #3498db;
+    }
+
+    .ct-feedback {
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .ct-feedback.correct {
+      background-color: #d5f5e3;
+      border-left: 4px solid #2ecc71;
+    }
+
+    .ct-feedback.incorrect {
+      background-color: #fadbd8;
+      border-left: 4px solid #e74c3c;
+    }
+
+    /* Drag and Drop Styles */
+    .draggable-item {
+      padding: 10px;
+      margin: 5px 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: move;
+      transition: all 0.3s;
+    }
+
+    .draggable-item:hover {
+      background: #f0f0f0;
+    }
+
+    .dropzone {
+      min-height: 50px;
+      padding: 10px;
+      margin: 5px 0;
+      background: #f8f9fa;
+      border: 2px dashed #ccc;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .dropzone.highlight {
+      background: #e9f7ef;
+      border-color: #28a745;
+    }
+
+    .dropzone.correct {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+
+    .dropzone.incorrect {
+      background: #f8d7da;
+      border-color: #dc3545;
+    }
+
+    .alert {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .ct-concept-icon {
+      font-size: 1.5rem;
+      margin-right: 10px;
+      color: #3498db;
+    }
 </style>
 
 <body>
@@ -320,16 +295,15 @@
     </div>
   </header>
 
-  
   <!-- Main Content -->
-    <main class="main">
+  <main class="main">
     <div class="page-title" data-aos="fade">
       <div class="heading">
         <div class="container">
           <div class="row d-flex justify-content-center text-center">
             <div class="col-lg-8">
               <h1>Computational Thinking</h1>
-              <p class="mb-0">Learn to solve problems like a computer scientist</p>
+              <p class="mb-0">Learn to solve problems like a computer scientist!</p>
             </div>
           </div>
         </div>
@@ -344,422 +318,319 @@
         </div>
       </nav>
     </div>
-
+  
     <!-- 1. What is Computational Thinking? -->
     <div class="container guide-content">
       <div class="section" data-aos="fade-up">
-        <h><i class="bi bi-file-earmark-code"></i> 1. What is Computational Thinking?</h2>
-        
-        <div class="ct-concept-box">
-          <h3><i class="bi bi-lightbulb"></i> Introduction</h3>
-          <p>Computational Thinking is a <b>problem-solving method</b> that computer scientists use, but anyone can learn it! It helps you break big problems into smaller pieces and find solutions step by step.</p>
+        <h2><i class="bi bi-file-earmark-code"></i> 1. What is Computational Thinking?</h2>
+  
+        <div class="ct-box">
+          <p>
+            Computation are used in daily life without even realizing it. When we search for things—like groceries in a shop, a book on a shelf, or a file in a folder—we follow a method we’ve learned. Even when we make a to-do list and check off each task, we are using step-by-step thinking to stay organized and complete our work.
+          </p>
           
-          <div class="comparison-container">
-            <div class="code-comparison correct">
-              <div class="code-header">
-                <i class="bi bi-check-circle-fill"></i> The 4 Main Parts
-              </div>
-              <div class="code-body">
-                <div class="ct-step"><span class="ct-step-number">1.</span> <b>Breaking Down</b> - Split big problems into smaller, easier parts</div>
-                <div class="ct-step"><span class="ct-step-number">2.</span> <b>Finding Patterns</b> - Notice similarities between problems</div>
-                <div class="ct-step"><span class="ct-step-number">3.</span> <b>Focusing</b> - Pay attention only to what's important</div>
-                <div class="ct-step"><span class="ct-step-number">4.</span> <b>Creating Steps</b> - Make clear instructions to solve the problem</div>
-              </div>
+          
+          
+          
+          <div class="alert alert-success">
+            <i class="bi bi-lightbulb"></i> <b>Key Idea:</b> You don't need a computer to use computational thinking! It's a problem-solving method we can use everywhere.
+          </div>
+  
+          <div class="ct-example">
+            <h3><i class="bi bi-cup-hot"></i> Routine Example: Morning Routine</h3>
+            <p>
+              Your morning routine uses computational thinking: (1) Wake up, (2) Brush teeth, (3) Get dressed, (4) Eat breakfast. If you do these steps out of order (like eating before brushing), things don't work as well!
+            </p>
+          </div>
+  
+          <div class="ct-example">
+            <h3><i class="bi bi-book"></i> Library Example: Finding a Book</h3>
+            <p>
+              To find a book: (1) Decide what you like, (2) Check the catalog, (3) Note the shelf number, (4) Follow signs to the section. This step-by-step approach helps you find books efficiently among thousands!
+            </p>
+          </div>
+  
+          <div class="ct-concepts mt-4">
+            <h3><i class="bi bi-diagram-3"></i> The 4 Super Skills</h3>
+            <div class="ct-step">
+              <span class="ct-step-number"><i class="bi bi-1-circle"></i></span>
+              <b>Breaking Down:</b> Dividing big problems into smaller, manageable pieces
+            </div>
+            <div class="ct-step">
+              <span class="ct-step-number"><i class="bi bi-2-circle"></i></span>
+              <b>Pattern Recognition:</b> Finding similarities that help solve problems faster
+            </div>
+            <div class="ct-step">
+              <span class="ct-step-number"><i class="bi bi-3-circle"></i></span>
+              <b>Focusing on Main Details:</b> Identifying what's truly important to solve the problem
+            </div>
+            <div class="ct-step">
+              <span class="ct-step-number"><i class="bi bi-4-circle"></i></span>
+              <b>Creating Clear Steps:</b> Writing instructions so clear anyone could follow them
             </div>
           </div>
-          
-          <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Real-Life Example: Planning a School Project</h3>
-            <div class="ct-step"><span class="ct-step-number">1.</span> <b>Breaking Down:</b> Divide project into research, writing, and presentation</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> <b>Finding Patterns:</b> Notice all group projects need teamwork and deadlines</div>
-            <div class="ct-step"><span class="ct-step-number">3.</span> <b>Focusing:</b> Concentrate on content quality, not font colors</div>
-            <div class="ct-step"><span class="ct-step-number">4.</span> <b>Creating Steps:</b> Make a timeline with specific tasks and due dates</div>
+  
+          <div class="ct-vocab">
+            <h3><i class="bi bi-book"></i> CT Dictionary</h3>
+            <p><b>Computational Thinking:</b> A method for solving problems by organizing thoughts systematically</p>
+            <p><b>Algorithm:</b> A set of clear steps to solve a problem (like a recipe)</p>
           </div>
-        </div>
-        
-        <div class="ct-concept-box">
-          <h3><i class="bi bi-question-circle"></i> Why We Need Computational Thinking</h3>
-          <div class="ct-step"><span class="ct-step-number">1.</span> Computers need clear, step-by-step instructions</div>
-          <div class="ct-step"><span class="ct-step-number">2.</span> Makes big problems manageable by dividing them</div>
-          <div class="ct-step"><span class="ct-step-number">3.</span> Saves time by reusing solutions for similar problems</div>
-          <div class="ct-step"><span class="ct-step-number">4.</span> Reduces mistakes by focusing on important details</div>
-          <div class="ct-step"><span class="ct-step-number">5.</span> Improves teamwork through clear communication</div>
-        </div>
-        
-        <div class="ct-vocabulary">
-          <h3><i class="bi bi-book"></i> Vocabulary</h3>
-          <p><b>Computational Thinking:</b> A method for solving problems effectively by breaking them down</p>
-          <p><b>Problem Solving:</b> The process of finding solutions to difficult situations</p>
-        </div>
-        
-        <div class="ct-question">
-          <p><b>Question 1: Which part of Computational Thinking helps when you divide homework into smaller tasks?</b></p>
-          <div class="ct-option" onclick="selectOption(this)">A) Finding Patterns</div>
-          <div class="ct-option correct-option" onclick="selectOption(this)">B) Breaking Down</div>
-          <div class="ct-option" onclick="selectOption(this)">C) Focusing</div>
-          <div class="ct-option" onclick="selectOption(this)">D) Creating Steps</div>
           
-          <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
-          
-          <div class="ct-feedback correct">
-            <b>Correct!</b> Breaking down means dividing big tasks into smaller ones.
-          </div>
-          <div class="ct-feedback incorrect">
-            <b>Try again!</b> Breaking down is when we divide big problems into smaller parts.
-          </div>
+         
         </div>
       </div>
     </div>
-
+  
     <!-- 2. Breaking Down Problems -->
     <div class="container guide-content">
       <div class="section" data-aos="fade-up">
         <h2><i class="bi bi-puzzle"></i> 2. Breaking Down Problems</h2>
-        
-        <div class="ct-concept-box">
-          <h3><i class="bi bi-lightbulb"></i> Introduction</h3>
-          <p>Big problems can feel overwhelming! <b>Breaking them down</b> makes them easier to handle, like how eating a pizza slice by slice is easier than trying to eat the whole pie at once.</p>
-          
-          <div class="comparison-container">
-            <div class="code-comparison correct">
-              <div class="code-header">
-                <i class="bi bi-check-circle-fill"></i> How to Break Down Any Problem
-              </div>
-              <div class="code-body">
-                <div class="ct-step"><span class="ct-step-number">1.</span> Look at the whole problem</div>
-                <div class="ct-step"><span class="ct-step-number">2.</span> Identify natural parts it can be divided into</div>
-                <div class="ct-step"><span class="ct-step-number">3.</span> Solve each part one by one</div>
-                <div class="ct-step"><span class="ct-step-number">4.</span> Combine the solutions</div>
-              </div>
-            </div>
+  
+        <div class="ct-box">
+          <h3><i class="bi bi-lightbulb"></i> Why It Matters</h3>
+          <p>Big problems feel overwhelming! Breaking them into smaller pieces makes them manageable - like eating a pizza slice by slice instead of whole.</p>
+  
+          <div class="ct-example">
+            <h3><i class="bi bi-house-door"></i> Example: Cleaning Your Room</h3>
+            <p>
+              Instead of "clean room" (too big!):<br>
+              (1) Pick up clothes, (2) Organize books, (3) Make bed, (4) Sweep floor.<br>
+              Each small task feels achievable!
+            </p>
           </div>
           
           <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Example: Organizing Your Study Time</h3>
-            <div class="ct-step"><span class="ct-step-number">1.</span> List all subjects you need to study</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> For each subject, list topics to cover</div>
-            <div class="ct-step"><span class="ct-step-number">3.</span> Estimate time needed for each topic</div>
-            <div class="ct-step"><span class="ct-step-number">4.</span> Create a study schedule</div>
-            <div class="ct-step"><span class="ct-step-number">5.</span> Follow your plan and adjust as needed</div>
+            <h3><i class="bi bi-calculator"></i> Math Example: Solving 25 × 4 </h3>
+            <p>
+              Use the distributive property: <br>
+              25 × 4 = (20 + 5) × 4 <br>
+              = (20 × 4) + (5 × 4) &nbsp; <i>(Distributive Property: a × (b + c) = a × b + a × c)</i><br>
+              = 80 + 20 <br>
+              = <b>100</b><br>
+              Breaking numbers makes the calculation easier!
+            </p>
           </div>
-        </div>
-        
-        <div class="ct-vocabulary">
-          <h3><i class="bi bi-book"></i> Vocabulary</h3>
-          <p><b>Decomposition:</b> The technical term for breaking down problems into smaller parts</p>
-          <p><b>Sub-problems:</b> The smaller parts you create when breaking down a big problem</p>
-        </div>
-        
-        <div class="ct-question">
-          <p><b>Question 2: When cleaning your room, which shows breaking down the problem?</b></p>
-          <div class="ct-option" onclick="selectOption(this)">A) Noticing clothes are always on the floor</div>
-          <div class="ct-option correct-option" onclick="selectOption(this)">B) Deciding to first pick up clothes, then books, then toys</div>
-          <div class="ct-option" onclick="selectOption(this)">C) Focusing only on the dirty dishes</div>
-          <div class="ct-option" onclick="selectOption(this)">D) Making a general plan to "clean everything"</div>
           
+        </div>
+  
+        <div class="ct-vocab">
+          <h3><i class="bi bi-book"></i> CT Dictionary</h3>
+          <p><b>Decomposition:</b> Breaking problems into smaller parts</p>
+          <p><b>Sub-task:</b> One piece of a larger problem</p>
+        </div>
+  
+        <div class="ct-quiz">
+          <p><b>Quick Check:</b> What's the BEST way to solve this problem: "A box has 3 rows with 5 apples in each row. How many apples are there in total?"</p>
+          <div class="ct-option" onclick="selectOption(this)">A) Add 3 + 5, then multiply by 3</div>
+          <div class="ct-option" onclick="selectOption(this)">B) Draw 15 apples and count them one by one</div>
+          <div class="ct-option correct-option" onclick="selectOption(this)">C) Break it down: 3 rows × 5 apples = 15 apples</div>
+          <div class="ct-option" onclick="selectOption(this)">D) Subtract 5 from 3, then multiply by 5</div>
           <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
-          
           <div class="ct-feedback correct">
-            <b>Correct!</b> Dividing the cleaning into specific tasks is breaking down.
+            ✔️ Excellent! Breaking the problem into multiplication (3×5) is the most efficient way to solve it.
           </div>
           <div class="ct-feedback incorrect">
-            <b>Think again!</b> Breaking down means dividing into specific smaller tasks.
+            ❌ Nice try! The other methods are confusing or unnecessarily complicated. The best way is to multiply 3 rows by 5 apples per row: 3×5 = 15 apples.
           </div>
         </div>
+        
       </div>
     </div>
-
+  
     <!-- 3. Finding Patterns -->
     <div class="container guide-content">
       <div class="section" data-aos="fade-up">
-        <h2><i class="bi bi-diagram-3"></i> 3. Finding Patterns</h2>
-        
-        <div class="ct-concept-box">
-          <h3><i class="bi bi-lightbulb"></i> Introduction</h3>
-          <p><b>Finding patterns</b> helps solve problems faster because if you've solved something similar before, you can use that experience!</p>
-          
-          <div class="comparison-container">
-            <div class="code-comparison correct">
-              <div class="code-header">
-                <i class="bi bi-check-circle-fill"></i> How to Find Useful Patterns
-              </div>
-              <div class="code-body">
-                <div class="ct-step"><span class="ct-step-number">1.</span> Look at several examples of the problem</div>
-                <div class="ct-step"><span class="ct-step-number">2.</span> Identify what's the same between them</div>
-                <div class="ct-step"><span class="ct-step-number">3.</span> Use that pattern to solve new problems</div>
-              </div>
-            </div>
-          </div>
+        <h2><i class="bi bi-diagram-3"></i> 3. Pattern Recognition</h2>
+  
+        <div class="ct-box">
+          <h3><i class="bi bi-lightbulb"></i> Why It Matters</h3>
+          <p>
+            Finding patterns helps solve new problems faster by applying what worked for similar problems before. By recognizing these patterns, we can predict solutions without starting from scratch every time. This makes problem-solving more efficient and allows us to focus on solving the new aspects of a problem rather than redoing what we've already learned.
+          </p>
           
           <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Example: Solving Math Word Problems</h3>
-            <div class="ct-step"><span class="ct-step-number">1.</span> Notice many problems ask "how many in total?"</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> Recognize these usually require addition</div>
-            <div class="ct-step"><span class="ct-step-number">3.</span> For new "total" problems, try adding first</div>
+            <h3><i class="bi bi-shop"></i> Shopping Example</h3>
+            <p>
+              At the store, you notice:<br><br>
+              - Fruits are always in aisle 1<br>
+              - Cereals are in aisle 4<br><br>
+              This pattern helps you shop faster!<br><br>
+              By remembering where specific items are placed, you can move quickly through the store and pick up what you need without wasting time. Recognizing these common patterns allows you to avoid searching for items, making the shopping experience more efficient.
+            </p>
           </div>
-        </div>
-        
-        <div class="ct-vocabulary">
-          <h3><i class="bi bi-book"></i> Vocabulary</h3>
-          <p><b>Pattern Recognition:</b> Finding similarities between different problems</p>
-          <p><b>Generalization:</b> Using what works in one situation for similar situations</p>
-        </div>
-        
-        <div class="ct-question">
-          <p><b>Question 3: Which shows pattern recognition in daily life?</b></p>
-          <div class="ct-option" onclick="selectOption(this)">A) Making a shopping list</div>
-          <div class="ct-option" onclick="selectOption(this)">B) Breaking homework into parts</div>
-          <div class="ct-option correct-option" onclick="selectOption(this)">C) Noticing you're always late when you skip breakfast</div>
-          <div class="ct-option" onclick="selectOption(this)">D) Following a recipe step by step</div>
           
+          
+          
+          <div class="ct-example">
+            <h3><i class="bi bi-calendar"></i> Daily Routine Example</h3>
+            <p>
+              Notice that:<br><br>
+              - Math class always comes after lunch<br>
+              - Library day is every Tuesday<br><br>
+              Recognizing these patterns helps you prepare!<br><br>
+              By knowing when certain events happen regularly, you can organize your time better. For example, you can plan to bring your books for math class before lunch, or remember to bring a library card on Tuesdays. Patterns like this make it easier to stay on top of your schedule without having to constantly check the calendar.
+            </p>
+          </div>
+          
+          
+        </div>
+  
+        <div class="ct-vocab">
+          <h3><i class="bi bi-book"></i> CT Dictionary</h3>
+          <p><b>Pattern:</b> When things repeat in a predictable way</p>
+          <p><b>Generalization:</b> Applying patterns to solve similar problems</p>
+        </div>
+  
+        <div class="ct-quiz">
+          <p><b>Quick Check:</b> What number comes next in this pattern?<br>
+             1, 4, 9, 16, 25, ?</p>
+          <div class="ct-option" onclick="selectOption(this)">A) 30</div>
+          <div class="ct-option" onclick="selectOption(this)">B) 35</div>
+          <div class="ct-option" onclick="selectOption(this)">C) 38</div>
+          <div class="ct-option correct-option" onclick="selectOption(this)">D) 36 </div>
           <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
-          
           <div class="ct-feedback correct">
-            <b>Correct!</b> Noticing a connection between events is pattern recognition.
+            ✔️ Great job! These numbers are perfect squares: 1², 2², 3², and so on. So, the next is 6² = 36.
           </div>
           <div class="ct-feedback incorrect">
-            <b>Look closer!</b> Pattern recognition is about noticing connections between things.
+            ❌ Oops! Look again. The pattern follows square numbers (1×1, 2×2, 3×3…). 
+            Recognizing these number patterns is a key part of solving problems faster!
           </div>
+        </div>
+        
+        
         </div>
       </div>
     </div>
-
-    <!-- 4. Focusing on What Matters -->
+  
+    <!-- 4. Focus on What Matters -->
     <div class="container guide-content">
       <div class="section" data-aos="fade-up">
-        <h2><i class="bi bi-funnel"></i> 4. Focusing on What Matters</h2>
-        
-        <div class="ct-concept-box">
-          <h3><i class="bi bi-lightbulb"></i> Introduction</h3>
-          <p>Good problem solvers <b>ignore unimportant details</b> to concentrate on what really helps solve the problem. It's like focusing on the ingredients when cooking, not the color of the spoon!</p>
-          
-          <div class="comparison-container">
-            <div class="code-comparison correct">
-              <div class="code-header">
-                <i class="bi bi-check-circle-fill"></i> How to Focus Effectively
-              </div>
-              <div class="code-body">
-                <div class="ct-step"><span class="ct-step-number">1.</span> List all details about the problem</div>
-                <div class="ct-step"><span class="ct-step-number">2.</span> Identify the most important ones</div>
-                <div class="ct-step"><span class="ct-step-number">3.</span> Ignore what doesn't help solve it</div>
-              </div>
-            </div>
+        <h2><i class="bi bi-filter"></i> 4. Focusing on Main Details</h2>
+  
+        <div class="ct-box">
+          <h3><i class="bi bi-lightbulb"></i> Why It Matters</h3>
+          <p>Problems often have extra information that distracts from what's truly important to find the solution.</p>
+  
+          <div class="ct-example">
+            <h3><i class="bi bi-geo-alt"></i> Example: Giving Directions</h3>
+            <p>
+              To direct someone:<br>
+              ✅ Important: "Turn left at the big red bank"<br>
+              ✅ Important: "Turn right at the traffic light, and your destination will be on the left."<br>
+              ❌ Not important: "There’s a cute dog that barks there sometimes"<br><br>
+              Good directions use clear steps and focus on useful landmarks like buildings or turns. Simple, precise instructions help someone find their way easily. Unnecessary details, like a barking dog, can cause confusion and should be avoided.            </p>
           </div>
+          
+          
           
           <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Example: Choosing a Mobile Plan</h3>
-            <div class="ct-step"><span class="ct-step-number">1.</span> <b>Important:</b> Data allowance, cost, network coverage</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> <b>Not Important:</b> Color of the SIM card, font on the brochure</div>
-          </div>
-        </div>
-        
-        <div class="ct-vocabulary">
-          <h3><i class="bi bi-book"></i> Vocabulary</h3>
-          <p><b>Abstraction:</b> Focusing only on the important details of a problem</p>
-          <p><b>Filtering:</b> Removing unnecessary information</p>
-        </div>
-        
-        <div class="ct-question">
-          <p><b>Question 4: When buying shoes, what shows good focusing?</b></p>
-          <div class="ct-option" onclick="selectOption(this)">A) Looking at every shoe in the store</div>
-          <div class="ct-option correct-option" onclick="selectOption(this)">B) Considering comfort, size, and price first</div>
-          <div class="ct-option" onclick="selectOption(this)">C) Reading all the brand histories</div>
-          <div class="ct-option" onclick="selectOption(this)">D) Memorizing all color options</div>
+  <h3><i class="bi bi-shop"></i> Shopping Example: Buying Cereal</h3>
+  <p>
+    When choosing cereal:<br>
+    ✅ Important: Price, ingredients, nutrition<br>
+    ✅ Important: Brand reputation or customer reviews<br>
+    ❌ Not important: Box design, shelf placement<br><br>
+    When buying cereal, focus on price, ingredients, nutrition, serving size, and sugar or fiber content. Reviews can help too. Don’t get distracted by box design or shelf placement—stick to the facts to make a smart, healthy choice.  </p>
+</div>
+
           
+        </div>
+  
+        <div class="ct-vocab">
+          <h3><i class="bi bi-book"></i> CT Dictionary</h3>
+          <p><b>Abstraction:</b> Focusing only on details that matter for the solution</p>
+          <p><b>Filtering:</b> Ignoring unnecessary information</p>
+        </div>
+  
+        <div class="ct-quiz">
+          <p><b>Quick Check:</b> For this math problem: "Rahul has 3 cats. Each cat eats 2 meals daily. How many meals total?", what information is NOT needed?</p>
+          <div class="ct-option correct-option" onclick="selectOption(this)">A) The cats' names</div>
+          <div class="ct-option" onclick="selectOption(this)">B) Number of cats (3)</div>
+          <div class="ct-option" onclick="selectOption(this)">C) Meals per cat (2)</div>
+          <div class="ct-option" onclick="selectOption(this)">D) The word "total"</div>
           <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
-          
           <div class="ct-feedback correct">
-            <b>Correct!</b> Focusing on comfort, size and price shows good abstraction.
+            ✔️ Perfect! The cats' names don't help solve the math problem. Good abstraction means focusing only on the numbers needed for calculation (3 cats × 2 meals).
           </div>
           <div class="ct-feedback incorrect">
-            <b>Consider this:</b> Good focusing means paying attention to what really matters for your needs.
+            ❌ Let's analyze: While "total" seems like just a word, it actually tells us we need to add/multiply. 
+            The numbers (3 cats, 2 meals) are clearly needed. The cats' names are irrelevant to calculating meal quantities - 
+            this is the kind of detail we learn to filter out when focusing on what matters.
           </div>
         </div>
       </div>
     </div>
-
-    <!-- 5. Creating Steps -->
+  
+    <!-- 5. Plan Step by Step -->
     <div class="container guide-content">
       <div class="section" data-aos="fade-up">
-        <h2><i class="bi bi-diagram-2"></i> 5. Creating Steps</h2>
-        
-        <div class="ct-concept-box">
-          <h3><i class="bi bi-lightbulb"></i> Introduction</h3>
-          <p><b>Clear steps</b> help you solve problems the same way every time, like following a recipe to bake perfect cookies.</p>
-          
-          <div class="comparison-container">
-            <div class="code-comparison correct">
-              <div class="code-header">
-                <i class="bi bi-check-circle-fill"></i> How to Create Good Steps
-              </div>
-              <div class="code-body">
-                <div class="ct-step"><span class="ct-step-number">1.</span> Start with the first thing needed</div>
-                <div class="ct-step"><span class="ct-step-number">2.</span> Add the next logical step</div>
-                <div class="ct-step"><span class="ct-step-number">3.</span> Continue until problem is solved</div>
-                <div class="ct-step"><span class="ct-step-number">4.</span> Test your steps to see if they work</div>
-              </div>
-            </div>
+        <h2><i class="bi bi-list-check"></i> 5. Creating Clear Steps</h2>
+  
+        <div class="ct-box">
+          <h3><i class="bi bi-lightbulb"></i> Why It Matters</h3>
+          <p>Clear, ordered steps prevent mistakes and ensure anyone (or a computer) can follow the solution.</p>
+  
+          <div class="ct-example">
+            <h3><i class="bi bi-alarm"></i> Example: Brushing Teeth</h3>
+            <p>
+              Correct order:<br>
+              1. Wet toothbrush<br>
+              2. Add toothpaste<br>
+              3. Brush teeth<br>
+              4. Rinse mouth<br>
+              Doing these out of order doesn't work!
+            </p>
           </div>
           
           <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Example: Getting Ready for School</h3>
-            <div class="ct-step"><span class="ct-step-number">1.</span> Wake up at 6:30 AM</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> Brush teeth and wash face</div>
-            <div class="ct-step"><span class="ct-step-number">3.</span> Get dressed in uniform</div>
-            <div class="ct-step"><span class="ct-step-number">4.</span> Eat breakfast</div>
-            <div class="ct-step"><span class="ct-step-number">5.</span> Pack school bag</div>
-            <div class="ct-step"><span class="ct-step-number">6.</span> Leave house by 7:30 AM</div>
+            <h3><i class="bi bi-signpost"></i> Example: Crossing the Road</h3>
+            <p>
+              Safe steps:<br>
+              1. Stop at curb<br>
+              2. Look left-right-left<br>
+              3. Cross when clear<br>
+              4. Keep looking while crossing<br>
+              Clear steps prevent accidents!
+            </p>
           </div>
         </div>
-        
-        <div class="ct-vocabulary">
-          <h3><i class="bi bi-book"></i> Vocabulary</h3>
-          <p><b>Algorithm:</b> A list of steps to solve a problem</p>
-          <p><b>Sequence:</b> The order in which steps happen</p>
+  
+        <div class="ct-vocab">
+          <h3><i class="bi bi-book"></i> CT Dictionary</h3>
+          <p><b>Algorithm:</b> A set of clear, ordered instructions to solve a problem</p>
+          <p><b>Sequence:</b> The specific order steps must follow</p>
         </div>
-        
-        <div class="ct-question">
-          <p><b>Question 5: Which is the best example of creating steps?</b></p>
-          <div class="ct-option" onclick="selectOption(this)">A) Thinking about playing football</div>
-          <div class="ct-option" onclick="selectOption(this)">B) Listing all football rules</div>
-          <div class="ct-option correct-option" onclick="selectOption(this)">C) Writing how to tie shoelaces step by step</div>
-          <div class="ct-option" onclick="selectOption(this)">D) Drawing a picture of shoes</div>
-          
+  
+        <div class="ct-quiz">
+          <p><b>Quick Check:</b> What's the BEST set of instructions for planting a seed?</p>
+          <div class="ct-option" onclick="selectOption(this)">A) "Just put it in dirt and hope"</div>
+          <div class="ct-option" onclick="selectOption(this)">B) "Do whatever looks right"</div>
+          <div class="ct-option correct-option" onclick="selectOption(this)">C) "1. Dig hole 2. Put seed in 3. Cover with soil 4. Water lightly"</div>
+          <div class="ct-option" onclick="selectOption(this)">D) "Ask a plant to grow itself"</div>
           <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
-          
           <div class="ct-feedback correct">
-            <b>Correct!</b> Writing clear step-by-step instructions shows good algorithm design.
+            ✔️ Perfect! Numbered, clear steps in the right order make the best algorithm. 
+            This ensures the seed has the best chance to grow because each step prepares for the next.
           </div>
           <div class="ct-feedback incorrect">
-            <b>Remember:</b> Creating steps means making clear instructions someone could follow.
+            ❌ Think about recipes - they work because steps are clear and ordered. 
+            Planting needs specific preparation (digging) before placing the seed, then protection (covering), 
+            then care (watering). Skipping or rearranging steps (like watering before putting seed in) wouldn't work well.
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 6. Conditional Statement Problems -->
+    <!-- Next Steps Section -->
     <div class="container guide-content">
-      <div class="section" data-aos="fade-up">
-        <h2><i class="bi bi-code-square"></i> 6. Conditional Problems (If-Then)</h2>
-        
-        <div class="ct-concept-box">
-          <h3><i class="bi bi-lightbulb"></i> Introduction</h3>
-          <p>Conditional statements help computers make decisions based on conditions. They work like <b>"if this happens, then do that"</b> rules in real life.</p>
-          
-          <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Problem 1: Weather Clothing</h3>
-            <p><b>Situation:</b> You need to decide what to wear based on the weather.</p>
-            <div class="ct-step"><span class="ct-step-number">1.</span> <b>Condition:</b> Check if it's raining</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> <b>If True:</b> Wear a raincoat or carry an umbrella</div>
-            <div class="ct-step"><span class="ct-step-number">3.</span> <b>If False:</b> Wear normal clothes</div>
-          </div>
-          
-          <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Problem 2: Movie Tickets</h3>
-            <p><b>Situation:</b> The cinema gives discounts to students.</p>
-            <div class="ct-step"><span class="ct-step-number">1.</span> <b>Condition:</b> Check if the person is a student</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> <b>If True:</b> Charge ₹150 for ticket</div>
-            <div class="ct-step"><span class="ct-step-number">3.</span> <b>If False:</b> Charge ₹200 for ticket</div>
-          </div>
-        </div>
-        
-        <div class="ct-question">
-          <p><b>Question 6: Which conditional statement correctly represents this situation?<br>
-          "If hungry, eat food; otherwise drink water."</b></p>
-          <div class="ct-option" onclick="selectOption(this)">A) If tired then eat food</div>
-          <div class="ct-option" onclick="selectOption(this)">B) If hungry then drink water else eat food</div>
-          <div class="ct-option correct-option" onclick="selectOption(this)">C) If hungry then eat food else drink water</div>
-          <div class="ct-option" onclick="selectOption(this)">D) If not hungry then eat food</div>
-          
-          <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
-          
-          <div class="ct-feedback correct">
-            <b>Correct!</b> This matches the situation exactly.
-          </div>
-          <div class="ct-feedback incorrect">
-            <b>Try again!</b> The condition should check hunger first.
-          </div>
-        </div>
+      <div class="section text-center" data-aos="fade-up">
+        <h2>Ready to Learn More?</h2>
+        <p>Now that you understand the basics of Computational Thinking, let's explore how these concepts apply to programming!</p>
+        <a href="CT_foundation_1.html" class="btn btn-primary">Continue to Next Lesson</a>
       </div>
     </div>
-
-    <!-- 7. Loop Statement Problems -->
-    <div class="container guide-content">
-      <div class="section" data-aos="fade-up">
-        <h2><i class="bi bi-arrow-repeat"></i> 7. Loops </h2>
-        
-        <div class="ct-concept-box">
-          <h3><i class="bi bi-lightbulb"></i> Introduction</h3>
-          <p>A <b>loop</b> repeats actions multiple times. It's like saying "keep doing this until something changes".</p>
-          
-          <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Problem 1: Counting Numbers</h3>
-            <p><b>Situation:</b> Count numbers from 1 to 10.</p>
-            <div class="ct-step"><span class="ct-step-number">1.</span> <b>Start:</b> Set number to 1</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> <b>Condition:</b> While number is less than or equal to 10</div>
-            <div class="ct-step"><span class="ct-step-number">3.</span> <b>Action:</b> Say the number out loud</div>
-            <div class="ct-step"><span class="ct-step-number">4.</span> <b>Update:</b> Increase number by 1</div>
-            <div class="ct-step"><span class="ct-step-number">5.</span> <b>Repeat:</b> Go back to check the condition</div>
-            <p><b>Real-life comparison:</b> Like counting apples in a basket - while there are more apples, keep counting them one by one!</p>
-          </div>
-          
-          <div class="ct-example">
-            <h3><i class="bi bi-globe"></i> Problem 2: Math Table</h3>
-            <p><b>Situation:</b> Recite the 5 times table up to 10.</p>
-            <div class="ct-step"><span class="ct-step-number">1.</span> <b>Start:</b> Set multiplier to 1</div>
-            <div class="ct-step"><span class="ct-step-number">2.</span> <b>Condition:</b> While multiplier is less than or equal to 10</div>
-            <div class="ct-step"><span class="ct-step-number">3.</span> <b>Action:</b> Say "5 times [multiplier] equals [5×multiplier]"</div>
-            <div class="ct-step"><span class="ct-step-number">4.</span> <b>Update:</b> Increase multiplier by 1</div>
-            <div class="ct-step"><span class="ct-step-number">5.</span> <b>Repeat:</b> Go back to check the condition</div>
-            <p><b>Real-life comparison:</b> Like practicing multiplication tables - while you haven't reached 10, keep saying the next fact!</p>
-          </div>
-        </div>
-        
-        <div class="ct-question">
-          <p><b>Question 7: Which loop correctly counts even numbers from 2 to 10?</b></p>
-          <div class="ct-option" onclick="selectOption(this)">A) Start at 1, say number, add 1 until 10</div>
-          <div class="ct-option" onclick="selectOption(this)">B) Start at 2, add 1 until 10</div>
-          <div class="ct-option correct-option" onclick="selectOption(this)">C) Start at 2, say number, add 2 until 10</div>
-          <div class="ct-option" onclick="selectOption(this)">D) Start at 0, say number until 10</div>
-          
-          <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
-          
-          <div class="ct-feedback correct">
-            <b>Correct!</b> This starts at 2, says the number, and adds 2 each time to get even numbers.
-          </div>
-          <div class="ct-feedback incorrect">
-            <b>Try again!</b> The loop needs to start at 2 and increase by 2 each time.
-          </div>
-        </div>
-      </div>
-    </div>
-
-
   </main>
-
-  <!-- Footer Section -->
-  <footer id="footer" class="footer position-relative">
-    <div class="container footer-top">
-      <div class="row gy-4">
-        <div class="col-lg-4 col-md-6 footer-about">
-          <a href="index.html" class="logo d-flex align-items-center">
-            <span>Sanghamitra Learning</span>
-          </a>
-          <div class="footer-contact pt-3">
-            <p>GacchiBowli</p>
-            <p>Hyderabad, TS 500032</p>
-            <p class="mt-3"><strong>Phone:</strong> <span>+91 7020102729</span></p>
-            <p><strong>Email:</strong> <span>sanghamitra.learnworlds@gmail.com</span></p>
-          </div>
-          <div class="social-links d-flex mt-4">
-            <a href=""><i class="bi bi-twitter"></i></a>
-            <a href=""><i class="bi bi-facebook"></i></a>
-            <a href=""><i class="bi bi-instagram"></i></a>
-            <a href=""><i class="bi bi-linkedin"></i></a>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="container copyright text-center mt-4">
       <p>© <span>Copyright</span> <strong class="px-1">Sanghamitra Learning</strong> <span>All Rights Reserved</span></p>
@@ -769,10 +640,164 @@
     </div>
   </footer>
 
+  <script>
+    // Function to handle option selection
+    function selectOption(option) {
+      const questionDiv = option.closest('.ct-quiz');
+      const options = questionDiv.querySelectorAll('.ct-option');
+     
+      // Remove selected class from all options
+      options.forEach(opt => {
+        opt.classList.remove('selected');
+      });
+     
+      // Add selected class to clicked option
+      option.classList.add('selected');
+    }
+   
+    // Function to check the answer
+    function checkAnswer(button) {
+      const questionDiv = button.closest('.ct-quiz');
+      const selectedOption = questionDiv.querySelector('.ct-option.selected');
+      const correctOption = questionDiv.querySelector('.correct-option');
+      const correctFeedback = questionDiv.querySelector('.ct-feedback.correct');
+      const incorrectFeedback = questionDiv.querySelector('.ct-feedback.incorrect');
+     
+      // Hide all feedback first
+      if (correctFeedback) correctFeedback.style.display = 'none';
+      if (incorrectFeedback) incorrectFeedback.style.display = 'none';
+     
+      if (selectedOption) {
+        if (selectedOption === correctOption) {
+          correctFeedback.style.display = 'block';
+          selectedOption.classList.add('correct');
+        } else {
+          incorrectFeedback.style.display = 'block';
+          selectedOption.classList.add('incorrect');
+          correctOption.classList.add('correct');
+        }
+      } else {
+        alert('Please select an answer first!');
+      }
+    }
+
+    // Drag and Drop functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const draggables = document.querySelectorAll('.draggable-item');
+      const dropzones = document.querySelectorAll('.dropzone');
+     
+      let draggedItem = null;
+
+      // Add event listeners for draggable items
+      draggables.forEach(item => {
+        item.addEventListener('dragstart', function() {
+          draggedItem = this;
+          setTimeout(() => {
+            this.style.opacity = '0.5';
+          }, 0);
+        });
+       
+        item.addEventListener('dragend', function() {
+          this.style.opacity = '1';
+        });
+      });
+
+      // Add event listeners for drop zones
+      dropzones.forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          this.classList.add('highlight');
+        });
+       
+        zone.addEventListener('dragleave', function() {
+          this.classList.remove('highlight');
+        });
+       
+        zone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.classList.remove('highlight');
+         
+          // Remove from previous dropzone if it exists
+          if (draggedItem.parentElement.classList.contains('dropzone')) {
+            draggedItem.parentElement.removeChild(draggedItem);
+          }
+         
+          // Only allow one item per dropzone
+          if (this.children.length > 1) {
+            return;
+          }
+         
+          this.appendChild(draggedItem);
+        });
+      });
+    });
+
+    // Check drag and drop answers
+    function checkDragDropAnswers() {
+      const dropzone = document.getElementById('stepsContainer');
+      const items = dropzone.querySelectorAll('.draggable-item');
+      const correctOrder = [
+        "Take two slices of bread",
+        "Put butter on bread",
+        "Add vegetables or fillings",
+        "Close the sandwich"
+      ];
+      
+      let isCorrect = true;
+      
+      items.forEach((item, index) => {
+        if (item.textContent !== correctOrder[index]) {
+          isCorrect = false;
+        }
+      });
+      
+      const feedback = document.getElementById('dragDropFeedback');
+      
+      if (isCorrect && items.length === correctOrder.length) {
+        dropzone.classList.add('correct');
+        dropzone.classList.remove('incorrect');
+        feedback.innerHTML = `
+          <div class="alert alert-success">
+            🎉 Perfect! You got the sandwich-making steps exactly right!
+          </div>
+        `;
+      } else {
+        dropzone.classList.add('incorrect');
+        dropzone.classList.remove('correct');
+        feedback.innerHTML = `
+          <div class="alert alert-warning">
+            Almost! The correct order is:<br>
+            1. Take two slices of bread<br>
+            2. Put butter on bread<br>
+            3. Add vegetables or fillings<br>
+            4. Close the sandwich
+          </div>
+        `;
+      }
+    }
+   
+    function resetDragDrop() {
+      const draggablesContainer = document.getElementById('draggables');
+      const dropzone = document.getElementById('stepsContainer');
+      const feedback = document.getElementById('dragDropFeedback');
+      
+      // Move all items back to draggables container
+      const items = dropzone.querySelectorAll('.draggable-item');
+      items.forEach(item => {
+        dropzone.removeChild(item);
+        draggablesContainer.appendChild(item);
+      });
+      
+      // Reset styles
+      dropzone.classList.remove('correct', 'incorrect', 'highlight');
+      feedback.innerHTML = '';
+    }
+  </script>
+
   <!-- Scroll Top -->
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
-<!-- Vendor JS Files -->
+  <!-- Vendor JS Files -->
   <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/vendor/php-email-form/validate.js"></script>
   <script src="../assets/vendor/aos/aos.js"></script>
@@ -783,12 +808,5 @@
   <!-- Main JS File -->
   <script src="../assets/js/main.js"></script>
   <script src="navbar.js"></script>
-
-
-  <!-- Add this script to your existing HTML before the closing </body> tag -->
-
-
 </body>
-
-
 </html>
