@@ -37,6 +37,39 @@
   ======================================================== -->
 </head>
 <style>
+  .concept-section {
+    background: #e9f5ef;
+    border-radius: 15px;
+    border: 2px solid #28a745;
+  }
+  .concept-steps {
+    font-family: 'Courier New', Courier, monospace;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #28a745;
+  }
+  .concept-step {
+    margin: 15px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+  }
+  
+  /* Update card styles for consistency */
+  .grade-section .card-header {
+    background: #28a745 !important;
+    border-radius: 15px 15px 0 0 !important;
+  }
+  .grade-section .card {
+    border: 2px solid #28a745;
+    border-radius: 15px;
+    margin-bottom: 25px;
+  }
+  .grade-section .card-header h3 {
+    color: white;
+    font-weight: 600;
+  }
   .math-problem {
     font-family: 'Courier New', Courier, monospace;
     width: fit-content;
@@ -129,6 +162,42 @@
           <div class="col-lg-12 text-center">
             <h2 class="mb-4">➕ Let's Learn Addition! 🎉</h2>
             <p class="lead">Math is fun when you add it up! 🌟</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- New Concept Section -->
+    <section class="concept-section py-5">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <h3 class="text-center mb-4">🔑 The Concept Behind Addition</h3>
+            <div class="concept-steps">
+              <p class="text-center mb-4"><strong>Addition works by combining place values:</strong></p>
+              
+              <div class="concept-step">
+                11 + 56 = <br>
+                <span class="text-success">(1 × 10 + 1 × 1)</span> + <span class="text-primary">(5 × 10 + 6 × 1)</span>
+              </div>
+
+              <div class="concept-step">
+                = <span class="text-success">1 × 10</span> + <span class="text-primary">5 × 10</span> + 
+                <span class="text-success">1 × 1</span> + <span class="text-primary">6 × 1</span>
+              </div>
+
+              <div class="concept-step">
+                = <span class="text-success">(1 + 5)</span> × 10 + <span class="text-primary">(1 + 6)</span> × 1
+              </div>
+
+              <div class="concept-step text-success fw-bold">
+                = 6 × 10 + 7 × 1 = 67
+              </div>
+
+              <div class="alert alert-info mt-4">
+                <i class="bi bi-lightbulb"></i> Remember: Always align numbers by their place values!
+                <br>Units (ones) → Tens → Hundreds → ...
+              </div>
+            </div>
           </div>
         </div>
       </div>
