@@ -42,12 +42,25 @@
     border-radius: 15px;
     border: 2px solid #28a745;
   }
+    /* Add this instead */
+    background: transparent;
+    padding: 0 !important;
+  }
+
+  /* Add container constraints */
+  .concept-section .container {
+    max-width: 800px;
+    padding: 20px 15px !important;
+  }
+
+  /* Modify the inner box */
   .concept-steps {
     font-family: 'Courier New', Courier, monospace;
     background: #fff;
     padding: 20px;
     border-radius: 10px;
-    border-left: 4px solid #28a745;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Optional subtle shadow */
+    border: 1px solid #dee2e6; /* Lighter border */
   }
   .concept-step {
     margin: 15px 0;
