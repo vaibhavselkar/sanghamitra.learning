@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Python Basics</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../assets/img/favicon.png" rel="icon">
+  <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="../assets/css/main.css" rel="stylesheet">
+</head>
+
+<style>
+  .container h1 {
+      text-align: center;
+      font-family: "arial", sans-serif;
+    }
+
+    .container h2 {
+      font-family: 'Comic Sans MS', cursive;
+      font-size: 20px;
+    }
+
+    .text-success { color: #28a745 !important; }
+    .text-danger { color: #dc3545 !important; }
+    .bi-1-circle, .bi-2-circle, .bi-3-circle {
+      margin-right: 8px;
+      font-size: 1.2em;
+    }
+
+    .explanation {
+      background: #ffffff;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+ 
+    code {
+      background-color: var(--light-bg);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+        margin: 10px;
+      }
+     
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .code-section {
+      margin: 1.5rem 0;
+      position: relative;
+    }
+
+    .CodeMirror {
+      border-radius: 8px !important;
+      border: 1px solid #e0e0e0 !important;
+      font-size: 0.95rem;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .CodeMirror:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .output {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9rem;
+      min-height: 50px;
+      display: none;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      margin: 1rem 0;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    ul {
+      padding-left: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .guide-content .section {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Computational Thinking styles */
+    .ct-box {
+      background: #e8f4fc;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #3498db;
+    }
+
+    .ct-step {
+      padding-left: 25px;
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .ct-step-number {
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+      color: #3498db;
+    }
+
+    .ct-example {
+      background: #e8f8f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #2ecc71;
+    }
+
+    .ct-vocab {
+      background: #fef9e7;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #f39c12;
+    }
+
+    .ct-quiz {
+      background: #f5eef8;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .ct-option {
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 1px solid #ddd;
+    }
+
+    .ct-option:hover {
+      background-color: #eaf2f8;
+      border-color: #3498db;
+    }
+
+    .ct-option.selected {
+      background-color: #d4e6f1;
+      border-left: 4px solid #3498db;
+    }
+
+    .ct-feedback {
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .ct-feedback.correct {
+      background-color: #d5f5e3;
+      border-left: 4px solid #2ecc71;
+    }
+
+    .ct-feedback.incorrect {
+      background-color: #fadbd8;
+      border-left: 4px solid #e74c3c;
+    }
+
+    /* Drag and Drop Styles */
+    .draggable-item {
+      padding: 10px;
+      margin: 5px 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: move;
+      transition: all 0.3s;
+    }
+
+    .draggable-item:hover {
+      background: #f0f0f0;
+    }
+
+    .dropzone {
+      min-height: 50px;
+      padding: 10px;
+      margin: 5px 0;
+      background: #f8f9fa;
+      border: 2px dashed #ccc;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .dropzone.highlight {
+      background: #e9f7ef;
+      border-color: #28a745;
+    }
+
+    .dropzone.correct {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+
+    .dropzone.incorrect {
+      background: #f8d7da;
+      border-color: #dc3545;
+    }
+
+    .alert {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .ct-concept-icon {
+      font-size: 1.5rem;
+      margin-right: 10px;
+      color: #3498db;
+    }
+</style>
+
+<body>
+
+  <!-- Header Section -->
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+      <a href="../index.html" class="logo d-flex align-items-center me-auto">
+        <h1><img src="../img/sbi.logo.png" alt="company logo" width="80" height="80">Sanghamitra Learning</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <div id="navbar-placeholder"></div>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-title" data-aos="fade">
+      <div class="heading">
+        <div class="container">
+          <div class="row d-flex justify-content-center text-center">
+            <div class="col-lg-8">
+              <h1>Computational Thinking </h1>
+              <p class="mb-0">Learn programming concepts through everyday examples</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="breadcrumbs">
+        <div class="container">
+          <ol>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="programming.html">Programming</a></li>
+            <li class="current">Computational Thinking</li>
+          </ol>
+        </div>
+      </nav>
+    </div>
+  
+    <!-- Variables Section -->
+    <div class="container guide-content">
+      <div class="section" data-aos="fade-up">
+        <h2><i class="bi bi-box-seam"></i> 1. Variables - storing things</h2>
+  
+        <div class="ct-box">
+          <div class="ct-vocab">
+            <strong> Variable</strong> is like a container where you can store different things, and what’s inside can change whenever you need it.
+          </div>
+          
+          <div class="explanation">
+            <p>Variables are like name tags for information. The information can change, but the name stays the same. Imagine a mailbox - the box stays in the same place, but the letters inside change every day.</p>
+          </div>
+          
+          <div class="ct-example">
+            <h3>Everyday Examples:</h3>
+            <ol>
+              <li><strong>Your age:</strong> The number changes every year, but we always call it "your age"</li>
+              <li><strong>Piggy bank:</strong> The label "savings" stays the same while the money inside grows</li>
+            </ol>
+          </div>
+          
+          <div class="alert alert-success">
+            <i class="bi bi-lightbulb"></i> <b>Key Idea:</b> Variables help computers remember and update information as things change in a program.
+          </div>
+  
+          <div class="ct-quiz">
+            <div class="quiz-question">Which of these is like a variable?</div>
+            <div class="ct-option" onclick="selectOption(this)">A) Your birth name</div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">B) The weather today</div>
+            <div class="ct-option" onclick="selectOption(this)">C) Your eye color</div>
+            <div class="ct-option" onclick="selectOption(this)">D) The date you were born</div>
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="ct-feedback correct">
+              <strong>✓ Good job!</strong> The weather changes (like a variable) while the other options stay the same.
+            </div>
+            <div class="ct-feedback incorrect">
+              <strong>Try again:</strong> Look for something that changes while keeping the same name.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Data Types Section -->
+    <div class="container guide-content">
+      <div class="section" data-aos="fade-up">
+        <h2><i class="bi bi-card-list"></i> 2. Data Types – Type of value</h2>
+    
+        <div class="ct-box">
+          <div class="ct-vocab">
+            <strong>Data types</strong> specify the kind of information—such as numbers, text, or true/false values—so it can be used properly in different situations.
+          </div>
+    
+          <div class="explanation">
+            <p>
+              Just like you store food in different places in your kitchen (milk in the fridge, cereal in the cupboard), different types of data are organized and used in different ways. You can't add someone's name, and you can't sort numbers alphabetically without changing them first!
+   </p>
+            <p>
+              Common data types include:
+              <ul>
+                <li><strong>Character (Text):</strong> Letters, names, or words like "Apple"</li>
+                <li><strong>Integer:</strong> Whole numbers like 5 or -12</li>
+                <li><strong>Decimal (Float):</strong> Numbers with a fraction part like 3.14</li>
+                <li><strong>Boolean:</strong> True or False (like Yes/No or On/Off)</li>
+              </ul>
+            </p>
+          </div>
+    
+          <div class="ct-example">
+            <h3>Everyday Examples:</h3>
+            <ol>
+              <li><strong>Books in a Library:</strong> 
+                Number of books (count), Book title (text), Price of the book (decimal)
+                <br>Explanation:
+                <ul>
+                  <li><strong>Data types:</strong> 
+                    <ul>
+                      <li>bookCount (whole number) – The number of books in the library, e.g., 150</li>
+                      <li>bookTitle (text) – The title of the book, e.g., "To Kill a Mockingbird"</li>
+                      <li>bookPrice (decimal) – The price of the book, e.g., 19.99</li>
+                    </ul>
+                  </li>
+                  <br>
+                  <li><strong>Variable:</strong> bookCount, bookTitle, bookPrice</li>
+                </ul>
+              </li>
+              <br>
+              <li><strong>Classroom:</strong> 
+                Students (count), teacher's name (text), is the class online? (yes/no)
+                <br>Explanation:
+                <ul>
+                  <li><strong>Data types:</strong> 
+                    <ul>
+                      <li>studentCount (whole number) – The number of students in the class, e.g., 25</li>
+                      <li>teacherName (text) – The name of the teacher, e.g., "Mr. John"</li>
+                      <li>isOnline (yes/no) – Whether the class is happening online, e.g., "yes" (online) or "no" (not online)</li>
+                    </ul>
+                  </li>
+                  <br>
+                  <li><strong>Variable:</strong> studentCount, teacherName, isOnline</li>
+                </ul>
+              </li>
+            </ol>
+            
+            
+            
+            
+            
+          </div>
+    
+          <div class="alert alert-success">
+            <i class="bi bi-lightbulb"></i> <b>Key Idea:</b> Computers need to know what kind of data they're working with so they can handle it the right way.
+          </div>
+    
+          <div class="ct-quiz">
+            <div class="quiz-question">Why do we use different data types?</div>
+          
+            <div class="ct-option" onclick="selectOption(this)">
+              A) To make data look more complicated
+            </div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">
+              B) Because different data types behave in different ways
+            </div>
+            <div class="ct-option" onclick="selectOption(this)">
+              C) To confuse us with extra rules
+            </div>
+            <div class="ct-option" onclick="selectOption(this)">
+              D) Because data can only be one type at a time
+            </div>
+          
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+          
+            <div class="ct-feedback correct">
+              <strong>✓ Correct!</strong> Different types of data have different behaviors, so they need to be treated differently.
+            </div>
+          
+            <div class="ct-feedback incorrect">
+              <strong>Oops:</strong> Consider how numbers, text, and true/false values act differently from each other.
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+  
+    <!-- Conditional Statements Section -->
+    <div class="container guide-content">
+      <div class="section" data-aos="fade-up">
+        <h2><i class="bi bi-diagram-3"></i> 4. Conditionals - Making Choices</h2>
+  
+        <div class="ct-box">
+          <div class="ct-vocab">
+            <strong>Conditionals</strong> are instructions that help decide what to do, like making choices based on different situations.   </div>
+          
+          <div class="explanation">
+            <p>Conditionals help decide what to do in different cases. Like choosing clothes based on the weather, they let us respond smartly to different situations.</p>
+          </div>
+          
+          <div class="ct-example">
+            <h3>Examples:</h3>
+            <ol>
+              <li><strong>Exercise routine:</strong> If it's a cardio day, go for a run; if it's a strength day, lift weights</li>
+              <li><strong>Movie Selection:</strong> If you're in the mood for something funny, pick a comedy; if you want something serious, pick a drama.</li>
+            </ol>
+            
+          </div>
+          
+          <div class="alert alert-success">
+            <i class="bi bi-lightbulb"></i> <b>Key Idea:</b> Conditionals help programs make decisions based on different situations.
+          </div>
+  
+          <div class="ct-quiz">
+            <div class="quiz-question">When are conditionals useful?</div>
+            <div class="ct-option" onclick="selectOption(this)">A) When you always do the same thing</div>
+            <div class="ct-option" onclick="selectOption(this)">B) When making random choices</div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">C) When different situations need different actions</div>
+            <div class="ct-option" onclick="selectOption(this)">D) When you don't want to think</div>
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="ct-feedback correct">
+              <strong>✓ Correct!</strong> Conditionals help choose the right action for each situation.
+            </div>
+            <div class="ct-feedback incorrect">
+              <strong>Hint:</strong> Think about how you change your behavior based on different conditions.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Iterators Section -->
+    <div class="container guide-content">
+      <div class="section" data-aos="fade-up">
+        <h2><i class="bi bi-arrow-right-circle"></i> 3. Iterators - Going Through Lists</h2>
+
+        <div class="ct-box">
+          <div class="ct-vocab">
+            <strong>Iterator</strong> means doing things step by step, one after another, in a specific order..
+          </div>
+          
+          <div class="explanation">
+            <p>Iteration means taking steps in order, like reading a book page by page. It helps us not miss anything when working with lots of information.</p>
+          </div>
+          
+          <div class="ct-example">
+            <h3>Examples:</h3>
+            <ol>
+              <li><strong>Reading a book:</strong> You read one page at a time until you finish the book</li>
+              <li><strong>Grocery shopping:</strong> You pick up one item at a time from the list and put it in your cart</li>
+            </ol>
+            
+          </div>
+          
+          <div class="alert alert-success">
+            <i class="bi bi-lightbulb"></i> <b>Key Idea:</b> Iteration helps computers process large amounts of data efficiently.
+          </div>
+
+          <div class="ct-quiz">
+            <div class="quiz-question">What's good about iteration?</div>
+          
+            <div class="ct-option" onclick="selectOption(this)">
+              A) It helps you skip steps and finish faster
+            </div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">
+              B) It helps finish tasks completely, step by step
+            </div>
+            <div class="ct-option" onclick="selectOption(this)">
+              C) It lets you do random tasks in any order
+            </div>
+            <div class="ct-option" onclick="selectOption(this)">
+              D) It always stops after the first try
+            </div>
+          
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+          
+            <div class="ct-feedback correct">
+              <strong>✓ Yes!</strong> Iteration helps complete tasks step by step, ensuring nothing is missed.
+            </div>
+          
+            <div class="ct-feedback incorrect">
+              <strong>Oops:</strong> Think about how doing things step by step ensures everything gets done properly.
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    <div class="container guide-content">
+      <div class="section text-center" data-aos="fade-up">
+        <h2>Ready to Learn More?</h2>
+        <p>Now that you understand the basics of Computational Thinking, let's explore how these concepts apply to programming!</p>
+        <a href="CT_foundation_2.html" class="btn btn-primary">Continue to Next Lesson</a>
+      </div>
+    </div>
+   
+  </main>
+
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright</span> <strong class="px-1">Sanghamitra Learning</strong> <span>All Rights Reserved</span></p>
+      <div class="credits">
+        Designed by <a href="">Sanghamitra</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Function to handle option selection
+    function selectOption(option) {
+      const questionDiv = option.closest('.ct-quiz');
+      const options = questionDiv.querySelectorAll('.ct-option');
+     
+      // Remove selected class from all options
+      options.forEach(opt => {
+        opt.classList.remove('selected');
+      });
+     
+      // Add selected class to clicked option
+      option.classList.add('selected');
+    }
+   
+    // Function to check the answer
+    function checkAnswer(button) {
+      const questionDiv = button.closest('.ct-quiz');
+      const selectedOption = questionDiv.querySelector('.ct-option.selected');
+      const correctOption = questionDiv.querySelector('.correct-option');
+      const correctFeedback = questionDiv.querySelector('.ct-feedback.correct');
+      const incorrectFeedback = questionDiv.querySelector('.ct-feedback.incorrect');
+     
+      // Hide all feedback first
+      if (correctFeedback) correctFeedback.style.display = 'none';
+      if (incorrectFeedback) incorrectFeedback.style.display = 'none';
+     
+      if (selectedOption) {
+        if (selectedOption === correctOption) {
+          correctFeedback.style.display = 'block';
+          selectedOption.classList.add('correct');
+        } else {
+          incorrectFeedback.style.display = 'block';
+          selectedOption.classList.add('incorrect');
+          correctOption.classList.add('correct');
+        }
+      } else {
+        alert('Please select an answer first!');
+      }
+    }
+
+    // Drag and Drop functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const draggables = document.querySelectorAll('.draggable-item');
+      const dropzones = document.querySelectorAll('.dropzone');
+     
+      let draggedItem = null;
+
+      // Add event listeners for draggable items
+      draggables.forEach(item => {
+        item.addEventListener('dragstart', function() {
+          draggedItem = this;
+          setTimeout(() => {
+            this.style.opacity = '0.5';
+          }, 0);
+        });
+       
+        item.addEventListener('dragend', function() {
+          this.style.opacity = '1';
+        });
+      });
+
+      // Add event listeners for drop zones
+      dropzones.forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          this.classList.add('highlight');
+        });
+       
+        zone.addEventListener('dragleave', function() {
+          this.classList.remove('highlight');
+        });
+       
+        zone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.classList.remove('highlight');
+         
+          // Remove from previous dropzone if it exists
+          if (draggedItem.parentElement.classList.contains('dropzone')) {
+            draggedItem.parentElement.removeChild(draggedItem);
+          }
+         
+          // Only allow one item per dropzone
+          if (this.children.length > 1) {
+            return;
+          }
+         
+          this.appendChild(draggedItem);
+        });
+      });
+    });
+
+    // Check drag and drop answers
+    function checkDragDropAnswers() {
+      const dropzone = document.getElementById('stepsContainer');
+      const items = dropzone.querySelectorAll('.draggable-item');
+      const correctOrder = [
+        "Take two slices of bread",
+        "Put butter on bread",
+        "Add vegetables or fillings",
+        "Close the sandwich"
+      ];
+      
+      let isCorrect = true;
+      
+      items.forEach((item, index) => {
+        if (item.textContent !== correctOrder[index]) {
+          isCorrect = false;
+        }
+      });
+      
+      const feedback = document.getElementById('dragDropFeedback');
+      
+      if (isCorrect && items.length === correctOrder.length) {
+        dropzone.classList.add('correct');
+        dropzone.classList.remove('incorrect');
+        feedback.innerHTML = `
+          <div class="alert alert-success">
+            🎉 Perfect! You got the sandwich-making steps exactly right!
+          </div>
+        `;
+      } else {
+        dropzone.classList.add('incorrect');
+        dropzone.classList.remove('correct');
+        feedback.innerHTML = `
+          <div class="alert alert-warning">
+            Almost! The correct order is:<br>
+            1. Take two slices of bread<br>
+            2. Put butter on bread<br>
+            3. Add vegetables or fillings<br>
+            4. Close the sandwich
+          </div>
+        `;
+      }
+    }
+   
+    function resetDragDrop() {
+      const draggablesContainer = document.getElementById('draggables');
+      const dropzone = document.getElementById('stepsContainer');
+      const feedback = document.getElementById('dragDropFeedback');
+      
+      // Move all items back to draggables container
+      const items = dropzone.querySelectorAll('.draggable-item');
+      items.forEach(item => {
+        dropzone.removeChild(item);
+        draggablesContainer.appendChild(item);
+      });
+      
+      // Reset styles
+      dropzone.classList.remove('correct', 'incorrect', 'highlight');
+      feedback.innerHTML = '';
+    }
+  </script>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/vendor/php-email-form/validate.js"></script>
+  <script src="../assets/vendor/aos/aos.js"></script>
+  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Main JS File -->
+  <script src="../assets/js/main.js"></script>
+  <script src="navbar.js"></script>
+</body>
+</html>

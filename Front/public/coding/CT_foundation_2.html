@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Python Basics</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../assets/img/favicon.png" rel="icon">
+  <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="../assets/css/main.css" rel="stylesheet">
+</head>
+
+<style>
+  .container h1 {
+      text-align: center;
+      font-family: "arial", sans-serif;
+    }
+
+    .container h2 {
+      font-family: 'Comic Sans MS', cursive;
+      font-size: 20px;
+    }
+
+    .text-success { color: #28a745 !important; }
+    .text-danger { color: #dc3545 !important; }
+    .bi-1-circle, .bi-2-circle, .bi-3-circle {
+      margin-right: 8px;
+      font-size: 1.2em;
+    }
+
+    .explanation {
+      background: #ffffff;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+ 
+    code {
+      background-color: var(--light-bg);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+        margin: 10px;
+      }
+     
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    .code-section {
+      margin: 1.5rem 0;
+      position: relative;
+    }
+
+    .CodeMirror {
+      border-radius: 8px !important;
+      border: 1px solid #e0e0e0 !important;
+      font-size: 0.95rem;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .CodeMirror:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .output {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9rem;
+      min-height: 50px;
+      display: none;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      margin: 1rem 0;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    ul {
+      padding-left: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .guide-content .section {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Computational Thinking styles */
+    .ct-box {
+      background: #e8f4fc;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #3498db;
+    }
+
+    .ct-step {
+      padding-left: 25px;
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .ct-step-number {
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+      color: #3498db;
+    }
+
+    .ct-example {
+      background: #e8f8f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #2ecc71;
+    }
+
+    .ct-vocab {
+      background: #fef9e7;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid #f39c12;
+    }
+
+    .ct-quiz {
+      background: #f5eef8;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .ct-option {
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 1px solid #ddd;
+    }
+
+    .ct-option:hover {
+      background-color: #eaf2f8;
+      border-color: #3498db;
+    }
+
+    .ct-option.selected {
+      background-color: #d4e6f1;
+      border-left: 4px solid #3498db;
+    }
+
+    .ct-feedback {
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .ct-feedback.correct {
+      background-color: #d5f5e3;
+      border-left: 4px solid #2ecc71;
+    }
+
+    .ct-feedback.incorrect {
+      background-color: #fadbd8;
+      border-left: 4px solid #e74c3c;
+    }
+
+    /* Drag and Drop Styles */
+    .draggable-item {
+      padding: 10px;
+      margin: 5px 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: move;
+      transition: all 0.3s;
+    }
+
+    .draggable-item:hover {
+      background: #f0f0f0;
+    }
+
+    .dropzone {
+      min-height: 50px;
+      padding: 10px;
+      margin: 5px 0;
+      background: #f8f9fa;
+      border: 2px dashed #ccc;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .dropzone.highlight {
+      background: #e9f7ef;
+      border-color: #28a745;
+    }
+
+    .dropzone.correct {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+
+    .dropzone.incorrect {
+      background: #f8d7da;
+      border-color: #dc3545;
+    }
+
+    .alert {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .ct-concept-icon {
+      font-size: 1.5rem;
+      margin-right: 10px;
+      color: #3498db;
+    }
+</style>
+
+<body>
+
+  <!-- Header Section -->
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+      <a href="../index.html" class="logo d-flex align-items-center me-auto">
+        <h1><img src="../img/sbi.logo.png" alt="company logo" width="80" height="80">Sanghamitra Learning</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <div id="navbar-placeholder"></div>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="page-title" data-aos="fade">
+      <div class="heading">
+        <div class="container">
+          <div class="row d-flex justify-content-center text-center">
+            <div class="col-lg-8">
+              <h1>Computational Thinking</h1>
+              <p class="mb-0">Advanced programming concepts using real life examples</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="breadcrumbs">
+        <div class="container">
+          <ol>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="programming.html">Programming</a></li>
+            <li><a href="computational-thinking.html">Computational Thinking</a></li>
+            <li class="current">CT Advanced Concepts</li>
+          </ol>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Enhanced Loops Section -->
+    <div class="container guide-content">
+      <div class="section" data-aos="fade-up">
+        <h2><i class="bi bi-arrow-repeat"></i> 5. Loops - Repeating Tasks</h2>
+    
+        <div class="ct-box">
+          <div class="ct-vocab">
+            <strong>Loops:</strong> Doing something over and over until finished.
+          </div>
+    
+          <div class="explanation">
+            <p>Loops help with repetitive work. Like washing dishes until the sink is empty, they do the same action multiple times until done.</p>
+          </div>
+    
+          <div class="ct-example">
+            <h3>CT Loop Types:</h3>
+    
+            <div class="loop-type">
+              <div class="alert alert-warning" style="border-left: none;">
+                <i class="bi bi-123 ct-concept-icon"></i>
+                <strong>Counted Repetition (For Loop):</strong> When you know exactly how many times to repeat
+              </div>
+              <ol>
+                <li class="game-example">
+                  <strong>Game Example:</strong> In cricket, the bowler gets exactly 6 attempts (balls) per over - this is a counted loop
+                </li>
+                <li class="classroom-example">
+                  <strong>Classroom Example:</strong> Teacher asking each of 25 students to solve one math problem on the board
+                </li>
+                <li>
+                  <strong>Daily Life:</strong> Eating exactly 3 meals a day (breakfast, lunch, dinner)
+                </li>
+              </ol>
+            </div>
+    
+            <div class="loop-type">
+              <div class="alert alert-warning" style="border-left: none;">
+                <i class="bi bi-question-circle ct-concept-icon"></i>
+                <strong>Conditional Repetition (While Loop):</strong> When you repeat until something changes
+              </div>
+              <ol>
+                <li class="game-example">
+                  <strong>Game Example:</strong> Jumping in a skipping rope game until someone misses a jump
+                </li>
+                <li class="classroom-example">
+                  <strong>Classroom Example:</strong> Solving math problems until the bell rings for next period
+                </li>
+                <li>
+                  <strong>Daily Life:</strong> Brushing your teeth until they feel clean (not for a set time)
+                </li>
+              </ol>
+            </div>
+          </div>
+    
+          <div class="alert alert-success">
+            <i class="bi bi-lightbulb"></i> <b>Key Idea:</b> Choose Counted Repetition when you know how many times, Conditional Repetition when you're waiting for something to change.
+          </div>
+    
+          <div class="ct-quiz">
+            <div class="quiz-question">When should you use a loop?</div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">A) When you need to repeat similar actions</div>
+            <div class="ct-option" onclick="selectOption(this)">B) When doing something just once</div>
+            <div class="ct-option" onclick="selectOption(this)">C) When every step is completely different</div>
+            <div class="ct-option" onclick="selectOption(this)">D) When you want to skip steps</div>
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="ct-feedback correct">
+              <strong>✓ Good!</strong> Loops save time on repetitive work like stirring until mixed.
+            </div>
+            <div class="ct-feedback incorrect">
+              <strong>Think:</strong> What tasks do you repeat until they're finished?
+            </div>
+          </div>
+    
+          <!-- Additional MCQs -->
+          <div class="ct-quiz">
+            <div class="quiz-question">When should you use a While loop?</div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">A) When you don’t know how many times an action will be repeated, but you want to keep repeating it until a condition is met</div>
+            <div class="ct-option" onclick="selectOption(this)">B) When you know exactly how many times an action will be repeated</div>
+            <div class="ct-option" onclick="selectOption(this)">C) When the action should never be repeated</div>
+            <div class="ct-option" onclick="selectOption(this)">D) When the action should be repeated exactly 10 times</div>
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="ct-feedback correct">
+              <strong>✓ Correct!</strong> While loops are used when we don't know the exact number of repetitions, but we want to repeat until a condition is met.
+            </div>
+            <div class="ct-feedback incorrect">
+              <strong>Think:</strong> When do you want something to repeat until it satisfies a condition, like continuing until you solve a problem?
+            </div>
+          </div>
+          
+    
+          <div class="ct-quiz">
+            <div class="quiz-question">When should you use a For loop?</div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">A) When you know exactly how many times you need to repeat an action</div>
+            <div class="ct-option" onclick="selectOption(this)">B) When you want to repeat until a condition is met, but don't know how many times</div>
+            <div class="ct-option" onclick="selectOption(this)">C) When you need to perform the same action once</div>
+            <div class="ct-option" onclick="selectOption(this)">D) When you want to repeat the action randomly</div>
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="ct-feedback correct">
+              <strong>✓ Exactly!</strong> A For loop is used when you know exactly how many times you need to repeat an action.
+            </div>
+            <div class="ct-feedback incorrect">
+              <strong>Consider:</strong> When do you need to repeat something a specific number of times, like iterating through items in a list?
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    
+    <!-- Enhanced Functions Section -->
+    <div class="container guide-content">
+      <div class="section" data-aos="fade-up">
+        <h2><i class="bi bi-puzzle"></i> 6. Functions - Ready-Made Solutions</h2>
+    
+        <div class="ct-box">
+          <div class="ct-vocab">
+            <strong>Functions:</strong> A set of steps you can use again and again. They help us avoid doing the same thing over and over, and let us use the same solution when we face similar problems.
+          </div>
+    
+          <div class="explanation">
+            <p>Functions are like machines that take an input, follow a set of steps, and give an output.</p>
+            <p><strong>How a Function is Made:</strong> You first decide what task you repeat often. Then, you define what can change (inputs), and what steps you follow (the process) to get the answer (output).</p>
+            <p><strong>Real-Life Example 1:</strong> A juice machine takes <em>fruit</em> (input) and gives <em>juice</em> (output).</p>
+            <p><strong>Real-Life Example 2:</strong> A washing machine takes <em>dirty clothes</em> (input), follows a cleaning process, and gives <em>clean clothes</em> (output).</p>
+            <p><strong>Real-Life Example 3:</strong> In school, a math formula like area = length × width takes two numbers (inputs) and gives an area (output).</p>
+          </div>
+    
+          <div class="ct-example">
+            <h3>CT Function Building:</h3>
+    
+            <div class="function-step">
+              <div class="ct-step-number"></div>
+              <strong>Identify the Repeatable Task:</strong> What do you do the same way each time?
+              <div class="ct-example mt-2">
+                <strong>Example:</strong> Your morning routine (wake up → brush teeth → get dressed → eat breakfast)
+              </div>
+            </div>
+    
+            <div class="function-step">
+              <div class="ct-step-number"></div>
+              <strong>Define the Ingredients (Parameters):</strong> What can change each time?
+              <div class="ct-example mt-2">
+                <strong>Example:</strong> Breakfast choice (could be idli, cereal, or paratha)
+              </div>
+            </div>
+    
+            <div class="function-step">
+              <div class="ct-step-number"></div>
+              <strong>Write the Steps:</strong> The exact sequence that works every time
+              <div class="ct-example mt-2 game-example">
+                <strong>Game Example:</strong> In a maze game, the player always follows these steps to move to a goal:
+                <br>1) Check the current position → 2) Decide the direction (up, down, left, right) → 3) Move one step → 4) Repeat until the goal is reached
+                <br><br>
+                These same steps are used again and again, no matter where the player starts. This is like a function — you give the current position as input, and it gives the next move as output.
+              </div>
+            </div>
+    
+            <div class="function-step">
+              <div class="ct-step-number">4</div>
+              <strong>Test Your Function:</strong> Try it with different inputs
+              <div class="ct-example mt-2 classroom-example">
+                <strong>Classroom Example:</strong> A math formula works the same whether you're calculating for circles (πr²) or rectangles (l×w)
+              </div>
+            </div>
+          </div>
+    
+          <div class="alert alert-success">
+            <i class="bi bi-lightbulb"></i> <b>Key Idea:</b> Good functions are like reliable tools - they work the same way every time when given the right inputs.
+          </div>
+    
+          <div class="ct-quiz">
+            <div class="quiz-question">What's great about functions?</div>
+            <div class="ct-option" onclick="selectOption(this)">A) They make you start over each time</div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">B) They let you reuse working solutions</div>
+            <div class="ct-option" onclick="selectOption(this)">C) They change randomly</div>
+            <div class="ct-option" onclick="selectOption(this)">D) They only work once</div>
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="ct-feedback correct">
+              <strong>✓ Exactly!</strong> Like using the same cookie recipe whenever you want cookies.
+            </div>
+            <div class="ct-feedback incorrect">
+              <strong>Remember:</strong> Functions help avoid repeating work you've already done.
+            </div>
+          </div>
+    
+          <div class="ct-quiz">
+            <div class="quiz-question">What makes functions different from regular code?</div>
+            <div class="ct-option" onclick="selectOption(this)">A) They can only be used once</div>
+            <div class="ct-option" onclick="selectOption(this)">B) They must be written in a different language</div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">C) They can be called multiple times from different places</div>
+            <div class="ct-option" onclick="selectOption(this)">D) They automatically delete after running</div>
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="ct-feedback correct">
+              <strong>✓ Exactly!</strong> Functions are like reusable tools in your programming toolbox.
+            </div>
+            <div class="ct-feedback incorrect">
+              <strong>Remember:</strong> The power of functions comes from their reusability.
+            </div>
+          </div>
+    
+          <div class="ct-quiz">
+            <div class="quiz-question">Which is NOT a good reason to use functions?</div>
+            <div class="ct-option" onclick="selectOption(this)">A) To avoid rewriting the same code</div>
+            <div class="ct-option" onclick="selectOption(this)">B) To make programs more organized</div>
+            <div class="ct-option correct-option" onclick="selectOption(this)">C) To make every program unique and unrepeatable</div>
+            <div class="ct-option" onclick="selectOption(this)">D) To break complex problems into smaller parts</div>
+            <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
+            <div class="ct-feedback correct">
+              <strong>✓ Good catch!</strong> Functions actually help create repeatable, reliable solutions.
+            </div>
+            <div class="ct-feedback incorrect">
+              <strong>Consider:</strong> Functions are about creating reliable, reusable solutions.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </main>
+
+    <div class="container copyright text-center mt-4">
+      <p>© <span>Copyright</span> <strong class="px-1">Sanghamitra Learning</strong> <span>All Rights Reserved</span></p>
+      <div class="credits">
+        Designed by <a href="">Sanghamitra</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Function to handle option selection
+    function selectOption(option) {
+      const questionDiv = option.closest('.ct-quiz');
+      const options = questionDiv.querySelectorAll('.ct-option');
+     
+      // Remove selected class from all options
+      options.forEach(opt => {
+        opt.classList.remove('selected');
+      });
+     
+      // Add selected class to clicked option
+      option.classList.add('selected');
+    }
+   
+    // Function to check the answer
+    function checkAnswer(button) {
+      const questionDiv = button.closest('.ct-quiz');
+      const selectedOption = questionDiv.querySelector('.ct-option.selected');
+      const correctOption = questionDiv.querySelector('.correct-option');
+      const correctFeedback = questionDiv.querySelector('.ct-feedback.correct');
+      const incorrectFeedback = questionDiv.querySelector('.ct-feedback.incorrect');
+     
+      // Hide all feedback first
+      if (correctFeedback) correctFeedback.style.display = 'none';
+      if (incorrectFeedback) incorrectFeedback.style.display = 'none';
+     
+      if (selectedOption) {
+        if (selectedOption === correctOption) {
+          correctFeedback.style.display = 'block';
+          selectedOption.classList.add('correct');
+        } else {
+          incorrectFeedback.style.display = 'block';
+          selectedOption.classList.add('incorrect');
+          correctOption.classList.add('correct');
+        }
+      } else {
+        alert('Please select an answer first!');
+      }
+    }
+
+    // Drag and Drop functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const draggables = document.querySelectorAll('.draggable-item');
+      const dropzones = document.querySelectorAll('.dropzone');
+     
+      let draggedItem = null;
+
+      // Add event listeners for draggable items
+      draggables.forEach(item => {
+        item.addEventListener('dragstart', function() {
+          draggedItem = this;
+          setTimeout(() => {
+            this.style.opacity = '0.5';
+          }, 0);
+        });
+       
+        item.addEventListener('dragend', function() {
+          this.style.opacity = '1';
+        });
+      });
+
+      // Add event listeners for drop zones
+      dropzones.forEach(zone => {
+        zone.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          this.classList.add('highlight');
+        });
+       
+        zone.addEventListener('dragleave', function() {
+          this.classList.remove('highlight');
+        });
+       
+        zone.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.classList.remove('highlight');
+         
+          // Remove from previous dropzone if it exists
+          if (draggedItem.parentElement.classList.contains('dropzone')) {
+            draggedItem.parentElement.removeChild(draggedItem);
+          }
+         
+          // Only allow one item per dropzone
+          if (this.children.length > 1) {
+            return;
+          }
+         
+          this.appendChild(draggedItem);
+        });
+      });
+    });
+
+    // Check drag and drop answers
+    function checkDragDropAnswers() {
+      const dropzone = document.getElementById('stepsContainer');
+      const items = dropzone.querySelectorAll('.draggable-item');
+      const correctOrder = [
+        "Take two slices of bread",
+        "Put butter on bread",
+        "Add vegetables or fillings",
+        "Close the sandwich"
+      ];
+      
+      let isCorrect = true;
+      
+      items.forEach((item, index) => {
+        if (item.textContent !== correctOrder[index]) {
+          isCorrect = false;
+        }
+      });
+      
+      const feedback = document.getElementById('dragDropFeedback');
+      
+      if (isCorrect && items.length === correctOrder.length) {
+        dropzone.classList.add('correct');
+        dropzone.classList.remove('incorrect');
+        feedback.innerHTML = `
+          <div class="alert alert-success">
+            🎉 Perfect! You got the sandwich-making steps exactly right!
+          </div>
+        `;
+      } else {
+        dropzone.classList.add('incorrect');
+        dropzone.classList.remove('correct');
+        feedback.innerHTML = `
+          <div class="alert alert-warning">
+            Almost! The correct order is:<br>
+            1. Take two slices of bread<br>
+            2. Put butter on bread<br>
+            3. Add vegetables or fillings<br>
+            4. Close the sandwich
+          </div>
+        `;
+      }
+    }
+   
+    function resetDragDrop() {
+      const draggablesContainer = document.getElementById('draggables');
+      const dropzone = document.getElementById('stepsContainer');
+      const feedback = document.getElementById('dragDropFeedback');
+      
+      // Move all items back to draggables container
+      const items = dropzone.querySelectorAll('.draggable-item');
+      items.forEach(item => {
+        dropzone.removeChild(item);
+        draggablesContainer.appendChild(item);
+      });
+      
+      // Reset styles
+      dropzone.classList.remove('correct', 'incorrect', 'highlight');
+      feedback.innerHTML = '';
+    }
+  </script>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/vendor/php-email-form/validate.js"></script>
+  <script src="../assets/vendor/aos/aos.js"></script>
+  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Main JS File -->
+  <script src="../assets/js/main.js"></script>
+  <script src="navbar.js"></script>
+</body>
+</html>
