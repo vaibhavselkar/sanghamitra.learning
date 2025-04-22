@@ -37,12 +37,7 @@
   ======================================================== -->
 </head>
 <style>
-  .concept-section {
-   
-    /* Add this instead */
-    background: transparent;
-    padding: 0 !important;
-  }
+  
 
   /* Add container constraints */
   .concept-section .container {
@@ -51,14 +46,7 @@
   }
 
   /* Modify the inner box */
-  .concept-steps {
-    font-family: 'Courier New', Courier, monospace;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Optional subtle shadow */
-    border: 1px solid #dee2e6; /* Lighter border */
-  }
+  
   .concept-step {
     margin: 15px 0;
     padding: 10px;
@@ -202,19 +190,22 @@
     </section>
     <!-- New Concept Section -->
     <!-- Revised Concept Section -->
-<section class="concept-section py-4">  <!-- Changed from py-5 to py-4 -->
+<section class="grade-section py-3">  <!-- Use same section class as other boxes -->
   <div class="container">
-    <div class="row">
-      <div class="col-lg-8 mx-auto">  <!-- Added column constraint -->
-        <h4 class="text-center mb-3">🔑 The Concept Behind Addition</h4>  <!-- Changed from h3 to h4 -->
-        <div class="concept-steps" style="font-size: 0.9em;">  <!-- Added font-size -->
-          <p class="text-center mb-3"><strong>Addition works by combining place values:</strong></p>  <!-- Reduced margin-bottom -->
-          
-          <!-- Reduced step padding -->
-          <div class="concept-step" style="padding: 8px; margin: 10px 0;">
-            11 + 56 = <br>
-            <span class="text-success">(1 × 10 + 1 × 1)</span> + <span class="text-primary">(5 × 10 + 6 × 1)</span>
+    <div class="row mb-5">
+      <div class="col-lg-12">
+        <div class="card shadow">  <!-- Same card component -->
+          <div class="card-header bg-success text-white">  <!-- Matching header -->
+            <h3>🧮 How Addition Works</h3>  <!-- Consistent heading level -->
           </div>
+          <div class="card-body">  <!-- Standard card body -->
+            <div class="concept-steps">
+              <!-- Keep your existing mathematical content here -->
+              <div class="concept-step">
+                11 + 56 = <br>
+                <span class="text-success">(1 × 10 + 1 × 1)</span> + 
+                <span class="text-primary">(5 × 10 + 6 × 1)</span>
+              </div>
 
           <div class="concept-step" style="padding: 8px; margin: 10px 0;">
             = <span class="text-success">1 × 10</span> + <span class="text-primary">5 × 10</span> + 
