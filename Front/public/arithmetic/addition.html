@@ -613,7 +613,7 @@
           // Session validation
           const fetchSessionInfo = async () => {
             try {
-              const res = await fetch('http://localhost:4000/api/session-info', { 
+              const res = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', { 
                 credentials: 'include' 
               });
               if (!res.ok) throw new Error('Session expired');
@@ -632,7 +632,7 @@
         
             try {
               const response = await fetch(
-                'http://localhost:4000/api/algebra_questions?concepts_tested=dealing%20with%20negative%20sign'
+                'https://sanghamitra-learnworld.vercel.app/api/algebra_questions?concepts_tested=dealing%20with%20negative%20sign'
               );
               if (!response.ok) throw new Error('Failed to load questions');
               
@@ -696,7 +696,7 @@
             const question = allQuestions[currentQuestionIndex];
         
             try {
-              await fetch('http://localhost:4000/api/algebra_score_add', {
+              await fetch('https://sanghamitra-learnworld.vercel.app/api/algebra_score_add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
