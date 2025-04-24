@@ -698,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
       // Filter questions client-side for addition concepts
       const additionQuestions = data.filter(question => 
-        question.conceptsTested.includes('addition')
+        question.conceptsTested.includes('Sign errors')
       );
       
       if (additionQuestions.length === 0) {
