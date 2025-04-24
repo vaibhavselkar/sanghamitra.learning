@@ -130,6 +130,24 @@
 .tooltip-content:hover {
   display: block;
 }
+.dynamic-practice .options-container button {
+  transition: all 0.3s ease;
+}
+
+.dynamic-practice .options-container button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.dynamic-practice .btn-success {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+
+.dynamic-practice .btn-danger {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
 
 
 </style>
@@ -585,6 +603,42 @@
         </div>
       </div>
     </section>
+    <section class="dynamic-practice py-5 bg-light">
+  <div class="container">
+    <h3 class="text-center mb-4">🧠 Addition Practice Problems ➕</h3>
+    
+    <!-- Question Container -->
+    <div class="card shadow mb-4" id="questionCard" style="display: none;">
+      <div class="card-body">
+        <h5 class="question-text mb-4"></h5>
+        <div class="options-container mb-3"></div>
+        <div class="feedback alert" style="display: none;"></div>
+        <div class="explanation alert alert-info" style="display: none;"></div>
+      </div>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="text-center" id="controls">
+      <button class="btn btn-secondary me-2" id="prevBtn" disabled>
+        <i class="bi bi-chevron-left"></i> Previous
+      </button>
+      <button class="btn btn-primary" id="nextBtn">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="text-center" id="loading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Loading questions...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="alert alert-danger" id="error" style="display: none;"></div>
+  </div>
+</section>
   </main>
 
   <script>
@@ -618,6 +672,115 @@
      });
  
    </script>
+   <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const API_URL = 'https://sanghamitra-learnworld.vercel.app/api/mathUpdatedSchema?conceptsTested=addition';
+  let questions = [];
+  let currentQuestionIndex = 0;
+
+  // DOM Elements
+  const questionCard = document.getElementById('questionCard');
+  const loading = document.getElementById('loading');
+  const errorDiv = document.getElementById('error');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  // Fetch questions from API
+  fetch(API_URL)
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(data => {
+      if (data.length === 0) throw new Error('No addition questions found');
+      questions = data;
+      loading.style.display = 'none';
+      questionCard.style.display = 'block';
+      showQuestion(currentQuestionIndex);
+    })
+    .catch(error => {
+      loading.style.display = 'none';
+      errorDiv.style.display = 'block';
+      errorDiv.textContent = `Error loading questions: ${error.message}`;
+    });
+
+  function showQuestion(index) {
+    const question = questions[index];
+    const questionText = document.querySelector('.question-text');
+    const optionsContainer = document.querySelector('.options-container');
+    
+    // Update question text
+    questionText.innerHTML = `${index + 1}. ${question.question}`;
+    
+    // Clear previous options
+    optionsContainer.innerHTML = '';
+    
+    // Create option buttons
+    Object.entries(question.options).forEach(([key, value]) => {
+      const button = document.createElement('button');
+      button.className = 'btn btn-outline-primary d-block w-100 mb-2';
+      button.innerHTML = `<strong>${key.toUpperCase()}</strong>. ${value}`;
+      button.onclick = () => checkAnswer(key, question.correctAnswer);
+      optionsContainer.appendChild(button);
+    });
+
+    // Update navigation buttons
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === questions.length - 1;
+  }
+
+  function checkAnswer(selected, correct) {
+    const feedback = document.querySelector('.feedback');
+    const explanation = document.querySelector('.explanation');
+    const options = document.querySelectorAll('.options-container button');
+    
+    options.forEach(option => {
+      option.disabled = true;
+      const optionKey = option.textContent.split('.')[0].trim().toLowerCase();
+      if (optionKey === correct) {
+        option.classList.add('btn-success');
+      } else if (optionKey === selected) {
+        option.classList.add('btn-danger');
+      }
+    });
+
+    feedback.style.display = 'block';
+    feedback.textContent = selected === correct 
+      ? '🎉 Correct! Well done!'
+      : '❌ Incorrect. Try again!';
+    feedback.className = `alert ${selected === correct ? 'alert-success' : 'alert-danger'}`;
+
+    explanation.style.display = 'block';
+    explanation.innerHTML = `<strong>Explanation:</strong> ${questions[currentQuestionIndex].explanation}`;
+  }
+
+  // Navigation controls
+  prevBtn.addEventListener('click', () => {
+    if (currentQuestionIndex > 0) {
+      currentQuestionIndex--;
+      resetQuestionState();
+      showQuestion(currentQuestionIndex);
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      currentQuestionIndex++;
+      resetQuestionState();
+      showQuestion(currentQuestionIndex);
+    }
+  });
+
+  function resetQuestionState() {
+    document.querySelectorAll('.options-container button').forEach(button => {
+      button.className = 'btn btn-outline-primary d-block w-100 mb-2';
+      button.disabled = false;
+    });
+    document.querySelector('.feedback').style.display = 'none';
+    document.querySelector('.explanation').style.display = 'none';
+  }
+});
+</script>
         
 
   <footer id="footer" class="footer position-relative">
