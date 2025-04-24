@@ -672,9 +672,9 @@
      });
  
    </script>
-   <script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
-  const API_URL = 'https://sanghamitra-learnworld.vercel.app/api/mathUpdatedSchema?';
+  const API_URL = 'https://sanghamitra-learnworld.vercel.app/api/mathUpdatedSchema';
   let questions = [];
   let currentQuestionIndex = 0;
 
@@ -684,6 +684,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorDiv = document.getElementById('error');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
+  const questionText = document.querySelector('.question-text');
+  const optionsContainer = document.querySelector('.options-container');
+  const feedback = document.querySelector('.feedback');
+  const explanation = document.querySelector('.explanation');
 
   // Fetch questions from API
   fetch(API_URL)
@@ -692,22 +696,29 @@ document.addEventListener('DOMContentLoaded', () => {
       return response.json();
     })
     .then(data => {
-      if (data.length === 0) throw new Error('No addition questions found');
-      questions = data;
+      // Filter questions client-side for addition concepts
+      const additionQuestions = data.filter(question => 
+        question.conceptsTested.includes('addition')
+      );
+      
+      if (additionQuestions.length === 0) {
+        throw new Error('No addition questions found');
+      }
+      
+      questions = additionQuestions;
       loading.style.display = 'none';
       questionCard.style.display = 'block';
+      updateNavigation();
       showQuestion(currentQuestionIndex);
     })
     .catch(error => {
       loading.style.display = 'none';
       errorDiv.style.display = 'block';
-      errorDiv.textContent = `Error loading questions: ${error.message}`;
+      errorDiv.textContent = `Error: ${error.message}`;
     });
 
   function showQuestion(index) {
     const question = questions[index];
-    const questionText = document.querySelector('.question-text');
-    const optionsContainer = document.querySelector('.options-container');
     
     // Update question text
     questionText.innerHTML = `${index + 1}. ${question.question}`;
@@ -724,19 +735,17 @@ document.addEventListener('DOMContentLoaded', () => {
       optionsContainer.appendChild(button);
     });
 
-    // Update navigation buttons
-    prevBtn.disabled = index === 0;
-    nextBtn.disabled = index === questions.length - 1;
+    updateNavigation();
+    resetQuestionState();
   }
 
   function checkAnswer(selected, correct) {
-    const feedback = document.querySelector('.feedback');
-    const explanation = document.querySelector('.explanation');
-    const options = document.querySelectorAll('.options-container button');
+    const options = optionsContainer.querySelectorAll('button');
     
     options.forEach(option => {
       option.disabled = true;
       const optionKey = option.textContent.split('.')[0].trim().toLowerCase();
+      
       if (optionKey === correct) {
         option.classList.add('btn-success');
       } else if (optionKey === selected) {
@@ -754,11 +763,24 @@ document.addEventListener('DOMContentLoaded', () => {
     explanation.innerHTML = `<strong>Explanation:</strong> ${questions[currentQuestionIndex].explanation}`;
   }
 
+  function updateNavigation() {
+    prevBtn.disabled = currentQuestionIndex === 0;
+    nextBtn.disabled = currentQuestionIndex === questions.length - 1;
+  }
+
+  function resetQuestionState() {
+    feedback.style.display = 'none';
+    explanation.style.display = 'none';
+    optionsContainer.querySelectorAll('button').forEach(button => {
+      button.className = 'btn btn-outline-primary d-block w-100 mb-2';
+      button.disabled = false;
+    });
+  }
+
   // Navigation controls
   prevBtn.addEventListener('click', () => {
     if (currentQuestionIndex > 0) {
       currentQuestionIndex--;
-      resetQuestionState();
       showQuestion(currentQuestionIndex);
     }
   });
@@ -766,19 +788,9 @@ document.addEventListener('DOMContentLoaded', () => {
   nextBtn.addEventListener('click', () => {
     if (currentQuestionIndex < questions.length - 1) {
       currentQuestionIndex++;
-      resetQuestionState();
       showQuestion(currentQuestionIndex);
     }
   });
-
-  function resetQuestionState() {
-    document.querySelectorAll('.options-container button').forEach(button => {
-      button.className = 'btn btn-outline-primary d-block w-100 mb-2';
-      button.disabled = false;
-    });
-    document.querySelector('.feedback').style.display = 'none';
-    document.querySelector('.explanation').style.display = 'none';
-  }
 });
 </script>
         
