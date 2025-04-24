@@ -19,6 +19,7 @@ const ReadingPassages = require('../model/readingPassages');
 const ReadingComprehensionScore = require('../model/readingcomprehensionscore');
 const Programming = require('../model/programming');
 const MathQuestion = require('../model/mathUpdatedSchema');
+const MathScore = require('../models/MathScore');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -844,7 +845,40 @@ router.get('/readingcomprehensionscore', async (req, res) => {
     }
   });
 
+  // Submit math score
+router.post('/math-scores', authMiddleware, async (req, res) => {
+  try {
+    const { user } = req; // Assuming your auth middleware attaches user
+    const {
+      questionId,
+      userAnswer,
+      isCorrect,
+      timeSpent,
+      metadata
+    } = req.body;
 
+    const score = new MathScore({
+      userEmail: user.email,
+      questionId,
+      userAnswer,
+      isCorrect,
+      timeSpent,
+      metadata
+    });
+
+    await score.save();
+    
+    res.status(201).json({
+      success: true,
+      data: score
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
 
 
 module.exports = router
