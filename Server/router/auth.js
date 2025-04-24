@@ -18,6 +18,7 @@ const RC_Guide = require('../model/readingcomprehensionguide');
 const ReadingPassages = require('../model/readingPassages');
 const ReadingComprehensionScore = require('../model/readingcomprehensionscore');
 const Programming = require('../model/programming');
+const MathQuestion = require('../model/mathUpdatedSchema');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -818,6 +819,28 @@ router.get('/readingcomprehensionscore', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+
+// Route to get all math questions
+  router.get('/mathUpdatedSchema', async (req, res) => {
+    const { topic, difficultyLevel, topicArea, gradeLevel, conceptsTested } = req.query;
+
+    try {
+      const query = {};
+      
+      // Build query filters
+      if (topic) query.topic = topic;
+      if (difficultyLevel) query.difficultyLevel = difficultyLevel;
+      if (topicArea) query.topicArea = topicArea;
+      if (gradeLevel) query.gradeLevel = parseInt(gradeLevel);
+      if (conceptsTested) query.conceptsTested = { $in: conceptsTested.split(',') };
+
+      const questions = await MathQuestion.find(query);
+      return res.status(200).json(questions);
+    } catch (err) {
+      console.error('Error fetching math questions:', err);
+      return res.status(500).json({ error: 'Error fetching questions' });
     }
   });
 
