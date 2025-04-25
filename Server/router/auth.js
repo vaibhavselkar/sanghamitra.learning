@@ -19,7 +19,7 @@ const ReadingPassages = require('../model/readingPassages');
 const ReadingComprehensionScore = require('../model/readingcomprehensionscore');
 const Programming = require('../model/programming');
 const MathQuestion = require('../model/mathUpdatedSchema');
-const MathScore = require('../model/mathUpdatedscore');
+const MathScore = require('../model/mathUpdatedScore');
 
 require('../db/conn');
 const User = require('../model/userSchema');
