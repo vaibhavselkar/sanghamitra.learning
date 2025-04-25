@@ -823,62 +823,7 @@ router.get('/readingcomprehensionscore', async (req, res) => {
     }
   });
 
-// Route to get all math questions
-  router.get('/mathUpdatedSchema', async (req, res) => {
-    const { topic, difficultyLevel, topicArea, gradeLevel, conceptsTested } = req.query;
 
-    try {
-      const query = {};
-      
-      // Build query filters
-      if (topic) query.topic = topic;
-      if (difficultyLevel) query.difficultyLevel = difficultyLevel;
-      if (topicArea) query.topicArea = topicArea;
-      if (gradeLevel) query.gradeLevel = parseInt(gradeLevel);
-      if (conceptsTested) query.conceptsTested = { $in: conceptsTested.split(',') };
-
-      const questions = await MathQuestion.find(query);
-      return res.status(200).json(questions);
-    } catch (err) {
-      console.error('Error fetching math questions:', err);
-      return res.status(500).json({ error: 'Error fetching questions' });
-    }
-  });
-
-  // Submit math score
-router.post('/math-scores', authMiddleware, async (req, res) => {
-  try {
-    const { user } = req; // Assuming your auth middleware attaches user
-    const {
-      questionId,
-      userAnswer,
-      isCorrect,
-      timeSpent,
-      metadata
-    } = req.body;
-
-    const score = new MathScore({
-      userEmail: user.email,
-      questionId,
-      userAnswer,
-      isCorrect,
-      timeSpent,
-      metadata
-    });
-
-    await score.save();
-    
-    res.status(201).json({
-      success: true,
-      data: score
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
 
 
 module.exports = router
