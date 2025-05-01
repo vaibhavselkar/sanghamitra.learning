@@ -371,82 +371,151 @@
           </div>
           
           <!-- Fourth Exercise Container -->
-          <div class="exercise-container">
-            <div class="exercise-title">Exercise 4: Avoiding Infinite Loops</div>
-            <p>Fix this infinite loop by adding proper condition updates:</p>
-            <div class="explanation">
-              <textarea class="codeInput"># Fix this infinite loop
-counter = 0
-while counter < 10:
-print("Counter value:", counter)
-# Add the missing line here to increment counter
+          <div class="flowchart-example mt-3">
+            <div class="exercise-container">
+              <div class="exercise-title">Exercise 4: Avoiding Infinite Loops</div>
+              <p>Fix this infinite loop by adding proper condition updates:</p>
+              <div class="explanation">
+                <textarea class="codeInput"># Fix this infinite loop
+  counter = 0
+  while counter < 10:
+  print("Counter value:", counter)
+  # Add the missing line here to increment counter
 
-      </textarea>
-              <button onclick="runCode(this)">Run Code</button>
-              <div class="output"></div>
+        </textarea>
+                <button onclick="runCode(this)">Run Code</button>
+                <div class="output"></div>
+              </div>
             </div>
           </div>
-          <div class="row d-flex justify-content-center">
-            <div class="col-lg-12">
-              <div class="card">
-                <div class="card-header bg-success text-white">
-                  <h3><i class="bi bi-question-circle"></i> Practice Quiz</h3>
-                  <p class="mb-0">Test your Python skills with short practice exercises</p>
-                </div>
-                <div class="card-body">
-                  <div id="quiz-container">
-                    <div id="quiz-loading" class="text-center py-5">
-                      <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                      </div>
-                      <p class="mt-3">Loading practice questions...</p>
+          <div class="container guide-content">
+            <div class="section" data-aos="fade-up">
+              <h2><i class="bi bi-trophy icon icon-imp"></i>Loop Examples</h2>
+          
+              <div class="flowchart-example">
+                <h4><i class="bi bi-1-circle"></i> For Loop Examples</h4>
+                <ul>
+                  <li>Print numbers from 1 to 5</li>
+                  <div class="explanation">
+                    <textarea class="codeInput">
+# Print numbers from 1 to 5
+for i in range(1, 6):
+    print(i)
+                    </textarea>
+                    <button onclick="runCode(this)">Run Code</button>
+                    <div class="output"></div>
+                  </div>
+          
+                  <li>Print each character of a string</li>
+                  <div class="explanation">
+                    <textarea class="codeInput">
+# Print each character in "Hello"
+for char in "Hello":
+    print(char)
+                    </textarea>
+                    <button onclick="runCode(this)">Run Code</button>
+                    <div class="output"></div>
+                  </div>
+                </ul>
+          
+                <h4><i class="bi bi-2-circle"></i> While Loop Examples</h4>
+                <ul>
+                  <li>Print numbers from 1 to 5 using while</li>
+                  <div class="explanation">
+                    <textarea class="codeInput">
+# Print numbers from 1 to 5
+i = 1
+while i <= 5:
+    print(i)
+    i += 1
+                    </textarea>
+                    <button onclick="runCode(this)">Run Code</button>
+                    <div class="output"></div>
+                  </div>
+          
+                  <li>Repeat until the user types "exit"</li>
+                  <div class="explanation">
+                    <textarea class="codeInput">
+# Keep asking input until "exit" is typed
+while True:
+    user_input = input("Enter something (type 'exit' to quit): ")
+    if user_input.lower() == "exit":
+        break
+    print("You typed:", user_input)
+                    </textarea>
+                    <button onclick="runCode(this)">Run Code</button>
+                    <div class="output"></div>
+                  </div>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          
+          <!-- Practice Quiz Section -->
+          <div class="container guide-content">
+            <div class="section" data-aos="fade-up">
+              <div class="row d-flex justify-content-center">
+                <div class="col-lg-12">
+                  <div class="card">
+                    <div class="card-header bg-success text-white">
+                      <h3><i class="bi bi-question-circle"></i> Practice Quiz</h3>
+                      <p class="mb-0">Test your Python skills with short practice exercises</p>
                     </div>
-                    
-                    <div id="quiz-content" style="display: none;">
-                      <div class="quiz-header d-flex justify-content-between align-items-center mb-3">
-                        <h4 id="quiz-title">Question Title</h4>
-                        <span class="badge bg-info" id="quiz-topic">Topic</span>
-                      </div>
-                      
-                      <div id="question-counter" class="text-muted mb-2">
-                        Loading questions...
-                      </div>
-                      
-                      <div class="quiz-question mb-4" id="quiz-description">
-                        Question description goes here.
-                      </div>
-                      
-                      <textarea class="codeInput" id="quiz-code-editor"></textarea>
-                      
-                      <div class="btn-toolbar mt-3 mb-3">
-                        <button class="btn btn-primary run-quiz-btn me-2" id="run-quiz-code">
-                          <i class="bi bi-play-fill"></i> Run Code
-                        </button>
-                        <button class="btn btn-outline-secondary show-quiz-hint-btn" id="show-quiz-hint">
-                          <i class="bi bi-lightbulb"></i> Show Hint
-                        </button>
-                        <button class="btn btn-success ms-auto" id="submit-quiz-answer">
-                          <i class="bi bi-check-circle"></i> Submit Answer
-                        </button>
-                      </div>
-                      
-                      <div class="quiz-hint-container alert alert-info" style="display: none;" id="quiz-hint">
-                        Hint will appear here.
-                      </div>
-                      
-                      <div class="quiz-output" style="display: none;" id="quiz-output">
-                        <h5>Output:</h5>
-                        <pre class="bg-light p-3 rounded"></pre>
-                      </div>
-                      
-                      <div class="quiz-result alert" style="display: none;" id="quiz-result">
-                        Result feedback will appear here.
+                    <div class="card-body">
+                      <div id="quiz-container">
+                        <div id="quiz-loading" class="text-center py-5">
+                          <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                          </div>
+                          <p class="mt-3">Loading practice questions...</p>
+                        </div>
+                        
+                        <div id="quiz-content" style="display: none;">
+                          <div class="quiz-header d-flex justify-content-between align-items-center mb-3">
+                            <h4 id="quiz-title">Question Title</h4>
+                            <span class="badge bg-info" id="quiz-topic">Topic</span>
+                          </div>
+                          
+                          <div id="question-counter" class="text-muted mb-2">
+                            Loading questions...
+                          </div>
+                          
+                          <div class="quiz-question mb-4" id="quiz-description">
+                            Question description goes here.
+                          </div>
+                          
+                          <textarea class="codeInput" id="quiz-code-editor"></textarea>
+                          
+                          <div class="btn-toolbar mt-3 mb-3">
+                            <button class="btn btn-primary run-quiz-btn me-2" id="run-quiz-code">
+                              <i class="bi bi-play-fill"></i> Run Code
+                            </button>
+                            <button class="btn btn-outline-secondary show-quiz-hint-btn" id="show-quiz-hint">
+                              <i class="bi bi-lightbulb"></i> Show Hint
+                            </button>
+                            <button class="btn btn-success ms-auto" id="submit-quiz-answer">
+                              <i class="bi bi-check-circle"></i> Submit Answer
+                            </button>
+                          </div>
+                          
+                          <div class="quiz-hint-container alert alert-info" style="display: none;" id="quiz-hint">
+                            Hint will appear here.
+                          </div>
+                          
+                          <div class="quiz-output" style="display: none;" id="quiz-output">
+                            <h5>Output:</h5>
+                            <pre class="bg-light p-3 rounded"></pre>
+                          </div>
+                          
+                          <div class="quiz-result alert" style="display: none;" id="quiz-result">
+                            Result feedback will appear here.
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
         </div>      
       </div>
       <div class="container guide-content">
