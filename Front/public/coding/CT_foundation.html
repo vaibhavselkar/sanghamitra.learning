@@ -341,10 +341,62 @@
       font-size: 0.9rem; /* Slightly smaller font */
     }
 
-    .ct-option.correct {
+    .container .guide-content .section .ct-quiz .ct-option.correct-option {
       background-color: #d5f5e3;
       border-left: 4px solid #2ecc71;
     }
+
+    .container .guide-content .section .ct-quiz .ct-option.incorrect {
+      background-color: #fadbd8;
+      border-left: 4px solid #e74c3c;
+    }
+
+    .container .guide-content .section .ct-quiz .ct-option.selected.correct {
+      background-color: #d5f5e3;
+      border-left: 4px solid #2ecc71;
+    }
+
+    /* Dynamic Quiz Styles - Keep existing selectors */
+    #quiz-container .ct-option.correct-option {
+      background-color: #d5f5e3;
+      border-left: 4px solid #2ecc71;
+    }
+
+    #quiz-container .ct-option.incorrect {
+      background-color: #fadbd8;
+      border-left: 4px solid #e74c3c;
+    }
+
+    /* Additional styles to make the check answer function work better */
+    .ct-quiz .ct-feedback {
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .ct-quiz .ct-option.correct {
+      background-color: #d5f5e3;
+      border-left: 4px solid #2ecc71;
+    }
+
+    /* Make sure buttons are properly styled */
+    .ct-quiz .ct-btn {
+      padding: 0.6rem 1.2rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 1rem 0;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .ct-quiz .ct-btn:hover {
+      background-color: #2980b9;
+    }
+
 
     .ct-option.incorrect {
       background-color: #fadbd8;
@@ -814,7 +866,7 @@
     // Check if user is logged in and fetch their previous quiz attempts
     async function fetchSessionInfo() {
       try {
-        const sessionResponse = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', { 
+        const sessionResponse = await fetch('http://localhost:4000/api/session-info', { 
           credentials: 'include' 
         });
         
@@ -840,7 +892,7 @@
     // Function to fetch user's previous answers for this topic
     async function fetchPreviousAnswers() {
       try {
-        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/CT_finger_scores/${email}/CT_foundation`, {
+        const response = await fetch(`http://localhost:4000/api/CT_finger_scores/${email}/CT_foundation`, {
           credentials: 'include'
         });
         
@@ -904,36 +956,43 @@
     function selectOption(option) {
       const questionDiv = option.closest('.ct-quiz');
       const options = questionDiv.querySelectorAll('.ct-option');
-    
+
       // Remove selected class from all options
       options.forEach(opt => {
         opt.classList.remove('selected');
       });
-    
+
       // Add selected class to clicked option
       option.classList.add('selected');
     }
 
-    // Function to check answers in static examples
+    // Improved function to check answers in static examples
     function checkAnswer(button) {
       const questionDiv = button.closest('.ct-quiz');
       const selectedOption = questionDiv.querySelector('.ct-option.selected');
       const correctOption = questionDiv.querySelector('.correct-option');
       const correctFeedback = questionDiv.querySelector('.ct-feedback.correct');
       const incorrectFeedback = questionDiv.querySelector('.ct-feedback.incorrect');
-    
+
       // Hide all feedback first
       if (correctFeedback) correctFeedback.style.display = 'none';
       if (incorrectFeedback) incorrectFeedback.style.display = 'none';
-    
+
+      // Reset existing visual feedback
+      questionDiv.querySelectorAll('.ct-option').forEach(opt => {
+        opt.classList.remove('correct', 'incorrect');
+      });
+
       if (selectedOption) {
         if (selectedOption === correctOption) {
+          // Correct answer
           correctFeedback.style.display = 'block';
           selectedOption.classList.add('correct');
         } else {
+          // Incorrect answer
           incorrectFeedback.style.display = 'block';
           selectedOption.classList.add('incorrect');
-          correctOption.classList.add('correct');
+          correctOption.classList.add('correct-option'); // Make sure correct option is styled
         }
       } else {
         alert('Please select an answer first!');
@@ -944,7 +1003,7 @@
     async function initializeQuiz() {
       try {
         // Fetch questions from the API
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/CT_finger?topic=CT_foundation');
+        const response = await fetch('http://localhost:4000/api/CT_finger?topic=CT_foundation');
         
         if (!response.ok) {
           throw new Error('Failed to fetch quiz questions');
@@ -1211,7 +1270,7 @@
         };
         
         // Send to server
-        fetch('https://sanghamitra-learnworld.vercel.app/api/CT_finger_scores', {
+        fetch('http://localhost:4000/api/CT_finger_scores', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -1267,7 +1326,7 @@
         };
         
         // Send complete results to server
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/CT_finger_scores', {
+        const response = await fetch('http://localhost:4000/api/CT_finger_scores', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
