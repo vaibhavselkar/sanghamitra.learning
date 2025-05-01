@@ -299,12 +299,15 @@
                         <div class="row mt-4">
                             <div class="col-12">
                                 <div class="card-custom">
-                                    <h3>Programming Progress</h3>
+                                    <h3>CT Finger Exercises</h3>
+                                    <div id="ct-finger-container" class="loading">Loading CT Data...</div>
+                                    <h3>Programming Finger Exercises</h3>
+                                    <div id="programming-finger-container" class="loading">Loading Programming Data...</div>
+                                    <h3>Programming Daignostic</h3>
                                     <div id="programming-container" class="loading">Loading Programming Data...</div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -781,46 +784,20 @@
         const container = document.getElementById('programming-container');
         
         // Calculate overall stats
-        const totalQuizzes = data.quizzes.length;
-        const totalScore = data.quizzes.reduce((sum, quiz) => sum + quiz.score, 0);
-        const totalPossibleScore = totalQuizzes * 10; // Assuming each quiz has 10 questions
-        const averageScore = totalPossibleScore > 0 ? ((totalScore / totalPossibleScore) * 100).toFixed(1) : 0;
-        
         // Sort quizzes by date (most recent first)
         const sortedQuizzes = [...data.quizzes].sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
         
         // Get recent quizzes (up to 5)
-        const recentQuizzes = sortedQuizzes.slice(0, 5);
+        const recentQuizzes = sortedQuizzes.slice(0, 1);
         
         let html = `
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <div class="card-custom text-center">
-                        <h4>Total Quizzes</h4>
-                        <h2>${totalQuizzes}</h2>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card-custom text-center">
-                        <h4>Total Score</h4>
-                        <h2>${totalScore}/${totalPossibleScore}</h2>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card-custom text-center">
-                        <h4>Average Score</h4>
-                        <h2>${averageScore}%</h2>
-                    </div>
-                </div>
-            </div>
             
-            <h4>Recent Programming Quizzes</h4>
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Score</th>
-                        <th>Questions Passed</th>
+                        <th>Score(%)</th>
+                        <th>Questions Passed Out of 20</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -834,8 +811,8 @@
             html += `
                 <tr>
                     <td>${quizDate}</td>
-                    <td>${quiz.score}/10</td>
-                    <td>${passedQuestions}/10</td>
+                    <td>${(quiz.score/20*100).toFixed(0)}</td>
+                    <td>${passedQuestions}</td>
                     <td>
                         <button class="btn btn-primary" onclick="viewProgrammingQuiz('${quiz._id}')">
                             View Details
@@ -864,12 +841,128 @@
         window.location.href = "coding/programming.html";
     }
 
+    async function fetchCTFingerExercises(email) {
+        try {
+            const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/CT_finger_scores/${email}`);
+            if (!response.ok) throw new Error('Failed to fetch CT exercises');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching CT exercises:', error);
+            return { quizzes: [] };
+        }
+    }
+
+    function displayCTFingerExercises(data) {
+        const container = document.getElementById('ct-finger-container');
+        const quizzes = data.quizzes || [];
+
+        // Aggregate scores by topic
+        const topicScores = {};
+        quizzes.forEach(quiz => {
+            const correctAnswers = quiz.answers.filter(a => a.isCorrect).length;
+            if (!topicScores[quiz.topic]) {
+                topicScores[quiz.topic] = 0;
+            }
+            topicScores[quiz.topic] += correctAnswers;
+        });
+
+        const tableData = Object.entries(topicScores).map(([topic, score], index) => ({
+            srNo: index + 1,
+            topic: topic.replace(/_/g, ' ').toUpperCase(),
+            score: score
+        }));
+
+        if (tableData.length === 0) {
+            container.innerHTML = `<p>No CT exercises completed yet</p>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Topic</th>
+                        <th>Scores(%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableData.map(row => `
+                        <tr>
+                            <td>${row.srNo}</td>
+                            <td>${row.topic}</td>
+                            <td>${((row.score/30)*100).toFixed(0)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    async function fetchProgrammingFingerExercises(email) {
+        try {
+            const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/finger-exercise?email=${email}`);
+            if (!response.ok) throw new Error('Failed to fetch programming exercises');
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching programming exercises:', error);
+            return { topics: [] };
+        }
+    }
+
+    function displayProgrammingExercises(data) {
+        const container = document.getElementById('programming-finger-container');
+        const topics = data.topics || [];
+    
+        // Calculate scores per topic
+        const topicScores = {};
+        topics.forEach(topic => {
+            const correctSubmissions = topic.submissions?.filter(sub => sub.isCorrect) || [];
+            topicScores[topic.topicName] = correctSubmissions.length;
+        });
+    
+        const tableData = Object.entries(topicScores).map(([topic, score], index) => ({
+            srNo: index + 1,
+            topic: topic.replace(/_/g, ' ').toUpperCase(),
+            score: score
+        }));
+    
+        if (tableData.length === 0) {
+            container.innerHTML = `<p>No programming exercises completed yet</p>`;
+            return;
+        }
+    
+        container.innerHTML = `
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sr No.</th>
+                        <th>Topic</th>
+                        <th>Scores</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableData.map(row => `
+                        <tr>
+                            <td>${row.srNo}</td>
+                            <td>${row.topic}</td>
+                            <td>${((row.score/30)*100).toFixed(0)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
     async function initDashboard() {
         const userDashboardData = await fetchUserDashboard();
         console.log("initiated")
         if (userDashboardData) {
-            await fetchRCScores(userDashboardData.email); // Fetch RC scores and display them
-            await fetchProgrammingScores(userDashboardData.email);
+            const progData = await fetchProgrammingFingerExercises(userDashboardData.email);
+            displayProgrammingExercises(progData);
+            const ctFingerData = await fetchCTFingerExercises(userDashboardData.email);
+            displayCTFingerExercises(ctFingerData);
+            fetchProgrammingScores(userDashboardData.email);
+            await fetchRCScores(userDashboardData.email);
         }
     }
 
@@ -898,6 +991,50 @@
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
+    async function calculateCompletedTopics(email) {
+        let progQuizCount = 0;
+        let ctTopics = new Set();
+        let progTopics = new Set();
+
+        // Check if any programming quizzes were done
+        try {
+            const progResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/programming?email=${email}`);
+            const progData = await progResponse.json();
+            if (progData.quizzes && progData.quizzes.length > 0) {
+                progQuizCount = 1;
+            }
+        } catch (err) {
+            console.warn("Error fetching programming quizzes:", err);
+        }
+
+        // CT Finger Scores
+        try {
+            const ctResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/CT_finger_scores/${email}`);
+            const ctData = await ctResponse.json();
+            const quizzes = ctData.quizzes || ctData;  // in case it's just an array
+            quizzes.forEach(quiz => {
+                if (quiz.topic) ctTopics.add(quiz.topic);
+            });
+        } catch (err) {
+            console.warn("Error fetching CT finger scores:", err);
+        }
+
+        // Programming Finger Exercises
+        try {
+            const fingerResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/finger-exercise?email=${email}`);
+            const fingerData = await fingerResponse.json();
+            const topics = fingerData.topics || fingerData;  // in case it's just an array
+            topics.forEach(topic => {
+                if (topic.topicName) progTopics.add(topic.topicName);
+            });
+        } catch (err) {
+            console.warn("Error fetching programming finger exercises:", err);
+        }
+
+        const totalCompletedTopics = progQuizCount + ctTopics.size + progTopics.size;
+        return totalCompletedTopics;
+    }
+    
     // Function to initialize the dashboard
     async function init() {
         const userDashboardData = await fetchUserDashboard();
@@ -951,11 +1088,7 @@
                 : 0;
 
             // Fetch Programming quiz counts
-            const progResponse = await fetch(`https://sanghamitra-learnworld.vercel.app/api/programming?email=${email}`);
-            const progData = await progResponse.json();
-
-             // Calculate programming quiz count
-            const progQuizCount = progData.quizzes ? progData.quizzes.length : 0;
+            const progQuizCount = calculateCompletedTopics(email)
             
             
             // Fetch Vocabulary quiz counts
@@ -978,7 +1111,7 @@
             document.getElementById('math-quiz-count').textContent = mathTopicsCount;
             document.getElementById('vocab-quiz-count').textContent = vocabQuizCount;
             document.getElementById('rc-quiz-count').textContent = rcQuizCount;
-            document.getElementById('prog-quiz-count').textContent = progQuizCount;
+            calculateCompletedTopics(email).then(progQuizCount => {document.getElementById('prog-quiz-count').textContent = progQuizCount});
         } catch (error) {
             console.error('Error fetching quiz counts:', error);
 
