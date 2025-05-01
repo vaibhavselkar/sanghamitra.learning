@@ -18,6 +18,10 @@ const RC_Guide = require('../model/readingcomprehensionguide');
 const ReadingPassages = require('../model/readingPassages');
 const ReadingComprehensionScore = require('../model/readingcomprehensionscore');
 const Programming = require('../model/programming');
+const ProgrammingFinger = require('../model/programming_finger');
+const FingerQuestion = require('../model/programming_finger_questions');
+const CTFoundationQuestion = require('../model/CT_foundation_question');
+const CTFingerScore = require('../model/CT_foundation_score');
 const MathQuestion = require('../model/mathUpdatedSchema');
 const MathScore = require('../model/mathUpdatedScore');
 
@@ -820,6 +824,263 @@ router.get('/readingcomprehensionscore', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+
+  // 📥 POST: Submit a coding answer for a topic
+  router.post('/finger-exercise/submit', async (req, res) => {
+    try {
+      const { username, email, topic, questionId, userAnswer, isCorrect } = req.body;
+
+      let user = await ProgrammingFinger.findOne({ email });
+
+      if (!user) {
+        // Create new user entry
+        user = new ProgrammingFinger({
+          username,
+          email,
+          topics: [{
+            topicName: topic,
+            submissions: [{
+              questionId,
+              userAnswer,
+              isCorrect,
+              timestamp: new Date()
+            }]
+          }]
+        });
+      } else {
+        // Check if topic exists
+        const topicObj = user.topics.find(t => t.topicName === topic);
+
+        if (topicObj) {
+          // Append submission to topic
+          topicObj.submissions.push({
+            questionId,
+            userAnswer,
+            isCorrect,
+            timestamp: new Date()
+          });
+        } else {
+          // Add new topic
+          user.topics.push({
+            topicName: topic,
+            submissions: [{
+              questionId,
+              userAnswer,
+              isCorrect,
+              timestamp: new Date()
+            }]
+          });
+        }
+      }
+
+      await user.save();
+      res.status(200).json({ message: 'Submission saved successfully' });
+
+    } catch (error) {
+      console.error('Submission error:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
+  // 📤 GET: Get all submissions of a user for a specific topic
+  router.get('/finger-exercise', async (req, res) => {
+    const { email, topic } = req.query;
+  
+    try {
+      // 1. No email = Return everything
+      if (!email) {
+        const allUsers = await ProgrammingFinger.find();
+        return res.status(200).json(allUsers);
+      }
+  
+      // 2. Email only = Return all topics for that user
+      const user = await ProgrammingFinger.findOne({ email });
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      if (!topic) {
+        return res.status(200).json(user); // full user data
+      }
+  
+      // 3. Email + Topic = Return specific topic submissions
+      const topicData = user.topics.find(t => t.topicName === topic);
+      if (!topicData) {
+        return res.status(404).json({ message: 'Topic not found for this user' });
+      }
+  
+      return res.status(200).json(topicData);
+  
+    } catch (error) {
+      console.error('Error fetching finger exercise data:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  router.get('/finger-questions', async (req, res) => {
+    const { topic } = req.query;
+  
+    try {
+      let questions;
+      if (topic) {
+        questions = await FingerQuestion.find({ topic });
+      } else {
+        questions = await FingerQuestion.find();
+      }
+      res.json(questions);
+    } catch (err) {
+      console.error('❌ Error fetching questions:', err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+
+  // Add this route to your Express server
+  router.get('/finger-questions/:id', async (req, res) => {
+    try {
+      const question = await FingerQuestion.findOne({ id: req.params.id });
+      res.json(question);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+  
+  // Add this route to your Express server
+  router.put('/programming-finger-questions/:id', async (req, res) => {
+    try {
+      const updated = await FingerQuestion.findOneAndUpdate(
+        { id: req.params.id },
+        req.body,
+        { new: true, upsert: true } // upsert to create if not exists
+      );
+      res.json(updated);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  router.get('/CT_finger', async (req, res) => {
+    try {
+      const { topic } = req.query;
+      
+      // If topic is provided, filter by it, otherwise get all questions
+      const filter = topic ? { topic } : {};
+      
+      const questions = await CTFoundationQuestion.find(filter);
+      
+      res.json({
+        success: true,
+        count: questions.length,
+        data: questions
+      });
+    } catch (error) {
+      console.error('Error fetching CT foundation questions:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error while fetching questions',
+        error: error.message
+      });
+    }
+  });
+
+  // POST endpoint to save quiz scores
+  router.post('/CT_finger_scores', async (req, res) => {
+    try {
+      const { email, topic, username, score, totalQuestions, answers } = req.body;
+      
+      // Validate required fields
+      if (!email || !username || !topic || score === undefined || !totalQuestions || !answers) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
+      // Find user by email or create new record if doesn't exist
+      let userScore = await CTFingerScore.findOne({ email });
+      
+      if (!userScore) {
+        userScore = new CTFingerScore({
+          email,
+          username,
+          quizzes: []
+        });
+      }
+      
+      // Add new quiz attempt
+      userScore.quizzes.push({
+        topic,
+        score,
+        totalQuestions,
+        date: new Date(),
+        answers
+      });
+      
+      // Save to database
+      await userScore.save();
+      
+      return res.status(201).json({
+        message: 'Quiz score saved successfully',
+        data: {
+          email,
+          username, 
+          topic,
+          score,
+          totalQuestions
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error saving quiz score:', error);
+      return res.status(500).json({ error: 'An error occurred while saving the quiz score' });
+    }
+  });
+
+  // GET endpoint to retrieve user scores
+  router.get('/CT_finger_scores/:email', async (req, res) => {
+    try {
+      const { email } = req.params;
+      
+      const userScore = await CTFingerScore.findOne({ email });
+      
+      if (!userScore) {
+        return res.status(404).json({ error: 'No scores found for this user' });
+      }
+      
+      return res.status(200).json(userScore);
+      
+    } catch (error) {
+      console.error('Error retrieving quiz scores:', error);
+      return res.status(500).json({ error: 'An error occurred while retrieving quiz scores' });
+    }
+  });
+
+  // GET endpoint to retrieve scores for a specific topic
+  router.get('/CT_finger_scores/:email/:topic', async (req, res) => {
+    try {
+      const { email, topic } = req.params;
+      
+      const userScore = await CTFingerScore.findOne({ email });
+      
+      if (!userScore) {
+        return res.status(404).json({ error: 'No scores found for this user' });
+      }
+      
+      // Filter quizzes by topic
+      const topicQuizzes = userScore.quizzes.filter(quiz => quiz.topic === topic);
+      
+      if (topicQuizzes.length === 0) {
+        return res.status(404).json({ error: `No scores found for topic: ${topic}` });
+      }
+      
+      return res.status(200).json({
+        email,
+        topic,
+        quizzes: topicQuizzes
+      });
+      
+    } catch (error) {
+      console.error('Error retrieving topic scores:', error);
+      return res.status(500).json({ error: 'An error occurred while retrieving topic scores' });
     }
   });
 
