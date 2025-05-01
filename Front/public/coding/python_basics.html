@@ -480,6 +480,7 @@ print(result)
                 <textarea class="codeInput">age = 18  
 if age >= 18:  
 print("You are an adult")  # Missing indentation
+
 </textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
@@ -495,6 +496,7 @@ print("You are an adult")  # Missing indentation
 if age >= 18:  
     print("You are an adult")  # Properly indented  
 print("This always runs")      # Outside the if block
+
 </textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
@@ -508,11 +510,13 @@ print("This always runs")      # Outside the if block
                 <i class="bi bi-x-circle-fill"></i> Inconsistent Indentation
               </div>
               <div class="code-body">
-                <textarea class="codeInput">for i in range(3):  
+                <textarea class="codeInput">
+for i in range(3):  
   print("Outer loop:", i)  
     for j in range(2):  # Wrong indentation level
         print("Inner:", j)
-  </textarea>
+
+</textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -523,11 +527,13 @@ print("This always runs")      # Outside the if block
                 <i class="bi bi-check-circle-fill"></i> Consistent Indentation
               </div>
               <div class="code-body">
-                <textarea class="codeInput">for i in range(3):  
-    print("Outer loop:", i)  
+                <textarea class="codeInput">
+for i in range(3):  
+  print("Outer loop:", i)  
     for j in range(2):  
         print("Inner:", j)  # Proper nesting
-    </textarea>
+
+</textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -549,6 +555,7 @@ print("This always runs")      # Outside the if block
             <p><b>1. Fix the indentation error:</b></p>
             <textarea class="codeInput">for i in range(5):  
 print(i)
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -557,6 +564,7 @@ print(i)
             <textarea class="codeInput">for i in range(3):  
     for j in range(3):  
     print(i, j)
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -567,6 +575,7 @@ result = x + y
 if result > 10:
 print("Large number")
 return result
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -597,6 +606,7 @@ return result
 print(fruits[1])  # Access second item (banana)
 fruits.append("grape")  # Add new item
 print(fruits)  # Show all items
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -606,6 +616,7 @@ print(fruits)  # Show all items
 numbers[0] = 15  # Change first item
 numbers.remove(20)  # Remove item
 print(len(numbers))  # Count items (now 2)
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -615,6 +626,7 @@ print(len(numbers))  # Count items (now 2)
 print(student[0])  # Get name
 student[3] = False  # Change status
 print(student)
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -636,6 +648,7 @@ print(student)
             <textarea class="codeInput">point = (3, 5)  # Create tuple
 print(point[0])  # Access first item (3)
 # point[0] = 4  # This would cause error!
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -644,6 +657,7 @@ print(point[0])  # Access first item (3)
             <textarea class="codeInput">person = ("Alice", 25, "Engineer")
 name, age, job = person  # Unpack tuple
 print(f"{name} is {age} years old")
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -652,6 +666,7 @@ print(f"{name} is {age} years old")
             <textarea class="codeInput">locations = {(35.68, 139.76): "Tokyo",
              (40.71, -74.00): "New York"}
 print(locations[(35.68, 139.76)])  # Prints "Tokyo"
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -674,6 +689,7 @@ print(locations[(35.68, 139.76)])  # Prints "Tokyo"
 print(student["name"])  # Access value
 student["age"] = 15  # Update value
 student["school"] = "ABC High"  # Add new key-value
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -684,6 +700,7 @@ student["school"] = "ABC High"  # Add new key-value
         "colors": ["red", "blue"]}
 print(car["colors"][0])  # Access list in dict
 print(car.get("model", "Unknown"))  # Safe access
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -695,6 +712,7 @@ count = {}
 for word in words:
     count[word] = count.get(word, 0) + 1
 print(count)
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -718,6 +736,7 @@ colors.add("red")  # Won't add duplicate
 colors.add("yellow")
 print("blue" in colors)  # Check membership (True)
 print(colors)
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -726,6 +745,7 @@ print(colors)
             <textarea class="codeInput">word = "hello"
 unique_letters = set(word)
 print(unique_letters)  # Shows {'h', 'e', 'l', 'o'}
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -735,6 +755,7 @@ print(unique_letters)  # Shows {'h', 'e', 'l', 'o'}
 B = {3, 4, 5}
 print(A.union(B))  # {1, 2, 3, 4, 5}
 print(A.intersection(B))  # {3}
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -746,6 +767,7 @@ print(A.intersection(B))  # {3}
             <p><b>1. Create a list of 3 movie titles and print the last one</b></p>
             <textarea class="codeInput">movies = ["Inception", "Interstellar", "The Matrix"]
 # Your code here
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -753,6 +775,7 @@ print(A.intersection(B))  # {3}
             <p><b>2. Make a tuple with your name and birth year</b></p>
             <textarea class="codeInput"># Your code here
 my_info = ("Alex", 2005)
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -760,6 +783,7 @@ my_info = ("Alex", 2005)
             <p><b>3. Create a dictionary for a mobile phone with brand and price</b></p>
             <textarea class="codeInput"># Your code here
 phone = {"brand": "Samsung", "price": 50000}
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -768,6 +792,7 @@ phone = {"brand": "Samsung", "price": 50000}
             <textarea class="codeInput">colors = ["red", "blue", "red", "green"]
 # Your code here
 unique_colors = set(colors)
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
@@ -776,6 +801,7 @@ unique_colors = set(colors)
             <textarea class="codeInput">countries = ["USA", "UK"]
 # Your code here
 countries.append("India")
+
 </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
