@@ -873,7 +873,7 @@
         }));
 
         if (tableData.length === 0) {
-            container.innerHTML = `<p>No CT exercises completed yet</p>`;
+            container.innerHTML = `<button class="btn btn-success" onclick="redirectToProgramming()">Start Learning</button>`;
             return;
         }
 
@@ -928,7 +928,7 @@
         }));
     
         if (tableData.length === 0) {
-            container.innerHTML = `<p>No programming exercises completed yet</p>`;
+            container.innerHTML = `<button class="btn btn-success" onclick="redirectToProgramming()">Start Learning</button>`;
             return;
         }
     
