@@ -281,7 +281,8 @@
           
           <div class="explanation">
             <textarea class="codeInput"># Simple Python example
-print("Python is fun!")</textarea>
+print("Python is fun!")
+            </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
           </div>
@@ -322,8 +323,23 @@ print("My favorite real-life use of Python is: ")
           <br>
           
           <h3><i class="bi bi-pencil"></i> 1.4 Descriptive Writing (Why It Matters)</h3>
-          <p><b>Why It Matters:</b><br>
-          Writing clear and descriptive code helps others (and your future self) understand what the code does.</p>
+         <p><b>Why It Matters:</b><br>
+         Writing clear and descriptive code helps others (and your future self) understand what the code does.</p>
+         
+         <p><b>Use Descriptive Naming:</b><br>
+         Choose variable, function, and file names that clearly describe their purpose or contents.<br>
+         Instead of naming a variable <code>x</code>, use <code>student_score</code> or <code>total_price</code>.</p>
+         
+         <p><b>Advantages of Descriptive Writing:</b></p>
+         <ul>
+           <li>Makes code easier to read and maintain</li>
+           <li>Improves collaboration in teams</li>
+           <li>Reduces chances of bugs due to misunderstandings</li>
+           <li>Helps in debugging and reviewing after long gaps</li>
+         </ul>
+         
+         <p><b>Why We Use Underscores Instead of Spaces:</b><br>
+         In most programming languages, variable names cannot contain spaces. Underscores (<code>_</code>) are used to make names more readable, such as <code>max_temperature</code> or <code>file_path</code>, instead of <code>maxtemperature</code>.</p>
           
           <div class="comparison-container">
             <div class="code-comparison incorrect">
@@ -334,7 +350,9 @@ print("My favorite real-life use of Python is: ")
                 <textarea class="codeInput"># Bad Example  
 x = 10  
 y = 5  
-z = x + y</textarea>
+z = x + y
+print(z)                      
+</textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -348,7 +366,9 @@ z = x + y</textarea>
                 <textarea class="codeInput"># Good Example  
 total_apples = 10  
 apples_added = 5  
-total_fruits = total_apples + apples_added</textarea>
+total_fruits = total_apples + apples_added
+print(total_fruits)
+</textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -359,7 +379,9 @@ total_fruits = total_apples + apples_added</textarea>
           Rewrite this code with meaningful variable names:</p>
           <textarea class="codeInput">a = 20  
 b = 4  
-c = a * b</textarea>
+c = a * b
+print(c)
+</textarea>
           <button onclick="runCode(this)">Run Code</button>
           <div class="output"></div>
           
@@ -382,7 +404,9 @@ c = a * b</textarea>
                 <textarea class="codeInput">length = 10  
 width = 5  
 area = length * width  
-print("Area:", area)</textarea>
+print("Area:", area)
+ 
+</textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -397,7 +421,9 @@ print("Area:", area)</textarea>
 length = 10  # in meters  
 width = 5    # in meters  
 area = length * width  # area in square meters  
-print("Area:", area)   # display the result</textarea>
+print("Area:", area)   # display the result
+ 
+</textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -409,7 +435,8 @@ print("Area:", area)   # display the result</textarea>
           <textarea class="codeInput">x = 15  
 y = 3  
 result = x // y  
-print(result)</textarea>
+print(result)
+ </textarea>
           <button onclick="runCode(this)">Run Code</button>
           <div class="output"></div>
         </div>
@@ -444,7 +471,8 @@ print(result)</textarea>
               <div class="code-body">
                 <textarea class="codeInput">age = 18  
 if age >= 18:  
-print("You are an adult")  # Missing indentation</textarea>
+print("You are an adult")  # Missing indentation
+                </textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -474,7 +502,8 @@ print("This always runs")      # Outside the if block</textarea>
                 <textarea class="codeInput">for i in range(3):  
   print("Outer loop:", i)  
     for j in range(2):  # Wrong indentation level
-        print("Inner:", j)</textarea>
+        print("Inner:", j)
+                </textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -488,7 +517,8 @@ print("This always runs")      # Outside the if block</textarea>
                 <textarea class="codeInput">for i in range(3):  
     print("Outer loop:", i)  
     for j in range(2):  
-        print("Inner:", j)  # Proper nesting</textarea>
+        print("Inner:", j)  # Proper nesting
+                </textarea>
                 <button onclick="runCode(this)">Run Code</button>
                 <div class="output"></div>
               </div>
@@ -509,14 +539,16 @@ print("This always runs")      # Outside the if block</textarea>
             <h3>Exercises</h3>
             <p><b>1. Fix the indentation error:</b></p>
             <textarea class="codeInput">for i in range(5):  
-print(i)</textarea>
+print(i)
+            </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
             
             <p><b>2. Identify the error in this nested loop:</b></p>
             <textarea class="codeInput">for i in range(3):  
     for j in range(3):  
-    print(i, j)</textarea>
+    print(i, j)
+            </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
             
@@ -525,7 +557,8 @@ print(i)</textarea>
 result = x + y
 if result > 10:
 print("Large number")
-return result</textarea>
+return result
+            </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
           </div>
@@ -571,7 +604,8 @@ print(len(numbers))  # len is a function which is used to find the length of a l
             <textarea class="codeInput">student = ["Rahul", 16, "Grade 10", True] # string, integer, string, boolean
 print(student[0])  # Get name
 student[3] = False  # Change status
-print(student)</textarea>
+print(student)
+            </textarea>
             <button onclick="runCode(this)">Run Code</button>
             <div class="output"></div>
           </div>
