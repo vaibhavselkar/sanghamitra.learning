@@ -128,43 +128,6 @@
             transition: all 0.3s ease;
         }
 
-        .operators-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 20px 0;
-          background-color: #ffffff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          border-radius: 8px;
-          overflow: hidden;
-          font-family: 'Roboto Mono', monospace;
-          font-size: 0.95rem;
-        }
-        
-        .operators-table th,
-        .operators-table td {
-          padding: 12px 16px;
-          text-align: left;
-          border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .operators-table th {
-          background-color: #f8f9fa;
-          font-weight: bold;
-          color: #2c3e50;
-        }
-        
-        .operators-table tr:hover {
-          background-color: #f1f1f1;
-        }
-        
-        .operators-table td code {
-          background-color: #eaf2f8;
-          padding: 2px 6px;
-          border-radius: 4px;
-          color: #005f73;
-          font-weight: 500;
-          display: inline-block;
-        }
         button:hover {
             background-color: #28a745;
             transform: translateY(-1px);
@@ -196,6 +159,46 @@
             border-radius: 8px;
             margin: 15px 0;
             }
+            
+            .operators-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 20px 0;
+              background-color: #ffffff;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+              border-radius: 8px;
+              overflow: hidden;
+              font-family: 'Roboto Mono', monospace;
+              font-size: 0.95rem;
+            }
+
+            .operators-table th,
+            .operators-table td {
+              padding: 12px 16px;
+              text-align: left;
+              border-bottom: 1px solid #e0e0e0;
+            }
+
+            .operators-table th {
+              background-color: #f8f9fa;
+              font-weight: bold;
+              color: #2c3e50;
+            }
+
+            .operators-table tr:hover {
+              background-color: #f1f1f1;
+            }
+
+            .operators-table td code {
+              background-color: #eaf2f8;
+              padding: 2px 6px;
+              border-radius: 4px;
+              color: #005f73;
+              font-weight: 500;
+              display: inline-block;
+            }
+
+
 
 
 </style>
@@ -234,7 +237,7 @@
         <div class="container">
           <ol>
             <li><a href="../index.html">Home</a></li>
-            <li><a href="programming.html">Programming</a></li>
+            <li><a href="coding.html">Coding</a></li>
             <li class="current">Python Conditionals</li>
           </ol>
         </div>
@@ -259,50 +262,43 @@
           <br>
 
           <h4><i class="bi bi-file-code icon icon-imp"></i>Comparison Operators</h4>
-         <div class="overflow-x-auto mt-12">
-  <table class="min-w-full text-sm text-left text-gray-700 border border-gray-300 rounded-lg shadow">
-    <thead class="bg-blue-100 text-gray-900 font-semibold">
-      <tr>
-        <th class="px-6 py-3 border-b border-gray-300">Operator</th>
-        <th class="px-6 py-3 border-b border-gray-300">Meaning</th>
-        <th class="px-6 py-3 border-b border-gray-300">Example</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white">
-      <tr class="hover:bg-blue-50">
-        <td class="px-6 py-3 border-b"><code>==</code></td>
-        <td class="px-6 py-3 border-b">Equal to</td>
-        <td class="px-6 py-3 border-b"><code>age == 18</code></td>
-      </tr>
-      <tr class="hover:bg-blue-50">
-        <td class="px-6 py-3 border-b"><code>!=</code></td>
-        <td class="px-6 py-3 border-b">Not equal to</td>
-        <td class="px-6 py-3 border-b"><code>age != 18</code></td>
-      </tr>
-      <tr class="hover:bg-blue-50">
-        <td class="px-6 py-3 border-b"><code>&gt;</code></td>
-        <td class="px-6 py-3 border-b">Greater than</td>
-        <td class="px-6 py-3 border-b"><code>age &gt; 18</code></td>
-      </tr>
-      <tr class="hover:bg-blue-50">
-        <td class="px-6 py-3 border-b"><code>&lt;</code></td>
-        <td class="px-6 py-3 border-b">Less than</td>
-        <td class="px-6 py-3 border-b"><code>age &lt; 18</code></td>
-      </tr>
-      <tr class="hover:bg-blue-50">
-        <td class="px-6 py-3 border-b"><code>&gt;=</code></td>
-        <td class="px-6 py-3 border-b">Greater than or equal to</td>
-        <td class="px-6 py-3 border-b"><code>age &gt;= 18</code></td>
-      </tr>
-      <tr class="hover:bg-blue-50">
-        <td class="px-6 py-3"><code>&lt;=</code></td>
-        <td class="px-6 py-3">Less than or equal to</td>
-        <td class="px-6 py-3"><code>age &lt;= 18</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
+          <table class="operators-table">
+            <tr>
+              <th>Operator</th>
+              <th>Meaning</th>
+              <th>Example</th>
+            </tr>
+            <tr>
+              <td><code>==</code></td>
+              <td>Equal to</td>
+              <td><code>age == 18</code></td>
+            </tr>
+            <tr>
+              <td><code>!=</code></td>
+              <td>Not equal to</td>
+              <td><code>age != 18</code></td>
+            </tr>
+            <tr>
+              <td><code>&gt;</code></td>
+              <td>Greater than</td>
+              <td><code>age &gt; 18</code></td>
+            </tr>
+            <tr>
+              <td><code>&lt;</code></td>
+              <td>Less than</td>
+              <td><code>age &lt; 18</code></td>
+            </tr>
+            <tr>
+              <td><code>&gt;=</code></td>
+              <td>Greater than or equal to</td>
+              <td><code>age &gt;= 18</code></td>
+            </tr>
+            <tr>
+              <td><code>&lt;=</code></td>
+              <td>Less than or equal to</td>
+              <td><code>age &lt;= 18</code></td>
+            </tr>
+          </table>
           
           <br>
 
