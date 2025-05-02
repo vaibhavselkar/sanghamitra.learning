@@ -275,74 +275,87 @@
       const errorMsg = document.getElementById('errorMsg');
 
       try {
-        // Fetch all scores from the API
         const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error(`Error fetching data: ${response.statusText}`);
-        }
-
+        if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+    
         const userScores = await response.json();
-
-        // Extract unique topics from the data
         const topics = new Set();
+    
+        // 1. Extract topics with validation
         userScores.forEach(user => {
-          user.topics.forEach(topicObj => topics.add(topicObj.topic));
+            // Check if user has topics array
+            if (Array.isArray(user?.topics)) {
+                user.topics.forEach(topicObj => {
+                    // Validate topic object structure
+                    if (topicObj?.topic && typeof topicObj.topic === 'string') {
+                        const cleanTopic = topicObj.topic.trim();
+                        if (cleanTopic) topics.add(cleanTopic);
+                    }
+                });
+            }
         });
-
-        // Convert topics set to an array
+    
+        // Convert to array and validate we have topics
         const topicsArray = Array.from(topics);
-        const firstTopic = topicsArray[0]; // Get the first topic
-
-
-        // Populate the dropdown with topics
+        if (topicsArray.length === 0) throw new Error('No valid topics found in data');
+    
+        const firstTopic = topicsArray[0];
+    
+        // 2. Populate dropdown with validation
         topics.forEach(topic => {
-          const option = document.createElement('option');
-          option.value = topic;
-          option.textContent = topic.charAt(0).toUpperCase() + topic.slice(1); // Capitalize
-          topicSelect.appendChild(option);
+            if (typeof topic === 'string' && topic.length > 0) {
+                const option = document.createElement('option');
+                option.value = topic;
+                option.textContent = topic.charAt(0).toUpperCase() + topic.slice(1);
+                topicSelect.appendChild(option);
+            }
         });
-
-        // Auto-render the first topic chart on page load
+    
+        // 3. Get first topic data with protection
         const firstTopicData = userScores.map(user => {
-            const topicInfo = user.topics.find(t => t.topic === firstTopic);
+            const topicInfo = user.topics?.find(t => t?.topic === firstTopic);
             return topicInfo ? {
-                username: user.username,
+                username: user.username || 'Anonymous',
                 mastered: topicInfo.current_level === "mastered",
-                scores: topicInfo.questions?.map(q => ({
+                scores: (topicInfo.questions || []).map(q => ({
                     questionId: q.questionId,
-                    correct: q.correct,
-                    difficultyLevel: q.difficultyLevel
-                })) || []
+                    correct: q.correct === true,
+                    difficultyLevel: q.difficultyLevel || 'unknown'
+                }))
             } : null;
         }).filter(user => user !== null);
-
-        renderChart(firstTopicData, firstTopic);
+    
+        if (firstTopicData.length === 0) throw new Error('No data for first topic');
         
-
-        // Add event listener for topic selection
+        renderChart(firstTopicData, firstTopic);
+    
+        // 4. Event listener with validation
         topicSelect.addEventListener('change', () => {
             const selectedTopic = topicSelect.value;
             if (selectedTopic) {
                 const topicData = userScores.map(user => {
-                    const topicInfo = user.topics.find(t => t.topic === selectedTopic);
+                    const topicInfo = user.topics?.find(t => t?.topic === selectedTopic);
                     return topicInfo ? {
-                        username: user.username,
+                        username: user.username || 'Anonymous',
                         mastered: topicInfo.current_level === "mastered",
-                        scores: topicInfo.questions?.map(q => ({
+                        scores: (topicInfo.questions || []).map(q => ({
                             questionId: q.questionId,
-                            correct: q.correct,
-                            difficultyLevel: q.difficultyLevel
-                        })) || []
+                            correct: q.correct === true,
+                            difficultyLevel: q.difficultyLevel || 'unknown'
+                        }))
                     } : null;
                 }).filter(user => user !== null);
-
-                renderChart(topicData, selectedTopic);
+                
+                if (topicData.length > 0) {
+                    renderChart(topicData, selectedTopic);
+                }
             }
         });
-
+    
     } catch (error) {
         console.error('Error loading topics:', error);
         errorMsg.textContent = `Failed to load topics: ${error.message}`;
+        topicSelect.disabled = true;
     }
 });
 
