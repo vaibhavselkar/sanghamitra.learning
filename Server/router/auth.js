@@ -1036,18 +1036,23 @@ router.get('/readingcomprehensionscore', async (req, res) => {
   });
 
   // GET endpoint to retrieve user scores
-  router.get('/CT_finger_scores/:email', async (req, res) => {
+  router.get('/CT_finger_scores/:email?', async (req, res) => {
     try {
       const { email } = req.params;
-      
-      const userScore = await CTFingerScore.findOne({ email });
-      
-      if (!userScore) {
-        return res.status(404).json({ error: 'No scores found for this user' });
+  
+      if (email) {
+        const userScore = await CTFingerScore.findOne({ email });
+  
+        if (!userScore) {
+          return res.status(404).json({ error: 'No scores found for this user' });
+        }
+  
+        return res.status(200).json(userScore);
+      } else {
+        const allScores = await CTFingerScore.find({});
+        return res.status(200).json(allScores);
       }
-      
-      return res.status(200).json(userScore);
-      
+  
     } catch (error) {
       console.error('Error retrieving quiz scores:', error);
       return res.status(500).json({ error: 'An error occurred while retrieving quiz scores' });
