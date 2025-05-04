@@ -223,7 +223,7 @@
         async function initializeQuiz() {
             try {
                 // Fetch session info
-                const sessionRes = await fetch('http://localhost:4000/api/session-info', {
+                const sessionRes = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                     credentials: 'include'
                 });
                 
@@ -252,7 +252,7 @@
                 // Instead of the full 'english_pre_diagnostic'
                 const diagnosticType = currentDiagnosticType.includes('pre') ? 'pre' : 'post';
                 
-                const res = await fetch(`http://localhost:4000/api/eng_diagnostic_scores/${userData.email}/${diagnosticType}`);
+                const res = await fetch(`https://sanghamitra-learnworld.vercel.app/api/eng_diagnostic_scores/${userData.email}/${diagnosticType}`);
                 if (res.ok) {
                     const data = await res.json();
                     if (data.length > 0) {
@@ -277,7 +277,7 @@
             
             // First, fetch questions to show them with results
             try {
-                const res = await fetch(`http://localhost:4000/api/eng_diagnostic_questions?topic=${currentDiagnosticType}`);
+                const res = await fetch(`https://sanghamitra-learnworld.vercel.app/api/eng_diagnostic_questions?topic=${currentDiagnosticType}`);
                 if (!res.ok) throw new Error('Questions load failed');
                 
                 questions = await res.json();
@@ -364,7 +364,7 @@
 
         async function loadQuestions() {
             try {
-                const res = await fetch(`http://localhost:4000/api/eng_diagnostic_questions?topic=${currentDiagnosticType}`);
+                const res = await fetch(`https://sanghamitra-learnworld.vercel.app/api/eng_diagnostic_questions?topic=${currentDiagnosticType}`);
                 if (!res.ok) throw new Error('Questions load failed');
                 
                 questions = await res.json();
@@ -523,7 +523,7 @@
                     }]
                 };
 
-                const res = await fetch('http://localhost:4000/api/eng_diagnostic_scores', {
+                const res = await fetch('https://sanghamitra-learnworld.vercel.app/api/eng_diagnostic_scores', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(scoreData)
