@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Diagnostic</title>
+    <style>
+        /* Updated CSS for better layout */
+        .quiz-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 2rem;
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .question-panel {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            align-content: start;
+        }
+
+        .nav-btn {
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn.answered {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .nav-btn.current {
+            border-color: #007bff;
+            transform: scale(1.05);
+        }
+
+        .question-card {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .options-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .option-label {
+            padding: 1rem;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-label:hover {
+            border-color: #007bff;
+            background: #e7f1ff;
+        }
+
+        input[type="radio"]:checked + .option-label {
+            border-color: #007bff;
+            background: #e7f1ff;
+        }
+        
+        /* New style for selected options */
+        .option-selected {
+            border-color: #007bff !important;
+            background: #e7f1ff !important;
+            color: #007bff;
+        }
+        
+        /* Submit button styling */
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+        
+        /* Results summary styling */
+        .results-summary {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .result-card {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .correct {
+            background-color: #d4edda;
+            border: 1px solid #28a745;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da;
+            border: 1px solid #dc3545;
+        }
+        
+        .not-attempted {
+            background-color: #e2e3e5;
+            border: 1px solid #6c757d;
+        }
+        
+        /* Notification styling */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            color: #721c24;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+
+    <link href="../assets/img/favicon.png" rel="icon">
+    <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
+</head>
+<body>
+
+    <header id="header" class="header d-flex align-items-center sticky-top">
+        <div class="container-fluid container-xl position-relative d-flex align-items-center">
+          <a href="../index.html" class="logo d-flex align-items-center me-auto">
+            <img src="../img/sbi.logo.png" alt="Logo" width="80" height="80"> 
+            <h1>Sanghamitra Learning</h1>
+          </a>
+          <nav id="navmenu" class="navmenu">
+            <div id="navbar-placeholder"></div>
+            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+          </nav>
+            <!-- Notification Area -->
+          <div id="notification-banner" style="display: none; position: absolute; top: 0; left: 0; right: 0; background-color: #28a7a5; color: white; text-align: center; padding: 8px; font-size: 1.2rem;"></div>
+
+        </div>
+    </header>
+
+    <div class="notification" id="errorNotification"></div>
+
+    <main class="quiz-container">
+        <div>
+            <section class="question-panel" id="questionsContainer"></section>
+            <button id="submitTest" class="submit-btn">Submit Test</button>
+            <section id="resultsContainer" class="results-summary" style="display: none;"></section>
+        </div>
+        <aside class="nav-panel" id="navigation"></aside>
+    </main>
+
+    <footer id="footer" class="footer position-relative">
+        <div class="container footer-top">
+          <div class="row gy-4">
+            <div class="col-lg-4 col-md-6 footer-about">
+              <a href="../index.html" class="logo d-flex align-items-center">
+                <span>Sanghamitra Learning</span>
+              </a>
+              <div class="footer-contact pt-3">
+                <p>GacchiBowli, Hyderabad, TS 500032</p>
+                <p><strong>Phone:</strong> +91 7020102729</p>
+                <p><strong>Email:</strong> sanghamitra.learnworlds@gmail.com</p>
+              </div>
+              <div class="social-links d-flex mt-4">
+                <a href="#"><i class="bi bi-twitter"></i></a>
+                <a href="#"><i class="bi bi-facebook"></i></a>
+                <a href="#"><i class="bi bi-instagram"></i></a>
+                <a href="#"><i class="bi bi-linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="container text-center mt-4">
+          <p>&copy; Sanghamitra Learning. All Rights Reserved.</p>
+          <p>Designed by <a href="../index.html">Sanghamitra</a></p>
+        </div>
+    </footer>
+
+    <script>
+        let currentDiagnosticType = 'english_pre_diagnostic'; // or determine from URL
+        let currentQuestion = 0;
+        let questions = [];
+        let responses = {};
+        let userData = {};
+        let existingResults = null;
+
+        async function initializeQuiz() {
+            try {
+                // Fetch session info
+                const sessionRes = await fetch('http://localhost:4000/api/session-info', {
+                    credentials: 'include'
+                });
+                
+                if (!sessionRes.ok) throw new Error('Session fetch failed');
+                
+                userData = await sessionRes.json();
+                if (!userData?.email) throw new Error('No user session');
+                
+                const hasExisting = await checkExistingAttempt();
+                if (hasExisting) {
+                    // Show existing results
+                    displayExistingResults();
+                } else {
+                    // Load questions for new attempt
+                    await loadQuestions();
+                }
+                
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function checkExistingAttempt() {
+            try {
+                // Updated to match the server route pattern which uses 'pre' or 'post'
+                // Instead of the full 'english_pre_diagnostic'
+                const diagnosticType = currentDiagnosticType.includes('pre') ? 'pre' : 'post';
+                
+                const res = await fetch(`http://localhost:4000/api/eng_diagnostic_scores/${userData.email}/${diagnosticType}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.length > 0) {
+                        existingResults = data[0];
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                console.error('Attempt check failed:', error);
+                return false;
+            }
+        }
+
+        async function displayExistingResults() {
+            // Hide questions container and show results
+            document.getElementById('questionsContainer').style.display = 'none';
+            document.getElementById('navigation').style.display = 'none';
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.style.display = 'block';
+            
+            // First, fetch questions to show them with results
+            try {
+                const res = await fetch(`http://localhost:4000/api/eng_diagnostic_questions?topic=${currentDiagnosticType}`);
+                if (!res.ok) throw new Error('Questions load failed');
+                
+                questions = await res.json();
+                
+                // Now display the results - find the matching quiz using the shortened diagnosticType
+                const diagnosticType = currentDiagnosticType.includes('pre') ? 'pre' : 'post';
+                const quiz = existingResults.quizzes.find(q => q.diagnosticType === diagnosticType);
+                
+                if (!quiz) {
+                    resultsContainer.innerHTML = '<h2>No results found for this diagnostic test.</h2>';
+                    return;
+                }
+                
+                // Create results summary
+                let resultsHTML = `
+                    <h2>Your Diagnostic Results</h2>
+                    <div class="score-summary">
+                        <h3>Score: ${quiz.score} / ${quiz.totalQuestions}</h3>
+                        <p>Percentage: ${Math.round((quiz.score / quiz.totalQuestions) * 100)}%</p>
+                    </div>
+                    <h3>Question Analysis</h3>
+                `;
+                
+                // Show each question with the user's answer
+                questions.forEach(question => {
+                    const answer = quiz.answers.find(a => a.questionId === question.questionId);
+                    
+                    let statusClass = 'not-attempted';
+                    let statusText = 'Not Attempted';
+                    
+                    if (answer) {
+                        if (answer.isCorrect) {
+                            statusClass = 'correct';
+                            statusText = 'Correct';
+                        } else {
+                            statusClass = 'incorrect';
+                            statusText = 'Incorrect';
+                        }
+                    }
+                    
+                    resultsHTML += `
+                        <div class="result-card ${statusClass}">
+                            <h4>Question ${question.questionId}</h4>
+                            ${question.stanza ? `<div class="stanza">${question.stanza}</div>` : ''}
+                            <p>${question.questionText}</p>
+                            <div class="options">
+                                ${question.options.map((opt, idx) => `
+                                    <div class="option ${answer && answer.userAnswer === idx ? 'option-selected' : ''} 
+                                        ${idx === question.correctAnswer ? 'correct' : ''}">
+                                        ${opt} ${idx === question.correctAnswer ? ' (Correct)' : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <p>Status: ${statusText}</p>
+                        </div>
+                    `;
+                });
+                
+                // Show subtopic analysis if available
+                if (quiz.subtopicScores) {
+                    resultsHTML += `
+                        <h3>Subtopic Analysis</h3>
+                        <div class="subtopic-scores">
+                            ${Object.entries(quiz.subtopicScores).map(([subtopic, score]) => {
+                                if (score !== undefined && score !== null) {
+                                    return `
+                                        <div class="subtopic-score">
+                                            <p>${subtopic}: ${score}</p>
+                                        </div>
+                                    `;
+                                }
+                                return '';
+                            }).join('')}
+                        </div>
+                    `;
+                }
+                
+                resultsContainer.innerHTML = resultsHTML;
+                
+            } catch (error) {
+                showError('Failed to load results: ' + error.message);
+            }
+        }
+
+        async function loadQuestions() {
+            try {
+                const res = await fetch(`http://localhost:4000/api/eng_diagnostic_questions?topic=${currentDiagnosticType}`);
+                if (!res.ok) throw new Error('Questions load failed');
+                
+                questions = await res.json();
+                initializeResponses();
+                renderQuiz();
+                setupEventListeners();
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function initializeResponses() {
+            responses = questions.reduce((acc, q) => ({
+                ...acc,
+                [q.questionId]: {
+                    userAnswer: null,
+                    isCorrect: false
+                }
+            }), {});
+        }
+
+        function renderQuiz() {
+            renderQuestions();
+            renderNavigation();
+            setupSubmitButton();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = questions.map((q, index) => `
+                <article class="question-card" data-index="${index}" 
+                    style="${index !== 0 ? 'display:none' : ''}">
+                    ${q.stanza ? `<div class="stanza">${q.stanza}</div>` : ''}
+                    <h3 class="question-text">${q.questionText}</h3>
+                    <div class="options-list">
+                        ${q.options.map((opt, i) => `
+                            <div class="option-wrapper">
+                                <input type="radio" id="q${q.questionId}_opt${i}" name="q${q.questionId}" 
+                                    value="${i}" class="visually-hidden"
+                                    onchange="handleAnswer(${q.questionId}, ${i})">
+                                <label for="q${q.questionId}_opt${i}" class="option-label" id="label_q${q.questionId}_opt${i}">
+                                    ${opt}
+                                </label>
+                            </div>
+                        `).join('')}
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function renderNavigation() {
+            const nav = document.getElementById('navigation');
+            nav.innerHTML = questions.map((q, i) => `
+                <button class="nav-btn 
+                    ${i === currentQuestion ? 'current' : ''}
+                    ${responses[q.questionId]?.userAnswer !== null ? 'answered' : ''}"
+                    onclick="navigateTo(${i})">
+                    ${i + 1}
+                </button>
+            `).join('');
+        }
+
+        function handleAnswer(questionId, answerIndex) {
+            const question = questions.find(q => q.questionId === questionId);
+            
+            // Remove any existing selected class
+            document.querySelectorAll(`[name="q${questionId}"] + .option-label`).forEach(label => {
+                label.classList.remove('option-selected');
+            });
+            
+            // Add selected class to the chosen option
+            const selectedLabel = document.getElementById(`label_q${questionId}_opt${answerIndex}`);
+            if (selectedLabel) {
+                selectedLabel.classList.add('option-selected');
+            }
+            
+            responses[questionId] = {
+                userAnswer: answerIndex,
+                isCorrect: answerIndex === question.correctAnswer
+            };
+            
+            renderNavigation();
+            
+            // Check if this is the last question to show submit button
+            if (currentQuestion === questions.length - 1) {
+                document.getElementById('submitTest').style.display = 'block';
+            }
+        }
+
+        function navigateTo(index) {
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.style.display = 'none';
+            });
+            document.querySelector(`.question-card[data-index="${index}"]`).style.display = 'block';
+            currentQuestion = index;
+            
+            // Show submit button if this is the last question
+            if (index === questions.length - 1) {
+                document.getElementById('submitTest').style.display = 'block';
+            } else {
+                document.getElementById('submitTest').style.display = 'none';
+            }
+            
+            renderNavigation();
+        }
+
+        function setupSubmitButton() {
+            const submitBtn = document.getElementById('submitTest');
+            submitBtn.addEventListener('click', submitTest);
+            
+            // Only show submit button on last question
+            if (currentQuestion === questions.length - 1) {
+                submitBtn.style.display = 'block';
+            }
+        }
+
+        function setupEventListeners() {
+            // Add any additional event listeners here
+            document.getElementById('submitTest').addEventListener('click', submitTest);
+        }
+
+        function calculateSubtopicScore(subtopic) {
+            return questions
+                .filter(q => q.subtopic === subtopic)
+                .reduce((score, q) => {
+                    return score + (responses[q.questionId]?.isCorrect ? 1 : 0);
+                }, 0);
+        }
+
+        async function submitTest() {
+            try {
+                // Check if all questions are answered
+                const unansweredCount = Object.values(responses).filter(r => r.userAnswer === null).length;
+                if (unansweredCount > 0) {
+                    if (!confirm(`You have ${unansweredCount} unanswered questions. Do you want to submit anyway?`)) {
+                        return;
+                    }
+                }
+                
+                // Convert the diagnosticType to just 'pre' or 'post' to match server expectations
+                const diagnosticType = currentDiagnosticType.includes('pre') ? 'pre' : 'post';
+                
+                const scoreData = {
+                    email: userData.email,
+                    username: userData.username,
+                    quizzes: [{
+                        diagnosticType: diagnosticType,
+                        score: calculateTotalScore(),
+                        totalQuestions: questions.length,
+                        subtopicScores: {
+                            grammar: calculateSubtopicScore('grammar'),
+                            speaking: calculateSubtopicScore('speaking'),
+                            reading: calculateSubtopicScore('reading')
+                        },
+                        answers: formatAnswers()
+                    }]
+                };
+
+                const res = await fetch('http://localhost:4000/api/eng_diagnostic_scores', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(scoreData)
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || 'Submission failed');
+                }
+                
+                // Refresh to show results
+                window.location.reload();
+                
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+
+        // Helper functions
+        function calculateTotalScore() {
+            return Object.values(responses).filter(r => r.isCorrect).length;
+        }
+
+        function calculateSubtopicScores() {
+            const subtopics = {};
+            
+            questions.forEach(q => {
+                if (!subtopics[q.subtopic]) {
+                    subtopics[q.subtopic] = {
+                        correct: 0,
+                        total: 0
+                    };
+                }
+                
+                subtopics[q.subtopic].total++;
+                
+                if (responses[q.questionId]?.isCorrect) {
+                    subtopics[q.subtopic].correct++;
+                }
+            });
+            
+            // Convert to simple score format
+            const scores = {};
+            for (const [subtopic, data] of Object.entries(subtopics)) {
+                scores[subtopic] = data.correct;
+            }
+            
+            return scores;
+        }
+
+        function formatAnswers() {
+            return questions.map(q => ({
+                questionId: q.questionId,
+                userAnswer: responses[q.questionId].userAnswer,
+                isCorrect: responses[q.questionId].isCorrect
+            }));
+        }
+
+        function showError(message) {
+            const notification = document.getElementById('errorNotification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', initializeQuiz);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/vendor/php-email-form/validate.js"></script>
+    <script src="../assets/vendor/aos/aos.js"></script>
+    <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
+    <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="navbar.js"></script>
+
+</body>
+</html>
