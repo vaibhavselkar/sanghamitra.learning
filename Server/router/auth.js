@@ -24,6 +24,8 @@ const CTFoundationQuestion = require('../model/CT_foundation_question');
 const CTFingerScore = require('../model/CT_foundation_score');
 const MathQuestion = require('../model/mathUpdatedSchema');
 const MathScore = require('../model/mathUpdatedScore');
+const EngDiagnosticQuestion = require('../model/eng_diagnostic');
+const EngDiagnosticScore = require('../model/eng_diagnostics_scores');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -403,7 +405,78 @@ router.get('/algebra_scores', async (req, res) => {
   }
 });
 
+router.get('/eng_diagnostic_questions', async (req, res) => {
+  const { topic } = req.query;
+  const filter = topic ? { topic } : {};
 
+  try {
+    const questions = await EngDiagnosticQuestion.find(filter);
+    res.status(200).json(questions);
+  } catch (err) {
+    console.error('Error fetching questions:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Submit score
+router.post('/eng_diagnostic_scores', async (req, res) => {
+  try {
+    const { email, diagnosticType } = req.body;
+
+    // Check if quiz of same type already exists
+    const existing = await EngDiagnosticScore.findOne({
+      email,
+      quizzes: {
+        $elemMatch: { diagnosticType }
+      }
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        error: `${diagnosticType}-diagnostic already taken`
+      });
+    }
+
+    // Either update or create new user
+    let scoreRecord = await EngDiagnosticScore.findOne({ email });
+
+    if (!scoreRecord) {
+      scoreRecord = new EngDiagnosticScore({
+        email: req.body.email,
+        username: req.body.username,
+        quizzes: [req.body.quizzes[0]]
+      });
+    } else {
+      scoreRecord.quizzes.push(req.body.quizzes[0]);
+    }
+
+    await scoreRecord.save();
+    res.status(201).json(scoreRecord);
+  } catch (err) {
+    console.error('Score POST error:', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Get scores
+router.get('/eng_diagnostic_scores/:email?/:type(pre|post)?', async (req, res) => {
+  try {
+    let query = {};
+    const { email, type } = req.params;
+
+    if (email) query.email = email;
+    if (type) query['quizzes.diagnosticType'] = type;
+
+    const scores = await EngDiagnosticScore.find(query)
+      .select('-__v -_id')
+      .sort({ 'quizzes.date': -1 });
+
+    res.json(scores);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 
 
