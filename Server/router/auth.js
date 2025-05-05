@@ -26,6 +26,8 @@ const MathQuestion = require('../model/mathUpdatedSchema');
 const MathScore = require('../model/mathUpdatedScore');
 const EngDiagnosticQuestion = require('../model/eng_diagnostic');
 const EngDiagnosticScore = require('../model/eng_diagnostics_scores');
+const ArithmeticQuestions = require('../model/arithmetic_question.schema');
+const ArithmeticResponse = require('../model/arithmetic_response');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -1162,6 +1164,162 @@ router.get('/readingcomprehensionscore', async (req, res) => {
     }
   });
 
+// Get questions route
+router.get('/arithmetic-pre-test-questions', async (req, res) => {
+  try {
+      // Explicitly select only necessary fields if needed
+      const questions = await ArithmeticQuestions.find()
+          .select({
+              questionText: 1,
+              questionOptions: 1,
+              questionCorrectAnswer: 1,
+              explanationText: 1,
+              questionDifficulty: 1,
+              questionTopicArea: 1,
+              questionTopic: 1,
+              testedConcepts: 1,
+              questionMisconceptions: 1,
+              averageTime: 1,
+              prerequisiteTopics: 1,
+              gradeLevel: 1,
+              _id: 1
+          })
+          .limit(20)
+          .lean();  // Add .lean() for better performance
+
+      if (!questions.length) {
+          return res.status(404).json({ message: "No questions found" });
+      }
+
+      // Transform options to ensure proper casing
+      const transformedQuestions = questions.map(q => ({
+          ...q,
+          questionOptions: {
+              optionA: q.questionOptions.optionA,
+              optionB: q.questionOptions.optionB,
+              optionC: q.questionOptions.optionC,
+              optionD: q.questionOptions.optionD
+          }
+      }));
+
+      res.json(transformedQuestions);
+  } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ 
+          message: "Server error",
+          error: error.message,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+  }
+});
+
+
+
+// Save test responses route
+router.post('/save-arithmetic-response', async (req, res) => {
+  try {
+      const { userEmail, userName, responses } = req.body;
+      
+      const newResponse = new ArithmeticResponse({
+          userEmail,
+          userName,
+          responses: responses.map(response => ({
+              questionData: {
+                  questionText: response.questionData.questionText,
+                  questionOptions: response.questionData.questionOptions,
+                  questionCorrectAnswer: response.questionData.questionCorrectAnswer,
+                  explanationText: response.questionData.explanationText,
+                  questionDifficulty: response.questionData.questionDifficulty,
+                  questionTopicArea: response.questionData.questionTopicArea,
+                  questionTopic: response.questionData.questionTopic,
+                  testedConcepts: response.questionData.testedConcepts,
+                  questionMisconceptions: response.questionData.questionMisconceptions,
+                  averageTime: response.questionData.averageTime,
+                  prerequisiteTopics: response.questionData.prerequisiteTopics,
+                  gradeLevel: response.questionData.gradeLevel
+              },
+              userAnswer: response.userAnswer,
+              timeSpent: response.timeSpent
+          }))
+      });
+
+      const savedResponse = await newResponse.save();
+      res.status(201).json(savedResponse);
+  } catch (error) {
+      res.status(400).json({ 
+          message: error.message,
+          details: error.errors // This will show validation errors
+      });
+  }
+});
+
+
+
+
+// fetching users' predaignostic data
+
+router.get('/arithmetic_responses', async (req, res) => {
+  try {
+    const userEmail = req.query.email;
+    const returnAll = req.query.all === 'true';
+
+    if (!userEmail) {
+      return res.status(400).json({ message: "Email parameter is required" });
+    }
+
+    const results = await ArithmeticResponse.find({ userEmail })
+      .sort({ testDate: -1 })
+      .lean();
+
+    if (!results.length) {
+      return res.status(404).json({ message: "No test results found for this user" });
+    }
+
+    if (returnAll) {
+      // Process all attempts
+      const allAttempts = results.map(result => ({
+        _id: result._id,
+        testDate: result.testDate,
+        totalQuestions: result.responses.length,
+        correctAnswers: result.responses.filter(r => 
+          r.userAnswer === r.questionData.questionCorrectAnswer
+        ).length,
+        timeSpent: result.responses.reduce((sum, r) => sum + (r.timeSpent || 0), 0)
+      }));
+      return res.json(allAttempts);
+    }
+
+    // Process single (latest) attempt
+    const latestResult = results[0];
+    const processedResult = {
+      testDate: latestResult.testDate,
+      totalQuestions: latestResult.responses.length,
+      correctAnswers: latestResult.responses.filter(r => 
+        r.userAnswer === r.questionData.questionCorrectAnswer
+      ).length,
+      timeSpent: latestResult.responses.reduce((sum, r) => sum + (r.timeSpent || 0), 0),
+      details: latestResult.responses.map(r => ({
+        questionOptions: r.questionData.questionOptions,
+        question: r.questionData.questionText,
+        userAnswer: r.userAnswer,
+        correctAnswer: r.questionData.questionCorrectAnswer,
+        timeSpent: r.timeSpent,
+        explanation: r.questionData.explanationText,
+        difficulty: r.questionData.questionDifficulty,
+        topic: r.questionData.questionTopic,
+        testedConcepts: r.questionData.testedConcepts,
+        prerequisiteTopics: r.questionData.prerequisiteTopics
+      }))
+    };
+
+    res.json(processedResult);
+  } catch (error) {
+    res.status(500).json({ 
+      message: "Server error",
+      error: error.message
+    });
+  }
+});
 
 
 
