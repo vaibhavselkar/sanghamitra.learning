@@ -477,13 +477,38 @@
 
     <div class="notification" id="errorNotification"></div>
 
-    <main class="quiz-container">
-        <div>
-            <section class="question-panel" id="questionsContainer"></section>
-            <button id="submitTest" class="submit-btn">Submit Test</button>
-            <section id="resultsContainer" class="results-summary" style="display: none;"></section>
+    <main class="main">
+        <div class="page-title">
+          <div class="heading">
+            <div class="container">
+              <div class="row d-flex justify-content-center text-center">
+                <div class="col-lg-8">
+                  <h1>English Pre Diagnostics</h1>
+                </div>
+              </div>
+            </div>
+          </div>
+          <nav class="breadcrumbs">
+            <div class="container">
+              <ol>
+                <li><a href="../indexx.html">Home</a></li>
+                <li><a href="../english.html">English</a></li>
+                <li class="current">English Pre Diagnostics</li>
+              </ol>
+            </div>
+          </nav>
         </div>
-        <aside class="nav-panel" id="navigation"></aside>
+
+        <div class="notification" id="errorNotification"></div>
+
+        <div class="quiz-container">
+            <div>
+                <section class="question-panel" id="questionsContainer"></section>
+                <button id="submitTest" class="submit-btn">Submit Test</button>
+                <section id="resultsContainer" class="results-summary" style="display: none;"></section>
+            </div>
+            <aside class="nav-panel" id="navigation"></aside>
+        </div>
     </main>
 
     <footer id="footer" class="footer position-relative">
@@ -681,7 +706,7 @@
                 resultsHTML += `
                         </div>
                     </div>
-                </div>`;
+                </div>
                 
                 resultsContainer.innerHTML = resultsHTML;
                 
