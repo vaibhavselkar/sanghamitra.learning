@@ -39,7 +39,8 @@ const QuizAttemptSchema = new mongoose.Schema({
   subtopicScores: {
     grammar: Number,
     speaking: Number,
-    reading: Number
+    reading: Number,
+    spelling: Number
   },
   answers: [AnswerSchema]
 });
