@@ -9,44 +9,6 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect">
-  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-
-  <!-- Main CSS File -->
-  <link href="assets/css/main.css" rel="stylesheet">
-
-  <!-- =======================================================
-  * Template Name: Mentor
-  * Template URL: https://bootstrapmade.com/mentor-free-education-bootstrap-theme/
-  * Updated: Mar 19 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
-</head>
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Arithmetic</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
   <link href="../assets/img/favicon.png" rel="icon">
   <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
@@ -65,88 +27,90 @@
   <!-- Main CSS File -->
   <link href="../assets/css/main.css" rel="stylesheet">
 
-  <!-- =======================================================
-  * Template Name: Mentor
-  * Template URL: https://bootstrapmade.com/mentor-free-education-bootstrap-theme/
-  * Updated: Mar 19 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+  <style>
+    .course-list {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    .course-item {
+        margin-bottom: 2rem !important;
+    }
+
+    .course-card {
+        max-width: 100%;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .course-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .icon-box {
+        width: 40px !important;
+        height: 40px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress {
+        height: 6px !important;
+        background-color: #f0f0f0;
+    }
+
+    .fs-7 {
+        font-size: 0.85rem !important;
+    }
+
+    .course-card .btn {
+        min-width: 120px;
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Test Status Styles */
+    .test-status {
+        font-size: 0.9rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        display: inline-block;
+    }
+    .status-not-taken {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+    }
+    .status-taken {
+        background-color: #e7f4e4;
+        color: #2a7a1b;
+        border: 1px solid #c3e6cb;
+    }
+  </style>
 </head>
-
-
-<style>
-  .course-list {
-    max-width: 900px;  /* Reduced container width */
-    margin: 0 auto;
-    padding: 0 15px;
-  }
-
-  .course-item {
-    margin-bottom: 2rem !important;  /* Increased spacing between cards */
-  }
-
-  .course-card {
-    max-width: 100%;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-  }
-
-  .course-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  }
-
-  .icon-box {
-    width: 40px !important;
-    height: 40px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .progress {
-    height: 6px !important;
-    background-color: #f0f0f0;
-  }
-
-  .fs-7 {
-    font-size: 0.85rem !important;
-  }
-
-  .course-card .btn {
-    min-width: 120px;
-    padding: 0.4rem 1rem;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-</style>
-
-
 
 <body>
 
   <header id="header" class="header d-flex align-items-center sticky-top">
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
-
-      <a href="index.html" class="logo d-flex align-items-center me-auto">
-        <!-- Uncomment the line below if you also wish to use an image logo -->
+      <a href="../index.html" class="logo d-flex align-items-center me-auto">
         <img src="../img/sbi.logo.png" alt="Logo" width="80" height="80"> 
         <h1 class="">Sanghamitra Learning</h1>
       </a>
-
       <nav id="navmenu" class="navmenu">
         <div id="navbar-placeholder"></div>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
-
     </div>
   </header>
 
   <main class="main">
-
     <!-- Page Title -->
     <div class="page-title" data-aos="fade" style="margin-bottom: 2rem;">
       <div class="heading">
@@ -162,46 +126,72 @@
       <nav class="breadcrumbs">
         <div class="container">
           <ol>
-            <li><a href="index.html">Home</a></li>
-            <li class="current">Arithmetic</li>
+            <li><a href="../index.html">Home</a></li>
+            <li class="../current">Arithmetic</li>
           </ol>
         </div>
       </nav>
     </div><!-- End Page Title -->
 
-    <!-- Vocabulary Sections -->
-   <!-- Courses List Section -->
-    <!-- Course List -->
+    <!-- Courses List -->
     <div class="course-list">
-      <!-- Addition Course -->
-    <div class="course-item mb-3">  <!-- Reduced margin-bottom -->
-      <div class="card course-card h-100 border-0 shadow-sm hover-shadow">
-        <div class="card-body p-3">  <!-- Reduced padding from p-4 to p-3 -->
-          <div class="row align-items-center">
-            <div class="col-lg-1 col-md-2 text-center">
-              <div class="icon-box bg-primary text-white rounded-circle p-2" style="width: 40px; height: 40px;">  <!-- Reduced size -->
-                <i class="bi bi-plus-lg fs-5"></i>  <!-- Reduced icon size from fs-4 to fs-5 -->
+      <!-- Pre-Diagnostic-Test -->
+      <div class="course-item mb-3">
+        <div class="card course-card h-100 border-0 shadow-sm hover-shadow">
+          <div class="card-body p-3">
+            <div class="row align-items-center">
+              <div class="col-lg-1 col-md-2 text-center">
+                <div class="icon-box bg-info text-white rounded-circle p-2">
+                  <i class="bi bi-clipboard-check fs-5"></i>
+                </div>
               </div>
-            </div>
-            <div class="col-lg-7 col-md-6">
-              <h4 class="mb-1 fs-5">Addition</h4>  <!-- Changed to h4 and reduced font size -->
-              <p class="text-muted mb-2 fs-6">Master fundamental number combination</p>  <!-- Reduced text size -->
-              <div class="progress" style="height: 6px;">  <!-- Reduced progress bar height -->
-                <div class="progress-bar bg-primary" role="progressbar" style="width: 0%" 
-                    aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+              <div class="col-lg-7 col-md-6">
+                <h4 class="mb-1 fs-5">Pre-Diagnostic-Test</h4>
+                <p class="text-muted mb-2 fs-6">Assess your current arithmetic skills</p>
+                <div id="test-status-container">
+                  <span class="test-status status-not-taken">Loading status...</span>
+                </div>
               </div>
-              <small class="text-muted fs-7">0% Complete</small>  <!-- Added smaller font size -->
-            </div>
-            <div class="col-lg-4 col-md-4 text-end">
-              <a href="addition.html" class="btn btn-primary btn-sm">
-                <span>Continue</span>
-                <i class="bi bi-arrow-right ms-2"></i>
-              </a>
+              <div class="col-lg-4 col-md-4 text-end">
+                <a href="pre-diagnostic-test.html" class="btn btn-primary btn-sm">
+                  <span>Start Test</span>
+                  <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <!-- Addition Course -->
+      <div class="course-item mb-3">
+        <div class="card course-card h-100 border-0 shadow-sm hover-shadow">
+          <div class="card-body p-3">
+            <div class="row align-items-center">
+              <div class="col-lg-1 col-md-2 text-center">
+                <div class="icon-box bg-primary text-white rounded-circle p-2">
+                  <i class="bi bi-plus-lg fs-5"></i>
+                </div>
+              </div>
+              <div class="col-lg-7 col-md-6">
+                <h4 class="mb-1 fs-5">Addition</h4>
+                <p class="text-muted mb-2 fs-6">Master fundamental number combination</p>
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" 
+                      aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted fs-7">75% Complete</small>
+              </div>
+              <div class="col-lg-4 col-md-4 text-end">
+                <a href="addition.html" class="btn btn-primary btn-sm">
+                  <span>Continue</span>
+                  <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Subtraction Course -->
       <div class="course-item mb-3">
@@ -217,10 +207,10 @@
                 <h3 class="mb-1 fs-5" >Subtraction</h4>
                 <p class="text-muted mb-2 fs-6" >Learn to subtract numbers effectively with visual aids</p>
                 <div class="progress" style="height: 6px;">
-                  <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" 
+                  <div class="progress-bar bg-danger" role="progressbar" style="width: 40%" 
                        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <small class="text-muted">0% Complete</small>
+                <small class="text-muted">40% Complete</small>
               </div>
               <div class="col-lg-4 col-md-4 text-end">
                 <a href="subtraction.html" class="btn btn-success btn-sm">
@@ -247,10 +237,10 @@
                 <h4 class="mb-1 fs-5">Multiplication</h4>
                 <p class="text-muted mb-2 fs-6">Discover efficient multiplication strategies</p>
                 <div class="progress" style="height: 6px;">
-                  <div class="progress-bar bg-success" role="progressbar" style="width: 0%" 
+                  <div class="progress-bar bg-success" role="progressbar" style="width: 20%" 
                       aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <small class="text-muted fs-7">0% Complete</small>
+                <small class="text-muted fs-7">20% Complete</small>
               </div>
               <div class="col-lg-4 col-md-4 text-end">
                 <a href="multiplication.html" class="btn btn-success btn-sm">
@@ -277,10 +267,10 @@
                 <h4 class="mb-1 fs-5">Division</h4>
                 <p class="text-muted mb-2 fs-6">Understand division concepts and methods</p>
                 <div class="progress" style="height: 6px;">
-                  <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" 
+                  <div class="progress-bar bg-warning" role="progressbar" style="width: 5%" 
                       aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                <small class="text-muted fs-7">0% Complete</small>
+                <small class="text-muted fs-7">5% Complete</small>
               </div>
               <div class="col-lg-4 col-md-4 text-end">
                 <a href="division.html" class="btn btn-success btn-sm">
@@ -307,10 +297,10 @@
                         <h4 class="mb-1 fs-5">Dealing With Negative Signs</h4>
                         <p class="text-muted mb-2 fs-6">Master positive and negative number operations</p>
                         <div class="progress" style="height: 6px;">
-                            <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" 
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 5%" 
                                 aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                        <small class="text-muted fs-7">0% Complete</small>
+                        <small class="text-muted fs-7">5% Complete</small>
                     </div>
                     <div class="col-lg-4 col-md-4 text-end">
                         <a href="dealing-with-negative-sign.html" class="btn btn-danger btn-sm">
@@ -325,6 +315,55 @@
 
     
 </section><!-- End Courses Section -->
+
+<script>
+  document.addEventListener('DOMContentLoaded', async function() {
+    async function fetchSessionInfo() {
+      try {
+        const response = await fetch('http://localhost:4000/api/session-info', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) throw new Error('Session fetch failed');
+        const data = await response.json();
+        return { email: data.email };
+      } catch (error) {
+        console.error('Session error:', error);
+        window.location.href = '/user_login.html';
+        return { email: null };
+      }
+    }
+
+    async function fetchTestAttempts(email) {
+      try {
+        const response = await fetch(`http://localhost:4000/api/testresponses?email=${encodeURIComponent(email)}&all=true`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch attempts');
+        const attemptsData = await response.json();
+        return attemptsData.length; // Return number of attempts
+      } catch (error) {
+        console.error('Error:', error);
+        return 0;
+      }
+    }
+
+    async function updateTestStatus() {
+      const sessionInfo = await fetchSessionInfo();
+      if (!sessionInfo.email) return;
+
+      const attempts = await fetchTestAttempts(sessionInfo.email);
+      const statusContainer = document.getElementById('test-status-container');
+
+      statusContainer.innerHTML = attempts > 0 
+        ? `<span class="test-status status-taken">${attempts} attempt${attempts > 1 ? 's' : ''} completed</span>`
+        : `<span class="test-status status-not-taken">Not yet attempted</span>`;
+    }
+
+    await updateTestStatus();
+  });
+</script>
 
 </main>
 
@@ -363,7 +402,7 @@
         <!-- You can delete the links only if you've purchased the pro version. -->
         <!-- Licensing information: https://bootstrapmade.com/license/ -->
         <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
-        Designed by <a href="index.html">Sanghamitra</a>
+        Designed by <a href="../index.html">Sanghamitra</a>
       </div>
     </div>
 
@@ -385,7 +424,7 @@
 
   <!-- Main JS File -->
   <script src="../assets/js/main.js"></script>
-  <script src="../navbar.js"></script>
+  <script src="navbar.js"></script>
 
 </body>
 
