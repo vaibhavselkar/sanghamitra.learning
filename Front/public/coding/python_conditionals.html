@@ -1475,13 +1475,6 @@ else:
             // Last question
             resultDiv.innerHTML = '<strong>Correct!</strong> Congratulations! You\'ve completed all the practice questions.';
             
-            // Add a restart button
-            const restartButton = document.createElement('button');
-            restartButton.className = 'btn btn-success mt-3';
-            restartButton.innerHTML = 'Start Over';
-            restartButton.addEventListener('click', () => window.location.reload());
-            resultDiv.appendChild(document.createElement('br'));
-            resultDiv.appendChild(restartButton);
           }
         } else {
           // Hide next button if answer is incorrect
