@@ -410,7 +410,7 @@ print("Average score:", calculate_average(scores))
                           Question description goes here.
                         </div>
                         
-                        <textarea class="codeInput" id="quiz-code-editor"></textarea>
+                        <textarea id="quiz-code-editor"></textarea>
                         
                         <div class="btn-toolbar mt-3 mb-3">
                           <button class="btn btn-primary run-quiz-btn me-2" id="run-quiz-code">
@@ -505,7 +505,6 @@ print("Average score:", calculate_average(scores))
           username = sessionData.username;
           window.username = username;
           window.email = email;
-          console.log("User:", username, "Email:", email);
           
           // Once we have user info, fetch their answered questions
           await fetchUserAnsweredQuestions();
@@ -540,7 +539,6 @@ print("Average score:", calculate_average(scores))
         answeredQuestionIds = (answeredData.submissions || [])
           .map(sub => String(sub.questionId));
         
-        console.log("Already answered questions:", answeredQuestionIds);
             
       } catch (error) {
         console.error('Error fetching user answered questions:', error);
@@ -631,73 +629,134 @@ print("Average score:", calculate_average(scores))
         });
         
         if (!response.ok) {
-          throw new Error(`Failed to fetch questions: ${response.status}`);
-        }
-        
-        // Get all available questions
-        const allQuestions = await response.json();
-        console.log("All questions:", allQuestions);
-        
-        // Filter out questions the user has already answered
-        // Create a Set for faster lookups
-        const answeredSet = new Set(answeredQuestionIds);
+            throw new Error(`Failed to fetch questions: ${response.status}`);
+          }
+          
+          // Get all available questions
+          const allQuestions = await response.json()
+          
+          // Filter out questions the user has already answered
+          // Create a Set for faster lookups
+          const answeredSet = new Set(answeredQuestionIds);
 
-        // Filter questions to get only unanswered ones
-        quizQuestions = allQuestions.filter(q => 
-          !answeredSet.has(String(q.id))
-        );
-        
-        console.log("Unanswered questions:", quizQuestions);
-        
-        // If no questions left, show completion message
-        if (quizQuestions.length === 0) {
-          document.getElementById('quiz-loading').innerHTML = `
-            <div class="alert alert-success">
-              <h4><i class="bi bi-trophy"></i> You've completed all available questions!</h4>
-              <p>Great job! You have answered all the practice questions available.</p>
-              <p>Check back later for new questions or review your previous work.</p>
-              <button class="btn btn-primary" onclick="resetAllQuestions()">Reset and Try All Questions Again</button>
-            </div>
-          `;
-          return;
-        }
-        
-        // Initialize CodeMirror for quiz
-        initQuizCodeEditor();
-        
-        // Add event listeners
-        setupQuizEventListeners();
-        
-        // Show the quiz content
-        document.getElementById('quiz-loading').style.display = 'none';
-        document.getElementById('quiz-content').style.display = 'block';
-        
-        // Update question counter
-        updateQuestionCounter();
+          // Filter questions to get only unanswered ones
+          quizQuestions = allQuestions.filter(q => 
+            !answeredSet.has(String(q.id))
+          );
+          
+          
+          // If no questions left, show completion message
+          if (quizQuestions.length === 0) {
+            document.getElementById('quiz-loading').innerHTML = `
+              <div class="alert alert-success">
+                <h4><i class="bi bi-trophy"></i> You've completed all available questions!</h4>
+                <p>Great job! You have answered all the practice questions available.</p>
+                <p>Check back later for new questions or review your previous work.</p>
+              </div>
+            `;
+            return;
+          }
+          
+          // Initialize CodeMirror for quiz
+          initQuizCodeEditor();
+          
+          // Add event listeners
+          setupQuizEventListeners();
+          
+          // Show the quiz content
+          document.getElementById('quiz-loading').style.display = 'none';
+          document.getElementById('quiz-content').style.display = 'block';
+          
+          // Update question counter
+          updateQuestionCounter();
 
-        // Load the first question
-        loadQuizQuestion(0);
-      } catch (error) {
-        console.error('Error initializing practice quiz:', error);
-        showError(`Failed to load practice questions: ${error.message}`);
+          // Load the first question
+          loadQuizQuestion(0);
+        } catch (error) {
+          console.error('Error initializing practice quiz:', error);
+          showError(`Failed to load practice questions: ${error.message}`);
+        }
       }
-    }
+
+      function addResizeHandleToEditor(editor) {
+        const wrapper = editor.getWrapperElement();
+        
+        // Create resize handle
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'editor-resize-handle';
+        resizeHandle.style.cssText = `
+          height: 10px;
+          cursor: ns-resize;
+        `;
+        
+        // Append handle after the editor
+        wrapper.parentNode.insertBefore(resizeHandle, wrapper.nextSibling);
+        
+        // Implement resize functionality
+        let startY, startHeight;
+        
+        function dragStart(e) {
+          startY = e.clientY;
+          startHeight = parseInt(window.getComputedStyle(wrapper).height, 10);
+          document.addEventListener('mousemove', dragMove);
+          document.addEventListener('mouseup', dragEnd);
+          e.preventDefault();
+        }
+        
+        function dragMove(e) {
+          const newHeight = startHeight + e.clientY - startY;
+          if (newHeight > 100) { // Minimum height
+            editor.setSize(null, newHeight + 'px');
+          }
+        }
+      
+        function dragEnd() {
+          document.removeEventListener('mousemove', dragMove);
+          document.removeEventListener('mouseup', dragEnd);
+        }
+        
+        resizeHandle.addEventListener('mousedown', dragStart);
+      }
+
+      function autoResizeEditor(editor) {
+        const lines = editor.lineCount();
+        const lineHeight = editor.defaultTextHeight();
+        const padding = 20;
+        
+        // Calculate appropriate height based on content (min 150px, max 600px)
+        const newHeight = Math.max(150, Math.min(600, (lines * lineHeight) + padding));
+        
+        // Only resize if significantly different from current height
+        const currentHeight = editor.getScrollInfo().clientHeight;
+        if (Math.abs(currentHeight - newHeight) > 30) {
+          editor.setSize(null, newHeight + 'px');
+        }
+      }
 
     function initQuizCodeEditor() {
-      const quizTextarea = document.getElementById('quiz-code-editor');
-      quizCodeEditor = CodeMirror.fromTextArea(quizTextarea, {
-        mode: "python",
-        theme: "dracula",
-        lineNumbers: false,
-        indentUnit: 4,
-        matchBrackets: true,
-        viewportMargin: Infinity,
-        lineWrapping: true
-      });
-      
-      // Set initial height
-      quizCodeEditor.setSize("100%", "150px");
-    }
+        const quizTextarea = document.getElementById('quiz-code-editor');
+        quizCodeEditor = CodeMirror.fromTextArea(quizTextarea, {
+          mode: "python",
+          theme: "dracula",
+          lineNumbers: false,
+          indentUnit: 4,
+          matchBrackets: true,
+          viewportMargin: Infinity,
+          lineWrapping: true,
+          autoRefresh: true
+        });
+        
+        // Set initial height to be more generous
+        quizCodeEditor.setSize("100%", "250px");
+        
+        // Add resize handle for manual adjustment
+        addResizeHandleToEditor(quizCodeEditor);
+        
+        // Auto-adjust height based on content
+        quizCodeEditor.on("change", function() {
+          autoResizeEditor(quizCodeEditor);
+        });
+      }
 
     function setupQuizEventListeners() {
       document.getElementById('run-quiz-code').addEventListener('click', runQuizCode);
@@ -773,7 +832,6 @@ print("Average score:", calculate_average(scores))
           <div class="alert alert-success">
             <h4>Congratulations!</h4>
             <p>You have completed all the practice questions.</p>
-            <button class="btn btn-primary" onclick="window.location.reload()">Start Over</button>
           </div>
         `;
       }
@@ -971,14 +1029,6 @@ print("Average score:", calculate_average(scores))
         } else {
           // Last question
           resultDiv.innerHTML = '<strong>Correct!</strong> Congratulations! You\'ve completed all the practice questions.';
-          
-          // Add a restart button
-          const restartButton = document.createElement('button');
-          restartButton.className = 'btn btn-success mt-3';
-          restartButton.innerHTML = 'Start Over';
-          restartButton.addEventListener('click', () => window.location.reload());
-          resultDiv.appendChild(document.createElement('br'));
-          resultDiv.appendChild(restartButton);
         }
       } else {
         // Hide next button if answer is incorrect
