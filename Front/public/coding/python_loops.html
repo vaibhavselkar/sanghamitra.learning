@@ -485,7 +485,7 @@ while True:
                             Question description goes here.
                           </div>
                           
-                          <textarea class="codeInput" id="quiz-code-editor"></textarea>
+                          <textarea id="quiz-code-editor"></textarea>
                           
                           <div class="btn-toolbar mt-3 mb-3">
                             <button class="btn btn-primary run-quiz-btn me-2" id="run-quiz-code">
@@ -815,7 +815,7 @@ while True:
         quizCodeEditor = CodeMirror.fromTextArea(quizTextarea, {
           mode: "python",
           theme: "dracula",
-          lineNumbers: true,
+          lineNumbers: false,
           indentUnit: 4,
           matchBrackets: true,
           viewportMargin: Infinity,
@@ -1106,14 +1106,6 @@ while True:
           } else {
             // Last question
             resultDiv.innerHTML = '<strong>Correct!</strong> Congratulations! You\'ve completed all the practice questions.';
-            
-            // Add a restart button
-            const restartButton = document.createElement('button');
-            restartButton.className = 'btn btn-success mt-3';
-            restartButton.innerHTML = 'Start Over';
-            restartButton.addEventListener('click', () => window.location.reload());
-            resultDiv.appendChild(document.createElement('br'));
-            resultDiv.appendChild(restartButton);
           }
         } else {
           // Hide next button if answer is incorrect
