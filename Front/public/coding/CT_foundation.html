@@ -802,7 +802,6 @@
                   
                   <div class="quiz-actions mt-4">
                     <button id="check-answer-btn" class="btn btn-success">Check Answer</button>
-                    <button id="submit-quiz-btn" class="btn btn-primary" style="display:none;">Submit Quiz</button>
                   </div>
                 </div>
                 
@@ -1184,6 +1183,7 @@
       // Show/hide explanation
       const explanationContainer = document.getElementById('explanation-container');
       if (quizState.answersChecked[index]) {
+        document.getElementById('check-answer-btn').disabled = true;
         explanationContainer.style.display = 'block';
         const isCorrect = quizState.userAnswers[index] === question.correctAnswer;
         
