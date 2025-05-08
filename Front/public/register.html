@@ -136,7 +136,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    window.location.href = `user_login.html?message=Registration successful for ${data.name}. Please login.`;
+                    window.location.href = `indexx.html?message=Registration successful for ${data.name}. Please login.`;
                 } else {
                     document.getElementById("message").textContent = `Registration failed: ${data.message}`;
                 }
