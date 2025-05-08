@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 console.log("Logout successful");
                                 // Clear sessionId cookie
                                 document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
-                                location.replace('index.html');
+                                location.replace('programming.html');
                             } else {
                                 console.error('Logout failed');
                             }
