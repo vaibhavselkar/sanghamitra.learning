@@ -938,7 +938,7 @@
                     <tr>
                         <th>Sr No.</th>
                         <th>Topic</th>
-                        <th>Scores</th>
+                        <th>Scores(%)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -946,7 +946,7 @@
                         <tr>
                             <td>${row.srNo}</td>
                             <td>${row.topic}</td>
-                            <td>${((row.score/30)*100).toFixed(0)}</td>
+                            <td>${((row.score/20)*100).toFixed(0)}</td>
                         </tr>
                     `).join('')}
                 </tbody>
