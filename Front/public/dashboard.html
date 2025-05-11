@@ -859,7 +859,10 @@
         // Aggregate scores by topic
         const topicScores = {};
         quizzes.forEach(quiz => {
-            const correctAnswers = quiz.answers.filter(a => a.isCorrect).length;
+            const getUniqueCorrectCount = (answers) => new Set(answers.filter(a => a.isCorrect).map(a => a.questionId)).size;
+
+            // Usage example:
+            const correctAnswers = getUniqueCorrectCount(quiz.answers);
             if (!topicScores[quiz.topic]) {
                 topicScores[quiz.topic] = 0;
             }
