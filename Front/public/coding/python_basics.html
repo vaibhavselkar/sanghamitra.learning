@@ -1284,6 +1284,11 @@ print(A.intersection(B))  # {3}
     function handleQuizResultDisplay(isCorrect, resultDiv) {
       // Check if we have the next question button element
       let nextButton = document.getElementById('next-question');
+      const submitButton = document.getElementById('submit-quiz-answer');
+  
+      // Disable submit button after submission
+      submitButton.disabled = true;
+      submitButton.style.display = 'none';
       
       if (isCorrect) {
         // Create next button if it doesn't exist
