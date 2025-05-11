@@ -852,6 +852,8 @@
         }
     }
 
+    const getUniqueCorrectCount = (submissions) => new Set(submissions.filter(sub => sub.isCorrect).map(sub => sub.questionId)).size;
+
     function displayCTFingerExercises(data) {
         const container = document.getElementById('ct-finger-container');
         const quizzes = data.quizzes || [];
@@ -916,25 +918,27 @@
     function displayProgrammingExercises(data) {
         const container = document.getElementById('programming-finger-container');
         const topics = data.topics || [];
-    
-        // Calculate scores per topic
+            
+        // Calculate scores per topic - only count unique questions answered correctly
         const topicScores = {};
         topics.forEach(topic => {
-            const correctSubmissions = topic.submissions?.filter(sub => sub.isCorrect) || [];
-            topicScores[topic.topicName] = correctSubmissions.length;
+            const submissions = topic.submissions || [];
+            topicScores[topic.topicName] = getUniqueCorrectCount(submissions);
         });
-    
+            
         const tableData = Object.entries(topicScores).map(([topic, score], index) => ({
             srNo: index + 1,
             topic: topic.replace(/_/g, ' ').toUpperCase(),
             score: score
         }));
-    
+            
+        // Display "Start Learning" message if no data available
         if (tableData.length === 0) {
-            container.innerHTML = `<button class="btn btn-success" onclick="redirectToProgramming()">Start Learning</button>`;
+            container.innerHTML = `Start Learning`;
             return;
         }
-    
+            
+        // Generate table with scores
         container.innerHTML = `
             <table class="table table-striped">
                 <thead>
