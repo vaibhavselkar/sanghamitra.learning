@@ -771,7 +771,7 @@ print(A.intersection(B))  # {3}
                         Question description goes here.
                       </div>
                       
-                      <textarea class="codeInput" id="quiz-code-editor"></textarea>
+                      <textarea id="quiz-code-editor"></textarea>
                       
                       <div class="btn-toolbar mt-3 mb-3">
                         <button class="btn btn-primary run-quiz-btn me-2" id="run-quiz-code">
@@ -1020,20 +1020,85 @@ print(A.intersection(B))  # {3}
     }
 
     function initQuizCodeEditor() {
-      const quizTextarea = document.getElementById('quiz-code-editor');
-      quizCodeEditor = CodeMirror.fromTextArea(quizTextarea, {
-        mode: "python",
-        theme: "dracula",
-        lineNumbers: false,
-        indentUnit: 4,
-        matchBrackets: true,
-        viewportMargin: Infinity,
-        lineWrapping: true
-      });
+        const quizTextarea = document.getElementById('quiz-code-editor');
+        quizCodeEditor = CodeMirror.fromTextArea(quizTextarea, {
+          mode: "python",
+          theme: "dracula",
+          lineNumbers: false,
+          indentUnit: 4,
+          matchBrackets: true,
+          viewportMargin: Infinity,
+          lineWrapping: true,
+          autoRefresh: true
+        });
+        
+        // Set initial height to be more generous
+        quizCodeEditor.setSize("100%", "250px");
+        
+        // Add resize handle for manual adjustment
+        addResizeHandleToEditor(quizCodeEditor);
+        
+        // Auto-adjust height based on content
+        quizCodeEditor.on("change", function() {
+          autoResizeEditor(quizCodeEditor);
+        });
+      }
+
+      function addResizeHandleToEditor(editor) {
+        const wrapper = editor.getWrapperElement();
+        
+        // Create resize handle
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'editor-resize-handle';
+        resizeHandle.style.cssText = `
+          height: 10px;
+          cursor: ns-resize;
+        `;
+        
+        
+        // Append handle after the editor
+        wrapper.parentNode.insertBefore(resizeHandle, wrapper.nextSibling);
+        
+        // Implement resize functionality
+        let startY, startHeight;
+        
+        function dragStart(e) {
+          startY = e.clientY;
+          startHeight = parseInt(window.getComputedStyle(wrapper).height, 10);
+          document.addEventListener('mousemove', dragMove);
+          document.addEventListener('mouseup', dragEnd);
+          e.preventDefault();
+        }
+        
+        function dragMove(e) {
+          const newHeight = startHeight + e.clientY - startY;
+          if (newHeight > 100) { // Minimum height
+            editor.setSize(null, newHeight + 'px');
+          }
+        }
       
-      // Set initial height
-      quizCodeEditor.setSize("100%", "150px");
-    }
+        function dragEnd() {
+          document.removeEventListener('mousemove', dragMove);
+          document.removeEventListener('mouseup', dragEnd);
+        }
+        
+        resizeHandle.addEventListener('mousedown', dragStart);
+      }
+
+      function autoResizeEditor(editor) {
+        const lines = editor.lineCount();
+        const lineHeight = editor.defaultTextHeight();
+        const padding = 20;
+        
+        // Calculate appropriate height based on content (min 150px, max 600px)
+        const newHeight = Math.max(150, Math.min(600, (lines * lineHeight) + padding));
+        
+        // Only resize if significantly different from current height
+        const currentHeight = editor.getScrollInfo().clientHeight;
+        if (Math.abs(currentHeight - newHeight) > 30) {
+          editor.setSize(null, newHeight + 'px');
+        }
+      }
 
     function setupQuizEventListeners() {
       document.getElementById('run-quiz-code').addEventListener('click', runQuizCode);
