@@ -10,7 +10,7 @@ export const questions = [
         test_cases: [
           {
             input: [],
-            expected: "25\n5.9\nAlex\n\nNone",
+            expected: "25\n5.9\nAlex",
             description: "Check if all variables are correctly assigned and printed"
           }
         ]
