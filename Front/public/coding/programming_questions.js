@@ -10,7 +10,7 @@ export const questions = [
         test_cases: [
           {
             input: [],
-            expected: "25\n5.9\nAlex",
+            expected: "25\n5.9\nAlex\n\nNone",
             description: "Check if all variables are correctly assigned and printed"
           }
         ]
@@ -104,7 +104,7 @@ export const questions = [
           description: "Basic sentence test"
         },
         {
-          input: ["'Hello, hello, HELLO!'"],
+          input: ["'Hello hello HELLO'"],
           expected: "{'hello': 3}",
           description: "Test with different cases and punctuation"
         }
@@ -112,31 +112,36 @@ export const questions = [
     },
     {
       id: 6,
-      title: "Error Handling",
+      title: "Nested Loops and Pattern Printing",
       difficulty: "Intermediate",
-      description: "Write a function called <code>safe_divide</code> that takes two parameters and attempts to divide the first by the second. If the division cannot be performed (e.g., division by zero), it should return the string 'Error: Division by zero'.",
-      starter_code: "def safe_divide(a, b):\n    # Your code here\n    pass\n",
-      hint: "Use a try-except block to catch the ZeroDivisionError exception that occurs when dividing by zero.",
+      description: "Write a function called <code>print_pattern</code> that takes a positive integer n and prints a right-angled triangle pattern of stars (*) with n rows. Return the complete pattern as a string.",
+      starter_code: "def print_pattern(n):\n    # Your code here to create the pattern\n    pass\n\n# For example, print_pattern(3) should return:\n# *\n# **\n# ***\n",
+      hint: "Use nested loops - an outer loop for rows and an inner loop for columns. For each row i (starting from 0), print i+1 stars.",
       test_cases: [
         {
-          input: [10, 2],
-          expected: "5.0",
-          description: "Normal division"
+          input: [3],
+          expected: "*\n**\n***",
+          description: "Triangle with 3 rows"
         },
         {
-          input: [10, 0],
-          expected: "Error: Division by zero",
-          description: "Division by zero"
+          input: [5],
+          expected: "*\n**\n***\n****\n*****",
+          description: "Triangle with 5 rows"
+        },
+        {
+          input: [1],
+          expected: "*",
+          description: "Triangle with 1 row"
         }
       ]
     },
     {
       id: 7,
-      title: "List Comprehension",
+      title: "List Operations",
       difficulty: "Intermediate",
-      description: "Use list comprehension to write a function called <code>get_squares</code> that takes a list of numbers and returns a new list containing the squares of all numbers that are divisible by 3.",
+      description: "Write a function called <code>get_squares</code> that takes a list of numbers and returns a new list containing the squares of all numbers that are divisible by 3.",
       starter_code: "def get_squares(numbers):\n    # Your code here - use list comprehension\n    pass\n",
-      hint: "List comprehension has the form [expression for item in iterable if condition]. You'll need to include a condition to check if the number is divisible by 3.",
+      hint: "Create a list first, you'll need to include a condition to check if the number is divisible by 3.",
       test_cases: [
         {
           input: [[1, 2, 3, 4, 5, 6, 7, 8, 9]],
@@ -161,7 +166,7 @@ export const questions = [
       difficulty: "Advanced",
       description: "Write a function called <code>create_email</code> that takes parameters: first_name, last_name, domain='gmail.com'. It should return an email in the format 'firstname.lastname@domain'. If no domain is provided, it should use the default.",
       starter_code: "# Define your function with default parameters here\n",
-      hint: "Define the function with three parameters, making the third one optional by providing a default value. Construct the email string using string concatenation or f-strings.",
+      hint: "Define the function with three parameters, making the third one optional by providing a default value. Construct the email string using string concatenation.",
       test_cases: [
         {
           input: ["'john'", "'doe'"],
@@ -177,26 +182,26 @@ export const questions = [
     },
     {
       id: 9,
-      title: "Recursive Function",
+      title: "Number Manipulation and Math",
       difficulty: "Advanced",
-      description: "Write a recursive function called <code>factorial</code> that calculates the factorial of a number. The factorial of n is the product of all positive integers less than or equal to n.",
-      starter_code: "def factorial(n):\n    # Your recursive solution here\n    pass\n",
-      hint: "Remember the base case: factorial of 0 or 1 is 1. For other values, recursive formula is n * factorial(n-1).",
+      description: "Write a function called <code>find_primes</code> that takes a positive integer n and returns a list of all prime numbers less than or equal to n. A prime number is a natural number greater than 1 that cannot be formed by multiplying two smaller natural numbers.",
+      starter_code: "def find_primes(n):\n    # Your code here to find prime numbers\n    pass\n\n# Example: find_primes(10) should return [2, 3, 5, 7]\n",
+      hint: "Create a list to store prime numbers. For each number from 2 to n, check if it's divisible by any smaller number (except 1). If not, it's prime.",
       test_cases: [
         {
-          input: [5],
-          expected: "120",
-          description: "Factorial of 5"
-        },
-        {
-          input: [0],
-          expected: "1",
-          description: "Base case: factorial of 0"
-        },
-        {
           input: [10],
-          expected: "3628800",
-          description: "Larger number"
+          expected: "[2, 3, 5, 7]",
+          description: "Find primes up to 10"
+        },
+        {
+          input: [20],
+          expected: "[2, 3, 5, 7, 11, 13, 17, 19]",
+          description: "Find primes up to 20"
+        },
+        {
+          input: [1],
+          expected: "[]",
+          description: "Edge case - no primes"
         }
       ]
     },
@@ -206,22 +211,22 @@ export const questions = [
       difficulty: "Advanced",
       description: "Write a function called <code>is_palindrome</code> that checks if a given string is a palindrome (reads the same forwards and backwards). The function should ignore spaces, punctuation, and case. For example, 'A man, a plan, a canal: Panama' is a palindrome.",
       starter_code: "def is_palindrome(text):\n    # Your solution here\n    pass\n",
-      hint: "First, clean the string by removing spaces and punctuation and converting to lowercase. Then compare the cleaned string with its reverse using string slicing [::-1].",
+      hint: "First, clean the string by changing all letters into lowercase. Then compare the cleaned string with its reverse using string slicing [::-1].",
       test_cases: [
         {
-          input: ["'A man, a plan, a canal: Panama'"],
+          input: ["'AmanaplanacanalPanama'"],
           expected: "True",
-          description: "Classic palindrome with spaces and punctuation"
+          description: "Classic palindrome with Capital letters and small letters"
         },
         {
-          input: ["'race a car'"],
+          input: ["'raceacar'"],
           expected: "False",
           description: "Not a palindrome"
         },
         {
-          input: ["'Was it a car or a cat I saw?'"],
+          input: ["'WasitacaroracatIsaw'"],
           expected: "True",
-          description: "Another palindrome with punctuation"
+          description: "Another palindrome with Small and capital letters"
         }
       ]
     }
