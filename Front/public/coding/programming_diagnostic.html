@@ -572,20 +572,36 @@ print(name)`,
           </div>`;
         } else {
           let passedCount = 0;
-          outputDiv.innerHTML += `<h4>Test Results:</h4>`;
+
+          // Count passed tests first
+          result.results.forEach((res) => {
+            if (res.passed) passedCount++;
+          });
+
+          question.test_cases_passed = passedCount;
+  
+          // Progress feedback at the TOP
+          const totalTests = question.test_cases.length;
+          const percentage = Math.round((passedCount / totalTests) * 100);
+          
+          outputDiv.innerHTML += `
+            <div style="margin-bottom: 15px; font-weight: bold; font-size: 1.1em; ${passedCount === totalTests ? 'color: green;' : ''}">
+              <h4>Test Results: ${passedCount}/${totalTests} tests passing (${percentage}%)</h4>
+              ${passedCount === totalTests ? '<div style="color: green;">✅ Well done! All tests passed!</div>' : ''}
+            </div>
+          `;
           
           result.results.forEach((res, index) => {
             const passed = res.passed;
-            if (passed) passedCount++;
 
             // Format expected and actual output for better comparison
             let expected = question.test_cases[index].expected;
             let output = res.output;
-            
+
             // Handle special character display
             expected = expected.replace(/\\n/g, '↵\n');
             output = output.replace(/\\n/g, '↵\n');
-
+                    
             outputDiv.innerHTML += `
               <div class="test-result">
                 <b>Test ${index + 1}:</b> 
@@ -598,35 +614,7 @@ print(name)`,
               </div>
             `;
           });
-
-          // Store passed tests count for submission
-          question.test_cases_passed = passedCount;
           
-          // Progress feedback
-          const totalTests = question.test_cases.length;
-          const percentage = Math.round((passedCount / totalTests) * 100);
-          
-          outputDiv.innerHTML += `
-            <div style="margin-top: 10px; font-weight: bold; ${passedCount === totalTests ? 'color: green;' : ''}">
-              Progress: ${passedCount}/${totalTests} tests passing (${percentage}%)
-              ${passedCount === totalTests ? ' - Well done! All tests passed!' : ''}
-            </div>
-          `;
-          
-          // Show helpful tips if tests are failing
-          if (passedCount < totalTests) {
-            if (questionId === 1) {
-              outputDiv.innerHTML += `
-                <div class="alert alert-info mt-3">
-                  <strong>Tip:</strong> Make sure your output matches exactly what's expected. For this question, 
-                  try using this format to ensure no extra output:
-                  <pre>print(str(age))
-print(str(height))
-print(name)</pre>
-                </div>
-              `;
-            }
-          }
         }
       } catch (error) {
         outputDiv.innerHTML = `<span style="color:red;">Error: ${error.message}</span>`;
@@ -733,7 +721,7 @@ print(name)</pre>
           returnButtonDiv.innerHTML = `
             <a href="programming.html" class="btn btn-success">
               <i class="bi bi-arrow-left"></i> Return to Programming Page
-            </a>
+            </a>         
             <a href="programming_details.html" class="btn btn-success mx-4">
               <i class="bi bi-file-earmark-code"></i>Programming Details
             </a>
