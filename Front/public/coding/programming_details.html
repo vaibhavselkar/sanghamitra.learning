@@ -204,7 +204,7 @@
                                     <div class="col-md-6">
                                         <p><strong>Date:</strong> <span id="quiz-date"></span></p>
                                         <p><strong>Overall Score:</strong> <span id="quiz-score"></span></p>
-                                        <p><strong>Correct Questions:</strong> <span id="questions-passed"></span></p>
+                                        <p><strong>Questions Correct:</strong> <span id="questions-passed"></span></p>
                                         <div id="summary-feedback" class="mt-3"></div>
                                     </div>
                                     <div class="col-md-6">
@@ -292,10 +292,10 @@
         3: ["Loops", "Array Manipulation", "Logic"],
         4: ["String Manipulation", "Counting", "Loops"],
         5: ["Dictionaries", "String Manipulation", "Text Analysis"],
-        6: ["Error Handling", "Conditionals", "Edge Cases"],
-        7: ["List Comprehension", "Functional Programming", "Array Manipulation"],
+        6: ["Loops", "Nested Loops", "String Formatting"],
+        7: ["List Operations", "Functional Programming", "List Manipulation"],
         8: ["Function Parameters", "Default Arguments", "Function Design"],
-        9: ["Recursion", "Algorithm Design", "Mathematical Functions"],
+        9: ["Algorithms", "Prime Numbers", "Mathematical Logic"],
         10: ["String Manipulation", "Palindromes", "Algorithm Design"]
     };
     
@@ -329,9 +329,8 @@
             {title: "Understanding Recursion in Python", url: "https://realpython.com/python-thinking-recursively/"},
             {title: "Recursion Practice Problems", url: "https://www.geeksforgeeks.org/recursion-practice-problems-solutions/"}
         ],
-        "Error Handling": [
-            {title: "Python Exceptions and Error Handling", url: "https://realpython.com/python-exceptions/"},
-            {title: "Exception Handling Practice", url: "https://www.hackerrank.com/domains/python/errors-exceptions"}
+        "Finding Prime Numbers": [
+            {title: "Introduction to Prime Numbers", url: "https://www.mathsisfun.com/prime_numbers.html"},
         ],
         "Function Parameters": [
             {title: "Python Functions Tutorial", url: "https://www.w3schools.com/python/python_functions.asp"},
@@ -519,7 +518,6 @@
             "Loops & Iteration",
             "String Manipulation",
             "Data Structures",
-            "Error Handling",
             "Functional Programming",
             "Algorithm Design"
         ];
@@ -531,7 +529,6 @@
             "Loops & Iteration": 0,
             "String Manipulation": 0,
             "Data Structures": 0,
-            "Error Handling": 0,
             "Functional Programming": 0,
             "Algorithm Design": 0
         };
@@ -546,7 +543,7 @@
             3: ["Loops & Iteration", "Data Structures"],
             4: ["String Manipulation", "Loops & Iteration"],
             5: ["Data Structures", "String Manipulation"],
-            6: ["Error Handling", "Conditionals"],
+            6: ["Loops & Iteration", "Conditionals"],
             7: ["Functional Programming", "Data Structures"],
             8: ["Functional Programming"],
             9: ["Algorithm Design", "Functional Programming"],
@@ -683,8 +680,8 @@
             const questionId = submission.question_id;
             const userCode = submission.user_code || 'No code submitted';
             const passed = submission.test_cases_passed > 0;
-            const statusClass = passed ? 'passed' : 'failed';
-            const statusText = passed ? 'Passed' : 'Failed';
+            const statusClass = passed ? 'Correct' : 'Incorrect';
+            const statusText = passed ? 'Correct' : 'Failed';
             const statusIcon = passed ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
             
             // Get concepts for this question
@@ -791,14 +788,14 @@
                 "Check that you're returning the complete dictionary with all word counts."
             ],
             6: [
-                "Make sure your function handles division by zero with a try/except block.",
-                "Verify that you're returning appropriate error messages or values when exceptions occur.",
-                "Check that your function correctly performs division when inputs are valid."
+                "Make sure your nested loops are correctly creating the triangle pattern.",
+                "Verify that you're returning the pattern as a string with the correct line breaks.",
+                "Check that your pattern has the right number of stars for each row."
             ],
             7: [
                 "Your function should use list comprehension to generate squares of numbers.",
-                "Check that you're filtering for even numbers if required by the problem.",
-                "Verify the range of numbers you're processing."
+                "Check that you're filtering for numbers divisible by 3 in your list comprehension.",
+                "Verify that you're returning a list of squared values."
             ],
             8: [
                 "Make sure your function parameters are defined in the correct order.",
@@ -806,14 +803,14 @@
                 "Verify that your function performs the correct calculation with the inputs."
             ],
             9: [
-                "Your recursive function should have a base case for factorial(0) or factorial(1).",
-                "Check that your recursive call is correctly reducing toward the base case.",
-                "Verify that you're not causing an infinite recursion."
+                "Make sure your function correctly identifies prime numbers.",
+                "Check that you're handling edge cases like n=1 correctly.",
+                "Verify that you're returning all prime numbers up to n in a list."
             ],
             10: [
                 "Make sure you're correctly checking if a string reads the same backward as forward.",
-                "Consider handling spaces and punctuation if required by the problem.",
-                "Verify that you're comparing characters in a case-insensitive manner if needed."
+                "Consider handling spaces, punctuation, and case as specified in the problem.",
+                "Verify that your comparison logic correctly identifies palindromes."
             ]
         };
         
