@@ -6,7 +6,7 @@ const testResponseSchema = new mongoose.Schema({
         required: true
     },
     userName: {
-        type: String,
+        type: String, 
         required: true
     },
     testDate: {
