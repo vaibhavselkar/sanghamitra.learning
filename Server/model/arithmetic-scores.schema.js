@@ -5,7 +5,7 @@ const arithmeticScoreSchema = new mongoose.Schema({
         type: String,
         required: true,
         index: true
-    },
+    }, 
     username: {
         type: String,
         required: true
