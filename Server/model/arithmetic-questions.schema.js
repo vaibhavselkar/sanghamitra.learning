@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const arithmeticQuestionSchema = new mongoose.Schema({
-    questionText: {
+    questionText: { 
         type: String,
         required: true
     },
