@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
-const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser'); 
 const session = require('express-session');
 router.use(cookieParser());
 env = require('dotenv').config();
