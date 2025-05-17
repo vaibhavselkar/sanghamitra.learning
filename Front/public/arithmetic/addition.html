@@ -37,119 +37,241 @@
   ======================================================== -->
 </head>
 <style>
-  
-
-  /* Add container constraints */
+  /* Base Styles */
   .concept-section .container {
     max-width: 800px;
     padding: 20px 15px !important;
   }
 
-  /* Modify the inner box */
-  
   .concept-step {
     margin: 15px 0;
     padding: 10px;
     background: #f8f9fa;
     border-radius: 5px;
   }
-  
-  /* Update card styles for consistency */
-  .grade-section .card-header {
-    background: #28a745 !important;
-    border-radius: 15px 15px 0 0 !important;
-  }
+
+  /* Card System */
   .grade-section .card {
     border: 2px solid #28a745;
     border-radius: 15px;
     margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   }
+
+  .grade-section .card-header {
+    background: #28a745 !important;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 1.2rem;
+  }
+
   .grade-section .card-header h3 {
     color: white;
     font-weight: 600;
+    margin: 0;
+    font-size: 1.4rem;
   }
+
+  .card-body {
+    padding: 1.5rem;
+    background: #f8fafc;
+  }
+
+  /* Question Interface */
+  .question-card, .progress-card {
+    height: 500px;
+    overflow-y: auto;
+  }
+
   .math-problem {
     font-family: 'Courier New', Courier, monospace;
     width: fit-content;
     margin: 0 auto;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
-  .card-header h3 {
-    margin: 0;
+
+  /* Question Navigation */
+  #questionNavigation {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    gap: 0.5rem;
+    padding: 1rem 0;
   }
-  .grade-section .card-header {
-    border-radius: 15px 15px 0 0 !important;
+
+  .question-number {
+    padding: 10px;
+    margin: 5px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    background: white;
+    position: relative;
+    min-width: 45px;
   }
-  /* Term tooltip styling */
-.term-tooltip {
-  position: relative;
-  color: #2b6cb0;
-  cursor: help;
-  text-decoration: underline dotted;
+
+  .question-number:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .question-number.active {
+    border-color: #28a745;
+    background-color: #28a745;
+    color: white;
+    transform: scale(1.05);
+  }
+
+  .question-number.answered {
+    border-width: 3px;
+  }
+
+  .question-number.correct {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+  }
+
+  .question-number.incorrect {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+  }
+
+  .question-number.correct::after {
+    content: "✓";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.8em;
+  }
+
+  .question-number.incorrect::after {
+    content: "✗";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.8em;
+  }
+
+  /* Progress System */
+  .progress {
+    height: 1.5rem;
+    border-radius: 10px;
+    background-color: #e9ecef;
+    overflow: visible;
+  }
+
+  .progress-bar {
+    background-color: #28a745;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    font-weight: 500;
+  }
+
+  /* Answer States */
+  .btn-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+  }
+
+  .btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+  }
+
+  .options-container button {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .options-container button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .options-container button.active {
+    border-color: #007bff !important;
+    background-color: #e3f2fd !important;
+  }
+
+  /* Feedback States */
+  .alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .question-card, .progress-card {
+      height: auto;
+      margin-bottom: 1.5rem;
+    }
+    
+    #questionNavigation {
+      grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+      gap: 0.3rem;
+    }
+    
+    .question-number {
+      padding: 8px;
+      min-width: 40px;
+    }
+  }
+  .question-number {
+    transition: all 0.2s ease;
+    border: 2px solid #dee2e6;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    user-select: none;
 }
 
-.tooltip-content {
-  display: none;
-  position: absolute;
-  bottom: 50%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 300px;
-  background: #fff;
-  border: 2px solid #4a5568;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+.question-number.answered.correct {
+    background: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
 }
 
-.tooltip-content::before {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #4a5568 transparent transparent transparent;
+.question-number.answered.incorrect {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
 }
 
-.close-tooltip {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  cursor: pointer;
-  font-size: 1.0em;
-  color: #4a5568;
+.question-number.answered::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.8em;
 }
 
-.term-tooltip:hover .tooltip-content {
-  display: block;
+.question-number.answered.correct::after {
+    content: "✓";
 }
 
-/* Keep tooltip open when hovering over it */
-.tooltip-content:hover {
-  display: block;
-}
-.dynamic-practice .options-container button {
-  transition: all 0.3s ease;
+.question-number.answered.incorrect::after {
+    content: "✗";
 }
 
-.dynamic-practice .options-container button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+.options-container button.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
-
-.dynamic-practice .btn-success {
-  background-color: #28a745 !important;
-  border-color: #28a745 !important;
-}
-
-.dynamic-practice .btn-danger {
-  background-color: #dc3545 !important;
-  border-color: #dc3545 !important;
-}
-
-
 </style>
 
 <body>
@@ -603,198 +725,398 @@
         </div>
       </div>
     </section>
-    <section class="dynamic-practice py-5 bg-light">
-  <div class="container">
-    <h3 class="text-center mb-4">🧠 Addition Practice Problems ➕</h3>
+    <section class="practice-section py-5">
+      <div class="container">
+        <div class="card shadow-lg">
+          <div class="card-body">
+            <h3 class="text-center mb-4">➕ Addition Practice Test</h3>
+            
+            <div class="row g-4">
+              <!-- Question Panel -->
+              <div class="col-lg-6">
+                <div class="question-card h-100">
+                  <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                      <h5>Question</h5>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                      <h5 class="question-text mb-4"></h5>
+                      <div class="options-container mb-3 flex-grow-1"></div>
+                      <div class="feedback alert mb-3" style="display: none;"></div>
+                      <div class="explanation alert alert-info" style="display: none;"></div>
+                      <div class="mt-auto">
+                        <button class="btn btn-primary w-100" id="checkAnswerBtn" disabled>
+                          Check Answer
+                        </button>
+                        <div class="navigation-controls d-flex justify-content-between mt-3">
+                          <button class="btn btn-secondary" id="prevBtn" disabled>
+                            <i class="bi bi-chevron-left"></i> Previous
+                          </button>
+                          <button class="btn btn-secondary" id="nextBtn" disabled>
+                            Next <i class="bi bi-chevron-right"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
     
-    <!-- Question Container -->
-    <div class="card shadow mb-4" id="questionCard" style="display: none;">
-      <div class="card-body">
-        <h5 class="question-text mb-4"></h5>
-        <div class="options-container mb-3"></div>
-        <div class="feedback alert" style="display: none;"></div>
-        <div class="explanation alert alert-info" style="display: none;"></div>
+              <!-- Progress Panel -->
+              <div class="col-lg-6">
+                <div class="progress-card h-100">
+                  <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                      <h5>Progress</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="row row-cols-4 g-2 mb-4" id="questionNavigation"></div>
+                      <div class="progress mt-4">
+                        <div class="progress-bar bg-success" role="progressbar"></div>
+                      </div>
+                      <div class="mt-3 text-center">
+                        <span class="badge bg-success me-2"><i class="bi bi-check-circle"></i> Answered</span>
+                        <span class="badge bg-secondary"><i class="bi bi-circle"></i> Unanswered</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Loading State -->
+        <div class="text-center mt-5" id="loading">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading practice questions...</p>
+        </div>
+    
+        <!-- Error State -->
+        <div class="alert alert-danger mt-5" id="error" style="display: none;"></div>
       </div>
-    </div>
+    </section>
+    </main>
 
-    <!-- Navigation Controls -->
-    <div class="text-center" id="controls">
-      <button class="btn btn-secondary me-2" id="prevBtn" disabled>
-        <i class="bi bi-chevron-left"></i> Previous
-      </button>
-      <button class="btn btn-primary" id="nextBtn">
-        Next <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
-
-    <!-- Loading State -->
-    <div class="text-center" id="loading">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p class="mt-2">Loading questions...</p>
-    </div>
-
-    <!-- Error State -->
-    <div class="alert alert-danger" id="error" style="display: none;"></div>
-  </div>
-</section>
-  </main>
-
-  <script>
-     document.querySelectorAll('.btn-primary').forEach(button => {
-       button.addEventListener('click', (e) => {
-         const answer = e.target.nextElementSibling;
-         answer.classList.toggle('d-none');
-         
-         // Update button text
-         e.target.textContent = answer.classList.contains('d-none') 
-           ? 'Show Answer' 
-           : 'Hide Answer';
-       });
-     });
-     
-     // Tooltip interaction
-     document.querySelectorAll('.term-tooltip').forEach(term => {
-     const tooltip = term.querySelector('.tooltip-content');
-     const closeBtn = term.querySelector('.close-tooltip');
-     
-     // Close button functionality
-     closeBtn.addEventListener('click', (e) => {
-         tooltip.style.display = 'none';
-         e.stopPropagation();
-     });
-     
-     // Reopen on term hover
-     term.addEventListener('mouseenter', () => {
-         tooltip.style.display = 'block';
-     });
-     });
- 
-   </script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const API_URL = 'https://sanghamitra-learnworld.vercel.app/api/mathUpdatedSchema';
-  let questions = [];
-  let currentQuestionIndex = 0;
-
-  // DOM Elements
-  const questionCard = document.getElementById('questionCard');
-  const loading = document.getElementById('loading');
-  const errorDiv = document.getElementById('error');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const questionText = document.querySelector('.question-text');
-  const optionsContainer = document.querySelector('.options-container');
-  const feedback = document.querySelector('.feedback');
-  const explanation = document.querySelector('.explanation');
-
-  // Fetch questions from API
-  fetch(API_URL)
-    .then(response => {
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
-    })
-    .then(data => {
-      // Filter questions client-side for addition concepts
-      const additionQuestions = data.filter(question => 
-        question.conceptsTested.includes('addition')
-      );
-      
-      if (additionQuestions.length === 0) {
-        throw new Error('No addition questions found');
-      }
-      
-      questions = additionQuestions;
-      loading.style.display = 'none';
-      questionCard.style.display = 'block';
-      updateNavigation();
-      showQuestion(currentQuestionIndex);
-    })
-    .catch(error => {
-      loading.style.display = 'none';
-      errorDiv.style.display = 'block';
-      errorDiv.textContent = `Error: ${error.message}`;
-    });
-
-  function showQuestion(index) {
-    const question = questions[index];
-    
-    // Update question text
-    questionText.innerHTML = `${index + 1}. ${question.question}`;
-    
-    // Clear previous options
-    optionsContainer.innerHTML = '';
-    
-    // Create option buttons
-    Object.entries(question.options).forEach(([key, value]) => {
-      const button = document.createElement('button');
-      button.className = 'btn btn-outline-primary d-block w-100 mb-2';
-      button.innerHTML = `<strong>${key.toUpperCase()}</strong>. ${value}`;
-      button.onclick = () => checkAnswer(key, question.correctAnswer);
-      optionsContainer.appendChild(button);
-    });
-
-    updateNavigation();
-    resetQuestionState();
-  }
-
-  function checkAnswer(selected, correct) {
-    const options = optionsContainer.querySelectorAll('button');
-    
-    options.forEach(option => {
-      option.disabled = true;
-      const optionKey = option.textContent.split('.')[0].trim().toLowerCase();
-      
-      if (optionKey === correct) {
-        option.classList.add('btn-success');
-      } else if (optionKey === selected) {
-        option.classList.add('btn-danger');
-      }
-    });
-
-    feedback.style.display = 'block';
-    feedback.textContent = selected === correct 
-      ? '🎉 Correct! Well done!'
-      : '❌ Incorrect. Try again!';
-    feedback.className = `alert ${selected === correct ? 'alert-success' : 'alert-danger'}`;
-
-    explanation.style.display = 'block';
-    explanation.innerHTML = `<strong>Explanation:</strong> ${questions[currentQuestionIndex].explanation}`;
-  }
-
-  function updateNavigation() {
-    prevBtn.disabled = currentQuestionIndex === 0;
-    nextBtn.disabled = currentQuestionIndex === questions.length - 1;
-  }
-
-  function resetQuestionState() {
-    feedback.style.display = 'none';
-    explanation.style.display = 'none';
-    optionsContainer.querySelectorAll('button').forEach(button => {
-      button.className = 'btn btn-outline-primary d-block w-100 mb-2';
-      button.disabled = false;
-    });
-  }
-
-  // Navigation controls
-  prevBtn.addEventListener('click', () => {
-    if (currentQuestionIndex > 0) {
-      currentQuestionIndex--;
-      showQuestion(currentQuestionIndex);
-    }
-  });
-
-  nextBtn.addEventListener('click', () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      currentQuestionIndex++;
-      showQuestion(currentQuestionIndex);
-    }
-  });
-});
-</script>
+  
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const QUESTIONS_API = 'https://sanghamitra-learnworld.vercel.app/api/arithmeticQuestionsDatabase';
+        const SCORES_API = 'https://sanghamitra-learnworld.vercel.app/api/arithmetic-scores';
+        const SESSION_API = 'https://sanghamitra-learnworld.vercel.app/api/session-info';
         
+        let quizState = {
+            questions: [],
+            currentQuestionIndex: 0,
+            user: { email: null, username: null },
+            scores: null,
+            selectedAnswer: null
+        };
+    
+        // DOM Elements
+        const elements = {
+            questionText: document.querySelector('.question-text'),
+            optionsContainer: document.querySelector('.options-container'),
+            questionNav: document.getElementById('questionNavigation'),
+            loading: document.getElementById('loading'),
+            error: document.getElementById('error'),
+            progressBar: document.querySelector('.progress-bar'),
+            checkAnswerBtn: document.getElementById('checkAnswerBtn'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            feedback: document.querySelector('.feedback'),
+            explanation: document.querySelector('.explanation')
+        };
+    
+        async function initializeQuiz() {
+            try {
+                await fetchUserSession();
+                await loadQuestions();
+                await loadScores();
+                mergeAttemptData();
+                buildQuestionNavigation();
+                showQuestion(quizState.currentQuestionIndex);
+                setupEventListeners();
+                updateProgressBar();
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                elements.loading.style.display = 'none';
+            }
+        }
+    
+        async function fetchUserSession() {
+            try {
+                const response = await fetch(SESSION_API, { credentials: 'include' });
+                if (!response.ok) throw new Error('Authentication required');
+                const { email, username } = await response.json();
+                quizState.user = { email, username };
+            } catch (error) {
+                showError('Please login to access this content');
+                window.location.href = '/login.html';
+            }
+        }
+    
+        async function loadQuestions() {
+            try {
+                const params = new URLSearchParams({ 
+                    operationType: 'addition',
+                    // Add fields parameter if needed (depends on your API implementation)
+                    fields: 'questionText,options,correctOption,explanation,difficultyLevel,arithmeticCategory,coreSkills,commonErrors,foundationalRequirements,gradeLevel'
+                });
+                
+                const response = await fetch(`${QUESTIONS_API}?${params}`);
+                const result = await response.json();
+                quizState.questions = result.questions.map(q => ({
+                    ...q,
+                    startTime: Date.now()
+                }));
+            } catch (error) {
+                showError(`Failed to load questions: ${error.message}`);
+            }
+        }
+    
+        async function loadScores() {
+            try {
+                const params = new URLSearchParams({
+                    userEmail: quizState.user.email,
+                    operationType: 'addition'
+                });
+                const response = await fetch(`${SCORES_API}?${params}`);
+                quizState.scores = await response.json();
+            } catch (error) {
+                quizState.scores = {
+                    questionsAttempted: [],
+                    totalQuestions: 0,
+                    correctAnswers: 0,
+                    timeTaken: 0
+                };
+            }
+        }
+    
+        function mergeAttemptData() {
+            quizState.questions = quizState.questions.map(question => {
+                const attempt = quizState.scores?.questionsAttempted?.find(a => 
+                    a.questionId?._id.toString() === question._id.toString()
+                );
+                
+                return attempt ? {
+                    ...question,
+                    attempted: true,
+                    userAnswer: attempt.userAnswer,
+                    isCorrect: attempt.isCorrect,
+                    timeSpent: attempt.timeSpent
+                } : { ...question, attempted: false };
+            });
+        }
+    
+        function buildQuestionNavigation() {
+            elements.questionNav.innerHTML = quizState.questions
+                .map((q, index) => `
+                    <div class="question-number" data-index="${index}">
+                        ${index + 1}
+                    </div>`
+                ).join('');
+        }
+    
+        function showQuestion(index) {
+            resetFeedback();
+            const question = quizState.questions[index];
+            
+            // Record start time for new attempts
+            if (!question.attempted) {
+                quizState.questions[index].startTime = Date.now();
+            }
+    
+            elements.questionText.textContent = question.questionText;
+            elements.optionsContainer.innerHTML = '';
+            elements.checkAnswerBtn.disabled = question.attempted;
+            quizState.selectedAnswer = null;
+    
+            Object.entries(question.options).forEach(([key, value]) => {
+                const button = document.createElement('button');
+                button.className = 'btn btn-outline-primary mb-2 w-100';
+                button.innerHTML = `<strong>${key}.</strong> ${value}`;
+                
+                if (question.attempted) {
+                    button.disabled = true;
+                    const isCorrect = key === question.correctOption;
+                    const isUserAnswer = key === question.userAnswer;
+                    
+                    if (isCorrect) button.classList.add('btn-success');
+                    if (isUserAnswer) {
+                        button.classList.add(isCorrect ? 'btn-success' : 'btn-danger');
+                    }
+                } else {
+                    button.addEventListener('click', () => selectAnswer(key, button));
+                }
+                
+                elements.optionsContainer.appendChild(button);
+            });
+    
+            if (question.attempted) {
+                showPersistedFeedback(question);
+            }
+    
+            updateNavigationState();
+            updateButtonStates();
+        }
+    
+        function showPersistedFeedback(question) {
+            elements.feedback.textContent = question.isCorrect ? '🎉 Correct!' : '❌ Incorrect';
+            elements.feedback.className = `alert ${question.isCorrect ? 'alert-success' : 'alert-danger'}`;
+            elements.feedback.style.display = 'block';
+            
+            if (!question.isCorrect) {
+                elements.explanation.innerHTML = `
+                    <strong>Explanation:</strong> ${question.explanation}<br>
+                    <strong>Time Spent:</strong> ${Math.round(question.timeSpent/1000)}s
+                `;
+                elements.explanation.style.display = 'block';
+            }
+        }
+    
+        function selectAnswer(answer, button) {
+            document.querySelectorAll('.options-container button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+            quizState.selectedAnswer = answer;
+            elements.checkAnswerBtn.disabled = false;
+        }
+    
+        async function handleCheckAnswer() {
+            const question = quizState.questions[quizState.currentQuestionIndex];
+            const timeSpent = Date.now() - question.startTime;
+            const isCorrect = quizState.selectedAnswer === question.correctOption;
 
+            try {
+                const response = await fetch(SCORES_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userEmail: quizState.user.email,
+                        username: quizState.user.username,
+                        operationType: 'addition',
+                        totalQuestions: 1,
+                        correctAnswers: isCorrect ? 1 : 0,
+                        questionsAttempted: [{
+                            questionId: question._id,
+                            userAnswer: quizState.selectedAnswer,
+                            isCorrect: isCorrect,
+                            timeSpent: timeSpent,
+                            // Add question metadata
+                            difficultyLevel: question.difficultyLevel,
+                            coreSkills: question.coreSkills,
+                            commonErrors: question.commonErrors,
+                            foundationalRequirements: question.foundationalRequirements,
+                            arithmeticCategory: question.arithmeticCategory,
+                            gradeLevel: question.gradeLevel
+                        }],
+                        timeTaken: Math.round(timeSpent/1000)
+                    })
+                });
+
+              if (!response.ok) throw new Error('Save failed');
+              
+              // Update local state
+              const updatedQuestion = {
+                  ...question,
+                  attempted: true,
+                  userAnswer: quizState.selectedAnswer,
+                  isCorrect,
+                  timeSpent
+              };
+              quizState.questions[quizState.currentQuestionIndex] = updatedQuestion;
+              
+              showQuestion(quizState.currentQuestionIndex);
+              updateProgressBar();
+              
+          } catch (error) {
+              showError(`Save failed: ${error.message}`);
+          }
+
+          // Immediate feedback
+          elements.feedback.textContent = isCorrect ? '🎉 Correct!' : '❌ Incorrect';
+          elements.feedback.className = `alert ${isCorrect ? 'alert-success' : 'alert-danger'}`;
+          elements.feedback.style.display = 'block';
+
+          if (!isCorrect) {
+              elements.explanation.innerHTML = `
+                  <strong>Explanation:</strong> ${question.explanation}<br>
+                  <strong>Time Spent:</strong> ${Math.round(timeSpent/1000)}s
+              `;
+              elements.explanation.style.display = 'block';
+          }
+      }
+    
+        function updateNavigationState() {
+            document.querySelectorAll('.question-number').forEach((btn, index) => {
+                const question = quizState.questions[index];
+                btn.classList.toggle('active', index === quizState.currentQuestionIndex);
+                btn.classList.toggle('answered', question.attempted);
+                btn.classList.toggle('correct', question.attempted && question.isCorrect);
+                btn.classList.toggle('incorrect', question.attempted && !question.isCorrect);
+            });
+        }
+    
+        function updateProgressBar() {
+            const attemptedCount = quizState.questions.filter(q => q.attempted).length;
+            const totalQuestions = quizState.questions.length;
+            const progress = (attemptedCount / totalQuestions) * 100;
+            elements.progressBar.style.width = `${progress}%`;
+            elements.progressBar.textContent = `${Math.round(progress)}% (${attemptedCount}/${totalQuestions})`;
+        }
+    
+        function resetFeedback() {
+            elements.feedback.style.display = 'none';
+            elements.explanation.style.display = 'none';
+        }
+    
+        function navigate(direction) {
+            const newIndex = quizState.currentQuestionIndex + direction;
+            if (newIndex >= 0 && newIndex < quizState.questions.length) {
+                quizState.currentQuestionIndex = newIndex;
+                showQuestion(newIndex);
+            }
+        }
+    
+        function updateButtonStates() {
+            elements.prevBtn.disabled = quizState.currentQuestionIndex === 0;
+            elements.nextBtn.disabled = quizState.currentQuestionIndex === quizState.questions.length - 1;
+        }
+    
+        function setupEventListeners() {
+            // Answer check handler
+            elements.checkAnswerBtn.addEventListener('click', handleCheckAnswer);
+    
+            // Navigation buttons
+            elements.prevBtn.addEventListener('click', () => navigate(-1));
+            elements.nextBtn.addEventListener('click', () => navigate(1));
+    
+            // Question number clicks
+            document.querySelectorAll('.question-number').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const index = parseInt(btn.dataset.index);
+                    if (!isNaN(index)) {
+                        quizState.currentQuestionIndex = index;
+                        showQuestion(index);
+                    }
+                });
+            });
+        }
+    
+        function showError(message) {
+            elements.error.textContent = message;
+            elements.error.style.display = 'block';
+            setTimeout(() => elements.error.style.display = 'none', 5000);
+        }
+    
+        initializeQuiz();
+    });
+    </script>
   <footer id="footer" class="footer position-relative">
     <div class="container footer-top">
       <div class="row gy-4">
@@ -857,5 +1179,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 
 </html>
-
-
