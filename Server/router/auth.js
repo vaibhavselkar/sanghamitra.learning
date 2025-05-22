@@ -30,6 +30,8 @@ const ArithmeticQuestions = require('../model/arithmetic_question.schema');
 const ArithmeticResponse = require('../model/arithmetic_response');
 const ArithmeticQuestion = require('../model/arithmetic-questions.schema');
 const ArithmeticScore = require('../model/arithmetic-scores.schema');
+const TestResponse = require('../model/test-response.schema');
+
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -1401,4 +1403,68 @@ router.get('/arithmetic-scores', async (req, res) => {
 }
 });
 
+// fetching users' predaignostic data
+
+router.get('/testresponses', async (req, res) => {
+  try {
+    const userEmail = req.query.email;
+    const returnAll = req.query.all === 'true';
+
+    if (!userEmail) {
+      return res.status(400).json({ message: "Email parameter is required" });
+    }
+
+    const results = await TestResponse.find({ userEmail })
+      .sort({ testDate: -1 })
+      .lean();
+
+    if (!results.length) {
+      return res.status(404).json({ message: "No test results found for this user" });
+    }
+
+    if (returnAll) {
+      // Process all attempts
+      const allAttempts = results.map(result => ({
+        _id: result._id,
+        testDate: result.testDate,
+        totalQuestions: result.responses.length,
+        correctAnswers: result.responses.filter(r => 
+          r.userAnswer === r.questionData.questionCorrectAnswer
+        ).length,
+        timeSpent: result.responses.reduce((sum, r) => sum + (r.timeSpent || 0), 0)
+      }));
+      return res.json(allAttempts);
+    }
+
+    // Process single (latest) attempt
+    const latestResult = results[0];
+    const processedResult = {
+      testDate: latestResult.testDate,
+      totalQuestions: latestResult.responses.length,
+      correctAnswers: latestResult.responses.filter(r => 
+        r.userAnswer === r.questionData.questionCorrectAnswer
+      ).length,
+      timeSpent: latestResult.responses.reduce((sum, r) => sum + (r.timeSpent || 0), 0),
+      details: latestResult.responses.map(r => ({
+        questionOptions: r.questionData.questionOptions,
+        question: r.questionData.questionText,
+        userAnswer: r.userAnswer,
+        correctAnswer: r.questionData.questionCorrectAnswer,
+        timeSpent: r.timeSpent,
+        explanation: r.questionData.explanationText,
+        difficulty: r.questionData.questionDifficulty,
+        topic: r.questionData.questionTopic,
+        testedConcepts: r.questionData.testedConcepts,
+        prerequisiteTopics: r.questionData.prerequisiteTopics
+      }))
+    };
+
+    res.json(processedResult);
+  } catch (error) {
+    res.status(500).json({ 
+      message: "Server error",
+      error: error.message
+    });
+  }
+});
 module.exports = router
