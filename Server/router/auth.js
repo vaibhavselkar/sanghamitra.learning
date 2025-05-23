@@ -30,7 +30,7 @@ const ArithmeticQuestions = require('../model/arithmetic_question.schema');
 const ArithmeticResponse = require('../model/arithmetic_response');
 const ArithmeticQuestion = require('../model/arithmetic-questions.schema');
 const ArithmeticScore = require('../model/arithmetic-scores.schema');
-const TestResponse = require('../model/test-response.schema');
+const TestResponse = require('../model/arithmetic_response');
 
 
 require('../db/conn');
