@@ -468,9 +468,6 @@
             Computation are used in daily life without even realizing it. When we search for things—like groceries in a shop, a book on a shelf, or a file in a folder—we follow a method we’ve learned. Even when we make a to-do list and check off each task, we are using step-by-step thinking to stay organized and complete our work.
           </p>
           
-          
-          
-          
           <div class="alert alert-success">
             <i class="bi bi-lightbulb"></i> <b>Key Idea:</b> You don't need a computer to use computational thinking! It's a problem-solving method we can use everywhere.
           </div>
@@ -514,8 +511,6 @@
             <p><b>Computational Thinking:</b> A method for solving problems by organizing thoughts systematically</p>
             <p><b>Algorithm:</b> A set of clear steps to solve a problem (like a recipe)</p>
           </div>
-          
-         
         </div>
       </div>
     </div>
@@ -560,19 +555,18 @@
   
         <div class="ct-quiz">
           <p><b>Quick Check:</b> What's the BEST way to solve this problem: "A box has 3 rows with 5 apples in each row. How many apples are there in total?"</p>
-          <div class="ct-option" onclick="selectOption(this)">A) Add 3 + 5, then multiply by 3</div>
-          <div class="ct-option" onclick="selectOption(this)">B) Draw 15 apples and count them one by one</div>
+          <div class="ct-option" onclick="selectOption(this)">A) Multiply rows by columns: 3 × 5 × 2 (assuming 2 columns)</div>
+          <div class="ct-option" onclick="selectOption(this)">B) Use addition: 5 + 5 + 5 + 5 (repeating for each apple)</div>
           <div class="ct-option correct-option" onclick="selectOption(this)">C) Break it down: 3 rows × 5 apples = 15 apples</div>
-          <div class="ct-option" onclick="selectOption(this)">D) Subtract 5 from 3, then multiply by 5</div>
+          <div class="ct-option" onclick="selectOption(this)">D) Calculate volume: (3 + 5)² ÷ 2</div>
           <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
           <div class="ct-feedback correct">
             ✔️ Excellent! Breaking the problem into multiplication (3×5) is the most efficient way to solve it.
           </div>
           <div class="ct-feedback incorrect">
-            ❌ Nice try! The other methods are confusing or unnecessarily complicated. The best way is to multiply 3 rows by 5 apples per row: 3×5 = 15 apples.
+            ❌ Note: Option A adds nonexistent columns, B is inefficient, and D uses irrelevant math. The correct method is simple multiplication of rows × apples per row (3×5=15).
           </div>
         </div>
-        
       </div>
     </div>
   
@@ -584,7 +578,7 @@
         <div class="ct-box">
           <h3><i class="bi bi-lightbulb"></i> Why It Matters</h3>
           <p>
-            Finding patterns helps solve new problems faster by applying what worked for similar problems before. By recognizing these patterns, we can predict solutions without starting from scratch every time. This makes problem-solving more efficient and allows us to focus on solving the new aspects of a problem rather than redoing what we've already learned.
+            Finding patterns helps solve new problems faster by applying what worked for similar problems before.
           </p>
           
           <div class="ct-example">
@@ -593,12 +587,9 @@
               At the store, you notice:<br><br>
               - Fruits are always in aisle 1<br>
               - Cereals are in aisle 4<br><br>
-              This pattern helps you shop faster!<br><br>
-              By remembering where specific items are placed, you can move quickly through the store and pick up what you need without wasting time. Recognizing these common patterns allows you to avoid searching for items, making the shopping experience more efficient.
+              This pattern helps you shop faster!
             </p>
           </div>
-          
-          
           
           <div class="ct-example">
             <h3><i class="bi bi-calendar"></i> Daily Routine Example</h3>
@@ -606,12 +597,9 @@
               Notice that:<br><br>
               - Math class always comes after lunch<br>
               - Library day is every Tuesday<br><br>
-              Recognizing these patterns helps you prepare!<br><br>
-              By knowing when certain events happen regularly, you can organize your time better. For example, you can plan to bring your books for math class before lunch, or remember to bring a library card on Tuesdays. Patterns like this make it easier to stay on top of your schedule without having to constantly check the calendar.
+              Recognizing these patterns helps you prepare!
             </p>
           </div>
-          
-          
         </div>
   
         <div class="ct-vocab">
@@ -621,23 +609,18 @@
         </div>
   
         <div class="ct-quiz">
-          <p><b>Quick Check:</b> What number comes next in this pattern?<br>
-             1, 4, 9, 16, 25, ?</p>
-          <div class="ct-option" onclick="selectOption(this)">A) 30</div>
-          <div class="ct-option" onclick="selectOption(this)">B) 35</div>
-          <div class="ct-option" onclick="selectOption(this)">C) 38</div>
-          <div class="ct-option correct-option" onclick="selectOption(this)">D) 36 </div>
+          <p><b>Quick Check:</b> What number comes next in this pattern?<br>1, 4, 9, 16, 25, ?</p>
+          <div class="ct-option" onclick="selectOption(this)">A) 28 (adding consecutive odd numbers: +3, +5, +7...)</div>
+          <div class="ct-option" onclick="selectOption(this)">B) 30 (sum of all previous numbers: 1+4+9+16)</div>
+          <div class="ct-option" onclick="selectOption(this)">C) 34 (Fibonacci variation: 1+4=5, 4+9=13, etc.)</div>
+          <div class="ct-option correct-option" onclick="selectOption(this)">D) 36 (perfect squares: 1², 2², 3²...)</div>
           <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
           <div class="ct-feedback correct">
             ✔️ Great job! These numbers are perfect squares: 1², 2², 3², and so on. So, the next is 6² = 36.
           </div>
           <div class="ct-feedback incorrect">
-            ❌ Oops! Look again. The pattern follows square numbers (1×1, 2×2, 3×3…). 
-            Recognizing these number patterns is a key part of solving problems faster!
+            ❌ All options follow some logic, but only D matches the perfect squares pattern. Others are valid sequences but don't fit this specific series.
           </div>
-        </div>
-        
-        
         </div>
       </div>
     </div>
@@ -656,24 +639,18 @@
             <p>
               To direct someone:<br>
               ✅ Important: "Turn left at the big red bank"<br>
-              ✅ Important: "Turn right at the traffic light, and your destination will be on the left."<br>
-              ❌ Not important: "There’s a cute dog that barks there sometimes"<br><br>
-              Good directions use clear steps and focus on useful landmarks like buildings or turns. Simple, precise instructions help someone find their way easily. Unnecessary details, like a barking dog, can cause confusion and should be avoided.            </p>
+              ❌ Not important: "There’s a cute dog that barks there sometimes"<br>
+            </p>
           </div>
           
-          
-          
           <div class="ct-example">
-  <h3><i class="bi bi-shop"></i> Shopping Example: Buying Cereal</h3>
-  <p>
-    When choosing cereal:<br>
-    ✅ Important: Price, ingredients, nutrition<br>
-    ✅ Important: Brand reputation or customer reviews<br>
-    ❌ Not important: Box design, shelf placement<br><br>
-    When buying cereal, focus on price, ingredients, nutrition, serving size, and sugar or fiber content. Reviews can help too. Don’t get distracted by box design or shelf placement—stick to the facts to make a smart, healthy choice.  </p>
-</div>
-
-          
+            <h3><i class="bi bi-shop"></i> Shopping Example: Buying Cereal</h3>
+            <p>
+              When choosing cereal:<br>
+              ✅ Important: Price, ingredients, nutrition<br>
+              ❌ Not important: Box design, shelf placement<br>
+            </p>
+          </div>
         </div>
   
         <div class="ct-vocab">
@@ -684,18 +661,16 @@
   
         <div class="ct-quiz">
           <p><b>Quick Check:</b> For this math problem: "Rahul has 3 cats. Each cat eats 2 meals daily. How many meals total?", what information is NOT needed?</p>
-          <div class="ct-option correct-option" onclick="selectOption(this)">A) The cats' names</div>
-          <div class="ct-option" onclick="selectOption(this)">B) Number of cats (3)</div>
-          <div class="ct-option" onclick="selectOption(this)">C) Meals per cat (2)</div>
-          <div class="ct-option" onclick="selectOption(this)">D) The word "total"</div>
+          <div class="ct-option" onclick="selectOption(this)">A) The word "total" (it implies summation)</div>
+          <div class="ct-option correct-option" onclick="selectOption(this)">B) The cats' names</div>
+          <div class="ct-option" onclick="selectOption(this)">C) The time between meals</div>
+          <div class="ct-option" onclick="selectOption(this)">D) The type of food</div>
           <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
           <div class="ct-feedback correct">
             ✔️ Perfect! The cats' names don't help solve the math problem. Good abstraction means focusing only on the numbers needed for calculation (3 cats × 2 meals).
           </div>
           <div class="ct-feedback incorrect">
-            ❌ Let's analyze: While "total" seems like just a word, it actually tells us we need to add/multiply. 
-            The numbers (3 cats, 2 meals) are clearly needed. The cats' names are irrelevant to calculating meal quantities - 
-            this is the kind of detail we learn to filter out when focusing on what matters.
+            ❌ While "total" seems like just a word, it actually tells us we need to add/multiply. The cats' names are irrelevant, but options C/D might seem plausible distractors about meal details.
           </div>
         </div>
       </div>
@@ -718,7 +693,6 @@
               2. Add toothpaste<br>
               3. Brush teeth<br>
               4. Rinse mouth<br>
-              Doing these out of order doesn't work!
             </p>
           </div>
           
@@ -729,8 +703,6 @@
               1. Stop at curb<br>
               2. Look left-right-left<br>
               3. Cross when clear<br>
-              4. Keep looking while crossing<br>
-              Clear steps prevent accidents!
             </p>
           </div>
         </div>
@@ -743,90 +715,16 @@
   
         <div class="ct-quiz">
           <p><b>Quick Check:</b> What's the BEST set of instructions for planting a seed?</p>
-          <div class="ct-option" onclick="selectOption(this)">A) "Just put it in dirt and hope"</div>
-          <div class="ct-option" onclick="selectOption(this)">B) "Do whatever looks right"</div>
+          <div class="ct-option" onclick="selectOption(this)">A) "1. Water soil 2. Dig hole 3. Cover seed 4. Add fertilizer"</div>
+          <div class="ct-option" onclick="selectOption(this)">B) "1. Find seed 2. Wait for rain 3. Throw seed 4. Hope it grows"</div>
           <div class="ct-option correct-option" onclick="selectOption(this)">C) "1. Dig hole 2. Put seed in 3. Cover with soil 4. Water lightly"</div>
-          <div class="ct-option" onclick="selectOption(this)">D) "Ask a plant to grow itself"</div>
+          <div class="ct-option" onclick="selectOption(this)">D) "1. Plant seed 2. Sing to it 3. Dance around 4. Check moon phase"</div>
           <button class="ct-btn" onclick="checkAnswer(this)">Check Answer</button>
           <div class="ct-feedback correct">
-            ✔️ Perfect! Numbered, clear steps in the right order make the best algorithm. 
-            This ensures the seed has the best chance to grow because each step prepares for the next.
+            ✔️ Perfect! Numbered, clear steps in the right order make the best algorithm.
           </div>
           <div class="ct-feedback incorrect">
-            ❌ Think about recipes - they work because steps are clear and ordered. 
-            Planting needs specific preparation (digging) before placing the seed, then protection (covering), 
-            then care (watering). Skipping or rearranging steps (like watering before putting seed in) wouldn't work well.
-          </div>
-        </div>
-      </div>
-      <div class="container guide-content">
-        <div class="section" data-aos="fade-up">
-          <h2><i class="bi bi-question-circle"></i> Computational Thinking Quiz</h2>
-          
-          <div id="quiz-container" class="ct-box">
-            <div id="quiz-loading">Loading quiz questions...</div>
-            
-            <div id="quiz-content" style="display:none;">
-              <div class="quiz-header">
-                <div class="quiz-progress">
-                  <span id="question-counter">Question 1 of 30</span>
-                  <div class="progress">
-                    <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 3%"></div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="row mt-4">
-                <!-- Quiz content - Left side -->
-                <div class="col-md-8">
-                  <div id="question-container">
-                    <h3 id="question-text">Question text will appear here</h3>
-                    <div id="options-container" class="mt-3">
-                      <!-- Options will be populated here -->
-                    </div>
-                  </div>
-                  
-                  <div id="explanation-container" class="mt-3" style="display:none;">
-                    <div class="alert" id="answer-feedback">
-                      Feedback will appear here
-                    </div>
-                    <div class="alert alert-info" id="explanation-text">
-                      Explanation will appear here
-                    </div>
-                  </div>
-                  
-                  <div class="quiz-navigation mt-4">
-                    <button id="prev-btn" class="btn btn-outline-primary" disabled>Previous</button>
-                    <button id="next-btn" class="btn btn-outline-primary">Next</button>
-                  </div>
-                  
-                  <div class="quiz-actions mt-4">
-                    <button id="check-answer-btn" class="btn btn-success">Check Answer</button>
-                  </div>
-                </div>
-                
-                <!-- Question numbers - Right side -->
-                <div class="col-md-4">
-                  <div class="question-numbers-container p-3 border rounded">
-                    <h4>Question Navigator</h4>
-                    <div class="question-numbers" id="question-navigator">
-                      <!-- Question number buttons will be populated here -->
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div id="quiz-results" class="mt-4" style="display:none;">
-                <h3>Quiz Results</h3>
-                <div class="alert alert-info">
-                  <p>You scored: <span id="score-display">0</span> out of 30</p>
-                  <div class="progress mt-2">
-                    <div id="score-progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
-                  </div>
-                </div>
-                <button id="retry-quiz-btn" class="btn btn-outline-primary mt-2">Try Again</button>
-              </div>
-            </div>
+            ❌ Option A reverses watering, B/D rely on chance. Only C follows a logical, actionable sequence for planting.
           </div>
         </div>
       </div>
