@@ -860,17 +860,12 @@ router.get('/readingcomprehensionscore', async (req, res) => {
 
   router.get('/weekly-assessments', async (req, res) => {
     try {
-      const { username, topic } = req.query;
-  
+      const { username, email, topic } = req.query;
       let query = {};
   
-      if (username) {
-        query.username = username;
-      }
-  
-      if (topic) {
-        query['topics.topicName'] = topic;
-      }
+      if (username) query.username = username;
+      if (email) query.email = email;
+      if (topic) query['topics.topicName'] = topic;
   
       const results = await WeeklyAssessment.find(query);
       res.status(200).json(results);
