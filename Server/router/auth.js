@@ -30,7 +30,7 @@ const ArithmeticQuestions = require('../model/arithmetic_question.schema');
 const ArithmeticResponse = require('../model/arithmetic_response');
 const ArithmeticQuestion = require('../model/arithmetic-questions.schema');
 const ArithmeticScore = require('../model/arithmetic-scores.schema');
-
+const WeeklyAssessment = require('../model/weeklyAssessment');
 
 
 require('../db/conn');
@@ -834,6 +834,50 @@ router.get('/readingcomprehensionscore', async (req, res) => {
       res.status(500).send({ message: 'Failed to fetch scores', error });
   }
 });
+
+  router.post('/weekly-assessments', async (req, res) => {
+    try {
+      const { username, email, topics } = req.body;
+  
+      if (!username || !email || !topics || !Array.isArray(topics)) {
+        return res.status(400).json({ error: 'username, email, and topics[] are required.' });
+      }
+  
+      const updated = await WeeklyAssessment.findOneAndUpdate(
+        { username },
+        {
+          $set: { email }, // update email if changed
+          $push: { topics: { $each: topics } } // push multiple topics
+        },
+        { new: true, upsert: true }
+      );
+  
+      res.status(200).json(updated);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  router.get('/weekly-assessments', async (req, res) => {
+    try {
+      const { username, topic } = req.query;
+  
+      let query = {};
+  
+      if (username) {
+        query.username = username;
+      }
+  
+      if (topic) {
+        query['topics.topicName'] = topic;
+      }
+  
+      const results = await WeeklyAssessment.find(query);
+      res.status(200).json(results);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 
   router.post('/programming/submit', async (req, res) => {
     try {
