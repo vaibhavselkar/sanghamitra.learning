@@ -252,7 +252,7 @@
 
     async function fetchSessionInfo() {
       try {
-        const response = await fetch('http://localhost:4000/api/session-info', {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
           credentials: 'include'
         });
 
@@ -290,7 +290,7 @@
         // Try CT finger scores endpoint first
         try {
           const ctResponse = await fetch(
-            `http://localhost:4000/api/CT_finger_scores/${currentUser.email}/${apiTopicName}`,
+            `https://sanghamitra-learnworld.vercel.app/api/CT_finger_scores/${currentUser.email}/${apiTopicName}`,
             { credentials: 'include' }
           );
           
@@ -306,7 +306,7 @@
         if (!data) {
           try {
             const fingerResponse = await fetch(
-              `http://localhost:4000/api/finger-exercise?email=${currentUser.email}&topic=${apiTopicName}`,
+              `https://sanghamitra-learnworld.vercel.app/api/finger-exercise?email=${currentUser.email}&topic=${apiTopicName}`,
               { credentials: 'include' }
             );
             
