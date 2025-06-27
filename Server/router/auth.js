@@ -31,6 +31,7 @@ const ArithmeticResponse = require('../model/arithmetic_response');
 const ArithmeticQuestion = require('../model/arithmetic-questions.schema');
 const ArithmeticScore = require('../model/arithmetic-scores.schema');
 const WeeklyAssessment = require('../model/weeklyAssessment');
+const Statistics_score = require('../model/statisticsSchema');
 
 
 require('../db/conn');
@@ -1296,6 +1297,62 @@ router.post('/save-arithmetic-response', async (req, res) => {
   }
 });
 
+router.post('/statistics_scores', async (req, res) => {
+  try {
+    const { username, email, score, percentage, answers, topic } = req.body;
+
+    let user = await Statistics_score.findOne({ email });
+
+    if (user) {
+      // Add new score to existing user
+      user.scores.push({
+        topic,
+        score,
+        percentage,
+        answers
+      });
+      await user.save();
+    } else {
+      // Create new user
+      user = new Statistics_score({
+        username,
+        email,
+        scores: [{
+          topic,
+          score,
+          percentage,
+          answers
+        }]
+      });
+      await user.save();
+    }
+
+    res.json({ success: true, message: 'Score saved' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/statistics_scores', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (email) {
+      // Get specific user
+      const user = await Statistics_score.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, data: user });
+    } else {
+      // Get all users
+      const users = await Statistics_score.find({});
+      res.json({ success: true, data: users });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 
 
