@@ -1,4 +1,4 @@
-const questions = [
+const questions = [ 
     {
         question_number: 1,
         points: 1,
