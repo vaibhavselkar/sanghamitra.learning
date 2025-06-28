@@ -3,55 +3,59 @@ const questions = [
         question_number: 1,
         points: 1,
         type: "multiple_choice",
-        question_text: "A marketing research company wants to study the purchasing behavior of smartphone users in India. They randomly selected 500 smartphone users from 5 major cities (Mumbai, Delhi, Bangalore, Chennai, and Kolkata) and surveyed their monthly spending on mobile apps. Identify the sample and population in this study.",
+        question_text: "Let the correlation coefficient r between two variables X and Y be zero. Then, the variables X and Y are:",
         options: [
-            "A) The sample consists of smartphone users from 5 major cities and the population consists of all smartphone users in India.",
-            "B) The sample consists of 500 randomly selected smartphone users and the population consists of all smartphone users in India.",
-            "C) The sample consists of all smartphone users in India and the population consists of 500 randomly selected users.",
-            "D) The sample consists of 5 major cities and the population consists of all cities in India."
+            "A) linearly related",
+            "B) not linearly related",
+            "C) same",
+            "D) perfectly correlated"
         ],
-        correct_answer: "B) The sample consists of 500 randomly selected smartphone users and the population consists of all smartphone users in India.",
-        explanation: null
+        correct_answer: "B) not linearly related",
+        explanation: "When correlation coefficient r = 0, it indicates no linear relationship between the variables X and Y."
     },
     {
         question_number: 2,
         points: 1,
-        type: "multiple_select",
-        question_text: "A data analyst collected information about employee satisfaction in a company. The dataset includes: Employee ID (E001, E002, etc.), Department (HR, Finance, IT, Marketing), Years of Experience (2, 5, 8, 12, etc.), Salary (in rupees), and Satisfaction Rating (Very Low, Low, Medium, High, Very High). Which of the following statements is/are correct?",
+        type: "multiple_choice",
+        question_text: "Consider the set of points (2, 6), (3, 8), (4, 10), (5, 14), (10, n) in the XY-plane. What should the value of n be so that the correlation between the X-values and Y-values is 1?",
         options: [
-            "A) Employee ID is a nominal categorical variable.",
-            "B) Years of Experience is a continuous numerical variable.",
-            "C) Satisfaction Rating is an ordinal categorical variable.",
-            "D) Department is measured on a ratio scale."
+            "A) 23",
+            "B) 26",
+            "C) 29",
+            "D) A value different from any of the above",
+            "E) No value for n can make r = 1"
         ],
-        correct_answer: ["A) Employee ID is a nominal categorical variable.", "C) Satisfaction Rating is an ordinal categorical variable."],
-        explanation: null
+        correct_answer: "E) No value for n can make r = 1",
+        explanation: "For perfect correlation (r = 1), all points must lie on a straight line. The given points don't follow a consistent linear pattern, so no single value of n can make r = 1."
     },
     {
         question_number: 3,
         points: 1,
-        type: "multiple_choice",
-        question_text: "A researcher studying online shopping patterns defines a new metric called 'Engagement Index' calculated as: Engagement Index = (Time spent on website in minutes) × (Number of pages viewed) / (Number of visits). What type of variable is 'Engagement Index' and what scale of measurement does it follow?",
+        type: "multiple_select",
+        question_text: "If the correlation coefficient r between two variables X and Y is negative, then the relation between X and Y can be described as: (More than one option can be correct)",
         options: [
-            "A) It is a categorical variable measured on a nominal scale.",
-            "B) It is a quantitative variable measured on a ratio scale.",
-            "C) It is a qualitative variable measured on an ordinal scale.",
-            "D) It is a discrete variable measured on an interval scale."
+            "A) when Y increases X does not change",
+            "B) when Y increases X increases",
+            "C) when Y increases X decreases",
+            "D) when Y decreases X decreases",
+            "E) when Y decreases X increases"
         ],
-        correct_answer: "B) It is a quantitative variable measured on a ratio scale.",
-        explanation: null
+        correct_answer: ["C) when Y increases X decreases", "E) when Y decreases X increases"],
+        explanation: "Negative correlation means that as one variable increases, the other tends to decrease, and vice versa."
     },
     {
         question_number: 4,
         points: 1,
         type: "multiple_choice",
-        question_text: "The daily temperature readings of a city are recorded for the month of January 2024. Based on this information, choose the correct classification:",
+        question_text: "The sample standard deviation of simple interest on investment A is 0.10 while the sample standard deviation of simple interest on investment B is 0.05. If the sample covariance of simple interest on A and B is 0.0030, the correlation coefficient between the simple interest on A and B is:",
         options: [
-            "A) It is cross-sectional data",
-            "B) It is time series data"
+            "A) r = 0.25",
+            "B) r = 0.60",
+            "C) r = 0.50",
+            "D) r = -1"
         ],
-        correct_answer: "B) It is time series data",
-        explanation: null
+        correct_answer: "B) r = 0.60",
+        explanation: "Correlation coefficient r = Cov(A,B) / (SD(A) × SD(B)) = 0.0030 / (0.10 × 0.05) = 0.0030 / 0.005 = 0.60"
     },
     {
         question_number: 5,
