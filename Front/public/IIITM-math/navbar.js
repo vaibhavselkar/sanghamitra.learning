@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     function loadNavbar() {
         fetch('navbar.html')
-            .then(response => {
+            .then(response => { 
                 if (!response.ok) {
                     throw new Error(`Failed to load navbar: ${response.status} ${response.statusText}`);
                 }
@@ -74,3 +74,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadNavbar(); // Initial load of navbar and authentication status
 });
+
