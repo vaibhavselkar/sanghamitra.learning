@@ -5,7 +5,7 @@ const questions = [
         type: "multiple_choice",
         question_text: "Find the domain of $f(x) = \\frac{\\sqrt{5 - x}}{x^3 - 9x}$",
         options: [
-            "A) $(-\\infty, -3) \\cup (-3, 0) \\cup (0, 3) \\cup (3, 5]$",
+            "A) $(-\\infty, -3) \\cup (-3, 0) \\cup (0, 3) \\cup (3, 5]$", 
             "B) $(-\\infty, 5] \\setminus \\{-3, 0, 3\\}$",
             "C) $(-\\infty, -3) \\cup (-3, 0) \\cup (0, 3) \\cup (3, 5)$",
             "D) $(-\\infty, 5)$"
@@ -185,4 +185,5 @@ const questions = [
         correct_answer: "A) $(-2, 3)$",
         explanation: "When $x = -2$: $f(-2) = a(-2 + 2) + 3 = a(0) + 3 = 3$ for any value of $a$. So point $(-2, 3)$ is always on the graph."
     }
+
 ];
