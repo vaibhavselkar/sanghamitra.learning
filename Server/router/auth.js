@@ -32,7 +32,7 @@ const ArithmeticQuestion = require('../model/arithmetic-questions.schema');
 const ArithmeticScore = require('../model/arithmetic-scores.schema');
 const WeeklyAssessment = require('../model/weeklyAssessment');
 const Statistics_score = require('../model/statisticsSchema');
-
+const iitm_math_score = require('../model/iitmMathSchema');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -1354,6 +1354,63 @@ router.get('/statistics_scores', async (req, res) => {
   }
 });
 
+router.get('/iitmmath_scores', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (email) {
+      // Get specific user
+      const user = await iitm_math_score.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, data: user });
+    } else {
+      // Get all users
+      const users = await iitm_math_score.find({});
+      res.json({ success: true, data: users });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/iitmmath_scores', async (req, res) => {
+  try {
+    const { username, email, score, percentage, answers, topic } = req.body;
+
+    let user = await iitm_math_score.findOne({ email });
+
+    if (user) {
+      // Add new score to existing user
+      user.scores.push({
+        topic,
+        score,
+        percentage,
+        answers
+      });
+      await user.save();
+    } else {
+      // Create new user
+      user = new iitm_math_score({
+        username,
+        email,
+        scores: [{
+          topic,
+          score,
+          percentage,
+          answers
+        }]
+      });
+      await user.save();
+    }
+
+    res.json({ success: true, message: 'Score saved' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 
 
 // fetching users' predaignostic data
@@ -1564,3 +1621,4 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
+
