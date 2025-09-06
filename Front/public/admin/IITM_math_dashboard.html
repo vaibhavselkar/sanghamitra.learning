@@ -93,6 +93,18 @@
     .search-box input {
       padding-left: 40px;
     }
+
+    .duplicate-info {
+      background: #e7f3ff;
+      border: 1px solid #b3d7ff;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .duplicate-info i {
+      color: #0066cc;
+    }
   </style>
 </head>
 
@@ -102,14 +114,30 @@
     <div class="container">
       <div class="d-flex justify-content-between align-items-center">
         <h1 class="mb-0"><i class="bi bi-graph-up me-2"></i>IITM Math 1 Dashboard</h1>
-        <button class="btn btn-light" onclick="refreshData()">
-          <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-        </button>
+        <div>
+          <button class="btn btn-light me-2" onclick="toggleDuplicateMode()">
+            <i class="bi bi-layers me-1"></i><span id="duplicateToggleText">Show All Attempts</span>
+          </button>
+          <button class="btn btn-light" onclick="refreshData()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="container">
+    <!-- Duplicate Info Banner -->
+    <div class="duplicate-info" id="duplicateInfo">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-info-circle me-2"></i>
+        <div>
+          <strong>Showing Latest Attempts Only</strong>
+          <p class="mb-0 small">When students have multiple attempts for the same topic, only their most recent score is displayed. <span id="duplicateCount">0</span> duplicate entries were found and removed.</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Statistics Cards -->
     <div class="row stats-cards">
       <div class="col-md-3 mb-3">
@@ -205,6 +233,7 @@
               <th><i class="bi bi-percent me-1"></i>Percentage</th>
               <th><i class="bi bi-question-circle me-1"></i>Total Questions</th>
               <th><i class="bi bi-calendar me-1"></i>Date</th>
+              <th id="attemptsHeader" style="display: none;"><i class="bi bi-arrow-repeat me-1"></i>Attempts</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -226,12 +255,16 @@
 
   <script>
     let allData = [];
+    let rawData = [];
     let filteredData = [];
+    let showAllAttempts = false;
+    let duplicateCount = 0;
 
     // Initialize
     async function init() {
       try {
         await loadData();
+        processData();
         calculateStatistics();
         populateTable();
         populateFilters();
@@ -253,11 +286,11 @@
       }
       
       // Process data into flat structure
-      allData = [];
+      rawData = [];
       result.data.forEach(student => {
         if (student.scores && student.scores.length > 0) {
           student.scores.forEach(score => {
-            allData.push({
+            rawData.push({
               username: student.username,
               email: student.email,
               topic: score.topic,
@@ -269,8 +302,79 @@
           });
         }
       });
+    }
+
+    // Process data to remove duplicates or show all attempts
+    function processData() {
+      if (showAllAttempts) {
+        allData = [...rawData];
+        duplicateCount = 0;
+        updateDuplicateInfo();
+      } else {
+        // Remove duplicates by keeping latest attempt for each student-topic combination
+        const uniqueData = new Map();
+        
+        rawData.forEach(item => {
+          const key = `${item.email}-${item.topic}`;
+          const existingItem = uniqueData.get(key);
+          
+          if (!existingItem || new Date(item.timestamp) > new Date(existingItem.timestamp)) {
+            uniqueData.set(key, item);
+          }
+        });
+
+        allData = Array.from(uniqueData.values());
+        duplicateCount = rawData.length - allData.length;
+        updateDuplicateInfo();
+      }
       
       filteredData = [...allData];
+    }
+
+    // Update duplicate info banner
+    function updateDuplicateInfo() {
+      const duplicateInfo = document.getElementById('duplicateInfo');
+      const duplicateCountSpan = document.getElementById('duplicateCount');
+      const toggleText = document.getElementById('duplicateToggleText');
+      const attemptsHeader = document.getElementById('attemptsHeader');
+      
+      duplicateCountSpan.textContent = duplicateCount;
+      
+      if (showAllAttempts) {
+        duplicateInfo.innerHTML = `
+          <div class="d-flex align-items-center">
+            <i class="bi bi-layers me-2"></i>
+            <div>
+              <strong>Showing All Attempts</strong>
+              <p class="mb-0 small">Displaying all quiz attempts including multiple attempts by the same student for the same topic. Total entries: ${rawData.length}</p>
+            </div>
+          </div>
+        `;
+        toggleText.textContent = 'Show Latest Only';
+        attemptsHeader.style.display = 'table-cell';
+      } else {
+        duplicateInfo.innerHTML = `
+          <div class="d-flex align-items-center">
+            <i class="bi bi-info-circle me-2"></i>
+            <div>
+              <strong>Showing Latest Attempts Only</strong>
+              <p class="mb-0 small">When students have multiple attempts for the same topic, only their most recent score is displayed. ${duplicateCount} duplicate entries were found and removed.</p>
+            </div>
+          </div>
+        `;
+        toggleText.textContent = 'Show All Attempts';
+        attemptsHeader.style.display = 'none';
+      }
+    }
+
+    // Toggle duplicate mode
+    function toggleDuplicateMode() {
+      showAllAttempts = !showAllAttempts;
+      processData();
+      calculateStatistics();
+      populateTable();
+      populateFilters();
+      clearFilters(); // Reset filters when switching modes
     }
 
     // Calculate statistics
@@ -295,6 +399,11 @@
       document.getElementById('lowestScore').textContent = lowestScore + '%';
     }
 
+    // Count attempts for a student-topic combination
+    function countAttempts(email, topic) {
+      return rawData.filter(item => item.email === email && item.topic === topic).length;
+    }
+
     // Populate table
     function populateTable(dataToShow = filteredData) {
       const tbody = document.getElementById('tableBody');
@@ -316,6 +425,7 @@
         const scoreClass = getScoreClass(item.percentage);
         const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
         const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
+        const attempts = showAllAttempts ? '' : countAttempts(item.email, item.topic);
         
         tbody.innerHTML += `
           <tr>
@@ -329,6 +439,7 @@
               <div>${date}</div>
               ${time ? `<small class="text-muted">${time}</small>` : ''}
             </td>
+            ${showAllAttempts ? '' : `<td style="display: none;"><span class="badge ${attempts > 1 ? 'bg-warning' : 'bg-light'} text-dark">${attempts}</span></td>`}
           </tr>
         `;
       });
@@ -419,6 +530,7 @@
       
       try {
         await loadData();
+        processData();
         calculateStatistics();
         populateTable();
         populateFilters();
