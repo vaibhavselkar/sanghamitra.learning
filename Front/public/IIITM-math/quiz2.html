@@ -650,12 +650,13 @@
                 }
                 
                 // Build question result
+                // Build question result (single answer, no attempts)
                 questionResults.push({
                     questionNumber: question.question_number,
                     questionText: question.question_text,
                     difficulty: question.difficulty,
                     points: question.points,
-                    userAnswer: userAnswer ? userAnswer.toString() : '',
+                    userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
                     correctAnswer: question.correct_answer.toString(),
                     isCorrect: isCorrect,
                     timeTaken: questionTimes[index] || 0
@@ -856,6 +857,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
