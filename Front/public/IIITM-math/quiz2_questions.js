@@ -1,5 +1,5 @@
 const questions = [
-    // EASY QUESTIONS (1-15)
+    // EASY QUESTIONS (1-15) 
     {
         question_number: 1,
         points: 1,
@@ -500,3 +500,4 @@ const questions = [
         explanation: "Need x-1 > 0, log₂(x-1) ≥ 0, and x-3 > 0. This gives x > 1, x ≥ 2, and x > 3. Combined with x ≠ 3: (2, 3) ∪ (3, +∞)."
     }
 ];
+
