@@ -706,36 +706,111 @@
         }
 
         // Enhanced results display
-        function displayDetailedResults(quizData) {
-            document.getElementById('quizContainer').style.display = 'none';
-            
-            const resultsContainer = document.getElementById('resultsContainer');
-            resultsContainer.style.display = 'block';
-            
-            // Update the results display with detailed information
-            const scoreDisplay = document.querySelector('.score-display');
-            scoreDisplay.innerHTML = `
-                <h2>${quizData.score}/${quizData.maxPossiblePoints} Points (${quizData.percentage}%)</h2>
-                <p>Quiz Completed Successfully!</p>
-                <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
-                    <div>
-                        <strong>Easy Questions</strong><br>
-                        ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
-                    </div>
-                    <div>
-                        <strong>Medium Questions</strong><br>
-                        ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
-                    </div>
-                    <div>
-                        <strong>Hard Questions</strong><br>
-                        ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
-                    </div>
+    function displayDetailedResults(quizData) {
+    document.getElementById('quizContainer').style.display = 'none';
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.style.display = 'block';
+    
+    // Update the results display with detailed information
+    const scoreDisplay = document.querySelector('.score-display');
+    scoreDisplay.innerHTML = `
+        <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
+        <p>Quiz Completed Successfully!</p>
+        <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
+            <div>
+                <strong>Easy Questions</strong><br>
+                ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
+            </div>
+            <div>
+                <strong>Medium Questions</strong><br>
+                ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
+            </div>
+            <div>
+                <strong>Hard Questions</strong><br>
+                ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
+            </div>
+        </div>
+        <p style="margin-top: 15px; font-size: 0.9em;">
+            Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
+        </p>
+    `;
+    
+    // Add detailed question review
+    const reviewDiv = document.createElement('div');
+    reviewDiv.style.cssText = `
+        margin-top: 30px;
+        text-align: left;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    `;
+    
+    reviewDiv.innerHTML = `
+        <h3 style="text-align: center; margin-bottom: 25px; color: #333;">📋 Question Review</h3>
+        ${quizData.questionResults.map(result => `
+            <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
+                        border-radius: 8px; 
+                        padding: 15px; 
+                        margin-bottom: 15px; 
+                        background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
+                                color: white; 
+                                padding: 4px 8px; 
+                                border-radius: 50%; 
+                                margin-right: 10px; 
+                                font-weight: bold;">
+                        ${result.questionNumber}
+                    </span>
+                    <span style="background: ${getDifficultyColor(result.difficulty)}; 
+                                color: white; 
+                                padding: 2px 8px; 
+                                border-radius: 12px; 
+                                font-size: 12px; 
+                                text-transform: uppercase; 
+                                margin-right: 10px;">
+                        ${result.difficulty}
+                    </span>
+                    <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
+                        ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'} (${result.points} pts)
+                    </span>
                 </div>
-                <p style="margin-top: 15px; font-size: 0.9em;">
-                    Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
-                </p>
-            `;
-        }
+                <div style="margin-bottom: 10px; line-height: 1.4;">
+                    <strong>Question:</strong> ${result.questionText}
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>Your Answer:</strong> 
+                    <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                        ${result.userAnswer || 'No answer provided'}
+                    </span>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>Correct Answer:</strong> 
+                    <span style="color: #28a745; font-weight: bold;">
+                        ${result.correctAnswer}
+                    </span>
+                </div>
+                <div style="font-size: 0.9em; color: #666;">
+                    Time taken: ${result.timeTaken}s
+                </div>
+            </div>
+        `).join('')}
+    `;
+    
+    resultsContainer.appendChild(reviewDiv);
+}
+
+// Helper function for difficulty colors
+function getDifficultyColor(difficulty) {
+    switch(difficulty) {
+        case 'easy': return '#28a745';
+        case 'medium': return '#ffc107';
+        case 'hard': return '#dc3545';
+        default: return '#6c757d';
+    }
+}
 
         // Initialize the quiz when page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -759,5 +834,6 @@
     </script>
 </body>
 </html>
+
 
 
