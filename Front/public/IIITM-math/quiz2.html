@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Domain and Range - 2</title>
@@ -250,6 +250,18 @@
 
         .score-display h2 { font-size: 2.5rem; margin-bottom: 10px; }
         .hidden { display: none; }
+        
+        /* Difficulty badges */
+        .difficulty-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .difficulty-easy { background: #d4edda; color: #155724; }
+        .difficulty-medium { background: #fff3cd; color: #856404; }
+        .difficulty-hard { background: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
@@ -310,11 +322,29 @@
         let username = null;
         let email = null;
         let currentQuestionIndex = 0;
+        let quizStartTime = null;
+        let questionStartTime = null;
+        let questionTimes = {}; // Track time per question
+
+        // Initialize quiz timing
+        function initializeQuizTiming() {
+            quizStartTime = new Date();
+            questionStartTime = new Date();
+        }
+
+        // Track question timing
+        function trackQuestionTime() {
+            if (questionStartTime) {
+                const timeSpent = Math.floor((new Date() - questionStartTime) / 1000);
+                questionTimes[currentQuestionIndex] = timeSpent;
+            }
+            questionStartTime = new Date(); // Reset for next question
+        }
 
         // Fetch user session info and start quiz immediately
         async function fetchSessionInfo() {
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                const response = await fetch('http://localhost:4000/api/session-info', {
                     credentials: 'include'
                 });
 
@@ -343,6 +373,9 @@
                 const sessionValid = await fetchSessionInfo();
                 if (sessionValid) {
                     currentUser = { username, email };
+                    
+                    // Initialize timing
+                    initializeQuizTiming();
                     
                     // Hide loading screen and show quiz
                     document.getElementById('loadingScreen').style.display = 'none';
@@ -381,17 +414,31 @@
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
                 `).join('');
-            } else if (question.type === 'numeric') {
-                optionsHtml = `<input type="number" class="numeric-input" placeholder="Enter your answer" 
-                               step="0.01" onchange="handleNumericInput(${currentQuestionIndex}, this.value)">`;
+            } else if (question.type === 'numeric' || question.type === 'interval_input') {
+                const placeholder = question.format_hint || "Enter your answer";
+                optionsHtml = `<input type="text" class="numeric-input" placeholder="${placeholder}" 
+                               onchange="handleNumericInput(${currentQuestionIndex}, this.value)">`;
             }
+
+            // Add difficulty badge
+            const difficultyColor = {
+                'easy': '#28a745',
+                'medium': '#ffc107', 
+                'hard': '#dc3545'
+            };
 
             questionDiv.innerHTML = `
                 <div class="question-header">
                     <div class="question-number">${question.question_number}</div>
-                    <div style="font-weight: 600;">Points: ${question.points}</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                            ${question.difficulty}
+                        </span>
+                        <div style="font-weight: 600;">Points: ${question.points}</div>
+                    </div>
                 </div>
                 <div class="question-text">${question.question_text}</div>
+                ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
                 <div class="options">${optionsHtml}</div>
             `;
 
@@ -422,7 +469,7 @@
                         option.closest('.option').classList.add('selected');
                     }
                 });
-            } else if (question.type === 'numeric') {
+            } else if (question.type === 'numeric' || question.type === 'interval_input') {
                 const input = document.querySelector('.numeric-input');
                 if (input) {
                     input.value = savedAnswer;
@@ -469,6 +516,7 @@
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
+                trackQuestionTime(); // Track time spent on current question
                 currentQuestionIndex++;
                 renderCurrentQuestion();
                 updateProgress();
@@ -477,6 +525,7 @@
 
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
+                trackQuestionTime(); // Track time spent on current question
                 currentQuestionIndex--;
                 renderCurrentQuestion();
                 updateProgress();
@@ -504,54 +553,128 @@
                     event.target.closest('.option').classList.remove('selected');
                 }
             }
+            updateAnswerStatus();
         }
 
         function handleNumericInput(questionIndex, value) {
-            userAnswers[questionIndex] = parseFloat(value) || value;
+            userAnswers[questionIndex] = value; // Keep as string for interval inputs
+            updateAnswerStatus();
         }
 
+        // Get question difficulty (mock function - in real app this would come from question data)
+        function getQuestionDifficulty(questionNumber) {
+            if (questionNumber <= 15) return 'easy';
+            if (questionNumber <= 30) return 'medium';
+            return 'hard';
+        }
+
+        // Updated submit function to match new schema
         async function submitQuiz() {
             if (!username || !email) {
                 alert("Error: User session data not found. Please log in.");
                 return;
             }
 
+            // Track final question time
+            trackQuestionTime();
+            
+            const quizEndTime = new Date();
+            const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
+
+            // Calculate scores and build detailed results
             let score = 0;
+            let totalPossiblePoints = 0;
+            const questionResults = [];
+            const difficultyBreakdown = {
+                easy: { attempted: 0, correct: 0, points: 0 },
+                medium: { attempted: 0, correct: 0, points: 0 },
+                hard: { attempted: 0, correct: 0, points: 0 }
+            };
             
             questions.forEach((question, index) => {
                 const userAnswer = userAnswers[index];
-                const correctAnswer = question.correct_answer;
+                totalPossiblePoints += question.points;
                 
-                if (question.type === 'multiple_choice') {
-                    if (userAnswer === correctAnswer) score++;
+                let isCorrect = false;
+                
+                // Enhanced answer checking using the answerValidator from your questions file
+                if (question.type === 'interval_input') {
+                    isCorrect = answerValidator.validateAnswer(
+                        userAnswer || '', 
+                        question.correct_answer, 
+                        question.alternative_answers
+                    );
+                } else if (question.type === 'multiple_choice') {
+                    isCorrect = userAnswer === question.correct_answer;
                 } else if (question.type === 'multiple_select') {
-                    if (Array.isArray(userAnswer) && Array.isArray(correctAnswer)) {
-                        if (userAnswer.length === correctAnswer.length &&
-                            userAnswer.every(ans => correctAnswer.includes(ans))) {
-                            score++;
-                        }
+                    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+                        isCorrect = userAnswer.length === question.correct_answer.length &&
+                                   userAnswer.every(ans => question.correct_answer.includes(ans));
                     }
                 } else if (question.type === 'numeric') {
                     const tolerance = 0.01;
-                    if (Math.abs(parseFloat(userAnswer) - parseFloat(correctAnswer)) <= tolerance) {
-                        score++;
-                    }
+                    isCorrect = Math.abs(parseFloat(userAnswer) - parseFloat(question.correct_answer)) <= tolerance;
                 }
+                
+                if (isCorrect) {
+                    score += question.points;
+                }
+                
+                // Update difficulty breakdown
+                difficultyBreakdown[question.difficulty].attempted++;
+                if (isCorrect) {
+                    difficultyBreakdown[question.difficulty].correct++;
+                    difficultyBreakdown[question.difficulty].points += question.points;
+                }
+                
+                // Build question result
+                questionResults.push({
+                    questionNumber: question.question_number,
+                    questionText: question.question_text,
+                    difficulty: question.difficulty,
+                    points: question.points,
+                    userAnswer: userAnswer ? userAnswer.toString() : '',
+                    correctAnswer: question.correct_answer.toString(),
+                    isCorrect: isCorrect,
+                    timeTaken: questionTimes[index] || 0
+                });
             });
 
-            // Store score using Domain and Range API
+            // Build complete quiz data matching new schema
             const quizData = {
                 username: username,
                 email: email,
+                topic: 'Quiz2_Domain_Range', // Updated topic name
+                quizType: 'practice',
                 score: score,
+                maxPossibleScore: totalPossiblePoints,
                 totalQuestions: questions.length,
-                percentage: Math.round((score / questions.length) * 100),
-                topic: 'Quiz2',
-                answers: userAnswers
+                correctAnswers: questionResults.filter(q => q.isCorrect).length,
+                percentage: Math.round((score / totalPossiblePoints) * 100),
+                difficultyBreakdown: difficultyBreakdown,
+                questionResults: questionResults,
+                startTime: quizStartTime,
+                endTime: quizEndTime,
+                totalTimeTaken: totalTimeTaken,
+                isCompleted: true,
+                adaptiveData: {
+                    startingDifficulty: 'easy',
+                    finalDifficulty: questions[questions.length - 1]?.difficulty || 'easy',
+                    difficultyProgression: questionResults.map((q, index) => ({
+                        questionNumber: q.questionNumber,
+                        difficulty: q.difficulty,
+                        wasCorrect: q.isCorrect
+                    }))
+                }
             };
 
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
+                // Show loading state
+                document.getElementById('submitText').style.display = 'none';
+                document.getElementById('submitLoading').style.display = 'inline-block';
+                document.getElementById('submitBtn').disabled = true;
+
+                const response = await fetch('http://localhost:4000/api/iitmmath_scores', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -560,17 +683,58 @@
 
                 if (response.ok) {
                     console.log('Quiz submitted successfully');
+                    // Show detailed results
+                    displayDetailedResults(quizData);
                 } else {
                     console.error('Failed to submit quiz');
+                    alert('Failed to save your quiz results. Please try again.');
+                    // Reset button state
+                    document.getElementById('submitText').style.display = 'inline';
+                    document.getElementById('submitLoading').style.display = 'none';
+                    document.getElementById('submitBtn').disabled = false;
+                    return;
                 }
             } catch (error) {
                 console.error('Error submitting quiz:', error);
+                alert('Error submitting quiz. Please check your connection and try again.');
+                // Reset button state
+                document.getElementById('submitText').style.display = 'inline';
+                document.getElementById('submitLoading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                return;
             }
-            
-            // Show results
+        }
+
+        // Enhanced results display
+        function displayDetailedResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'block';
-            document.getElementById('finalScore').textContent = `${score}/${questions.length} (${Math.round((score/questions.length)*100)}%)`;
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.style.display = 'block';
+            
+            // Update the results display with detailed information
+            const scoreDisplay = document.querySelector('.score-display');
+            scoreDisplay.innerHTML = `
+                <h2>${quizData.score}/${quizData.maxPossiblePoints} Points (${quizData.percentage}%)</h2>
+                <p>Quiz Completed Successfully!</p>
+                <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
+                    <div>
+                        <strong>Easy Questions</strong><br>
+                        ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
+                    </div>
+                    <div>
+                        <strong>Medium Questions</strong><br>
+                        ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
+                    </div>
+                    <div>
+                        <strong>Hard Questions</strong><br>
+                        ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
+                    </div>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.9em;">
+                    Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
+                </p>
+            `;
         }
 
         // Initialize the quiz when page loads
@@ -588,11 +752,10 @@
 
         function goback() {
             userAnswers = {};
+            questionTimes = {};
             // go to iitm_math.html
             window.location.href = 'iitm_math.html';
         }
     </script>
 </body>
 </html>
-
-
