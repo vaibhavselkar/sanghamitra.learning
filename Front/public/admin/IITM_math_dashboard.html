@@ -350,19 +350,22 @@
       allData = [];
       result.data.forEach(student => {
         if (student.scores && student.scores.length > 0) {
-          student.scores.forEach(score => {
-            allData.push({
+         student.scores.forEach(score => {
+          allData.push({
               username: student.username,
               email: student.email,
               topic: score.topic,
               score: score.score,
+              maxPossibleScore: score.maxPossibleScore,
               totalQuestions: score.totalQuestions,
+              correctAnswers: score.correctAnswers,
               percentage: score.percentage,
               timestamp: score.timestamp,
-              answers: score.answers || [],
-              difficulty_progression: score.difficulty_progression
-            });
+              questionResults: score.questionResults || score.answers || [], // Handle both formats
+              difficultyBreakdown: score.difficultyBreakdown,
+              adaptiveData: score.adaptiveData
           });
+      });
         }
       });
       
@@ -450,75 +453,59 @@
     }
 
     // Generate detailed student answer breakdown
-    function generateStudentDetail(item) {
-      if (!item.answers || item.answers.length === 0) {
+   function generateStudentDetail(item) {
+    // Handle both old format (answers) and new format (questionResults)
+    const results = item.questionResults || item.answers || [];
+    
+    if (results.length === 0) {
         return '<p class="text-muted">No detailed answer data available.</p>';
-      }
-
-      let detailHtml = `
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>${item.username} - Detailed Answer Analysis</h6>
-          <span class="badge difficulty-${item.difficulty_progression || 'medium'}">
-            Final Difficulty: ${(item.difficulty_progression || 'medium').toUpperCase()}
-          </span>
-        </div>
-      `;
-
-      item.answers.forEach(answer => {
-        const questionDifficulty = getQuestionDifficulty(answer.questionNumber);
-        detailHtml += `
-          <div class="question-detail">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <h6 class="mb-1">
-                <i class="bi bi-question-circle me-1"></i>Question ${answer.questionNumber}
-                <span class="difficulty-badge difficulty-${questionDifficulty}">${questionDifficulty}</span>
-              </h6>
-              <span class="badge ${answer.finalResult === 'correct' ? 'bg-success' : 'bg-danger'}">
-                ${answer.finalResult === 'correct' ? 'CORRECT' : 'INCORRECT'}
-              </span>
-            </div>
-            
-            <div class="mb-2">
-              <small class="text-muted">${answer.questionText}</small>
-            </div>
-            
-            <div class="mb-2">
-              <strong>Correct Answer:</strong> 
-              <span class="answer-display">${answer.correctAnswer}</span>
-            </div>
-            
-            <div class="mb-2">
-              <strong>Student Attempts (${answer.attempts.length}):</strong>
-            </div>
-            
-            ${answer.attempts.map(attempt => `
-              <div class="attempt-item ${attempt.isCorrect ? 'attempt-correct' : 'attempt-incorrect'}">
-                <div class="d-flex justify-content-between align-items-center">
-                  <span>
-                    <strong>Attempt ${attempt.attemptNumber}:</strong> 
-                    <span class="answer-display">${attempt.formattedAnswer}</span>
-                  </span>
-                  <span class="badge ${attempt.isCorrect ? 'bg-success' : 'bg-danger'}">
-                    ${attempt.isCorrect ? '✓' : '✗'}
-                  </span>
-                </div>
-                <small class="text-muted">Raw input: "${attempt.userAnswer}"</small>
-              </div>
-            `).join('')}
-            
-            ${answer.finalResult === 'incorrect' ? `
-              <div class="solution-display">
-                <small class="fw-bold text-warning">
-                  <i class="bi bi-lightbulb me-1"></i>Solution was shown after ${answer.attempts.length} attempts
-                </small>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      });
-
-      return detailHtml;
     }
+
+    let detailHtml = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>${item.username} - Detailed Answer Analysis</h6>
+        </div>
+    `;
+
+    results.forEach(result => {
+        const questionDifficulty = result.difficulty || getQuestionDifficulty(result.questionNumber);
+        detailHtml += `
+            <div class="question-detail">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-1">
+                        <i class="bi bi-question-circle me-1"></i>Question ${result.questionNumber}
+                        <span class="difficulty-badge difficulty-${questionDifficulty}">${questionDifficulty}</span>
+                    </h6>
+                    <span class="badge ${result.isCorrect ? 'bg-success' : 'bg-danger'}">
+                        ${result.isCorrect ? 'CORRECT' : 'INCORRECT'}
+                    </span>
+                </div>
+                
+                <div class="mb-2">
+                    <small class="text-muted">${result.questionText}</small>
+                </div>
+                
+                <div class="mb-2">
+                    <strong>Correct Answer:</strong> 
+                    <span class="answer-display">${result.correctAnswer}</span>
+                </div>
+                
+                <div class="mb-2">
+                    <strong>Student Answer:</strong> 
+                    <span class="answer-display ${result.isCorrect ? 'text-success' : 'text-danger'}">
+                        ${result.userAnswer}
+                    </span>
+                </div>
+                
+                <div style="font-size: 0.9em; color: #666;">
+                    Time spent: ${result.timeTaken || 0}s
+                </div>
+            </div>
+        `;
+    });
+
+    return detailHtml;
+}
 
     // Get question difficulty (mock function - in real app this would come from question data)
     function getQuestionDifficulty(questionNumber) {
