@@ -1377,37 +1377,140 @@ router.get('/iitmmath_scores', async (req, res) => {
 
 router.post('/iitmmath_scores', async (req, res) => {
   try {
-    const { username, email, score, percentage, answers, topic } = req.body;
+    const {
+      username,
+      email,
+      topic,
+      quizType,
+      score,
+      maxPossibleScore,
+      totalQuestions,
+      correctAnswers,
+      percentage,
+      difficultyBreakdown,
+      questionResults,
+      startTime,
+      endTime,
+      totalTimeTaken,
+      isCompleted,
+      adaptiveData
+    } = req.body;
 
+    // Validate required fields
+    if (!username || !email || score === undefined || !maxPossibleScore || !totalQuestions || !correctAnswers || !percentage) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing required fields' 
+      });
+    }
+
+    // Validate questionResults array
+    if (!questionResults || !Array.isArray(questionResults) || questionResults.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Question results are required' 
+      });
+    }
+
+    // Create new score object matching the schema
+    const newScore = {
+      topic: topic || 'domain_range_functions',
+      quizType: quizType || 'practice',
+      score,
+      maxPossibleScore,
+      totalQuestions,
+      correctAnswers,
+      percentage,
+      difficultyBreakdown: difficultyBreakdown || {
+        easy: { attempted: 0, correct: 0, points: 0 },
+        medium: { attempted: 0, correct: 0, points: 0 },
+        hard: { attempted: 0, correct: 0, points: 0 }
+      },
+      questionResults: questionResults.map(result => ({
+        questionNumber: result.questionNumber,
+        questionText: result.questionText,
+        difficulty: result.difficulty,
+        points: result.points,
+        userAnswer: result.userAnswer || '',
+        correctAnswer: result.correctAnswer,
+        isCorrect: result.isCorrect,
+        timeTaken: result.timeTaken || 0
+      })),
+      startTime: new Date(startTime),
+      endTime: new Date(endTime),
+      totalTimeTaken,
+      isCompleted: isCompleted !== undefined ? isCompleted : true,
+      adaptiveData: adaptiveData || {
+        startingDifficulty: 'easy',
+        finalDifficulty: 'easy',
+        difficultyProgression: []
+      },
+      timestamp: new Date()
+    };
+
+    // Find existing user or create new one
     let user = await iitm_math_score.findOne({ email });
 
     if (user) {
       // Add new score to existing user
-      user.scores.push({
-        topic,
-        score,
-        percentage,
-        answers
-      });
+      user.scores.push(newScore);
       await user.save();
+      
+      console.log(`Score updated for existing user: ${username}`);
     } else {
-      // Create new user
+      // Create new user with the score
       user = new iitm_math_score({
         username,
         email,
-        scores: [{
-          topic,
-          score,
-          percentage,
-          answers
-        }]
+        scores: [newScore]
       });
       await user.save();
+      
+      console.log(`New user created: ${username}`);
     }
 
-    res.json({ success: true, message: 'Score saved' });
+    // Send success response with additional info
+    res.json({ 
+      success: true, 
+      message: 'Score saved successfully',
+      data: {
+        username: user.username,
+        email: user.email,
+        totalQuizzesTaken: user.scores.length,
+        latestScore: {
+          topic: newScore.topic,
+          score: newScore.score,
+          percentage: newScore.percentage,
+          timestamp: newScore.timestamp
+        }
+      }
+    });
+
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Error saving quiz score:', error);
+    
+    // Handle specific MongoDB errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Validation failed',
+        details: validationErrors
+      });
+    }
+    
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'User already exists with different credentials'
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      error: 'Internal server error',
+      message: error.message
+    });
   }
 });
 
@@ -1621,4 +1724,5 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
+
 
