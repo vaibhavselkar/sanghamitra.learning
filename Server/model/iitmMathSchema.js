@@ -9,7 +9,7 @@ const questionResultSchema = new mongoose.Schema({
   questionText: {
     type: String,
     required: true
-  },
+  }, 
   difficulty: {
     type: String,
     enum: ['easy', 'medium', 'hard'],
@@ -162,3 +162,4 @@ userSchema.index({ 'scores.timestamp': -1 });
 const Statistics_scores = mongoose.model('iitm_math_scores', userSchema);
 
 module.exports = Statistics_scores;
+
