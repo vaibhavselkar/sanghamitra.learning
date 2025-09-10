@@ -594,6 +594,13 @@
 
         // Updated submit function to match new schema
         async function submitQuiz() {
+    // Show polite confirmation popup
+            const confirmSubmit = confirm(`📋 Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Domain and Range Quiz?`);
+            
+            if (!confirmSubmit) {
+                return; // User clicked Cancel, don't submit
+            }
+        
             if (!username || !email) {
                 alert("Error: User session data not found. Please log in.");
                 return;
@@ -865,6 +872,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
