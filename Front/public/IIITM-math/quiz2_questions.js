@@ -1,6 +1,6 @@
 const questions = [
     // EASY QUESTIONS (1-10) 
-    {
+    { 
         question_number: 1,
         points: 1,
         difficulty: "easy",
@@ -407,3 +407,4 @@ const adaptiveQuiz = {
         }
     }
 };
+
