@@ -339,6 +339,57 @@
     </div>
 
     <script>
+        // Answer validation utility
+        const answerValidator = {
+            validateAnswer: function(userAnswer, correctAnswer, alternativeAnswers = []) {
+                if (!userAnswer || userAnswer.trim() === '') {
+                    return false;
+                }
+                
+                // Clean the user answer
+                const cleanUserAnswer = userAnswer.trim().toLowerCase();
+                
+                // Check against correct answer
+                if (cleanUserAnswer === correctAnswer.toString().toLowerCase()) {
+                    return true;
+                }
+                
+                // Check against alternative answers if provided
+                if (alternativeAnswers && alternativeAnswers.length > 0) {
+                    return alternativeAnswers.some(alt => 
+                        cleanUserAnswer === alt.toString().toLowerCase()
+                    );
+                }
+                
+                // For interval notation, check various formats
+                if (this.isIntervalNotation(cleanUserAnswer) && this.isIntervalNotation(correctAnswer.toString().toLowerCase())) {
+                    return this.compareIntervals(cleanUserAnswer, correctAnswer.toString().toLowerCase());
+                }
+                
+                return false;
+            },
+            
+            isIntervalNotation: function(str) {
+                // Check if string contains interval notation patterns
+                return /[\[\(].*,.*[\]\)]/.test(str) || 
+                       /(-∞|∞|infinity)/.test(str) ||
+                       /(-infinity|infinity)/.test(str);
+            },
+            
+            compareIntervals: function(userAnswer, correctAnswer) {
+                // Normalize interval notation
+                const normalize = (interval) => {
+                    return interval
+                        .replace(/infinity/g, '∞')
+                        .replace(/-infinity/g, '-∞')
+                        .replace(/\s+/g, '')
+                        .replace(/\(\s*-∞/g, '(-∞')
+                        .replace(/∞\s*\)/g, '∞)');
+                };
+                
+                return normalize(userAnswer) === normalize(correctAnswer);
+            }
+        };
         let userAnswers = {};
         let currentUser = {};
         let username = null;
@@ -620,47 +671,53 @@
                 let isCorrect = false;
                 
                 // Enhanced answer checking using the answerValidator from your questions file
-                if (question.type === 'interval_input') {
+                // Enhanced answer checking
+            if (question.type === 'interval_input') {
+                if (typeof answerValidator !== 'undefined') {
                     isCorrect = answerValidator.validateAnswer(
                         userAnswer || '', 
                         question.correct_answer, 
                         question.alternative_answers
                     );
-                } else if (question.type === 'multiple_choice') {
-                    isCorrect = userAnswer === question.correct_answer;
-                } else if (question.type === 'multiple_select') {
-                    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                        isCorrect = userAnswer.length === question.correct_answer.length &&
-                                   userAnswer.every(ans => question.correct_answer.includes(ans));
-                    }
-                } else if (question.type === 'numeric') {
-                    const tolerance = 0.01;
-                    isCorrect = Math.abs(parseFloat(userAnswer) - parseFloat(question.correct_answer)) <= tolerance;
+                } else {
+                    // Fallback validation for interval inputs
+                    isCorrect = (userAnswer || '').trim().toLowerCase() === 
+                               (question.correct_answer || '').toString().toLowerCase();
                 }
-                
-                if (isCorrect) {
-                    score += question.points;
+            } else if (question.type === 'multiple_choice') {
+                isCorrect = userAnswer === question.correct_answer;
+            } else if (question.type === 'multiple_select') {
+                if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+                    isCorrect = userAnswer.length === question.correct_answer.length &&
+                               userAnswer.every(ans => question.correct_answer.includes(ans));
                 }
-                
-                // Update difficulty breakdown
-                difficultyBreakdown[question.difficulty].attempted++;
-                if (isCorrect) {
-                    difficultyBreakdown[question.difficulty].correct++;
-                    difficultyBreakdown[question.difficulty].points += question.points;
-                }
-                
-                // Build question result
-                // Build question result (single answer, no attempts)
-                questionResults.push({
-                    questionNumber: question.question_number,
-                    questionText: question.question_text,
-                    difficulty: question.difficulty,
-                    points: question.points,
-                    userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-                    correctAnswer: question.correct_answer.toString(),
-                    isCorrect: isCorrect,
-                    timeTaken: questionTimes[index] || 0
-                });
+            } else if (question.type === 'numeric') {
+                const tolerance = 0.01;
+                isCorrect = Math.abs(parseFloat(userAnswer) - parseFloat(question.correct_answer)) <= tolerance;
+            }
+            
+            if (isCorrect) {
+                score += question.points;
+            }
+            
+            // Update difficulty breakdown
+            difficultyBreakdown[question.difficulty].attempted++;
+            if (isCorrect) {
+                difficultyBreakdown[question.difficulty].correct++;
+                difficultyBreakdown[question.difficulty].points += question.points;
+            }
+            
+            // Build question result
+            questionResults.push({
+                questionNumber: question.question_number,
+                questionText: question.question_text,
+                difficulty: question.difficulty,
+                points: question.points,
+                userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
+                correctAnswer: question.correct_answer.toString(),
+                isCorrect: isCorrect,
+                timeTaken: questionTimes[index] || 0
+            });
             });
 
             // Build complete quiz data matching new schema
@@ -857,6 +914,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
