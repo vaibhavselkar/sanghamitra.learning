@@ -1,4 +1,5 @@
 const questions = [
+    // EASY QUESTIONS (1-10) 
     {
         question_number: 1,
         points: 1,
@@ -109,65 +110,10 @@ const questions = [
         alternative_answers: ["[0, +infinity)", "[0, ∞)", "[0, infinity)", "[0, +inf)", "[0, inf)"],
         explanation: "Absolute value function gives all non-negative values, so the range is [0, +∞)."
     },
+   
+    // MEDIUM QUESTIONS (11-25)
     {
         question_number: 11,
-        points: 1,
-        difficulty: "easy",
-        type: "interval_input",
-        question_text: "Find the domain of f(x) = √(x - 3)",
-        format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
-        correct_answer: "[3, +∞)",
-        alternative_answers: ["[3, +infinity)", "[3, ∞)", "[3, infinity)", "[3, +inf)", "[3, inf)"],
-        explanation: "For square root to be defined, x - 3 ≥ 0, so x ≥ 3. Domain is [3, +∞)."
-    },
-    {
-        question_number: 12,
-        points: 1,
-        difficulty: "easy",
-        type: "interval_input",
-        question_text: "Find the domain of f(x) = 1/(x - 2)",
-        format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
-        correct_answer: "(-∞, 2) ∪ (2, +∞)",
-        alternative_answers: ["(-infinity, 2) U (2, +infinity)", "(-∞, 2) U (2, ∞)", "(-inf, 2) U (2, +inf)", "(-inf, 2) U (2, inf)", "ℝ \\ {2}"],
-        explanation: "Denominator cannot be zero, so x - 2 ≠ 0, which means x ≠ 2. Domain is (-∞, 2) ∪ (2, +∞)."
-    },
-    {
-        question_number: 13,
-        points: 1,
-        difficulty: "easy",
-        type: "interval_input",
-        question_text: "Find the range of f(x) = x + 4",
-        format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
-        correct_answer: "(-∞, +∞)",
-        alternative_answers: ["(-infinity, +infinity)", "(-∞, ∞)", "(-infinity, infinity)", "(-inf, +inf)", "(-inf, inf)", "all real numbers", "ℝ"],
-        explanation: "Linear functions have range of all real numbers, so the range is (-∞, +∞)."
-    },
-    {
-        question_number: 14,
-        points: 1,
-        difficulty: "easy",
-        type: "interval_input",
-        question_text: "Find the domain of f(x) = √(5 - x)",
-        format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
-        correct_answer: "(-∞, 5]",
-        alternative_answers: ["(-infinity, 5]", "(-∞, 5]", "(-infinity, 5]", "(-inf, 5]"],
-        explanation: "For square root to be defined, 5 - x ≥ 0, so x ≤ 5. Domain is (-∞, 5]."
-    },
-    {
-        question_number: 15,
-        points: 1,
-        difficulty: "easy",
-        type: "interval_input",
-        question_text: "Find the range of f(x) = -x²",
-        format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
-        correct_answer: "(-∞, 0]",
-        alternative_answers: ["(-infinity, 0]", "(-∞, 0]", "(-inf, 0]"],
-        explanation: "The function -x² gives all non-positive values, so the range is (-∞, 0]."
-    },
-
-    // MEDIUM QUESTIONS (16-30)
-    {
-        question_number: 16,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -178,7 +124,7 @@ const questions = [
         explanation: "Need x² - 4 ≥ 0, so x² ≥ 4, which gives x ≤ -2 or x ≥ 2. Domain is (-∞, -2] ∪ [2, +∞)."
     },
     {
-        question_number: 17,
+        question_number: 12,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -189,7 +135,7 @@ const questions = [
         explanation: "Need x - 1 > 0 (positive for square root in denominator), so x > 1. Domain is (1, +∞)."
     },
     {
-        question_number: 18,
+        question_number: 13,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -200,7 +146,7 @@ const questions = [
         explanation: "Since x² ≥ 0 for all x, we have x² + 3 ≥ 3. The range is [3, +∞)."
     },
     {
-        question_number: 19,
+        question_number: 14,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -211,7 +157,7 @@ const questions = [
         explanation: "Need 9 - x² ≥ 0, so x² ≤ 9, which gives -3 ≤ x ≤ 3. Domain is [-3, 3]."
     },
     {
-        question_number: 20,
+        question_number: 15,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -222,7 +168,7 @@ const questions = [
         explanation: "For -3 ≤ x ≤ 3, we have 0 ≤ 9 - x² ≤ 9, so 0 ≤ √(9 - x²) ≤ 3. Range is [0, 3]."
     },
     {
-        question_number: 21,
+        question_number: 16,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -233,7 +179,7 @@ const questions = [
         explanation: "Natural logarithm requires x - 2 > 0, so x > 2. Domain is (2, +∞)."
     },
     {
-        question_number: 22,
+        question_number: 17,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -244,7 +190,7 @@ const questions = [
         explanation: "Logarithmic functions have range of all real numbers, so the range is (-∞, +∞)."
     },
     {
-        question_number: 23,
+        question_number: 18,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -255,7 +201,7 @@ const questions = [
         explanation: "Denominator x² - 1 = 0 when x = ±1, so x ≠ -1, 1. Domain is (-∞, -1) ∪ (-1, 1) ∪ (1, +∞)."
     },
     {
-        question_number: 24,
+        question_number: 19,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -266,7 +212,7 @@ const questions = [
         explanation: "Since -x² ≤ 0 for all x, we have -x² + 4 ≤ 4. The maximum value is 4. Range is (-∞, 4]."
     },
     {
-        question_number: 25,
+        question_number: 20,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -277,7 +223,7 @@ const questions = [
         explanation: "Need x + 3 ≥ 0 and 5 - x ≥ 0, so x ≥ -3 and x ≤ 5. Domain is [-3, 5]."
     },
     {
-        question_number: 26,
+        question_number: 21,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -288,7 +234,7 @@ const questions = [
         explanation: "Need 4 - x² > 0 (positive for square root in denominator), so x² < 4, giving -2 < x < 2. Domain is (-2, 2)."
     },
     {
-        question_number: 27,
+        question_number: 22,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -299,7 +245,7 @@ const questions = [
         explanation: "Since |x - 2| ≥ 0 for all x, we have |x - 2| + 1 ≥ 1. Range is [1, +∞)."
     },
     {
-        question_number: 28,
+        question_number: 23,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -310,7 +256,7 @@ const questions = [
         explanation: "Need x² - 9 > 0, so x² > 9, which gives x < -3 or x > 3. Domain is (-∞, -3) ∪ (3, +∞)."
     },
     {
-        question_number: 29,
+        question_number: 24,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
@@ -321,20 +267,20 @@ const questions = [
         explanation: "Exponential functions with positive base have range of all positive real numbers. Range is (0, +∞)."
     },
     {
-        question_number: 30,
+        question_number: 25,
         points: 2,
         difficulty: "medium",
         type: "interval_input",
-        question_text: "Find the domain of f(x) = √(x - 1) / √(x + 2)",
+        question_text: "Find the domain of f(x) = √(x - 1)/√(x + 2)",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
         correct_answer: "[1, +∞)",
         alternative_answers: ["[1, +infinity)", "[1, ∞)", "[1, infinity)", "[1, +inf)", "[1, inf)"],
         explanation: "Need x - 1 ≥ 0 and x + 2 > 0. This gives x ≥ 1 and x > -2. Combined: x ≥ 1. Domain is [1, +∞)."
     },
 
-    // HARD QUESTIONS (31-45)
+    // HARD QUESTIONS (26-30)
     {
-        question_number: 31,
+        question_number: 26,
         points: 3,
         difficulty: "hard",
         type: "interval_input",
@@ -345,7 +291,7 @@ const questions = [
         explanation: "Need ln(x - 1) ≥ 0, so x - 1 ≥ 1, which gives x ≥ 2. Domain is [2, +∞)."
     },
     {
-        question_number: 32,
+        question_number: 27,
         points: 3,
         difficulty: "hard",
         type: "interval_input",
@@ -356,7 +302,7 @@ const questions = [
         explanation: "Taking derivative f'(x) = (1-x²)/(x²+1)². Critical points at x = ±1 give extrema ±1/2. Range is [-1/2, 1/2]."
     },
     {
-        question_number: 33,
+        question_number: 28,
         points: 3,
         difficulty: "hard",
         type: "interval_input",
@@ -367,7 +313,7 @@ const questions = [
         explanation: "Need sin(x) > 0, which occurs on intervals (2nπ, (2n+1)π) for integer n."
     },
     {
-        question_number: 34,
+        question_number: 29,
         points: 3,
         difficulty: "hard",
         type: "interval_input",
@@ -378,7 +324,7 @@ const questions = [
         explanation: "Complete the square: x² - 6x + 10 = (x-3)² + 1 ≥ 1. So √(x² - 6x + 10) ≥ 1. Range is [1, +∞)."
     },
     {
-        question_number: 35,
+        question_number: 30,
         points: 3,
         difficulty: "hard",
         type: "interval_input",
@@ -388,116 +334,7 @@ const questions = [
         alternative_answers: ["(-infinity, -1) U (5, +infinity)", "(-∞, -1) U (5, ∞)", "(-inf, -1) U (5, +inf)", "(-inf, -1) U (5, inf)"],
         explanation: "Need |x - 2| - 3 > 0, so |x - 2| > 3. This gives x - 2 > 3 or x - 2 < -3, so x > 5 or x < -1."
     },
-    {
-        question_number: 36,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the range of f(x) = 2/(x² + x + 1)",
-        format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
-        correct_answer: "(0, 8/3]",
-        alternative_answers: ["(0, 8/3]", "(0, 2.67]"],
-        explanation: "x² + x + 1 = (x + 1/2)² + 3/4 ≥ 3/4. So 2/(x² + x + 1) ≤ 2/(3/4) = 8/3. Range is (0, 8/3]."
-    },
-     {
-        question_number: 37,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the domain of f(x) = √(x - 1) + √(3 - x) + 1/√(x - 2)",
-        format_hint: "Format: [a, b) ∪ (c, d]",
-        correct_answer: "[1, 2) ∪ (2, 3]",
-        alternative_answers: ["[1, 2) U (2, 3]"],
-        explanation: "Need x ≥ 1, x ≤ 3, and x > 2. This gives [1, 3] \\ {2} = [1, 2) ∪ (2, 3]."
-    },
-    {
-        question_number: 38,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the range of f(x) = (x - 1)/(x + 1)",
-        format_hint: "Format: (-∞, a) ∪ (a, +∞)",
-        correct_answer: "(-∞, 1) ∪ (1, +∞)",
-        alternative_answers: ["(-infinity, 1) U (1, +infinity)", "(-∞, 1) U (1, ∞)", "ℝ \\ {1}"],
-        explanation: "Let y = (x-1)/(x+1). Solving for x: x = (y+1)/(1-y). This is undefined when y = 1. Range is (-∞, 1) ∪ (1, +∞)."
-    },
-    {
-        question_number: 39,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the domain of f(x) = √(x² - 2x - 8)",
-        format_hint: "Format: (-∞, a] ∪ [b, +∞)",
-        correct_answer: "(-∞, -2] ∪ [4, +∞)",
-        alternative_answers: ["(-infinity, -2] U [4, +infinity)", "(-∞, -2] U [4, ∞)"],
-        explanation: "Need x² - 2x - 8 ≥ 0. Factor: (x-4)(x+2) ≥ 0. This gives x ≤ -2 or x ≥ 4."
-    },
-    {
-        question_number: 40,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the range of f(x) = e^(-x²)",
-        format_hint: "Format: (a, b]",
-        correct_answer: "(0, 1]",
-        alternative_answers: ["(0, 1]"],
-        explanation: "Since -x² ≤ 0 for all x, we have e^(-x²) ≤ e^0 = 1. As x → ±∞, e^(-x²) → 0. Range is (0, 1]."
-    },
-    {
-        question_number: 41,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the domain of f(x) = arcsin((x-1)/2)",
-        format_hint: "Format: [a, b]",
-        correct_answer: "[-1, 3]",
-        alternative_answers: ["[-1, 3]"],
-        explanation: "Need -1 ≤ (x-1)/2 ≤ 1, so -2 ≤ x-1 ≤ 2, which gives -1 ≤ x ≤ 3. Domain is [-1, 3]."
-    },
-    {
-        question_number: 42,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the range of f(x) = arcsin((x-1)/2)",
-        format_hint: "Format: [a, b]",
-        correct_answer: "[-π/2, π/2]",
-        alternative_answers: ["[-pi/2, pi/2]", "[-1.57, 1.57]"],
-        explanation: "The range of arcsin function is always [-π/2, π/2], regardless of the input transformation."
-    },
-    {
-        question_number: 43,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the domain of f(x) = ln(x² - 4x + 3)",
-        format_hint: "Format: (-∞, a) ∪ (b, +∞)",
-        correct_answer: "(-∞, 1) ∪ (3, +∞)",
-        alternative_answers: ["(-infinity, 1) U (3, +infinity)", "(-∞, 1) U (3, ∞)"],
-        explanation: "Need x² - 4x + 3 > 0. Factor: (x-1)(x-3) > 0. This gives x < 1 or x > 3."
-    },
-    {
-        question_number: 44,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the range of f(x) = 1/(sin²(x) + 2)",
-        format_hint: "Format: [a, b]",
-        correct_answer: "[1/3, 1/2]",
-        alternative_answers: ["[1/3, 1/2]", "[0.33, 0.5]"],
-        explanation: "Since 0 ≤ sin²(x) ≤ 1, we have 2 ≤ sin²(x) + 2 ≤ 3. So 1/3 ≤ 1/(sin²(x) + 2) ≤ 1/2."
-    },
-    {
-        question_number: 45,
-        points: 3,
-        difficulty: "hard",
-        type: "interval_input",
-        question_text: "Find the domain of f(x) = √(log₂(x-1)) + 1/√(x-3)",
-        format_hint: "Format: (a, b) ∪ (c, +∞)",
-        correct_answer: "(2, 3) ∪ (3, +∞)",
-        alternative_answers: ["(2, 3) U (3, +infinity)", "(2, 3) U (3, ∞)"],
-        explanation: "Need x-1 > 0, log₂(x-1) ≥ 0, and x-3 > 0. So x > 1, x-1 ≥ 1 (x ≥ 2), and x > 3. Combined: x > 2 and x ≠ 3. Domain is (2, 3) ∪ (3, +∞)."
-    }
+    
 ];
 
 // Utility functions for answer validation
@@ -570,4 +407,3 @@ const adaptiveQuiz = {
         }
     }
 };
-
