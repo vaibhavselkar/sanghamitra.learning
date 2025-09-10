@@ -340,56 +340,7 @@
 
     <script>
         // Answer validation utility
-        const answerValidator = {
-            validateAnswer: function(userAnswer, correctAnswer, alternativeAnswers = []) {
-                if (!userAnswer || userAnswer.trim() === '') {
-                    return false;
-                }
-                
-                // Clean the user answer
-                const cleanUserAnswer = userAnswer.trim().toLowerCase();
-                
-                // Check against correct answer
-                if (cleanUserAnswer === correctAnswer.toString().toLowerCase()) {
-                    return true;
-                }
-                
-                // Check against alternative answers if provided
-                if (alternativeAnswers && alternativeAnswers.length > 0) {
-                    return alternativeAnswers.some(alt => 
-                        cleanUserAnswer === alt.toString().toLowerCase()
-                    );
-                }
-                
-                // For interval notation, check various formats
-                if (this.isIntervalNotation(cleanUserAnswer) && this.isIntervalNotation(correctAnswer.toString().toLowerCase())) {
-                    return this.compareIntervals(cleanUserAnswer, correctAnswer.toString().toLowerCase());
-                }
-                
-                return false;
-            },
-            
-            isIntervalNotation: function(str) {
-                // Check if string contains interval notation patterns
-                return /[\[\(].*,.*[\]\)]/.test(str) || 
-                       /(-∞|∞|infinity)/.test(str) ||
-                       /(-infinity|infinity)/.test(str);
-            },
-            
-            compareIntervals: function(userAnswer, correctAnswer) {
-                // Normalize interval notation
-                const normalize = (interval) => {
-                    return interval
-                        .replace(/infinity/g, '∞')
-                        .replace(/-infinity/g, '-∞')
-                        .replace(/\s+/g, '')
-                        .replace(/\(\s*-∞/g, '(-∞')
-                        .replace(/∞\s*\)/g, '∞)');
-                };
-                
-                return normalize(userAnswer) === normalize(correctAnswer);
-            }
-        };
+       
         let userAnswers = {};
         let currentUser = {};
         let username = null;
@@ -914,6 +865,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
