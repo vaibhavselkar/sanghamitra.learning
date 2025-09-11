@@ -49,7 +49,7 @@ const questions = [
         points: 1,
         difficulty: "easy",
         type: "interval_input",
-        question_text: "Find the domain of f(x) = 1/x",
+        question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>x</sub>",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
         correct_answer: "(-∞, 0) ∪ (0, +∞)",
         alternative_answers: ["(-infinity, 0) U (0, +infinity)", "(-∞, 0) U (0, ∞)", "(-inf, 0) U (0, +inf)", "(-inf, 0) U (0, inf)", "ℝ \\ {0}", "all real numbers except 0"],
@@ -60,7 +60,7 @@ const questions = [
         points: 1,
         difficulty: "easy",
         type: "interval_input",
-        question_text: "Find the range of f(x) = 1/x",
+        question_text: "Find the range of f(x) = <sup>1</sup>&frasl;<sub>x</sub>",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
         correct_answer: "(-∞, 0) ∪ (0, +∞)",
         alternative_answers: ["(-infinity, 0) U (0, +infinity)", "(-∞, 0) U (0, ∞)", "(-inf, 0) U (0, +inf)", "(-inf, 0) U (0, inf)", "ℝ \\ {0}", "all real numbers except 0"],
@@ -128,7 +128,7 @@ const questions = [
         points: 2,
         difficulty: "medium",
         type: "interval_input",
-        question_text: "Find the domain of f(x) = 1/√(x - 1)",
+        question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>√(x - 1)</sub>",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
         correct_answer: "(1, +∞)",
         alternative_answers: ["(1, +infinity)", "(1, ∞)", "(1, infinity)", "(1, +inf)", "(1, inf)"],
@@ -194,7 +194,7 @@ const questions = [
         points: 2,
         difficulty: "medium",
         type: "interval_input",
-        question_text: "Find the domain of f(x) = 1/(x² - 1)",
+        question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>(x² - 1)</sub>",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
         correct_answer: "(-∞, -1) ∪ (-1, 1) ∪ (1, +∞)",
         alternative_answers: ["(-infinity, -1) U (-1, 1) U (1, +infinity)", "(-∞, -1) U (-1, 1) U (1, ∞)", "(-inf, -1) U (-1, 1) U (1, +inf)", "(-inf, -1) U (-1, 1) U (1, inf)", "ℝ \\ {-1, 1}"],
@@ -227,7 +227,7 @@ const questions = [
         points: 2,
         difficulty: "medium",
         type: "interval_input",
-        question_text: "Find the domain of f(x) = 1/√(4 - x²)",
+        question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>√(4 - x²)</sub>",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
         correct_answer: "(-2, 2)",
         alternative_answers: ["(-2, 2)"],
@@ -271,7 +271,7 @@ const questions = [
         points: 2,
         difficulty: "medium",
         type: "interval_input",
-        question_text: "Find the domain of f(x) = √(x - 1)/√(x + 2)",
+        question_text: "Find the domain of f(x) = <sup>√(x - 1)</sup>&frasl;<sub>√(x + 2)</sub>",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
         correct_answer: "[1, +∞)",
         alternative_answers: ["[1, +infinity)", "[1, ∞)", "[1, infinity)", "[1, +inf)", "[1, inf)"],
@@ -295,10 +295,10 @@ const questions = [
         points: 3,
         difficulty: "hard",
         type: "interval_input",
-        question_text: "Find the range of f(x) = x/(x² + 1)",
+        question_text: "Find the range of f(x) = <sup>x</sup>&frasl;<sub>(x² + 1)</sub>",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
-        correct_answer: "[-1/2, 1/2]",
-        alternative_answers: ["[-0.5, 0.5]", "[-1/2, 1/2]"],
+        correct_answer: "[-<sup>1</sup>&frasl;<sub>2</sub>, <sup>1</sup>&frasl;<sub>2</sub>]",
+        alternative_answers: ["[-0.5, 0.5]", "[-½, ½]", "[-1/2, 1/2]"],
         explanation: "Taking derivative f'(x) = (1-x²)/(x²+1)². Critical points at x = ±1 give extrema ±1/2. Range is [-1/2, 1/2]."
     },
     {
@@ -306,7 +306,7 @@ const questions = [
         points: 3,
         difficulty: "hard",
         type: "interval_input",
-        question_text: "Find the domain of f(x) = 1/√(sin(x))",
+        question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>√(sin(x))</sub>",
         format_hint: "Use interval notation: () for open, [] for closed, U for union. You can use: infinity, +infinity, -infinity, inf, +inf, -inf, or ∞ symbols",
         correct_answer: "(0, π) ∪ (2π, 3π) ∪ (4π, 5π) ∪ ...",
         alternative_answers: ["(2nπ, (2n+1)π) for all integers n", "∪(2nπ, (2n+1)π)"],
@@ -407,5 +407,3 @@ const adaptiveQuiz = {
         }
     }
 };
-
-
