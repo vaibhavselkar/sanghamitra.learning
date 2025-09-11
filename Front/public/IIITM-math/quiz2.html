@@ -517,11 +517,7 @@
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
             
-            // Auto-submit quiz after too many attempts
-            if (cheatingAttempts >= 5) {
-                alert('🚨 Too many suspicious activities detected. Quiz will be auto-submitted.');
-                submitQuiz();
-            }
+           
         }
         
         // Disable printing
@@ -1080,6 +1076,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
