@@ -404,20 +404,20 @@ async function loadData() {
         const existingScore = userTopicMap.get(key);
         
         if (!existingScore || new Date(score.timestamp) > new Date(existingScore.timestamp)) {
-          userTopicMap.set(key, {
-            username: record.username,
-            email: record.email,
-            topic: score.topic,
-            score: score.score,
-            maxPossibleScore: score.maxPossibleScore || score.totalQuestions,
-            totalQuestions: score.totalQuestions,
-            correctAnswers: score.correctAnswers,
-            percentage: score.percentage,
-            timestamp: score.timestamp,
-            questionResults: score.questionResults || [],
-            difficultyBreakdown: score.difficultyBreakdown,
-            adaptiveData: score.adaptiveData
-          });
+         userTopicMap.set(key, {
+          username: record.username,
+          email: record.email,
+          topic: score.topic,
+          score: score.score,
+          maxPossibleScore: 30, // Fixed to match total questions available
+          totalQuestions: 30, // Fixed to match questions array length
+          correctAnswers: score.correctAnswers,
+          percentage: score.percentage,
+          timestamp: score.timestamp,
+          questionResults: score.questionResults || [],
+          difficultyBreakdown: score.difficultyBreakdown,
+          adaptiveData: score.adaptiveData
+        });
         }
       });
     } else if (record.topic && record.score !== undefined) {
@@ -426,20 +426,20 @@ async function loadData() {
       const existingScore = userTopicMap.get(key);
       
       if (!existingScore || new Date(record.timestamp) > new Date(existingScore.timestamp)) {
-        userTopicMap.set(key, {
-          username: record.username,
-          email: record.email,
-          topic: record.topic,
-          score: record.score,
-          maxPossibleScore: record.maxPossibleScore || record.totalQuestions,
-          totalQuestions: record.totalQuestions,
-          correctAnswers: record.correctAnswers,
-          percentage: record.percentage,
-          timestamp: record.timestamp,
-          questionResults: record.questionResults || [],
-          difficultyBreakdown: record.difficultyBreakdown,
-          adaptiveData: record.adaptiveData
-        });
+       userTopicMap.set(key, {
+        username: record.username,
+        email: record.email,
+        topic: record.topic,
+        score: record.score,
+        maxPossibleScore: 30, // Fixed to match total questions available
+        totalQuestions: 30, // Fixed to match questions array length
+        correctAnswers: record.correctAnswers,
+        percentage: record.percentage,
+        timestamp: record.timestamp,
+        questionResults: record.questionResults || [],
+        difficultyBreakdown: record.difficultyBreakdown,
+        adaptiveData: record.adaptiveData
+      });
       }
     }
   });
