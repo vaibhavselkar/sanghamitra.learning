@@ -407,7 +407,7 @@
                 maxPossibleScore: score.maxPossibleScore,
                 totalQuestions: score.totalQuestions,
                 correctAnswers: score.correctAnswers,
-                percentage: score.correctAnswers/score.totalQuestions,
+                percentage: ((score.correctAnswers / score.totalQuestions) * 100).toFixed(2),
                 timestamp: score.timestamp,
                 questionResults: score.questionResults || [],
                 difficultyBreakdown: score.difficultyBreakdown,
