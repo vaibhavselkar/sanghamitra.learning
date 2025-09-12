@@ -2,7 +2,7 @@ const questions = [
     // EASY QUESTIONS (1-10)  
     { 
         question_number: 1, 
-        points: 1,
+        points: 1, 
         difficulty: "easy",
         type: "interval_input",
         question_text: "Find the domain of f(x) = x + 5",
@@ -407,5 +407,6 @@ const adaptiveQuiz = {
         }
     }
 };
+
 
 
