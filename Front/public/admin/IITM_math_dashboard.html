@@ -555,7 +555,8 @@ function generateStudentDetail(item) {
   `;
 
   results.forEach(result => {
-    const questionDifficulty = result.difficulty || getQuestionDifficulty(result.questionNumber);
+    const questionDifficulty = result.difficulty || 
+                          (result.questionNumber ? getQuestionDifficulty(result.questionNumber) : 'unknown');
     const isCorrect = result.isCorrect !== undefined ? result.isCorrect : 
                      (result.userAnswer === result.correctAnswer);
     
