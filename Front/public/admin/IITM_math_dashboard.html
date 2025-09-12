@@ -409,7 +409,7 @@ async function loadData() {
             email: record.email,
             topic: score.topic,
             score: score.score,
-            maxPossibleScore: score.maxPossibleScore,
+            maxPossibleScore: score.maxPossibleScore || score.totalQuestions,
             totalQuestions: score.totalQuestions,
             correctAnswers: score.correctAnswers,
             percentage: score.percentage,
@@ -431,7 +431,7 @@ async function loadData() {
           email: record.email,
           topic: record.topic,
           score: record.score,
-          maxPossibleScore: record.maxPossibleScore,
+          maxPossibleScore: record.maxPossibleScore || record.totalQuestions,
           totalQuestions: record.totalQuestions,
           correctAnswers: record.correctAnswers,
           percentage: record.percentage,
@@ -508,7 +508,7 @@ async function loadData() {
             <td><strong>${item.username}</strong></td>
             <td><small class="text-muted">${item.email}</small></td>
             <td><span class="badge bg-light text-dark">${item.topic}</span></td>
-            <td><strong>${item.score}/${item.totalQuestions}</strong></td>
+            <td><strong>${item.score}/${item.maxPossibleScore}</strong></td>
             <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
             <td>
               <div>${date}</div>
