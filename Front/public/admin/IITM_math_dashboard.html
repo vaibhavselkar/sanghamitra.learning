@@ -439,7 +439,7 @@
 
       const uniqueStudents = new Set(filteredData.map(item => item.email)).size;
       const percentages = filteredData.map(item => item.percentage);
-      const averageScore = Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length);
+      const averageScore = percentages.length > 0  ? Math.round(percentages.reduce((a, b) => a + Number(b), 0) / percentages.length ) : 0;
       const highestScore = Math.max(...percentages);
       const lowestScore = Math.min(...percentages);
 
