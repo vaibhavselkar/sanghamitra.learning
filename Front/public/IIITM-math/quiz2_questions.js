@@ -114,7 +114,7 @@ const questions = [
     // MEDIUM QUESTIONS (11-25)
     {
         question_number: 11,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = √(x² - 4)",
@@ -125,7 +125,7 @@ const questions = [
     },
     {
         question_number: 12,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>√(x - 1)</sub>",
@@ -136,7 +136,7 @@ const questions = [
     },
     {
         question_number: 13,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the range of f(x) = x² + 3",
@@ -147,7 +147,7 @@ const questions = [
     },
     {
         question_number: 14,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = √(9 - x²)",
@@ -158,7 +158,7 @@ const questions = [
     },
     {
         question_number: 15,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the range of f(x) = √(9 - x²)",
@@ -169,7 +169,7 @@ const questions = [
     },
     {
         question_number: 16,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = ln(x - 2)",
@@ -180,7 +180,7 @@ const questions = [
     },
     {
         question_number: 17,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the range of f(x) = ln(x - 2)",
@@ -191,7 +191,7 @@ const questions = [
     },
     {
         question_number: 18,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>(x² - 1)</sub>",
@@ -202,7 +202,7 @@ const questions = [
     },
     {
         question_number: 19,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the range of f(x) = -x² + 4",
@@ -213,7 +213,7 @@ const questions = [
     },
     {
         question_number: 20,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = √(x + 3) + √(5 - x)",
@@ -224,7 +224,7 @@ const questions = [
     },
     {
         question_number: 21,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>√(4 - x²)</sub>",
@@ -235,7 +235,7 @@ const questions = [
     },
     {
         question_number: 22,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the range of f(x) = |x - 2| + 1",
@@ -246,7 +246,7 @@ const questions = [
     },
     {
         question_number: 23,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = log₂(x² - 9)",
@@ -257,7 +257,7 @@ const questions = [
     },
     {
         question_number: 24,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the range of f(x) = 2^x",
@@ -268,7 +268,7 @@ const questions = [
     },
     {
         question_number: 25,
-        points: 2,
+        points: 1,
         difficulty: "medium",
         type: "interval_input",
         question_text: "Find the domain of f(x) = <sup>√(x - 1)</sup>&frasl;<sub>√(x + 2)</sub>",
@@ -281,7 +281,7 @@ const questions = [
     // HARD QUESTIONS (26-30)
     {
         question_number: 26,
-        points: 3,
+        points: 1,
         difficulty: "hard",
         type: "interval_input",
         question_text: "Find the domain of f(x) = √(ln(x - 1))",
@@ -292,7 +292,7 @@ const questions = [
     },
     {
         question_number: 27,
-        points: 3,
+        points: 1,
         difficulty: "hard",
         type: "interval_input",
         question_text: "Find the range of f(x) = <sup>x</sup>&frasl;<sub>(x² + 1)</sub>",
@@ -303,7 +303,7 @@ const questions = [
     },
     {
         question_number: 28,
-        points: 3,
+        points: 1,
         difficulty: "hard",
         type: "interval_input",
         question_text: "Find the domain of f(x) = <sup>1</sup>&frasl;<sub>√(sin(x))</sub>",
@@ -314,7 +314,7 @@ const questions = [
     },
     {
         question_number: 29,
-        points: 3,
+        points: 1,
         difficulty: "hard",
         type: "interval_input",
         question_text: "Find the range of f(x) = √(x² - 6x + 10)",
@@ -325,7 +325,7 @@ const questions = [
     },
     {
         question_number: 30,
-        points: 3,
+        points: 1,
         difficulty: "hard",
         type: "interval_input",
         question_text: "Find the domain of f(x) = log(|x - 2| - 3)",
@@ -407,4 +407,5 @@ const adaptiveQuiz = {
         }
     }
 };
+
 
