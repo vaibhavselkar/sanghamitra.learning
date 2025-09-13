@@ -1038,6 +1038,11 @@
                         ${result.correctAnswer}
                     </span>
                 </div>
+                ${result.explanation ? `
+                <div style="margin-bottom: 10px; padding: 12px; background: #f8f9ff; border-left: 4px solid #4a90e2; border-radius: 6px; line-height: 1.5;">
+                    <strong style="color: #2c5aa0;">💡 Explanation:</strong><br>
+                    <span style="color: #444; margin-top: 5px; display: block;">${result.explanation}</span>
+                </div>` : ''}
                 <div style="font-size: 0.9em; color: #666;">
                     Time taken: ${result.timeTaken}s
                 </div>
@@ -1080,6 +1085,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
