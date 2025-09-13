@@ -924,7 +924,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify(username, email, quizData)
+                    body: JSON.stringify( email, username, quizData)
                 });
 
                 if (response.ok) {
@@ -1084,6 +1084,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
