@@ -19,14 +19,15 @@ const topicScoreSchema = new mongoose.Schema({
   correctAnswers: { type: Number, required: true },
   attemptNumber: { type: Number, default: 1 },
   timestamp: { type: Date, default: Date.now },
-  questionResults: [questionResultSchema] // NEW: stores detailed answers
+  questionResults: [questionResultSchema] // Store per-question answers
 });
 
-// User Schema (by email)
+// Main User Schema
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   quizScores: [topicScoreSchema]
 }, { timestamps: true });
 
-const UserScores = mongoose.model('user_scores', userSchema);
-module.exports = UserScores;
+// Export using the same model name
+const Statistics_scores = mongoose.model('iitm_math_scores', userSchema);
+module.exports = Statistics_scores;
