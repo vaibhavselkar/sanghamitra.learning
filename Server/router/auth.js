@@ -1375,208 +1375,31 @@ router.get('/iitmmath_scores', async (req, res) => {
   }
 });
 
-router.post('/iitmmath_scores', async (req, res) => {
-  try {
-    const {
-      username,
-      email,
-      topic,
-      quizType,
-      score,
-      maxPossibleScore,
-      totalQuestions,
-      correctAnswers,
-      percentage,
-      difficultyBreakdown,
-      questionResults,
-      startTime,
-      endTime,
-      totalTimeTaken,
-      isCompleted,
-      adaptiveData,
-      attemptNumber
-    } = req.body;
+try {
+    const { email, quizData } = req.body;
 
-    // Validate required fields
-    if (!username || !email || score === undefined || !maxPossibleScore || !totalQuestions || correctAnswers === undefined || percentage === undefined) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Missing required fields: username, email, score, maxPossibleScore, totalQuestions, correctAnswers, percentage' 
-      });
+    if (!email || !quizData) {
+      return res.status(400).json({ error: 'Email and quizData are required' });
     }
 
-    // Validate topic is provided
-    if (!topic || typeof topic !== 'string') {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Topic is required and must be a string' 
-      });
-    }
+    let user = await UserScores.findOne({ email });
 
-    // Validate questionResults array
-    if (!questionResults || !Array.isArray(questionResults) || questionResults.length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Question results are required and must be a non-empty array' 
-      });
-    }
-
-    // Validate time fields
-    if (!startTime || !endTime || !totalTimeTaken) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Start time, end time, and total time taken are required' 
-      });
-    }
-
-    // Create new quiz score object matching the updated schema
-    const newQuizScore = {
-      topic,
-      quizType: quizType || 'practice',
-      score,
-      maxPossibleScore,
-      totalQuestions,
-      correctAnswers,
-      percentage,
-      difficultyBreakdown: difficultyBreakdown || {
-        easy: { attempted: 0, correct: 0, points: 0 },
-        medium: { attempted: 0, correct: 0, points: 0 },
-        hard: { attempted: 0, correct: 0, points: 0 }
-      },
-      questionResults: questionResults.map(result => ({
-        questionNumber: result.questionNumber,
-        questionText: result.questionText,
-        difficulty: result.difficulty,
-        points: result.points,
-        userAnswer: result.userAnswer || '',
-        correctAnswer: result.correctAnswer,
-        isCorrect: result.isCorrect,
-        timeTaken: result.timeTaken || 0
-      })),
-      startTime: new Date(startTime),
-      endTime: new Date(endTime),
-      totalTimeTaken,
-      isCompleted: isCompleted !== undefined ? isCompleted : true,
-      adaptiveData: adaptiveData || {
-        startingDifficulty: 'easy',
-        finalDifficulty: 'easy',
-        difficultyProgression: []
-      },
-      attemptNumber: attemptNumber || 1,
-      timestamp: new Date()
-    };
-
-    // Find existing user or create new one
-    let user = await Statistics_scores.findOne({ username, email });
-
-    if (user) {
-      // Use the schema method to add quiz score (handles performance summary updates)
-      await user.addQuizScore(newQuizScore);
-      
-      console.log(`Score updated for existing user: ${username}`);
+    if (!user) {
+      // Create new user with quiz data
+      user = new UserScores({ email, quizScores: [quizData] });
     } else {
-      // Create new user with initial data
-      user = new Statistics_scores({
-        username,
-        email,
-        quizScores: [newQuizScore],
-        performanceSummary: {
-          totalQuizzesCompleted: 0,
-          averageScore: 0,
-          topicProgress: new Map(),
-          overallDifficultyStats: {
-            easy: { totalAttempted: 0, totalCorrect: 0, accuracy: 0 },
-            medium: { totalAttempted: 0, totalCorrect: 0, accuracy: 0 },
-            hard: { totalAttempted: 0, totalCorrect: 0, accuracy: 0 }
-          },
-          lastUpdated: new Date()
-        },
-        courseProgress: {
-          currentTopic: topic,
-          completedTopics: [],
-          overallProgressPercentage: 0
-        }
-      });
-
-      // Use the schema method to properly update performance summary
-      user.updatePerformanceSummary(newQuizScore);
-      user.updateCourseProgress(topic, percentage);
-      
-      await user.save();
-      
-      console.log(`New user created: ${username}`);
+      // Push new quiz attempt
+      user.quizScores.push(quizData);
     }
 
-    // Get updated user data for response
-    const updatedUser = await Statistics_scores.findOne({ username, email })
-      .select('username email quizScores performanceSummary courseProgress');
+    await user.save();
 
-    // Get the user's best score for this topic
-    const topicScores = updatedUser.quizScores.filter(quiz => quiz.topic === topic);
-    const bestTopicScore = topicScores.reduce((best, current) => 
-      current.percentage > best.percentage ? current : best
-    );
-
-    // Send success response with comprehensive data
-    res.json({ 
-      success: true, 
-      message: 'Quiz score saved successfully',
-      data: {
-        user: {
-          username: updatedUser.username,
-          email: updatedUser.email
-        },
-        quiz: {
-          topic: newQuizScore.topic,
-          score: newQuizScore.score,
-          percentage: newQuizScore.percentage,
-          attemptNumber: newQuizScore.attemptNumber,
-          timestamp: newQuizScore.timestamp
-        },
-        progress: {
-          totalQuizzes: updatedUser.performanceSummary.totalQuizzesCompleted,
-          averageScore: Math.round(updatedUser.performanceSummary.averageScore * 100) / 100,
-          overallProgress: updatedUser.courseProgress.overallProgressPercentage,
-          completedTopics: updatedUser.courseProgress.completedTopics.length,
-          currentTopic: updatedUser.courseProgress.currentTopic
-        },
-        topicStats: {
-          bestScore: bestTopicScore.percentage,
-          totalAttempts: topicScores.length,
-          improvement: topicScores.length > 1 ? 
-            newQuizScore.percentage - topicScores[topicScores.length - 2].percentage : 0
-        }
-      }
-    });
-
+    res.status(201).json({ message: 'Quiz result saved successfully', user });
   } catch (error) {
-    console.error('Error saving quiz score:', error);
-    
-    // Handle specific MongoDB errors
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Validation failed',
-        details: validationErrors
-      });
-    }
-    
-    if (error.code === 11000) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Duplicate key error - user credentials conflict'
-      });
-    }
-    
-    res.status(500).json({ 
-      success: false, 
-      error: 'Internal server error',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
-    });
+    console.error('Error saving quiz result:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 // fetching users' predaignostic data
 
@@ -1786,6 +1609,7 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
