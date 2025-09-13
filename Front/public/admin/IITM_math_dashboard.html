@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>  
-  <meta charset="utf-8">  
+  <meta charset="utf-8"> 
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>IITM Math 1 Dashboard - Enhanced Student Analytics</title   
+  <title>IITM Math 1 Dashboard - Enhanced Student Analytics</title  
  
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -310,16 +310,6 @@
         <div class="col-md-2 mb-2">
           <input type="date" class="form-control" id="dateFilter">
         </div>
-        <div class="col-md-2 mb-2" id="attemptFilterContainer" style="display: none;">
-          <select class="form-select" id="attemptFilter">
-            <option value="">All Attempts</option>
-            <option value="1">Attempt 1</option>
-            <option value="2">Attempt 2</option>
-            <option value="3">Attempt 3</option>
-            <option value="4">Attempt 4</option>
-            <option value="5">Attempt 5</option>
-          </select>
-        </div>
         <div class="col-md-3 mb-2">
           <button class="btn btn-primary" onclick="applyFilters()">
             <i class="bi bi-funnel me-1"></i>Filter
@@ -398,13 +388,12 @@
       }
       
       // Process data - get only the latest attempt for each user per topic
-      // Process data - get only the latest attempt for each user per topic
-        allData = [];
-        const userTopicMap = new Map(); // Track latest attempt per user per topic
-        
-        result.data.forEach(student => {
-          if (student.quizScores && student.quizScores.length > 0) {
-            student.quizScores.forEach(score => {
+      allData = [];
+      const userTopicMap = new Map(); // Track latest attempt per user per topic
+      
+      result.data.forEach(student => {
+        if (student.scores && student.scores.length > 0) {
+          student.scores.forEach(score => {
             const key = `${student.email}-${score.topic}`;
             const existingScore = userTopicMap.get(key);
             
@@ -415,13 +404,14 @@
                 email: student.email,
                 topic: score.topic,
                 score: score.correctAnswers,
-                maxPossibleScore: score.totalQuestions,
+                maxPossibleScore: score.maxPossibleScore,
                 totalQuestions: score.totalQuestions,
                 correctAnswers: score.correctAnswers,
-                percentage: score.percentage || ((score.correctAnswers / score.totalQuestions) * 100).toFixed(2),
+                percentage: ((score.correctAnswers / score.totalQuestions) * 100).toFixed(2),
                 timestamp: score.timestamp,
                 questionResults: score.questionResults || [],
-                
+                difficultyBreakdown: score.difficultyBreakdown,
+                adaptiveData: score.adaptiveData
               });
             }
           });
@@ -436,9 +426,6 @@
       
       filteredData = [...allData];
     }
-    // Show/hide attempt filter
-    const attemptFilterContainer = document.getElementById('attemptFilterContainer');
-    attemptFilterContainer.style.display = viewType === 'all' ? 'block' : 'none';
 
     // Calculate statistics
     function calculateStatistics() {
@@ -480,38 +467,36 @@
       noDataState.style.display = 'none';
 
       dataToShow.forEach((item, index) => {
-      const scoreClass = getScoreClass(item.percentage);
-      const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
-      const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
-      const hasAnswers = (item.questionResults && item.questionResults.length > 0);
-      const showAttempt = currentView === 'all';
+        const scoreClass = getScoreClass(item.percentage);
+        const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
+        const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
+        const hasAnswers = (item.questionResults && item.questionResults.length > 0) || 
+                  (item.answers && item.answers.length > 0);
         
         // Main row
-        // Main row
-tbody.innerHTML += `
-  <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
-    <td>
-      ${hasAnswers ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
-    </td>
-    <td><strong>${item.username}</strong></td>
-    <td><small class="text-muted">${item.email}</small></td>
-    <td><span class="badge bg-light text-dark">${item.topic}</span></td>
-    ${showAttempt ? `<td><span class="badge bg-secondary">#${item.attemptNumber}</span></td>` : ''}
-    <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
-    <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
-    <td>
-      <div>${date}</div>
-      ${time ? `<small class="text-muted">${time}</small>` : ''}
-    </td>
-  </tr>
-`;
+        tbody.innerHTML += `
+          <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
+            <td>
+              ${hasAnswers ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
+            </td>
+            <td><strong>${item.username}</strong></td>
+            <td><small class="text-muted">${item.email}</small></td>
+            <td><span class="badge bg-light text-dark">${item.topic}</span></td>
+            <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
+            <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
+            <td>
+              <div>${date}</div>
+              ${time ? `<small class="text-muted">${time}</small>` : ''}
+            </td>
+          </tr>
+        `;
         
         // Detail row (initially hidden)
        // Detail row (initially hidden)
         if (hasAnswers) {
           tbody.innerHTML += `
             <tr id="detail-${index}" style="display: none;">
-             <td colspan="${currentView === 'all' ? '8' : '7'}">
+              <td colspan="7">
                 <div class="student-detail p-3">
                   <div id="detail-content-${index}" class="detail-content">
                     ${generateStudentDetail(item)}
@@ -609,36 +594,6 @@ function generateStudentDetail(item) {
       return 'hard';
     }
 
-    // Switch between latest and all attempts view
-function switchView(viewType) {
-  currentView = viewType;
-  expandedRows.clear(); // Reset expanded rows
-  
-  // Update button states
-  const latestBtn = document.getElementById('latestViewBtn');
-  const allBtn = document.getElementById('allViewBtn');
-  const description = document.getElementById('viewDescription');
-  const attemptHeader = document.getElementById('attemptHeader');
-  
-  if (viewType === 'latest') {
-    latestBtn.className = 'btn btn-primary';
-    allBtn.className = 'btn btn-outline-primary';
-    description.textContent = 'Showing latest attempt per student per topic';
-    attemptHeader.style.display = 'none';
-    filteredData = [...latestAttemptsData];
-  } else {
-    latestBtn.className = 'btn btn-outline-primary';
-    allBtn.className = 'btn btn-primary';
-    description.textContent = 'Showing complete attempt history for all students';
-    attemptHeader.style.display = 'table-cell';
-    filteredData = [...allData];
-  }
-  
-  // Re-populate table with new data
-  calculateStatistics();
-  populateTable(filteredData);
-}
-
     // Toggle student detail view
     // Toggle student detail view with smooth animation
 function toggleStudentDetail(index) {
@@ -731,14 +686,6 @@ function toggleStudentDetail(index) {
         });
       }
 
-      // Attempt filter (only in all view)
-      if (currentView === 'all') {
-        const attemptFilter = document.getElementById('attemptFilter').value;
-        if (attemptFilter) {
-          filteredData = filteredData.filter(item => item.attemptNumber == attemptFilter);
-        }
-      }
-
       expandedRows.clear(); // Reset expanded rows
       calculateStatistics();
       populateTable(filteredData);
@@ -750,7 +697,6 @@ function toggleStudentDetail(index) {
       document.getElementById('topicFilter').value = '';
       document.getElementById('scoreFilter').value = '';
       document.getElementById('dateFilter').value = '';
-      document.getElementById('attemptFilter').value = '';
       
       expandedRows.clear(); // Reset expanded rows
       filteredData = [...allData];
@@ -776,36 +722,25 @@ function toggleStudentDetail(index) {
 
     // Generate CSV content
     function generateCSV(data) {
-const headers = currentView === 'all' ? 
-  ['Username', 'Email', 'Topic', 'Attempt', 'Score', 'Total Questions', 'Percentage', 'Date', 'Detailed Answers'] :
-  ['Username', 'Email', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Date', 'Detailed Answers'];
+      const headers = ['Username', 'Email', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Date', 'Detailed Answers'];
       let csv = headers.join(',') + '\n';
       
       data.forEach(item => {
         const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
-        const detailedAnswers = item.questionResults ? 
-        item.questionResults.map(q => `Q${q.questionNumber}:${q.isCorrect ? 'correct' : 'incorrect'}:${q.userAnswer}`).join(';') : 
-        'No details';
+        const detailedAnswers = item.answers ? 
+          item.answers.map(a => `Q${a.questionNumber}:${a.attempts.length}attempts:${a.finalResult}`).join(';') : 
+          'No details';
         
-        const rowData = [
-  `"${item.username}"`,
-  `"${item.email}"`,
-  `"${item.topic}"`
-];
-
-if (currentView === 'all') {
-  rowData.push(`${item.attemptNumber}`);
-}
-
-rowData.push(
-  `${item.score}`,
-  `${item.totalQuestions}`,
-  `${item.percentage}%`,
-  `"${date}"`,
-  `"${detailedAnswers}"`
-);
-
-csv += rowData.join(',') + '\n';
+        csv += [
+          `"${item.username}"`,
+          `"${item.email}"`,
+          `"${item.topic}"`,
+          `${item.score}`,
+          `${item.totalQuestions}`,
+          `${item.percentage}%`,
+          `"${date}"`,
+          `"${detailedAnswers}"`
+        ].join(',') + '\n';
       });
       
       return csv;
