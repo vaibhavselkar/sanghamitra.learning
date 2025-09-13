@@ -838,29 +838,61 @@
                 
                 // Enhanced answer checking using the answerValidator from your questions file
                 // Enhanced answer checking
-            if (question.type === 'interval_input') {
-                if (typeof answerValidator !== 'undefined') {
-                    isCorrect = answerValidator.validateAnswer(
-                        userAnswer || '', 
-                        question.correct_answer, 
-                        question.alternative_answers
-                    );
-                } else {
-                    // Fallback validation for interval inputs
-                    isCorrect = (userAnswer || '').trim().toLowerCase() === 
-                               (question.correct_answer || '').toString().toLowerCase();
-                }
-            } else if (question.type === 'multiple_choice') {
-                isCorrect = userAnswer === question.correct_answer;
-            } else if (question.type === 'multiple_select') {
-                if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                    isCorrect = userAnswer.length === question.correct_answer.length &&
-                               userAnswer.every(ans => question.correct_answer.includes(ans));
-                }
-            } else if (question.type === 'numeric') {
-                const tolerance = 0.01;
-                isCorrect = Math.abs(parseFloat(userAnswer) - parseFloat(question.correct_answer)) <= tolerance;
-            }
+            // Enhanced answer checking with proper validation
+if (!userAnswer || userAnswer === '') {
+    isCorrect = false;
+} else if (question.type === 'interval_input') {
+    if (typeof answerValidator !== 'undefined') {
+        isCorrect = answerValidator.validateAnswer(
+            userAnswer.toString().trim(), 
+            question.correct_answer, 
+            question.alternative_answers || []
+        );
+    } else {
+        // Improved fallback validation for interval inputs
+        const userAns = userAnswer.toString().trim().toLowerCase().replace(/\s/g, '');
+        const correctAns = question.correct_answer.toString().trim().toLowerCase().replace(/\s/g, '');
+        isCorrect = userAns === correctAns;
+        
+        // Check alternative answers if available
+        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+            isCorrect = question.alternative_answers.some(alt => 
+                userAns === alt.toString().trim().toLowerCase().replace(/\s/g, '')
+            );
+        }
+    }
+} else if (question.type === 'multiple_choice') {
+    isCorrect = userAnswer.toString().trim() === question.correct_answer.toString().trim();
+} else if (question.type === 'multiple_select') {
+    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+        const sortedUser = [...userAnswer].sort();
+        const sortedCorrect = [...question.correct_answer].sort();
+        isCorrect = sortedUser.length === sortedCorrect.length &&
+                   sortedUser.every((ans, i) => ans === sortedCorrect[i]);
+    } else {
+        isCorrect = false;
+    }
+} else if (question.type === 'numeric' || question.type === 'numeric_input') {
+    const userNum = parseFloat(userAnswer);
+    const correctNum = parseFloat(question.correct_answer);
+    if (isNaN(userNum) || isNaN(correctNum)) {
+        isCorrect = false;
+    } else {
+        const tolerance = question.tolerance || 0.01;
+        isCorrect = Math.abs(userNum - correctNum) <= tolerance;
+    }
+} else if (question.type === 'text_input' || question.type === 'coordinate_input' || question.type === 'equation_input') {
+    const userAns = userAnswer.toString().trim().toLowerCase().replace(/\s/g, '');
+    const correctAns = question.correct_answer.toString().trim().toLowerCase().replace(/\s/g, '');
+    isCorrect = userAns === correctAns;
+    
+    // Check alternative answers if available
+    if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+        isCorrect = question.alternative_answers.some(alt => 
+            userAns === alt.toString().trim().toLowerCase().replace(/\s/g, '')
+        );
+    }
+}
             
             if (isCorrect) {
                 score += question.points;
@@ -881,7 +913,8 @@
                 points: question.points,
                 userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
                 correctAnswer: question.correct_answer.toString(),
-                explanation: question.explanation || '',
+                alternativeAnswers: question.alternative_answers || [],
+                explanation: question.explanation || 'No explanation provided',
                 isCorrect: isCorrect,
                 timeTaken: questionTimes[index] || 0
             });
@@ -1089,5 +1122,6 @@
     </script>
 </body>
 </html>
+
 
 
