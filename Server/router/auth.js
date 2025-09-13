@@ -1354,40 +1354,23 @@ router.get('/statistics_scores', async (req, res) => {
   }
 });
 
-router.get('/iitmmath_scores', async (req, res) => {
+router.post('/iitmmath_scores', async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, username, quizData } = req.body;
 
-    if (email) {
-      // Get specific user
-      const user = await iitm_math_score.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-      res.json({ success: true, data: user });
-    } else {
-      // Get all users
-      const users = await iitm_math_score.find({});
-      res.json({ success: true, data: users });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-try {
-    const { email, quizData } = req.body;
-
-    if (!email || !quizData) {
-      return res.status(400).json({ error: 'Email and quizData are required' });
+    if (!email || !username || !quizData) {
+      return res.status(400).json({ error: 'Email, username and quizData are required' });
     }
 
-    let user = await UserScores.findOne({ email });
+    let user = await Statistics_scores.findOne({ email });
 
     if (!user) {
-      // Create new user with quiz data
-      user = new UserScores({ email, quizScores: [quizData] });
+      // Create new user with username + quiz
+      user = new Statistics_scores({ email, username, quizScores: [quizData] });
     } else {
+      // Update username if changed
+      user.username = username;
+
       // Push new quiz attempt
       user.quizScores.push(quizData);
     }
@@ -1609,6 +1592,7 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
