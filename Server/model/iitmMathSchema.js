@@ -24,6 +24,7 @@ const topicScoreSchema = new mongoose.Schema({
 
 // Main User Schema
 const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: false },
   email: { type: String, required: true, unique: true },
   quizScores: [topicScoreSchema]
 }, { timestamps: true });
@@ -31,3 +32,4 @@ const userSchema = new mongoose.Schema({
 // Export using the same model name
 const Statistics_scores = mongoose.model('iitm_math_scores', userSchema);
 module.exports = Statistics_scores;
+
