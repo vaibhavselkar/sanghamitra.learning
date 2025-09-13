@@ -1393,14 +1393,23 @@ router.post('/iitmmath_scores', async (req, res) => {
       endTime,
       totalTimeTaken,
       isCompleted,
-      adaptiveData
+      adaptiveData,
+      attemptNumber
     } = req.body;
 
     // Validate required fields
-    if (!username || !email || score === undefined || !maxPossibleScore || !totalQuestions || !correctAnswers || !percentage) {
+    if (!username || !email || score === undefined || !maxPossibleScore || !totalQuestions || correctAnswers === undefined || percentage === undefined) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Missing required fields' 
+        error: 'Missing required fields: username, email, score, maxPossibleScore, totalQuestions, correctAnswers, percentage' 
+      });
+    }
+
+    // Validate topic is provided
+    if (!topic || typeof topic !== 'string') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Topic is required and must be a string' 
       });
     }
 
@@ -1408,13 +1417,21 @@ router.post('/iitmmath_scores', async (req, res) => {
     if (!questionResults || !Array.isArray(questionResults) || questionResults.length === 0) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Question results are required' 
+        error: 'Question results are required and must be a non-empty array' 
       });
     }
 
-    // Create new score object matching the schema
-    const newScore = {
-      topic: topic || 'domain_range_functions',
+    // Validate time fields
+    if (!startTime || !endTime || !totalTimeTaken) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Start time, end time, and total time taken are required' 
+      });
+    }
+
+    // Create new quiz score object matching the updated schema
+    const newQuizScore = {
+      topic,
       quizType: quizType || 'practice',
       score,
       maxPossibleScore,
@@ -1445,43 +1462,89 @@ router.post('/iitmmath_scores', async (req, res) => {
         finalDifficulty: 'easy',
         difficultyProgression: []
       },
+      attemptNumber: attemptNumber || 1,
       timestamp: new Date()
     };
 
     // Find existing user or create new one
-    let user = await iitm_math_score.findOne({ email });
+    let user = await Statistics_scores.findOne({ username, email });
 
     if (user) {
-      // Add new score to existing user
-      user.scores.push(newScore);
-      await user.save();
+      // Use the schema method to add quiz score (handles performance summary updates)
+      await user.addQuizScore(newQuizScore);
       
       console.log(`Score updated for existing user: ${username}`);
     } else {
-      // Create new user with the score
-      user = new iitm_math_score({
+      // Create new user with initial data
+      user = new Statistics_scores({
         username,
         email,
-        scores: [newScore]
+        quizScores: [newQuizScore],
+        performanceSummary: {
+          totalQuizzesCompleted: 0,
+          averageScore: 0,
+          topicProgress: new Map(),
+          overallDifficultyStats: {
+            easy: { totalAttempted: 0, totalCorrect: 0, accuracy: 0 },
+            medium: { totalAttempted: 0, totalCorrect: 0, accuracy: 0 },
+            hard: { totalAttempted: 0, totalCorrect: 0, accuracy: 0 }
+          },
+          lastUpdated: new Date()
+        },
+        courseProgress: {
+          currentTopic: topic,
+          completedTopics: [],
+          overallProgressPercentage: 0
+        }
       });
+
+      // Use the schema method to properly update performance summary
+      user.updatePerformanceSummary(newQuizScore);
+      user.updateCourseProgress(topic, percentage);
+      
       await user.save();
       
       console.log(`New user created: ${username}`);
     }
 
-    // Send success response with additional info
+    // Get updated user data for response
+    const updatedUser = await Statistics_scores.findOne({ username, email })
+      .select('username email quizScores performanceSummary courseProgress');
+
+    // Get the user's best score for this topic
+    const topicScores = updatedUser.quizScores.filter(quiz => quiz.topic === topic);
+    const bestTopicScore = topicScores.reduce((best, current) => 
+      current.percentage > best.percentage ? current : best
+    );
+
+    // Send success response with comprehensive data
     res.json({ 
       success: true, 
-      message: 'Score saved successfully',
+      message: 'Quiz score saved successfully',
       data: {
-        username: user.username,
-        email: user.email,
-        totalQuizzesTaken: user.scores.length,
-        latestScore: {
-          topic: newScore.topic,
-          score: newScore.score,
-          percentage: newScore.percentage,
-          timestamp: newScore.timestamp
+        user: {
+          username: updatedUser.username,
+          email: updatedUser.email
+        },
+        quiz: {
+          topic: newQuizScore.topic,
+          score: newQuizScore.score,
+          percentage: newQuizScore.percentage,
+          attemptNumber: newQuizScore.attemptNumber,
+          timestamp: newQuizScore.timestamp
+        },
+        progress: {
+          totalQuizzes: updatedUser.performanceSummary.totalQuizzesCompleted,
+          averageScore: Math.round(updatedUser.performanceSummary.averageScore * 100) / 100,
+          overallProgress: updatedUser.courseProgress.overallProgressPercentage,
+          completedTopics: updatedUser.courseProgress.completedTopics.length,
+          currentTopic: updatedUser.courseProgress.currentTopic
+        },
+        topicStats: {
+          bestScore: bestTopicScore.percentage,
+          totalAttempts: topicScores.length,
+          improvement: topicScores.length > 1 ? 
+            newQuizScore.percentage - topicScores[topicScores.length - 2].percentage : 0
         }
       }
     });
@@ -1502,18 +1565,17 @@ router.post('/iitmmath_scores', async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({ 
         success: false, 
-        error: 'User already exists with different credentials'
+        error: 'Duplicate key error - user credentials conflict'
       });
     }
     
     res.status(500).json({ 
       success: false, 
       error: 'Internal server error',
-      message: error.message
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
     });
   }
 });
-
 
 
 // fetching users' predaignostic data
@@ -1724,6 +1786,7 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
