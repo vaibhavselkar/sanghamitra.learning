@@ -4,117 +4,129 @@ const questions = [
         question_number: 1,
         difficulty: "easy",
         type: "multiple_choice",
-        question_text: "Which of the following is/are correct with respect to the slope of a line?",
+        question_text: "What is a linear function?",
         options: [
-            "A) The line parallel to the X-axis has slope of value 1",
-            "B) The line parallel to the Y-axis has a slope of 0", 
-            "C) The line parallel to the X-axis has a slope of 0",
-            "D) The slope of a line is always positive"
+            "A) A function that can be written as f(x) = ax² + bx + c",
+            "B) A function that can be written as f(x) = mx + b where m and b are constants",
+            "C) A function that has curves",
+            "D) A function that goes up and down"
         ],
-        correct_answer: "C) The line parallel to the X-axis has a slope of 0",
-        explanation: "A horizontal line (parallel to x-axis) has slope 0. A vertical line (parallel to y-axis) has undefined slope. Slopes can be positive, negative, or zero."
+        correct_answer: "B) A function that can be written as f(x) = mx + b where m and b are constants",
+        explanation: "A linear function has the form f(x) = mx + b where m is the slope and b is the y-intercept. Its graph is always a straight line."
     },
     {
         question_number: 2,
         difficulty: "easy",
-        type: "fraction_input",
-        question_text: "Find the slope of the line passing through points (2, 5) and (6, 11).",
-        format_hint: "Enter as fraction (e.g., 3/2) or decimal (e.g., 1.5). Simplify fractions to lowest terms.",
-        correct_answer: "3/2",
-        alternative_answers: ["1.5", "6/4"],
-        explanation: "Slope = (y₂ - y₁)/(x₂ - x₁) = (11 - 5)/(6 - 2) = 6/4 = 3/2"
+        type: "multiple_choice",
+        question_text: "Which of the following represents a linear function?",
+        options: [
+            "A) y = 3x²",
+            "B) y = 2x + 5",
+            "C) y = 1/x",
+            "D) y = √x"
+        ],
+        correct_answer: "B) y = 2x + 5",
+        explanation: "y = 2x + 5 is in the form y = mx + b where m = 2 and b = 5, making it a linear function."
     },
     {
         question_number: 3,
         difficulty: "easy",
         type: "numeric_input",
-        question_text: "What is the y-intercept of the line 3x + 2y = 12?",
-        format_hint: "Enter as a number (e.g., 6 or 6.0)",
-        correct_answer: "6",
-        alternative_answers: ["6.0"],
-        explanation: "To find y-intercept, set x = 0: 3(0) + 2y = 12, so 2y = 12, therefore y = 6"
+        question_text: "In the equation y = 4x + 7, what is the slope?",
+        format_hint: "Enter as a number (e.g., 4)",
+        correct_answer: "4",
+        alternative_answers: ["4.0"],
+        explanation: "In the slope-intercept form y = mx + b, m is the slope. Here m = 4, so the slope is 4."
     },
     {
         question_number: 4,
         difficulty: "easy",
-        type: "equation_input",
-        question_text: "Convert 2x - 3y = 6 to slope-intercept form (y = mx + b).",
-        format_hint: "Enter in form y = mx + b (e.g., y = 2x - 3). Use fractions like 2/3 for non-integer coefficients.",
-        correct_answer: "y = 2/3x - 2",
-        alternative_answers: ["y = (2/3)x - 2", "y = 0.67x - 2", "y = 2x/3 - 2"],
-        explanation: "Solve for y: -3y = -2x + 6, so y = (2/3)x - 2"
+        type: "numeric_input",
+        question_text: "In the equation y = 3x - 2, what is the y-intercept?",
+        format_hint: "Enter as a number (e.g., -2)",
+        correct_answer: "-2",
+        alternative_answers: ["-2.0"],
+        explanation: "In the slope-intercept form y = mx + b, b is the y-intercept. Here b = -2, so the y-intercept is -2."
     },
     {
         question_number: 5,
         difficulty: "easy",
         type: "multiple_choice",
-        question_text: "Which line has a negative slope?",
+        question_text: "What does the slope of a line represent?",
         options: [
-            "A) y = 2x + 1",
-            "B) y = -x + 3",
-            "C) y = 5",
-            "D) x = -2"
+            "A) How steep the line is and its direction",
+            "B) Where the line crosses the x-axis",
+            "C) Where the line crosses the y-axis", 
+            "D) The length of the line"
         ],
-        correct_answer: "B) y = -x + 3",
-        explanation: "In y = -x + 3, the coefficient of x is -1, which is negative."
+        correct_answer: "A) How steep the line is and its direction",
+        explanation: "Slope measures the steepness of a line and whether it rises or falls from left to right. It's the 'rise over run'."
     },
     {
         question_number: 6,
         difficulty: "easy",
         type: "numeric_input",
-        question_text: "Find the x-intercept of the line y = 4x - 8.",
-        format_hint: "Enter as a number (e.g., 2 or 2.0)",
+        question_text: "Find the slope of the line passing through points (0, 1) and (2, 5).",
+        format_hint: "Enter as a number (e.g., 2)",
         correct_answer: "2",
         alternative_answers: ["2.0"],
-        explanation: "To find x-intercept, set y = 0: 0 = 4x - 8, so 4x = 8, therefore x = 2"
+        explanation: "Slope = (y₂ - y₁)/(x₂ - x₁) = (5 - 1)/(2 - 0) = 4/2 = 2"
     },
     {
         question_number: 7,
         difficulty: "easy",
         type: "multiple_choice",
-        question_text: "What type of line is represented by x = 5?",
+        question_text: "A horizontal line has what slope?",
         options: [
-            "A) Horizontal line",
-            "B) Vertical line", 
-            "C) Line with slope 1",
-            "D) Line with slope -1"
+            "A) 1",
+            "B) -1", 
+            "C) 0",
+            "D) Undefined"
         ],
-        correct_answer: "B) Vertical line",
-        explanation: "x = 5 represents a vertical line passing through all points with x-coordinate 5."
+        correct_answer: "C) 0",
+        explanation: "A horizontal line doesn't rise or fall, so the change in y is 0. This gives slope = 0/run = 0."
     },
     {
         question_number: 8,
         difficulty: "easy",
-        type: "equation_input",
-        question_text: "Find the equation of the line with slope 3 passing through point (1, 4).",
-        format_hint: "Enter in form y = mx + b (e.g., y = 3x + 1)",
-        correct_answer: "y = 3x + 1",
-        alternative_answers: ["y = 3x + 1.0"],
-        explanation: "Using point-slope form: y - 4 = 3(x - 1), so y = 3x - 3 + 4 = 3x + 1"
+        type: "multiple_choice",
+        question_text: "A vertical line has what slope?",
+        options: [
+            "A) 1",
+            "B) 0", 
+            "C) -1",
+            "D) Undefined"
+        ],
+        correct_answer: "D) Undefined",
+        explanation: "A vertical line has no run (change in x = 0), so slope = rise/0, which is undefined."
     },
     {
         question_number: 9,
         difficulty: "easy",
         type: "multiple_choice",
-        question_text: "Which of these lines is decreasing?",
+        question_text: "Which line has a positive slope?",
         options: [
-            "A) y = 2x + 1",
-            "B) y = -0.5x + 3",
-            "C) y = 7",
-            "D) y = x"
+            "A) y = -2x + 1",
+            "B) y = 3x + 4",
+            "C) y = 5",
+            "D) x = 2"
         ],
-        correct_answer: "B) y = -0.5x + 3",
-        explanation: "A line is decreasing when its slope is negative. Only y = -0.5x + 3 has a negative slope."
+        correct_answer: "B) y = 3x + 4",
+        explanation: "In y = 3x + 4, the slope is 3, which is positive. Positive slopes rise from left to right."
     },
     {
         question_number: 10,
         difficulty: "easy",
-        type: "fraction_input",
-        question_text: "What is the slope of the line 5x + 2y = 10?",
-        format_hint: "Enter as fraction (e.g., -5/2) or decimal (e.g., -2.5)",
-        correct_answer: "-5/2",
-        alternative_answers: ["-2.5", "-2.50"],
-        explanation: "Convert to slope-intercept form: 2y = -5x + 10, so y = -5/2x + 5. The slope is -5/2"
+        type: "multiple_choice",
+        question_text: "The y-intercept is the point where the line crosses which axis?",
+        options: [
+            "A) The x-axis",
+            "B) The y-axis",
+            "C) Both axes",
+            "D) Neither axis"
+        ],
+        correct_answer: "B) The y-axis",
+        explanation: "The y-intercept is where the line crosses the y-axis. This happens when x = 0."
     },
 
     // MEDIUM QUESTIONS (11-25) - Applications and Systems
