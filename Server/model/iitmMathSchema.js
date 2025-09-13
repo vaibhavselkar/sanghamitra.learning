@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); 
 
 // Individual Question Result Schema
 const questionResultSchema = new mongoose.Schema({
@@ -343,3 +343,4 @@ userSchema.statics.getAllTopics = function() {
 // Create and export the model
 const Statistics_scores = mongoose.model('iitm_math_scores', userSchema);
 module.exports = Statistics_scores;
+
