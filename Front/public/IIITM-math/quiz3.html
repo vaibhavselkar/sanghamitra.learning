@@ -955,21 +955,15 @@
 
         // Enhanced results display
     // Enhanced results display
+// Enhanced results display
 function displayDetailedResults(quizData) {
-    console.log('Quiz data received:', quizData); // Debug line
-    console.log('Question results:', quizData.questionResults); // Debug line
-    
     document.getElementById('quizContainer').style.display = 'none';
     
     const resultsContainer = document.getElementById('resultsContainer');
     resultsContainer.style.display = 'block';
     
-    // Clear any existing content
-    resultsContainer.innerHTML = '';
-    
-    // Create and add score display
-    const scoreDisplay = document.createElement('div');
-    scoreDisplay.className = 'score-display';
+    // Update the results display with detailed information
+    const scoreDisplay = document.querySelector('.score-display');
     scoreDisplay.innerHTML = `
         <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
         <p>Quiz Completed Successfully!</p>
@@ -991,9 +985,8 @@ function displayDetailedResults(quizData) {
             Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
         </p>
     `;
-    resultsContainer.appendChild(scoreDisplay);
     
-    // Create detailed question review
+    // Add detailed question review
     const reviewDiv = document.createElement('div');
     reviewDiv.style.cssText = `
         margin-top: 30px;
@@ -1004,78 +997,64 @@ function displayDetailedResults(quizData) {
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     `;
     
-    let reviewHTML = '<h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question Review</h3>';
-    
-    if (quizData.questionResults && quizData.questionResults.length > 0) {
-        quizData.questionResults.forEach(result => {
-            reviewHTML += `
-                <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                            border-radius: 8px; 
-                            padding: 15px; 
-                            margin-bottom: 15px; 
-                            background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
-                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                        <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                    color: white; 
-                                    padding: 4px 8px; 
-                                    border-radius: 50%; 
-                                    margin-right: 10px; 
-                                    font-weight: bold;">
-                            ${result.questionNumber}
-                        </span>
-                        <span style="background: ${getDifficultyColor(result.difficulty)}; 
-                                    color: white; 
-                                    padding: 2px 8px; 
-                                    border-radius: 12px; 
-                                    font-size: 12px; 
-                                    text-transform: uppercase; 
-                                    margin-right: 10px;">
-                            ${result.difficulty}
-                        </span>
-                        <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
-                            ${result.isCorrect ? 'Correct' : 'Incorrect'} (${result.points} pts)
-                        </span>
-                    </div>
-                    <div style="margin-bottom: 10px; line-height: 1.4;">
-                        <strong>Question:</strong> ${result.questionText || 'N/A'}
-                    </div>
-                    <div style="margin-bottom: 8px;">
-                        <strong>Your Answer:</strong> 
-                        <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
-                            ${result.userAnswer || 'No answer provided'}
-                        </span>
-                    </div>
-                    <div style="margin-bottom: 8px;">
-                        <strong>Correct Answer:</strong> 
-                        <span style="color: #28a745; font-weight: bold;">
-                            ${result.correctAnswer || 'N/A'}
-                        </span>
-                    </div>
-                    ${result.explanation ? `
-                    <div style="margin-bottom: 10px; padding: 12px; background: #f8f9ff; border-left: 4px solid #4a90e2; border-radius: 6px; line-height: 1.5;">
-                        <strong style="color: #2c5aa0;">Explanation:</strong><br>
-                        <span style="color: #444; margin-top: 5px; display: block;">${result.explanation}</span>
-                    </div>` : ''}
-                    <div style="font-size: 0.9em; color: #666;">
-                        Time taken: ${result.timeTaken || 0}s
-                    </div>
+    reviewDiv.innerHTML = `
+        <h3 style="text-align: center; margin-bottom: 25px; color: #333;">📋 Question Review</h3>
+        ${quizData.questionResults.map(result => `
+            <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
+                        border-radius: 8px; 
+                        padding: 15px; 
+                        margin-bottom: 15px; 
+                        background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
+                                color: white; 
+                                padding: 4px 8px; 
+                                border-radius: 50%; 
+                                margin-right: 10px; 
+                                font-weight: bold;">
+                        ${result.questionNumber}
+                    </span>
+                    <span style="background: ${getDifficultyColor(result.difficulty)}; 
+                                color: white; 
+                                padding: 2px 8px; 
+                                border-radius: 12px; 
+                                font-size: 12px; 
+                                text-transform: uppercase; 
+                                margin-right: 10px;">
+                        ${result.difficulty}
+                    </span>
+                    <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
+                        ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'} (${result.points} pts)
+                    </span>
                 </div>
-            `;
-        });
-    } else {
-        reviewHTML += '<p>No question results available.</p>';
-    }
+                <div style="margin-bottom: 10px; line-height: 1.4;">
+                    <strong>Question:</strong> ${result.questionText}
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>Your Answer:</strong> 
+                    <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                        ${result.userAnswer || 'No answer provided'}
+                    </span>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <strong>Correct Answer:</strong> 
+                    <span style="color: #28a745; font-weight: bold;">
+                        ${result.correctAnswer}
+                    </span>
+                </div>
+                ${result.explanation ? `
+                <div style="margin-bottom: 10px; padding: 12px; background: #f8f9ff; border-left: 4px solid #4a90e2; border-radius: 6px; line-height: 1.5;">
+                    <strong style="color: #2c5aa0;">Explanation:</strong><br>
+                    <span style="color: #444; margin-top: 5px; display: block;">${result.explanation}</span>
+                </div>` : ''}
+                <div style="font-size: 0.9em; color: #666;">
+                    Time taken: ${result.timeTaken}s
+                </div>
+            </div>
+        `).join('')}
+    `;
     
-    reviewDiv.innerHTML = reviewHTML;
     resultsContainer.appendChild(reviewDiv);
-    
-    // Add home button
-    const homeButton = document.createElement('button');
-    homeButton.className = 'btn';
-    homeButton.textContent = 'Home Page';
-    homeButton.onclick = goback;
-    homeButton.style.marginTop = '20px';
-    resultsContainer.appendChild(homeButton);
 }
 
 // Helper function for difficulty colors
@@ -1110,6 +1089,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
