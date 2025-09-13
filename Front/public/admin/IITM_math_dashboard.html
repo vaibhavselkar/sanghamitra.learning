@@ -388,12 +388,13 @@
       }
       
       // Process data - get only the latest attempt for each user per topic
-      allData = [];
-      const userTopicMap = new Map(); // Track latest attempt per user per topic
-      
-      result.data.forEach(student => {
-        if (student.scores && student.scores.length > 0) {
-          student.scores.forEach(score => {
+      // Process data - get only the latest attempt for each user per topic
+        allData = [];
+        const userTopicMap = new Map(); // Track latest attempt per user per topic
+        
+        result.data.forEach(student => {
+          if (student.quizScores && student.quizScores.length > 0) {
+            student.quizScores.forEach(score => {
             const key = `${student.email}-${score.topic}`;
             const existingScore = userTopicMap.get(key);
             
@@ -404,14 +405,13 @@
                 email: student.email,
                 topic: score.topic,
                 score: score.correctAnswers,
-                maxPossibleScore: score.maxPossibleScore,
+                maxPossibleScore: score.totalQuestions,
                 totalQuestions: score.totalQuestions,
                 correctAnswers: score.correctAnswers,
-                percentage: ((score.correctAnswers / score.totalQuestions) * 100).toFixed(2),
+                percentage: score.percentage || ((score.correctAnswers / score.totalQuestions) * 100).toFixed(2),
                 timestamp: score.timestamp,
                 questionResults: score.questionResults || [],
-                difficultyBreakdown: score.difficultyBreakdown,
-                adaptiveData: score.adaptiveData
+                
               });
             }
           });
@@ -470,8 +470,7 @@
         const scoreClass = getScoreClass(item.percentage);
         const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
         const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
-        const hasAnswers = (item.questionResults && item.questionResults.length > 0) || 
-                  (item.answers && item.answers.length > 0);
+        const hasAnswers = (item.questionResults && item.questionResults.length > 0);
         
         // Main row
         tbody.innerHTML += `
@@ -727,9 +726,9 @@ function toggleStudentDetail(index) {
       
       data.forEach(item => {
         const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
-        const detailedAnswers = item.answers ? 
-          item.answers.map(a => `Q${a.questionNumber}:${a.attempts.length}attempts:${a.finalResult}`).join(';') : 
-          'No details';
+        const detailedAnswers = item.questionResults ? 
+        item.questionResults.map(q => `Q${q.questionNumber}:${q.isCorrect ? 'correct' : 'incorrect'}:${q.userAnswer}`).join(';') : 
+        'No details';
         
         csv += [
           `"${item.username}"`,
