@@ -646,10 +646,11 @@
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
                 `).join('');
-            } else if (question.type === 'numeric' || question.type === 'interval_input') {
+           } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input') {
                 const placeholder = question.format_hint || "Enter your answer";
                 optionsHtml = `<input type="text" class="numeric-input" placeholder="${placeholder}" 
-                               onchange="handleNumericInput(${currentQuestionIndex}, this.value)">`;
+                               onchange="handleNumericInput(${currentQuestionIndex}, this.value)"
+                               oninput="handleNumericInput(${currentQuestionIndex}, this.value)">`;
             }
 
             // Add difficulty badge
@@ -666,7 +667,6 @@
                         <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                             ${question.difficulty}
                         </span>
-                        <div style="font-weight: 600;">Points: ${question.points}</div>
                     </div>
                 </div>
                 <div class="question-text">${question.question_text}</div>
@@ -701,7 +701,7 @@
                         option.closest('.option').classList.add('selected');
                     }
                 });
-            } else if (question.type === 'numeric' || question.type === 'interval_input') {
+            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input') {
                 const input = document.querySelector('.numeric-input');
                 if (input) {
                     input.value = savedAnswer;
@@ -1080,6 +1080,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
