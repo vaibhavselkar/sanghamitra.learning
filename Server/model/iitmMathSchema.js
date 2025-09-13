@@ -30,6 +30,6 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Export using the same model name
-const Statistics_scores = mongoose.model('iitm_math_scores', userSchema);
-module.exports = Statistics_scores;
+module.exports = mongoose.model('iitm_math_scores', userSchema);;
+
 
