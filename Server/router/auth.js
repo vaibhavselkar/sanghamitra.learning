@@ -1377,26 +1377,24 @@ router.get('/iitmmath_scores', async (req, res) => {
 router.post('/iitmmath_scores', async (req, res) => {
   try {
     const { email, username, quizData } = req.body;
-
+    
+    // DEBUG: Log the received data
+    console.log('Received request body:', JSON.stringify(req.body, null, 2));
+    console.log('QuizData structure:', JSON.stringify(quizData, null, 2));
+    
     if (!email || !username || !quizData) {
       return res.status(400).json({ error: 'Email, username and quizData are required' });
     }
-
+    
     let user = await iitm_math_score.findOne({ email });
-
     if (!user) {
-      // Create new user with username + quiz
       user = new iitm_math_score({ email, username, quizScores: [quizData] });
     } else {
-      // Update username if changed
       user.username = username;
-
-      // Push new quiz attempt
       user.quizScores.push(quizData);
     }
-
+    
     await user.save();
-
     res.status(201).json({ message: 'Quiz result saved successfully', user });
   } catch (error) {
     console.error('Error saving quiz result:', error);
@@ -1612,6 +1610,7 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
