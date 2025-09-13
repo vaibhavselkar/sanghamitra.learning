@@ -1,5 +1,5 @@
 const questions = [
-    // EASY QUESTIONS (1-10) - Basic Foundations
+    // EASY QUESTIONS (1-10) - Basic Foundations 
     {
         question_number: 1,
         difficulty: "easy",
@@ -623,3 +623,4 @@ if (typeof module !== 'undefined' && module.exports) {
         questionHelpers
     };
 }
+
