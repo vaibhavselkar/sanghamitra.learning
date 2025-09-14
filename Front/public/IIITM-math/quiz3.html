@@ -857,9 +857,23 @@
                     isCorrect = userAnswer.length === question.correct_answer.length &&
                                userAnswer.every(ans => question.correct_answer.includes(ans));
                 }
-            } else if (question.type === 'numeric') {
-                const tolerance = 0.01;
-                isCorrect = Math.abs(parseFloat(userAnswer) - parseFloat(question.correct_answer)) <= tolerance;
+           } else if (question.type === 'numeric') {
+                const userNum = parseFloat((userAnswer || '').toString().trim());
+                const correctNum = parseFloat((question.correct_answer || '').toString().trim());
+                if (!isNaN(userNum) && !isNaN(correctNum)) {
+                    const tolerance = 0.01;
+                    isCorrect = Math.abs(userNum - correctNum) <= tolerance;
+              } else if (question.type === 'equation_input') {
+                // Normalize equations by removing all spaces and converting to lowercase
+                const normalizeEquation = (eq) => {
+                    return (eq || '').toString().replace(/\s+/g, '').toLowerCase();
+                };
+                isCorrect = normalizeEquation(userAnswer) === normalizeEquation(question.correct_answer);
+            } else {
+                // For non-numeric comparison, normalize and compare as strings
+                isCorrect = (userAnswer || '').toString().trim().toLowerCase() === 
+                           (question.correct_answer || '').toString().trim().toLowerCase();
+            }
             }
             
             if (isCorrect) {
@@ -1089,4 +1103,5 @@
     </script>
 </body>
 </html>
+
 
