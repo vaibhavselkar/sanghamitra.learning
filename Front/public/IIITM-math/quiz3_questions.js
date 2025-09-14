@@ -137,7 +137,7 @@ const questions = [
         question_text: "Find the equation of line parallel to 3x - 4y + 7 = 0 passing through (1, -2)",
         format_hint: "Enter in standard form Ax + By + C = 0 (e.g., 5x - 2y - 8 = 0)",
         correct_answer: "3x - 4y - 11 = 0",
-        alternative_answers: ["3x - 4y = 11"],
+        alternative_answers: ["3x - 4y = 11","3x-4y-11=0"],
         explanation: "Parallel line has same slope. Using point-slope form with (1, -2): 3(x-1) - 4(y+2) = 0, which gives 3x - 4y - 11 = 0."
     },
     {
@@ -623,4 +623,5 @@ if (typeof module !== 'undefined' && module.exports) {
         questionHelpers
     };
 }
+
 
