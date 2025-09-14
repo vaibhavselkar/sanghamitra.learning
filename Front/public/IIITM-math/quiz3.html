@@ -647,7 +647,7 @@
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
                 `).join('');
-           } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+           } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input' || question.type === 'fraction_input') {
                 const placeholder = question.format_hint || "Enter your answer";
                 optionsHtml = `<input type="text" class="numeric-input" placeholder="${placeholder}" 
                                onchange="handleNumericInput(${currentQuestionIndex}, this.value)"
@@ -702,7 +702,7 @@
                         option.closest('.option').classList.add('selected');
                     }
                 });
-            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input' || question.type === 'fraction_input') {
                 const input = document.querySelector('.numeric-input');
                 if (input) {
                     input.value = savedAnswer;
@@ -1090,4 +1090,5 @@
     </script>
 </body>
 </html>
+
 
