@@ -801,60 +801,51 @@
             return 'hard';
         }
        // Normalize answers for comparison
-function normalizeAnswer(answer) {
-    if (!answer) return '';
-    
-    let normalized = answer.toString().trim().toLowerCase();
-    
-    // Handle coordinate formats: (a,b) and (a, b) should be equivalent
-    normalized = normalized.replace(/\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/g, '($1, $2)');
-    
-    // Handle interval notation: [a,b] and [a, b] should be equivalent
-    normalized = normalized.replace(/\[\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\]/g, '[$1, $2]');
-    normalized = normalized.replace(/\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\]/g, '($1, $2]');
-    normalized = normalized.replace(/\[\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/g, '[$1, $2)');
-    
-    // Remove extra whitespace
-    normalized = normalized.replace(/\s+/g, ' ').trim();
-    // Normalize fractions for comparison
-        function normalizeFraction(fraction) {
-            if (!fraction) return '';
-            
-            let normalized = fraction.toString().trim();
-            
-            // Handle different fraction formats: 1/2, 1 / 2, etc.
-            normalized = normalized.replace(/\s*\/\s*/g, '/');
-            
-            // Convert to decimal for comparison if it's a simple fraction
-            const fractionMatch = normalized.match(/^(-?\d+)\/(\d+)$/);
-            if (fractionMatch) {
-                const numerator = parseInt(fractionMatch[1]);
-                const denominator = parseInt(fractionMatch[2]);
-                if (denominator !== 0) {
-                    // Return normalized fraction format for comparison
-                    const gcd = findGCD(Math.abs(numerator), denominator);
-                    return `${numerator/gcd}/${denominator/gcd}`;
-                }
-            }
-            
-            return normalized.toLowerCase();
+// Add this before the submitQuiz function
+const answerValidator = {
+    validateAnswer: function(userAnswer, correctAnswer, alternativeAnswers = []) {
+        if (!userAnswer) return false;
+        
+        const normalizedUser = this.normalizeAnswer(userAnswer);
+        const normalizedCorrect = this.normalizeAnswer(correctAnswer);
+        
+        if (normalizedUser === normalizedCorrect) return true;
+        
+        // Check alternative answers if provided
+        if (alternativeAnswers && alternativeAnswers.length > 0) {
+            return alternativeAnswers.some(alt => 
+                this.normalizeAnswer(alt) === normalizedUser
+            );
         }
-
-        // Helper function to find Greatest Common Divisor
-        function findGCD(a, b) {
-            while (b !== 0) {
-                let temp = b;
-                b = a % b;
-                a = temp;
-            }
-            return a;
-        }
-
-        // FIXED: Updated submit function with correct request structure
-    return normalized;
-}
+        
+        return false;
+    },
+    
+    normalizeAnswer: function(answer) {
+        if (!answer) return '';
+        
+        let normalized = answer.toString().trim().toLowerCase();
+        
+        // Handle coordinate formats
+        normalized = normalized.replace(/\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/g, '($1, $2)');
+        
+        // Handle interval notation
+        normalized = normalized.replace(/\[\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\]/g, '[$1, $2]');
+        normalized = normalized.replace(/\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\]/g, '($1, $2]');
+        normalized = normalized.replace(/\[\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)/g, '[$1, $2)');
+        
+        // Remove extra whitespace
+        normalized = normalized.replace(/\s+/g, ' ').trim();
+        
+        return normalized;
+    }
+};
         // FIXED: Updated submit function with correct request structure
         async function submitQuiz() {
+            console.log('Submit function called');
+            console.log('Username:', username, 'Email:', email);
+            console.log('User answers:', userAnswers);
+            console.log('Questions length:', questions.length);
             // Show polite confirmation popup
             const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Domain and Range Quiz?`);
             
@@ -890,20 +881,13 @@ function normalizeAnswer(answer) {
                 let isCorrect = false;
                 
                 // Enhanced answer checking using the answerValidator from your questions file
-                // Enhanced answer checking
-           // Enhanced answer checking with normalization
+    // Enhanced answer checking with normalization
 if (question.type === 'interval_input') {
-    if (typeof answerValidator !== 'undefined') {
-        isCorrect = answerValidator.validateAnswer(
-            userAnswer || '', 
-            question.correct_answer, 
-            question.alternative_answers
-        );
-    } else {
-        // Fallback validation for interval inputs
-        isCorrect = normalizeAnswer(userAnswer || '') === 
-                   normalizeAnswer((question.correct_answer || '').toString());
-    }
+    isCorrect = answerValidator.validateAnswer(
+        userAnswer || '', 
+        question.correct_answer, 
+        question.alternative_answers
+    );
 } else if (question.type === 'multiple_choice') {
     isCorrect = userAnswer === question.correct_answer;
 } else if (question.type === 'multiple_select') {
@@ -918,19 +902,19 @@ if (question.type === 'interval_input') {
         const tolerance = 0.01;
         isCorrect = Math.abs(userNum - correctNum) <= tolerance;
     } else {
-        isCorrect = normalizeAnswer(userAnswer || '') === 
-                   normalizeAnswer((question.correct_answer || '').toString());
+        isCorrect = answerValidator.normalizeAnswer(userAnswer || '') === 
+                   answerValidator.normalizeAnswer((question.correct_answer || '').toString());
     }
 } else if (question.type === 'fraction_input') {
     isCorrect = normalizeFraction(userAnswer || '') === 
                normalizeFraction((question.correct_answer || '').toString());
 } else if (question.type === 'coordinate_input' || question.type === 'text_input') {
-    isCorrect = normalizeAnswer(userAnswer || '') === 
-               normalizeAnswer((question.correct_answer || '').toString());
+    isCorrect = answerValidator.normalizeAnswer(userAnswer || '') === 
+               answerValidator.normalizeAnswer((question.correct_answer || '').toString());
 } else {
     // Default comparison with normalization
-    isCorrect = normalizeAnswer(userAnswer || '') === 
-               normalizeAnswer((question.correct_answer || '').toString());
+    isCorrect = answerValidator.normalizeAnswer(userAnswer || '') === 
+               answerValidator.normalizeAnswer((question.correct_answer || '').toString());
 }
             
             if (isCorrect) {
@@ -1160,6 +1144,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
