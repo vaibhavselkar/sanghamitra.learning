@@ -801,9 +801,6 @@
             return 'hard';
         }
 
-       
-
-        
         // FIXED: Updated submit function with correct request structure
         async function submitQuiz() {
             // Show polite confirmation popup
@@ -842,7 +839,6 @@
                 
                 // Enhanced answer checking using the answerValidator from your questions file
                 // Enhanced answer checking
-           // Enhanced answer checking with normalization
             if (question.type === 'interval_input') {
                 if (typeof answerValidator !== 'undefined') {
                     isCorrect = answerValidator.validateAnswer(
@@ -852,8 +848,8 @@
                     );
                 } else {
                     // Fallback validation for interval inputs
-                    isCorrect = normalizeAnswer(userAnswer || '') === 
-                               normalizeAnswer((question.correct_answer || '').toString());
+                    isCorrect = (userAnswer || '').trim().toLowerCase() === 
+                               (question.correct_answer || '').toString().toLowerCase();
                 }
             } else if (question.type === 'multiple_choice') {
                 isCorrect = userAnswer === question.correct_answer;
@@ -862,26 +858,9 @@
                     isCorrect = userAnswer.length === question.correct_answer.length &&
                                userAnswer.every(ans => question.correct_answer.includes(ans));
                 }
-            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                const userNum = parseFloat((userAnswer || '').toString().trim());
-                const correctNum = parseFloat((question.correct_answer || '').toString().trim());
-                if (!isNaN(userNum) && !isNaN(correctNum)) {
-                    const tolerance = 0.01;
-                    isCorrect = Math.abs(userNum - correctNum) <= tolerance;
-                } else {
-                    isCorrect = normalizeAnswer(userAnswer || '') === 
-                               normalizeAnswer((question.correct_answer || '').toString());
-                }
-            } else if (question.type === 'fraction_input') {
-                isCorrect = normalizeFraction(userAnswer || '') === 
-                           normalizeFraction((question.correct_answer || '').toString());
-            } else if (question.type === 'coordinate_input' || question.type === 'text_input') {
-                isCorrect = normalizeAnswer(userAnswer || '') === 
-                           normalizeAnswer((question.correct_answer || '').toString());
-            } else {
-                // Default comparison with normalization
-                isCorrect = normalizeAnswer(userAnswer || '') === 
-                           normalizeAnswer((question.correct_answer || '').toString());
+            } else if (question.type === 'numeric') {
+                const tolerance = 0.01;
+                isCorrect = Math.abs(parseFloat(userAnswer) - parseFloat(question.correct_answer)) <= tolerance;
             }
             
             if (isCorrect) {
@@ -1111,7 +1090,4 @@
     </script>
 </body>
 </html>
-
-
-
 
