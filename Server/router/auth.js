@@ -1356,9 +1356,12 @@ router.get('/statistics_scores', async (req, res) => {
 
 router.get('/api/iitm-math-questions/quiz4', async (req, res) => {
   try {
+    // Get the native MongoDB database instance from your existing Mongoose connection
+    const db = mongoose.connection.db;
+    
     const questions = await db.collection('iitm_math_questions').find({
-      topic: "quadratic_functions" // Filter by topic
-    }).sort({ question_number: 1 }).toArray(); // Sort by question number
+      topic: "quadratic_functions"
+    }).sort({ question_number: 1 }).toArray();
     
     res.json(questions);
   } catch (error) {
@@ -1624,6 +1627,7 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
