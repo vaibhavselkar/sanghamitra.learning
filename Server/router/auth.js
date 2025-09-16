@@ -1354,6 +1354,20 @@ router.get('/statistics_scores', async (req, res) => {
   }
 });
 
+router.get('/api/iitm-math-questions/quiz4', async (req, res) => {
+  try {
+    const questions = await db.collection('iitm_math_questions').find({
+      topic: "quadratic_functions" // Filter by topic
+    }).sort({ question_number: 1 }).toArray(); // Sort by question number
+    
+    res.json(questions);
+  } catch (error) {
+    console.error('Error fetching Quiz 4 questions:', error);
+    res.status(500).json({ error: 'Failed to fetch questions' });
+  }
+});
+
+
 router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
@@ -1610,7 +1624,6 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
-
 
 
 
