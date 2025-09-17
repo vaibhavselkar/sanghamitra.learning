@@ -1355,7 +1355,7 @@ router.get('/statistics_scores', async (req, res) => {
   }
 });
 
-router.get('/iitm-math-questions/quiz4', async (req, res) => {
+router.get('/api/iitm-math-questions/quiz4', async (req, res) => {
   try {
     const questions = await IITMathQuestion.find({
       topic: "quadratic_functions"
@@ -1394,7 +1394,7 @@ router.get('/iitmmath_scores', async (req, res) => {
 });
 
 // Test route to check what's in your database
-router.get('/test-iitm-questions', async (req, res) => {
+router.get('/api/test-iitm-questions', async (req, res) => {
   try {
     const count = await IITMathQuestion.countDocuments();
     const topics = await IITMathQuestion.distinct('topic');
