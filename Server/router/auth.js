@@ -1355,7 +1355,10 @@ router.get('/statistics_scores', async (req, res) => {
   }
 });
 
-router.get('/api/iitm-math-questions/quiz4', async (req, res) => {
+
+
+// CORRECTED: Quiz 4 questions route (fixed path)
+router.get('/iitm-math-questions/quiz4', async (req, res) => {
   try {
     const questions = await IITMathQuestion.find({
       topic: "quadratic_functions"
@@ -1372,6 +1375,28 @@ router.get('/api/iitm-math-questions/quiz4', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch questions' });
   }
 });
+
+// NEW: Missing cheating log endpoint
+router.post('/log-cheating', async (req, res) => {
+  try {
+    const { username, email, cheatingType, timestamp, currentQuestion } = req.body;
+    
+    console.warn(`CHEATING ATTEMPT DETECTED:`, {
+      username,
+      email,
+      type: cheatingType,
+      timestamp,
+      currentQuestion,
+      ip: req.ip || req.connection.remoteAddress
+    });
+    
+    res.status(200).json({ message: 'Cheating attempt logged' });
+  } catch (error) {
+    console.error('Error logging cheating attempt:', error);
+    res.status(500).json({ error: 'Failed to log cheating attempt' });
+  }
+});
+
 
 
 router.get('/iitmmath_scores', async (req, res) => {
