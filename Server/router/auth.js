@@ -1360,16 +1360,60 @@ router.get('/statistics_scores', async (req, res) => {
 // CORRECTED: Quiz 4 questions route (fixed path)
 router.get('/iitm-math-questions/quiz4', async (req, res) => {
   try {
-    const questions = await IITMathQuestion.find({
-      topic: "quadratic_functions"
-    }).sort({ question_number: 1 });
+    const { email, count = 30 } = req.query;
     
-    if (!questions || questions.length === 0) {
-      return res.status(404).json({ error: 'No questions found for quadratic functions' });
+    if (!email) {
+      return res.status(400).json({ 
+        error: 'Email is required to track question history' 
+      });
     }
+
+    // Get user's completed questions - USING YOUR ACTUAL MODEL NAME
+    let userScore = await Statistics_score.findOne({ email });
+    const completedQuestionIds = userScore?.completedQuestionIds || [];
     
-    console.log(`Found ${questions.length} questions for quadratic functions`);
-    res.json(questions);
+    console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
+
+    // Find all available questions excluding completed ones
+    let availableQuestions = await IITMathQuestion.find({
+      topic: "quadratic_functions",
+      _id: { $nin: completedQuestionIds }
+    });
+
+    console.log(`Found ${availableQuestions.length} new questions available`);
+
+    // Handle case where user has completed most questions
+    if (availableQuestions.length === 0) {
+      return res.status(200).json({
+        message: "All questions completed",
+        questions: [],
+        resetAvailable: true,
+        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "quadratic_functions" })
+      });
+    }
+
+    // If less than requested count available, return all available
+    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+    
+    // Randomly shuffle and select questions
+    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+    const selectedQuestions = shuffled.slice(0, questionsToReturn);
+    
+    // Sort selected questions by question_number for consistent display
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`Returning ${selectedQuestions.length} random questions for user ${email}`);
+
+    res.json({
+      questions: selectedQuestions,
+      metadata: {
+        totalAvailable: availableQuestions.length,
+        totalCompleted: completedQuestionIds.length,
+        selectedCount: selectedQuestions.length,
+        requestedCount: parseInt(count)
+      }
+    });
+
   } catch (error) {
     console.error('Error fetching Quiz 4 questions:', error);
     res.status(500).json({ error: 'Failed to fetch questions' });
@@ -1441,24 +1485,51 @@ router.post('/iitmmath_scores', async (req, res) => {
   try {
     const { email, username, quizData } = req.body;
     
-    // DEBUG: Log the received data
     console.log('Received request body:', JSON.stringify(req.body, null, 2));
-    console.log('QuizData structure:', JSON.stringify(quizData, null, 2));
     
     if (!email || !username || !quizData) {
       return res.status(400).json({ error: 'Email, username and quizData are required' });
     }
     
-    let user = await iitm_math_score.findOne({ email });
+    // Extract question IDs from the quiz results
+    const completedQuestionIds = quizData.questionResults
+      ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
+      : [];
+    
+    console.log(`Quiz completed with ${completedQuestionIds.length} question IDs:`, completedQuestionIds);
+    
+    // USING YOUR ACTUAL MODEL NAME: Statistics_score
+    let user = await Statistics_score.findOne({ email });
+    
     if (!user) {
-      user = new iitm_math_score({ email, username, quizScores: [quizData] });
+      // Create new user with completed questions and score
+      user = new Statistics_score({ 
+        username, 
+        email, 
+        completedQuestionIds: completedQuestionIds,
+        scores: [quizData] 
+      });
     } else {
       user.username = username;
-      user.quizScores.push(quizData);
+      user.scores.push(quizData); // YOUR SCHEMA USES 'scores' not 'quizScores'
+      
+      // Add new completed questions to the array (avoid duplicates)
+      const newCompletedIds = completedQuestionIds.filter(
+        id => !user.completedQuestionIds.includes(id)
+      );
+      user.completedQuestionIds.push(...newCompletedIds);
+      
+      console.log(`Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`);
     }
     
     await user.save();
-    res.status(201).json({ message: 'Quiz result saved successfully', user });
+    
+    res.status(201).json({ 
+      message: 'Quiz result saved successfully', 
+      completedQuestionsCount: user.completedQuestionIds.length,
+      user 
+    });
+    
   } catch (error) {
     console.error('Error saving quiz result:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -1672,6 +1743,66 @@ router.get('/testresponses', async (req, res) => {
     });
   }
 });
+
+// Add endpoint to reset user's completed questions (optional)
+router.post('/reset-user-progress', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    // USING YOUR ACTUAL MODEL NAME: Statistics_score
+    const user = await Statistics_score.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    user.completedQuestionIds = [];
+    await user.save();
+    
+    res.status(200).json({ 
+      message: 'User progress reset successfully',
+      email: email
+    });
+    
+  } catch (error) {
+    console.error('Error resetting user progress:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add endpoint to get user's question progress
+router.get('/user-question-progress/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    
+    // USING YOUR ACTUAL MODEL NAME: Statistics_score
+    const user = await Statistics_score.findOne({ email });
+    const totalQuestions = await IITMathQuestion.countDocuments({ topic: "quadratic_functions" });
+    
+    const completedCount = user?.completedQuestionIds?.length || 0;
+    const remainingCount = totalQuestions - completedCount;
+    
+    res.json({
+      email,
+      totalQuestions,
+      completedCount,
+      remainingCount,
+      completionPercentage: Math.round((completedCount / totalQuestions) * 100),
+      canTakeQuiz: remainingCount > 0
+    });
+    
+  } catch (error) {
+    console.error('Error fetching user progress:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
 module.exports = router
 
 
