@@ -33,6 +33,7 @@ const ArithmeticScore = require('../model/arithmetic-scores.schema');
 const WeeklyAssessment = require('../model/weeklyAssessment');
 const Statistics_score = require('../model/statisticsSchema');
 const iitm_math_score = require('../model/iitmMathSchema');
+const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -1354,15 +1355,17 @@ router.get('/statistics_scores', async (req, res) => {
   }
 });
 
-router.get('/api/iitm-math-questions/quiz4', async (req, res) => {
+router.get('/iitm-math-questions/quiz4', async (req, res) => {
   try {
-    // Get the native MongoDB database instance from your existing Mongoose connection
-    const db = mongoose.connection.db;
-    
-    const questions = await db.collection('iitm_math_questions').find({
+    const questions = await IITMathQuestion.find({
       topic: "quadratic_functions"
-    }).sort({ question_number: 1 }).toArray();
+    }).sort({ question_number: 1 });
     
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({ error: 'No questions found for quadratic functions' });
+    }
+    
+    console.log(`Found ${questions.length} questions for quadratic functions`);
     res.json(questions);
   } catch (error) {
     console.error('Error fetching Quiz 4 questions:', error);
@@ -1387,6 +1390,24 @@ router.get('/iitmmath_scores', async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Test route to check what's in your database
+router.get('/test-iitm-questions', async (req, res) => {
+  try {
+    const count = await IITMathQuestion.countDocuments();
+    const topics = await IITMathQuestion.distinct('topic');
+    const sampleQuestions = await IITMathQuestion.find().limit(3);
+    
+    res.json({ 
+      totalQuestions: count,
+      availableTopics: topics,
+      sampleQuestions: sampleQuestions
+    });
+  } catch (error) {
+    console.error('Database test error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -1627,7 +1648,6 @@ router.get('/testresponses', async (req, res) => {
   }
 });
 module.exports = router
-
 
 
 
