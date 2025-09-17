@@ -543,10 +543,7 @@
             }
             
             // Auto-submit quiz after too many attempts
-            if (cheatingAttempts >= 5) {
-                alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
-                submitQuiz();
-            }
+           
         }
         
         // Disable printing
@@ -976,7 +973,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
         // FIXED: Updated submit function with correct request structure
         async function submitQuiz() {
             // Show polite confirmation popup
-            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Domain and Range Quiz?`);
+           
             
             if (!confirmSubmit) {
                 return; // User clicked Cancel, don't submit
@@ -1302,6 +1299,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
