@@ -407,29 +407,34 @@
         let questionStartTime = null;
         let questionTimes = {}; // Track time per question
 
-        async function loadQuestions() {
-          try {
-            const response = await fetch('/api/iitm-math-questions/quiz4', {
-              credentials: 'include'
-            });
-            
-            if (!response.ok) {
-              throw new Error('Failed to load questions');
-            }
-            
-            questions = await response.json();
-            
-            if (!questions || questions.length === 0) {
-              throw new Error('No questions found');
-            }
-            
-            return true;
-          } catch (error) {
-            console.error('Error loading questions:', error);
-            alert('Failed to load quiz questions. Please refresh and try again.');
-            return false;
-          }
-        }
+       async function loadQuestions() {
+  try {
+    console.log('Attempting to fetch from:', '/api/iitm-math-questions/quiz4');
+    const response = await fetch('/api/iitm-math-questions/quiz4', {
+      credentials: 'include'
+    });
+    
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    questions = await response.json();
+    console.log('Loaded questions:', questions);
+    
+    if (!questions || questions.length === 0) {
+      throw new Error('No questions found');
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error loading questions:', error);
+    alert('Failed to load quiz questions. Please refresh and try again.');
+    return false;
+  }
+}
 
 
        // Anti-cheating variables
@@ -1299,6 +1304,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
