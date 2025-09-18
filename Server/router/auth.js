@@ -1368,8 +1368,8 @@ router.get('/iitm-math-questions/quiz4', async (req, res) => {
       });
     }
 
-    // Get user's completed questions - USING YOUR ACTUAL MODEL NAME
-    let userScore = await Statistics_score.findOne({ email });
+    // FIXED: Use iitm_math_score instead of Statistics_score
+    let userScore = await iitm_math_score.findOne({ email });
     const completedQuestionIds = userScore?.completedQuestionIds || [];
     
     console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
@@ -1498,20 +1498,20 @@ router.post('/iitmmath_scores', async (req, res) => {
     
     console.log(`Quiz completed with ${completedQuestionIds.length} question IDs:`, completedQuestionIds);
     
-    // USING YOUR ACTUAL MODEL NAME: Statistics_score
-    let user = await Statistics_score.findOne({ email });
+    // FIXED: Use iitm_math_score instead of Statistics_score
+    let user = await iitm_math_score.findOne({ email });
     
     if (!user) {
       // Create new user with completed questions and score
-      user = new Statistics_score({ 
+      user = new iitm_math_score({ 
         username, 
         email, 
         completedQuestionIds: completedQuestionIds,
-        scores: [quizData] 
+        quizScores: [quizData] // Use quizScores to match your iitm schema
       });
     } else {
       user.username = username;
-      user.scores.push(quizData); // YOUR SCHEMA USES 'scores' not 'quizScores'
+      user.quizScores.push(quizData); // Use quizScores to match your iitm schema
       
       // Add new completed questions to the array (avoid duplicates)
       const newCompletedIds = completedQuestionIds.filter(
@@ -1753,8 +1753,8 @@ router.post('/reset-user-progress', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
     
-    // USING YOUR ACTUAL MODEL NAME: Statistics_score
-    const user = await Statistics_score.findOne({ email });
+    // FIXED: Use iitm_math_score instead of Statistics_score
+    const user = await iitm_math_score.findOne({ email });
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -1779,8 +1779,8 @@ router.get('/user-question-progress/:email', async (req, res) => {
   try {
     const { email } = req.params;
     
-    // USING YOUR ACTUAL MODEL NAME: Statistics_score
-    const user = await Statistics_score.findOne({ email });
+    // FIXED: Use iitm_math_score instead of Statistics_score
+    const user = await iitm_math_score.findOne({ email });
     const totalQuestions = await IITMathQuestion.countDocuments({ topic: "quadratic_functions" });
     
     const completedCount = user?.completedQuestionIds?.length || 0;
