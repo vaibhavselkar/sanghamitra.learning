@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
 // Individual Question Result Schema
+
 const questionResultSchema = new mongoose.Schema({
+  questionId: { type: String, required: false }, // ADD THIS LINE
   questionNumber: { type: Number, required: false },
   questionText: { type: String, required: false },
   userAnswer: { type: String, required: false },
@@ -23,14 +25,15 @@ const topicScoreSchema = new mongoose.Schema({
 });
 
 // Main User Schema
+
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: false },
   email: { type: String, required: true, unique: true },
+  completedQuestionIds: { type: [String], default: [] }, // ADD THIS LINE
   quizScores: [topicScoreSchema]
 }, { timestamps: true });
 
 // Export using the same model name
 module.exports = mongoose.model('iitm_math_scores', userSchema);;
-
 
 
