@@ -729,17 +729,12 @@ function isQuiz4Result(item) {
     
     topicFilter.innerHTML = '<option value="">All Topics</option>';
     topics.forEach(topic => {
-        let topicDisplay = item.topic;
-    if (item.topic.includes('Quiz4') || item.topic.includes('quadratic')) {
-        topicDisplay = 'Quadratic Functions (Quiz 4)';
-    } else if (item.topic.includes('Quiz5') || (item.topic.includes('Linear') && item.totalQuestions === 50)) {
-        topicDisplay = 'Linear Functions 2';
-    } else if (item.topic.includes('Linear') && item.totalQuestions === 30) {
-        topicDisplay = 'Linear Functions 1 ';
-    } else if (item.topic.includes('Linear')) {
-        topicDisplay = `Linear Functions (${item.totalQuestions} Questions)`;
-    }
-        
+        let displayName = topic;
+        if (topic.includes('Quiz4') || topic.includes('quadratic')) {
+            displayName = 'Quadratic Functions (Quiz 4)';
+        } else if (topic.includes('Quiz5') || topic.includes('Linear')) {
+            displayName = 'Linear Functions (Quiz 5)';
+        }
         topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
     });
 }
@@ -831,15 +826,11 @@ function isQuiz4Result(item) {
             
           // Add topic-specific information for different quizzes
             let topicDisplay = item.topic;
-          if (item.topic.includes('Quiz4') || item.topic.includes('quadratic')) {
-              topicDisplay = 'Quadratic Functions (Quiz 4)';
-          } else if (item.topic.includes('Quiz5') || (item.topic.includes('Linear') && item.totalQuestions === 50)) {
-              topicDisplay = 'Linear Functions (Quiz 5) - 50 Questions';
-          } else if (item.topic.includes('Linear') && item.totalQuestions === 30) {
-              topicDisplay = 'Linear Functions 1 - 30 Questions';
-          } else if (item.topic.includes('Linear')) {
-              topicDisplay = `Linear Functions (${item.totalQuestions} Questions)`;
-          }
+            if (item.topic.includes('Quiz4') || item.topic.includes('quadratic')) {
+                topicDisplay = 'Quadratic Functions (Quiz 4)';
+            } else if (item.topic.includes('Quiz5') || item.topic.includes('Linear')) {
+                topicDisplay = 'Linear Functions (Quiz 5)';
+            }
             
             csv += [
             `"${item.username}"`,
