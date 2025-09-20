@@ -733,7 +733,7 @@ function isQuiz4Result(item) {
         if (topic.includes('Quiz4') || topic.includes('quadratic')) {
             displayName = 'Quadratic Functions (Quiz 4)';
         } else if (topic.includes('Quiz5') || topic.includes('Linear')) {
-            displayName = 'Linear Functions (Quiz 5)';
+            displayName = 'Linear Functions 2';
         }
         topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
     });
@@ -829,7 +829,7 @@ function isQuiz4Result(item) {
             if (item.topic.includes('Quiz4') || item.topic.includes('quadratic')) {
                 topicDisplay = 'Quadratic Functions (Quiz 4)';
             } else if (item.topic.includes('Quiz5') || item.topic.includes('Linear')) {
-                topicDisplay = 'Linear Functions (Quiz 5)';
+                topicDisplay = 'Linear Functions 1';
             }
             
             csv += [
