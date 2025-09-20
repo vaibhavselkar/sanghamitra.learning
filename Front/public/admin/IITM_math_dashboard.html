@@ -545,26 +545,39 @@ function generateStudentDetail(item) {
   }
 
   // Check if this is a quiz4 (quadratic functions) result
-  const isQuiz4 = item.topic.includes('Quiz4') || item.topic.includes('quadratic') || 
-                 (results[0] && results[0].questionText && 
-                  results[0].questionText.toLowerCase().includes('quadratic'));
+  // Check quiz type
+const isQuiz4 = item.topic.includes('Quiz4') || item.topic.includes('quadratic') || 
+               (results[0] && results[0].questionText && 
+                results[0].questionText.toLowerCase().includes('quadratic'));
+
+const isQuiz5 = item.topic.includes('Quiz5') || item.topic.includes('Linear') || 
+               (results[0] && results[0].questionText && 
+                results[0].questionText.toLowerCase().includes('linear'));
+
+let detailHtml = `
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="mb-0">
+      <i class="bi bi-person-badge me-2"></i>${item.username} - Detailed Answer Analysis
+      <span class="attempt-badge bg-secondary text-white ms-2">Attempt #${item.attemptNumber}</span>
+    </h6>
+    <small class="text-muted">Score: ${item.correctAnswers}/${item.totalQuestions} (${item.percentage}%)</small>
+  </div>
   
-  let detailHtml = `
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h6 class="mb-0">
-        <i class="bi bi-person-badge me-2"></i>${item.username} - Detailed Answer Analysis
-        <span class="attempt-badge bg-secondary text-white ms-2">Attempt #${item.attemptNumber}</span>
-      </h6>
-      <small class="text-muted">Score: ${item.correctAnswers}/${item.totalQuestions} (${item.percentage}%)</small>
+  ${isQuiz4 ? `
+    <div class="alert alert-info mb-3">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Quadratic Functions Quiz:</strong> This assessment focuses on domain, range, vertex, 
+      intercepts, and other properties of quadratic functions.
     </div>
-    
-    ${isQuiz4 ? `
-      <div class="alert alert-info mb-3">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Quadratic Functions Quiz:</strong> This assessment focuses on domain, range, vertex, 
-        intercepts, and other properties of quadratic functions.
-      </div>
-    ` : ''}
+  ` : ''}
+  
+  ${isQuiz5 ? `
+    <div class="alert alert-success mb-3">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Linear Functions Quiz:</strong> This assessment covers linear functions, including 
+      slope, intercepts, equations, and graphing linear relationships.
+    </div>
+  ` : ''}
     
     <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px;">
       <div class="row">
@@ -711,19 +724,20 @@ function isQuiz4Result(item) {
    
    // Populate filter options
     function populateFilters() {
-        const topics = [...new Set(allData.map(item => item.topic))];
-        const topicFilter = document.getElementById('topicFilter');
-        
-        topicFilter.innerHTML = '<option value="">All Topics</option>';
-        topics.forEach(topic => {
-            // Add special handling for quiz4 topics if needed
-            let displayName = topic;
-            if (topic.includes('Quiz4') || topic.includes('quadratic')) {
-            displayName = 'Quadratic Functions (Quiz4)';
-            }
-            topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
-        });
-    }
+    const topics = [...new Set(allData.map(item => item.topic))];
+    const topicFilter = document.getElementById('topicFilter');
+    
+    topicFilter.innerHTML = '<option value="">All Topics</option>';
+    topics.forEach(topic => {
+        let displayName = topic;
+        if (topic.includes('Quiz4') || topic.includes('quadratic')) {
+            displayName = 'Quadratic Functions (Quiz 4)';
+        } else if (topic.includes('Quiz5') || topic.includes('Linear')) {
+            displayName = 'Linear Functions (Quiz 5)';
+        }
+        topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
+    });
+}
 
     // Apply filters
     function applyFilters() {
@@ -810,10 +824,13 @@ function isQuiz4Result(item) {
         data.forEach(item => {
             const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
             
-            // Add topic-specific information for quiz4
-            const topicDisplay = item.topic.includes('Quiz4') || item.topic.includes('quadratic') 
-            ? 'Quadratic Functions' 
-            : item.topic;
+          // Add topic-specific information for different quizzes
+            let topicDisplay = item.topic;
+            if (item.topic.includes('Quiz4') || item.topic.includes('quadratic')) {
+                topicDisplay = 'Quadratic Functions (Quiz 4)';
+            } else if (item.topic.includes('Quiz5') || item.topic.includes('Linear')) {
+                topicDisplay = 'Linear Functions (Quiz 5)';
+            }
             
             csv += [
             `"${item.username}"`,
