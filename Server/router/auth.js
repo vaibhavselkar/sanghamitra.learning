@@ -1480,6 +1480,68 @@ router.get('/api/test-iitm-questions', async (req, res) => {
   }
 });
 
+// Quiz 5: Linear Functions questions route (following Quiz 4 pattern)
+router.get('/iitm-math-questions/quiz5', async (req, res) => {
+  try {
+    const { email, count = 50 } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        error: 'Email is required to track question history' 
+      });
+    }
+
+    let userScore = await iitm_math_score.findOne({ email });
+    const completedQuestionIds = userScore?.completedQuestionIds || [];
+    
+    console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
+
+    // Find all available questions excluding completed ones
+    let availableQuestions = await IITMathQuestion.find({
+      topic: "linear_functions",  // Only change from Quiz 4
+      _id: { $nin: completedQuestionIds }
+    });
+
+    console.log(`Found ${availableQuestions.length} new questions available`);
+
+    // Handle case where user has completed most questions
+    if (availableQuestions.length === 0) {
+      return res.status(200).json({
+        message: "All questions completed",
+        questions: [],
+        resetAvailable: true,
+        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "linear_functions" })
+      });
+    }
+
+    // If less than requested count available, return all available
+    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+    
+    // Randomly shuffle and select questions
+    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+    const selectedQuestions = shuffled.slice(0, questionsToReturn);
+    
+    // Sort selected questions by question_number for consistent display
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`Returning ${selectedQuestions.length} random questions for user ${email}`);
+
+    res.json({
+      questions: selectedQuestions,
+      metadata: {
+        totalAvailable: availableQuestions.length,
+        totalCompleted: completedQuestionIds.length,
+        selectedCount: selectedQuestions.length,
+        requestedCount: parseInt(count)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching Quiz 5 questions:', error);
+    res.status(500).json({ error: 'Failed to fetch questions' });
+  }
+});
+
 
 router.post('/iitmmath_scores', async (req, res) => {
   try {
