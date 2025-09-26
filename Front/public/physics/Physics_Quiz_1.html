@@ -250,6 +250,50 @@
 
         .score-display h2 { font-size: 2.5rem; margin-bottom: 10px; }
         .hidden { display: none; }
+        .multi-part-container {
+    margin-top: 20px;
+}
+
+.sub-question {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.sub-question-header {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.format-hint {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.sub-answer-input, .answer-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.sub-answer-input:focus, .answer-input:focus {
+    border-color: #667eea;
+    outline: none;
+}
+
+.single-part-container {
+    margin-top: 20px;
+}
+
+.hidden { display: none; }
     </style>
 </head>
 <body>
@@ -310,6 +354,7 @@
         let username = null;
         let email = null;
         let currentQuestionIndex = 0;
+        const questions = physicsQuestions; // Reference the loaded physics questions
 
         // Fetch user session info and start quiz immediately
         async function fetchSessionInfo() {
@@ -358,72 +403,125 @@
         }
 
         function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            container.innerHTML = '';
+    const container = document.getElementById('questionContainer');
+    const question = physicsQuestions[currentQuestionIndex];
+    
+    container.innerHTML = '';
 
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
 
-            let optionsHtml = '';
-            if (question.type === 'multiple_choice') {
-                optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
-                        <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `).join('');
-            } else if (question.type === 'multiple_select') {
-                optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
-                        <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `).join('');
-            } else if (question.type === 'numeric') {
-                optionsHtml = `<input type="number" class="numeric-input" placeholder="Enter your answer" 
-                               step="0.01" onchange="handleNumericInput(${currentQuestionIndex}, this.value)">`;
-            }
+    let questionHtml = `
+        <div class="question-header">
+            <div class="question-number">${question.question_number}</div>
+            <div style="font-weight: 600;">Points: ${question.points || 1}</div>
+        </div>
+        <div class="question-text">${question.question_text}</div>
+    `;
 
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${question.question_number}</div>
-                    <div style="font-weight: 600;">Points: ${question.points}</div>
+    // Handle different question types
+    if (question.question_type === 'multiple_choice') {
+        questionHtml += renderMultipleChoice(question);
+    } else if (question.question_type === 'multi_part') {
+        questionHtml += renderMultiPart(question);
+    } else if (question.question_type === 'single_part') {
+        questionHtml += renderSinglePart(question);
+    }
+
+    questionDiv.innerHTML = questionHtml;
+    container.appendChild(questionDiv);
+    
+    // Restore previous answer if exists
+    restoreAnswer();
+    updateAnswerStatus();
+}
+
+function renderMultipleChoice(question) {
+    let optionsHtml = '<div class="options">';
+    
+    question.options.forEach((option, index) => {
+        optionsHtml += `
+            <div class="option" onclick="selectOption(${question.question_number - 1}, '${option.option_id}', 'radio')">
+                <input type="radio" name="q${question.question_number - 1}" value="${option.option_id}" id="q${question.question_number - 1}_${index}">
+                <label for="q${question.question_number - 1}_${index}">${option.option_text}</label>
+            </div>
+        `;
+    });
+    
+    optionsHtml += '</div>';
+    return optionsHtml;
+}
+
+function renderMultiPart(question) {
+    let partsHtml = '<div class="multi-part-container">';
+    
+    question.sub_questions.forEach((subQuestion, index) => {
+        partsHtml += `
+            <div class="sub-question">
+                <div class="sub-question-header">
+                    <strong>Part ${subQuestion.part_id}:</strong> ${subQuestion.sub_question_text}
                 </div>
-                <div class="question-text">${question.question_text}</div>
-                <div class="options">${optionsHtml}</div>
-            `;
+                <div class="format-hint">${subQuestion.format_hint}</div>
+                <input type="text" 
+                       class="sub-answer-input" 
+                       placeholder="${subQuestion.format_hint.split(':')[1]?.trim() || 'Enter your answer'}"
+                       oninput="handleSubQuestionInput(${question.question_number - 1}, '${subQuestion.part_id}', this.value)"
+                       id="q${question.question_number - 1}_${subQuestion.part_id}">
+            </div>
+        `;
+    });
+    
+    partsHtml += '</div>';
+    return partsHtml;
+}
 
-            container.appendChild(questionDiv);
-            
-            // Restore previous answer if exists
-            restoreAnswer();
-            updateAnswerStatus();
-        }
+function renderSinglePart(question) {
+    return `
+        <div class="single-part-container">
+            <div class="format-hint">${question.format_hint}</div>
+            <input type="text" 
+                   class="answer-input" 
+                   placeholder="${question.format_hint.split(':')[1]?.trim() || 'Enter your answer'}"
+                   oninput="handleSingleInput(${question.question_number - 1}, this.value)">
+        </div>
+    `;
+}
+
+function handleSubQuestionInput(questionIndex, partId, value) {
+    if (!userAnswers[questionIndex]) {
+        userAnswers[questionIndex] = {};
+    }
+    userAnswers[questionIndex][partId] = value;
+    updateAnswerStatus();
+}
+
+function handleSingleInput(questionIndex, value) {
+    userAnswers[questionIndex] = value;
+    updateAnswerStatus();
+}
 
         function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
+            const question = physicsQuestions[currentQuestionIndex];
             const savedAnswer = userAnswers[currentQuestionIndex];
             
             if (!savedAnswer) return;
 
-            if (question.type === 'multiple_choice') {
+            if (question.question_type === 'multiple_choice') {
                 const option = document.querySelector(`input[value="${savedAnswer}"]`);
                 if (option) {
                     option.checked = true;
                     option.closest('.option').classList.add('selected');
                 }
-            } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[value="${answer}"]`);
-                    if (option) {
-                        option.checked = true;
-                        option.closest('.option').classList.add('selected');
+            } else if (question.question_type === 'multi_part') {
+                // Restore answers for each sub-question
+                Object.keys(savedAnswer).forEach(partId => {
+                    const input = document.getElementById(`q${currentQuestionIndex}_${partId}`);
+                    if (input) {
+                        input.value = savedAnswer[partId];
                     }
                 });
-            } else if (question.type === 'numeric') {
-                const input = document.querySelector('.numeric-input');
+            } else if (question.question_type === 'single_part') {
+                const input = document.querySelector('.answer-input');
                 if (input) {
                     input.value = savedAnswer;
                 }
@@ -456,7 +554,22 @@
 
         function updateAnswerStatus() {
             const statusSpan = document.getElementById('answeredStatus');
-            const hasAnswer = userAnswers[currentQuestionIndex] !== undefined;
+            const question = physicsQuestions[currentQuestionIndex];
+            let hasAnswer = false;
+
+            if (question.question_type === 'multi_part') {
+                // For multi-part questions, check if all parts have answers
+                const savedAnswer = userAnswers[currentQuestionIndex];
+                if (savedAnswer && typeof savedAnswer === 'object') {
+                    hasAnswer = question.sub_questions.every(subQ => 
+                        savedAnswer[subQ.part_id] && savedAnswer[subQ.part_id].trim() !== ''
+                    );
+                }
+            } else {
+                hasAnswer = userAnswers[currentQuestionIndex] !== undefined && 
+                        userAnswers[currentQuestionIndex] !== '' && 
+                        userAnswers[currentQuestionIndex] !== null;
+            }
             
             if (hasAnswer) {
                 statusSpan.textContent = 'Answered';
@@ -518,26 +631,30 @@
 
             let score = 0;
             
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                const correctAnswer = question.correct_answer;
-                
-                if (question.type === 'multiple_choice') {
-                    if (userAnswer === correctAnswer) score++;
-                } else if (question.type === 'multiple_select') {
-                    if (Array.isArray(userAnswer) && Array.isArray(correctAnswer)) {
-                        if (userAnswer.length === correctAnswer.length &&
-                            userAnswer.every(ans => correctAnswer.includes(ans))) {
-                            score++;
-                        }
+           questions.forEach((question, index) => {
+            const userAnswer = userAnswers[index];
+            let correctAnswer;
+            
+            if (question.question_type === 'multiple_choice') {
+                // Find the correct option
+                correctAnswer = question.options.find(opt => opt.is_correct)?.option_id;
+                if (userAnswer === correctAnswer) score++;
+            } else if (question.question_type === 'multi_part') {
+                // For multi-part, check each sub-question
+                let allCorrect = true;
+                question.sub_questions.forEach(subQ => {
+                    const userSubAnswer = userAnswer?.[subQ.part_id];
+                    if (!physicsAnswerValidator.validateAnswer(userSubAnswer, question, subQ)) {
+                        allCorrect = false;
                     }
-                } else if (question.type === 'numeric') {
-                    const tolerance = 0.01;
-                    if (Math.abs(parseFloat(userAnswer) - parseFloat(correctAnswer)) <= tolerance) {
-                        score++;
-                    }
+                });
+                if (allCorrect) score++;
+            } else if (question.question_type === 'single_part') {
+                if (physicsAnswerValidator.validateAnswer(userAnswer, question)) {
+                    score++;
                 }
-            });
+            }
+        });
 
      
             const quizData = {
@@ -546,7 +663,7 @@
                 score: score,
                 totalQuestions: questions.length,
                 percentage: Math.round((score / questions.length) * 100),
-                topic: 'Quiz1',
+                topic: 'Kinematics - 1',
                 answers: userAnswers
             };
 
