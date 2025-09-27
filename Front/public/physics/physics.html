@@ -135,6 +135,48 @@
 .score-circle {
     transition: all 0.5s ease-in-out;
 }
+
+/* Enhanced results styling */
+@media (max-width: 768px) {
+    .quiz-results-container {
+        margin: 1rem;
+    }
+    
+    .question-review-item {
+        padding: 15px !important;
+    }
+    
+    .question-review-item .row {
+        margin-top: 10px;
+    }
+    
+    .question-review-item .col-md-6 {
+        margin-bottom: 10px;
+    }
+}
+
+.results-breakdown {
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #f1f3f4;
+}
+
+.results-breakdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.results-breakdown::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 3px;
+}
+
+.results-breakdown::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 3px;
+}
+
+.results-breakdown::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}
   </style>
 </head>
 
@@ -659,6 +701,7 @@ function retakeQuiz(topic) {
 }
 
 // Function to view previous quiz results
+
 async function viewQuizResults(displayName, topicName) {
     try {
         if (!currentUser) {
@@ -675,11 +718,18 @@ async function viewQuizResults(displayName, topicName) {
             const apiResponse = await response.json();
             if (apiResponse.success && apiResponse.data && apiResponse.data.scores) {
                 const topicScore = apiResponse.data.scores.find(score => score.topic === topicName);
-                if (topicScore && topicScore.answers) {
-                    // You'll need to have the correct answers stored or fetch them
-                    // For now, we'll use placeholder data
-                    const correctAnswers = new Array(topicScore.totalQuestions).fill('A'); // Replace with actual correct answers
-                    showQuizResults(displayName, topicScore.answers, correctAnswers, topicScore.score, topicScore.totalQuestions);
+                if (topicScore) {
+                    // Check if we have detailed question results with correct answers
+                    if (topicScore.questionResults && Array.isArray(topicScore.questionResults)) {
+                        // Use detailed results from the new quiz structure
+                        showDetailedQuizResults(displayName, topicScore);
+                    } else if (topicScore.answers) {
+                        // Fallback to simple results for old quiz format
+                        const correctAnswers = new Array(topicScore.totalQuestions).fill('A');
+                        showQuizResults(displayName, topicScore.answers, correctAnswers, topicScore.score, topicScore.totalQuestions);
+                    } else {
+                        showError('No detailed results available for this quiz');
+                    }
                 }
             }
         }
@@ -688,6 +738,165 @@ async function viewQuizResults(displayName, topicName) {
         showError('Failed to load quiz results');
     }
 }
+
+// Function to show detailed quiz results with question-by-question breakdown
+function showDetailedQuizResults(topicName, topicScore) {
+    const courseList = document.getElementById('courseList');
+    if (!courseList) return;
+    
+    const percentage = Math.round((topicScore.score / topicScore.maxPossibleScore) * 100);
+    
+    // Create detailed results HTML
+    const detailedResultsHTML = `
+        <div class="quiz-results-container">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">Detailed Quiz Results</h2>
+                    <h4 class="mb-0">${topicName}</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="score-circle mx-auto mb-3" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#28a745 ${percentage * 3.6}deg, #e9ecef 0deg); display: flex; align-items: center; justify-content: center;">
+                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width: 90px; height: 90px;">
+                                <span class="h3 mb-0 text-primary">${percentage}%</span>
+                            </div>
+                        </div>
+                        <h4>Your Score: ${topicScore.score}/${topicScore.maxPossibleScore} Points</h4>
+                        <p class="text-muted">You got ${topicScore.correctAnswers} questions correct out of ${topicScore.totalQuestions}</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-4 text-center">
+                                <div class="card border-success">
+                                    <div class="card-body py-2">
+                                        <h6 class="text-success mb-1">Easy Questions</h6>
+                                        <strong>${topicScore.difficultyBreakdown?.easy?.correct || 0}/${topicScore.difficultyBreakdown?.easy?.attempted || 0}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="card border-warning">
+                                    <div class="card-body py-2">
+                                        <h6 class="text-warning mb-1">Medium Questions</h6>
+                                        <strong>${topicScore.difficultyBreakdown?.medium?.correct || 0}/${topicScore.difficultyBreakdown?.medium?.attempted || 0}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="card border-danger">
+                                    <div class="card-body py-2">
+                                        <h6 class="text-danger mb-1">Hard Questions</h6>
+                                        <strong>${topicScore.difficultyBreakdown?.hard?.correct || 0}/${topicScore.difficultyBreakdown?.hard?.attempted || 0}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="mt-3 text-muted">
+                            Time Taken: ${Math.floor((topicScore.totalTimeTaken || 0) / 60)}m ${(topicScore.totalTimeTaken || 0) % 60}s
+                        </p>
+                    </div>
+                    
+                    <div class="results-breakdown" style="max-height: 60vh; overflow-y: auto;">
+                        <h5 class="mb-3 text-center">Question-by-Question Review</h5>
+                        ${generateDetailedQuestionReview(topicScore.questionResults)}
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button onclick="goBackToCourses()" class="btn btn-primary me-3">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Physics
+                        </button>
+                        <button onclick="retakeQuiz('${topicName}')" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Retake Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    courseList.innerHTML = detailedResultsHTML;
+}
+
+// Generate detailed question-by-question review
+function generateDetailedQuestionReview(questionResults) {
+    if (!questionResults || !Array.isArray(questionResults)) {
+        return '<div class="alert alert-info">No detailed question data available.</div>';
+    }
+    
+    let reviewHTML = '';
+    
+    questionResults.forEach((result, index) => {
+        const isCorrect = result.isCorrect;
+        const statusIcon = isCorrect ? 'bi-check-circle text-success' : 'bi-x-circle text-danger';
+        const statusText = isCorrect ? 'Correct' : 'Incorrect';
+        const difficultyColor = getDifficultyColor(result.difficulty);
+        
+        reviewHTML += `
+            <div class="question-review-item border rounded p-3 mb-3 ${isCorrect ? 'border-success bg-light-success' : 'border-danger bg-light-danger'}" style="transition: all 0.3s ease;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="bi ${statusIcon} fs-5 me-2"></i>
+                        <strong>Question ${result.questionNumber || index + 1} - ${statusText}</strong>
+                    </div>
+                    <span class="badge" style="background-color: ${difficultyColor}; color: white; text-transform: uppercase; font-size: 0.7rem;">
+                        ${result.difficulty || 'Unknown'}
+                    </span>
+                </div>
+                
+                <div class="ms-4">
+                    <div class="mb-2">
+                        <strong>Question:</strong>
+                        <div class="mt-1" style="background: #f8f9fa; padding: 8px; border-radius: 4px; border-left: 3px solid #007bff;">
+                            ${result.questionText || 'Question text not available'}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Your Answer:</strong>
+                            <div class="mt-1 p-2 rounded" style="background: ${isCorrect ? '#e8f5e8' : '#fdeaea'}; border: 1px solid ${isCorrect ? '#28a745' : '#dc3545'}; font-family: monospace;">
+                                ${result.userAnswer || 'No answer provided'}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Correct Answer:</strong>
+                            <div class="mt-1 p-2 rounded" style="background: #e8f5e8; border: 1px solid #28a745; font-family: monospace;">
+                                ${result.correctAnswer}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${result.explanation ? `
+                        <div class="mt-2">
+                            <strong>Explanation:</strong>
+                            <div class="mt-1 p-2" style="background: #fff3cd; border-left: 3px solid #ffc107; font-style: italic;">
+                                ${result.explanation}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2" style="border-top: 1px solid #dee2e6; font-size: 0.85em; color: #6c757d;">
+                        <span>Points: ${result.points || 1}</span>
+                        <span>Time: ${result.timeTaken || 0}s</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    return reviewHTML;
+}
+
+// Helper function for difficulty colors
+function getDifficultyColor(difficulty) {
+    switch(difficulty?.toLowerCase()) {
+        case 'easy': return '#28a745';
+        case 'medium': return '#ffc107';
+        case 'hard': return '#dc3545';
+        default: return '#6c757d';
+    }
+}
+
 </script>
 </body>
 </html>
