@@ -34,6 +34,7 @@ const WeeklyAssessment = require('../model/weeklyAssessment');
 const Statistics_score = require('../model/statisticsSchema');
 const iitm_math_score = require('../model/iitmMathSchema');
 const IITMathQuestion = require('../model/iitmMathQuestionSchema');
+const PhysicsScore = require('../model/physics_scores_schema'); 
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -1595,6 +1596,97 @@ router.post('/iitmmath_scores', async (req, res) => {
   } catch (error) {
     console.error('Error saving quiz result:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Physics Scores Endpoints
+router.get('/physics_scores', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (email) {
+      const user = await PhysicsScore.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, data: user });
+    } else {
+      const users = await PhysicsScore.find({});
+      res.json({ success: true, data: users });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/physics_scores', async (req, res) => {
+  try {
+    const { email, username, quizData } = req.body;
+    
+    console.log('Received physics quiz data:', JSON.stringify(req.body, null, 2));
+    
+    if (!email || !username || !quizData) {
+      return res.status(400).json({ error: 'Email, username and quizData are required' });
+    }
+    
+    // Prepare the score entry
+    const scoreEntry = {
+      topic: quizData.topic,
+      score: quizData.score,
+      totalQuestions: quizData.totalQuestions,
+      percentage: quizData.percentage,
+      timestamp: new Date(),
+      answers: quizData.answers,
+      questionResults: quizData.questionResults || [],
+      correctAnswers: quizData.correctAnswers,
+      maxPossibleScore: quizData.maxPossibleScore,
+      difficultyBreakdown: quizData.difficultyBreakdown || {
+        easy: { attempted: 0, correct: 0 },
+        medium: { attempted: 0, correct: 0 },
+        hard: { attempted: 0, correct: 0 }
+      },
+      totalTimeTaken: quizData.totalTimeTaken || 0,
+      isCompleted: quizData.isCompleted || true
+    };
+
+    let user = await PhysicsScore.findOne({ email });
+    
+    if (!user) {
+      // Create new user
+      user = new PhysicsScore({ 
+        username, 
+        email, 
+        scores: [scoreEntry]
+      });
+    } else {
+      // Update existing user
+      user.username = username;
+      
+      // Check if topic already exists, update or add
+      const existingScoreIndex = user.scores.findIndex(s => s.topic === quizData.topic);
+      
+      if (existingScoreIndex !== -1) {
+        // Update existing topic score
+        user.scores[existingScoreIndex] = scoreEntry;
+      } else {
+        // Add new topic score
+        user.scores.push(scoreEntry);
+      }
+      
+      user.lastUpdated = new Date();
+    }
+    
+    await user.save();
+    
+    res.status(201).json({ 
+      success: true,
+      message: 'Physics quiz result saved successfully', 
+      user 
+    });
+    
+  } catch (error) {
+    console.error('Error saving physics quiz result:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
   }
 });
 
