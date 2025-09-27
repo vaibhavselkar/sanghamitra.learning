@@ -185,10 +185,7 @@ REQUIREMENTS:
 - Output: List of all factors in ascending order
 - Implement exception handling for invalid inputs
 
-EFFICIENCY EXPLANATION (Add as comments):
-- Explain why your algorithm is O(√n) instead of O(n)
-- Compare number of operations for n=1000000: √n vs n
-- Describe the mathematical insight behind checking up to √n`,
+`,
 
                 starterCode: `def find_factors(n):
     """
@@ -200,23 +197,7 @@ EFFICIENCY EXPLANATION (Add as comments):
     # Write your efficient implementation here
     
     # === EFFICIENCY EXPLANATION (Required) ===
-    # 1. Why is this program efficient?
-    #    - Traditional approach: O(n) - check all numbers from 1 to n
-    #    - Our approach: O(√n) - only check up to square root of n
-    #    - Example: For n=1,000,000: √n=1000 vs 1,000,000 operations
-    #
-    # 2. Mathematical insight:
-    #    - If i is a factor, then n/i is also a factor
-    #    - We find pairs of factors simultaneously
-    #    - No need to check beyond √n since pairs repeat
-    #
-    # 3. Data structure used: List
-    #    - Why: Maintains order, allows duplicates, efficient appending
-    #
-    # 4. Exception handling implemented:
-    #    - Non-integer inputs: TypeError
-    #    - Negative numbers: ValueError
-    #    - Zero: Special case handling
+    # Add your analysis here
     pass`,
 
                 testCases: [
@@ -242,10 +223,7 @@ REQUIREMENTS:
 - Output: Dictionary with prime factors as keys and exponents as values
 - Handle edge cases and exceptions
 
-COMPARISON ANALYSIS (Add as comments):
-- How is this different from finding all factors?
-- Why use dictionary instead of list?
-- Compare time complexity of both algorithms`,
+`,
 
                 starterCode: `def prime_factorization(n):
     """
@@ -257,23 +235,7 @@ COMPARISON ANALYSIS (Add as comments):
     # Write your implementation here
     
     # === COMPARISON ANALYSIS (Required) ===
-    # 1. Difference from factors program:
-    #    - Factors: Returns all divisors [1,2,3,6] for n=6
-    #    - Prime Factorization: Returns prime powers {2:1, 3:1} for n=6
-    #    - Purpose: Factors help with divisibility, factorization with uniqueness
-    #
-    # 2. Data structure: Dictionary
-    #    - Why: Key-value pairs perfect for prime→exponent mapping
-    #    - Allows efficient lookup and updates
-    #
-    # 3. Algorithm complexity:
-    #    - Worst case: O(√n) for prime numbers
-    #    - Better than trial division up to n
-    #
-    # 4. Exception handling:
-    #    - n=1: Returns empty dict (1 has no prime factors)
-    #    - n=0: Raises ValueError
-    #    - Negative numbers: Convert to positive or raise error
+    # Add your analysis here
     pass`,
 
                 testCases: [
@@ -296,10 +258,7 @@ COMPARISON ANALYSIS (Add as comments):
 - Returns dictionary with number→factorization pairs
 - Includes timing to measure performance
 
-PERFORMANCE ANALYSIS:
-- Implement efficient algorithm for large n_max (up to 100000)
-- Explain how you would plot time vs n_max
-- Discuss optimizations for batch processing`,
+`,
 
                 starterCode: `import time
 
@@ -317,24 +276,9 @@ def batch_prime_factorization(n_max):
     results = {}
     
     # Implement efficient batch processing here
-    # Consider using Sieve of Eratosthenes for optimization
     
     # === PERFORMANCE ANALYSIS (Required) ===
-    # 1. Time complexity: O(n_max √n_max) for naive approach
-    #    - Can be optimized to O(n_max log log n_max) with Sieve
-    #
-    # 2. Plotting time vs n_max:
-    #    - Would show polynomial growth for naive approach
-    #    - Nearly linear with optimized Sieve approach
-    #
-    # 3. Optimizations:
-    #    - Precompute primes using Sieve of Eratosthenes
-    #    - Store smallest prime factor for each number
-    #    - Use dynamic programming to build factorizations
-    #
-    # 4. Expected results for n_max=100000:
-    #    - Naive: Several seconds
-    #    - Optimized: Under 1 second
+    # Add your analysis here
     pass
 
     end_time = time.time()
@@ -360,11 +304,7 @@ REQUIREMENTS:
 - Handle edge cases and exceptions
 - Explain algorithm steps and efficiency
 
-ALGORITHM ANALYSIS (Add as comments):
-- What is Euclidean algorithm used for?
-- Step-by-step implementation details
-- Time complexity analysis
-- Mathematical relationships`,
+`,
 
                 starterCode: `def gcd(a, b):
     """
@@ -376,27 +316,7 @@ ALGORITHM ANALYSIS (Add as comments):
     # Implement Euclidean algorithm here
     
     # === ALGORITHM ANALYSIS (Required) ===
-    # 1. Euclidean Algorithm Purpose:
-    #    - Finds greatest common divisor efficiently
-    #    - Used in cryptography, modular arithmetic, fraction simplification
-    #
-    # 2. Algorithm Steps:
-    #    - While b ≠ 0: (a, b) = (b, a mod b)
-    #    - When b becomes 0, a contains the GCD
-    #    - Based on: GCD(a,b) = GCD(b, a mod b)
-    #
-    # 3. Efficiency: O(log min(a,b))
-    #    - Much faster than naive O(min(a,b)) approach
-    #    - Number of steps proportional to number of digits
-    #
-    # 4. Exception Handling:
-    #    - Both zeros: Undefined, raise ValueError
-    #    - Negative numbers: Use absolute values
-    #    - Non-integers: Raise TypeError
-    #
-    # 5. Mathematical Insight:
-    #    - If GCD(a,b) = d, then GCD(a/d, b/d) = 1 (they are coprime)
-    #    - This is why we can simplify fractions: a/b = (a/d)/(b/d)
+    # Add your analysis here
     pass`,
 
                 testCases: [
@@ -421,10 +341,7 @@ ALGORITHM ANALYSIS (Add as comments):
 2. gcd_three(a, b, c) for three numbers
 3. Analyze mathematical relationships
 
-MATHEMATICAL ANALYSIS (Add as comments):
-- Relationship between LCM and GCD
-- Property of GCD(a,b,c)
-- Proof that GCD(a/d, b/d) = 1 when GCD(a,b) = d`,
+`,
 
                 starterCode: `def gcd(a, b):
     # Implement or reuse your Euclidean algorithm
@@ -449,27 +366,7 @@ def gcd_three(a, b, c):
     pass
 
 # === MATHEMATICAL ANALYSIS (Required) ===
-"""
-1. LCM-GCD Relationship:
-   - LCM(a,b) × GCD(a,b) = |a×b|
-   - Why: Prime factorization perspective
-   - For each prime, max(exponent in a,b) + min(exponent in a,b) = exponent in a + exponent in b
-
-2. GCD of Three Numbers:
-   - GCD(a,b,c) = GCD(GCD(a,b), c)
-   - This works because GCD is associative
-   - Can be extended to any number of integers
-
-3. Mathematical Proof:
-   - If GCD(a,b) = d, then a = d×a', b = d×b' where GCD(a',b') = 1
-   - Proof: d contains all common factors, so a' and b' share no common factors > 1
-   - Therefore GCD(a/d, b/d) = GCD(a', b') = 1
-
-4. Practical Applications:
-   - Fraction simplification
-   - Diophantine equations
-   - Cryptographic algorithms
-"""`,
+# Add your analysis here`,
 
                 testCases: [
                     { input: [12, 8], expected: 24 },
@@ -605,134 +502,101 @@ def gcd_three(a, b, c):
         }
 
         function checkExplanations(code, questionId) {
-            // Basic check for explanation comments
-            const explanationKeywords = {
-                1: ['efficient', 'O(√n)', 'square root', 'operations'],
-                2: ['dictionary', 'compare', 'difference', 'factors'],
-                3: ['batch', 'time', 'plot', 'optimiz'],
-                4: ['euclidean', 'algorithm', 'steps', 'complexity'],
-                5: ['relationship', 'lcm', 'gcd', 'mathematical']
-            };
+            // More strict check - require actual content in comments
+            const commentBlocks = code.match(/#.+/g) || [];
+            const hasSubstantialComments = commentBlocks.some(comment => 
+                comment.length > 20 && !comment.includes('Add your analysis here')
+            );
             
-            const keywords = explanationKeywords[questionId];
-            const codeLower = code.toLowerCase();
-            
-            return keywords.some(keyword => codeLower.includes(keyword));
+            return hasSubstantialComments && commentBlocks.length >= 2;
         }
 
         function simulateCodeExecution(code, testCases, questionTitle) {
-            const results = [];
+    const results = [];
+    const functionName = extractFunctionName(code);
+    
+    if (!functionName) {
+        return testCases.map(() => ({ 
+            passed: false, 
+            error: "No function defined. Please write a function starting with 'def function_name()'" 
+        }));
+    }
+    
+    testCases.forEach(testCase => {
+        try {
+            // Execute user's actual code
+            const output = executeUserCode(code, functionName, testCase.input);
+            const passed = deepEqual(output, testCase.expected);
             
-            testCases.forEach(testCase => {
-                try {
-                    const functionName = extractFunctionName(code);
-                    if (!functionName) {
-                        results.push({ passed: false, error: "No function defined" });
-                        return;
-                    }
-                    
-                    const output = simulateFunction(functionName, testCase.input, code, questionTitle);
-                    const passed = deepEqual(output, testCase.expected);
-                    
-                    results.push({ 
-                        passed, 
-                        output, 
-                        error: passed ? null : `Expected ${JSON.stringify(testCase.expected)}, got ${JSON.stringify(output)}`
-                    });
-                    
-                } catch (error) {
-                    results.push({ passed: false, error: error.message });
-                }
+            results.push({ 
+                passed, 
+                output: output !== undefined ? output : "No output returned",
+                error: passed ? null : `Expected ${JSON.stringify(testCase.expected)}, got ${JSON.stringify(output)}`
             });
             
-            return results;
+        } catch (error) {
+            results.push({ 
+                passed: false, 
+                error: `Runtime error: ${error.message}`,
+                output: "Error occurred during execution"
+            });
         }
+    });
+    
+    return results;
+}
 
-        function extractFunctionName(code) {
-            const match = code.match(/def\s+(\w+)\s*\(/);
-            return match ? match[1] : null;
-        }
+function executeUserCode(code, functionName, inputs) {
+    try {
+        // Create a safe execution environment
+        const func = new Function('args', `
+            ${code}
+            try {
+                const result = ${functionName}(...args);
+                return result !== undefined ? result : "No return value";
+            } catch (error) {
+                if (error.message.includes("ValueError") || error.message.includes("invalid")) {
+                    return "ValueError";
+                }
+                return \`Error: \${error.message}\`;
+            }
+        `);
+        
+        const result = func(inputs);
+        return result;
+    } catch (error) {
+        return `Execution Error: ${error.message}`;
+    }
+}
 
-        function simulateFunction(functionName, inputs, code, questionTitle) {
-            if (functionName === 'find_factors') {
-                const n = inputs[0];
-                if (n <= 0 || !Number.isInteger(n)) return "ValueError";
-                const factors = [];
-                for (let i = 1; i <= Math.sqrt(n); i++) {
-                    if (n % i === 0) {
-                        factors.push(i);
-                        if (i !== n / i) factors.push(n / i);
-                    }
-                }
-                return factors.sort((a, b) => a - b);
-            }
-            
-            if (functionName === 'prime_factorization') {
-                const n = inputs[0];
-                if (n <= 0 || !Number.isInteger(n)) return "ValueError";
-                if (n === 1) return {};
-                const factors = {};
-                let num = n;
-                for (let i = 2; i * i <= num; i++) {
-                    while (num % i === 0) {
-                        factors[i] = (factors[i] || 0) + 1;
-                        num /= i;
-                    }
-                }
-                if (num > 1) factors[num] = 1;
-                return factors;
-            }
-            
-            if (functionName === 'batch_prime_factorization') {
-                const n_max = inputs[0];
-                if (n_max <= 0 || !Number.isInteger(n_max)) return "ValueError";
-                return `dict_with_${n_max}_entries`;
-            }
-            
-            if (functionName === 'gcd') {
-                let [a, b] = inputs.map(Math.abs);
-                if (!Number.isInteger(a) || !Number.isInteger(b)) return "ValueError";
-                if (a === 0 && b === 0) return "ValueError";
-                if (a === 0) return b;
-                if (b === 0) return a;
-                while (b !== 0) {
-                    [a, b] = [b, a % b];
-                }
-                return a;
-            }
-            
-            if (functionName === 'lcm') {
-                const [a, b] = inputs;
-                if (!Number.isInteger(a) || !Number.isInteger(b)) return "ValueError";
-                const gcdVal = simulateFunction('gcd', [a, b], code, 'gcd');
-                return Math.abs(a * b) / gcdVal;
-            }
-            
-            if (functionName === 'gcd_three') {
-                const [a, b, c] = inputs;
-                const gcdAB = simulateFunction('gcd', [a, b], code, 'gcd');
-                return simulateFunction('gcd', [gcdAB, c], code, 'gcd');
-            }
-            
-            throw new Error("Function simulation not implemented");
-        }
+function extractFunctionName(code) {
+    const match = code.match(/def\s+(\w+)\s*\(/);
+    return match ? match[1] : null;
+}
 
-        function deepEqual(a, b) {
-            if (typeof a !== typeof b) return false;
-            if (typeof a !== 'object') return a === b;
-            if (Array.isArray(a) !== Array.isArray(b)) return false;
-            
-            if (Array.isArray(a)) {
-                if (a.length !== b.length) return false;
-                return a.every((val, i) => deepEqual(val, b[i]));
-            }
-            
-            const keysA = Object.keys(a);
-            const keysB = Object.keys(b);
-            if (keysA.length !== keysB.length) return false;
-            
-            return keysA.every(key => deepEqual(a[key], b[key]));
-        }
+function deepEqual(a, b) {
+    if (a === b) return true;
+    if (typeof a !== typeof b) return false;
+    if (typeof a !== 'object' || a === null || b === null) return a === b;
+    
+    if (Array.isArray(a)) {
+        if (!Array.isArray(b) || a.length !== b.length) return false;
+        return a.every((val, i) => deepEqual(val, b[i]));
+    }
+    
+    if (a instanceof Error || b instanceof Error) return a.message === b.message;
+    
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    if (keysA.length !== keysB.length) return false;
+    
+    return keysA.every(key => deepEqual(a[key], b[key]));
+}
+
+       
+
+
+        
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
