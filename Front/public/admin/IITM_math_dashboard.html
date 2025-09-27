@@ -388,67 +388,103 @@
     }
 
     // Load data from API - Handle both old 'scores' and new 'quizScores' arrays
-    // Load data from API - Handle both old 'scores' and new 'quizScores' arrays
+   
     async function loadData() {
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores');
-        const result = await response.json();
-        
-        if (!result.success) {
-            throw new Error('Failed to fetch data');
-        }
-        
-        // Process data - handle both old 'scores' and new 'quizScores' structures
-        allData = [];
-        
-        result.data.forEach(student => {
-            // Handle new quizScores array
-            if (student.quizScores && student.quizScores.length > 0) {
-            student.quizScores.forEach(quizScore => {
-                // Calculate percentage if not provided
-                let percentage = quizScore.percentage;
-                if (!percentage && quizScore.correctAnswers !== undefined && quizScore.totalQuestions > 0) {
-                percentage = ((quizScore.correctAnswers / quizScore.totalQuestions) * 100).toFixed(2);
-                }
-                
-                allData.push({
-                username: student.username,
-                email: student.email,
-                topic: quizScore.topic,
-                score: quizScore.score || quizScore.correctAnswers || 0,
-                totalQuestions: quizScore.totalQuestions,
-                correctAnswers: quizScore.correctAnswers || quizScore.score || 0,
-                percentage: parseFloat(percentage || 0),
-                attemptNumber: quizScore.attemptNumber || 1,
-                timestamp: quizScore.timestamp,
-                questionResults: quizScore.questionResults || []
-                });
-            });
+        try {
+            // Fetch both math and physics scores
+            const [mathResponse, physicsResponse] = await Promise.all([
+                fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores'),
+                fetch('https://sanghamitra-learnworld.vercel.app/api/physics_scores')
+            ]);
+            
+            const mathResult = await mathResponse.json();
+            const physicsResult = await physicsResponse.json();
+            
+            if (!mathResult.success) {
+                throw new Error('Failed to fetch math data');
             }
             
-            // Handle old scores array (for backwards compatibility)
-            if (student.scores && student.scores.length > 0) {
-            student.scores.forEach(score => {
-                allData.push({
-                username: student.username,
-                email: student.email,
-                topic: score.topic,
-                score: score.correctAnswers || score.score || 0,
-                totalQuestions: score.totalQuestions,
-                correctAnswers: score.correctAnswers || score.score || 0,
-                percentage: parseFloat(score.percentage || 0),
-                attemptNumber: 1, // Old format doesn't have attempt numbers
-                timestamp: score.timestamp,
-                questionResults: score.questionResults || []
+            // Process both datasets
+            allData = [];
+            
+            // Process math data (existing logic)
+            if (mathResult.data) {
+                mathResult.data.forEach(student => {
+                    // Handle new quizScores array
+                    if (student.quizScores && student.quizScores.length > 0) {
+                        student.quizScores.forEach(quizScore => {
+                            let percentage = quizScore.percentage;
+                            if (!percentage && quizScore.correctAnswers !== undefined && quizScore.totalQuestions > 0) {
+                                percentage = ((quizScore.correctAnswers / quizScore.totalQuestions) * 100).toFixed(2);
+                            }
+                            
+                            allData.push({
+                                username: student.username,
+                                email: student.email,
+                                topic: quizScore.topic,
+                                score: quizScore.score || quizScore.correctAnswers || 0,
+                                totalQuestions: quizScore.totalQuestions,
+                                correctAnswers: quizScore.correctAnswers || quizScore.score || 0,
+                                percentage: parseFloat(percentage || 0),
+                                attemptNumber: quizScore.attemptNumber || 1,
+                                timestamp: quizScore.timestamp,
+                                questionResults: quizScore.questionResults || []
+                            });
+                        });
+                    }
+                    
+                    // Handle old scores array (for backwards compatibility)
+                    if (student.scores && student.scores.length > 0) {
+                        student.scores.forEach(score => {
+                            allData.push({
+                                username: student.username,
+                                email: student.email,
+                                topic: score.topic,
+                                score: score.correctAnswers || score.score || 0,
+                                totalQuestions: score.totalQuestions,
+                                correctAnswers: score.correctAnswers || score.score || 0,
+                                percentage: parseFloat(score.percentage || 0),
+                                attemptNumber: 1,
+                                timestamp: score.timestamp,
+                                questionResults: score.questionResults || []
+                            });
+                        });
+                    }
                 });
-            });
             }
-        });
-        
-        // Sort by timestamp (newest first)
-        allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        
-        filteredData = [...allData];
+            
+            // Process physics data
+            if (physicsResult.success && physicsResult.data) {
+                physicsResult.data.forEach(student => {
+                    if (student.topic_scores && student.topic_scores.length > 0) {
+                        student.topic_scores.forEach(topicScore => {
+                            allData.push({
+                                username: student.username,
+                                email: student.email,
+                                topic: `Physics - ${topicScore.physics_topic}`,
+                                score: topicScore.questions_correct || 0,
+                                totalQuestions: topicScore.total_questions || 0,
+                                correctAnswers: topicScore.questions_correct || 0,
+                                percentage: parseFloat(topicScore.percentage_score || 0),
+                                attemptNumber: 1,
+                                timestamp: topicScore.timestamp,
+                                questionResults: [] // Physics might not have detailed question results
+                            });
+                        });
+                    }
+                });
+            }
+            
+            // Sort by timestamp (newest first)
+            allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            filteredData = [...allData];
+            
+        } catch (error) {
+            console.error('Error loading data:', error);
+            throw error;
         }
+    }
 
     // Calculate statistics
     function calculateStatistics() {
@@ -538,133 +574,6 @@
  
     // Generate detailed student answer breakdown
 function generateStudentDetail(item) {
-  const results = item.questionResults || [];
-  
-  if (results.length === 0) {
-    return '<p class="text-muted">No detailed answer data available.</p>';
-  }
-
-  // Check if this is a quiz4 (quadratic functions) result
-  
-// Check quiz type
-const isQuiz4 = item.topic.includes('Quiz4') || item.topic.includes('quadratic') || 
-               (results[0] && results[0].questionText && 
-                results[0].questionText.toLowerCase().includes('quadratic'));
-
-const isQuiz5 = item.topic.includes('Quiz5') || item.topic.includes('Linear') || 
-               (results[0] && results[0].questionText && 
-                results[0].questionText.toLowerCase().includes('linear'));
-
-let detailHtml = `
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h6 class="mb-0">
-      <i class="bi bi-person-badge me-2"></i>${item.username} - Detailed Answer Analysis
-      <span class="attempt-badge bg-secondary text-white ms-2">Attempt #${item.attemptNumber}</span>
-    </h6>
-    <small class="text-muted">Score: ${item.correctAnswers}/${item.totalQuestions} (${item.percentage}%)</small>
-  </div>
-  
-  ${isQuiz4 ? `
-    <div class="alert alert-info mb-3">
-      <i class="bi bi-info-circle me-2"></i>
-      <strong>Quadratic Functions Quiz:</strong> This assessment focuses on domain, range, vertex, 
-      intercepts, and other properties of quadratic functions.
-    </div>
-  ` : ''}
-  
-  ${isQuiz5 ? `
-    <div class="alert alert-success mb-3">
-      <i class="bi bi-info-circle me-2"></i>
-      <strong>Linear Functions Quiz:</strong> This assessment covers linear functions, including 
-      slope, intercepts, equations, and graphing linear relationships.
-    </div>
-  ` : ''}
-  
-  ${isQuiz5 ? `
-    <div class="alert alert-success mb-3">
-      <i class="bi bi-info-circle me-2"></i>
-      <strong>Linear Functions Quiz:</strong> This assessment covers linear functions, including 
-      slope, intercepts, equations, and graphing linear relationships.
-    </div>
-  ` : ''}
-    
-    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px;">
-      <div class="row">
-  `;
-
-  results.forEach(result => {
-    const questionNumber = result.questionNumber || 'N/A';
-    const isCorrect = result.isCorrect !== undefined ? result.isCorrect : false;
-    const timeTaken = result.timeTaken || 0;
-    
-    // Special handling for interval inputs in quiz4
-    const isIntervalInput = result.questionText && 
-                           (result.questionText.includes('interval') || 
-                            result.questionText.includes('domain') || 
-                            result.questionText.includes('range'));
-    
-    detailHtml += `
-      <div class="col-md-6 mb-3">
-        <div class="question-detail h-100">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <h6 class="mb-1">
-              <i class="bi bi-question-circle me-1"></i>Question ${questionNumber}
-              ${isIntervalInput ? '<span class="badge bg-info ms-1">Interval</span>' : ''}
-            </h6>
-            <span class="badge ${isCorrect ? 'bg-success' : 'bg-danger'}">
-              ${isCorrect ? '✓ CORRECT' : '✗ INCORRECT'}
-            </span>
-          </div>
-          
-          ${result.questionText ? `
-            <div class="mb-2">
-              <small class="text-muted">${result.questionText}</small>
-            </div>
-          ` : ''}
-          
-          <div class="mb-2">
-            <strong>Correct Answer:</strong> 
-            <span class="answer-display">${formatAnswer(result.correctAnswer, isIntervalInput)}</span>
-          </div>
-          
-          <div class="mb-2">
-            <strong>Student Answer:</strong> 
-            <span class="answer-display ${isCorrect ? 'text-success' : 'text-danger'}">
-              ${formatAnswer(result.userAnswer, isIntervalInput)}
-            </span>
-          </div>
-          
-          ${result.explanation ? `
-            <div class="solution-display">
-              <strong><i class="bi bi-lightbulb me-1"></i>Explanation:</strong>
-              <div class="mt-1">${result.explanation}</div>
-            </div>
-          ` : ''}
-          
-          ${timeTaken > 0 ? `
-            <div style="font-size: 0.9em; color: #666;">
-              <i class="bi bi-clock me-1"></i>Time spent: ${timeTaken}s
-            </div>
-          ` : ''}
-        </div>
-      </div>
-    `;
-  });
-
-  detailHtml += `
-      </div>
-    </div>
-    
-    <div class="mt-3">
-      <small class="text-muted">
-        <i class="bi bi-info-circle me-1"></i>
-        Scroll to view all questions. This is attempt #${item.attemptNumber} for ${item.topic}.
-      </small>
-    </div>
-  `;
-
-  return detailHtml;
-}
 
 // Helper function to format answers (especially for interval notation)
 function formatAnswer(answer, isInterval = false) {
@@ -744,14 +653,19 @@ function isQuiz4Result(item) {
         const sampleItem = allData.find(item => item.topic === topic);
         const questionCount = sampleItem ? sampleItem.totalQuestions : 0;
         
+        // Handle different topic types
         if (topic.includes('Quiz4') || topic.includes('quadratic')) {
             displayName = 'Quadratic Functions (Quiz 4)';
         } else if (topic.includes('Quiz5') || (topic.includes('Linear') && questionCount === 50)) {
-            displayName = 'Linear Functions 2';
+            displayName = 'Linear Functions (Quiz 5) - 50 Questions';
         } else if (topic.includes('Linear') && questionCount === 30) {
-            displayName = 'Linear Functions 1 ';
+            displayName = 'Linear Functions 1 - 30 Questions';
         } else if (topic.includes('Linear')) {
             displayName = `Linear Functions (${questionCount} Questions)`;
+        } else if (topic.includes('Physics - kinematics')) {
+            displayName = 'Physics - Kinematics';
+        } else if (topic.startsWith('Physics')) {
+            displayName = topic; // Keep physics topics as they are
         }
         
         topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
@@ -837,39 +751,6 @@ function isQuiz4Result(item) {
    
     // Generate CSV content
     function generateCSV(data) {
-        const headers = ['Username', 'Email', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Attempt Number', 'Date'];
-        let csv = headers.join(',') + '\n';
-        
-        data.forEach(item => {
-            const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
-            
-          // Add topic-specific information for different quizzes
-           // Add topic-specific information for different quizzes
-           let topicDisplay = item.topic;
-if (item.topic.includes('Quiz4') || item.topic.includes('quadratic')) {
-    topicDisplay = 'Quadratic Functions (Quiz 4)';
-} else if (item.topic.includes('Quiz5') || (item.topic.includes('Linear') && item.totalQuestions === 50)) {
-    topicDisplay = 'Linear Functions (Quiz 5) - 50 Questions';
-} else if (item.topic.includes('Linear') && item.totalQuestions === 30) {
-    topicDisplay = 'Linear Functions 1 - 30 Questions';
-} else if (item.topic.includes('Linear')) {
-    topicDisplay = `Linear Functions (${item.totalQuestions} Questions)`;
-}
-            
-            csv += [
-            `"${item.username}"`,
-            `"${item.email}"`,
-            `"${topicDisplay}"`,
-            `${item.correctAnswers}`,
-            `${item.totalQuestions}`,
-            `${item.percentage}%`,
-            `${item.attemptNumber}`,
-            `"${date}"`
-            ].join(',') + '\n';
-        });
-        
-        return csv;
-}
 
     // Refresh data
     async function refreshData() {
