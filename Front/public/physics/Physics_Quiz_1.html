@@ -638,7 +638,8 @@ function renderSinglePart(question) {
             <input type="text" 
                    class="answer-input" 
                    placeholder="${question.format_hint.split(':')[1]?.trim() || 'Enter your answer'}"
-                   oninput="handleSingleInput(${question.question_number - 1}, this.value)">
+                   oninput="handleSingleInput(${currentQuestionIndex}, this.value)"
+                   id="q${currentQuestionIndex}_single">
         </div>
     `;
 }
@@ -677,11 +678,11 @@ function handleSingleInput(questionIndex, value) {
                     }
                 });
             } else if (question.question_type === 'single_part') {
-                const input = document.querySelector('.answer-input');
-                if (input) {
-                    input.value = savedAnswer;
-                }
+            const input = document.querySelector('.answer-input');
+            if (input && savedAnswer) {
+                input.value = savedAnswer;
             }
+        }
         }
 
         function updateProgress() {
@@ -709,32 +710,40 @@ function handleSingleInput(questionIndex, value) {
         }
 
         function updateAnswerStatus() {
-            const statusSpan = document.getElementById('answeredStatus');
-            const question = physicsQuestions[currentQuestionIndex];
-            let hasAnswer = false;
+    const statusSpan = document.getElementById('answeredStatus');
+    const question = physicsQuestions[currentQuestionIndex];
+    
+    // Don't show status for context questions
+    if (question.is_context) {
+        statusSpan.style.display = 'none';
+        return;
+    }
+    
+    statusSpan.style.display = 'inline-block';
+    let hasAnswer = false;
 
-            if (question.question_type === 'multi_part') {
-                // For multi-part questions, check if all parts have answers
-                const savedAnswer = userAnswers[currentQuestionIndex];
-                if (savedAnswer && typeof savedAnswer === 'object') {
-                    hasAnswer = question.sub_questions.every(subQ => 
-                        savedAnswer[subQ.part_id] && savedAnswer[subQ.part_id].trim() !== ''
-                    );
-                }
-            } else {
-                hasAnswer = userAnswers[currentQuestionIndex] !== undefined && 
-                        userAnswers[currentQuestionIndex] !== '' && 
-                        userAnswers[currentQuestionIndex] !== null;
-            }
-            
-            if (hasAnswer) {
-                statusSpan.textContent = 'Answered';
-                statusSpan.className = 'status-answered';
-            } else {
-                statusSpan.textContent = 'Unanswered';
-                statusSpan.className = 'status-unanswered';
-            }
+    if (question.question_type === 'multi_part') {
+        // For multi-part questions, check if all parts have answers
+        const savedAnswer = userAnswers[currentQuestionIndex];
+        if (savedAnswer && typeof savedAnswer === 'object') {
+            hasAnswer = question.sub_questions.every(subQ => 
+                savedAnswer[subQ.part_id] && savedAnswer[subQ.part_id].trim() !== ''
+            );
         }
+    } else {
+        hasAnswer = userAnswers[currentQuestionIndex] !== undefined && 
+                userAnswers[currentQuestionIndex] !== '' && 
+                userAnswers[currentQuestionIndex] !== null;
+    }
+    
+    if (hasAnswer) {
+        statusSpan.textContent = 'Answered';
+        statusSpan.className = 'status-answered';
+    } else {
+        statusSpan.textContent = 'Unanswered';
+        statusSpan.className = 'status-unanswered';
+    }
+}
 
        function nextQuestion() {
     const currentQuestion = physicsQuestions[currentQuestionIndex];
@@ -814,6 +823,7 @@ function updateProgress() {
                     userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value);
                     event.target.closest('.option').classList.remove('selected');
                 }
+                updateAnswerStatus();
             }
         }
 
