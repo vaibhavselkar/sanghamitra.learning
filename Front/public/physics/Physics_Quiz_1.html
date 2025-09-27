@@ -294,6 +294,50 @@
 }
 
 .hidden { display: none; }
+
+.results-container {
+    display: none;
+    padding: 30px;
+    text-align: center;
+}
+
+.score-display {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.score-display h2 { 
+    font-size: 2.5rem; 
+    margin-bottom: 10px; 
+}
+
+.score-display h3 { 
+    font-size: 2rem; 
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+/* Add styles for detailed results */
+.question-result {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.question-result.correct {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.question-result.incorrect {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
     </style>
 </head>
 <body>
@@ -399,6 +443,50 @@ if (typeof physicsAnswerValidator === 'undefined') {
                 return false;
             }
         }
+
+        function showResults(quizData) {
+    // Hide quiz container
+    document.getElementById('quizContainer').style.display = 'none';
+    
+    // Show results container
+    document.getElementById('resultsContainer').style.display = 'block';
+    
+    // Update score display
+    document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.totalQuestions}`;
+    
+    // Add detailed results breakdown
+    const resultsContainer = document.getElementById('resultsContainer');
+    const scoreDisplay = resultsContainer.querySelector('.score-display');
+    
+    // Add percentage and additional info
+    const percentage = Math.round((quizData.score / quizData.totalQuestions) * 100);
+    scoreDisplay.innerHTML = `
+        <h2 id="finalScore">${quizData.score}/${quizData.totalQuestions}</h2>
+        <h3>${percentage}%</h3>
+        <p>Quiz Completed Successfully!</p>
+        <p>Topic: ${quizData.topic}</p>
+    `;
+    
+    // Add detailed question-by-question results
+    const detailsHtml = `
+        <div style="text-align: left; margin-top: 30px; max-height: 400px; overflow-y: auto;">
+            <h3 style="text-align: center; margin-bottom: 20px;">Detailed Results</h3>
+            ${quizData.questionResults.map(result => `
+                <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; background: ${result.isCorrect ? '#d4edda' : '#f8d7da'};">
+                    <div style="font-weight: bold; margin-bottom: 10px;">
+                        Question ${result.questionNumber}: ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                    </div>
+                    <div style="margin-bottom: 8px;"><strong>Your Answer:</strong> ${result.userAnswer}</div>
+                    <div style="margin-bottom: 8px;"><strong>Correct Answer:</strong> ${result.correctAnswer}</div>
+                    ${result.explanation ? `<div style="color: #666; font-style: italic;">Explanation: ${result.explanation}</div>` : ''}
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    // Insert details after score display
+    scoreDisplay.insertAdjacentHTML('afterend', detailsHtml);
+}
 
         // Initialize quiz directly without user form
         async function initializeQuiz() {
@@ -740,11 +828,10 @@ function handleSingleInput(questionIndex, value) {
             body: JSON.stringify(quizData)
         });
 
-        if (response.ok) {
-            console.log('Quiz submitted successfully');
-            // Redirect to physics.html with results
-            gobackWithResults(quizData);
-        } else {
+       if (response.ok) {
+         console.log('Quiz submitted successfully');
+         showResults(quizData);
+    }  else {
             console.error('Failed to submit quiz');
             alert('Failed to submit quiz. Please try again.');
             // Reset button state
@@ -775,9 +862,19 @@ function handleSingleInput(questionIndex, value) {
             initializeQuiz();
         }
 
-        function goback() {
+       function goback() {
+    // Reset quiz state
     userAnswers = {};
-    window.location.href = 'physics.html';
+    currentQuestionIndex = 0;
+    
+    // Option 1: Reset to show quiz again
+    document.getElementById('resultsContainer').style.display = 'none';
+    document.getElementById('quizContainer').style.display = 'block';
+    renderCurrentQuestion();
+    updateProgress();
+    
+    // Option 2: Redirect to physics.html (if that page exists)
+    // window.location.href = 'physics.html';
 }
 
 function gobackWithResults(quizData) {
