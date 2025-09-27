@@ -338,6 +338,27 @@
     background-color: #f8d7da;
     border-color: #f5c6cb;
 }
+.context-reminder {
+    background: #e3f2fd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #2196f3;
+    font-size: 0.95rem;
+}
+
+.context-info {
+    background: #e3f2fd;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.question-card.context {
+    border-left-color: #2196f3;
+    background: #f8f9ff;
+}
     </style>
 </head>
 <body>
@@ -508,54 +529,83 @@ if (typeof physicsAnswerValidator === 'undefined') {
             }
         }
 
-        function renderCurrentQuestion() {
-    const container = document.getElementById('questionContainer');
-    const question = physicsQuestions[currentQuestionIndex];
-    
-    container.innerHTML = '';
+       function renderCurrentQuestion() {
+        const container = document.getElementById('questionContainer');
+        const question = physicsQuestions[currentQuestionIndex];
+        
+        container.innerHTML = '';
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-card';
 
-    const questionDiv = document.createElement('div');
-    questionDiv.className = 'question-card';
+        let questionHtml = '';
 
-    let questionHtml = `
-        <div class="question-header">
-            <div class="question-number">${question.question_number}</div>
-            <div style="font-weight: 600;">Points: ${question.points || 1}</div>
-        </div>
-        <div class="question-text">${question.question_text}</div>
-    `;
+        // Handle context questions
+        if (question.is_context) {
+            questionHtml = `
+                <div class="question-header">
+                    <div class="question-number">${question.question_number}</div>
+                    <div style="font-weight: 600; color: #2196f3;">Context</div>
+                </div>
+                <div class="question-text">${question.question_text}</div>
+                <div class="context-info" style="text-align: center; padding: 20px; background: #e3f2fd; border-radius: 8px; margin-top: 20px;">
+                    <p style="margin: 0; color: #1976d2; font-weight: 500;">
+                        📚 Read the above context carefully. The following questions are based on this scenario.
+                    </p>
+                </div>
+            `;
+        } else {
+            // Show context reminder for questions with parent
+            if (question.parent_question) {
+                const parentQuestion = physicsQuestions.find(q => q.question_number === question.parent_question);
+                if (parentQuestion) {
+                    questionHtml += `
+                        <div class="context-reminder" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                            <strong>📝 Context:</strong> ${parentQuestion.question_text}
+                        </div>
+                    `;
+                }
+            }
 
-    // Handle different question types
-    if (question.question_type === 'multiple_choice') {
-        questionHtml += renderMultipleChoice(question);
-    } else if (question.question_type === 'multi_part') {
-        questionHtml += renderMultiPart(question);
-    } else if (question.question_type === 'single_part') {
-        questionHtml += renderSinglePart(question);
+            questionHtml += `
+                <div class="question-header">
+                    <div class="question-number">${question.question_number}</div>
+                    <div style="font-weight: 600;">Points: ${question.points || 1}</div>
+                </div>
+                <div class="question-text">${question.question_text}</div>
+            `;
+
+            // Render input based on question type (no multi_part needed anymore)
+            if (question.question_type === 'multiple_choice') {
+                questionHtml += renderMultipleChoice(question);
+            } else if (question.question_type === 'single_part') {
+                questionHtml += renderSinglePart(question);
+            }
+        }
+
+        questionDiv.innerHTML = questionHtml;
+        container.appendChild(questionDiv);
+        
+        // Skip answer restoration and status for context questions
+        if (!question.is_context) {
+            restoreAnswer();
+            updateAnswerStatus();
+        }
     }
 
-    questionDiv.innerHTML = questionHtml;
-    container.appendChild(questionDiv);
-    
-    // Restore previous answer if exists
-    restoreAnswer();
-    updateAnswerStatus();
-}
-
-function renderMultipleChoice(question) {
-    let optionsHtml = '<div class="options">';
-    
-    question.options.forEach((option, index) => {
-        optionsHtml += `
-            <div class="option" onclick="selectOption(${question.question_number - 1}, '${option.option_id}', 'radio')">
-                <input type="radio" name="q${question.question_number - 1}" value="${option.option_id}" id="q${question.question_number - 1}_${index}">
-                <label for="q${question.question_number - 1}_${index}">${option.option_text}</label>
-            </div>
-        `;
-    });
-    
-    optionsHtml += '</div>';
-    return optionsHtml;
+    function renderMultipleChoice(question) {
+        let optionsHtml = '<div class="options">';
+        
+        question.options.forEach((option, index) => {
+            optionsHtml += `
+                <div class="option" onclick="selectOption(${question.question_number - 1}, '${option.option_id}', 'radio')">
+                    <input type="radio" name="q${question.question_number - 1}" value="${option.option_id}" id="q${question.question_number - 1}_${index}">
+                    <label for="q${question.question_number - 1}_${index}">${option.option_text}</label>
+                </div>
+            `;
+        });
+        
+        optionsHtml += '</div>';
+        return optionsHtml;
 }
 
 function renderMultiPart(question) {
@@ -686,13 +736,55 @@ function handleSingleInput(questionIndex, value) {
             }
         }
 
-        function nextQuestion() {
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                renderCurrentQuestion();
-                updateProgress();
-            }
+       function nextQuestion() {
+    const currentQuestion = physicsQuestions[currentQuestionIndex];
+    
+    // Auto-advance for context questions
+    if (currentQuestion.is_context) {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            renderCurrentQuestion();
+            updateProgress();
         }
+        return;
+    }
+    
+    // Regular navigation for other questions
+    if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        renderCurrentQuestion();
+        updateProgress();
+    }
+}
+
+function updateProgress() {
+    // Count only non-context questions for progress
+    const totalAnswerableQuestions = questions.filter(q => !q.is_context).length;
+    const contextQuestionsBefore = questions.slice(0, currentQuestionIndex + 1).filter(q => q.is_context).length;
+    const currentAnswerableQuestion = Math.max(1, currentQuestionIndex + 1 - contextQuestionsBefore);
+    
+    const progress = (currentAnswerableQuestion / totalAnswerableQuestions) * 100;
+    document.getElementById('progressFill').style.width = `${progress}%`;
+    document.getElementById('progressText').textContent = `Question ${currentAnswerableQuestion} of ${totalAnswerableQuestions}`;
+    document.getElementById('questionStatus').textContent = `Question ${currentAnswerableQuestion} of ${totalAnswerableQuestions}`;
+    
+    // Update navigation buttons
+    document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+    
+    const nextBtn = document.getElementById('nextBtn');
+    if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.textContent = 'Finish →';
+        nextBtn.onclick = () => {
+            document.getElementById('quizContainer').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'end' 
+            });
+        };
+    } else {
+        nextBtn.textContent = 'Next →';
+        nextBtn.onclick = nextQuestion;
+    }
+}
 
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
@@ -742,63 +834,41 @@ function handleSingleInput(questionIndex, value) {
 
     let score = 0;
     const questionResults = [];
+  questions.forEach((question, index) => {
+    // Skip context questions in scoring
+    if (question.is_context) return;
     
-    questions.forEach((question, index) => {
-        const userAnswer = userAnswers[index];
-        let isCorrect = false;
-        let correctAnswer = '';
-        let userAnswerFormatted = '';
-        
-        if (question.question_type === 'multiple_choice') {
-            // Find the correct option
-            const correctOption = question.options.find(opt => opt.is_correct);
-            correctAnswer = correctOption?.option_text || correctOption?.option_id;
-            
-            // Find user's selected option text
-            const userOption = question.options.find(opt => opt.option_id === userAnswer);
-            userAnswerFormatted = userOption?.option_text || userAnswer || 'No answer';
-            
-            isCorrect = userAnswer === correctOption?.option_id;
-        } else if (question.question_type === 'multi_part') {
-            // For multi-part, check each sub-question
-            let allCorrect = true;
-            let userSubAnswers = [];
-            let correctSubAnswers = [];
-            
-            question.sub_questions.forEach(subQ => {
-                const userSubAnswer = userAnswer?.[subQ.part_id];
-                userSubAnswers.push(`${subQ.part_id}: ${userSubAnswer || 'No answer'}`);
-                correctSubAnswers.push(`${subQ.part_id}: ${subQ.correct_answer}`);
-                
-                if (!physicsAnswerValidator.validateAnswer(userSubAnswer, question, subQ)) {
-                    allCorrect = false;
-                }
-            });
-            
-            userAnswerFormatted = userSubAnswers.join('; ');
-            correctAnswer = correctSubAnswers.join('; ');
-            isCorrect = allCorrect;
-        } else if (question.question_type === 'single_part') {
-            userAnswerFormatted = userAnswer || 'No answer';
-            correctAnswer = question.correct_answer;
-            isCorrect = physicsAnswerValidator.validateAnswer(userAnswer, question);
-        }
-        
-        if (isCorrect) score++;
-        
-        // Build question result for detailed view
-        questionResults.push({
-            questionNumber: question.question_number,
-            questionText: question.question_text,
-            difficulty: 'medium', // You can add difficulty to your questions data
-            points: question.points || 1,
-            userAnswer: userAnswerFormatted,
-            correctAnswer: correctAnswer,
-            explanation: question.explanation || '',
-            isCorrect: isCorrect,
-            timeTaken: 0 // You can add timing if needed
-        });
+    const userAnswer = userAnswers[index];
+    let isCorrect = false;
+    let correctAnswer = '';
+    let userAnswerFormatted = '';
+    
+    if (question.question_type === 'multiple_choice') {
+        const correctOption = question.options.find(opt => opt.is_correct);
+        correctAnswer = correctOption?.option_text || correctOption?.option_id;
+        const userOption = question.options.find(opt => opt.option_id === userAnswer);
+        userAnswerFormatted = userOption?.option_text || userAnswer || 'No answer';
+        isCorrect = userAnswer === correctOption?.option_id;
+    } else if (question.question_type === 'single_part') {
+        userAnswerFormatted = userAnswer || 'No answer';
+        correctAnswer = question.correct_answer;
+        isCorrect = physicsAnswerValidator.validateAnswer(userAnswer, question);
+    }
+    
+    if (isCorrect) score++;
+    
+    questionResults.push({
+        questionNumber: question.question_number,
+        questionText: question.question_text,
+        userAnswer: userAnswerFormatted,
+        correctAnswer: correctAnswer,
+        explanation: question.explanation || '',
+        isCorrect: isCorrect
     });
+});
+
+// Update total questions count to exclude context questions
+const totalAnswerableQuestions = questions.filter(q => !q.is_context).length;
 
     const quizData = {
         username: username,
