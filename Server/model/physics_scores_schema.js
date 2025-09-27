@@ -143,11 +143,8 @@ physicsUserScoreSchema.pre('save', function(next) {
   next();
 });
 
-// Export models - IMPORTANT: Import PhysicsQuestion from the questions schema
-const { PhysicsQuestion } = require('./physics_questions_schema');
-
+// Export models - REMOVED the circular dependency
 module.exports = {
-  PhysicsQuestion, // Re-export from questions schema
   PhysicsUserScore: mongoose.model('physics_user_scores', physicsUserScoreSchema),
   PhysicsTopicScore: physicsTopicScoreSchema,
   PhysicsQuestionResult: physicsQuestionResultSchema,
