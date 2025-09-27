@@ -465,7 +465,7 @@ if (typeof physicsAnswerValidator === 'undefined') {
             }
         }
 
-        function showResults(quizData) {
+       function showResults(quizData) {
     // Hide quiz container
     document.getElementById('quizContainer').style.display = 'none';
     
@@ -480,7 +480,7 @@ if (typeof physicsAnswerValidator === 'undefined') {
     const scoreDisplay = resultsContainer.querySelector('.score-display');
     
     // Add percentage and additional info
-    const percentage = Math.round((quizData.score / quizData.totalQuestions) * 100);
+    const percentage = quizData.percentage || Math.round((quizData.score / quizData.totalQuestions) * 100);
     scoreDisplay.innerHTML = `
         <h2 id="finalScore">${quizData.score}/${quizData.totalQuestions}</h2>
         <h3>${percentage}%</h3>
@@ -831,7 +831,7 @@ function updateProgress() {
             userAnswers[questionIndex] = parseFloat(value) || value;
         }
 
-        async function submitQuiz() {
+     async function submitQuiz() {
     if (!username || !email) {
         alert("Error: User session data not found. Please log in.");
         return;
@@ -844,76 +844,115 @@ function updateProgress() {
 
     let score = 0;
     const questionResults = [];
-  questions.forEach((question, index) => {
-    // Skip context questions in scoring
-    if (question.is_context) return;
     
-    const userAnswer = userAnswers[index];
-    let isCorrect = false;
-    let correctAnswer = '';
-    let userAnswerFormatted = '';
+    // Filter out context questions for scoring
+    const answerableQuestions = questions.filter(q => !q.is_context);
     
-    if (question.question_type === 'multiple_choice') {
-        const correctOption = question.options.find(opt => opt.is_correct);
-        correctAnswer = correctOption?.option_text || correctOption?.option_id;
-        const userOption = question.options.find(opt => opt.option_id === userAnswer);
-        userAnswerFormatted = userOption?.option_text || userAnswer || 'No answer';
-        isCorrect = userAnswer === correctOption?.option_id;
-    } else if (question.question_type === 'single_part') {
-        userAnswerFormatted = userAnswer || 'No answer';
-        correctAnswer = question.correct_answer;
-        isCorrect = physicsAnswerValidator.validateAnswer(userAnswer, question);
-    }
-    
-    if (isCorrect) score++;
-    
-    questionResults.push({
-        questionNumber: question.question_number,
-        questionText: question.question_text,
-        userAnswer: userAnswerFormatted,
-        correctAnswer: correctAnswer,
-        explanation: question.explanation || '',
-        isCorrect: isCorrect
+    answerableQuestions.forEach((question) => {
+        const questionIndex = questions.indexOf(question); // Get original index
+        const userAnswer = userAnswers[questionIndex];
+        let isCorrect = false;
+        let correctAnswer = '';
+        let userAnswerFormatted = '';
+        
+        if (question.question_type === 'multiple_choice') {
+            const correctOption = question.options.find(opt => opt.is_correct);
+            correctAnswer = correctOption?.option_text || correctOption?.option_id;
+            const userOption = question.options.find(opt => opt.option_id === userAnswer);
+            userAnswerFormatted = userOption?.option_text || userAnswer || 'No answer';
+            isCorrect = userAnswer === correctOption?.option_id;
+        } else if (question.question_type === 'single_part') {
+            userAnswerFormatted = userAnswer || 'No answer';
+            correctAnswer = question.correct_answer;
+            isCorrect = physicsAnswerValidator.validateAnswer(userAnswer, question);
+        } else if (question.question_type === 'multi_part') {
+            // Handle multi-part questions
+            let allPartsCorrect = true;
+            let userParts = [];
+            let correctParts = [];
+            
+            question.sub_questions.forEach(subQ => {
+                const userSubAnswer = userAnswer?.[subQ.part_id] || '';
+                const isSubCorrect = physicsAnswerValidator.validateAnswer(userSubAnswer, question, subQ);
+                
+                userParts.push(`${subQ.part_id}: ${userSubAnswer || 'No answer'}`);
+                correctParts.push(`${subQ.part_id}: ${subQ.correct_answer}`);
+                
+                if (!isSubCorrect) allPartsCorrect = false;
+            });
+            
+            userAnswerFormatted = userParts.join('; ');
+            correctAnswer = correctParts.join('; ');
+            isCorrect = allPartsCorrect;
+        }
+        
+        if (isCorrect) score++;
+        
+        questionResults.push({
+            questionNumber: question.question_number,
+            questionText: question.question_text.substring(0, 100) + '...', // Truncate for API
+            userAnswer: userAnswerFormatted,
+            correctAnswer: correctAnswer,
+            explanation: question.explanation || '',
+            isCorrect: isCorrect
+        });
     });
-});
 
-// Update total questions count to exclude context questions
-const totalAnswerableQuestions = questions.filter(q => !q.is_context).length;
-
+    // Create the quiz data object matching the expected API format
     const quizData = {
         username: username,
         email: email,
         score: score,
-        totalQuestions: questions.length,
-        percentage: Math.round((score / questions.length) * 100),
-        topic: 'Kinematics - 1',
+        totalQuestions: answerableQuestions.length, // Use answerable questions count
+        percentage: Math.round((score / answerableQuestions.length) * 100),
+        topic: 'Physics - Kinematics 1', // Make sure this matches expected format
         answers: userAnswers,
         questionResults: questionResults,
         correctAnswers: score,
-        maxPossibleScore: questions.reduce((sum, q) => sum + (q.points || 1), 0),
+        maxPossibleScore: answerableQuestions.reduce((sum, q) => sum + (q.points || 1), 0),
         difficultyBreakdown: {
             easy: { attempted: 0, correct: 0 },
-            medium: { attempted: questions.length, correct: score },
+            medium: { attempted: answerableQuestions.length, correct: score },
             hard: { attempted: 0, correct: 0 }
         },
         totalTimeTaken: 0,
-        isCompleted: true
+        isCompleted: true,
+        quizType: 'physics', // Add quiz type
+        timestamp: new Date().toISOString() // Add timestamp
     };
+
+    console.log('Submitting quiz data:', JSON.stringify(quizData, null, 2)); // Debug log
 
     try {
         const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/physics_scores', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             credentials: 'include',
             body: JSON.stringify(quizData)
         });
 
-       if (response.ok) {
-         console.log('Quiz submitted successfully');
-         showResults(quizData);
-    }  else {
-            console.error('Failed to submit quiz');
-            alert('Failed to submit quiz. Please try again.');
+        const responseText = await response.text();
+        console.log('Server response:', response.status, responseText);
+
+        if (response.ok) {
+            console.log('Quiz submitted successfully');
+            showResults(quizData);
+        } else {
+            console.error('Failed to submit quiz. Status:', response.status, 'Response:', responseText);
+            
+            // Try to parse error message
+            let errorMessage = 'Failed to submit quiz. Please try again.';
+            try {
+                const errorData = JSON.parse(responseText);
+                errorMessage = errorData.message || errorMessage;
+            } catch (e) {
+                // Use default message if JSON parsing fails
+            }
+            
+            alert(errorMessage);
             // Reset button state
             document.getElementById('submitText').style.display = 'inline';
             document.getElementById('submitLoading').style.display = 'none';
