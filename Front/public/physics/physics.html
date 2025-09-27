@@ -107,76 +107,6 @@
       font-size: 0.85rem;
       margin-top: 0.5rem;
     }
-
-    .quiz-results-container {
-    max-width: 800px;
-    margin: 2rem auto;
-}
-
-.bg-light-success {
-    background-color: #f8f9fa !important;
-    border-color: #28a745 !important;
-}
-
-.bg-light-danger {
-    background-color: #f8f9fa !important;
-    border-color: #dc3545 !important;
-}
-
-.question-review-item {
-    transition: all 0.3s ease;
-}
-
-.question-review-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.score-circle {
-    transition: all 0.5s ease-in-out;
-}
-
-/* Enhanced results styling */
-@media (max-width: 768px) {
-    .quiz-results-container {
-        margin: 1rem;
-    }
-    
-    .question-review-item {
-        padding: 15px !important;
-    }
-    
-    .question-review-item .row {
-        margin-top: 10px;
-    }
-    
-    .question-review-item .col-md-6 {
-        margin-bottom: 10px;
-    }
-}
-
-.results-breakdown {
-    scrollbar-width: thin;
-    scrollbar-color: #007bff #f1f3f4;
-}
-
-.results-breakdown::-webkit-scrollbar {
-    width: 6px;
-}
-
-.results-breakdown::-webkit-scrollbar-track {
-    background: #f1f3f4;
-    border-radius: 3px;
-}
-
-.results-breakdown::-webkit-scrollbar-thumb {
-    background: #007bff;
-    border-radius: 3px;
-}
-
-.results-breakdown::-webkit-scrollbar-thumb:hover {
-    background: #0056b3;
-}
   </style>
 </head>
 
@@ -202,7 +132,7 @@
           <div class="row d-flex justify-content-center text-center">
             <div class="col-lg-8">
               <h1>Physics</h1>
-             <p class="mb-0">From fundamental principles to advanced theoretical concepts, we guide you every step of the way.</p>
+              <p class="mb-0">From fundamental principles to advanced theoretical concepts, we guide you every step of the way. Join our community and begin your journey toward mastering the art of understanding the natural world and solving complex physical problems through physics.</p>
             </div>
           </div>
         </div>
@@ -305,49 +235,23 @@
         description: 'Assessment on IITM first two weeks of physics.',
         icon: 'bi-cpu',
         url: 'Physics_Quiz_1.html'
-    },
-
-    {
-    id: 'Dynamics-1',
-    name: 'Dynamics - 1',
-    displayName: 'Dynamics - 1',
-    description: 'Assessment on IITM Physics - Dynamics Part 1.',
-    icon: 'bi-cpu',
-    url: 'Physics_Quiz_2.html'
-},
+    }
     // Add more topics here as needed
     ];
 
     // Initialize the application
     async function initializeApp() {
-try {
-    showLoading(true);
-    
-    // Check if we're returning from a quiz with results
-    const urlParams = new URLSearchParams(window.location.search);
-    const showResults = urlParams.get('showResults');
-    
-    if (showResults === 'true') {
-        const topic = urlParams.get('topic');
-        const score = parseInt(urlParams.get('score'));
-        const totalQuestions = parseInt(urlParams.get('totalQuestions'));
-        const userAnswers = JSON.parse(decodeURIComponent(urlParams.get('userAnswers') || '[]'));
-        const correctAnswers = JSON.parse(decodeURIComponent(urlParams.get('correctAnswers') || '[]'));
-        
-        showQuizResults(topic, userAnswers, correctAnswers, score, totalQuestions);
+    try {
+        showLoading(true);
+        await fetchSessionInfo();
+        await loadCourseData();
+    } catch (error) {
+        console.error('Initialization error:', error);
+        showError('Failed to initialize the application. Please try refreshing the page.');
+    } finally {
         showLoading(false);
-        return;
     }
-    
-    await fetchSessionInfo();
-    await loadCourseData();
-} catch (error) {
-    console.error('Initialization error:', error);
-    showError('Failed to initialize the application. Please try refreshing the page.');
-} finally {
-    showLoading(false);
-}
-}
+    }
 
     // Fetch user session information
     async function fetchSessionInfo() {
@@ -414,60 +318,44 @@ try {
     }
 
     // Render courses based on available topics and assessment data
-    // Render courses based on available topics and assessment data
-function renderCourses(userScoreData) {
-    console.log('Rendering courses with data:', userScoreData); // Debug log
-    console.log('Available topics:', availableTopics); // Debug log
-    
+    function renderCourses(userScoreData) {
     const courseList = document.getElementById('courseList');
-    if (!courseList) {
-        console.error('Course list element not found!');
-        return;
-    }
-    
     courseList.innerHTML = '';
 
-    if (availableTopics.length === 0) {
-        console.warn('No topics available to render');
-        courseList.innerHTML = '<div class="alert alert-warning">No courses available at the moment.</div>';
-        return;
-    }
-
-    availableTopics.forEach((topic, index) => {
-        console.log(`Rendering topic ${index + 1}:`, topic.displayName);
+    availableTopics.forEach(topic => {
         const topicAssessment = findTopicAssessment(userScoreData, topic.name);
         const courseHTML = createCourseHTML(topic, topicAssessment);
         courseList.insertAdjacentHTML('beforeend', courseHTML);
     });
-    
-    console.log('Finished rendering all courses');
-}
+    }
 
     // Find assessment data for a specific topic
     function findTopicAssessment(userScoreData, topicName) {
-    if (!userScoreData || !userScoreData.scores || !Array.isArray(userScoreData.scores)) {
-        console.log(`No scores found for user`);
+    if (!userScoreData || !userScoreData.topic_scores || !Array.isArray(userScoreData.topic_scores)) {
+        console.log(`No topic_scores found for user`);
         return null;
     }
 
-    // Find the score for the specific topic
-    const topicScore = userScoreData.scores.find(score => score.topic === topicName);
-    
+    // Since all questions are now "kinematics", look for that topic
+    const topicScore = userScoreData.topic_scores.find(score => 
+        score.physics_topic === 'kinematics'
+    );
+
     if (topicScore) {
         console.log(`Found assessment for ${topicName}:`, topicScore);
         return {
-        score: topicScore.percentage, // Use percentage as the score
-        timeTaken: null, // You don't have timeTaken in your current data structure
-        timestamp: topicScore.timestamp,
-        totalQuestions: topicScore.totalQuestions,
-        actualScore: topicScore.score, // Actual number of correct answers
-        answers: topicScore.answers
+            score: topicScore.percentage_score,
+            timeTaken: topicScore.total_time_spent,
+            timestamp: topicScore.timestamp,
+            totalQuestions: topicScore.total_questions,
+            actualScore: topicScore.questions_correct,
+            answers: null
         };
     }
     
     console.log(`No assessment found for topic: ${topicName}`);
     return null;
-    }
+}
 
     // Create HTML for a course item
     function createCourseHTML(topic, assessment) {
@@ -496,26 +384,18 @@ function renderCourses(userScoreData) {
     }
 
     // Update the action button logic
-   // Update the action button logic
-const actionButton = isCompleted 
-    ? `<div>
-        <div class="completed-badge">
+    const actionButton = isCompleted 
+        ? `<div class="completed-badge">
             <i class="bi bi-check-circle me-2"></i>
             Completed
         </div>
         <div class="mt-2">
             <small class="text-muted d-block">Score: ${actualScore}/${totalQuestions}</small>
-        </div>
-        <div class="mt-2">
-            <button onclick="viewQuizResults('${topic.displayName}', '${topic.name}')" class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-eye me-1"></i>View Results
-            </button>
-        </div>
-    </div>`
-    : `<a href="${topic.url}" class="btn btn-primary btn-sm">
-        <span>Start Assessment</span>
-        <i class="bi bi-arrow-right ms-2"></i>
-    </a>`;
+        </div>`
+        : `<a href="${topic.url}" class="btn btn-primary btn-sm">
+            <span>Start Assessment</span>
+            <i class="bi bi-arrow-right ms-2"></i>
+        </a>`;
 
     // Set progress bar width
     const progressWidth = isCompleted ? score : 0;
@@ -613,290 +493,6 @@ const actionButton = isCompleted
         errorMessage.appendChild(refreshButton);
     }
     }
-
-    // Function to display quiz results after completion
-function showQuizResults(topic, userAnswers, correctAnswers, score, totalQuestions) {
-    const courseList = document.getElementById('courseList');
-    if (!courseList) return;
-    
-    const percentage = Math.round((score / totalQuestions) * 100);
-    
-    // Create results HTML
-    const resultsHTML = `
-        <div class="quiz-results-container">
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h2 class="mb-0">Quiz Results</h2>
-                    <h4 class="mb-0">${topic}</h4>
-                </div>
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <div class="score-circle mx-auto mb-3" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#28a745 ${percentage * 3.6}deg, #e9ecef 0deg); display: flex; align-items: center; justify-content: center;">
-                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width: 90px; height: 90px;">
-                                <span class="h3 mb-0 text-primary">${percentage}%</span>
-                            </div>
-                        </div>
-                        <h4>Your Score: ${score}/${totalQuestions}</h4>
-                        <p class="text-muted">You got ${score} questions correct out of ${totalQuestions}</p>
-                    </div>
-                    
-                    <div class="results-breakdown">
-                        <h5 class="mb-3">Question Review:</h5>
-                        ${generateQuestionReview(userAnswers, correctAnswers)}
-                    </div>
-                    
-                    <div class="text-center mt-4">
-                        <button onclick="goBackToCourses()" class="btn btn-primary me-3">
-                            <i class="bi bi-arrow-left me-2"></i>Back to Courses
-                        </button>
-                        <button onclick="retakeQuiz('${topic}')" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-clockwise me-2"></i>Retake Quiz
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    courseList.innerHTML = resultsHTML;
-}
-
-// Generate question-by-question review
-function generateQuestionReview(userAnswers, correctAnswers) {
-    let reviewHTML = '';
-    
-    for (let i = 0; i < correctAnswers.length; i++) {
-        const isCorrect = userAnswers[i] === correctAnswers[i];
-        const statusIcon = isCorrect ? 'bi-check-circle text-success' : 'bi-x-circle text-danger';
-        const statusText = isCorrect ? 'Correct' : 'Incorrect';
-        
-        reviewHTML += `
-            <div class="question-review-item border rounded p-3 mb-3 ${isCorrect ? 'border-success bg-light-success' : 'border-danger bg-light-danger'}">
-                <div class="d-flex align-items-center mb-2">
-                    <i class="bi ${statusIcon} fs-5 me-2"></i>
-                    <strong>Question ${i + 1} - ${statusText}</strong>
-                </div>
-                <div class="ms-4">
-                    <p class="mb-1"><strong>Your Answer:</strong> ${userAnswers[i] || 'Not answered'}</p>
-                    <p class="mb-0"><strong>Correct Answer:</strong> ${correctAnswers[i]}</p>
-                </div>
-            </div>
-        `;
-    }
-    
-    return reviewHTML;
-}
-
-// Go back to courses overview
-function goBackToCourses() {
-    location.reload();
-}
-
-// Retake quiz function
-function retakeQuiz(topic) {
-    const topicData = availableTopics.find(t => t.displayName === topic);
-    if (topicData) {
-        window.location.href = topicData.url;
-    }
-}
-
-// Function to view previous quiz results
-
-async function viewQuizResults(displayName, topicName) {
-    try {
-        if (!currentUser) {
-            showError('Please log in to view results');
-            return;
-        }
-        
-        const response = await fetch(
-            `https://sanghamitra-learnworld.vercel.app/api/physics_scores?email=${currentUser.email}`,
-            { credentials: 'include' }
-        );
-        
-        if (response.ok) {
-            const apiResponse = await response.json();
-            if (apiResponse.success && apiResponse.data && apiResponse.data.scores) {
-                const topicScore = apiResponse.data.scores.find(score => score.topic === topicName);
-                if (topicScore) {
-                    // Check if we have detailed question results with correct answers
-                    if (topicScore.questionResults && Array.isArray(topicScore.questionResults)) {
-                        // Use detailed results from the new quiz structure
-                        showDetailedQuizResults(displayName, topicScore);
-                    } else if (topicScore.answers) {
-                        // Fallback to simple results for old quiz format
-                        const correctAnswers = new Array(topicScore.totalQuestions).fill('A');
-                        showQuizResults(displayName, topicScore.answers, correctAnswers, topicScore.score, topicScore.totalQuestions);
-                    } else {
-                        showError('No detailed results available for this quiz');
-                    }
-                }
-            }
-        }
-    } catch (error) {
-        console.error('Error viewing results:', error);
-        showError('Failed to load quiz results');
-    }
-}
-
-// Function to show detailed quiz results with question-by-question breakdown
-function showDetailedQuizResults(topicName, topicScore) {
-    const courseList = document.getElementById('courseList');
-    if (!courseList) return;
-    
-    const percentage = Math.round((topicScore.score / topicScore.maxPossibleScore) * 100);
-    
-    // Create detailed results HTML
-    const detailedResultsHTML = `
-        <div class="quiz-results-container">
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h2 class="mb-0">Detailed Quiz Results</h2>
-                    <h4 class="mb-0">${topicName}</h4>
-                </div>
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <div class="score-circle mx-auto mb-3" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#28a745 ${percentage * 3.6}deg, #e9ecef 0deg); display: flex; align-items: center; justify-content: center;">
-                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width: 90px; height: 90px;">
-                                <span class="h3 mb-0 text-primary">${percentage}%</span>
-                            </div>
-                        </div>
-                        <h4>Your Score: ${topicScore.score}/${topicScore.maxPossibleScore} Points</h4>
-                        <p class="text-muted">You got ${topicScore.correctAnswers} questions correct out of ${topicScore.totalQuestions}</p>
-                        
-                        <div class="row mt-4">
-                            <div class="col-md-4 text-center">
-                                <div class="card border-success">
-                                    <div class="card-body py-2">
-                                        <h6 class="text-success mb-1">Easy Questions</h6>
-                                        <strong>${topicScore.difficultyBreakdown?.easy?.correct || 0}/${topicScore.difficultyBreakdown?.easy?.attempted || 0}</strong>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <div class="card border-warning">
-                                    <div class="card-body py-2">
-                                        <h6 class="text-warning mb-1">Medium Questions</h6>
-                                        <strong>${topicScore.difficultyBreakdown?.medium?.correct || 0}/${topicScore.difficultyBreakdown?.medium?.attempted || 0}</strong>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <div class="card border-danger">
-                                    <div class="card-body py-2">
-                                        <h6 class="text-danger mb-1">Hard Questions</h6>
-                                        <strong>${topicScore.difficultyBreakdown?.hard?.correct || 0}/${topicScore.difficultyBreakdown?.hard?.attempted || 0}</strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <p class="mt-3 text-muted">
-                            Time Taken: ${Math.floor((topicScore.totalTimeTaken || 0) / 60)}m ${(topicScore.totalTimeTaken || 0) % 60}s
-                        </p>
-                    </div>
-                    
-                    <div class="results-breakdown" style="max-height: 60vh; overflow-y: auto;">
-                        <h5 class="mb-3 text-center">Question-by-Question Review</h5>
-                        ${generateDetailedQuestionReview(topicScore.questionResults)}
-                    </div>
-                    
-                    <div class="text-center mt-4">
-                        <button onclick="goBackToCourses()" class="btn btn-primary me-3">
-                            <i class="bi bi-arrow-left me-2"></i>Back to Physics
-                        </button>
-                        <button onclick="retakeQuiz('${topicName}')" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-clockwise me-2"></i>Retake Quiz
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    courseList.innerHTML = detailedResultsHTML;
-}
-
-// Generate detailed question-by-question review
-function generateDetailedQuestionReview(questionResults) {
-    if (!questionResults || !Array.isArray(questionResults)) {
-        return '<div class="alert alert-info">No detailed question data available.</div>';
-    }
-    
-    let reviewHTML = '';
-    
-    questionResults.forEach((result, index) => {
-        const isCorrect = result.isCorrect;
-        const statusIcon = isCorrect ? 'bi-check-circle text-success' : 'bi-x-circle text-danger';
-        const statusText = isCorrect ? 'Correct' : 'Incorrect';
-        const difficultyColor = getDifficultyColor(result.difficulty);
-        
-        reviewHTML += `
-            <div class="question-review-item border rounded p-3 mb-3 ${isCorrect ? 'border-success bg-light-success' : 'border-danger bg-light-danger'}" style="transition: all 0.3s ease;">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div class="d-flex align-items-center">
-                        <i class="bi ${statusIcon} fs-5 me-2"></i>
-                        <strong>Question ${result.questionNumber || index + 1} - ${statusText}</strong>
-                    </div>
-                    <span class="badge" style="background-color: ${difficultyColor}; color: white; text-transform: uppercase; font-size: 0.7rem;">
-                        ${result.difficulty || 'Unknown'}
-                    </span>
-                </div>
-                
-                <div class="ms-4">
-                    <div class="mb-2">
-                        <strong>Question:</strong>
-                        <div class="mt-1" style="background: #f8f9fa; padding: 8px; border-radius: 4px; border-left: 3px solid #007bff;">
-                            ${result.questionText || 'Question text not available'}
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>Your Answer:</strong>
-                            <div class="mt-1 p-2 rounded" style="background: ${isCorrect ? '#e8f5e8' : '#fdeaea'}; border: 1px solid ${isCorrect ? '#28a745' : '#dc3545'}; font-family: monospace;">
-                                ${result.userAnswer || 'No answer provided'}
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <strong>Correct Answer:</strong>
-                            <div class="mt-1 p-2 rounded" style="background: #e8f5e8; border: 1px solid #28a745; font-family: monospace;">
-                                ${result.correctAnswer}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    ${result.explanation ? `
-                        <div class="mt-2">
-                            <strong>Explanation:</strong>
-                            <div class="mt-1 p-2" style="background: #fff3cd; border-left: 3px solid #ffc107; font-style: italic;">
-                                ${result.explanation}
-                            </div>
-                        </div>
-                    ` : ''}
-                    
-                    <div class="d-flex justify-content-between align-items-center mt-2 pt-2" style="border-top: 1px solid #dee2e6; font-size: 0.85em; color: #6c757d;">
-                        <span>Points: ${result.points || 1}</span>
-                        <span>Time: ${result.timeTaken || 0}s</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    return reviewHTML;
-}
-
-// Helper function for difficulty colors
-function getDifficultyColor(difficulty) {
-    switch(difficulty?.toLowerCase()) {
-        case 'easy': return '#28a745';
-        case 'medium': return '#ffc107';
-        case 'hard': return '#dc3545';
-        default: return '#6c757d';
-    }
-}
-
 </script>
 </body>
 </html>
