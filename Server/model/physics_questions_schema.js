@@ -1,77 +1,10 @@
 const mongoose = require('mongoose');
 
 // ===========================================
-// PHYSICS QUESTION SCHEMAS
+// PHYSICS QUESTION SCHEMAS - UPDATED
 // ===========================================
 
-// Sub-question schema for multi-part physics problems
-const physicsSubQuestionSchema = new mongoose.Schema({
-  part_id: { 
-    type: String, 
-    required: true 
-  }, // 'a', 'b', 'c', 'i', 'ii', etc.
-  
-  sub_question_text: { 
-    type: String, 
-    required: true 
-  },
-  
-  correct_answer: { 
-    type: mongoose.Schema.Types.Mixed, 
-    required: true 
-  }, // Can be number, string, array, object
-  
-  alternative_answers: [mongoose.Schema.Types.Mixed], // Alternative correct forms
-  
-  answer_type: {
-    type: String,
-    enum: [
-      'scalar_with_unit',    // 10 m/s
-      'vector',              // 4î + 8ĵ m/s
-      'coordinate',          // (4, 10)
-      'pure_number',         // 2.5
-      'expression',          // v²/2g
-      'multiple_values'      // For problems requiring multiple answers
-    ],
-    required: true
-  },
-  
-  units: { 
-    type: String 
-  }, // m/s, m/s², m, s, kg, N, etc.
-  
-  tolerance: { 
-    type: Number, 
-    default: 0.01 
-  }, // For numerical answers (±1%)
-  
-  significant_figures: { 
-    type: Number 
-  }, // Expected significant figures
-  
-  // Input format guidance
-  format_hint: {
-    type: String,
-    required: true
-  }, // "Enter your answer as a number (e.g., 2.5)", "Enter as vector (e.g., 4î + 8ĵ)"
-  
-  placeholder_text: {
-    type: String
-  }, // Placeholder text for input field
-  
-  input_validation: {
-    pattern: String, // Regex pattern for validation
-    error_message: String // Error message for invalid format
-  },
-  
-  hint: { 
-    type: String 
-  }, // Optional hint for this sub-part
-  
-  solution_steps: [String] // Step-by-step solution
-});
-
-// Main Physics Question Schema
+// Main Physics Question Schema - Updated for context questions
 const physicsQuestionSchema = new mongoose.Schema({
   question_id: {
     type: String,
@@ -80,8 +13,20 @@ const physicsQuestionSchema = new mongoose.Schema({
   },
   
   question_number: {
-    type: Number,
+    type: mongoose.Schema.Types.Mixed, // Changed to Mixed to support "1a", "1b" format
     required: true
+  },
+  
+  // NEW: Support for parent-child relationships
+  parent_question: {
+    type: mongoose.Schema.Types.Mixed, // References parent question number
+    required: false
+  },
+  
+  // NEW: Context question support
+  is_context: {
+    type: Boolean,
+    default: false
   },
   
   question_text: {
@@ -94,8 +39,9 @@ const physicsQuestionSchema = new mongoose.Schema({
     required: true,
     enum: [
       'single_part',         // Simple one-answer question
-      'multi_part',          // Questions with sub-parts (a, b, c)
+      'multi_part',          // Questions with sub-parts (a, b, c) - DEPRECATED
       'multiple_choice',     // MCQ
+      'context',            // NEW: Context-only questions (no answers required)
       'assertion_reason',    // Assertion-Reason type
       'match_the_following', // Column matching
       'fill_in_blanks',     // Multiple blanks
@@ -107,8 +53,14 @@ const physicsQuestionSchema = new mongoose.Schema({
   correct_answer: {
     type: mongoose.Schema.Types.Mixed,
     required: function() { 
-      return this.question_type === 'single_part' || this.question_type === 'multiple_choice'; 
+      return (this.question_type === 'single_part' || this.question_type === 'multiple_choice') && !this.is_context; 
     }
+  },
+  
+  // NEW: Alternative answers support
+  alternative_answers: {
+    type: [mongoose.Schema.Types.Mixed],
+    default: []
   },
   
   answer_type: {
@@ -116,7 +68,10 @@ const physicsQuestionSchema = new mongoose.Schema({
     enum: [
       'scalar_with_unit', 'vector', 'coordinate', 'pure_number', 
       'expression', 'multiple_values', 'option_letter'
-    ]
+    ],
+    required: function() {
+      return !this.is_context && this.question_type !== 'multiple_choice';
+    }
   },
   
   units: String,
@@ -124,7 +79,10 @@ const physicsQuestionSchema = new mongoose.Schema({
   
   // Input format guidance for single-part questions
   format_hint: {
-    type: String
+    type: String,
+    required: function() {
+      return !this.is_context && this.question_type === 'single_part';
+    }
   },
   
   placeholder_text: {
@@ -143,15 +101,24 @@ const physicsQuestionSchema = new mongoose.Schema({
     is_correct: { type: Boolean, default: false }
   }],
   
-  // For multi-part questions
-  sub_questions: [physicsSubQuestionSchema],
+  // DEPRECATED: For old multi-part questions (keeping for backward compatibility)
+  sub_questions: [{
+    part_id: String,
+    sub_question_text: String,
+    correct_answer: mongoose.Schema.Types.Mixed,
+    alternative_answers: [mongoose.Schema.Types.Mixed],
+    answer_type: String,
+    units: String,
+    format_hint: String,
+    explanation: String
+  }],
   
   // Physics-specific information
   physics_topic: {
     type: String,
     required: true,
-    enum: ['kinematics', 
-      'kinematics_1d', 'kinematics_2d', 'dynamics', 'circular_motion',
+    enum: [
+      'kinematics', 'kinematics_1d', 'kinematics_2d', 'dynamics', 'circular_motion',
       'work_energy', 'momentum', 'gravitation', 'oscillations',
       'waves', 'thermodynamics', 'electrostatics', 'current_electricity',
       'magnetism', 'electromagnetic_induction', 'optics', 'modern_physics'
@@ -162,6 +129,7 @@ const physicsQuestionSchema = new mongoose.Schema({
   
   physics_concepts: [String], // Key concepts tested
   
+  // NEW: For context questions - given values and constants
   given_values: [{
     variable: String,      // v₀, a, m, etc.
     value: String,         // "10", "4î + 8ĵ"
@@ -180,7 +148,9 @@ const physicsQuestionSchema = new mongoose.Schema({
   
   explanation: {
     type: String,
-    required: true
+    required: function() {
+      return !this.is_context; // Context questions don't need explanations
+    }
   },
   
   solution_approach: String, // Brief description of solution method
@@ -210,7 +180,7 @@ const physicsQuestionSchema = new mongoose.Schema({
   
   created_by: String,
   last_modified_by: String
-}); // FIXED: Added missing closing parenthesis
+});
 
 // Middleware to update timestamps
 physicsQuestionSchema.pre('save', function(next) {
