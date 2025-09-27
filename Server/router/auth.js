@@ -34,6 +34,9 @@ const WeeklyAssessment = require('../model/weeklyAssessment');
 const Statistics_score = require('../model/statisticsSchema');
 const iitm_math_score = require('../model/iitmMathSchema');
 const IITMathQuestion = require('../model/iitmMathQuestionSchema');
+const { PhysicsQuestion } = require('../model/physics_questions_schema');
+const { PhysicsUserScore } = require('../model/physics_scores_schema');
+
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -1863,7 +1866,157 @@ router.get('/user-question-progress/:email', async (req, res) => {
   }
 });
 
+// ===========================================
+// PHYSICS ROUTES
+// ===========================================
 
+// GET Physics Questions
+router.get('/physics_questions', async (req, res) => {
+  try {
+    const { topic, question_type, question_number } = req.query;
+    let filter = {};
+
+    if (topic) filter.physics_topic = topic;
+    if (question_type) filter.question_type = question_type;
+    if (question_number) filter.question_number = parseInt(question_number);
+
+    const questions = await PhysicsQuestion.find(filter);
+    res.status(200).json(questions);
+  } catch (error) {
+    console.error('Error fetching physics questions:', error);
+    res.status(500).json({ error: 'Failed to fetch physics questions' });
+  }
+});
+
+// POST Physics Quiz Scores
+router.post('/physics_scores', async (req, res) => {
+  try {
+    const { 
+      username, 
+      email, 
+      score, 
+      totalQuestions, 
+      percentage, 
+      topic, 
+      answers, 
+      questionResults,
+      correctAnswers,
+      maxPossibleScore,
+      difficultyBreakdown,
+      totalTimeTaken,
+      isCompleted
+    } = req.body;
+
+    if (!username || !email) {
+      return res.status(400).json({ error: 'Username and email are required' });
+    }
+
+    // Find existing user or create new one
+    let userScore = await PhysicsUserScore.findOne({ email });
+
+    const topicScoreData = {
+      physics_topic: topic || 'General Physics',
+      total_questions: totalQuestions || 0,
+      questions_attempted: totalQuestions || 0,
+      questions_correct: correctAnswers || score || 0,
+      percentage_score: percentage || 0,
+      total_time_spent: totalTimeTaken || 0,
+      average_time_per_question: totalQuestions > 0 ? (totalTimeTaken || 0) / totalQuestions : 0,
+      difficulty_performance: difficultyBreakdown || {
+        easy: { attempted: 0, correct: 0, percentage: 0 },
+        medium: { attempted: totalQuestions || 0, correct: score || 0, percentage: percentage || 0 },
+        hard: { attempted: 0, correct: 0, percentage: 0 },
+        very_hard: { attempted: 0, correct: 0, percentage: 0 }
+      },
+      question_results: questionResults || [],
+      attempt_number: 1,
+      session_id: `session_${Date.now()}`,
+      timestamp: new Date()
+    };
+
+    if (!userScore) {
+      // Create new user
+      userScore = new PhysicsUserScore({
+        user_id: email, // Using email as user_id
+        username,
+        email,
+        total_questions_attempted: totalQuestions || 0,
+        total_questions_correct: correctAnswers || score || 0,
+        overall_percentage: percentage || 0,
+        total_study_time: Math.round((totalTimeTaken || 0) / 60), // Convert to minutes
+        completed_question_ids: [],
+        bookmarked_question_ids: [],
+        flagged_for_review: [],
+        topic_scores: [topicScoreData]
+      });
+    } else {
+      // Update existing user
+      userScore.username = username;
+      userScore.total_questions_attempted += totalQuestions || 0;
+      userScore.total_questions_correct += correctAnswers || score || 0;
+      userScore.overall_percentage = userScore.total_questions_attempted > 0 
+        ? Math.round((userScore.total_questions_correct / userScore.total_questions_attempted) * 100)
+        : 0;
+      userScore.total_study_time += Math.round((totalTimeTaken || 0) / 60);
+      userScore.topic_scores.push(topicScoreData);
+    }
+
+    await userScore.save();
+    
+    res.status(201).json({ 
+      message: 'Physics quiz score saved successfully',
+      data: userScore
+    });
+
+  } catch (error) {
+    console.error('Error saving physics score:', error);
+    res.status(500).json({ error: 'Failed to save physics score' });
+  }
+});
+
+// GET Physics Scores
+router.get('/physics_scores', async (req, res) => {
+  try {
+    const { email, topic } = req.query;
+
+    if (email) {
+      // Get specific user
+      const userScore = await PhysicsUserScore.findOne({ email });
+      if (!userScore) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      if (topic) {
+        // Filter by topic
+        const topicScores = userScore.topic_scores.filter(t => t.physics_topic === topic);
+        return res.status(200).json({
+          ...userScore.toObject(),
+          topic_scores: topicScores
+        });
+      }
+
+      res.status(200).json(userScore);
+    } else {
+      // Get all users
+      const allScores = await PhysicsUserScore.find({});
+      res.status(200).json(allScores);
+    }
+  } catch (error) {
+    console.error('Error fetching physics scores:', error);
+    res.status(500).json({ error: 'Failed to fetch physics scores' });
+  }
+});
+
+// GET Physics Topics (for filtering)
+router.get('/physics_topics', async (req, res) => {
+  try {
+    const topics = await PhysicsQuestion.distinct('physics_topic');
+    res.status(200).json(topics);
+  } catch (error) {
+    console.error('Error fetching physics topics:', error);
+    res.status(500).json({ error: 'Failed to fetch physics topics' });
+  }
+});
 
 module.exports = router
 
