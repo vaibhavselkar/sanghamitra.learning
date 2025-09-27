@@ -150,7 +150,7 @@ const physicsQuestionSchema = new mongoose.Schema({
   physics_topic: {
     type: String,
     required: true,
-    enum: [
+    enum: ['kinematics', 
       'kinematics_1d', 'kinematics_2d', 'dynamics', 'circular_motion',
       'work_energy', 'momentum', 'gravitation', 'oscillations',
       'waves', 'thermodynamics', 'electrostatics', 'current_electricity',
