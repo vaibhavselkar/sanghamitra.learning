@@ -344,11 +344,29 @@
                 <h2 id="finalScore">0/15</h2>
                 <p>Quiz Completed Successfully!</p>
             </div>
-            <button class="btn" onclick="goback()">Home Page</button>
+            <button class="btn" onclick="goback()">Back to Physics</button>
         </div>
     </div>
 
     <script>
+        
+        // Fallback answer validator if physicsAnswerValidator is not available
+if (typeof physicsAnswerValidator === 'undefined') {
+    window.physicsAnswerValidator = {
+        validateAnswer: function(userAnswer, question, subQuestion) {
+            if (subQuestion) {
+                // For sub-questions, do simple string comparison
+                return (userAnswer || '').toString().trim().toLowerCase() === 
+                       (subQuestion.correct_answer || '').toString().trim().toLowerCase();
+            } else {
+                // For main questions, do simple comparison
+                return (userAnswer || '').toString().trim().toLowerCase() === 
+                       (question.correct_answer || '').toString().trim().toLowerCase();
+            }
+        }
+    };
+}
+
         let userAnswers = {};
         let currentUser = {};
         let username = null;
@@ -624,71 +642,125 @@ function handleSingleInput(questionIndex, value) {
         }
 
         async function submitQuiz() {
-            if (!username || !email) {
-                alert("Error: User session data not found. Please log in.");
-                return;
-            }
+    if (!username || !email) {
+        alert("Error: User session data not found. Please log in.");
+        return;
+    }
 
-            let score = 0;
+    // Show loading state
+    document.getElementById('submitText').style.display = 'none';
+    document.getElementById('submitLoading').style.display = 'inline-block';
+    document.getElementById('submitBtn').disabled = true;
+
+    let score = 0;
+    const questionResults = [];
+    
+    questions.forEach((question, index) => {
+        const userAnswer = userAnswers[index];
+        let isCorrect = false;
+        let correctAnswer = '';
+        let userAnswerFormatted = '';
+        
+        if (question.question_type === 'multiple_choice') {
+            // Find the correct option
+            const correctOption = question.options.find(opt => opt.is_correct);
+            correctAnswer = correctOption?.option_text || correctOption?.option_id;
             
-           questions.forEach((question, index) => {
-            const userAnswer = userAnswers[index];
-            let correctAnswer;
+            // Find user's selected option text
+            const userOption = question.options.find(opt => opt.option_id === userAnswer);
+            userAnswerFormatted = userOption?.option_text || userAnswer || 'No answer';
             
-            if (question.question_type === 'multiple_choice') {
-                // Find the correct option
-                correctAnswer = question.options.find(opt => opt.is_correct)?.option_id;
-                if (userAnswer === correctAnswer) score++;
-            } else if (question.question_type === 'multi_part') {
-                // For multi-part, check each sub-question
-                let allCorrect = true;
-                question.sub_questions.forEach(subQ => {
-                    const userSubAnswer = userAnswer?.[subQ.part_id];
-                    if (!physicsAnswerValidator.validateAnswer(userSubAnswer, question, subQ)) {
-                        allCorrect = false;
-                    }
-                });
-                if (allCorrect) score++;
-            } else if (question.question_type === 'single_part') {
-                if (physicsAnswerValidator.validateAnswer(userAnswer, question)) {
-                    score++;
+            isCorrect = userAnswer === correctOption?.option_id;
+        } else if (question.question_type === 'multi_part') {
+            // For multi-part, check each sub-question
+            let allCorrect = true;
+            let userSubAnswers = [];
+            let correctSubAnswers = [];
+            
+            question.sub_questions.forEach(subQ => {
+                const userSubAnswer = userAnswer?.[subQ.part_id];
+                userSubAnswers.push(`${subQ.part_id}: ${userSubAnswer || 'No answer'}`);
+                correctSubAnswers.push(`${subQ.part_id}: ${subQ.correct_answer}`);
+                
+                if (!physicsAnswerValidator.validateAnswer(userSubAnswer, question, subQ)) {
+                    allCorrect = false;
                 }
-            }
+            });
+            
+            userAnswerFormatted = userSubAnswers.join('; ');
+            correctAnswer = correctSubAnswers.join('; ');
+            isCorrect = allCorrect;
+        } else if (question.question_type === 'single_part') {
+            userAnswerFormatted = userAnswer || 'No answer';
+            correctAnswer = question.correct_answer;
+            isCorrect = physicsAnswerValidator.validateAnswer(userAnswer, question);
+        }
+        
+        if (isCorrect) score++;
+        
+        // Build question result for detailed view
+        questionResults.push({
+            questionNumber: question.question_number,
+            questionText: question.question_text,
+            difficulty: 'medium', // You can add difficulty to your questions data
+            points: question.points || 1,
+            userAnswer: userAnswerFormatted,
+            correctAnswer: correctAnswer,
+            explanation: question.explanation || '',
+            isCorrect: isCorrect,
+            timeTaken: 0 // You can add timing if needed
+        });
+    });
+
+    const quizData = {
+        username: username,
+        email: email,
+        score: score,
+        totalQuestions: questions.length,
+        percentage: Math.round((score / questions.length) * 100),
+        topic: 'Kinematics - 1',
+        answers: userAnswers,
+        questionResults: questionResults,
+        correctAnswers: score,
+        maxPossibleScore: questions.reduce((sum, q) => sum + (q.points || 1), 0),
+        difficultyBreakdown: {
+            easy: { attempted: 0, correct: 0 },
+            medium: { attempted: questions.length, correct: score },
+            hard: { attempted: 0, correct: 0 }
+        },
+        totalTimeTaken: 0,
+        isCompleted: true
+    };
+
+    try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/physics_scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(quizData)
         });
 
-     
-            const quizData = {
-                username: username,
-                email: email,
-                score: score,
-                totalQuestions: questions.length,
-                percentage: Math.round((score / questions.length) * 100),
-                topic: 'Kinematics - 1',
-                answers: userAnswers
-            };
-
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/physics_scores', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(quizData)
-                });
-
-                if (response.ok) {
-                    console.log('Quiz submitted successfully');
-                } else {
-                    console.error('Failed to submit quiz');
-                }
-            } catch (error) {
-                console.error('Error submitting quiz:', error);
-            }
-            
-            // Show results
-            document.getElementById('quizContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'block';
-            document.getElementById('finalScore').textContent = `${score}/${questions.length} (${Math.round((score/questions.length)*100)}%)`;
+        if (response.ok) {
+            console.log('Quiz submitted successfully');
+            // Redirect to physics.html with results
+            gobackWithResults(quizData);
+        } else {
+            console.error('Failed to submit quiz');
+            alert('Failed to submit quiz. Please try again.');
+            // Reset button state
+            document.getElementById('submitText').style.display = 'inline';
+            document.getElementById('submitLoading').style.display = 'none';
+            document.getElementById('submitBtn').disabled = false;
         }
+    } catch (error) {
+        console.error('Error submitting quiz:', error);
+        alert('Error submitting quiz. Please check your connection and try again.');
+        // Reset button state
+        document.getElementById('submitText').style.display = 'inline';
+        document.getElementById('submitLoading').style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+    }
+}
 
         // Initialize the quiz when page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -704,10 +776,51 @@ function handleSingleInput(questionIndex, value) {
         }
 
         function goback() {
-            userAnswers = {};
-          
-            window.location.href = 'physics.html';
+    userAnswers = {};
+    window.location.href = 'physics.html';
+}
+
+function gobackWithResults(quizData) {
+    // Prepare data for the results page
+    const userAnswerArray = [];
+    const correctAnswerArray = [];
+    
+    // Process answers based on question types
+    questions.forEach((question, index) => {
+        const userAnswer = userAnswers[index];
+        
+        if (question.question_type === 'multiple_choice') {
+            const correctOption = question.options.find(opt => opt.is_correct);
+            userAnswerArray.push(userAnswer || 'No answer');
+            correctAnswerArray.push(correctOption?.option_text || correctOption?.option_id);
+        } else if (question.question_type === 'multi_part') {
+            // For multi-part, combine all sub-answers
+            let userSubAnswers = [];
+            let correctSubAnswers = [];
+            question.sub_questions.forEach(subQ => {
+                userSubAnswers.push(`${subQ.part_id}: ${userAnswer?.[subQ.part_id] || 'No answer'}`);
+                correctSubAnswers.push(`${subQ.part_id}: ${subQ.correct_answer}`);
+            });
+            userAnswerArray.push(userSubAnswers.join('; '));
+            correctAnswerArray.push(correctSubAnswers.join('; '));
+        } else if (question.question_type === 'single_part') {
+            userAnswerArray.push(userAnswer || 'No answer');
+            correctAnswerArray.push(question.correct_answer);
         }
+    });
+    
+    // Redirect to physics course page with results parameters
+    const params = new URLSearchParams({
+        showResults: 'true',
+        topic: 'Physics Quiz',
+        score: quizData.score,
+        totalQuestions: quizData.totalQuestions,
+        userAnswers: encodeURIComponent(JSON.stringify(userAnswerArray)),
+        correctAnswers: encodeURIComponent(JSON.stringify(correctAnswerArray))
+    });
+    
+    window.location.href = `physics.html?${params.toString()}`;
+}
     </script>
 </body>
 </html>
