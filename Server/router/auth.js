@@ -252,10 +252,34 @@ router.post('/gre_writing_response', async (req, res) => {
 
 // Middleware to check for the JWT token
 router.get('/check-auth', (req, res) => {
-    if (req.session.userId) {
-        res.status(200).json({ authenticated: true });
-    } else {
-        res.status(200).json({ authenticated: false });
+    try {
+        console.log('=== Session Debug Info ===');
+        console.log('req.session exists:', !!req.session);
+        console.log('req.session:', req.session);
+        console.log('Environment check:');
+        console.log('- SECRET_KEY exists:', !!process.env.SECRET_KEY);
+        console.log('- DATABASE exists:', !!process.env.DATABASE);
+        console.log('- NODE_ENV:', process.env.NODE_ENV);
+        
+        if (!req.session) {
+            return res.status(500).json({ 
+                error: 'Session middleware not working',
+                authenticated: false 
+            });
+        }
+        
+        if (req.session.userId) {
+            res.status(200).json({ authenticated: true });
+        } else {
+            res.status(200).json({ authenticated: false });
+        }
+    } catch (error) {
+        console.error('Check-auth route error:', error);
+        res.status(500).json({ 
+            error: 'Session check failed', 
+            details: error.message,
+            authenticated: false 
+        });
     }
 });
 
