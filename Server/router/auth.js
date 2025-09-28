@@ -36,7 +36,7 @@ const iitm_math_score = require('../model/iitmMathSchema');
 const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
 const { PhysicsUserScore } = require('../model/physics_scores_schema');
-
+const AlgorithmSubmission = require('../model/algorithmSubmissionSchema');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -2081,8 +2081,35 @@ router.get('/physics_topics', async (req, res) => {
   }
 });
 
-module.exports = router
+router.post('/algorithm-submissions', async (req, res) => {
+  try {
+    const { username, email, topic, score, maxScore, percentage, questions, timestamp } = req.body;
+    
+    if (!username || !email || !topic || score === undefined) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    const submission = new AlgorithmSubmission({
+      username,
+      email, 
+      topic,
+      score,
+      maxScore,
+      percentage,
+      questions,
+      timestamp: timestamp || new Date()
+    });
+    
+    await submission.save();
+    res.status(201).json({ message: "Algorithm submission saved successfully!", submission });
+    
+  } catch (error) {
+    console.error("Error saving algorithm submission:", error);
+    res.status(500).json({ error: error.message || "Internal Server Error" });
+  }
+});
 
+module.exports = router
 
 
 
