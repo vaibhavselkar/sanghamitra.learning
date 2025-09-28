@@ -36,7 +36,7 @@ const iitm_math_score = require('../model/iitmMathSchema');
 const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
 const { PhysicsUserScore } = require('../model/physics_scores_schema');
-const AlgorithmSubmission = require('../model/algorithmSubmissionSchema');
+
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -252,34 +252,10 @@ router.post('/gre_writing_response', async (req, res) => {
 
 // Middleware to check for the JWT token
 router.get('/check-auth', (req, res) => {
-    try {
-        console.log('=== Session Debug Info ===');
-        console.log('req.session exists:', !!req.session);
-        console.log('req.session:', req.session);
-        console.log('Environment check:');
-        console.log('- SECRET_KEY exists:', !!process.env.SECRET_KEY);
-        console.log('- DATABASE exists:', !!process.env.DATABASE);
-        console.log('- NODE_ENV:', process.env.NODE_ENV);
-        
-        if (!req.session) {
-            return res.status(500).json({ 
-                error: 'Session middleware not working',
-                authenticated: false 
-            });
-        }
-        
-        if (req.session.userId) {
-            res.status(200).json({ authenticated: true });
-        } else {
-            res.status(200).json({ authenticated: false });
-        }
-    } catch (error) {
-        console.error('Check-auth route error:', error);
-        res.status(500).json({ 
-            error: 'Session check failed', 
-            details: error.message,
-            authenticated: false 
-        });
+    if (req.session.userId) {
+        res.status(200).json({ authenticated: true });
+    } else {
+        res.status(200).json({ authenticated: false });
     }
 });
 
@@ -2102,34 +2078,6 @@ router.get('/physics_topics', async (req, res) => {
   } catch (error) {
     console.error('Error fetching physics topics:', error);
     res.status(500).json({ error: 'Failed to fetch physics topics' });
-  }
-});
-
-router.post('/algorithm-submissions', async (req, res) => {
-  try {
-    const { username, email, topic, score, maxScore, percentage, questions, timestamp } = req.body;
-    
-    if (!username || !email || !topic || score === undefined) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-    
-    const submission = new AlgorithmSubmission({
-      username,
-      email, 
-      topic,
-      score,
-      maxScore,
-      percentage,
-      questions,
-      timestamp: timestamp || new Date()
-    });
-    
-    await submission.save();
-    res.status(201).json({ message: "Algorithm submission saved successfully!", submission });
-    
-  } catch (error) {
-    console.error("Error saving algorithm submission:", error);
-    res.status(500).json({ error: error.message || "Internal Server Error" });
   }
 });
 
