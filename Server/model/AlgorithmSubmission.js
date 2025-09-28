@@ -9,7 +9,7 @@ const testResultSchema = new mongoose.Schema({
 const questionSchema = new mongoose.Schema({
     questionId: Number,
     title: String,
-    code: String,        // ✅ User's actual code stored here
+    code: String,
     score: Number,
     maxScore: Number,
     testResults: [testResultSchema],
@@ -27,6 +27,5 @@ const algorithmSubmissionSchema = new mongoose.Schema({
     questions: [questionSchema]
 });
 
-
-
-module.exports = mongoose.model('AlgorithmSubmission', algorithmSubmissionSchema);
+// ✅ ADD THIS LINE to specify the exact collection name
+module.exports = mongoose.model('AlgorithmSubmission', algorithmSubmissionSchema, 'algorithm_submissions');
