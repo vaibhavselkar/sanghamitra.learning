@@ -43,8 +43,7 @@ app.use(session({
 mongoose.connect(process.env.DATABASE, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false
+   
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch(err => console.error("MongoDB connection error:", err));
@@ -68,3 +67,4 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
