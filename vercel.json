@@ -14,7 +14,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/Server/app.js"
+      "dest": "Server/app.js"
     },
     {
       "src": "/(.*)",
@@ -24,6 +24,7 @@
   "env": {
     "DATABASE": "mongodb+srv://sanghamitralearn:sanghamitra%4007@platform.tzqhhat.mongodb.net/sanghamitralearn?retryWrites=true&w=majority&appName=Platform",
     "SECRET_KEY": "SANGHAMITRAISBUILDINGLEARNINGPLATFORM",
-    "PORT": "4000"
+    "PORT": "4000",
+    "NODE_ENV": "production"
   }
 }
