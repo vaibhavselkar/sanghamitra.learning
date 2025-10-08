@@ -548,23 +548,38 @@ def gcd_three(a, b, c):
 
 function executeUserCode(code, functionName, inputs) {
     try {
-        // Create a safe execution environment
+        // Convert Python-like code to JavaScript
+        let jsCode = code
+            .replace(/def\s+(\w+)\s*\((.*?)\):/g, 'function $1($2) {')
+            .replace(/"""[\s\S]*?"""/g, '') // Remove docstrings
+            .replace(/#.*/g, '') // Remove comments temporarily for execution
+            .replace(/pass\s*$/gm, 'return null;')
+            .replace(/raise ValueError\((.*?)\)/g, 'throw new Error("ValueError")')
+            .replace(/isinstance\((.*?),\s*int\)/g, 'Number.isInteger($1)')
+            .replace(/\bTrue\b/g, 'true')
+            .replace(/\bFalse\b/g, 'false')
+            .replace(/\bNone\b/g, 'null');
+        
+        // Create execution function
         const func = new Function('args', `
-            ${code}
+            ${jsCode}
             try {
                 const result = ${functionName}(...args);
-                return result !== undefined ? result : "No return value";
+                return result !== undefined && result !== null ? result : null;
             } catch (error) {
-                if (error.message.includes("ValueError") || error.message.includes("invalid")) {
+                if (error.message === "ValueError" || error.message.includes("invalid") || error.message.includes("positive integer")) {
                     return "ValueError";
                 }
-                return \`Error: \${error.message}\`;
+                throw error;
             }
         `);
         
         const result = func(inputs);
         return result;
     } catch (error) {
+        if (error.message === "ValueError" || error.message.includes("invalid")) {
+            return "ValueError";
+        }
         return `Execution Error: ${error.message}`;
     }
 }
@@ -731,3 +746,4 @@ function deepEqual(a, b) {
     </script>
 </body>
 </html>
+
