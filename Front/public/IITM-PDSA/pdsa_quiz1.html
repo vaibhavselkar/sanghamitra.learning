@@ -645,66 +645,79 @@ function deepEqual(a, b) {
         }
 
         async function submitQuiz() {
-            let totalScore = 0;
-            const results = [];
-            
-            // Grade each question
-            questions.forEach(question => {
-                const code = userAnswers[question.id] || '';
-                const testResults = simulateCodeExecution(code, question.testCases, question.title);
-                const passedTests = testResults.filter(r => r.passed).length;
-                
-                // Bonus points for explanations
-                const hasExplanations = checkExplanations(code, question.id);
-                const explanationBonus = hasExplanations ? question.points * 0.2 : 0; // 20% bonus
-                
-                const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
-                
-                totalScore += Math.min(questionScore, question.points); // Cap at max points
-                results.push({
-                    questionId: question.id,
-                    title: question.title,
-                    code: code,
-                    score: Math.min(questionScore, question.points),
-                    maxScore: question.points,
-                    testResults: testResults,
-                    hasExplanations: hasExplanations
-                });
-            });
-            
-            const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
-            const percentage = Math.round((totalScore / maxScore) * 100);
-            
-            // Submit to backend
-            const quizData = {
-                username: currentUser.username,
-                email: currentUser.email,
-                topic: 'Algorithms & Programming',
-                score: totalScore,
-                maxScore: maxScore,
-                percentage: percentage,
-                questions: results,
-                timestamp: new Date().toISOString()
-            };
-            
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(quizData)
-                });
-                
-                if (response.ok) {
-                    showResults(quizData);
-                } else {
-                    alert('Failed to submit quiz. Please try again.');
-                }
-            } catch (error) {
-                console.error('Submission error:', error);
-                showResults(quizData);
-            }
+    let totalScore = 0;
+    const results = [];
+    
+    // Grade each question
+    questions.forEach(question => {
+        const code = userAnswers[question.id] || '';
+        const testResults = simulateCodeExecution(code, question.testCases, question.title);
+        const passedTests = testResults.filter(r => r.passed).length;
+        
+        const hasExplanations = checkExplanations(code, question.id);
+        const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
+        
+        const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
+        
+        totalScore += Math.min(questionScore, question.points);
+        results.push({
+            questionId: question.id,
+            title: question.title,
+            code: code,
+            score: Math.min(questionScore, question.points),
+            maxScore: question.points,
+            testResults: testResults,
+            hasExplanations: hasExplanations
+        });
+    });
+    
+    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+    const percentage = Math.round((totalScore / maxScore) * 100);
+    
+    const quizData = {
+        username: currentUser.username || 'TestUser',
+        email: currentUser.email || 'test@example.com',
+        topic: 'Algorithms & Programming',
+        score: totalScore,
+        maxScore: maxScore,
+        percentage: percentage,
+        questions: results,
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('📤 Submitting quiz data:', quizData);
+    
+    try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify(quizData)
+        });
+        
+        console.log('📥 Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Server error:', errorText);
+            throw new Error(`Server returned ${response.status}`);
         }
+        
+        const responseData = await response.json();
+        console.log('✅ Response data:', responseData);
+        
+        alert('✅ Quiz submitted successfully!');
+        showResults(quizData);
+        
+    } catch (error) {
+        console.error('❌ Submission error:', error);
+        alert('⚠️ Failed to submit to server. Your results are shown below, but not saved.');
+        showResults(quizData);
+    }
+}
 
         function showResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
@@ -746,4 +759,3 @@ function deepEqual(a, b) {
     </script>
 </body>
 </html>
-
