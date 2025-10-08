@@ -18,7 +18,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/Front/public/$1"
+      "dest": "Front/public/$1"
     }
   ],
   "env": {
