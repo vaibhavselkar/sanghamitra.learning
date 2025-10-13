@@ -406,6 +406,7 @@
         let quizStartTime = null;
         let questionStartTime = null;
         let questionTimes = {}; // Track time per question
+        let questions = []; // Add this line to declare the questions array globally
        
 
        // Anti-cheating variables
@@ -947,7 +948,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
         }
 
         // FIXED: Updated submit function with correct request structure
-       async function submitQuiz() {
+    async function submitQuiz() {
     // Show polite confirmation popup
     const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Linear Functions Quiz?`);
     
@@ -978,7 +979,10 @@ function handleNumericInputWithValidation(questionIndex, value) {
     
     questions.forEach((question, index) => {
         const userAnswer = userAnswers[index];
-        totalPossiblePoints += question.points;
+        
+        // FIX: Check if question has points property, default to 1 if not
+        const questionPoints = question.points || 1;
+        totalPossiblePoints += questionPoints;
         
         let isCorrect = false;
         
@@ -1048,29 +1052,33 @@ function handleNumericInputWithValidation(questionIndex, value) {
         }
         
         if (isCorrect) {
-            score += question.points;
+            score += questionPoints;
         }
         
         // Update difficulty breakdown WITH POINTS
-        difficultyBreakdown[question.difficulty].attempted++;
+        const difficulty = question.difficulty || 'medium'; // FIX: Default difficulty
+        difficultyBreakdown[difficulty].attempted++;
         if (isCorrect) {
-            difficultyBreakdown[question.difficulty].correct++;
-            difficultyBreakdown[question.difficulty].points += question.points;
+            difficultyBreakdown[difficulty].correct++;
+            difficultyBreakdown[difficulty].points += questionPoints;
         }
         
         // Build question result WITH POINTS
         questionResults.push({
-            questionNumber: question.question_number,
+            questionNumber: question.question_number || (index + 1), // FIX: Default question number
             questionText: question.question_text,
-            difficulty: question.difficulty,
-            points: question.points,
+            difficulty: difficulty,
+            points: questionPoints, // FIX: Use the calculated points
             userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-            correctAnswer: question.correct_answer.toString(),
+            correctAnswer: question.correct_answer ? question.correct_answer.toString() : 'No correct answer provided',
             explanation: question.explanation || '',
             isCorrect: isCorrect,
             timeTaken: questionTimes[index] || 0
         });
     });
+
+    // FIX: Handle division by zero for percentage calculation
+    const percentage = totalPossiblePoints > 0 ? Math.round((score / totalPossiblePoints) * 100) : 0;
 
     // Build complete quiz data matching new schema - WITH POINT-BASED SCORING
     const quizData = {
@@ -1080,7 +1088,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
         maxPossibleScore: totalPossiblePoints,
         totalQuestions: questions.length,
         correctAnswers: questionResults.filter(q => q.isCorrect).length,
-        percentage: Math.round((score / totalPossiblePoints) * 100),
+        percentage: percentage,
         difficultyBreakdown: difficultyBreakdown,
         questionResults: questionResults,
         startTime: quizStartTime,
@@ -1154,6 +1162,9 @@ function handleNumericInputWithValidation(questionIndex, value) {
     
     const resultsContainer = document.getElementById('resultsContainer');
     resultsContainer.style.display = 'block';
+    
+    // FIX: Update the final score display
+    document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxPossibleScore}`;
     
     // Update the results display with detailed information - SHOWING POINTS
     const scoreDisplay = document.querySelector('.score-display');
@@ -1279,5 +1290,6 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
