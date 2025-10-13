@@ -337,7 +337,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Domain and Range Practice Quiz</h1>
+            <h1>Linear Functions</h1>
             <p>Test your mathematical knowledge with 30 comprehensive questions</p>
         </div>
 
@@ -372,7 +372,7 @@
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Domain and Range Quiz...</h3>
+            <h3>Loading Linear Functions...</h3>
             <p>Verifying your session and preparing questions</p>
         </div>
 
@@ -966,121 +966,122 @@ function handleNumericInputWithValidation(questionIndex, value) {
             const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
 
             // Calculate scores and build detailed results
-            let score = 0;
-            let totalPossiblePoints = 0;
-            const questionResults = [];
-            const difficultyBreakdown = {
-                easy: { attempted: 0, correct: 0, points: 0 },
-                medium: { attempted: 0, correct: 0, points: 0 },
-                hard: { attempted: 0, correct: 0, points: 0 }
+let correctCount = 0;
+const questionResults = [];
+const difficultyBreakdown = {
+    easy: { attempted: 0, correct: 0 },
+    medium: { attempted: 0, correct: 0 },
+    hard: { attempted: 0, correct: 0 }
+};
+
+questions.forEach((question, index) => {
+    const userAnswer = userAnswers[index];
+    
+    let isCorrect = false;
+    
+    // Enhanced answer checking using the answerValidator from your questions file
+    // Enhanced answer checking with proper normalization
+    if (question.type === 'interval_input') {
+        if (typeof answerValidator !== 'undefined') {
+            isCorrect = answerValidator.validateAnswer(
+                userAnswer || '', 
+                question.correct_answer, 
+                question.alternative_answers
+            );
+        } else {
+            // Normalize both answers for comparison
+            const normalizeInterval = (answer) => {
+                return (answer || '').toString().trim()
+                    .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+                    .replace(/\s*,\s*/g, ',')  // Remove spaces around commas
+                    .replace(/\s*\(\s*/g, '(')  // Remove spaces around opening parenthesis
+                    .replace(/\s*\)\s*/g, ')')  // Remove spaces around closing parenthesis
+                    .toLowerCase();
             };
-            
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                totalPossiblePoints += question.points;
-                
-                let isCorrect = false;
-                
-                // Enhanced answer checking using the answerValidator from your questions file
-            // Enhanced answer checking with proper normalization
-if (question.type === 'interval_input') {
-    if (typeof answerValidator !== 'undefined') {
-        isCorrect = answerValidator.validateAnswer(
-            userAnswer || '', 
-            question.correct_answer, 
-            question.alternative_answers
-        );
-    } else {
-        // Normalize both answers for comparison
-        const normalizeInterval = (answer) => {
-            return (answer || '').toString().trim()
-                .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
-                .replace(/\s*,\s*/g, ',')  // Remove spaces around commas
-                .replace(/\s*\(\s*/g, '(')  // Remove spaces around opening parenthesis
-                .replace(/\s*\)\s*/g, ')')  // Remove spaces around closing parenthesis
+            isCorrect = normalizeInterval(userAnswer) === normalizeInterval(question.correct_answer);
+        }
+    } else if (question.type === 'multiple_choice') {
+        // Normalize string comparison
+        const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
+        isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
+    } else if (question.type === 'multiple_select') {
+        if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+            // Sort and compare arrays
+            const normalizeArray = (arr) => arr.map(item => item.toString().trim().toLowerCase()).sort();
+            const userNorm = normalizeArray(userAnswer);
+            const correctNorm = normalizeArray(question.correct_answer);
+            isCorrect = userNorm.length === correctNorm.length &&
+                       userNorm.every((ans, idx) => ans === correctNorm[idx]);
+        }
+    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+        const userNum = parseFloat((userAnswer || '').toString().replace(/[^\d.-]/g, ''));
+        const correctNum = parseFloat((question.correct_answer || '').toString().replace(/[^\d.-]/g, ''));
+        if (!isNaN(userNum) && !isNaN(correctNum)) {
+            const tolerance = Math.abs(correctNum) * 0.01 || 0.01; // 1% tolerance or 0.01
+            isCorrect = Math.abs(userNum - correctNum) <= tolerance;
+        }
+    } else if (question.type === 'coordinate_input') {
+        // Normalize coordinate format: remove spaces, standardize parentheses
+        const normalizeCoordinate = (coord) => {
+            return (coord || '').toString().trim()
+                .replace(/\s+/g, '')  // Remove all spaces
+                .replace(/[()]/g, '')  // Remove parentheses
                 .toLowerCase();
         };
-        isCorrect = normalizeInterval(userAnswer) === normalizeInterval(question.correct_answer);
+        isCorrect = normalizeCoordinate(userAnswer) === normalizeCoordinate(question.correct_answer);
+    } else if (question.type === 'equation_input') {
+        // Normalize equations: remove spaces, standardize format
+        const normalizeEquation = (eq) => {
+            return (eq || '').toString()
+                .replace(/\s+/g, '')  // Remove all spaces
+                .replace(/\+\-/g, '-')  // Fix +- to -
+                .replace(/\-\+/g, '-')  // Fix -+ to -
+                .toLowerCase();
+        };
+        isCorrect = normalizeEquation(userAnswer) === normalizeEquation(question.correct_answer);
+    } else {
+        // General text comparison with normalization
+        const normalizeText = (text) => (text || '').toString().trim().toLowerCase();
+        isCorrect = normalizeText(userAnswer) === normalizeText(question.correct_answer);
     }
-} else if (question.type === 'multiple_choice') {
-    // Normalize string comparison
-    const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
-    isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
-} else if (question.type === 'multiple_select') {
-    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-        // Sort and compare arrays
-        const normalizeArray = (arr) => arr.map(item => item.toString().trim().toLowerCase()).sort();
-        const userNorm = normalizeArray(userAnswer);
-        const correctNorm = normalizeArray(question.correct_answer);
-        isCorrect = userNorm.length === correctNorm.length &&
-                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
+    
+    if (isCorrect) {
+        correctCount++;  // COUNT CORRECT ANSWERS (not points)
     }
-} else if (question.type === 'numeric' || question.type === 'numeric_input') {
-    const userNum = parseFloat((userAnswer || '').toString().replace(/[^\d.-]/g, ''));
-    const correctNum = parseFloat((question.correct_answer || '').toString().replace(/[^\d.-]/g, ''));
-    if (!isNaN(userNum) && !isNaN(correctNum)) {
-        const tolerance = Math.abs(correctNum) * 0.01 || 0.01; // 1% tolerance or 0.01
-        isCorrect = Math.abs(userNum - correctNum) <= tolerance;
+    
+    // Update difficulty breakdown (simplified - no points)
+    difficultyBreakdown[question.difficulty].attempted++;
+    if (isCorrect) {
+        difficultyBreakdown[question.difficulty].correct++;
     }
-} else if (question.type === 'coordinate_input') {
-    // Normalize coordinate format: remove spaces, standardize parentheses
-    const normalizeCoordinate = (coord) => {
-        return (coord || '').toString().trim()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/[()]/g, '')  // Remove parentheses
-            .toLowerCase();
-    };
-    isCorrect = normalizeCoordinate(userAnswer) === normalizeCoordinate(question.correct_answer);
-} else if (question.type === 'equation_input') {
-    // Normalize equations: remove spaces, standardize format
-    const normalizeEquation = (eq) => {
-        return (eq || '').toString()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/\+\-/g, '-')  // Fix +- to -
-            .replace(/\-\+/g, '-')  // Fix -+ to -
-            .toLowerCase();
-    };
-    isCorrect = normalizeEquation(userAnswer) === normalizeEquation(question.correct_answer);
-} else {
-    // General text comparison with normalization
-    const normalizeText = (text) => (text || '').toString().trim().toLowerCase();
-    isCorrect = normalizeText(userAnswer) === normalizeText(question.correct_answer);
-}
-            
-            if (isCorrect) {
-                score += question.points;
-            }
-            
-            // Update difficulty breakdown
-            difficultyBreakdown[question.difficulty].attempted++;
-            if (isCorrect) {
-                difficultyBreakdown[question.difficulty].correct++;
-                difficultyBreakdown[question.difficulty].points += question.points;
-            }
-            
-            // Build question result
-            questionResults.push({
-                questionNumber: question.question_number,
-                questionText: question.question_text,
-                difficulty: question.difficulty,
-                points: question.points,
-                userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-                correctAnswer: question.correct_answer.toString(),
-                explanation: question.explanation || '',
-                isCorrect: isCorrect,
-                timeTaken: questionTimes[index] || 0
-            });
-            });
+    
+    // Build question result
+    questionResults.push({
+        questionNumber: question.question_number,
+        questionText: question.question_text,
+        difficulty: question.difficulty,
+        userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
+        correctAnswer: question.correct_answer.toString(),
+        explanation: question.explanation || '',
+        isCorrect: isCorrect,
+        timeTaken: questionTimes[index] || 0
+    });
+});
+
+// Calculate final score as correctCount / totalQuestions
+const score = correctCount;
+const totalQuestions = questions.length;
+const percentage = Math.round((correctCount / totalQuestions) * 100);
 
             // Build complete quiz data matching new schema
             const quizData = {
                 topic: 'Quiz3_Linear_functions', 
                 quizType: 'practice',
-                score: score,
-                maxPossibleScore: totalPossiblePoints,
-                totalQuestions: questions.length,
-                correctAnswers: questionResults.filter(q => q.isCorrect).length,
-                percentage: Math.round((score / totalPossiblePoints) * 100),
+                score: correctCount,
+                maxPossibleScore: totalQuestions,
+                totalQuestions: totalQuestions,
+                correctAnswers: correctCount,
+                percentage: percentage,
                 difficultyBreakdown: difficultyBreakdown,
                 questionResults: questionResults,
                 startTime: quizStartTime,
@@ -1274,5 +1275,4 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
-
 
