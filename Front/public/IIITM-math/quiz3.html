@@ -337,7 +337,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Domain and Range Practice Quiz</h1>
+            <h1>Linear Functions</h1>
             <p>Test your mathematical knowledge with 30 comprehensive questions</p>
         </div>
 
@@ -363,7 +363,7 @@
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
                 <button class="btn" onclick="submitQuiz()" id="submitBtn">
-                    <span id="submitText">Submit Domain and Range Quiz</span>
+                    <span id="submitText">Linear Functions</span>
                     <span id="submitLoading" class="loading" style="display: none;"></span>
                 </button>
             </div>
@@ -372,7 +372,7 @@
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Domain and Range Quiz...</h3>
+            <h3>Loading Linear Functions...</h3>
             <p>Verifying your session and preparing questions</p>
         </div>
 
@@ -948,7 +948,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
         // FIXED: Updated submit function with correct request structure
         async function submitQuiz() {
             // Show polite confirmation popup
-            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Domain and Range Quiz?`);
+            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Linear Functions?`);
             
             if (!confirmSubmit) {
                 return; // User clicked Cancel, don't submit
@@ -1274,6 +1274,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
