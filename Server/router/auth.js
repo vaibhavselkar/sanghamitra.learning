@@ -249,11 +249,16 @@ router.post('/gre_writing_response', async (req, res) => {
   }
 });
 
+
 // Middleware to check for the JWT token
 router.get('/check-auth', (req, res) => {
-    if (req.session.userId) {
-        res.status(200).json({ authenticated: true });
-    } else {
+    try {
+        if (req.session && req.session.userId) {
+            return res.status(200).json({ authenticated: true });
+        }
+        return res.status(200).json({ authenticated: false });
+    } catch (error) {
+        console.error('Error in check-auth:', error);
         res.status(200).json({ authenticated: false });
     }
 });
