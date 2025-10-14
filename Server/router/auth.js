@@ -40,6 +40,7 @@ const User = require('../model/userSchema');
 const AlgorithmSubmission = require('../model/algorithmSubmissionSchema');
 
 
+
 router.get('/', (req, res) => {
     res.send('Hello World from router');
 })
@@ -2086,6 +2087,8 @@ router.get('/physics_topics', async (req, res) => {
 
 router.post('/algorithm-submissions', async (req, res) => {
   try {
+    console.log('📥 Received algorithm submission request');
+    
     const {
       username,
       email,
@@ -2097,47 +2100,70 @@ router.post('/algorithm-submissions', async (req, res) => {
       timestamp
     } = req.body;
 
-    // Validation
-    if (!username || !email || !topic || score === undefined || !maxScore) {
+    // Basic validation
+    if (!username || !email) {
       return res.status(400).json({
-        error: 'Missing required fields: username, email, topic, score, maxScore'
+        success: false,
+        error: 'Username and email are required'
       });
     }
 
-    // Create new submission
-    const newSubmission = new AlgorithmSubmission({
-      username,
-      email,
-      topic,
-      score,
-      maxScore,
-      percentage,
+    // Create submission object with defaults
+    const submissionData = {
+      username: username,
+      email: email,
+      topic: topic || 'Algorithms & Programming',
+      score: score || 0,
+      maxScore: maxScore || 100,
+      percentage: percentage || 0,
       questions: questions || [],
-      timestamp: timestamp || new Date()
-    });
+      timestamp: timestamp ? new Date(timestamp) : new Date()
+    };
 
-    // Save to database
+    console.log('💾 Saving submission for:', email);
+
+    // Validate if model is properly connected
+    if (!AlgorithmSubmission) {
+      throw new Error('AlgorithmSubmission model not found');
+    }
+
+    // Create and save submission
+    const newSubmission = new AlgorithmSubmission(submissionData);
     const savedSubmission = await newSubmission.save();
 
+    console.log('✅ Submission saved successfully with ID:', savedSubmission._id);
+
     res.status(201).json({
+      success: true,
       message: 'Algorithm quiz submitted successfully!',
       submissionId: savedSubmission._id,
-      data: savedSubmission
+      data: {
+        username: savedSubmission.username,
+        email: savedSubmission.email,
+        score: savedSubmission.score,
+        percentage: savedSubmission.percentage
+      }
     });
 
   } catch (error) {
-    console.error('Error saving algorithm submission:', error);
+    console.error('❌ Error saving algorithm submission:', error);
+    
+    // More detailed error response
+    let errorMessage = 'Failed to save submission';
     
     if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        error: 'Validation failed',
-        details: error.errors
-      });
+      errorMessage = 'Data validation failed';
+    } else if (error.name === 'MongoError' && error.code === 11000) {
+      errorMessage = 'Duplicate submission detected';
+    } else if (error.message.includes('model not found')) {
+      errorMessage = 'Database configuration error';
     }
     
     res.status(500).json({
-      error: 'Internal server error',
-      message: error.message
+      success: false,
+      error: errorMessage,
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
@@ -2152,9 +2178,12 @@ router.get('/algorithm-submissions', async (req, res) => {
     if (username) query.username = username;
 
     const submissions = await AlgorithmSubmission.find(query)
-      .sort({ timestamp: -1 }); // Most recent first
+      .sort({ timestamp: -1 })
+      .select('-__v') // Exclude version key
+      .limit(50); // Limit results
 
     res.status(200).json({
+      success: true,
       count: submissions.length,
       data: submissions
     });
@@ -2162,7 +2191,30 @@ router.get('/algorithm-submissions', async (req, res) => {
   } catch (error) {
     console.error('Error fetching algorithm submissions:', error);
     res.status(500).json({
+      success: false,
       error: 'Failed to fetch submissions',
+      message: error.message
+    });
+  }
+});
+
+// TEST endpoint - Add this temporarily to check connectivity
+router.get('/test-algorithm-route', async (req, res) => {
+  try {
+    // Test database connection
+    const count = await AlgorithmSubmission.countDocuments();
+    
+    res.json({
+      success: true,
+      message: 'Algorithm submissions route is working!',
+      database: 'Connected',
+      collection: 'algorithm_submissions',
+      documentCount: count
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Route test failed',
       message: error.message
     });
   }
