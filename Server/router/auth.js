@@ -36,9 +36,10 @@ const iitm_math_score = require('../model/iitmMathSchema');
 const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
 const { PhysicsUserScore } = require('../model/physics_scores_schema');
-const User = require('../model/userSchema');
-const AlgorithmSubmission = require('../model/algorithmSubmissionSchema');
 
+
+require('../db/conn');
+const User = require('../model/userSchema');
 
 router.get('/', (req, res) => {
     res.send('Hello World from router');
@@ -249,16 +250,11 @@ router.post('/gre_writing_response', async (req, res) => {
   }
 });
 
-
 // Middleware to check for the JWT token
 router.get('/check-auth', (req, res) => {
-    try {
-        if (req.session && req.session.userId) {
-            return res.status(200).json({ authenticated: true });
-        }
-        return res.status(200).json({ authenticated: false });
-    } catch (error) {
-        console.error('Error in check-auth:', error);
+    if (req.session.userId) {
+        res.status(200).json({ authenticated: true });
+    } else {
         res.status(200).json({ authenticated: false });
     }
 });
@@ -1427,6 +1423,9 @@ router.get('/iitm-math-questions/quiz4', async (req, res) => {
   }
 });
 
+
+
+
 // NEW: Missing cheating log endpoint
 router.post('/log-cheating', async (req, res) => {
   try {
@@ -1448,7 +1447,67 @@ router.post('/log-cheating', async (req, res) => {
   }
 });
 
+// Quiz 6: Sets and Relations questions route (following Quiz 4 & 5 pattern)
+router.get('/iitm-math-questions/quiz6', async (req, res) => {
+  try {
+    const { email, count = 50 } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        error: 'Email is required to track question history' 
+      });
+    }
 
+    let userScore = await iitm_math_score.findOne({ email });
+    const completedQuestionIds = userScore?.completedQuestionIds || [];
+    
+    console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
+
+    // Find all available questions excluding completed ones
+    let availableQuestions = await IITMathQuestion.find({
+      topic: "sets_and_relations",  // Topic for Quiz 6
+      _id: { $nin: completedQuestionIds }
+    });
+
+    console.log(`Found ${availableQuestions.length} new questions available`);
+
+    // Handle case where user has completed most questions
+    if (availableQuestions.length === 0) {
+      return res.status(200).json({
+        message: "All questions completed",
+        questions: [],
+        resetAvailable: true,
+        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "sets_and_relations" })
+      });
+    }
+
+    // If less than requested count available, return all available
+    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+    
+    // Randomly shuffle and select questions
+    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+    const selectedQuestions = shuffled.slice(0, questionsToReturn);
+    
+    // Sort selected questions by question_number for consistent display
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`Returning ${selectedQuestions.length} random questions for user ${email}`);
+
+    res.json({
+      questions: selectedQuestions,
+      metadata: {
+        totalAvailable: availableQuestions.length,
+        totalCompleted: completedQuestionIds.length,
+        selectedCount: selectedQuestions.length,
+        requestedCount: parseInt(count)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching Quiz 6 questions:', error);
+    res.status(500).json({ error: 'Failed to fetch questions' });
+  }
+});
 
 router.get('/iitmmath_scores', async (req, res) => {
   try {
@@ -1545,68 +1604,6 @@ router.get('/iitm-math-questions/quiz5', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching Quiz 5 questions:', error);
-    res.status(500).json({ error: 'Failed to fetch questions' });
-  }
-});
-
-// Quiz 6: Sets and Relations questions route (following Quiz 4 & 5 pattern)
-router.get('/iitm-math-questions/quiz6', async (req, res) => {
-  try {
-    const { email, count = 50 } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
-      });
-    }
-
-    let userScore = await iitm_math_score.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
-
-    // Find all available questions excluding completed ones
-    let availableQuestions = await IITMathQuestion.find({
-      topic: "sets_and_relations",  // Topic for Quiz 6
-      _id: { $nin: completedQuestionIds }
-    });
-
-    console.log(`Found ${availableQuestions.length} new questions available`);
-
-    // Handle case where user has completed most questions
-    if (availableQuestions.length === 0) {
-      return res.status(200).json({
-        message: "All questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "sets_and_relations" })
-      });
-    }
-
-    // If less than requested count available, return all available
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    
-    // Sort selected questions by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(`Returning ${selectedQuestions.length} random questions for user ${email}`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching Quiz 6 questions:', error);
     res.status(500).json({ error: 'Failed to fetch questions' });
   }
 });
@@ -1955,6 +1952,7 @@ router.get('/physics_questions', async (req, res) => {
 });
 
 // POST Physics Quiz Scores
+
 router.post('/physics_scores', async (req, res) => {
   try {
     const { 
@@ -1967,34 +1965,56 @@ router.post('/physics_scores', async (req, res) => {
       answers, 
       questionResults,
       correctAnswers,
-      maxPossibleScore,
-      difficultyBreakdown,
       totalTimeTaken,
       isCompleted
     } = req.body;
 
+    // Validation
     if (!username || !email) {
       return res.status(400).json({ error: 'Username and email are required' });
     }
+
+    if (!totalQuestions || totalQuestions <= 0) {
+      return res.status(400).json({ error: 'Invalid total questions count' });
+    }
+
+    // Since all questions now have physics_topic: "kinematics"
+    const mainPhysicsTopic = 'kinematics';
 
     // Find existing user or create new one
     let userScore = await PhysicsUserScore.findOne({ email });
 
     const topicScoreData = {
-      physics_topic: topic || 'General Physics',
-      total_questions: totalQuestions || 0,
-      questions_attempted: totalQuestions || 0,
+      physics_topic: mainPhysicsTopic, // Now consistently "kinematics"
+      sub_topic: topic || 'mixed_problems',
+      total_questions: totalQuestions,
+      questions_attempted: totalQuestions,
       questions_correct: correctAnswers || score || 0,
       percentage_score: percentage || 0,
       total_time_spent: totalTimeTaken || 0,
       average_time_per_question: totalQuestions > 0 ? (totalTimeTaken || 0) / totalQuestions : 0,
-      difficulty_performance: difficultyBreakdown || {
+      difficulty_performance: {
         easy: { attempted: 0, correct: 0, percentage: 0 },
-        medium: { attempted: totalQuestions || 0, correct: score || 0, percentage: percentage || 0 },
+        medium: { attempted: totalQuestions, correct: correctAnswers || score || 0, percentage: percentage || 0 },
         hard: { attempted: 0, correct: 0, percentage: 0 },
         very_hard: { attempted: 0, correct: 0, percentage: 0 }
       },
-      question_results: questionResults || [],
+      question_results: (questionResults || []).map(result => ({
+        question_id: `physics_q_${result.questionNumber}`,
+        question_number: result.questionNumber,
+        question_text: result.questionText || '',
+        question_type: result.questionType || 'mixed',
+        physics_topic: 'kinematics', // All questions are kinematics now
+        user_answer: result.userAnswer || '',
+        correct_answer: result.correctAnswer || '',
+        is_correct: result.isCorrect || false,
+        sub_question_results: [],
+        parts_correct: result.isCorrect ? 1 : 0,
+        total_parts: 1,
+        time_taken: result.timeTaken || 0,
+        attempts_made: 1,
+        timestamp: new Date()
+      })),
       attempt_number: 1,
       session_id: `session_${Date.now()}`,
       timestamp: new Date()
@@ -2003,13 +2023,13 @@ router.post('/physics_scores', async (req, res) => {
     if (!userScore) {
       // Create new user
       userScore = new PhysicsUserScore({
-        user_id: email, // Using email as user_id
+        user_id: email,
         username,
         email,
-        total_questions_attempted: totalQuestions || 0,
+        total_questions_attempted: totalQuestions,
         total_questions_correct: correctAnswers || score || 0,
         overall_percentage: percentage || 0,
-        total_study_time: Math.round((totalTimeTaken || 0) / 60), // Convert to minutes
+        total_study_time: Math.round((totalTimeTaken || 0) / 60),
         completed_question_ids: [],
         bookmarked_question_ids: [],
         flagged_for_review: [],
@@ -2018,12 +2038,17 @@ router.post('/physics_scores', async (req, res) => {
     } else {
       // Update existing user
       userScore.username = username;
-      userScore.total_questions_attempted += totalQuestions || 0;
+      userScore.total_questions_attempted += totalQuestions;
       userScore.total_questions_correct += correctAnswers || score || 0;
       userScore.overall_percentage = userScore.total_questions_attempted > 0 
         ? Math.round((userScore.total_questions_correct / userScore.total_questions_attempted) * 100)
         : 0;
       userScore.total_study_time += Math.round((totalTimeTaken || 0) / 60);
+      
+      // Update attempt number for kinematics topic
+      const existingAttempts = userScore.topic_scores.filter(t => t.physics_topic === 'kinematics').length;
+      topicScoreData.attempt_number = existingAttempts + 1;
+      
       userScore.topic_scores.push(topicScoreData);
     }
 
@@ -2031,16 +2056,33 @@ router.post('/physics_scores', async (req, res) => {
     
     res.status(201).json({ 
       message: 'Physics quiz score saved successfully',
+      success: true,
       data: userScore
     });
 
   } catch (error) {
     console.error('Error saving physics score:', error);
-    res.status(500).json({ error: 'Failed to save physics score' });
+    console.error('Error stack:', error.stack);
+    
+    if (error.name === 'ValidationError') {
+      res.status(400).json({ 
+        error: 'Validation failed',
+        details: Object.keys(error.errors).map(key => ({
+          field: key,
+          message: error.errors[key].message
+        }))
+      });
+    } else {
+      res.status(500).json({ 
+        error: 'Internal server error',
+        message: error.message
+      });
+    }
   }
 });
 
 // GET Physics Scores
+
 router.get('/physics_scores', async (req, res) => {
   try {
     const { email, topic } = req.query;
@@ -2049,34 +2091,52 @@ router.get('/physics_scores', async (req, res) => {
       // Get specific user
       const userScore = await PhysicsUserScore.findOne({ email });
       if (!userScore) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(200).json({ 
+          message: 'No data found for user',
+          success: false 
+        });
       }
 
       if (topic) {
-        // Filter by topic
-        const topicScores = userScore.topic_scores.filter(t => t.physics_topic === topic);
+        // Filter by topic - since all questions are kinematics
+        const topicScores = userScore.topic_scores.filter(t => 
+          t.physics_topic === 'kinematics'
+        );
+        
         return res.status(200).json({
+          success: true,
           ...userScore.toObject(),
           topic_scores: topicScores
         });
       }
 
-      res.status(200).json(userScore);
+      res.status(200).json({
+        success: true,
+        ...userScore.toObject()
+      });
     } else {
       // Get all users
       const allScores = await PhysicsUserScore.find({});
-      res.status(200).json(allScores);
+      res.status(200).json({
+        success: true,
+        data: allScores
+      });
     }
   } catch (error) {
     console.error('Error fetching physics scores:', error);
-    res.status(500).json({ error: 'Failed to fetch physics scores' });
+    res.status(500).json({ 
+      error: 'Failed to fetch physics scores',
+      success: false 
+    });
   }
 });
 
 // GET Physics Topics (for filtering)
+
 router.get('/physics_topics', async (req, res) => {
   try {
-    const topics = await PhysicsQuestion.distinct('physics_topic');
+    // Since all questions are kinematics now
+    const topics = ['kinematics'];
     res.status(200).json(topics);
   } catch (error) {
     console.error('Error fetching physics topics:', error);
@@ -2084,102 +2144,7 @@ router.get('/physics_topics', async (req, res) => {
   }
 });
 
-// Replace your current algorithm-submissions route with this:
-router.post('/algorithm-submissions', async (req, res) => {
-    console.log('🔍 Algorithm submission endpoint hit');
-    console.log('📦 Request body:', req.body);
-    
-    try {
-        const submissionData = req.body;
-        
-        // Validate required fields
-        if (!submissionData.username || !submissionData.email) {
-            console.error('❌ Missing required fields');
-            return res.status(400).json({ 
-                error: 'Username and email are required',
-                received: { 
-                    username: !!submissionData.username, 
-                    email: !!submissionData.email 
-                }
-            });
-        }
-        
-        // Create new submission
-        const submission = new AlgorithmSubmission({
-            username: submissionData.username,
-            email: submissionData.email,
-            topic: submissionData.topic || 'Algorithms & Programming',
-            score: submissionData.score || 0,
-            maxScore: submissionData.maxScore || 100,
-            percentage: submissionData.percentage || 0,
-            timestamp: new Date(),
-            questions: (submissionData.questions || []).map(q => ({
-                questionId: q.questionId,
-                title: q.title,
-                code: q.code,
-                score: q.score,
-                maxScore: q.maxScore,
-                testResults: q.testResults || [],
-                hasExplanations: q.hasExplanations || false
-            }))
-        });
-
-        const savedSubmission = await submission.save();
-        console.log('✅ Algorithm submission saved successfully:', savedSubmission._id);
-        
-        res.status(201).json({ 
-            success: true,
-            message: 'Submission saved successfully',
-            submissionId: savedSubmission._id,
-            timestamp: savedSubmission.timestamp
-        });
-        
-    } catch (error) {
-        console.error('❌ Error saving algorithm submission:', error);
-        res.status(500).json({ 
-            success: false,
-            error: 'Failed to save submission',
-            details: error.message
-        });
-    }
-});
-
-// Add a test endpoint to verify the route is working
-router.get('/test-algorithm-endpoint', (req, res) => {
-    res.json({ 
-        message: 'Algorithm endpoint is working!',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// Get all algorithm submissions (for admin view)
-router.get('/algorithm-submissions', async (req, res) => {
-    try {
-        const submissions = await AlgorithmSubmission.find().sort({ timestamp: -1 });
-        res.json(submissions);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch algorithm submissions' });
-    }
-});
-
-
-
-router.get('/algorithm-submissions/:username', async (req, res) => {
-    try {
-        const submissions = await AlgorithmSubmission.find({ 
-            username: req.params.username 
-        }).sort({ timestamp: -1 });
-        res.json(submissions);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch user algorithm submissions' });
-    }
-});
-
-module.exports = router; // ← ONLY THIS LINE SHOULD BE HERE
-
-
-
-
+module.exports = router
 
 
 
