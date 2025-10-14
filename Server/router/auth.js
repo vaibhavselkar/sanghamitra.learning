@@ -37,7 +37,7 @@ const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
 const { PhysicsUserScore } = require('../model/physics_scores_schema');
 const User = require('../model/userSchema');
-const AlgorithmSubmission = require('../model/algorithmSubmissionSchema'); // Adjust path as needed
+const AlgorithmSubmission = require('../model/algorithmSubmissionSchema');
 
 
 router.get('/', (req, res) => {
