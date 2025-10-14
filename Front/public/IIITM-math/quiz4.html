@@ -319,175 +319,7 @@
     padding-bottom: 10px;
 }
 
-        /* Scientific Calculator Styles */
-        .calculator-toggle-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 9998;
-            transition: all 0.3s ease;
-        }
-
-        .calculator-toggle-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-        }
-
-        .calculator-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            z-index: 9999;
-            min-width: 320px;
-            max-width: 90vw;
-        }
-
-        .calculator-container {
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 15px;
-        }
-
-        .calculator-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-
-        .calculator-header h3 {
-            margin: 0;
-            color: #333;
-            font-size: 1.2rem;
-        }
-
-        .calculator-close {
-            background: #dc3545;
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .calculator-display {
-            margin-bottom: 15px;
-        }
-
-        .calculator-display input {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.5rem;
-            text-align: right;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            background: white;
-            color: #333;
-        }
-
-        .calculator-buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
-
-        .calc-btn {
-            padding: 15px 10px;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            background: white;
-            color: #333;
-            transition: all 0.2s ease;
-            border: 2px solid #e9ecef;
-        }
-
-        .calc-btn:hover {
-            background: #f8f9fa;
-            transform: translateY(-1px);
-        }
-
-        .calc-btn.operator {
-            background: #667eea;
-            color: white;
-            border-color: #5a67d8;
-        }
-
-        .calc-btn.operator:hover {
-            background: #5a67d8;
-        }
-
-        .calc-btn.func {
-            background: #ffc107;
-            color: #333;
-            border-color: #e0a800;
-            font-size: 0.9rem;
-        }
-
-        .calc-btn.func:hover {
-            background: #e0a800;
-        }
-
-        .calc-btn.clear {
-            background: #dc3545;
-            color: white;
-            border-color: #c82333;
-        }
-
-        .calc-btn.clear:hover {
-            background: #c82333;
-        }
-
-        .calc-btn.equals {
-            background: #28a745;
-            color: white;
-            border-color: #218838;
-        }
-
-        .calc-btn.equals:hover {
-            background: #218838;
-        }
-
-        /* Make calculator responsive */
-        @media (max-width: 480px) {
-            .calculator-modal {
-                width: 95vw;
-                min-width: unset;
-            }
-            
-            .calc-btn {
-                padding: 12px 8px;
-                font-size: 1rem;
-            }
-            
-            .calculator-toggle-btn {
-                bottom: 10px;
-                right: 10px;
-                padding: 10px 15px;
-                font-size: 12px;
-            }
-        }
+      
 
 @media (max-width: 768px) {
     .results-container {
@@ -1092,8 +924,9 @@
 
        function selectOption(questionIndex, value, type) {
     if (type === 'radio') {
-        // Store the exact value without modification
+        // Store trimmed value
         userAnswers[questionIndex] = value.trim();
+        
         // Update UI
         const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
         options.forEach(opt => opt.closest('.option').classList.remove('selected'));
@@ -1102,13 +935,15 @@
         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
         const checkbox = event.target.closest('.option').querySelector('input');
+        const trimmedValue = value.trim();
+        
         if (checkbox.checked) {
-            if (!userAnswers[questionIndex].includes(value.trim())) {
-                userAnswers[questionIndex].push(value.trim());
+            if (!userAnswers[questionIndex].includes(trimmedValue)) {
+                userAnswers[questionIndex].push(trimmedValue);
             }
             event.target.closest('.option').classList.add('selected');
         } else {
-            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
             event.target.closest('.option').classList.remove('selected');
             
             // Clean up empty array
@@ -1165,6 +1000,74 @@
     
     updateAnswerStatus();
 }
+
+
+// Enhanced answer normalization utilities
+function normalizeMultipleAnswers(answer) {
+    if (!answer) return '';
+    
+    // Convert to string and normalize
+    let normalized = answer.toString().trim().toLowerCase();
+    
+    // Handle comma-separated answers
+    if (normalized.includes(',')) {
+        // Split by comma, normalize each part, sort, and rejoin
+        return normalized
+            .split(',')
+            .map(part => part.trim().replace(/\s+/g, ''))
+            .filter(part => part.length > 0)
+            .sort()
+            .join(',');
+    }
+    
+    // Remove all spaces for single answers
+    return normalized.replace(/\s+/g, '');
+}
+
+function normalizeEquation(eq) {
+    if (!eq) return '';
+    
+    return eq.toString()
+        .toLowerCase()
+        .replace(/\s+/g, '')  // Remove all spaces
+        .replace(/\+\-/g, '-')  // Fix +- to -
+        .replace(/\-\+/g, '-')  // Fix -+ to -
+        .replace(/\*\*/g, '^')  // Normalize power notation
+        .replace(/\^/g, '**');  // Or vice versa, be consistent
+}
+
+function normalizeInterval(interval) {
+    if (!interval) return '';
+    
+    return interval.toString()
+        .toLowerCase()
+        .replace(/\s+/g, '')  // Remove all spaces
+        .replace(/infinity/gi, '∞')  // Normalize infinity
+        .replace(/inf/gi, '∞');
+}
+
+function normalizeCoordinate(coord) {
+    if (!coord) return '';
+    
+    return coord.toString()
+        .toLowerCase()
+        .replace(/\s+/g, '')  // Remove all spaces
+        .replace(/[()]/g, '');  // Remove parentheses for comparison
+}
+
+function normalizeNumeric(num) {
+    if (!num) return '';
+    
+    // Remove all non-numeric characters except decimal point and minus
+    const cleaned = num.toString().replace(/[^\d.-]/g, '').trim();
+    const parsed = parseFloat(cleaned);
+    
+    if (isNaN(parsed)) return '';
+    
+    // Return normalized string representation
+    return parsed.toString();
+}
+
 // Answer validation helper functions
 function validateAnswerFormat(questionIndex, userAnswer) {
     const question = questions[questionIndex];
@@ -1190,14 +1093,92 @@ function validateAnswerFormat(questionIndex, userAnswer) {
             feedback = 'Please enter a valid number';
             isValidFormat = false;
         }
-    } else if (question.type === 'interval_input') {
-        // Check for interval notation patterns
-        const intervalPattern = /[\[\(].*,.*[\]\)]/;
-        if (!intervalPattern.test(userAnswer)) {
-            feedback = 'Please use interval notation: [a,b] or (a,b)';
-            isValidFormat = false;
+    } else // Enhanced answer checking with comprehensive normalization
+if (question.type === 'interval_input') {
+    const userNorm = normalizeInterval(userAnswer);
+    const correctNorm = normalizeInterval(question.correct_answer);
+    isCorrect = userNorm === correctNorm;
+    
+    // Check alternative answers if main answer doesn't match
+    if (!isCorrect && question.alternative_answers) {
+        isCorrect = question.alternative_answers.some(alt => 
+            normalizeInterval(alt) === userNorm
+        );
+    }
+} else if (question.type === 'multiple_choice') {
+    // Normalize and compare - handles spacing and case
+    const userNorm = normalizeMultipleAnswers(userAnswer);
+    const correctNorm = normalizeMultipleAnswers(question.correct_answer);
+    isCorrect = userNorm === correctNorm;
+    
+    // Check alternative answers
+    if (!isCorrect && question.alternative_answers) {
+        isCorrect = question.alternative_answers.some(alt => 
+            normalizeMultipleAnswers(alt) === userNorm
+        );
+    }
+} else if (question.type === 'multiple_select') {
+    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+        // Normalize each answer and sort for comparison
+        const userNorm = userAnswer
+            .map(ans => normalizeMultipleAnswers(ans))
+            .sort();
+        const correctNorm = question.correct_answer
+            .map(ans => normalizeMultipleAnswers(ans))
+            .sort();
+        
+        isCorrect = userNorm.length === correctNorm.length &&
+                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
+    }
+} else if (question.type === 'numeric' || question.type === 'numeric_input') {
+    const userNorm = normalizeNumeric(userAnswer);
+    const correctNorm = normalizeNumeric(question.correct_answer);
+    
+    if (userNorm && correctNorm) {
+        const userNum = parseFloat(userNorm);
+        const correctNum = parseFloat(correctNorm);
+        
+        if (!isNaN(userNum) && !isNaN(correctNum)) {
+            // Use relative tolerance for better accuracy
+            const tolerance = Math.max(Math.abs(correctNum) * 0.01, 0.01);
+            isCorrect = Math.abs(userNum - correctNum) <= tolerance;
         }
     }
+} else if (question.type === 'coordinate_input') {
+    const userNorm = normalizeCoordinate(userAnswer);
+    const correctNorm = normalizeCoordinate(question.correct_answer);
+    isCorrect = userNorm === correctNorm;
+    
+    // Check alternative answers
+    if (!isCorrect && question.alternative_answers) {
+        isCorrect = question.alternative_answers.some(alt => 
+            normalizeCoordinate(alt) === userNorm
+        );
+    }
+} else if (question.type === 'equation_input') {
+    const userNorm = normalizeEquation(userAnswer);
+    const correctNorm = normalizeEquation(question.correct_answer);
+    isCorrect = userNorm === correctNorm;
+    
+    // Check alternative answers (e.g., y=2x+1 vs 2x-y+1=0)
+    if (!isCorrect && question.alternative_answers) {
+        isCorrect = question.alternative_answers.some(alt => 
+            normalizeEquation(alt) === userNorm
+        );
+    }
+} else if (question.type === 'text_input') {
+    // For text inputs, just normalize spacing and case
+    const userNorm = (userAnswer || '').toString().trim().toLowerCase();
+    const correctNorm = (question.correct_answer || '').toString().trim().toLowerCase();
+    isCorrect = userNorm === correctNorm;
+    
+    // Check alternative answers
+    if (!isCorrect && question.alternative_answers) {
+        isCorrect = question.alternative_answers.some(alt => 
+            alt.toString().trim().toLowerCase() === userNorm
+        );
+    }
+}
     
     return { isValidFormat, feedback };
 }
