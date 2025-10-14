@@ -153,15 +153,29 @@ router.get('/login-history', async (req, res) => {
 
 // Endpoint to get session data
 router.get('/session-info', (req, res) => {
-    if (req.session.userId) {
-        return res.status(200).json({
-            email: req.session.email,
-            username: req.session.username,
-            userid: req.session.username
-        });
+  try {
+    if (req.session && req.session.userId) {
+      res.status(200).json({
+        email: req.session.email || '',
+        username: req.session.username || '',
+        userid: req.session.userId
+      });
     } else {
-        return res.status(401).json({ error: 'Unauthorized access' });
+      // Return empty data instead of error for better frontend handling
+      res.status(200).json({
+        email: '',
+        username: '',
+        userid: null
+      });
     }
+  } catch (error) {
+    console.error('Session info error:', error);
+    res.status(200).json({
+      email: '',
+      username: '',
+      userid: null
+    });
+  }
 });
 
 router.post('/reset-password/check-email', async (req, res) => {
@@ -253,15 +267,30 @@ router.post('/gre_writing_response', async (req, res) => {
 
 // Middleware to check for the JWT token
 router.get('/check-auth', (req, res) => {
-    try {
-        if (req.session && req.session.userId) {
-            return res.status(200).json({ authenticated: true });
-        }
-        return res.status(200).json({ authenticated: false });
-    } catch (error) {
-        console.error('Error in check-auth:', error);
-        res.status(200).json({ authenticated: false });
+  try {
+    console.log('🔐 Checking authentication session...');
+    
+    // Check if session exists and has user data
+    if (req.session && req.session.userId) {
+      console.log('✅ User authenticated:', req.session.email);
+      res.status(200).json({ 
+        authenticated: true,
+        username: req.session.username,
+        email: req.session.email
+      });
+    } else {
+      console.log('❌ User not authenticated');
+      res.status(200).json({ 
+        authenticated: false 
+      });
     }
+  } catch (error) {
+    console.error('❌ Error in check-auth route:', error);
+    res.status(200).json({ 
+      authenticated: false,
+      error: 'Session check failed'
+    });
+  }
 });
 
 router.get('/dashboard', authenticate, async (req, res) => {
