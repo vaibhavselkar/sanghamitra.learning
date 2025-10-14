@@ -37,7 +37,7 @@ const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
 const { PhysicsUserScore } = require('../model/physics_scores_schema');
 const User = require('../model/userSchema');
-const AlgorithmSubmission = require('../model/algorithmSubmissionSchema');
+const AlgorithmSubmission = require('../model/algorithmSubmissionSchema'); // Adjust path as needed
 
 
 router.get('/', (req, res) => {
@@ -2084,95 +2084,88 @@ router.get('/physics_topics', async (req, res) => {
   }
 });
 
-// Replace your current algorithm-submissions route with this:
 router.post('/algorithm-submissions', async (req, res) => {
-    console.log('🔍 Algorithm submission endpoint hit');
-    console.log('📦 Request body:', req.body);
-    
-    try {
-        const submissionData = req.body;
-        
-        // Validate required fields
-        if (!submissionData.username || !submissionData.email) {
-            console.error('❌ Missing required fields');
-            return res.status(400).json({ 
-                error: 'Username and email are required',
-                received: { 
-                    username: !!submissionData.username, 
-                    email: !!submissionData.email 
-                }
-            });
-        }
-        
-        // Create new submission
-        const submission = new AlgorithmSubmission({
-            username: submissionData.username,
-            email: submissionData.email,
-            topic: submissionData.topic || 'Algorithms & Programming',
-            score: submissionData.score || 0,
-            maxScore: submissionData.maxScore || 100,
-            percentage: submissionData.percentage || 0,
-            timestamp: new Date(),
-            questions: (submissionData.questions || []).map(q => ({
-                questionId: q.questionId,
-                title: q.title,
-                code: q.code,
-                score: q.score,
-                maxScore: q.maxScore,
-                testResults: q.testResults || [],
-                hasExplanations: q.hasExplanations || false
-            }))
-        });
+  try {
+    const {
+      username,
+      email,
+      topic,
+      score,
+      maxScore,
+      percentage,
+      questions,
+      timestamp
+    } = req.body;
 
-        const savedSubmission = await submission.save();
-        console.log('✅ Algorithm submission saved successfully:', savedSubmission._id);
-        
-        res.status(201).json({ 
-            success: true,
-            message: 'Submission saved successfully',
-            submissionId: savedSubmission._id,
-            timestamp: savedSubmission.timestamp
-        });
-        
-    } catch (error) {
-        console.error('❌ Error saving algorithm submission:', error);
-        res.status(500).json({ 
-            success: false,
-            error: 'Failed to save submission',
-            details: error.message
-        });
+    // Validation
+    if (!username || !email || !topic || score === undefined || !maxScore) {
+      return res.status(400).json({
+        error: 'Missing required fields: username, email, topic, score, maxScore'
+      });
     }
-});
 
-// Add a test endpoint to verify the route is working
-router.get('/test-algorithm-endpoint', (req, res) => {
-    res.json({ 
-        message: 'Algorithm endpoint is working!',
-        timestamp: new Date().toISOString()
+    // Create new submission
+    const newSubmission = new AlgorithmSubmission({
+      username,
+      email,
+      topic,
+      score,
+      maxScore,
+      percentage,
+      questions: questions || [],
+      timestamp: timestamp || new Date()
     });
+
+    // Save to database
+    const savedSubmission = await newSubmission.save();
+
+    res.status(201).json({
+      message: 'Algorithm quiz submitted successfully!',
+      submissionId: savedSubmission._id,
+      data: savedSubmission
+    });
+
+  } catch (error) {
+    console.error('Error saving algorithm submission:', error);
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: error.errors
+      });
+    }
+    
+    res.status(500).json({
+      error: 'Internal server error',
+      message: error.message
+    });
+  }
 });
 
-// Get all algorithm submissions (for admin view)
+// GET route to retrieve algorithm submissions
 router.get('/algorithm-submissions', async (req, res) => {
-    try {
-        const submissions = await AlgorithmSubmission.find().sort({ timestamp: -1 });
-        res.json(submissions);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch algorithm submissions' });
-    }
-});
+  try {
+    const { email, username } = req.query;
+    let query = {};
 
+    if (email) query.email = email;
+    if (username) query.username = username;
 
+    const submissions = await AlgorithmSubmission.find(query)
+      .sort({ timestamp: -1 }); // Most recent first
 
-router.get('/algorithm-submissions/:username', async (req, res) => {
-    try {
-        const submissions = await AlgorithmSubmission.find({ 
-            username: req.params.username 
-        }).sort({ timestamp: -1 });
-        res.json(submissions);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch user algorithm submissions' });
-    }
+    res.status(200).json({
+      count: submissions.length,
+      data: submissions
+    });
+
+  } catch (error) {
+    console.error('Error fetching algorithm submissions:', error);
+    res.status(500).json({
+      error: 'Failed to fetch submissions',
+      message: error.message
+    });
+  }
 });
 
 module.exports = router; // ← ONLY THIS LINE SHOULD BE HERE
