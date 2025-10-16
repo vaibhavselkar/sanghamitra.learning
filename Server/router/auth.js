@@ -36,7 +36,7 @@ const iitm_math_score = require('../model/iitmMathSchema');
 const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
 const { PhysicsUserScore } = require('../model/physics_scores_schema');
-const AlgorithmSubmission = require('../model/algorithmSubmissionSchema');
+const AlgorithmSubmission = require('../model/AlgorithmSubmission');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -2203,6 +2203,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
