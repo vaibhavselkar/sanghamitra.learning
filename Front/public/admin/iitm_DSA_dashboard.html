@@ -4,7 +4,7 @@
 <head>  
   <meta charset="utf-8">  
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>IITM DSA Dashboard - Algorithms</title>
+  <title>IITM DSA Dashboard - Algorithm Submissions</title>
  
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -250,7 +250,7 @@
             <i class="bi bi-people"></i>
           </div>
           <h3 class="mb-1" id="totalStudents">0</h3>
-          <p class="text-muted mb-0">Total Submissions</p>
+          <p class="text-muted mb-0">Unique Students</p>
         </div>
       </div>
       <div class="col-md-3 mb-3">
@@ -385,13 +385,21 @@
     async function loadData() {
       const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions');
       const result = await response.json();
-      console.log(result)
       
-      if (!result.success) {
+      // Handle both array and object with success property
+      let rawData = [];
+      if (Array.isArray(result)) {
+        rawData = result;
+      } else if (result.success && result.data) {
+        rawData = result.data;
+      } else if (result.data) {
+        rawData = result.data;
+      } else {
         throw new Error('Failed to fetch data');
       }
       
-      allData = result.data.map(submission => ({
+      // Process all submissions
+      const allSubmissions = rawData.map(submission => ({
         username: submission.username,
         email: submission.email,
         topic: submission.topic,
@@ -403,6 +411,20 @@
       }));
       
       // Sort by timestamp (newest first)
+      allSubmissions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      // Get only the latest submission per user (by email)
+      const latestByUser = {};
+      allSubmissions.forEach(submission => {
+        if (!latestByUser[submission.email]) {
+          latestByUser[submission.email] = submission;
+        }
+      });
+      
+      // Convert back to array
+      allData = Object.values(latestByUser);
+      
+      // Sort again by timestamp
       allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       filteredData = [...allData];
@@ -419,15 +441,16 @@
       }
 
       const totalSubmissions = filteredData.length;
+      const uniqueStudents = new Set(filteredData.map(item => item.email)).size;
       const percentages = filteredData.map(item => parseFloat(item.percentage));
       const averageScore = percentages.length > 0 ? Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length) : 0;
       const highestScore = Math.max(...percentages);
       const lowestScore = Math.min(...percentages);
 
-      document.getElementById('totalStudents').textContent = totalSubmissions;
+      document.getElementById('totalStudents').textContent = uniqueStudents;
       document.getElementById('averageScore').textContent = averageScore + '%';
-      document.getElementById('highestScore').textContent = highestScore + '%';
-      document.getElementById('lowestScore').textContent = lowestScore + '%';
+      document.getElementById('highestScore').textContent = highestScore.toFixed(0) + '%';
+      document.getElementById('lowestScore').textContent = lowestScore.toFixed(0) + '%';
     }
 
     // Populate table
@@ -506,7 +529,8 @@
         
         <div class="alert alert-info mb-3">
           <i class="bi bi-info-circle me-2"></i>
-          <strong>${item.topic}</strong> - Submitted on ${new Date(item.timestamp).toLocaleString()}
+          <strong>${item.topic}</strong> - Latest submission on ${new Date(item.timestamp).toLocaleString()}
+          <br><small class="text-muted">Showing most recent attempt for this student</small>
         </div>
       `;
 
