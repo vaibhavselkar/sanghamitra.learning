@@ -930,34 +930,33 @@ router.get('/readingcomprehensionscore', async (req, res) => {
   }
 });
 
-router.get('/algorithm-submissions', async (req, res) => {
-  try {
-    const { email, username } = req.query;
-    let query = {};
+    router.get('/algorithm-submissions', async (req, res) => {
+      try {
+        const { username, email } = req.query;
+    
+        // Build dynamic filter object
+        const filter = {};
+        if (username) filter.username = username;
+        if (email) filter.email = email;
+    
+        // Fetch based on filter (empty filter = all data)
+        const submissions = await AlgorithmSubmission.find(filter);
+    
+        // Handle empty results
+        if (!submissions.length) {
+          return res.status(404).json({
+            message: 'No submissions found for provided parameters.',
+            filterUsed: filter
+          });
+        }
+    
+        res.status(200).json(submissions);
+      } catch (error) {
+        console.error('Error fetching algorithm submissions:', error);
+        res.status(500).json({ message: 'Server Error', error });
+      }
+  });
 
-    if (email) query.email = email;
-    if (username) query.username = username;
-
-    const submissions = await AlgorithmSubmission.find(query)
-      .sort({ timestamp: -1 })
-      .select('-__v') // Exclude version key
-      .limit(50); // Limit results
-
-    res.status(200).json({
-      success: true,
-      count: submissions.length,
-      data: submissions
-    });
-
-  } catch (error) {
-    console.error('Error fetching algorithm submissions:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch submissions',
-      message: error.message
-    });
-  }
-});
   router.post('/programming/submit', async (req, res) => {
     try {
       console.log("Received submission request:", req.body);
@@ -2224,6 +2223,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
