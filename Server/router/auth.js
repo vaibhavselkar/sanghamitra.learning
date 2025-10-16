@@ -6,7 +6,7 @@ const router = express.Router();
 const cookieParser = require('cookie-parser');  
 const session = require('express-session'); 
 router.use(cookieParser());
-env = require('dotenv').config();
+env = require('dotenv').config(); 
 const authenticate = require('../middleware/authenticate');
 const VocabQuestion = require('../model/vocabSchema');
 const { VocabScore, addOrUpdateAssessment } = require('../model/vocabScoreSchema');
@@ -2203,6 +2203,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
