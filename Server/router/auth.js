@@ -880,9 +880,7 @@ router.get('/readingcomprehensionscore', async (req, res) => {
   });
 
   router.post('/algorithm-submissions', async (req, res) => {
-  try {
-    console.log('📥 Received algorithm submission request');
-    
+  try {    
     const {
       username,
       email,
@@ -896,11 +894,6 @@ router.get('/readingcomprehensionscore', async (req, res) => {
 
     // Basic validation
     if (!username || !email) {
-      return res.status(400).json({
-        success: false,
-        error: 'Username and email are required'
-      });
-    }
 
     // Create submission object with defaults
     const submissionData = {
@@ -934,6 +927,31 @@ router.get('/readingcomprehensionscore', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error saving algorithm submission:', error);
+  }
+});
+
+router.get('/algorithm-submissions', async (req, res) => {
+  try {
+    const { email, username } = req.query;
+    let query = {};
+
+    if (email) query.email = email;
+    if (username) query.username = username;
+
+    const submissions = await AlgorithmSubmission.find(query)
+      .sort({ timestamp: -1 })
+      .select('-__v')
+      .limit(50); 
+
+    res.status(200).json({
+      success: true,
+      count: submissions.length,
+      data: submissions
+    });
+
+  } catch (error) {
+    console.error('Error fetching algorithm submissions:', error);
+    });
   }
 });
 
@@ -2203,6 +2221,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
