@@ -894,6 +894,11 @@ router.get('/readingcomprehensionscore', async (req, res) => {
 
     // Basic validation
     if (!username || !email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Username and email are required'
+      });
+    }
 
     // Create submission object with defaults
     const submissionData = {
@@ -906,6 +911,13 @@ router.get('/readingcomprehensionscore', async (req, res) => {
       questions: questions || [],
       timestamp: timestamp ? new Date(timestamp) : new Date()
     };
+
+    console.log('💾 Saving submission for:', email);
+
+    // Validate if model is properly connected
+    if (!AlgorithmSubmission) {
+      throw new Error('AlgorithmSubmission model not found');
+    }
 
     // Create and save submission
     const newSubmission = new AlgorithmSubmission(submissionData);
@@ -923,13 +935,16 @@ router.get('/readingcomprehensionscore', async (req, res) => {
         score: savedSubmission.score,
         percentage: savedSubmission.percentage
       }
-    }); 
+    });
+
   } catch (error) {
     console.error('❌ Error saving algorithm submission:', error);
+    
     res.status(500).json({
       success: false,
-      message: 'Failed to save algorithm submission.',
-      error: error.message
+      error: errorMessage,
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
@@ -2227,6 +2242,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
