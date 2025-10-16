@@ -940,8 +940,8 @@ router.get('/algorithm-submissions', async (req, res) => {
 
     const submissions = await AlgorithmSubmission.find(query)
       .sort({ timestamp: -1 })
-      .select('-__v')
-      .limit(50); 
+      .select('-__v') // Exclude version key
+      .limit(50); // Limit results
 
     res.status(200).json({
       success: true,
@@ -951,10 +951,13 @@ router.get('/algorithm-submissions', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching algorithm submissions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch submissions',
+      message: error.message
     });
   }
 });
-
   router.post('/programming/submit', async (req, res) => {
     try {
       console.log("Received submission request:", req.body);
@@ -2221,6 +2224,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
