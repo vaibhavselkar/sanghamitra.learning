@@ -923,10 +923,14 @@ router.get('/readingcomprehensionscore', async (req, res) => {
         score: savedSubmission.score,
         percentage: savedSubmission.percentage
       }
-    });
-
+    }); 
   } catch (error) {
     console.error('❌ Error saving algorithm submission:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save algorithm submission.',
+      error: error.message
+    });
   }
 });
 
@@ -2223,6 +2227,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
