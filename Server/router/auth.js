@@ -36,7 +36,7 @@ const iitm_math_score = require('../model/iitmMathSchema');
 const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
 const { PhysicsUserScore } = require('../model/physics_scores_schema');
-
+const AlgorithmSubmission = require('../model/algorithmSubmissionSchema');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -878,6 +878,64 @@ router.get('/readingcomprehensionscore', async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   });
+
+  router.post('/algorithm-submissions', async (req, res) => {
+  try {
+    console.log('📥 Received algorithm submission request');
+    
+    const {
+      username,
+      email,
+      topic,
+      score,
+      maxScore,
+      percentage,
+      questions,
+      timestamp
+    } = req.body;
+
+    // Basic validation
+    if (!username || !email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Username and email are required'
+      });
+    }
+
+    // Create submission object with defaults
+    const submissionData = {
+      username: username,
+      email: email,
+      topic: topic || 'Algorithms & Programming',
+      score: score || 0,
+      maxScore: maxScore || 100,
+      percentage: percentage || 0,
+      questions: questions || [],
+      timestamp: timestamp ? new Date(timestamp) : new Date()
+    };
+
+    // Create and save submission
+    const newSubmission = new AlgorithmSubmission(submissionData);
+    const savedSubmission = await newSubmission.save();
+
+    console.log('✅ Submission saved successfully with ID:', savedSubmission._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Algorithm quiz submitted successfully!',
+      submissionId: savedSubmission._id,
+      data: {
+        username: savedSubmission.username,
+        email: savedSubmission.email,
+        score: savedSubmission.score,
+        percentage: savedSubmission.percentage
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error saving algorithm submission:', error);
+  }
+});
 
   router.post('/programming/submit', async (req, res) => {
     try {
@@ -2145,6 +2203,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
