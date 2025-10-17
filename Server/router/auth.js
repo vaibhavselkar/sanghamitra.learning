@@ -37,6 +37,7 @@ const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
 const { PhysicsUserScore } = require('../model/physics_scores_schema');
 const AlgorithmSubmission = require('../model/AlgorithmSubmission');
+const Statistics_questions = require('../model/statisticsQuestion'); // Add this import
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -1456,6 +1457,141 @@ router.get('/statistics_scores', async (req, res) => {
 });
 
 
+// GET Statistics Questions - Add this route
+router.get('/statistics-questions', async (req, res) => {
+  try {
+    const { topic, difficulty, count = 30, email } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        error: 'Email is required to track question history' 
+      });
+    }
+
+    // Get user's completed questions
+    let userScore = await Statistics_score.findOne({ email });
+    const completedQuestionIds = userScore?.completedQuestionIds || [];
+    
+    console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
+
+    // Build query filter
+    let filter = {
+      _id: { $nin: completedQuestionIds }
+    };
+    
+    if (topic) filter.topic = topic;
+    if (difficulty) filter.difficulty = difficulty;
+
+    // Find available questions
+    let availableQuestions = await Statistics_questions.find(filter);
+
+    console.log(`Found ${availableQuestions.length} new statistics questions available`);
+
+    // Handle case where user has completed all questions
+    if (availableQuestions.length === 0) {
+      return res.status(200).json({
+        message: "All questions completed",
+        questions: [],
+        resetAvailable: true,
+        totalQuestionsInPool: await Statistics_questions.countDocuments(topic ? { topic } : {})
+      });
+    }
+
+    // Randomly select questions
+    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+    const selectedQuestions = shuffled.slice(0, questionsToReturn);
+    
+    // Sort by question number
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`Returning ${selectedQuestions.length} random statistics questions for user ${email}`);
+
+    res.json({
+      questions: selectedQuestions,
+      metadata: {
+        totalAvailable: availableQuestions.length,
+        totalCompleted: completedQuestionIds.length,
+        selectedCount: selectedQuestions.length,
+        requestedCount: parseInt(count)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching statistics questions:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics questions' });
+  }
+});
+
+// GET Statistics Topics - Helper route
+router.get('/statistics-topics', async (req, res) => {
+  try {
+    const topics = await Statistics_questions.distinct('topic');
+    res.status(200).json(topics);
+  } catch (error) {
+    console.error('Error fetching statistics topics:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics topics' });
+  }
+});
+
+// GET User Statistics Progress
+router.get('/user-statistics-progress/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { topic } = req.query;
+    
+    const user = await Statistics_score.findOne({ email });
+    const filter = topic ? { topic } : {};
+    const totalQuestions = await Statistics_questions.countDocuments(filter);
+    
+    const completedCount = user?.completedQuestionIds?.length || 0;
+    const remainingCount = totalQuestions - completedCount;
+    
+    res.json({
+      email,
+      totalQuestions,
+      completedCount,
+      remainingCount,
+      completionPercentage: Math.round((completedCount / totalQuestions) * 100),
+      canTakeQuiz: remainingCount > 0
+    });
+    
+  } catch (error) {
+    console.error('Error fetching user statistics progress:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST Reset Statistics Progress
+router.post('/reset-statistics-progress', async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    const user = await Statistics_score.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    user.completedQuestionIds = [];
+    await user.save();
+    
+    res.status(200).json({ 
+      message: 'Statistics progress reset successfully',
+      email: email
+    });
+    
+  } catch (error) {
+    console.error('Error resetting statistics progress:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 
 // CORRECTED: Quiz 4 questions route (fixed path)
 router.get('/iitm-math-questions/quiz4', async (req, res) => {
@@ -2242,7 +2378,6 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
-
 
 
 
