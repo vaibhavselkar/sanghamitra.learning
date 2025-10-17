@@ -31,7 +31,7 @@ const ArithmeticResponse = require('../model/arithmetic_response');
 const ArithmeticQuestion = require('../model/arithmetic-questions.schema');
 const ArithmeticScore = require('../model/arithmetic-scores.schema');
 const WeeklyAssessment = require('../model/weeklyAssessment');
-const Statistics_score = require('../model/statisticsSchema');
+const Statistics_scores = require('../model/statisticsSchema');
 const iitm_math_score = require('../model/iitmMathSchema');
 const IITMathQuestion = require('../model/iitmMathQuestionSchema');
 const { PhysicsQuestion } = require('../model/physics_questions_schema');
@@ -1458,9 +1458,11 @@ router.get('/statistics_scores', async (req, res) => {
 
 
 // GET Statistics Questions - Add this route
-router.get('/iitm_stats_questions', async (req, res) => {
+// ===========================================
+
+router.get('/iitm-stats-questions/week1', async (req, res) => {
   try {
-    const { topic, difficulty, count = 30, email } = req.query;
+    const { email, count = 50 } = req.query;
     
     if (!email) {
       return res.status(400).json({ 
@@ -1468,36 +1470,36 @@ router.get('/iitm_stats_questions', async (req, res) => {
       });
     }
 
-    // Get user's completed questions
-    let userScore = await Statistics_score.findOne({ email });
+    console.log(`Fetching Week 1 questions for: ${email}`);
+    
+    // FIX: Use Statistics_scores (plural) not Statistics_score
+    let userScore = await Statistics_scores.findOne({ email });
     const completedQuestionIds = userScore?.completedQuestionIds || [];
     
     console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
 
-    // Build query filter
+    // Build query filter for Week 1 questions
     let filter = {
-      _id: { $nin: completedQuestionIds }
+      _id: { $nin: completedQuestionIds },
+      topic: "Basics of Data" // Filter for Week 1
     };
-    
-    if (topic) filter.topic = topic;
-    if (difficulty) filter.difficulty = difficulty;
 
-    // Find available questions
     let availableQuestions = await Statistics_questions.find(filter);
 
-    console.log(`Found ${availableQuestions.length} new statistics questions available`);
+    console.log(`Found ${availableQuestions.length} new statistics questions available for Week 1`);
 
     // Handle case where user has completed all questions
     if (availableQuestions.length === 0) {
+      const totalInPool = await Statistics_questions.countDocuments({ topic: "Basics of Data" });
       return res.status(200).json({
-        message: "All questions completed",
+        message: "All Week 1 questions completed",
         questions: [],
         resetAvailable: true,
-        totalQuestionsInPool: await Statistics_questions.countDocuments(topic ? { topic } : {})
+        totalQuestionsInPool: totalInPool
       });
     }
 
-    // Randomly select questions
+    // Select and return questions
     const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
     const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
     const selectedQuestions = shuffled.slice(0, questionsToReturn);
@@ -1505,7 +1507,7 @@ router.get('/iitm_stats_questions', async (req, res) => {
     // Sort by question number
     selectedQuestions.sort((a, b) => a.question_number - b.question_number);
 
-    console.log(`Returning ${selectedQuestions.length} random statistics questions for user ${email}`);
+    console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 1`);
 
     res.json({
       questions: selectedQuestions,
@@ -1518,8 +1520,11 @@ router.get('/iitm_stats_questions', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error fetching statistics questions:', error);
-    res.status(500).json({ error: 'Failed to fetch statistics questions' });
+    console.error('Error fetching statistics Week 1 questions:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch Week 1 statistics questions',
+      details: error.message 
+    });
   }
 });
 
@@ -1562,8 +1567,9 @@ router.get('/user-statistics-progress/:email', async (req, res) => {
   }
 });
 
-// POST Reset Statistics Progress
-router.post('/reset-statistics-progress', async (req, res) => {
+
+// POST Reset Statistics Progress - FIXED
+router.post('/reset-stats-progress', async (req, res) => {
   try {
     const { email } = req.body;
     
@@ -1571,7 +1577,8 @@ router.post('/reset-statistics-progress', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
     
-    const user = await Statistics_score.findOne({ email });
+    // FIX: Use Statistics_scores (plural)
+    const user = await Statistics_scores.findOne({ email });
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -1587,7 +1594,7 @@ router.post('/reset-statistics-progress', async (req, res) => {
     
   } catch (error) {
     console.error('Error resetting statistics progress:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error: ' + error.message });
   }
 });
 
