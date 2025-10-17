@@ -1458,7 +1458,7 @@ router.get('/statistics_scores', async (req, res) => {
 
 
 // GET Statistics Questions - Add this route
-router.get('/statistics-questions', async (req, res) => {
+router.get('/iitm_stats_questions', async (req, res) => {
   try {
     const { topic, difficulty, count = 30, email } = req.query;
     
