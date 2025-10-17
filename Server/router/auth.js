@@ -1473,7 +1473,7 @@ router.get('/iitm-stats-questions/week1', async (req, res) => {
     console.log(`Fetching Week 1 questions for: ${email}`);
     
     // FIX: Use Statistics_scores (plural) not Statistics_score
-    let userScore = await Statistics_scores.findOne({ email });
+    let userScore = await Statistics_scores.findOne({ email }); 
     const completedQuestionIds = userScore?.completedQuestionIds || [];
     
     console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
