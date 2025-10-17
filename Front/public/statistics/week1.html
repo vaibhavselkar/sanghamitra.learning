@@ -549,6 +549,10 @@
         // LOAD QUESTIONS FROM API
         // ============================================
 
+        // ============================================
+// LOAD QUESTIONS FROM API - UPDATED
+
+
         async function loadQuestions() {
             try {
                 if (!email) {
@@ -556,7 +560,8 @@
                     return false;
                 }
                 
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/iitm-stats-questions/week1?email=${encodeURIComponent(email)}&count=50`, {
+                // CHANGED: Use the general statistics questions endpoint with topic filter
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/iitm_stats_questions?email=${encodeURIComponent(email)}&count=50&topic=Basics of Data`, {
                     credentials: 'include'
                 });
                 
@@ -587,14 +592,14 @@
                 questions = data.questions || data;
                 
                 if (!questions || questions.length === 0) {
-                    throw new Error('No questions found');
+                    throw new Error('No questions found for Statistics Week 1');
                 }
                 
                 if (data.metadata) {
                     console.log(`Progress: ${data.metadata.totalCompleted} completed, ${data.metadata.totalAvailable} available`);
                 }
                 
-                console.log(`Loaded ${questions.length} statistics questions successfully`);
+                console.log(`Loaded ${questions.length} statistics Week 1 questions successfully`);
                 return true;
             } catch (error) {
                 console.error('Error loading questions:', error);
@@ -603,7 +608,7 @@
             }
         }
 
-        // ============================================
+       
         // ANTI-CHEATING FUNCTIONS
         // ============================================
 
@@ -1296,5 +1301,3 @@
     </script>
 </body>
 </html>
-
-
