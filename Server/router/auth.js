@@ -1399,67 +1399,12 @@ router.post('/save-arithmetic-response', async (req, res) => {
   }
 });
 
-router.post('/statistics_scores', async (req, res) => {
-  try {
-    const { username, email, score, percentage, answers, topic } = req.body;
 
-    let user = await Statistics_score.findOne({ email });
-
-    if (user) {
-      // Add new score to existing user
-      user.scores.push({
-        topic,
-        score,
-        percentage,
-        answers
-      });
-      await user.save();
-    } else {
-      // Create new user
-      user = new Statistics_score({
-        username,
-        email,
-        scores: [{
-          topic,
-          score,
-          percentage,
-          answers
-        }]
-      });
-      await user.save();
-    }
-
-    res.json({ success: true, message: 'Score saved' });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-router.get('/statistics_scores', async (req, res) => {
-  try {
-    const { email } = req.query;
-
-    if (email) {
-      // Get specific user
-      const user = await Statistics_score.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-      res.json({ success: true, data: user });
-    } else {
-      // Get all users
-      const users = await Statistics_score.find({});
-      res.json({ success: true, data: users });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-
-// GET Statistics Questions - Add this route
+// ===========================================
+// STATISTICS ROUTES (Following Math Pattern)
 // ===========================================
 
+// GET Statistics Questions - Week 1
 router.get('/iitm-stats-questions/week1', async (req, res) => {
   try {
     const { email, count = 50 } = req.query;
@@ -1470,23 +1415,21 @@ router.get('/iitm-stats-questions/week1', async (req, res) => {
       });
     }
 
-    console.log(`Fetching Week 1 questions for: ${email}`);
+    console.log(`Fetching Week 1 statistics questions for: ${email}`);
     
-    // FIX: Use Statistics_scores (plural) not Statistics_score
-    let userScore = await Statistics_scores.findOne({ email }); 
+    // Find user's completed questions
+    let userScore = await Statistics_scores.findOne({ email });
     const completedQuestionIds = userScore?.completedQuestionIds || [];
     
     console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
 
-    // Build query filter for Week 1 questions
-    let filter = {
-      _id: { $nin: completedQuestionIds },
-      topic: "Basics of Data" // Filter for Week 1
-    };
+    // Find all available Week 1 questions excluding completed ones
+    let availableQuestions = await Statistics_questions.find({
+      topic: "Basics of Data",
+      _id: { $nin: completedQuestionIds }
+    });
 
-    let availableQuestions = await Statistics_questions.find(filter);
-
-    console.log(`Found ${availableQuestions.length} new statistics questions available for Week 1`);
+    console.log(`Found ${availableQuestions.length} new statistics Week 1 questions available`);
 
     // Handle case where user has completed all questions
     if (availableQuestions.length === 0) {
@@ -1499,12 +1442,14 @@ router.get('/iitm-stats-questions/week1', async (req, res) => {
       });
     }
 
-    // Select and return questions
+    // Select requested number of questions
     const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+    
+    // Randomly shuffle and select questions
     const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
     const selectedQuestions = shuffled.slice(0, questionsToReturn);
     
-    // Sort by question number
+    // Sort selected questions by question_number for consistent display
     selectedQuestions.sort((a, b) => a.question_number - b.question_number);
 
     console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 1`);
@@ -1528,7 +1473,97 @@ router.get('/iitm-stats-questions/week1', async (req, res) => {
   }
 });
 
-// GET Statistics Topics - Helper route
+// POST Statistics Quiz Scores
+router.post('/statistics_scores', async (req, res) => {
+  try {
+    const { email, username, quizData } = req.body;
+    
+    console.log('Received statistics score request:', { email, username, topic: quizData?.topic });
+    
+    if (!email || !username || !quizData) {
+      return res.status(400).json({ error: 'Email, username and quizData are required' });
+    }
+    
+    // Extract question IDs from the quiz results
+    const completedQuestionIds = quizData.questionResults
+      ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
+      : [];
+    
+    console.log(`Statistics quiz completed with ${completedQuestionIds.length} question IDs`);
+    
+    // Find existing user or create new one
+    let user = await Statistics_scores.findOne({ email });
+    
+    if (!user) {
+      // Create new user with completed questions and score
+      user = new Statistics_scores({ 
+        username, 
+        email, 
+        completedQuestionIds: completedQuestionIds,
+        quizScores: [quizData]
+      });
+    } else {
+      // Update existing user
+      user.username = username;
+      user.quizScores.push(quizData);
+      
+      // Add new completed questions to the array (avoid duplicates)
+      const newCompletedIds = completedQuestionIds.filter(
+        id => !user.completedQuestionIds.includes(id)
+      );
+      user.completedQuestionIds.push(...newCompletedIds);
+      
+      console.log(`Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`);
+    }
+    
+    await user.save();
+    
+    res.status(201).json({ 
+      message: 'Statistics quiz result saved successfully', 
+      completedQuestionsCount: user.completedQuestionIds.length,
+      user 
+    });
+    
+  } catch (error) {
+    console.error('Error saving statistics quiz result:', error);
+    res.status(500).json({ error: 'Internal server error: ' + error.message });
+  }
+});
+
+// GET Statistics Scores
+router.get('/statistics_scores', async (req, res) => {
+  try {
+    const { email, topic } = req.query;
+
+    if (email) {
+      // Get specific user
+      const user = await Statistics_scores.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      // If topic is specified, filter scores by topic
+      if (topic) {
+        const filteredScores = {
+          ...user.toObject(),
+          quizScores: user.quizScores.filter(score => score.topic === topic)
+        };
+        return res.json({ success: true, data: filteredScores });
+      }
+
+      res.json({ success: true, data: user });
+    } else {
+      // Get all users
+      const users = await Statistics_scores.find({});
+      res.json({ success: true, data: users });
+    }
+  } catch (error) {
+    console.error('Error fetching statistics scores:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET Statistics Topics (Helper route)
 router.get('/statistics-topics', async (req, res) => {
   try {
     const topics = await Statistics_questions.distinct('topic');
@@ -1545,7 +1580,7 @@ router.get('/user-statistics-progress/:email', async (req, res) => {
     const { email } = req.params;
     const { topic } = req.query;
     
-    const user = await Statistics_score.findOne({ email });
+    const user = await Statistics_scores.findOne({ email });
     const filter = topic ? { topic } : {};
     const totalQuestions = await Statistics_questions.countDocuments(filter);
     
@@ -1567,8 +1602,7 @@ router.get('/user-statistics-progress/:email', async (req, res) => {
   }
 });
 
-
-// POST Reset Statistics Progress - FIXED
+// POST Reset Statistics Progress
 router.post('/reset-stats-progress', async (req, res) => {
   try {
     const { email } = req.body;
@@ -1577,7 +1611,6 @@ router.post('/reset-stats-progress', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
     
-    // FIX: Use Statistics_scores (plural)
     const user = await Statistics_scores.findOne({ email });
     
     if (!user) {
