@@ -35,7 +35,7 @@
         .header p { font-size: 1.1rem; opacity: 0.9; }
 
         .user-form {
-            padding: 30px;
+            padding: px;
             background: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
         }
@@ -102,7 +102,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 30px;
+            padding: 12px px;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
@@ -223,7 +223,7 @@
             font-size: 12px;
         }
 
-        .quiz-container { padding: 30px; display: none; }
+        .quiz-container { padding: px; display: none; }
 
         .question-card {
             background: #f8f9fa;
@@ -284,7 +284,7 @@
 
         .results-container {
             display: none;
-            padding: 30px;
+            padding: px;
             text-align: center;
             max-height: 80vh;
             overflow-y: auto;
@@ -295,7 +295,7 @@
             color: white;
             padding: 40px;
             border-radius: 15px;
-            margin-bottom: 30px;
+            margin-bottom: px;
         }
 
         .score-display h2 { font-size: 2.5rem; margin-bottom: 10px; }
@@ -338,7 +338,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 Domain and Range Practice Quiz</h1>
-            <p>Test your mathematical knowledge with 30 comprehensive questions</p>
+            <p>Test your mathematical knowledge with 50 comprehensive questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -355,7 +355,7 @@
             <div class="question-navigation">
                 <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
                 <div class="question-status">
-                    <span id="questionStatus">Question 1 of 30</span>
+                    <span id="questionStatus">Question 1 of 50</span>
                     <span id="answeredStatus" class="status-unanswered">Unanswered</span>
                 </div>
                 <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next →</button>
@@ -792,7 +792,7 @@
         // Get question difficulty (mock function - in real app this would come from question data)
         function getQuestionDifficulty(questionNumber) {
             if (questionNumber <= 15) return 'easy';
-            if (questionNumber <= 30) return 'medium';
+            if (questionNumber <= 50) return 'medium';
             return 'hard';
         }
 
@@ -1076,6 +1076,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
