@@ -338,7 +338,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 Domain and Range Practice Quiz</h1>
-            <p>Test your mathematical knowledge with 30 comprehensive questions</p>
+            <p>Test your mathematical knowledge with 50 comprehensive questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -379,7 +379,7 @@
         <!-- Results -->
         <div id="resultsContainer" class="results-container">
             <div class="score-display">
-                <h2 id="finalScore">0/15</h2>
+                <h2 id="finalScore">0/50</h2>
                 <p>Quiz Completed Successfully!</p>
             </div>
             <button class="btn" onclick="goback()">Home Page</button>
@@ -792,7 +792,7 @@
         // Get question difficulty (mock function - in real app this would come from question data)
         function getQuestionDifficulty(questionNumber) {
             if (questionNumber <= 15) return 'easy';
-            if (questionNumber <= 50) return 'medium';
+            if (questionNumber <= 30) return 'medium';
             return 'hard';
         }
 
@@ -1076,6 +1076,7 @@ function getDifficultyColor(difficulty) {
     </script>
 </body>
 </html>
+
 
 
 
