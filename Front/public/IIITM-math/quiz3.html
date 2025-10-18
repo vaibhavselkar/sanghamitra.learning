@@ -338,7 +338,7 @@
     <div class="container">
         <div class="header">
             <h1>Linear Functions</h1>
-            <p>Test your mathematical knowledge with 30 comprehensive questions</p>
+            <p>Test your mathematical knowledge with 50 comprehensive questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -355,7 +355,7 @@
             <div class="question-navigation">
                 <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
                 <div class="question-status">
-                    <span id="questionStatus">Question 1 of 30</span>
+                    <span id="questionStatus">Question 1 of 50</span>
                     <span id="answeredStatus" class="status-unanswered">Unanswered</span>
                 </div>
                 <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
@@ -943,7 +943,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
         // Get question difficulty (mock function - in real app this would come from question data)
         function getQuestionDifficulty(questionNumber) {
             if (questionNumber <= 15) return 'easy';
-            if (questionNumber <= 30) return 'medium';
+            if (questionNumber <= 50) return 'medium';
             return 'hard';
         }
 
@@ -1290,6 +1290,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
