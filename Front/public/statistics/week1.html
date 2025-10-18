@@ -554,7 +554,7 @@
             return false;
         }
         
-        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/iitm-stats-questions/week1?email=${encodeURIComponent(email)}&count=50`, {
+        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/week1?email=${encodeURIComponent(email)}&count=50`, {
             credentials: 'include'
         });
         
