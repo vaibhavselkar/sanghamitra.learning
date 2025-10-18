@@ -340,7 +340,7 @@
     <div class="container">
         <div class="header">
             <h1>Quadratic Functions Quiz</h1>
-            <p>Test your mathematical knowledge with 30 comprehensive questions</p>
+            <p>Test your mathematical knowledge with 50 comprehensive questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -357,7 +357,7 @@
             <div class="question-navigation">
                 <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
                 <div class="question-status">
-                    <span id="questionStatus">Question 1 of 30</span>
+                    <span id="questionStatus">Question 1 of 50</span>
                     <span id="answeredStatus" class="status-unanswered">Unanswered</span>
                 </div>
                 <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
@@ -472,7 +472,7 @@
                 }
                 
                 // NEW: Pass email to get personalized question set
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/quiz4?email=${encodeURIComponent(email)}&count=30`, {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/quiz4?email=${encodeURIComponent(email)}&count=50`, {
                     credentials: 'include'
                 });
                 
@@ -1684,6 +1684,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
