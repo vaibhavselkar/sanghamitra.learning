@@ -594,8 +594,14 @@
     }
 
     // Populate filter options
+   
     function populateFilters() {
-      const topics = [...new Set(allData.map(item => item.topic))];
+      const topics = [...new Set(allData.map(item => item.topic))].sort((a, b) => {
+        // Extract week number if format is "Week X: ..."
+        const weekA = a.match(/Week (\d+)/)?.[1] || 999;
+        const weekB = b.match(/Week (\d+)/)?.[1] || 999;
+        return weekA - weekB;
+      });
       const topicFilter = document.getElementById('topicFilter');
       
       topicFilter.innerHTML = '<option value="">All Topics</option>';
