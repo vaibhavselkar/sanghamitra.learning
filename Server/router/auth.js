@@ -1799,7 +1799,7 @@ router.get('/iitm-math-questions/quiz7', async (req, res) => {
 
     // Find all available questions excluding completed ones
     let availableQuestions = await IITMathQuestion.find({
-      topic: "polynomials",  // Topic for Quiz 7
+      topic: "Polynomials",  // Topic for Quiz 7
       _id: { $nin: completedQuestionIds }
     });
 
@@ -1811,7 +1811,7 @@ router.get('/iitm-math-questions/quiz7', async (req, res) => {
         message: "All Polynomials questions completed",
         questions: [],
         resetAvailable: true,
-        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "polynomials" })
+        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "Polynomials" })
       });
     }
 
@@ -2479,6 +2479,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
