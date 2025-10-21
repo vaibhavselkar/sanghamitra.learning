@@ -788,27 +788,31 @@
             }
             else if (question.type === 'numeric') {
                 const placeholder = question.format_hint || "Enter your numeric answer";
+                const savedAnswer = userAnswers[currentQuestionIndex] || '';
                 optionsHtml = `
                     <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${placeholder}" 
-                           onchange="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false">
+                        class="numeric-input" 
+                        placeholder="${placeholder}" 
+                        value="${savedAnswer}"
+                        onchange="handleNumericInput(${currentQuestionIndex}, this.value)"
+                        oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                        autocomplete="off"
+                        spellcheck="false">
                     ${question.format_hint ? `<div class="format-help">${question.format_hint}</div>` : ''}
                 `;
             }
             else if (question.type === 'text_input') {
                 const placeholder = question.format_hint || "Enter your text answer";
+                const savedAnswer = userAnswers[currentQuestionIndex] || '';
                 optionsHtml = `
                     <input type="text" 
-                           class="text-input" 
-                           placeholder="${placeholder}" 
-                           onchange="handleTextInput(${currentQuestionIndex}, this.value)"
-                           oninput="handleTextInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false">
+                        class="text-input" 
+                        placeholder="${placeholder}" 
+                        value="${savedAnswer}"
+                        onchange="handleTextInput(${currentQuestionIndex}, this.value)"
+                        oninput="handleTextInput(${currentQuestionIndex}, this.value)"
+                        autocomplete="off"
+                        spellcheck="false">
                     ${question.format_hint ? `<div class="format-help">${question.format_hint}</div>` : ''}
                 `;
             }
@@ -821,6 +825,7 @@
 
             questionDiv.innerHTML = `
                 <div class="question-header">
+                    <div class="question-number">${currentQuestionIndex + 1}</div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                             ${question.difficulty}
@@ -833,7 +838,11 @@
 
             container.appendChild(questionDiv);
             
-            restoreAnswer();
+            // For multiple choice/select questions, restore the selection state
+            if (question.type === 'multiple_choice' || question.type === 'multiple_select') {
+                restoreAnswer();
+            }
+            
             updateAnswerStatus();
         }
 
@@ -843,6 +852,8 @@
             
             if (!savedAnswer) return;
 
+            // Only handle multiple choice and multiple select questions here
+            // Numeric and text inputs are handled directly in renderCurrentQuestion()
             if (question.type === 'multiple_choice') {
                 const option = document.querySelector(`input[value="${savedAnswer}"]`);
                 if (option) {
@@ -858,14 +869,6 @@
                         option.closest('.option').classList.add('selected');
                     }
                 });
-            } 
-            else if (question.type === 'numeric') {
-                const input = document.querySelector('.numeric-input');
-                if (input) input.value = savedAnswer;
-            }
-            else if (question.type === 'text_input') {
-                const input = document.querySelector('.text-input');
-                if (input) input.value = savedAnswer;
             }
         }
 
