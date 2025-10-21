@@ -1782,6 +1782,67 @@ router.get('/iitm-math-questions/quiz6', async (req, res) => {
   }
 });
 
+router.get('/iitm-math-questions/quiz7', async (req, res) => {
+  try {
+    const { email, count = 50 } = req.query;
+   
+    if (!email) {
+      return res.status(400).json({
+        error: 'Email is required to track question history'
+      });
+    }
+
+    let userScore = await iitm_math_score.findOne({ email });
+    const completedQuestionIds = userScore?.completedQuestionIds || [];
+   
+    console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
+
+    // Find all available questions excluding completed ones
+    let availableQuestions = await IITMathQuestion.find({
+      topic: "polynomials",  // Topic for Quiz 7
+      _id: { $nin: completedQuestionIds }
+    });
+
+    console.log(`Found ${availableQuestions.length} new questions available for Polynomials topic`);
+
+    // Handle case where user has completed most questions
+    if (availableQuestions.length === 0) {
+      return res.status(200).json({
+        message: "All Polynomials questions completed",
+        questions: [],
+        resetAvailable: true,
+        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "polynomials" })
+      });
+    }
+
+    // If less than requested count available, return all available
+    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+   
+    // Randomly shuffle and select questions
+    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+    const selectedQuestions = shuffled.slice(0, questionsToReturn);
+   
+    // Sort selected questions by question_number for consistent display
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`Returning ${selectedQuestions.length} random Polynomials questions for user ${email}`);
+
+    res.json({
+      questions: selectedQuestions,
+      metadata: {
+        totalAvailable: availableQuestions.length,
+        totalCompleted: completedQuestionIds.length,
+        selectedCount: selectedQuestions.length,
+        requestedCount: parseInt(count)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching Quiz 7 (Polynomials) questions:', error);
+    res.status(500).json({ error: 'Failed to fetch Polynomials questions' });
+  }
+});
+
 router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
@@ -2418,6 +2479,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
