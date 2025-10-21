@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +14,7 @@
             min-height: 100vh;
             padding: 20px;
         }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -114,6 +114,59 @@
             padding: 15px;
             margin: 15px 0;
         }
+
+                /* Anti-cheating CSS */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Allow text selection only for code editor */
+        .code-editor-container * {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+
+        /* Blur content when window loses focus */
+        body.blurred {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+
+        /* Warning overlay */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 1.5rem;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        /* Hide scrollbars to prevent inspection */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        body {
+            -webkit-print-color-adjust: exact;
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +221,18 @@
             </div>
             <div id="detailedResults"></div>
             <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+              </div>
+    </div>
+
+    <!-- Anti-cheating warning overlay -->
+    <div id="warningOverlay" class="warning-overlay" style="display: none;">
+        <div>
+            <h2>⚠️ QUIZ WINDOW NOT ACTIVE</h2>
+            <p>Please return to the quiz window immediately</p>
+            <p>Your activity is being monitored and recorded</p>
+            <p>Cheating attempts will result in quiz termination</p>
         </div>
     </div>
 
@@ -384,6 +449,13 @@ def gcd_three(a, b, c):
         let userAnswers = {};
         let currentUser = {};
         let editors = {};
+        // Anti-cheating variables
+        let cheatingAttempts = 0;
+        let isQuizActive = false;
+        let devToolsWarned = false;
+        let quizStartTime = null;
+        let questionStartTime = null;
+        let questionTimes = {};
 
         // Initialize Monaco Editor
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
@@ -391,38 +463,164 @@ def gcd_three(a, b, c):
             initializeQuiz();
         });
 
-       
-        async function initializeQuiz() {
-    console.log('🚀 Initializing quiz...');
-    
-    // Initialize with test user first (fallback)
-    currentUser = { username: 'TestUser', email: 'test@example.com' };
-    userAnswers = {};
-    
-    // Try to get user session (non-blocking)
-    try {
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-            credentials: 'include',
-            mode: 'cors'
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data.username && data.email) {
-                currentUser = { username: data.username, email: data.email };
-                console.log('✅ User logged in:', currentUser);
+               // Anti-cheating initialization
+        function initializeAntiCheating() {
+            // Disable right-click
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                recordCheatingAttempt('right_click');
+                return false;
+            });
+            
+            // Disable common keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
+                if (e.keyCode === 123 || // F12
+                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
+                    (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
+                    (e.ctrlKey && e.keyCode === 83) || // Ctrl+S
+                    e.keyCode === 44) { // Print Screen
+                    e.preventDefault();
+                    recordCheatingAttempt('keyboard_shortcut');
+                    return false;
+                }
+                
+                // Disable Ctrl+A, Ctrl+C, Ctrl+V
+                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                    e.preventDefault();
+                    recordCheatingAttempt('copy_attempt');
+                    return false;
+                }
+            });
+            
+            // Detect developer tools
+            const threshold = 160;
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > threshold || 
+                    window.outerWidth - window.innerWidth > threshold) {
+                    if (!devToolsWarned) {
+                        recordCheatingAttempt('developer_tools');
+                        alert('Developer tools detected! This attempt has been logged.');
+                        devToolsWarned = true;
+                    }
+                }
+            }, 500);
+            
+            // Detect window focus changes
+            window.addEventListener('blur', function() {
+                if (isQuizActive) {
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                    recordCheatingAttempt('window_blur');
+                }
+            });
+            
+            window.addEventListener('focus', function() {
+                document.body.classList.remove('blurred');
+                document.getElementById('warningOverlay').style.display = 'none';
+            });
+            
+            // Prevent text selection
+            document.onselectstart = function() {
+                recordCheatingAttempt('text_selection');
+                return false;
+            };
+            
+            // Disable drag
+            document.ondragstart = function() {
+                return false;
+            };
+            
+            // Monitor for screenshot attempts
+            document.addEventListener('keyup', function(e) {
+                if (e.keyCode === 44) {
+                    recordCheatingAttempt('screenshot_attempt');
+                    alert('Screenshot attempt detected and logged!');
+                }
+            });
+            
+            // Disable printing
+            window.addEventListener('beforeprint', function(e) {
+                recordCheatingAttempt('print_attempt');
+                e.preventDefault();
+                return false;
+            });
+        }
+
+        // Record cheating attempts
+        function recordCheatingAttempt(type) {
+            cheatingAttempts++;
+            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+            
+            if (currentUser.username && currentUser.email) {
+                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: currentUser.username,
+                        email: currentUser.email,
+                        cheatingType: type,
+                        timestamp: new Date(),
+                        currentQuestion: currentQuestionIndex + 1,
+                        quizType: 'algorithms_programming'
+                    })
+                }).catch(err => console.error('Failed to log cheating attempt:', err));
+            }
+            
+            // Auto-submit quiz after too many attempts
+            if (cheatingAttempts >= 5) {
+                alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
+                submitQuiz();
             }
         }
-    } catch (error) {
-        console.log('ℹ️ Using test user for demo');
-    }
-    
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('quizContainer').style.display = 'block';
-    
-    renderCurrentQuestion();
-    updateProgress();
-}
+
+        async function initializeQuiz() {
+            console.log('🚀 Initializing quiz...');
+            
+            // Initialize anti-cheating first
+            initializeAntiCheating();
+            
+            // Initialize with test user first (fallback)
+            currentUser = { username: 'TestUser', email: 'test@example.com' };
+            userAnswers = {};
+            
+            // Try to get user session (non-blocking)
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.username && data.email) {
+                        currentUser = { username: data.username, email: data.email };
+                        console.log('✅ User logged in:', currentUser);
+                    }
+                }
+            } catch (error) {
+                console.log('ℹ️ Using test user for demo');
+            }
+            
+            // Initialize quiz timing
+            quizStartTime = new Date();
+            questionStartTime = new Date();
+            isQuizActive = true;
+            
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            renderCurrentQuestion();
+            updateProgress();
+            
+            // Request fullscreen (optional)
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request failed:', err);
+                });
+            }
+        }
 
         function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
@@ -520,6 +718,15 @@ def gcd_three(a, b, c):
             return hasSubstantialComments && commentBlocks.length >= 2;
         }
 
+                // Track question timing
+        function trackQuestionTime() {
+            if (questionStartTime) {
+                const timeSpent = Math.floor((new Date() - questionStartTime) / 1000);
+                questionTimes[currentQuestionIndex] = timeSpent;
+            }
+            questionStartTime = new Date();
+        }
+
         function simulateCodeExecution(code, testCases, questionTitle) {
     const results = [];
     const functionName = extractFunctionName(code);
@@ -590,6 +797,7 @@ function deepEqual(a, b) {
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
+                trackQuestionTime();
                 currentQuestionIndex++;
                 renderCurrentQuestion();
                 updateProgress();
@@ -598,6 +806,7 @@ function deepEqual(a, b) {
 
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
+                trackQuestionTime();
                 currentQuestionIndex--;
                 renderCurrentQuestion();
                 updateProgress();
@@ -771,5 +980,3 @@ function displayError(message) {
     </script>
 </body>
 </html>
-
-
