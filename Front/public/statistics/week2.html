@@ -484,12 +484,19 @@ input[type="text"], input[type="number"] {
                 .replace(/[-_]/g, '');
         }
 
-        function normalizeArray(arr) {
-            if (!Array.isArray(arr)) return [];
+                function normalizeArray(arr) {
+            if (!Array.isArray(arr)) {
+                // Try to convert to array if it's a string
+                if (typeof arr === 'string') {
+                    arr = arr.split(',').map(item => item.trim());
+                } else {
+                    return [];
+                }
+            }
             
             return arr
                 .map(item => normalizeText(item))
-                .filter(item => item.length > 0)
+                .filter(item => item && item.length > 0) // Filter out empty strings
                 .sort();
         }
 
@@ -497,8 +504,8 @@ input[type="text"], input[type="number"] {
         // ANSWER VALIDATION
         // ============================================
 
-        function checkAnswer(userAnswer, correctAnswer, alternativeAnswers, questionType) {
-            if (!userAnswer && userAnswer !== 0) return false;
+                        function checkAnswer(userAnswer, correctAnswer, alternativeAnswers, questionType) {
+            if (!userAnswer && userAnswer !== 0 && userAnswer !== false) return false;
 
             if (questionType === 'numeric') {
                 const userNum = parseFloat(normalizeNumeric(userAnswer));
@@ -512,8 +519,7 @@ input[type="text"], input[type="number"] {
                 if (alternativeAnswers && alternativeAnswers.length > 0) {
                     return alternativeAnswers.some(alt => {
                         const altNum = parseFloat(normalizeNumeric(alt));
-                        if (isNaN(altNum)) return false;
-                        return Math.abs(userNum - altNum) <= tolerance;
+                        return !isNaN(altNum) && Math.abs(userNum - altNum) <= tolerance;
                     });
                 }
                 
@@ -555,20 +561,27 @@ input[type="text"], input[type="number"] {
             }
             
             else if (questionType === 'multiple_select') {
-                if (!Array.isArray(userAnswer)) return false;
+                if (!Array.isArray(userAnswer)) {
+                    if (typeof userAnswer === 'string') {
+                        userAnswer = userAnswer.split(',').map(item => item.trim());
+                    } else {
+                        return false;
+                    }
+                }
                 
                 const userNorm = normalizeArray(userAnswer);
                 const correctNorm = normalizeArray(correctAnswer);
                 
                 if (userNorm.length === correctNorm.length &&
-                    userNorm.every((ans, idx) => ans === correctNorm[idx])) {
+                    userNorm.every(item => correctNorm.includes(item)) &&
+                    correctNorm.every(item => userNorm.includes(item))) {
                     return true;
                 }
                 
                 return false;
             }
             
-            return false;
+            return userAnswer == correctAnswer;
         }
 
         async function loadQuestions() {
