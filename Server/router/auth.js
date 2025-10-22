@@ -1541,6 +1541,74 @@ router.get('/iitm-stats-questions/week2', async (req, res) => {
   }
 });
 
+router.get('/iitm-stats-questions/week4', async (req, res) => {
+  try {
+    const { email, count = 50 } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        error: 'Email is required to track question history' 
+      });
+    }
+
+    console.log(`Fetching Week 4 statistics questions for: ${email}`);
+    
+    // Find user's completed questions
+    let userScore = await Statistics_scores.findOne({ email });
+    const completedQuestionIds = userScore?.completedQuestionIds || [];
+    
+    console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
+
+    // Find all available Week 4 questions excluding completed ones
+    let availableQuestions = await Statistics_questions.find({
+      topic: "Variable Association",
+      _id: { $nin: completedQuestionIds }
+    });
+
+    console.log(`Found ${availableQuestions.length} new statistics Week 4 questions available`);
+
+    // Handle case where user has completed all questions
+    if (availableQuestions.length === 0) {
+      const totalInPool = await Statistics_questions.countDocuments({ topic: "Variable Association" });
+      return res.status(200).json({
+        message: "All Week 4 questions completed",
+        questions: [],
+        resetAvailable: true,
+        totalQuestionsInPool: totalInPool
+      });
+    }
+
+    // Select requested number of questions
+    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+    
+    // Randomly shuffle and select questions
+    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+    const selectedQuestions = shuffled.slice(0, questionsToReturn);
+    
+    // Sort selected questions by question_number for consistent display
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 4`);
+
+    res.json({
+      questions: selectedQuestions,
+      metadata: {
+        totalAvailable: availableQuestions.length,
+        totalCompleted: completedQuestionIds.length,
+        selectedCount: selectedQuestions.length,
+        requestedCount: parseInt(count)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching statistics Week 4 questions:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch Week 4 statistics questions',
+      details: error.message 
+    });
+  }
+});
+
 
 // POST Statistics Quiz Scores
 router.post('/statistics_scores', async (req, res) => {
@@ -2548,7 +2616,6 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
-
 
 
 
