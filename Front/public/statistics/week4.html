@@ -269,10 +269,32 @@
             padding: 15px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
         }
 
-        .option:hover { border-color: #667eea; background: #f0f8ff; }
-        .option.selected { border-color: #667eea; background: #e3f2fd; }
+        .option:hover { 
+            border-color: #667eea; 
+            background: #f0f8ff; 
+            transform: translateX(2px);
+        }
+
+        .option.selected { 
+            border-color: #667eea; 
+            background: #e3f2fd; 
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .option label {
+            flex: 1;
+            cursor: pointer;
+        }
 
         .numeric-input, .text-input {
             width: 100%;
@@ -829,27 +851,27 @@
             let optionsHtml = '';
             const savedAnswer = userAnswers[currentQuestionIndex];
             
-            if (question.type === 'multiple_choice') {
+             if (question.type === 'multiple_choice' || question.type === 'mcq') {
                 optionsHtml = question.options.map((option, optIndex) => {
                     const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     return `
                         <div class="option" onclick="selectOption(${currentQuestionIndex}, '${escapedOption}', 'radio', event)">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${escapedOption}" id="q${currentQuestionIndex}_${optIndex}" onchange="selectOption(${currentQuestionIndex}, '${escapedOption}', 'radio', event)">
-                            <label for="q${currentQuestionIndex}_${optIndex}" style="cursor: pointer;">${option}</label>
+                            <input type="radio" name="q${currentQuestionIndex}" value="${escapedOption}" id="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none;">
+                            <label for="q${currentQuestionIndex}_${optIndex}" style="cursor: pointer; margin-left: 8px; user-select: none;">${option}</label>
                         </div>
                     `;
                 }).join('');
-                        } else if (question.type === 'multiple_select') {
+            } else if (question.type === 'multiple_select') {
                 optionsHtml = question.options.map((option, optIndex) => {
                     const escapedOption = option.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                     return `
                         <div class="option" onclick="selectOption(${currentQuestionIndex}, '${escapedOption}', 'checkbox', event)">
-                            <input type="checkbox" name="q${currentQuestionIndex}" value="${escapedOption}" id="q${currentQuestionIndex}_${optIndex}" onchange="selectOption(${currentQuestionIndex}, '${escapedOption}', 'checkbox', event)">
-                            <label for="q${currentQuestionIndex}_${optIndex}" style="cursor: pointer;">${option}</label>
+                            <input type="checkbox" name="q${currentQuestionIndex}" value="${escapedOption}" id="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none;">
+                            <label for="q${currentQuestionIndex}_${optIndex}" style="cursor: pointer; margin-left: 8px; user-select: none;">${option}</label>
                         </div>
                     `;
                 }).join('');
-            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input' || question.type === 'text') {
+            }else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input' || question.type === 'text') {
                 const placeholder = question.format_hint || "Enter your answer";
                 
                 // Add specific placeholders based on type
@@ -917,10 +939,9 @@
     
     if (!savedAnswer) return;
 
-    // Only handle multiple choice and multiple select questions here
-    // Numeric and text inputs are handled directly in renderCurrentQuestion()
-    if (question.type === 'multiple_choice') {
-        const option = document.querySelector(`input[value="${savedAnswer}"]`);
+    // Handle multiple choice questions (including 'mcq' type)
+    if (question.type === 'multiple_choice' || question.type === 'mcq') {
+        const option = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${savedAnswer}"]`);
         if (option) {
             option.checked = true;
             option.closest('.option').classList.add('selected');
@@ -928,7 +949,7 @@
     } 
     else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
         savedAnswer.forEach(answer => {
-            const option = document.querySelector(`input[value="${answer}"]`);
+            const option = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${answer}"]`);
             if (option) {
                 option.checked = true;
                 option.closest('.option').classList.add('selected');
@@ -937,7 +958,7 @@
     }
     
     // Also ensure input fields show saved values
-    const inputField = document.querySelector('.numeric-input');
+    const inputField = document.querySelector('.numeric-input, .text-input');
     if (inputField && savedAnswer !== undefined && savedAnswer !== null) {
         inputField.value = savedAnswer;
     }
@@ -949,35 +970,49 @@
 
         function selectOption(questionIndex, value, type, event) {
     if (type === 'radio') {
+        // Store trimmed value
         userAnswers[questionIndex] = value.trim();
         
+        // Update UI - remove all selections first
         const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
         options.forEach(opt => opt.closest('.option').classList.remove('selected'));
         
-        // Select the radio button
-        const radio = document.querySelector(`input[name="q${questionIndex}"][value="${value}"]`);
-        if (radio) {
-            radio.checked = true;
-            radio.closest('.option').classList.add('selected');
+        // Select the clicked option
+        if (event && event.target) {
+            const clickedOption = event.target.closest('.option');
+            if (clickedOption) {
+                clickedOption.classList.add('selected');
+                const radio = clickedOption.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            }
         }
     } 
     else if (type === 'checkbox') {
         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
-        const checkbox = document.querySelector(`input[name="q${questionIndex}"][value="${value}"]`);
         const trimmedValue = value.trim();
         
-        if (checkbox && checkbox.checked) {
-            if (!userAnswers[questionIndex].includes(trimmedValue)) {
-                userAnswers[questionIndex].push(trimmedValue);
-            }
-            checkbox.closest('.option').classList.add('selected');
-        } else if (checkbox) {
-            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
-            checkbox.closest('.option').classList.remove('selected');
+        if (event && event.target) {
+            const clickedOption = event.target.closest('.option');
+            const checkbox = clickedOption ? clickedOption.querySelector('input[type="checkbox"]') : null;
             
-            if (userAnswers[questionIndex].length === 0) {
-                delete userAnswers[questionIndex];
+            if (checkbox) {
+                // Toggle checkbox state
+                checkbox.checked = !checkbox.checked;
+                
+                if (checkbox.checked) {
+                    if (!userAnswers[questionIndex].includes(trimmedValue)) {
+                        userAnswers[questionIndex].push(trimmedValue);
+                    }
+                    clickedOption.classList.add('selected');
+                } else {
+                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
+                    clickedOption.classList.remove('selected');
+                    
+                    if (userAnswers[questionIndex].length === 0) {
+                        delete userAnswers[questionIndex];
+                    }
+                }
             }
         }
     }
