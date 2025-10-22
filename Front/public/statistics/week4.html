@@ -360,6 +360,16 @@
             pointer-events: auto !important;
         }
 
+        /* Ensure all input fields are visible and functional */
+        input.numeric-input, input.text-input {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
+
         @media (max-width: 768px) {
             .results-container {
                 padding: 15px;
@@ -809,6 +819,8 @@
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
             
+            console.log('Rendering question type:', question.type); // DEBUG
+            
             container.innerHTML = '';
 
             const questionDiv = document.createElement('div');
@@ -837,7 +849,7 @@
                         </div>
                     `;
                 }).join('');
-            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input' || question.type === 'text') {
                 const placeholder = question.format_hint || "Enter your answer";
                 
                 // Add specific placeholders based on type
@@ -860,8 +872,8 @@
                                class="numeric-input" 
                                placeholder="${specificPlaceholder}" 
                                value="${savedAnswer || ''}"
+                               onkeyup="handleNumericInput(${currentQuestionIndex}, this.value)"
                                onchange="handleNumericInput(${currentQuestionIndex}, this.value)"
-                               oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
                                autocomplete="off"
                                spellcheck="false"
                                style="display: block; width: 100%; max-width: 400px; padding: 12px 16px; border: 2px solid #667eea; border-radius: 8px; font-size: 16px; background: white; margin: 10px 0;">
@@ -900,30 +912,36 @@
         }
 
         function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (!savedAnswer) return;
+    const question = questions[currentQuestionIndex];
+    const savedAnswer = userAnswers[currentQuestionIndex];
+    
+    if (!savedAnswer) return;
 
-            // Only handle multiple choice and multiple select questions here
-            // Numeric and text inputs are handled directly in renderCurrentQuestion()
-            if (question.type === 'multiple_choice') {
-                const option = document.querySelector(`input[value="${savedAnswer}"]`);
-                if (option) {
-                    option.checked = true;
-                    option.closest('.option').classList.add('selected');
-                }
-            } 
-            else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[value="${answer}"]`);
-                    if (option) {
-                        option.checked = true;
-                        option.closest('.option').classList.add('selected');
-                    }
-                });
-            }
+    // Only handle multiple choice and multiple select questions here
+    // Numeric and text inputs are handled directly in renderCurrentQuestion()
+    if (question.type === 'multiple_choice') {
+        const option = document.querySelector(`input[value="${savedAnswer}"]`);
+        if (option) {
+            option.checked = true;
+            option.closest('.option').classList.add('selected');
         }
+    } 
+    else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+        savedAnswer.forEach(answer => {
+            const option = document.querySelector(`input[value="${answer}"]`);
+            if (option) {
+                option.checked = true;
+                option.closest('.option').classList.add('selected');
+            }
+        });
+    }
+    
+    // Also ensure input fields show saved values
+    const inputField = document.querySelector('.numeric-input');
+    if (inputField && savedAnswer !== undefined && savedAnswer !== null) {
+        inputField.value = savedAnswer;
+    }
+}
 
         // ============================================
         // USER INPUT HANDLERS
