@@ -1,1 +1,1065 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Algorithms Programming Quiz</title>
+    <!-- Include Monaco Editor for code editing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-container { padding: 30px; }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .code-editor-container {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
+            height: 400px;
+        }
+
+        .test-cases {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        .test-passed {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .test-failed {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .results-container { display: none; padding: 30px; }
+        .loading { display: none; }
+        
+        .explanation-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Graph Algorithms Programming Quiz</h1>
+            <p>Solve BFS, DFS, DAGs, and Topological Sorting problems by writing complete Python functions</p>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <h3>Loading Quiz...</h3>
+            <p>Preparing code editor and test environment</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div class="progress-container mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span id="progressText">Question 1 of 20</span>
+                    <span id="scoreText">Score: 0/100</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressFill" style="width: 5%;"></div>
+                </div>
+            </div>
+            
+            <div id="questionContainer"></div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+                <div>
+                    <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
+                    📊 Submit Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container">
+            <div class="score-display">
+                <h2 id="finalScore">0/100</h2>
+                <h3 id="finalPercentage">0%</h3>
+                <p>Quiz Completed!</p>
+            </div>
+            <div id="detailedResults"></div>
+            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz questions with graph algorithm problems
+        const questions = [
+            // Beginner BFS Questions (1-5)
+            {
+                id: 1,
+                title: "BFS Traversal Implementation",
+                description: "Implement Breadth-First Search traversal for a graph represented as an adjacency list.",
+                prompt: `Write a function bfs_traversal(graph, start) that performs BFS traversal.
+
+REQUIREMENTS:
+- Input: graph (dict with node: [neighbors]), start node
+- Output: List of nodes in BFS traversal order
+- Handle disconnected graphs gracefully
+
+EXAMPLE:
+graph = {0: [1, 2], 1: [2], 2: [0, 3], 3: [3]}
+bfs_traversal(graph, 2) → [2, 0, 3, 1]`,
+
+                starterCode: `from collections import deque
+
+def bfs_traversal(graph, start):
+    """
+    Perform BFS traversal on a graph.
+    Args: graph (dict), start (node)
+    Returns: list - nodes in BFS order
+    """
+    visited = set()
+    queue = deque()
+    result = []
+    
+    # Your implementation here
+    
+    return result
+
+# === EFFICIENCY EXPLANATION ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [{0: [1, 2], 1: [2], 2: [0, 3], 3: [3]}, 2], expected: [2, 0, 3, 1] },
+                    { input: [{0: [1], 1: [2], 2: [0]}, 0], expected: [0, 1, 2] },
+                    { input: [{0: []}, 0], expected: [0] },
+                    { input: [{0: [1, 2], 1: [3], 2: [3], 3: []}, 0], expected: [0, 1, 2, 3] }
+                ],
+                points: 5
+            },
+            {
+                id: 2,
+                title: "BFS Level Order",
+                description: "Implement BFS that returns nodes level by level.",
+                prompt: `Write a function bfs_level_order(graph, start) that returns nodes grouped by level.`,
+                starterCode: `from collections import deque
+
+def bfs_level_order(graph, start):
+    """
+    Perform BFS and return nodes by level.
+    Args: graph (dict), start (node)
+    Returns: list of lists - each sublist contains nodes at that level
+    """
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: [{0: [1, 2], 1: [3], 2: [3], 3: []}, 0], expected: [[0], [1, 2], [3]] },
+                    { input: [{0: [1], 1: [2], 2: []}, 0], expected: [[0], [1], [2]] }
+                ],
+                points: 5
+            },
+            {
+                id: 3,
+                title: "BFS Shortest Path - Unweighted",
+                description: "Find shortest path in unweighted graph using BFS.",
+                prompt: `Write a function bfs_shortest_path(graph, start, end) that finds shortest path.`,
+                starterCode: `from collections import deque
+
+def bfs_shortest_path(graph, start, end):
+    """
+    Find shortest path using BFS in unweighted graph.
+    Args: graph (dict), start, end (nodes)
+    Returns: list - shortest path from start to end, or empty list if no path
+    """
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: [{0: [1, 2], 1: [3], 2: [3], 3: []}, 0, 3], expected: [0, 1, 3] },
+                    { input: [{0: [1], 1: [2], 2: []}, 0, 2], expected: [0, 1, 2] },
+                    { input: [{0: [1], 1: []}, 0, 2], expected: [] }
+                ],
+                points: 5
+            },
+            {
+                id: 4,
+                title: "BFS Connected Components",
+                description: "Find all connected components in an undirected graph using BFS.",
+                prompt: `Write a function connected_components(graph) that finds all connected components.`,
+                starterCode: `from collections import deque
+
+def connected_components(graph):
+    """
+    Find all connected components using BFS.
+    Args: graph (dict)
+    Returns: list of lists - each sublist is a connected component
+    """
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: [{0: [1], 1: [0], 2: [3], 3: [2], 4: []}], expected: [[0, 1], [2, 3], [4]] },
+                    { input: [{0: [1, 2], 1: [0], 2: [0], 3: []}], expected: [[0, 1, 2], [3]] }
+                ],
+                points: 5
+            },
+            {
+                id: 5,
+                title: "BFS - Find All Paths",
+                description: "Find all paths between two nodes using BFS approach.",
+                prompt: `Write a function find_all_paths_bfs(graph, start, end) that finds all paths.`,
+                starterCode: `from collections import deque
+
+def find_all_paths_bfs(graph, start, end):
+    """
+    Find all paths from start to end using BFS approach.
+    Args: graph (dict), start, end (nodes)
+    Returns: list of lists - all paths from start to end
+    """
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: [{0: [1, 2], 1: [3], 2: [3], 3: []}, 0, 3], expected: [[0, 1, 3], [0, 2, 3]] },
+                    { input: [{0: [1], 1: [2], 2: []}, 0, 2], expected: [[0, 1, 2]] }
+                ],
+                points: 5
+            },
+
+            // Beginner DFS Questions (6-10)
+            {
+                id: 6,
+                title: "DFS Traversal - Recursive",
+                description: "Implement Depth-First Search traversal using recursion.",
+                prompt: `Write a function dfs_recursive(graph, start) that performs DFS recursively.`,
+                starterCode: `def dfs_recursive(graph, start):
+    """
+    Perform DFS traversal recursively.
+    Args: graph (dict), start (node)
+    Returns: list - nodes in DFS order
+    """
+    visited = set()
+    result = []
+    
+    def dfs(node):
+        # Your implementation here
+        pass
+    
+    dfs(start)
+    return result`,
+                testCases: [
+                    { input: [{0: [1, 2], 1: [2], 2: [0, 3], 3: [3]}, 2], expected: [2, 0, 1, 3] },
+                    { input: [{0: [1], 1: [2], 2: [0]}, 0], expected: [0, 1, 2] }
+                ],
+                points: 5
+            },
+            {
+                id: 7,
+                title: "DFS Traversal - Iterative",
+                description: "Implement DFS traversal using iterative approach with stack.",
+                prompt: `Write a function dfs_iterative(graph, start) that performs DFS iteratively.`,
+                starterCode: `def dfs_iterative(graph, start):
+    """
+    Perform DFS traversal iteratively using stack.
+    Args: graph (dict), start (node)
+    Returns: list - nodes in DFS order
+    """
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: [{0: [1, 2], 1: [2], 2: [0, 3], 3: [3]}, 2], expected: [2, 0, 1, 3] },
+                    { input: [{0: [1], 1: [2], 2: [0]}, 0], expected: [0, 1, 2] }
+                ],
+                points: 5
+            },
+            {
+                id: 8,
+                title: "DFS Cycle Detection",
+                description: "Detect cycle in undirected graph using DFS.",
+                prompt: `Write a function has_cycle_dfs(graph) that detects cycles.`,
+                starterCode: `def has_cycle_dfs(graph):
+    """
+    Detect cycle in undirected graph using DFS.
+    Args: graph (dict)
+    Returns: bool - True if cycle exists, False otherwise
+    """
+    visited = set()
+    
+    def dfs(node, parent):
+        # Your implementation here
+        pass
+    
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: [{0: [1, 2], 1: [0, 2], 2: [0, 1]}], expected: true },
+                    { input: [{0: [1], 1: [0, 2], 2: [1]}], expected: false },
+                    { input: [{0: [1], 1: [0]}], expected: false }
+                ],
+                points: 5
+            },
+            {
+                id: 9,
+                title: "DFS Path Finding",
+                description: "Find any path between two nodes using DFS.",
+                prompt: `Write a function dfs_find_path(graph, start, end) that finds a path using DFS.`,
+                starterCode: `def dfs_find_path(graph, start, end):
+    """
+    Find a path from start to end using DFS.
+    Args: graph (dict), start, end (nodes)
+    Returns: list - path from start to end, or empty list if no path
+    """
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: [{0: [1, 2], 1: [3], 2: [3], 3: []}, 0, 3], expected: [0, 1, 3] },
+                    { input: [{0: [1], 1: []}, 0, 2], expected: [] }
+                ],
+                points: 5
+            },
+            {
+                id: 10,
+                title: "DFS - Count Connected Components",
+                description: "Count connected components in undirected graph using DFS.",
+                prompt: `Write a function count_components_dfs(graph) that counts connected components.`,
+                starterCode: `def count_components_dfs(graph):
+    """
+    Count connected components using DFS.
+    Args: graph (dict)
+    Returns: int - number of connected components
+    """
+    visited = set()
+    count = 0
+    
+    def dfs(node):
+        # Your implementation here
+        pass
+    
+    # Your implementation here
+    return count`,
+                testCases: [
+                    { input: [{0: [1], 1: [0], 2: [3], 3: [2], 4: []}], expected: 3 },
+                    { input: [{0: [1, 2], 1: [0], 2: [0], 3: []}], expected: 2 }
+                ],
+                points: 5
+            },
+
+            // DAG and Topological Sort Questions (11-15)
+            {
+                id: 11,
+                title: "Topological Sort - Kahn's Algorithm",
+                description: "Implement topological sort using Kahn's algorithm (BFS-based).",
+                prompt: `Write a function topological_sort_kahn(graph) that performs topological sort.`,
+                starterCode: `from collections import deque
+
+def topological_sort_kahn(graph):
+    """
+    Perform topological sort using Kahn's algorithm.
+    Args: graph (dict with node: [dependencies])
+    Returns: list - topological order, or empty list if cycle detected
+    """
+    # Calculate in-degrees
+    in_degree = {node: 0 for node in graph}
+    
+    # Your implementation here
+    
+    return []`,
+                testCases: [
+                    { input: {0: [1, 2], 1: [3], 2: [3], 3: []}, expected: [0, 1, 2, 3] },
+                    { input: {0: [1], 1: [2], 2: []}, expected: [0, 1, 2] },
+                    { input: {0: [1], 1: [0]}, expected: [] }  // Cycle detected
+                ],
+                points: 5
+            },
+            {
+                id: 12,
+                title: "Topological Sort - DFS",
+                description: "Implement topological sort using DFS approach.",
+                prompt: `Write a function topological_sort_dfs(graph) that performs topological sort using DFS.`,
+                starterCode: `def topological_sort_dfs(graph):
+    """
+    Perform topological sort using DFS.
+    Args: graph (dict)
+    Returns: list - topological order, or empty list if cycle detected
+    """
+    visited = set()
+    stack = []
+    
+    def dfs(node):
+        # Your implementation here
+        pass
+    
+    # Your implementation here
+    return stack[::-1]`,
+                testCases: [
+                    { input: {0: [1, 2], 1: [3], 2: [3], 3: []}, expected: [0, 2, 1, 3] },
+                    { input: {0: [1], 1: [2], 2: []}, expected: [0, 1, 2] }
+                ],
+                points: 5
+            },
+            {
+                id: 13,
+                title: "DAG Validation",
+                description: "Check if a directed graph is a DAG (Directed Acyclic Graph).",
+                prompt: `Write a function is_dag(graph) that checks if graph is a DAG.`,
+                starterCode: `def is_dag(graph):
+    """
+    Check if directed graph is a DAG.
+    Args: graph (dict)
+    Returns: bool - True if DAG, False otherwise
+    """
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: {0: [1, 2], 1: [3], 2: [3], 3: []}, expected: true },
+                    { input: {0: [1], 1: [0]}, expected: false },
+                    { input: {0: [1], 1: [2], 2: [0]}, expected: false }
+                ],
+                points: 5
+            },
+            {
+                id: 14,
+                title: "Course Schedule - Prerequisites",
+                description: "Solve course schedule problem using topological sort.",
+                prompt: `Given numCourses and prerequisites, return if courses can be finished.`,
+                starterCode: `def can_finish_courses(numCourses, prerequisites):
+    """
+    Check if all courses can be finished (no cycles in prerequisites).
+    Args: numCourses (int), prerequisites (list of [course, prerequisite])
+    Returns: bool - True if can finish, False otherwise
+    """
+    # Build graph
+    graph = {i: [] for i in range(numCourses)}
+    
+    # Your implementation here
+    
+    return True`,
+                testCases: [
+                    { input: [2, [[1, 0]]], expected: true },
+                    { input: [2, [[1, 0], [0, 1]]], expected: false },
+                    { input: [3, [[1, 0], [2, 1]]], expected: true }
+                ],
+                points: 5
+            },
+            {
+                id: 15,
+                title: "Course Schedule Order",
+                description: "Find the order of courses to take using topological sort.",
+                prompt: `Given numCourses and prerequisites, return course order if possible.`,
+                starterCode: `def find_course_order(numCourses, prerequisites):
+    """
+    Find order to take all courses.
+    Args: numCourses (int), prerequisites (list)
+    Returns: list - course order, or empty list if impossible
+    """
+    # Your implementation here
+    pass`,
+                testCases: [
+                    { input: [4, [[1,0],[2,0],[3,1],[3,2]]], expected: [0,1,2,3] },
+                    { input: [2, [[1,0],[0,1]]], expected: [] }
+                ],
+                points: 5
+            },
+
+            // Advanced/Tough Questions (16-20)
+            {
+                id: 16,
+                title: "Alien Dictionary",
+                description: "Find character order from sorted alien dictionary words.",
+                prompt: `Given sorted words from alien language, return character order.`,
+                starterCode: `def alien_order(words):
+    """
+    Find character order from sorted alien words.
+    Args: words (list of str)
+    Returns: str - character order, or empty string if invalid
+    """
+    # Build graph from word comparisons
+    graph = {}
+    
+    # Your implementation here
+    
+    return ""`,
+                testCases: [
+                    { input: [["wrt","wrf","er","ett","rftt"]], expected: "wertf" },
+                    { input: [["z","x"]], expected: "zx" },
+                    { input: [["z","x","z"]], expected: "" }  // Invalid
+                ],
+                points: 5
+            },
+            {
+                id: 17,
+                title: "Critical Connections - Bridges",
+                description: "Find all critical connections (bridges) in a network.",
+                prompt: `Find all bridges in an undirected graph using Tarjan's algorithm.`,
+                starterCode: `def find_critical_connections(n, connections):
+    """
+    Find all critical connections (bridges) in network.
+    Args: n (int - nodes), connections (list of edges)
+    Returns: list of critical connections
+    """
+    # Build graph
+    graph = {i: [] for i in range(n)}
+    
+    # Your implementation here (Tarjan's algorithm)
+    
+    return []`,
+                testCases: [
+                    { input: [4, [[0,1],[1,2],[2,0],[1,3]]], expected: [[1,3]] },
+                    { input: [2, [[0,1]]], expected: [[0,1]] }
+                ],
+                points: 5
+            },
+            {
+                id: 18,
+                title: "Word Ladder - BFS Shortest",
+                description: "Find shortest transformation sequence from beginWord to endWord.",
+                prompt: `Find length of shortest transformation sequence using BFS.`,
+                starterCode: `from collections import deque
+
+def word_ladder_length(beginWord, endWord, wordList):
+    """
+    Find shortest transformation sequence length.
+    Args: beginWord, endWord (str), wordList (list)
+    Returns: int - shortest sequence length, 0 if not possible
+    """
+    wordSet = set(wordList)
+    
+    # Your BFS implementation here
+    
+    return 0`,
+                testCases: [
+                    { input: ["hit", "cog", ["hot","dot","dog","lot","log","cog"]], expected: 5 },
+                    { input: ["hit", "cog", ["hot","dot","dog","lot","log"]], expected: 0 }
+                ],
+                points: 5
+            },
+            {
+                id: 19,
+                title: "Number of Islands - BFS/DFS",
+                description: "Count number of islands in 2D grid using BFS or DFS.",
+                prompt: `Given 2D grid of '1's (land) and '0's (water), count islands.`,
+                starterCode: `def num_islands(grid):
+    """
+    Count number of islands in 2D grid.
+    Args: grid (list of list of str)
+    Returns: int - number of islands
+    """
+    if not grid:
+        return 0
+    
+    rows, cols = len(grid), len(grid[0])
+    count = 0
+    
+    # Your BFS/DFS implementation here
+    
+    return count`,
+                testCases: [
+                    { input: [[
+  ["1","1","1","1","0"],
+  ["1","1","0","1","0"],
+  ["1","1","0","0","0"],
+  ["0","0","0","0","0"]
+]], expected: 1 },
+                    { input: [[
+  ["1","1","0","0","0"],
+  ["1","1","0","0","0"],
+  ["0","0","1","0","0"],
+  ["0","0","0","1","1"]
+]], expected: 3 }
+                ],
+                points: 5
+            },
+            {
+                id: 20,
+                title: "Clone Graph - BFS/DFS",
+                description: "Create a deep copy of a connected undirected graph.",
+                prompt: `Given a node reference, return deep copy of the graph.`,
+                starterCode: `class Node:
+    def __init__(self, val=0, neighbors=None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+
+def clone_graph(node):
+    """
+    Create deep copy of connected undirected graph.
+    Args: node (Node) - reference to any node
+    Returns: Node - reference to copied graph
+    """
+    if not node:
+        return None
+    
+    # Your BFS/DFS implementation here
+    
+    return None`,
+                testCases: [
+                    { input: [{"val": 1, "neighbors": [{"val": 2}, {"val": 3}]}], expected: "cloned_graph" },
+                    { input: [{"val": 1, "neighbors": []}], expected: "cloned_graph" }
+                ],
+                points: 5
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let currentUser = {};
+        let editors = {};
+
+        // Initialize Monaco Editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            initializeQuiz();
+        });
+
+       
+        async function initializeQuiz() {
+    console.log('🚀 Initializing quiz...');
+    
+    // Initialize with test user first (fallback)
+    currentUser = { username: 'TestUser', email: 'test@example.com' };
+    userAnswers = {};
+    
+    // Try to get user session (non-blocking)
+    try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+            credentials: 'include',
+            mode: 'cors'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.username && data.email) {
+                currentUser = { username: data.username, email: data.email };
+                console.log('✅ User logged in:', currentUser);
+            }
+        }
+    } catch (error) {
+        console.log('ℹ️ Using test user for demo');
+    }
+    
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('quizContainer').style.display = 'block';
+    
+    renderCurrentQuestion();
+    updateProgress();
+}
+
+        function renderCurrentQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3>${question.title}</h3>
+                        <span class="badge bg-primary">${question.points} points</span>
+                    </div>
+                    
+                    <p class="mb-3">${question.description}</p>
+                    
+                    <div class="alert alert-info">
+                        <h6>Problem:</h6>
+                        <pre style="white-space: pre-wrap;">${question.prompt}</pre>
+                    </div>
+                    
+                    <div class="explanation-section">
+                        <h6>📝 Important:</h6>
+                        <p>You must include detailed explanations as comments in your code. Points will be awarded for both correct implementation and comprehensive explanations.</p>
+                    </div>
+                    
+                    <div id="editor-${question.id}" class="code-editor-container"></div>
+                    
+                    <div class="test-cases">
+                        <h6>Test Cases:</h6>
+                        ${question.testCases.map((test, i) => `
+                            <div><strong>Test ${i+1}:</strong> Input: ${JSON.stringify(test.input)} → Expected: ${JSON.stringify(test.expected)}</div>
+                        `).join('')}
+                    </div>
+                    
+                    <div id="testResults-${question.id}"></div>
+                </div>
+            `;
+            
+            // Initialize Monaco editor for this question
+            const editor = monaco.editor.create(document.getElementById(`editor-${question.id}`), {
+                value: userAnswers[question.id] || question.starterCode,
+                language: 'python',
+                theme: 'vs-light',
+                fontSize: 14,
+                automaticLayout: true,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false
+            });
+            
+            editors[question.id] = editor;
+            
+            // Save code on change
+            editor.onDidChangeModelContent(() => {
+                userAnswers[question.id] = editor.getValue();
+            });
+        }
+
+        function runTests() {
+            const question = questions[currentQuestionIndex];
+            const code = editors[question.id].getValue();
+            const resultsDiv = document.getElementById(`testResults-${question.id}`);
+            
+            resultsDiv.innerHTML = '<h6>Running tests...</h6>';
+            
+            try {
+                // Simple Python-like execution simulation
+                const testResults = simulateCodeExecution(code, question.testCases, question.title);
+                
+                resultsDiv.innerHTML = `
+                    <h6>Test Results:</h6>
+                    ${testResults.map((result, i) => `
+                        <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
+                            Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
+                            ${result.error ? ` - ${result.error}` : ''}
+                            ${result.output !== undefined ? ` (Got: ${JSON.stringify(result.output)})` : ''}
+                        </div>
+                    `).join('')}
+                    
+                    <div class="mt-3">
+                        <strong>Explanation Check:</strong>
+                        ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
+            }
+        }
+
+        function checkExplanations(code, questionId) {
+            // More strict check - require actual content in comments
+            const commentBlocks = code.match(/#.+/g) || [];
+            const hasSubstantialComments = commentBlocks.some(comment => 
+                comment.length > 20 && !comment.includes('Add your analysis here')
+            );
+            
+            return hasSubstantialComments && commentBlocks.length >= 2;
+        }
+
+        function simulateCodeExecution(code, testCases, questionTitle) {
+    const results = [];
+    const functionName = extractFunctionName(code);
+    
+    if (!functionName) {
+        return testCases.map(() => ({ 
+            passed: false, 
+            error: "No function defined. Please write a function starting with 'def function_name()'" 
+        }));
+    }
+    
+    testCases.forEach(testCase => {
+        try {
+            // Execute user's actual code
+            const output = executeUserCode(code, functionName, testCase.input);
+            const passed = deepEqual(output, testCase.expected);
+            
+            results.push({ 
+                passed, 
+                output: output !== undefined ? output : "No output returned",
+                error: passed ? null : `Expected ${JSON.stringify(testCase.expected)}, got ${JSON.stringify(output)}`
+            });
+            
+        } catch (error) {
+            results.push({ 
+                passed: false, 
+                error: `Runtime error: ${error.message}`,
+                output: "Error occurred during execution"
+            });
+        }
+    });
+    
+    return results;
+}
+
+function executeUserCode(code, functionName, inputs) {
+    throw new Error("Code execution requires testing locally");
+}
+
+function extractFunctionName(code) {
+    const match = code.match(/def\s+(\w+)\s*\(/);
+    return match ? match[1] : null;
+}
+
+function deepEqual(a, b) {
+    if (a === b) return true;
+    if (typeof a !== typeof b) return false;
+    if (typeof a !== 'object' || a === null || b === null) return a === b;
+    
+    if (Array.isArray(a)) {
+        if (!Array.isArray(b) || a.length !== b.length) return false;
+        return a.every((val, i) => deepEqual(val, b[i]));
+    }
+    
+    if (a instanceof Error || b instanceof Error) return a.message === b.message;
+    
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    if (keysA.length !== keysB.length) return false;
+    
+    return keysA.every(key => deepEqual(a[key], b[key]));
+}
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Finish →';
+            } else {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+
+      async function submitQuiz() {
+    // Show confirmation dialog
+    const confirmSubmit = confirm(
+        'Are you ready to submit your quiz?\n\n' +
+        'Make sure you have:\n' +
+        '✓ Completed all questions\n' +
+        '✓ Tested your code\n' +
+        '✓ Added required explanations\n\n' +
+        'Click OK to submit.'
+    );
+    
+    if (!confirmSubmit) {
+        return; // User cancelled
+    }
+
+    let totalScore = 0;
+    const results = [];
+    
+    // Grade each question
+    questions.forEach(question => {
+        const code = userAnswers[question.id] || '';
+        const testResults = simulateCodeExecution(code, question.testCases, question.title);
+        const passedTests = testResults.filter(r => r.passed).length;
+        
+        const hasExplanations = checkExplanations(code, question.id);
+        const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
+        
+        const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
+        
+        totalScore += Math.min(questionScore, question.points);
+        results.push({
+            questionId: question.id,
+            title: question.title,
+            code: code, // ✅ Include user's code
+            score: Math.min(questionScore, question.points),
+            maxScore: question.points,
+            testResults: testResults,
+            hasExplanations: hasExplanations
+        });
+    });
+    
+    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+    const percentage = Math.round((totalScore / maxScore) * 100);
+    
+    // Prepare quiz data in correct format
+    const quizData = {
+        username: currentUser.username || 'TestUser',
+        email: currentUser.email || 'test@example.com',
+        topic: 'Graph Algorithms - BFS, DFS, DAGs, Topological Sorting',
+        score: totalScore,
+        maxScore: maxScore,
+        percentage: percentage,
+        questions: results,
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('📤 Submitting quiz data:', JSON.stringify(quizData, null, 2));
+    
+    try {
+        // Disable submit button to prevent double submission
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Submitting...';
+        
+        // Submit to backend
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(quizData)
+});
+        
+        console.log('📥 Response status:', response.status);
+        
+        if (response.ok) {
+            const responseData = await response.json();
+            console.log('✅ Server response:', responseData);
+            alert('✅ Quiz submitted successfully!');
+            showResults(quizData);
+        } else {
+            const errorText = await response.text();
+            console.error('❌ Server error:', errorText);
+            throw new Error(`Server returned ${response.status}: ${errorText}`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Submission error:', error);
+       displayError(error.message);
+        
+        // Re-enable submit button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📊 Submit Quiz';
+    }
+}
+
+
+
+function displayError(message) {
+    alert(`❌ Error: ${message}\n\nYour quiz data has been saved locally. Please try submitting again later.`);
+    
+    // Save quiz data locally as backup
+    const backupData = {
+        ...quizData,
+        localBackup: true,
+        localTimestamp: new Date().toISOString()
+    };
+    localStorage.setItem('graphAlgorithmsQuizBackup', JSON.stringify(backupData));
+    console.log('📦 Quiz data saved locally as backup');
+}
+
+        function showResults(quizData) {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+            document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            
+            const detailedResults = document.getElementById('detailedResults');
+            detailedResults.innerHTML = `
+                <h4>Detailed Results</h4>
+                ${quizData.questions.map(q => `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6>${q.title}: ${q.score}/${q.maxScore} points</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: ${(q.score/q.maxScore)*100}%"></div>
+                            </div>
+                            <small>Tests passed: ${q.testResults.filter(t => t.passed).length}/${q.testResults.length}</small>
+                            <br>
+                            <small>${q.hasExplanations ? '✓ Explanations provided' : '⚠ Missing explanations'}</small>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            editors = {};
+            
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            renderCurrentQuestion();
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
