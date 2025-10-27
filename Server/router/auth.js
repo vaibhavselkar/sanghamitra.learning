@@ -1613,7 +1613,8 @@ router.get('/iitm-stats-questions/week3', async (req, res) => {
 
 router.get('/iitm-ct-questions', async (req, res) => {
   try {
-    const { topic } = req.params;
+    const { topic } = req.query;
+
     
     // Find all questions matching the given topic
     const questions = await iitm_ct_questions.find({ topic });
@@ -2867,6 +2868,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
