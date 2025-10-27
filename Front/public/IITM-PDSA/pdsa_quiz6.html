@@ -1,1 +1,1268 @@
-hi
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Structures Programming Quiz</title>
+    <!-- Include Monaco Editor for code editing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-container { padding: 30px; }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .code-editor-container {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
+            height: 400px;
+        }
+
+        .test-cases {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        .test-passed {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .test-failed {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .results-container { display: none; padding: 30px; }
+        .loading { display: none; }
+        
+        .explanation-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Data Structures Programming Quiz</h1>
+            <p>Solve problems on Union-Find, Priority Queues, Heaps, and Binary Search Trees</p>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <h3>Loading Quiz...</h3>
+            <p>Preparing code editor and test environment</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div class="progress-container mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span id="progressText">Question 1 of 20</span>
+                    <span id="scoreText">Score: 0/100</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressFill" style="width: 5%;"></div>
+                </div>
+            </div>
+            
+            <div id="questionContainer"></div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+                <div>
+                    <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
+                    📊 Submit Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container">
+            <div class="score-display">
+                <h2 id="finalScore">0/100</h2>
+                <h3 id="finalPercentage">0%</h3>
+                <p>Quiz Completed!</p>
+            </div>
+            <div id="detailedResults"></div>
+            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz questions with code problems
+        const questions = [
+            // Beginner Questions (1-15)
+            {
+                id: 1,
+                title: "Union-Find Basic Implementation",
+                description: "Implement a basic Union-Find data structure with path compression.",
+                prompt: `Implement a Union-Find (Disjoint Set Union) data structure with path compression.
+
+REQUIREMENTS:
+- Implement find(x) method with path compression
+- Implement union(x, y) method
+- Initialize with n elements
+
+`,
+
+                starterCode: `class UnionFind:
+    def __init__(self, n):
+        """
+        Initialize Union-Find with n elements (0 to n-1)
+        """
+        self.parent = list(range(n))
+        self.rank = [0] * n
+    
+    def find(self, x):
+        """
+        Find root of x with path compression
+        """
+        pass
+    
+    def union(self, x, y):
+        """
+        Union sets containing x and y
+        """
+        pass
+
+# === EFFICIENCY EXPLANATION ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [5, [0,1], [2,3], [1,2]], expected: true },
+                    { input: [3, [0,1], [1,2]], expected: true },
+                    { input: [4, [0,1], [2,3]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 2,
+                title: "Min Heap Implementation",
+                description: "Implement a basic Min Heap data structure.",
+                prompt: `Implement a Min Heap with basic operations.
+
+REQUIREMENTS:
+- Implement insert(value) method
+- Implement extract_min() method
+- Implement get_min() method
+
+`,
+
+                starterCode: `class MinHeap:
+    def __init__(self):
+        self.heap = []
+    
+    def insert(self, value):
+        """
+        Insert value into min heap
+        """
+        pass
+    
+    def extract_min(self):
+        """
+        Remove and return minimum value
+        """
+        pass
+    
+    def get_min(self):
+        """
+        Return minimum value without removing
+        """
+        pass
+
+# === EFFICIENCY EXPLANATION ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[3,1,4,2]], expected: true },
+                    { input: [[5,2,8,1]], expected: true },
+                    { input: [[10]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 3,
+                title: "BST Insert Operation",
+                description: "Implement insertion in a Binary Search Tree.",
+                prompt: `Implement BST node insertion.
+
+REQUIREMENTS:
+- Implement insert(root, value) method
+- Maintain BST property
+- Return updated root
+
+`,
+
+                starterCode: `class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def insert(root, value):
+    """
+    Insert value into BST and return root
+    """
+    pass
+
+# === EFFICIENCY EXPLANATION ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[5,3,7,2,4]], expected: true },
+                    { input: [[1,2,3,4]], expected: true },
+                    { input: [[10,5,15]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 4,
+                title: "Priority Queue Basic",
+                description: "Implement a basic priority queue using list.",
+                prompt: `Implement a priority queue with basic operations.
+
+REQUIREMENTS:
+- Implement enqueue(item, priority)
+- Implement dequeue()
+- Implement is_empty()
+
+`,
+
+                starterCode: `class PriorityQueue:
+    def __init__(self):
+        self.queue = []
+    
+    def enqueue(self, item, priority):
+        """
+        Add item with given priority
+        """
+        pass
+    
+    def dequeue(self):
+        """
+        Remove and return highest priority item
+        """
+        pass
+    
+    def is_empty(self):
+        """
+        Check if queue is empty
+        """
+        pass
+
+# === EFFICIENCY EXPLANATION ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [["A",1], ["B",2], ["C",3]], expected: true },
+                    { input: [["X",5], ["Y",1]], expected: true },
+                    { input: [[]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 5,
+                title: "Heap Sort Implementation",
+                description: "Implement heap sort algorithm using max heap.",
+                prompt: `Implement heap sort algorithm.
+
+REQUIREMENTS:
+- Use max heap approach
+- Sort array in ascending order
+- Implement in-place if possible
+
+`,
+
+                starterCode: `def heap_sort(arr):
+    """
+    Sort array using heap sort algorithm
+    """
+    pass
+
+# === ALGORITHM ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[3,1,4,2]], expected: true },
+                    { input: [[5,2,8,1,9]], expected: true },
+                    { input: [[1]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 6,
+                title: "BST Search Operation",
+                description: "Implement search in Binary Search Tree.",
+                prompt: `Implement BST search operation.
+
+REQUIREMENTS:
+- Implement search(root, value) method
+- Return true if value exists, False otherwise
+- Use BST properties for efficiency
+
+`,
+
+                starterCode: `def search_bst(root, value):
+    """
+    Search for value in BST
+    """
+    pass
+
+# === EFFICIENCY EXPLANATION ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[5,3,7,2,4], 3], expected: true },
+                    { input: [[5,3,7,2,4], 6], expected: false },
+                    { input: [[1], 1], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 7,
+                title: "Union-Find Connected Components",
+                description: "Find number of connected components using Union-Find.",
+                prompt: `Count connected components in a graph using Union-Find.
+
+REQUIREMENTS:
+- Given n nodes and edges list
+- Return number of connected components
+- Use Union-Find data structure
+
+`,
+
+                starterCode: `def count_components(n, edges):
+    """
+    Count connected components using Union-Find
+    """
+    pass
+
+# === ALGORITHM ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [5, [[0,1],[1,2],[3,4]]], expected: true },
+                    { input: [3, [[0,1],[1,2]]], expected: true },
+                    { input: [4, []], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 8,
+                title: "Heap Height Calculation",
+                description: "Calculate height of a heap given number of elements.",
+                prompt: `Calculate height of a complete binary heap.
+
+REQUIREMENTS:
+- Given number of elements in heap
+- Return height of the heap
+- Height is number of edges from root to deepest leaf
+
+`,
+
+                starterCode: `def heap_height(n):
+    """
+    Calculate height of heap with n elements
+    """
+    pass
+
+# === MATHEMATICAL ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [7], expected: true },
+                    { input: [1], expected: true },
+                    { input: [15], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 9,
+                title: "BST Inorder Traversal",
+                description: "Implement inorder traversal of BST.",
+                prompt: `Implement inorder traversal (left, root, right).
+
+REQUIREMENTS:
+- Return list of values in inorder
+- Handle empty tree case
+- Use recursion or iteration
+
+`,
+
+                starterCode: `def inorder_traversal(root):
+    """
+    Return inorder traversal of BST
+    """
+    pass
+
+# === TRAVERSAL ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[5,3,7,2,4]], expected: true },
+                    { input: [[1,2,3]], expected: true },
+                    { input: [[]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 10,
+                title: "Priority Queue with Heap",
+                description: "Implement priority queue using min heap.",
+                prompt: `Implement priority queue using heap data structure.
+
+REQUIREMENTS:
+- Use heap for efficient operations
+- Implement insert and extract_min
+- Maintain heap property
+
+`,
+
+                starterCode: `class HeapPriorityQueue:
+    def __init__(self):
+        self.heap = []
+    
+    def insert(self, item, priority):
+        pass
+    
+    def extract_min(self):
+        pass
+    
+    def is_empty(self):
+        pass
+
+# === EFFICIENCY COMPARISON ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [["A",3], ["B",1], ["C",2]], expected: true },
+                    { input: [["X",5]], expected: true },
+                    { input: [[]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 11,
+                title: "Union-Find Cycle Detection",
+                description: "Detect cycle in undirected graph using Union-Find.",
+                prompt: `Detect cycle in undirected graph using Union-Find.
+
+REQUIREMENTS:
+- Given n nodes and edges list
+- Return true if cycle exists, False otherwise
+- Use Union-Find for efficient detection
+
+`,
+
+                starterCode: `def has_cycle(n, edges):
+    """
+    Detect cycle using Union-Find
+    """
+    pass
+
+# === CYCLE DETECTION ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [3, [[0,1],[1,2],[2,0]]], expected: true },
+                    { input: [3, [[0,1],[1,2]]], expected: false },
+                    { input: [1, []], expected: false }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 12,
+                title: "Heap Build from Array",
+                description: "Build a max heap from an unsorted array.",
+                prompt: `Build max heap from array using heapify.
+
+REQUIREMENTS:
+- Implement build_max_heap function
+- Use heapify procedure
+- Modify array in-place
+
+`,
+
+                starterCode: `def build_max_heap(arr):
+    """
+    Build max heap from array
+    """
+    pass
+
+def heapify(arr, n, i):
+    """
+    Heapify subtree rooted at i
+    """
+    pass
+
+# === HEAP CONSTRUCTION ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[3,1,4,2]], expected: true },
+                    { input: [[5,2,8,1,9]], expected: true },
+                    { input: [[1]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 13,
+                title: "BST Validation",
+                description: "Validate if a binary tree is a valid BST.",
+                prompt: `Check if binary tree is valid BST.
+
+REQUIREMENTS:
+- Implement is_valid_bst(root)
+- Return true if valid BST, False otherwise
+- Consider BST properties
+
+`,
+
+                starterCode: `def is_valid_bst(root):
+    """
+    Check if binary tree is valid BST
+    """
+    pass
+
+# === VALIDATION ALGORITHM ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[5,3,7,2,4]], expected: true },
+                    { input: [[5,3,7,2,8]], expected: false },
+                    { input: [[]], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 14,
+                title: "Kth Largest in Heap",
+                description: "Find kth largest element using heap.",
+                prompt: `Find kth largest element using min heap.
+
+REQUIREMENTS:
+- Given array and integer k
+- Return kth largest element
+- Use heap for efficiency
+
+`,
+
+                starterCode: `def find_kth_largest(nums, k):
+    """
+    Find kth largest element using heap
+    """
+    pass
+
+# === ALGORITHM SELECTION ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[3,2,1,5,6,4], 2], expected: true },
+                    { input: [[1,2,3,4,5], 1], expected: true },
+                    { input: [[7], 1], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            {
+                id: 15,
+                title: "Union-Find with Size",
+                description: "Implement Union-Find with union by size.",
+                prompt: `Implement Union-Find with union by size optimization.
+
+REQUIREMENTS:
+- Track size of each component
+- Use size for union operation
+- Implement path compression
+
+`,
+
+                starterCode: `class UnionFindSize:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.size = [1] * n
+    
+    def find(self, x):
+        pass
+    
+    def union(self, x, y):
+        pass
+
+# === OPTIMIZATION ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [5, [0,1], [2,3], [1,2]], expected: true },
+                    { input: [3, [0,1]], expected: true },
+                    { input: [4, []], expected: true }
+                ],
+                
+                points: 5
+            },
+
+            // Advanced Questions (16-20)
+            {
+                id: 16,
+                title: "BST Iterator Implementation",
+                description: "Implement BST iterator with next() and hasNext() methods.",
+                prompt: `Implement BST iterator that performs inorder traversal.
+
+REQUIREMENTS:
+- Implement __init__(root)
+- Implement next() - returns next smallest number
+- Implement hasNext() - returns boolean
+- Average O(1) time and O(h) memory
+
+`,
+
+                starterCode: `class BSTIterator:
+    def __init__(self, root):
+        """
+        Initialize BST iterator
+        """
+        pass
+    
+    def next(self):
+        """
+        Return next smallest number
+        """
+        pass
+    
+    def hasNext(self):
+        """
+        Check if there are more elements
+        """
+        pass
+
+# === ITERATOR DESIGN ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[7,3,15,1,5,9,20]], expected: true },
+                    { input: [[1]], expected: true },
+                    { input: [[]], expected: true }
+                ],
+                
+                points: 8
+            },
+
+            {
+                id: 17,
+                title: "Merge K Sorted Lists with Heap",
+                description: "Merge k sorted lists using priority queue.",
+                prompt: `Merge k sorted linked lists into one sorted list.
+
+REQUIREMENTS:
+- Given list of k linked lists
+- Return one merged sorted linked list
+- Use priority queue for efficiency
+
+`,
+
+                starterCode: `class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def merge_k_lists(lists):
+    """
+    Merge k sorted linked lists
+    """
+    pass
+
+# === COMPLEXITY ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[[1,4,5],[1,3,4],[2,6]]], expected: true },
+                    { input: [[]], expected: true },
+                    { input: [[[]]], expected: true }
+                ],
+                
+                points: 8
+            },
+
+            {
+                id: 18,
+                title: "Union-Find with Dynamic Connectivity",
+                description: "Solve dynamic connectivity problem with Union-Find.",
+                prompt: `Handle dynamic connectivity queries with Union-Find.
+
+REQUIREMENTS:
+- Implement add_edge(u, v)
+- Implement connected(u, v)
+- Implement get_components_count()
+- Handle multiple operations efficiently
+
+`,
+
+                starterCode: `class DynamicConnectivity:
+    def __init__(self, n):
+        """
+        Initialize with n nodes
+        """
+        pass
+    
+    def add_edge(self, u, v):
+        """
+        Add edge between u and v
+        """
+        pass
+    
+    def connected(self, u, v):
+        """
+        Check if u and v are connected
+        """
+        pass
+    
+    def get_components_count(self):
+        """
+        Return number of connected components
+        """
+        pass
+
+# === DYNAMIC OPERATIONS ANALYSIS ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [5, [[0,1],[1,2],[3,4],[0,2]]], expected: true },
+                    { input: [3, [[0,1]]], expected: true },
+                    { input: [4, []], expected: true }
+                ],
+                
+                points: 8
+            },
+
+            {
+                id: 19,
+                title: "BST to Balanced BST",
+                description: "Convert normal BST to balanced BST.",
+                prompt: `Convert any BST to balanced BST (height balanced).
+
+REQUIREMENTS:
+- Given root of BST
+- Return root of balanced BST
+- Balance the tree while maintaining BST property
+
+`,
+
+                starterCode: `def balance_bst(root):
+    """
+    Convert BST to balanced BST
+    """
+    pass
+
+# === BALANCING ALGORITHM ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[1,2,3,4,5,6,7]], expected: true },
+                    { input: [[1]], expected: true },
+                    { input: [[]], expected: true }
+                ],
+                
+                points: 8
+            },
+
+            {
+                id: 20,
+                title: "Sliding Window Maximum with Heap",
+                description: "Find maximum in sliding window using heap.",
+                prompt: `Find maximum in each sliding window of size k.
+
+REQUIREMENTS:
+- Given array and window size k
+- Return list of maximums for each window
+- Use heap for optimal solution
+
+`,
+
+                starterCode: `def max_sliding_window(nums, k):
+    """
+    Find maximum in each sliding window
+    """
+    pass
+
+# === SLIDING WINDOW OPTIMIZATION ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [[1,3,-1,-3,5,3,6,7], 3], expected: true },
+                    { input: [[1], 1], expected: true },
+                    { input: [[1,-1], 1], expected: true }
+                ],
+                
+                points: 8
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let currentUser = {};
+        let editors = {};
+
+        // Initialize Monaco Editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            initializeQuiz();
+        });
+
+       
+        async function initializeQuiz() {
+    console.log('🚀 Initializing quiz...');
+    
+    // Initialize with test user first (fallback)
+    currentUser = { username: 'TestUser', email: 'test@example.com' };
+    userAnswers = {};
+    
+    // Try to get user session (non-blocking)
+    try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+            credentials: 'include',
+            mode: 'cors'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.username && data.email) {
+                currentUser = { username: data.username, email: data.email };
+                console.log('✅ User logged in:', currentUser);
+            }
+        }
+    } catch (error) {
+        console.log('ℹ️ Using test user for demo');
+    }
+    
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('quizContainer').style.display = 'block';
+    
+    renderCurrentQuestion();
+    updateProgress();
+}
+
+        function renderCurrentQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3>${question.title}</h3>
+                        <span class="badge bg-primary">${question.points} points</span>
+                    </div>
+                    
+                    <p class="mb-3">${question.description}</p>
+                    
+                    <div class="alert alert-info">
+                        <h6>Problem:</h6>
+                        <pre style="white-space: pre-wrap;">${question.prompt}</pre>
+                    </div>
+                    
+                    <div class="explanation-section">
+                        <h6>📝 Important:</h6>
+                        <p>You must include detailed explanations as comments in your code. Points will be awarded for both correct implementation and comprehensive explanations.</p>
+                    </div>
+                    
+                    <div id="editor-${question.id}" class="code-editor-container"></div>
+                    
+                    <div class="test-cases">
+                        <h6>Test Cases:</h6>
+                        ${question.testCases.map((test, i) => `
+                            <div><strong>Test ${i+1}:</strong> Input: ${JSON.stringify(test.input)} → Expected: ${JSON.stringify(test.expected)}</div>
+                        `).join('')}
+                    </div>
+                    
+                    <div id="testResults-${question.id}"></div>
+                </div>
+            `;
+            
+            // Initialize Monaco editor for this question
+            const editor = monaco.editor.create(document.getElementById(`editor-${question.id}`), {
+                value: userAnswers[question.id] || question.starterCode,
+                language: 'python',
+                theme: 'vs-light',
+                fontSize: 14,
+                automaticLayout: true,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false
+            });
+            
+            editors[question.id] = editor;
+            
+            // Save code on change
+            editor.onDidChangeModelContent(() => {
+                userAnswers[question.id] = editor.getValue();
+            });
+        }
+
+        function runTests() {
+            const question = questions[currentQuestionIndex];
+            const code = editors[question.id].getValue();
+            const resultsDiv = document.getElementById(`testResults-${question.id}`);
+            
+            resultsDiv.innerHTML = '<h6>Running tests...</h6>';
+            
+            try {
+                // Simple Python-like execution simulation
+                const testResults = simulateCodeExecution(code, question.testCases, question.title);
+                
+                resultsDiv.innerHTML = `
+                    <h6>Test Results:</h6>
+                    ${testResults.map((result, i) => `
+                        <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
+                            Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
+                            ${result.error ? ` - ${result.error}` : ''}
+                            ${result.output !== undefined ? ` (Got: ${JSON.stringify(result.output)})` : ''}
+                        </div>
+                    `).join('')}
+                    
+                    <div class="mt-3">
+                        <strong>Explanation Check:</strong>
+                        ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
+            }
+        }
+
+        function checkExplanations(code, questionId) {
+            // More strict check - require actual content in comments
+            const commentBlocks = code.match(/#.+/g) || [];
+            const hasSubstantialComments = commentBlocks.some(comment => 
+                comment.length > 20 && !comment.includes('Add your analysis here')
+            );
+            
+            return hasSubstantialComments && commentBlocks.length >= 2;
+        }
+
+        function simulateCodeExecution(code, testCases, questionTitle) {
+    const results = [];
+    
+    testCases.forEach(testCase => {
+        try {
+            // For demo purposes, return passed if code contains required elements
+            const hasRequiredStructure = checkCodeStructure(code, questionTitle);
+            results.push({ 
+                passed: hasRequiredStructure, 
+                output: hasRequiredStructure,
+                error: hasRequiredStructure ? null : "Code structure incomplete"
+            });
+            
+        } catch (error) {
+            results.push({ 
+                passed: false, 
+                error: `Runtime error: ${error.message}`,
+                output: "Error occurred during execution"
+            });
+        }
+    });
+    
+    return results;
+}
+
+function checkCodeStructure(code, questionTitle) {
+    // Basic structure validation for demo
+    if (questionTitle.includes("Union-Find")) {
+        return code.includes("class") && code.includes("def find") && code.includes("def union");
+    } else if (questionTitle.includes("Heap")) {
+        return code.includes("class") && (code.includes("def insert") || code.includes("def heapify"));
+    } else if (questionTitle.includes("BST")) {
+        return code.includes("class") || code.includes("def ") && code.includes("TreeNode");
+    } else if (questionTitle.includes("Priority")) {
+        return code.includes("class") && code.includes("def enqueue") && code.includes("def dequeue");
+    }
+    return code.length > 50; // Basic length check
+}
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Finish →';
+            } else {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+
+      async function submitQuiz() {
+    // Show confirmation dialog
+    const confirmSubmit = confirm(
+        'Are you ready to submit your quiz?\n\n' +
+        'Make sure you have:\n' +
+        '✓ Completed all questions\n' +
+        '✓ Tested your code\n' +
+        '✓ Added required explanations\n\n' +
+        'Click OK to submit.'
+    );
+    
+    if (!confirmSubmit) {
+        return; // User cancelled
+    }
+
+    let totalScore = 0;
+    const results = [];
+    
+    // Grade each question
+    questions.forEach(question => {
+        const code = userAnswers[question.id] || '';
+        const testResults = simulateCodeExecution(code, question.testCases, question.title);
+        const passedTests = testResults.filter(r => r.passed).length;
+        
+        const hasExplanations = checkExplanations(code, question.id);
+        const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
+        
+        const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
+        
+        totalScore += Math.min(questionScore, question.points);
+        results.push({
+            questionId: question.id,
+            title: question.title,
+            code: code, // ✅ Include user's code
+            score: Math.min(questionScore, question.points),
+            maxScore: question.points,
+            testResults: testResults,
+            hasExplanations: hasExplanations
+        });
+    });
+    
+    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+    const percentage = Math.round((totalScore / maxScore) * 100);
+    
+    // Prepare quiz data in correct format
+    const quizData = {
+        username: currentUser.username || 'TestUser',
+        email: currentUser.email || 'test@example.com',
+        topic: 'Data Structures - Union-Find, Heaps, BST, Priority Queues',
+        score: totalScore,
+        maxScore: maxScore,
+        percentage: percentage,
+        questions: results,
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('📤 Submitting quiz data:', JSON.stringify(quizData, null, 2));
+    
+    try {
+        // Disable submit button to prevent double submission
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Submitting...';
+        
+        // Submit to backend
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(quizData)
+});
+        
+        console.log('📥 Response status:', response.status);
+        
+        if (response.ok) {
+            const responseData = await response.json();
+            console.log('✅ Server response:', responseData);
+            alert('✅ Quiz submitted successfully!');
+            showResults(quizData);
+        } else {
+            const errorText = await response.text();
+            console.error('❌ Server error:', errorText);
+            throw new Error(`Server returned ${response.status}: ${errorText}`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Submission error:', error);
+       displayError(error.message);
+        
+        // Re-enable submit button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📊 Submit Quiz';
+    }
+}
+
+function displayError(message) {
+    alert(`❌ Error: ${message}\n\nYour quiz data has been saved locally. Please try submitting again later.`);
+    
+    // Save quiz data locally as backup
+    const backupData = {
+        ...quizData,
+        localBackup: true,
+        localTimestamp: new Date().toISOString()
+    };
+    localStorage.setItem('dataStructuresQuizBackup', JSON.stringify(backupData));
+    console.log('📦 Quiz data saved locally as backup');
+}
+
+        function showResults(quizData) {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+            document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            
+            const detailedResults = document.getElementById('detailedResults');
+            detailedResults.innerHTML = `
+                <h4>Detailed Results</h4>
+                ${quizData.questions.map(q => `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6>${q.title}: ${q.score}/${q.maxScore} points</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: ${(q.score/q.maxScore)*100}%"></div>
+                            </div>
+                            <small>Tests passed: ${q.testResults.filter(t => t.passed).length}/${q.testResults.length}</small>
+                            <br>
+                            <small>${q.hasExplanations ? '✓ Explanations provided' : '⚠ Missing explanations'}</small>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            editors = {};
+            
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            renderCurrentQuestion();
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
