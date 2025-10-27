@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const iitmCTScoreSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -66,5 +68,6 @@ const iitmCTScoreSchema = new mongoose.Schema({
 // Compound indexes
 iitmCTScoreSchema.index({ user_id: 1, week_number: 1, assignment_type: 1 });
 iitmCTScoreSchema.index({ user_id: 1, question_id: 1, attempt_number: 1 }, { unique: true });
+
 
 module.exports = mongoose.model('iitm_ct_scores', iitmCTScoreSchema);
