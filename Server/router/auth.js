@@ -1857,13 +1857,11 @@ router.get('/iitm-ct-questions/week1', async (req, res) => {
 
     console.log(`Fetching Week 1 CT questions for: ${email}`);
     
-    // Find user's completed questions
     let userScore = await iitm_ct_scores.findOne({ email });
     const completedQuestionIds = userScore?.completedQuestionIds || [];
     
     console.log(`User ${email} has completed ${completedQuestionIds.length} CT questions`);
 
-    // Find all available Week 1 questions excluding completed ones
     let availableQuestions = await iitm_ct_questions.find({
       topic: "Scores",
       _id: { $nin: completedQuestionIds }
@@ -1871,7 +1869,6 @@ router.get('/iitm-ct-questions/week1', async (req, res) => {
 
     console.log(`Found ${availableQuestions.length} new CT Week 1 questions available`);
 
-    // Handle case where user has completed all questions
     if (availableQuestions.length === 0) {
       const totalInPool = await iitm_ct_questions.countDocuments({ topic: "Scores" });
       return res.status(200).json({
@@ -1882,14 +1879,9 @@ router.get('/iitm-ct-questions/week1', async (req, res) => {
       });
     }
 
-    // Select requested number of questions
     const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    
-    // Randomly shuffle and select questions
     const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
     const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    
-    // Sort selected questions by question_number for consistent display
     selectedQuestions.sort((a, b) => a.question_number - b.question_number);
 
     console.log(`Returning ${selectedQuestions.length} random CT questions for Week 1`);
@@ -1924,18 +1916,15 @@ router.post('/iitm_ct_scores', async (req, res) => {
       return res.status(400).json({ error: 'Email, username and quizData are required' });
     }
     
-    // Extract question IDs from the quiz results
     const completedQuestionIds = quizData.questionResults
       ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
       : [];
     
     console.log(`CT quiz completed with ${completedQuestionIds.length} question IDs`);
     
-    // Find existing user or create new one
     let user = await iitm_ct_scores.findOne({ email });
     
     if (!user) {
-      // Create new user with completed questions and score
       user = new iitm_ct_scores({ 
         username, 
         email, 
@@ -1943,11 +1932,9 @@ router.post('/iitm_ct_scores', async (req, res) => {
         quizScores: [quizData]
       });
     } else {
-      // Update existing user
       user.username = username;
       user.quizScores.push(quizData);
       
-      // Add new completed questions to the array (avoid duplicates)
       const newCompletedIds = completedQuestionIds.filter(
         id => !user.completedQuestionIds.includes(id)
       );
@@ -1976,13 +1963,11 @@ router.get('/iitm_ct_scores', async (req, res) => {
     const { email, topic } = req.query;
 
     if (email) {
-      // Get specific user
       const user = await iitm_ct_scores.findOne({ email });
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // If topic is specified, filter scores by topic
       if (topic) {
         const filteredScores = {
           ...user.toObject(),
@@ -1993,7 +1978,6 @@ router.get('/iitm_ct_scores', async (req, res) => {
 
       res.json({ success: true, data: user });
     } else {
-      // Get all users
       const users = await iitm_ct_scores.find({});
       res.json({ success: true, data: users });
     }
@@ -2003,7 +1987,7 @@ router.get('/iitm_ct_scores', async (req, res) => {
   }
 });
 
-// GET CT Topics (Helper route)
+// GET CT Topics
 router.get('/ct-topics', async (req, res) => {
   try {
     const topics = await iitm_ct_questions.distinct('topic');
@@ -2070,6 +2054,7 @@ router.post('/reset-ct-progress', async (req, res) => {
     res.status(500).json({ error: 'Internal server error: ' + error.message });
   }
 });
+
 
 
 
