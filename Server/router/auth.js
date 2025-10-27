@@ -1611,65 +1611,6 @@ router.get('/iitm-stats-questions/week3', async (req, res) => {
   }
 });
 
-router.get('/iitm-ct-questions/week1', async (req, res) => {
-  try {
-    const { email, count = 50 } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
-      });
-    }
-
-    console.log(`Fetching Week 1 CT questions for: ${email}`);
-    
-    let userScore = await iitm_ct_scores.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedQuestionIds.length} CT questions`);
-
-    let availableQuestions = await iitm_ct_questions.find({
-      topic: "Scores",
-      _id: { $nin: completedQuestionIds }
-    });
-
-    console.log(`Found ${availableQuestions.length} new CT Week 1 questions available`);
-
-    if (availableQuestions.length === 0) {
-      const totalInPool = await iitm_ct_questions.countDocuments({ topic: "Scores" });
-      return res.status(200).json({
-        message: "All Week 1 CT questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: totalInPool
-      });
-    }
-
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(`Returning ${selectedQuestions.length} random CT questions for Week 1`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching CT Week 1 questions:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch Week 1 CT questions',
-      details: error.message 
-    });
-  }
-});
 
 // POST CT Quiz Scores
 router.post('/iitm_ct_scores', async (req, res) => {
@@ -2898,6 +2839,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
