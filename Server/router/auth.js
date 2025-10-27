@@ -1616,7 +1616,7 @@ router.get('/iitm-ct-questions', async (req, res) => {
     const { topic } = req.params;
     
     // Find all questions matching the given topic
-    const questions = await iitm_ct_questions.find({ topic }).sort({ question_number: 1 });
+    const questions = await iitm_ct_questions.find({ topic });
 
     if (!questions || questions.length === 0) {
       return res.status(404).json({
@@ -2867,6 +2867,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
