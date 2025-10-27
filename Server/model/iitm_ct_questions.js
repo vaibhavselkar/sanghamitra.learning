@@ -6,14 +6,8 @@ const iitmCTQuestionSchema = new mongoose.Schema({
     required: true
   },
   
-  week_number: {
-    type: Number,
-    required: true
-  },
-  
-  assignment_type: {
+  topic: {
     type: String,
-    enum: ['practice', 'graded'],
     required: true
   },
   
@@ -55,7 +49,7 @@ const iitmCTQuestionSchema = new mongoose.Schema({
     enum: ['Scores', 'Shopping Bills', 'Words', 'Olympics', 'Library', 'None']
   },
   
-  question_group: String, // e.g., 'Q1-3', 'Q6-7'
+  question_group: String, 
   
   created_at: {
     type: Date,
@@ -74,11 +68,10 @@ iitmCTQuestionSchema.pre('save', function(next) {
   next();
 });
 
-// Compound unique index
+// Unique index by question number and topic
 iitmCTQuestionSchema.index({ 
   question_number: 1, 
-  week_number: 1, 
-  assignment_type: 1 
+  topic: 1
 }, { unique: true });
 
 module.exports = mongoose.model('iitm_ct_questions', iitmCTQuestionSchema);
