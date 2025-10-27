@@ -1611,6 +1611,34 @@ router.get('/iitm-stats-questions/week3', async (req, res) => {
   }
 });
 
+router.get('/iitm-ct-questions', async (req, res) => {
+  try {
+    const { topic } = req.params;
+    
+    // Find all questions matching the given topic
+    const questions = await IITMCTQuestion.find({ topic }).sort({ question_number: 1 });
+
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `No questions found for topic: ${topic}`
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: questions.length,
+      data: questions
+    });
+  } catch (error) {
+    console.error('❌ Error fetching questions by topic:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching questions',
+      error: error.message
+    });
+  }
+});
 
 // POST CT Quiz Scores
 router.post('/iitm_ct_scores', async (req, res) => {
@@ -2839,6 +2867,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
