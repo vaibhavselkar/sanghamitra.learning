@@ -1645,53 +1645,45 @@ router.get('/iitm-ct-questions', async (req, res) => {
 router.post('/iitm_ct_scores', async (req, res) => {
   try {
     const { email, username, quizData } = req.body;
-    
-    console.log('Received CT score request:', { email, username, topic: quizData?.topic });
-    
     if (!email || !username || !quizData) {
-      return res.status(400).json({ error: 'Email, username and quizData are required' });
+      return res.status(400).json({ error: 'Email, username, and quizData are required' });
     }
-    
-    const completedQuestionIds = quizData.questionResults
-      ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
-      : [];
-    
-    console.log(`CT quiz completed with ${completedQuestionIds.length} question IDs`);
-    
+
+    const completedQuestionIds = quizData.questionResults?.map(r => r.questionId).filter(Boolean) || [];
+
     let user = await iitm_ct_scores.findOne({ email });
-    
+
     if (!user) {
-      user = new iitm_ct_scores({ 
-        username, 
-        email, 
-        completedQuestionIds: completedQuestionIds,
+      user = new iitm_ct_scores({
+        username,
+        email,
+        completedQuestionIds,
         quizScores: [quizData]
       });
     } else {
       user.username = username;
       user.quizScores.push(quizData);
-      
-      const newCompletedIds = completedQuestionIds.filter(
+
+      const newCompleted = completedQuestionIds.filter(
         id => !user.completedQuestionIds.includes(id)
       );
-      user.completedQuestionIds.push(...newCompletedIds);
-      
-      console.log(`Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`);
+      user.completedQuestionIds.push(...newCompleted);
     }
-    
+
     await user.save();
-    
-    res.status(201).json({ 
-      message: 'CT quiz result saved successfully', 
+
+    res.status(201).json({
+      message: 'CT quiz result saved successfully',
       completedQuestionsCount: user.completedQuestionIds.length,
-      user 
+      user
     });
-    
+
   } catch (error) {
-    console.error('Error saving CT quiz result:', error);
+    console.error('❌ Error saving CT quiz result:', error);
     res.status(500).json({ error: 'Internal server error: ' + error.message });
   }
 });
+
 
 
 // GET: /api/iitm_ct_scores/:email
@@ -2896,6 +2888,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
