@@ -536,352 +536,354 @@
         </div>
     </div>
 
-    <script>
-(() => {
-  let userAnswers = {};
-  let currentUser = {};
-  let username = null;
-  let email = null;
-  let currentQuestionIndex = 0;
-  let quizStartTime = null;
-  let questionStartTime = null;
-  let questionTimes = {};
-  let questions = [];
-  let cheatingAttempts = 0;
-  let isQuizActive = false;
-  let autosaveTimer = null;
-
-  let topic = getTopicFromURL() || 'Programming Basics';
-  const LS_PREFIX = 'ct_quiz_v1';
-  const LS_KEY = `${LS_PREFIX}_${sanitizeKey(topic)}_progress`;
-
-  function sanitizeKey(s) {
-    return s.toString().replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toLowerCase();
-  }
-
-  function getTopicFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    const t = params.get('topic');
-    return t ? t : null;
-  }
-
-  function safeLog(...args) {
-    console.log('[CT QUIZ]', ...args);
-  }
-
-  function loadSavedProgress() {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return false;
-      const parsed = JSON.parse(raw);
-      userAnswers = parsed.userAnswers || {};
-      questionTimes = parsed.questionTimes || {};
-      currentQuestionIndex = parsed.currentQuestionIndex || 0;
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function saveProgressToLocal() {
-    try {
-      const payload = {
-        userAnswers,
-        questionTimes,
-        currentQuestionIndex,
-        savedAt: new Date()
-      };
-      localStorage.setItem(LS_KEY, JSON.stringify(payload));
-    } catch (e) {}
-  }
-
-  function clearSavedProgress() {
-    try { localStorage.removeItem(LS_KEY); } catch (e) {}
-  }
-
-  function startAutosave() {
-    if (autosaveTimer) clearInterval(autosaveTimer);
-    autosaveTimer = setInterval(saveProgressToLocal, 5000);
-  }
-
-  function stopAutosave() {
-    if (autosaveTimer) clearInterval(autosaveTimer);
-    autosaveTimer = null;
-  }
-
-  async function fetchSessionInfo() {
-    try {
-      const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const data = await response.json();
-        username = data.username;
-        email = data.email;
-        currentUser = { username, email };
-        return true;
-      } else {
-        alert('Please login to take the assessment');
-        window.location.href = '/login.html';
-        return false;
+   <script>
+    (() => {
+      let userAnswers = {};
+      let currentUser = {};
+      let username = null;
+      let email = null;
+      let currentQuestionIndex = 0;
+      let quizStartTime = null;
+      let questionStartTime = null;
+      let questionTimes = {};
+      let questions = [];
+      let cheatingAttempts = 0;
+      let isQuizActive = false;
+      let autosaveTimer = null;
+    
+      let topic = getTopicFromURL() || 'Programming Basics';
+      const LS_PREFIX = 'ct_quiz_v1';
+      const LS_KEY = `${LS_PREFIX}_${sanitizeKey(topic)}_progress`;
+    
+      function sanitizeKey(s) {
+        return s.toString().replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toLowerCase();
       }
-    } catch (error) {
-      alert('Error connecting to server.');
-      return false;
-    }
-  }
-
-  async function loadQuestions() {
-    try {
-      const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=${encodeURIComponent(topic)}`;
-      const response = await fetch(url, { credentials: 'include' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      questions = data.questions || data;
-      if (!questions.length) throw new Error('No questions found.');
-      questions = questions.map(q => ({
-        ...q,
-        difficulty: q.difficulty || 'medium',
-        points: q.points || 1
-      }));
-      return true;
-    } catch (e) {
-      alert('Failed to load quiz questions.');
-      return false;
-    }
-  }
-
-  function initializeAntiCheating() {
-    window.addEventListener('blur', () => {
-      if (isQuizActive) {
-        recordCheatingAttempt('window_blur');
+    
+      function getTopicFromURL() {
+        const params = new URLSearchParams(window.location.search);
+        const t = params.get('topic');
+        return t ? t : null;
       }
-    });
-    document.addEventListener('contextmenu', e => {
-      e.preventDefault();
-      recordCheatingAttempt('right_click');
-    });
-  }
-
-  function recordCheatingAttempt(type) {
-    cheatingAttempts++;
-    if (username && email) {
-      fetch('https://sanghamitra-learnworld.vercel.app/api/log-ct-cheating', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
+    
+      function safeLog(...args) {
+        console.log('[CT QUIZ]', ...args);
+      }
+    
+      function loadSavedProgress() {
+        try {
+          const raw = localStorage.getItem(LS_KEY);
+          if (!raw) return false;
+          const parsed = JSON.parse(raw);
+          userAnswers = parsed.userAnswers || {};
+          questionTimes = parsed.questionTimes || {};
+          currentQuestionIndex = parsed.currentQuestionIndex || 0;
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    
+      function saveProgressToLocal() {
+        try {
+          const payload = {
+            userAnswers,
+            questionTimes,
+            currentQuestionIndex,
+            savedAt: new Date()
+          };
+          localStorage.setItem(LS_KEY, JSON.stringify(payload));
+        } catch (e) {}
+      }
+    
+      function clearSavedProgress() {
+        try { localStorage.removeItem(LS_KEY); } catch (e) {}
+      }
+    
+      function startAutosave() {
+        if (autosaveTimer) clearInterval(autosaveTimer);
+        autosaveTimer = setInterval(saveProgressToLocal, 5000);
+      }
+    
+      function stopAutosave() {
+        if (autosaveTimer) clearInterval(autosaveTimer);
+        autosaveTimer = null;
+      }
+    
+      async function fetchSessionInfo() {
+        try {
+          const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+            credentials: 'include'
+          });
+          if (response.ok) {
+            const data = await response.json();
+            username = data.username;
+            email = data.email;
+            currentUser = { username, email };
+            return true;
+          } else {
+            alert('Please login to take the assessment');
+            window.location.href = '/login.html';
+            return false;
+          }
+        } catch (error) {
+          alert('Error connecting to server.');
+          return false;
+        }
+      }
+    
+      async function loadQuestions() {
+        try {
+          const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=${encodeURIComponent(topic)}`;
+          const response = await fetch(url, { credentials: 'include' });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const data = await response.json();
+          questions = data.questions || data;
+          if (!questions.length) throw new Error('No questions found.');
+          questions = questions.map(q => ({
+            ...q,
+            difficulty: q.difficulty || 'medium',
+            points: q.points || 1
+          }));
+          return true;
+        } catch (e) {
+          alert('Failed to load quiz questions.');
+          return false;
+        }
+      }
+    
+      function initializeAntiCheating() {
+        window.addEventListener('blur', () => {
+          if (isQuizActive) {
+            recordCheatingAttempt('window_blur');
+          }
+        });
+        document.addEventListener('contextmenu', e => {
+          e.preventDefault();
+          recordCheatingAttempt('right_click');
+        });
+      }
+    
+      function recordCheatingAttempt(type) {
+        cheatingAttempts++;
+        if (username && email) {
+          fetch('https://sanghamitra-learnworld.vercel.app/api/log-ct-cheating', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              username,
+              email,
+              cheatingType: type,
+              timestamp: new Date(),
+              currentQuestion: currentQuestionIndex + 1
+            })
+          });
+        }
+        if (cheatingAttempts >= 5) {
+          alert('Multiple suspicious activities detected. Auto-submitting quiz.');
+          submitQuiz();
+        }
+      }
+    
+      function escapeHtml(t) {
+        return String(t || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+    
+      function renderCurrentQuestion() {
+        const c = document.getElementById('questionContainer');
+        if (!c) return;
+        const q = questions[currentQuestionIndex];
+        if (!q) return;
+    
+        c.innerHTML = `
+          <div class="question-block">
+            <div class="q-header">
+              <b>Q${q.question_number}.</b> ${escapeHtml(q.question_text)}
+            </div>
+            ${q.dataset ? `<div class="dataset">Dataset: ${escapeHtml(q.dataset)}</div>` : ''}
+          </div>
+        `;
+    
+        const aDiv = document.createElement('div');
+        aDiv.className = 'answer-block';
+        if (q.type === 'mcq') {
+          aDiv.innerHTML = q.options.map((opt, i) => `
+            <div class="option">
+              <input type="radio" name="q${currentQuestionIndex}" id="q${currentQuestionIndex}_${i}" value="${escapeHtml(opt)}"
+              onchange="ctQuiz.selectOption(${currentQuestionIndex}, this.value)">
+              <label for="q${currentQuestionIndex}_${i}">${escapeHtml(opt)}</label>
+            </div>
+          `).join('');
+        } else if (q.type === 'msq') {
+          aDiv.innerHTML = q.options.map((opt, i) => `
+            <div class="option">
+              <input type="checkbox" name="q${currentQuestionIndex}" id="q${currentQuestionIndex}_${i}" value="${escapeHtml(opt)}"
+              onchange="ctQuiz.toggleMsq(${currentQuestionIndex}, this.value, this.checked)">
+              <label for="q${currentQuestionIndex}_${i}">${escapeHtml(opt)}</label>
+            </div>
+          `).join('');
+        } else if (q.type === 'numeric') {
+          aDiv.innerHTML = `
+            <input type="number" placeholder="Enter number" class="numeric-input"
+            oninput="ctQuiz.handleNumericInput(${currentQuestionIndex}, this.value)">
+          `;
+        }
+        c.appendChild(aDiv);
+        restoreAnswer();
+        updateProgress();
+      }
+    
+      function restoreAnswer() {
+        const q = questions[currentQuestionIndex];
+        const ans = userAnswers[currentQuestionIndex];
+        if (!ans) return;
+        if (q.type === 'mcq') {
+          const el = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${CSS.escape(ans)}"]`);
+          if (el) el.checked = true;
+        } else if (q.type === 'msq' && Array.isArray(ans)) {
+          ans.forEach(v => {
+            const el = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${CSS.escape(v)}"]`);
+            if (el) el.checked = true;
+          });
+        } else if (q.type === 'numeric') {
+          const el = document.querySelector('.numeric-input');
+          if (el) el.value = ans;
+        }
+      }
+    
+      function updateProgress() {
+        const progressText = document.getElementById('progressText');
+        if (progressText) progressText.textContent = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
+      }
+    
+      function nextQuestion() {
+        trackQuestionTime();
+        if (currentQuestionIndex < questions.length - 1) {
+          currentQuestionIndex++;
+          renderCurrentQuestion();
+        } else {
+          submitQuiz();
+        }
+      }
+    
+      function previousQuestion() {
+        trackQuestionTime();
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          renderCurrentQuestion();
+        }
+      }
+    
+      function trackQuestionTime() {
+        if (questionStartTime) {
+          const t = Math.floor((new Date() - questionStartTime) / 1000);
+          questionTimes[currentQuestionIndex] = (questionTimes[currentQuestionIndex] || 0) + t;
+        }
+        questionStartTime = new Date();
+      }
+    
+      function selectOption(i, v) {
+        userAnswers[i] = v;
+        saveProgressToLocal();
+      }
+    
+      function toggleMsq(i, v, checked) {
+        if (!Array.isArray(userAnswers[i])) userAnswers[i] = [];
+        if (checked) {
+          if (!userAnswers[i].includes(v)) userAnswers[i].push(v);
+        } else {
+          userAnswers[i] = userAnswers[i].filter(x => x !== v);
+          if (userAnswers[i].length === 0) delete userAnswers[i];
+        }
+        saveProgressToLocal();
+      }
+    
+      function handleNumericInput(i, v) {
+        if (v.trim() === '') delete userAnswers[i];
+        else userAnswers[i] = v.trim();
+        saveProgressToLocal();
+      }
+    
+      window.ctQuiz = { selectOption, toggleMsq, handleNumericInput };
+    
+      async function submitQuiz() {
+        trackQuestionTime();
+        stopAutosave();
+    
+        let totalPoints = 0;
+        let earnedPoints = 0;
+    
+        questions.forEach((q, i) => {
+          const ans = userAnswers[i];
+          totalPoints += q.points;
+          let correct = false;
+          if (q.type === 'mcq') {
+            correct = (ans || '').toLowerCase().trim() === (q.correct_answer || '').toLowerCase().trim();
+          } else if (q.type === 'numeric') {
+            correct = parseFloat(ans) === parseFloat(q.correct_answer);
+          } else if (q.type === 'msq') {
+            const norm = a => Array.isArray(a) ? a.map(x => x.toLowerCase().trim()).sort().join(',') : '';
+            correct = norm(ans) === norm(q.correct_answer);
+          }
+          if (correct) earnedPoints += q.points;
+        });
+    
+        const score = ((earnedPoints / totalPoints) * 100).toFixed(2);
+    
+        const payload = {
           username,
           email,
-          cheatingType: type,
-          timestamp: new Date(),
-          currentQuestion: currentQuestionIndex + 1
-        })
-      });
-    }
-    if (cheatingAttempts >= 5) {
-      alert('Multiple suspicious activities detected. Auto-submitting quiz.');
-      submitQuiz();
-    }
-  }
-
-  function escapeHtml(t) {
-    return String(t || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function renderCurrentQuestion() {
-    const c = document.getElementById('questionContainer');
-    if (!c) return;
-    const q = questions[currentQuestionIndex];
-    if (!q) return;
-
-    c.innerHTML = `
-      <div class="question-block">
-        <div class="q-header">
-          <b>Q${q.question_number}.</b> ${escapeHtml(q.question_text)}
-        </div>
-        ${q.dataset ? `<div class="dataset">Dataset: ${escapeHtml(q.dataset)}</div>` : ''}
-      </div>
-    `;
-
-    const aDiv = document.createElement('div');
-    aDiv.className = 'answer-block';
-    if (q.type === 'mcq') {
-      aDiv.innerHTML = q.options.map((opt, i) => `
-        <div class="option">
-          <input type="radio" name="q${currentQuestionIndex}" id="q${currentQuestionIndex}_${i}" value="${escapeHtml(opt)}"
-          onchange="ctQuiz.selectOption(${currentQuestionIndex}, this.value)">
-          <label for="q${currentQuestionIndex}_${i}">${escapeHtml(opt)}</label>
-        </div>
-      `).join('');
-    } else if (q.type === 'msq') {
-      aDiv.innerHTML = q.options.map((opt, i) => `
-        <div class="option">
-          <input type="checkbox" name="q${currentQuestionIndex}" id="q${currentQuestionIndex}_${i}" value="${escapeHtml(opt)}"
-          onchange="ctQuiz.toggleMsq(${currentQuestionIndex}, this.value, this.checked)">
-          <label for="q${currentQuestionIndex}_${i}">${escapeHtml(opt)}</label>
-        </div>
-      `).join('');
-    } else if (q.type === 'numeric') {
-      aDiv.innerHTML = `
-        <input type="number" placeholder="Enter number" class="numeric-input"
-        oninput="ctQuiz.handleNumericInput(${currentQuestionIndex}, this.value)">
-      `;
-    }
-    c.appendChild(aDiv);
-    restoreAnswer();
-    updateProgress();
-  }
-
-  function restoreAnswer() {
-    const q = questions[currentQuestionIndex];
-    const ans = userAnswers[currentQuestionIndex];
-    if (!ans) return;
-    if (q.type === 'mcq') {
-      const el = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${CSS.escape(ans)}"]`);
-      if (el) el.checked = true;
-    } else if (q.type === 'msq' && Array.isArray(ans)) {
-      ans.forEach(v => {
-        const el = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${CSS.escape(v)}"]`);
-        if (el) el.checked = true;
-      });
-    } else if (q.type === 'numeric') {
-      const el = document.querySelector('.numeric-input');
-      if (el) el.value = ans;
-    }
-  }
-
-  function updateProgress() {
-    const progressText = document.getElementById('progressText');
-    if (progressText) progressText.textContent = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
-  }
-
-  function nextQuestion() {
-    trackQuestionTime();
-    if (currentQuestionIndex < questions.length - 1) {
-      currentQuestionIndex++;
-      renderCurrentQuestion();
-    } else {
-      submitQuiz();
-    }
-  }
-
-  function previousQuestion() {
-    trackQuestionTime();
-    if (currentQuestionIndex > 0) {
-      currentQuestionIndex--;
-      renderCurrentQuestion();
-    }
-  }
-
-  function trackQuestionTime() {
-    if (questionStartTime) {
-      const t = Math.floor((new Date() - questionStartTime) / 1000);
-      questionTimes[currentQuestionIndex] = (questionTimes[currentQuestionIndex] || 0) + t;
-    }
-    questionStartTime = new Date();
-  }
-
-  function selectOption(i, v) {
-    userAnswers[i] = v;
-    saveProgressToLocal();
-  }
-
-  function toggleMsq(i, v, checked) {
-    if (!Array.isArray(userAnswers[i])) userAnswers[i] = [];
-    if (checked) {
-      if (!userAnswers[i].includes(v)) userAnswers[i].push(v);
-    } else {
-      userAnswers[i] = userAnswers[i].filter(x => x !== v);
-      if (userAnswers[i].length === 0) delete userAnswers[i];
-    }
-    saveProgressToLocal();
-  }
-
-  function handleNumericInput(i, v) {
-    if (v.trim() === '') delete userAnswers[i];
-    else userAnswers[i] = v.trim();
-    saveProgressToLocal();
-  }
-
-  window.ctQuiz = { selectOption, toggleMsq, handleNumericInput };
-
-  async function submitQuiz() {
-    trackQuestionTime();
-    stopAutosave();
-
-    let totalPoints = 0;
-    let earnedPoints = 0;
-
-    questions.forEach((q, i) => {
-      const ans = userAnswers[i];
-      totalPoints += q.points;
-      let correct = false;
-      if (q.type === 'mcq') {
-        correct = (ans || '').toLowerCase().trim() === (q.correct_answer || '').toLowerCase().trim();
-      } else if (q.type === 'numeric') {
-        correct = parseFloat(ans) === parseFloat(q.correct_answer);
-      } else if (q.type === 'msq') {
-        const norm = a => Array.isArray(a) ? a.map(x => x.toLowerCase().trim()).sort().join(',') : '';
-        correct = norm(ans) === norm(q.correct_answer);
+          topic,
+          score,
+          totalPoints,
+          earnedPoints,
+          questionTimes,
+          totalTimeTaken: Math.floor((new Date() - quizStartTime) / 1000),
+          answers: userAnswers,
+          timestamp: new Date()
+        };
+    
+        const res = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm-ct-submission', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+    
+        if (res.ok) {
+          clearSavedProgress();
+          alert(`Quiz submitted successfully!\nYour Score: ${score}%`);
+          window.location.href = '/ct/result.html';
+        } else {
+          alert('Error submitting quiz.');
+        }
       }
-      if (correct) earnedPoints += q.points;
-    });
-
-    const score = ((earnedPoints / totalPoints) * 100).toFixed(2);
-
-    const payload = {
-      username,
-      email,
-      topic,
-      score,
-      totalPoints,
-      earnedPoints,
-      questionTimes,
-      totalTimeTaken: Math.floor((new Date() - quizStartTime) / 1000),
-      answers: userAnswers,
-      timestamp: new Date()
-    };
-
-    const res = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm-ct-submission', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      clearSavedProgress();
-      alert(`Quiz submitted successfully!\nYour Score: ${score}%`);
-      window.location.href = '/ct/result.html';
-    } else {
-      alert('Error submitting quiz.');
-    }
-  }
-
-  async function init() {
-    if (!(await fetchSessionInfo())) return;
-    if (!(await loadQuestions())) return;
-    isQuizActive = true;
-    quizStartTime = new Date();
-    questionStartTime = new Date();
-    initializeAntiCheating();
-    loadSavedProgress();
-    renderCurrentQuestion();
-    startAutosave();
-  }
-
-  window.addEventListener('DOMContentLoaded', init);
-})();
+    
+      async function init() {
+        if (!(await fetchSessionInfo())) return;
+        if (!(await loadQuestions())) return;
+        isQuizActive = true;
+        quizStartTime = new Date();
+        questionStartTime = new Date();
+        initializeAntiCheating();
+        loadSavedProgress();
+        renderCurrentQuestion();
+        startAutosave();
+      }
+    
+      window.addEventListener('DOMContentLoaded', init);
+    })();
 </script>
+
 
 </body>
 </html>
+
 
 
 
