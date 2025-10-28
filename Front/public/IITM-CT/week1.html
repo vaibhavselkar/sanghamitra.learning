@@ -670,7 +670,7 @@
       // We send topic encoded; backend expects exact match, so we try to fetch with the given topic.
       // If backend should be case-insensitive, ideally update server; client tries exact topic first.
       const encoded = encodeURIComponent(topic);
-      const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=${encoded}`;
+      const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=Programming Basics`;
 
       const response = await fetch(url, { credentials: 'include' });
 
@@ -679,7 +679,7 @@
         safeLog('Primary fetch failed with', response.status);
         if (response.status === 404) {
           // try with trimmed lower-case in case backend has that variant
-          const fallbackUrl = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=${encodeURIComponent(topic.trim())}`;
+          const fallbackUrl = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=Programming Basics`;
           const fallbackResp = await fetch(fallbackUrl, { credentials: 'include' });
           if (!fallbackResp.ok) throw new Error(`HTTP error! status: ${fallbackResp.status}`);
           const fallbackData = await fallbackResp.json();
@@ -1503,4 +1503,5 @@
 
 </body>
 </html>
+
 
