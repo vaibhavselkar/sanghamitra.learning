@@ -1,73 +1,41 @@
 const mongoose = require('mongoose');
 
-const iitmCTScoreSchema = new mongoose.Schema({
-  user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  
-  question_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'iitm_ct_questions',
-    required: true
-  },
-  
-  week_number: {
-    type: Number,
-    required: true
-  },
-  
-  assignment_type: {
-    type: String,
-    enum: ['practice', 'graded'],
-    required: true
-  },
-  
-  question_number: {
-    type: Number,
-    required: true
-  },
-  
-  user_answer: {
-    type: mongoose.Schema.Types.Mixed,
-    required: true
-  },
-  
-  is_correct: {
-    type: Boolean,
-    required: true
-  },
-  
-  points_awarded: {
-    type: Number,
-    required: true
-  },
-  
-  max_points: {
-    type: Number,
-    required: true
-  },
-  
-  attempt_number: {
-    type: Number,
-    default: 1
-  },
-  
-  time_taken: {
-    type: Number, // in seconds
-    default: 0
-  },
-  
-  submitted_at: {
-    type: Date,
-    default: Date.now
-  }
+// Individual Question Result Schema for CT
+const ctQuestionResultSchema = new mongoose.Schema({
+  questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'iitm_ct_questions', required: false },
+  questionNumber: { type: Number, required: false },
+  questionText: { type: String, required: false },
+  userAnswer: { type: mongoose.Schema.Types.Mixed, required: false },
+  correctAnswer: { type: mongoose.Schema.Types.Mixed, required: false },
+  isCorrect: { type: Boolean, required: false },
+  timeTaken: { type: Number, default: 0 },
+  pointsAwarded: { type: Number, required: false },
+  maxPoints: { type: Number, required: false }
 });
 
-// Compound indexes
-iitmCTScoreSchema.index({ user_id: 1, week_number: 1, assignment_type: 1 });
-iitmCTScoreSchema.index({ user_id: 1, question_id: 1, attempt_number: 1 }, { unique: true });
+// Topic-level Score Schema
+const topicScoreSchema = new mongoose.Schema({
+  topic: { type: String, required: true },
+  percentage: { type: Number },
+  score: { type: Number },
+  totalQuestions: { type: Number, required: true },
+  correctAnswers: { type: Number },
+  totalPoints: { type: Number },
+  earnedPoints: { type: Number },
+  attemptNumber: { type: Number, default: 1 },
+  timestamp: { type: Date, default: Date.now },
+  questionResults: [ctQuestionResultSchema]
+});
 
+// Main User Schema
+const iitmCTScoreSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  completedQuestionIds: { type: [mongoose.Schema.Types.ObjectId], default: [] },
+  quizScores: [topicScoreSchema]
+}, { timestamps: true });
+
+iitmCTScoreSchema.index({ email: 1 });
+iitmCTScoreSchema.index({ 'quizScores.topic': 1 });
 
 module.exports = mongoose.model('iitm_ct_scores', iitmCTScoreSchema);
