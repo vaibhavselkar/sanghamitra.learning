@@ -289,6 +289,150 @@
             text-align: center;
         }
 
+        .results-container {
+            padding: 40px;
+            display: none;
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score-card h2 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .score-card p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .score-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box h4 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-box p {
+            color: #333;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .review-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+
+        .review-section h3 {
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .review-question {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .review-question.correct {
+            border-left-color: #28a745;
+        }
+
+        .review-question.incorrect {
+            border-left-color: #dc3545;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .review-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .review-badge.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .review-badge.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .review-text {
+            margin-bottom: 15px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .answer-comparison {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .answer-row {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+
+        .answer-label {
+            font-weight: 600;
+            min-width: 120px;
+            color: #666;
+        }
+
+        .answer-value {
+            color: #333;
+        }
+
+        .answer-value.correct {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .answer-value.incorrect {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
         @media (max-width: 1024px) {
             .question-split {
                 grid-template-columns: 1fr;
@@ -306,11 +450,12 @@
 
         <div id="loadingScreen" class="loading">
             <div class="spinner"></div>
-            <h3 style="margin-top: 20px;">Loading Questions...</h3>
+            <h3 style="margin-top: 20px;">Loading Quiz...</h3>
+            <p>Verifying your session</p>
         </div>
 
         <div id="errorScreen" style="display: none;" class="error">
-            <h3>Failed to load quiz questions</h3>
+            <h3>Failed to load quiz</h3>
             <p id="errorMessage"></p>
             <button class="btn btn-next" onclick="location.reload()">Retry</button>
         </div>
@@ -363,12 +508,85 @@
                 </div>
             </div>
         </div>
+
+        <div id="resultsScreen" class="results-container">
+            <div class="score-card">
+                <h2 id="finalPercentage">0%</h2>
+                <p id="finalScoreText">0/0 Points</p>
+            </div>
+
+            <div class="score-stats">
+                <div class="stat-box">
+                    <h4>Total Questions</h4>
+                    <p id="statTotal">0</p>
+                </div>
+                <div class="stat-box">
+                    <h4>Correct Answers</h4>
+                    <p id="statCorrect" style="color: #28a745;">0</p>
+                </div>
+                <div class="stat-box">
+                    <h4>Incorrect Answers</h4>
+                    <p id="statIncorrect" style="color: #dc3545;">0</p>
+                </div>
+                <div class="stat-box">
+                    <h4>Points Earned</h4>
+                    <p id="statEarned">0</p>
+                </div>
+            </div>
+
+            <div class="review-section">
+                <h3>📋 Answer Review</h3>
+                <div id="reviewContainer"></div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-submit" onclick="location.reload()">
+                    🔄 Take Another Quiz
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
         let questions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
+        let questionStartTimes = {};
+        let questionTimes = {};
+        let quizStartTime = null;
+        let userName = '';
+        let userEmail = '';
+
+        async function fetchSessionInfo() {
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    userName = data.username;
+                    userEmail = data.email;
+                    console.log('Logged-in user:', userName, userEmail);
+                    return true;
+                } else {
+                    alert('Please login to take the assessment');
+                    window.location.href = '/login.html';
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error fetching session info:', error);
+                alert('Error connecting to server. Please try again.');
+                return false;
+            }
+        }
+
+        async function initQuiz() {
+            const sessionValid = await fetchSessionInfo();
+            if (!sessionValid) return;
+            
+            quizStartTime = Date.now();
+            loadQuestions();
+        }
 
         async function loadQuestions() {
             try {
@@ -397,12 +615,20 @@
 
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('quizScreen').style.display = 'block';
+                questionStartTimes[0] = Date.now();
                 renderQuestion();
             } catch (error) {
                 console.error('Error loading questions:', error);
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('errorScreen').style.display = 'block';
                 document.getElementById('errorMessage').textContent = error.message;
+            }
+        }
+
+        function trackQuestionTime() {
+            if (questionStartTimes[currentQuestionIndex]) {
+                const timeTaken = Math.floor((Date.now() - questionStartTimes[currentQuestionIndex]) / 1000);
+                questionTimes[currentQuestionIndex] = timeTaken;
             }
         }
 
@@ -549,20 +775,30 @@
         }
 
         function nextQuestion() {
+            trackQuestionTime();
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
+                if (!questionStartTimes[currentQuestionIndex]) {
+                    questionStartTimes[currentQuestionIndex] = Date.now();
+                }
                 renderQuestion();
             }
         }
 
         function previousQuestion() {
+            trackQuestionTime();
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
+                if (!questionStartTimes[currentQuestionIndex]) {
+                    questionStartTimes[currentQuestionIndex] = Date.now();
+                }
                 renderQuestion();
             }
         }
 
-        function submitQuiz() {
+        async function submitQuiz() {
+            trackQuestionTime();
+
             const unanswered = questions.length - Object.keys(userAnswers).length;
             
             if (unanswered > 0) {
@@ -571,37 +807,161 @@
                 }
             }
 
-            let score = 0;
+            let correctAnswers = 0;
             let totalPoints = 0;
+            let earnedPoints = 0;
+            const questionResults = [];
 
             questions.forEach((q, i) => {
-                totalPoints += q.points || 1;
+                const maxPoints = q.points || 1;
+                totalPoints += maxPoints;
                 const userAns = userAnswers[i];
+                let isCorrect = false;
+                let pointsAwarded = 0;
                 
                 if (q.type === 'numeric') {
-                    if (parseFloat(userAns) === parseFloat(q.correct_answer)) {
-                        score += q.points || 1;
-                    }
+                    isCorrect = parseFloat(userAns) === parseFloat(q.correct_answer);
                 } else if (q.type === 'mcq') {
-                    if (userAns === q.correct_answer) {
-                        score += q.points || 1;
-                    }
+                    isCorrect = userAns === q.correct_answer;
                 } else if (q.type === 'msq') {
-                    const userSet = new Set((userAns || []).map(a => a.toLowerCase().trim()));
-                    const correctSet = new Set((q.correct_answer || []).map(a => a.toLowerCase().trim()));
+                    const userSet = new Set((userAns || []).map(a => String(a).toLowerCase().trim()));
+                    const correctSet = new Set((Array.isArray(q.correct_answer) ? q.correct_answer : [q.correct_answer]).map(a => String(a).toLowerCase().trim()));
                     
-                    if (userSet.size === correctSet.size && 
-                        [...userSet].every(a => correctSet.has(a))) {
-                        score += q.points || 1;
-                    }
+                    isCorrect = userSet.size === correctSet.size && 
+                        [...userSet].every(a => correctSet.has(a));
                 }
+
+                if (isCorrect) {
+                    correctAnswers++;
+                    pointsAwarded = maxPoints;
+                    earnedPoints += maxPoints;
+                }
+
+                questionResults.push({
+                    questionId: q._id,
+                    questionNumber: q.question_number || (i + 1),
+                    questionText: q.question_text,
+                    userAnswer: userAns,
+                    correctAnswer: q.correct_answer,
+                    isCorrect: isCorrect,
+                    timeTaken: questionTimes[i] || 0,
+                    pointsAwarded: pointsAwarded,
+                    maxPoints: maxPoints
+                });
             });
 
-            const percentage = ((score / totalPoints) * 100).toFixed(2);
-            alert(`Quiz Completed!\n\nYour Score: ${score}/${totalPoints} (${percentage}%)`);
+            const percentage = ((earnedPoints / totalPoints) * 100).toFixed(2);
+
+            const payload = {
+                email: userEmail,
+                username: userName,
+                quizData: {
+                    topic: "Programming Basics",
+                    percentage: parseFloat(percentage),
+                    score: correctAnswers,
+                    totalQuestions: questions.length,
+                    correctAnswers: correctAnswers,
+                    totalPoints: totalPoints,
+                    earnedPoints: earnedPoints,
+                    attemptNumber: 1,
+                    questionResults: questionResults
+                }
+            };
+
+            try {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Quiz submitted successfully:', result);
+                    showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to submit quiz');
+                }
+            } catch (error) {
+                console.error('Error submitting quiz:', error);
+                alert('Error submitting quiz: ' + error.message);
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📝 Submit Quiz';
+            }
         }
 
-        window.addEventListener('DOMContentLoaded', loadQuestions);
+        function showResults(correct, earned, total, percentage, results) {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
+
+            document.getElementById('finalPercentage').textContent = percentage + '%';
+            document.getElementById('finalScoreText').textContent = `${earned}/${total} Points`;
+            document.getElementById('statTotal').textContent = questions.length;
+            document.getElementById('statCorrect').textContent = correct;
+            document.getElementById('statIncorrect').textContent = questions.length - correct;
+            document.getElementById('statEarned').textContent = `${earned}/${total}`;
+
+            const reviewContainer = document.getElementById('reviewContainer');
+            reviewContainer.innerHTML = '';
+
+            results.forEach(result => {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.className = `review-question ${result.isCorrect ? 'correct' : 'incorrect'}`;
+                
+                let userAnswerDisplay = result.userAnswer;
+                let correctAnswerDisplay = result.correctAnswer;
+
+                if (Array.isArray(result.userAnswer)) {
+                    userAnswerDisplay = result.userAnswer.join(', ') || 'No answer';
+                }
+                if (Array.isArray(result.correctAnswer)) {
+                    correctAnswerDisplay = result.correctAnswer.join(', ');
+                }
+
+                reviewDiv.innerHTML = `
+                    <div class="review-header">
+                        <strong>Question ${result.questionNumber}</strong>
+                        <span class="review-badge ${result.isCorrect ? 'correct' : 'incorrect'}">
+                            ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        </span>
+                    </div>
+                    <div class="review-text">${result.questionText}</div>
+                    <div class="answer-comparison">
+                        <div class="answer-row">
+                            <span class="answer-label">Your Answer:</span>
+                            <span class="answer-value ${result.isCorrect ? 'correct' : 'incorrect'}">
+                                ${userAnswerDisplay || 'Not answered'}
+                            </span>
+                        </div>
+                        <div class="answer-row">
+                            <span class="answer-label">Correct Answer:</span>
+                            <span class="answer-value correct">${correctAnswerDisplay}</span>
+                        </div>
+                        <div class="answer-row">
+                            <span class="answer-label">Points:</span>
+                            <span class="answer-value">${result.pointsAwarded}/${result.maxPoints}</span>
+                        </div>
+                        <div class="answer-row">
+                            <span class="answer-label">Time Taken:</span>
+                            <span class="answer-value">${result.timeTaken}s</span>
+                        </div>
+                    </div>
+                `;
+                
+                reviewContainer.appendChild(reviewDiv);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', initQuiz);
     </script>
 </body>
 </html>
