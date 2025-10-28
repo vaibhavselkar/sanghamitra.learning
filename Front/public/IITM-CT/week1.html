@@ -1,16 +1,15 @@
-<!DOCTYPE html>      
-<html lang="en">    
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Computational Thinking - Week 1 Quiz</title>
-   
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computational Thinking Quiz</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -34,89 +33,6 @@
         .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
         .header p { font-size: 1.1rem; opacity: 0.9; }
 
-        /* Anti-cheating CSS */
-        * {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            -webkit-print-color-adjust: exact;
-            pointer-events: auto;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-            background: transparent;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 4px;
-        }
-        
-        body.blurred {
-            filter: blur(5px);
-            pointer-events: none;
-        }
-        
-        .warning-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(220, 53, 69, 0.95);
-            color: white;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            font-size: 2rem;
-            text-align: center;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled { 
-            background: #6c757d; 
-            cursor: not-allowed; 
-            transform: none; 
-        }
-
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 8px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         .progress-container {
             background: #f8f9fa;
             padding: 20px;
@@ -137,24 +53,28 @@
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             border-radius: 4px;
             transition: width 0.3s ease;
-            width: 0%;
         }
 
         .progress-text {
-            text-align: center;
-            color: #666;
-            font-weight: 600;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #666;
+            font-weight: 600;
         }
 
-        .quiz-container { 
-            padding: 30px; 
-            display: none; 
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        /* SPLIT SCREEN LAYOUT */
+        .status-answered { background: #28a745; color: white; }
+        .status-unanswered { background: #dc3545; color: white; }
+
+        .quiz-container { padding: 30px; }
+
         .question-split {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -163,14 +83,11 @@
             margin-bottom: 25px;
         }
 
-        /* Left side - Question */
         .question-side {
             background: #f8f9fa;
             border-radius: 12px;
             padding: 30px;
             border-left: 5px solid #667eea;
-            overflow-y: auto;
-            max-height: 600px;
         }
 
         .question-header {
@@ -207,21 +124,11 @@
         .difficulty-medium { background: #fff3cd; color: #856404; }
         .difficulty-hard { background: #f8d7da; color: #721c24; }
 
-        .parent-statement {
-            background: #e7f3ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            font-weight: 500;
-            color: #333;
-        }
-
         .question-text {
             font-size: 1.15rem;
             line-height: 1.7;
             color: #333;
-            white-space: pre-line;
+            white-space: pre-wrap;
         }
 
         .dataset-badge {
@@ -234,26 +141,11 @@
             margin-top: 15px;
         }
 
-        .points-badge {
-            background: #f0f0f0;
-            color: #666;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-left: 10px;
-        }
-
-        /* Right side - Answers */
         .answer-side {
             background: white;
             border-radius: 12px;
             padding: 30px;
             border: 2px solid #e9ecef;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            overflow-y: auto;
-            max-height: 600px;
         }
 
         .answer-header {
@@ -269,17 +161,10 @@
             margin-bottom: 5px;
         }
 
-        .answer-instruction {
-            font-size: 0.9rem;
-            color: #666;
-            font-style: italic;
-        }
-
-        /* MCQ/MSQ Options */
-        .options { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .option {
@@ -294,20 +179,19 @@
             gap: 12px;
         }
 
-        .option:hover { 
-            border-color: #667eea; 
+        .option:hover {
+            border-color: #667eea;
             background: #f0f8ff;
             transform: translateX(5px);
         }
 
-        .option.selected { 
-            border-color: #667eea; 
+        .option.selected {
+            border-color: #667eea;
             background: #e3f2fd;
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
         }
 
-        .option input[type="radio"],
-        .option input[type="checkbox"] {
+        .option input {
             width: 20px;
             height: 20px;
             cursor: pointer;
@@ -320,39 +204,22 @@
             color: #333;
         }
 
-        /* Input fields */
-        .input-container {
-            text-align: center;
-        }
-
-        .numeric-input,
-        .text-input {
+        .numeric-input {
             width: 100%;
-            max-width: 500px;
             padding: 15px 20px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             font-size: 1.1rem;
             text-align: center;
-            transition: all 0.2s ease;
         }
 
-        .numeric-input:focus,
-        .text-input:focus {
+        .numeric-input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .format-help {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 10px;
-            font-style: italic;
-        }
-
-        /* Navigation */
-        .question-navigation {
+        .navigation {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -361,110 +228,71 @@
             border-top: 2px solid #e9ecef;
         }
 
-        .btn-nav {
-            background: #6c757d;
-            color: white;
-            border: none;
+        .btn {
             padding: 12px 25px;
             border-radius: 6px;
+            border: none;
             cursor: pointer;
             font-size: 15px;
             transition: all 0.2s ease;
         }
 
-        .btn-nav:hover:not(:disabled) {
-            background: #545b62;
-            transform: translateY(-1px);
-        }
-
-        .btn-nav:disabled {
+        .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
+        }
+
+        .btn-prev {
+            background: #6c757d;
+            color: white;
         }
 
         .btn-next {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .btn-next:hover:not(:disabled) {
-            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-        }
-
-        .question-status {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .status-answered {
-            background: #28a745;
             color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
         }
 
-        .status-unanswered {
-            background: #dc3545;
+        .btn-submit {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            margin-top: 20px;
         }
 
-        /* Results */
-        .results-container {
-            display: none;
-            padding: 30px;
+        .loading {
             text-align: center;
-            max-height: 80vh;
-            overflow-y: auto;
+            padding: 60px;
         }
 
-        .score-display {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 15px;
-            margin-bottom: 30px;
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        .score-display h2 { font-size: 2.5rem; margin-bottom: 10px; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-        /* Responsive */
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px;
+            text-align: center;
+        }
+
         @media (max-width: 1024px) {
             .question-split {
                 grid-template-columns: 1fr;
                 gap: 20px;
-            }
-
-            .question-side,
-            .answer-side {
-                max-height: none;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-            }
-
-            .header h1 {
-                font-size: 1.8rem;
-            }
-
-            .question-text {
-                font-size: 1rem;
-            }
-
-            .score-display h2 {
-                font-size: 2rem;
             }
         }
     </style>
@@ -472,419 +300,308 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🧠 Computational Thinking - Week 1</h1>
+            <h1>🧠 Computational Thinking Quiz</h1>
             <p>Programming Basics Assessment</p>
         </div>
 
-        <!-- Quiz Container -->
-        <div id="quizContainer" class="quiz-container" style="display: none;">
+        <div id="loadingScreen" class="loading">
+            <div class="spinner"></div>
+            <h3 style="margin-top: 20px;">Loading Questions...</h3>
+        </div>
+
+        <div id="errorScreen" style="display: none;" class="error">
+            <h3>Failed to load quiz questions</h3>
+            <p id="errorMessage"></p>
+            <button class="btn btn-next" onclick="location.reload()">Retry</button>
+        </div>
+
+        <div id="quizScreen" style="display: none;">
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
                 <div class="progress-text">
-                    <span id="progressText">Question 1 of 50</span>
-                    <span id="answeredStatus" class="status-unanswered">Unanswered</span>
+                    <span id="progressText">Question 1 of 0</span>
+                    <span id="answeredStatus" class="status-badge status-unanswered">Unanswered</span>
                 </div>
             </div>
-            
-            <div id="questionContainer"></div>
-            
-            <div class="question-navigation">
-                <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>
-                    ← Previous
-                </button>
-                <div class="question-status">
-                    <span id="questionStatus">Question 1 of 50</span>
+
+            <div class="quiz-container">
+                <div class="question-split">
+                    <div class="question-side">
+                        <div class="question-header">
+                            <div class="question-number" id="questionNum">1</div>
+                            <span class="difficulty-badge" id="difficultyBadge">Medium</span>
+                        </div>
+                        <div class="question-text" id="questionText"></div>
+                        <span class="dataset-badge" id="datasetBadge" style="display: none;"></span>
+                    </div>
+
+                    <div class="answer-side">
+                        <div class="answer-header">
+                            <h3>Your Answer</h3>
+                            <p class="answer-instruction" id="answerInstruction">Select your answer below</p>
+                        </div>
+                        <div id="answerContainer"></div>
+                    </div>
                 </div>
-                <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">
-                    Next →
-                </button>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
-                <button class="btn" onclick="submitQuiz()" id="submitBtn">
-                    <span id="submitText">📝 Submit CT Week 1 Quiz</span>
-                    <span id="submitLoading" class="loading" style="display: none;"></span>
-                </button>
-            </div>
-        </div>
 
-        <!-- Loading Screen -->
-        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading CT Week 1 Quiz...</h3>
-            <p>Verifying your session and preparing questions</p>
-        </div>
+                <div class="navigation">
+                    <button class="btn btn-prev" id="prevBtn" onclick="previousQuestion()" disabled>
+                        ← Previous
+                    </button>
+                    <span id="questionStatus">Question 1 of 0</span>
+                    <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">
+                        Next →
+                    </button>
+                </div>
 
-        <!-- Results -->
-        <div id="resultsContainer" class="results-container">
-            <div class="score-display">
-                <h2 id="finalScore">0/100 Points</h2>
-                <p>Quiz Completed Successfully!</p>
+                <div style="text-align: center;">
+                    <button class="btn btn-submit" id="submitBtn" onclick="submitQuiz()" style="display: none;">
+                        📝 Submit Quiz
+                    </button>
+                </div>
             </div>
-            <button class="btn" onclick="goback()">🏠 Back to CT Home</button>
         </div>
     </div>
 
-    <!-- Anti-cheating warning overlay -->
-    <div id="warningOverlay" class="warning-overlay">
-        <div>
-            <h2>⚠️ CHEATING ATTEMPT DETECTED</h2>
-            <p>Please return to the quiz window</p>
-            <p>Your activity is being monitored</p>
-        </div>
-    </div>
+    <script>
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
 
-   <script>
-    (() => {
-      let userAnswers = {};
-      let currentUser = {};
-      let username = null;
-      let email = null;
-      let currentQuestionIndex = 0;
-      let quizStartTime = null;
-      let questionStartTime = null;
-      let questionTimes = {};
-      let questions = [];
-      let cheatingAttempts = 0;
-      let isQuizActive = false;
-      let autosaveTimer = null;
-    
-      let topic = getTopicFromURL() || 'Programming Basics';
-      const LS_PREFIX = 'ct_quiz_v1';
-      const LS_KEY = `${LS_PREFIX}_${sanitizeKey(topic)}_progress`;
-    
-      function sanitizeKey(s) {
-        return s.toString().replace(/\s+/g, '_').replace(/[^\w\-]/g, '').toLowerCase();
-      }
-    
-      function getTopicFromURL() {
-        const params = new URLSearchParams(window.location.search);
-        const t = params.get('topic');
-        return t ? t : null;
-      }
-    
-      function safeLog(...args) {
-        console.log('[CT QUIZ]', ...args);
-      }
-    
-      function loadSavedProgress() {
-        try {
-          const raw = localStorage.getItem(LS_KEY);
-          if (!raw) return false;
-          const parsed = JSON.parse(raw);
-          userAnswers = parsed.userAnswers || {};
-          questionTimes = parsed.questionTimes || {};
-          currentQuestionIndex = parsed.currentQuestionIndex || 0;
-          return true;
-        } catch (e) {
-          return false;
-        }
-      }
-    
-      function saveProgressToLocal() {
-        try {
-          const payload = {
-            userAnswers,
-            questionTimes,
-            currentQuestionIndex,
-            savedAt: new Date()
-          };
-          localStorage.setItem(LS_KEY, JSON.stringify(payload));
-        } catch (e) {}
-      }
-    
-      function clearSavedProgress() {
-        try { localStorage.removeItem(LS_KEY); } catch (e) {}
-      }
-    
-      function startAutosave() {
-        if (autosaveTimer) clearInterval(autosaveTimer);
-        autosaveTimer = setInterval(saveProgressToLocal, 5000);
-      }
-    
-      function stopAutosave() {
-        if (autosaveTimer) clearInterval(autosaveTimer);
-        autosaveTimer = null;
-      }
-    
-      async function fetchSessionInfo() {
-        try {
-          const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-            credentials: 'include'
-          });
-          if (response.ok) {
-            const data = await response.json();
-            username = data.username;
-            email = data.email;
-            currentUser = { username, email };
-            return true;
-          } else {
-            alert('Please login to take the assessment');
-            window.location.href = '/login.html';
-            return false;
-          }
-        } catch (error) {
-          alert('Error connecting to server.');
-          return false;
-        }
-      }
-    
-      async function loadQuestions() {
-        try {
-          const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=Programming Basics`;
-          const response = await fetch(url, { credentials: 'include' });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const data = await response.json();
-          questions = data.questions || data;
-          if (!questions.length) throw new Error('No questions found.');
-          questions = questions.map(q => ({
-            ...q,
-            difficulty: q.difficulty || 'medium',
-            points: q.points || 1
-          }));
-          return true;
-        } catch (e) {
-          alert('Failed to load quiz questions.');
-          return false;
-        }
-      }
-    
-      function initializeAntiCheating() {
-        window.addEventListener('blur', () => {
-          if (isQuizActive) {
-            recordCheatingAttempt('window_blur');
-          }
-        });
-        document.addEventListener('contextmenu', e => {
-          e.preventDefault();
-          recordCheatingAttempt('right_click');
-        });
-      }
-    
-      function recordCheatingAttempt(type) {
-        cheatingAttempts++;
-        if (username && email) {
-          fetch('https://sanghamitra-learnworld.vercel.app/api/log-ct-cheating', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              username,
-              email,
-              cheatingType: type,
-              timestamp: new Date(),
-              currentQuestion: currentQuestionIndex + 1
-            })
-          });
-        }
-        if (cheatingAttempts >= 5) {
-          alert('Multiple suspicious activities detected. Auto-submitting quiz.');
-          submitQuiz();
-        }
-      }
-    
-      function escapeHtml(t) {
-        return String(t || '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-      }
-    
-      function renderCurrentQuestion() {
-        const c = document.getElementById('questionContainer');
-        if (!c) return;
-        const q = questions[currentQuestionIndex];
-        if (!q) return;
-    
-        c.innerHTML = `
-          <div class="question-block">
-            <div class="q-header">
-              <b>Q${q.question_number}.</b> ${escapeHtml(q.question_text)}
-            </div>
-            ${q.dataset ? `<div class="dataset">Dataset: ${escapeHtml(q.dataset)}</div>` : ''}
-          </div>
-        `;
-    
-        const aDiv = document.createElement('div');
-        aDiv.className = 'answer-block';
-        if (q.type === 'mcq') {
-          aDiv.innerHTML = q.options.map((opt, i) => `
-            <div class="option">
-              <input type="radio" name="q${currentQuestionIndex}" id="q${currentQuestionIndex}_${i}" value="${escapeHtml(opt)}"
-              onchange="ctQuiz.selectOption(${currentQuestionIndex}, this.value)">
-              <label for="q${currentQuestionIndex}_${i}">${escapeHtml(opt)}</label>
-            </div>
-          `).join('');
-        } else if (q.type === 'msq') {
-          aDiv.innerHTML = q.options.map((opt, i) => `
-            <div class="option">
-              <input type="checkbox" name="q${currentQuestionIndex}" id="q${currentQuestionIndex}_${i}" value="${escapeHtml(opt)}"
-              onchange="ctQuiz.toggleMsq(${currentQuestionIndex}, this.value, this.checked)">
-              <label for="q${currentQuestionIndex}_${i}">${escapeHtml(opt)}</label>
-            </div>
-          `).join('');
-        } else if (q.type === 'numeric') {
-          aDiv.innerHTML = `
-            <input type="number" placeholder="Enter number" class="numeric-input"
-            oninput="ctQuiz.handleNumericInput(${currentQuestionIndex}, this.value)">
-          `;
-        }
-        c.appendChild(aDiv);
-        restoreAnswer();
-        updateProgress();
-      }
-    
-      function restoreAnswer() {
-        const q = questions[currentQuestionIndex];
-        const ans = userAnswers[currentQuestionIndex];
-        if (!ans) return;
-        if (q.type === 'mcq') {
-          const el = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${CSS.escape(ans)}"]`);
-          if (el) el.checked = true;
-        } else if (q.type === 'msq' && Array.isArray(ans)) {
-          ans.forEach(v => {
-            const el = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${CSS.escape(v)}"]`);
-            if (el) el.checked = true;
-          });
-        } else if (q.type === 'numeric') {
-          const el = document.querySelector('.numeric-input');
-          if (el) el.value = ans;
-        }
-      }
-    
-      function updateProgress() {
-        const progressText = document.getElementById('progressText');
-        if (progressText) progressText.textContent = `Question ${currentQuestionIndex + 1} / ${questions.length}`;
-      }
-    
-      function nextQuestion() {
-        trackQuestionTime();
-        if (currentQuestionIndex < questions.length - 1) {
-          currentQuestionIndex++;
-          renderCurrentQuestion();
-        } else {
-          submitQuiz();
-        }
-      }
-    
-      function previousQuestion() {
-        trackQuestionTime();
-        if (currentQuestionIndex > 0) {
-          currentQuestionIndex--;
-          renderCurrentQuestion();
-        }
-      }
-    
-      function trackQuestionTime() {
-        if (questionStartTime) {
-          const t = Math.floor((new Date() - questionStartTime) / 1000);
-          questionTimes[currentQuestionIndex] = (questionTimes[currentQuestionIndex] || 0) + t;
-        }
-        questionStartTime = new Date();
-      }
-    
-      function selectOption(i, v) {
-        userAnswers[i] = v;
-        saveProgressToLocal();
-      }
-    
-      function toggleMsq(i, v, checked) {
-        if (!Array.isArray(userAnswers[i])) userAnswers[i] = [];
-        if (checked) {
-          if (!userAnswers[i].includes(v)) userAnswers[i].push(v);
-        } else {
-          userAnswers[i] = userAnswers[i].filter(x => x !== v);
-          if (userAnswers[i].length === 0) delete userAnswers[i];
-        }
-        saveProgressToLocal();
-      }
-    
-      function handleNumericInput(i, v) {
-        if (v.trim() === '') delete userAnswers[i];
-        else userAnswers[i] = v.trim();
-        saveProgressToLocal();
-      }
-    
-      window.ctQuiz = { selectOption, toggleMsq, handleNumericInput };
-    
-      async function submitQuiz() {
-        trackQuestionTime();
-        stopAutosave();
-    
-        let totalPoints = 0;
-        let earnedPoints = 0;
-    
-        questions.forEach((q, i) => {
-          const ans = userAnswers[i];
-          totalPoints += q.points;
-          let correct = false;
-          if (q.type === 'mcq') {
-            correct = (ans || '').toLowerCase().trim() === (q.correct_answer || '').toLowerCase().trim();
-          } else if (q.type === 'numeric') {
-            correct = parseFloat(ans) === parseFloat(q.correct_answer);
-          } else if (q.type === 'msq') {
-            const norm = a => Array.isArray(a) ? a.map(x => x.toLowerCase().trim()).sort().join(',') : '';
-            correct = norm(ans) === norm(q.correct_answer);
-          }
-          if (correct) earnedPoints += q.points;
-        });
-    
-        const score = ((earnedPoints / totalPoints) * 100).toFixed(2);
-    
-        const payload = {
-          username,
-          email,
-          topic,
-          score,
-          totalPoints,
-          earnedPoints,
-          questionTimes,
-          totalTimeTaken: Math.floor((new Date() - quizStartTime) / 1000),
-          answers: userAnswers,
-          timestamp: new Date()
-        };
-    
-        const res = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm-ct-submission', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(payload)
-        });
-    
-        if (res.ok) {
-          clearSavedProgress();
-          alert(`Quiz submitted successfully!\nYour Score: ${score}%`);
-          window.location.href = '/ct/result.html';
-        } else {
-          alert('Error submitting quiz.');
-        }
-      }
-    
-      async function init() {
-        if (!(await fetchSessionInfo())) return;
-        if (!(await loadQuestions())) return;
-        isQuizActive = true;
-        quizStartTime = new Date();
-        questionStartTime = new Date();
-        initializeAntiCheating();
-        loadSavedProgress();
-        renderCurrentQuestion();
-        startAutosave();
-      }
-    
-      window.addEventListener('DOMContentLoaded', init);
-    })();
-</script>
+        async function loadQuestions() {
+            try {
+                const url = 'https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=Programming Basics';
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && Array.isArray(data.data)) {
+                    questions = data.data;
+                } else if (Array.isArray(data.questions)) {
+                    questions = data.questions;
+                } else if (Array.isArray(data)) {
+                    questions = data;
+                } else {
+                    throw new Error('Invalid data format received from API');
+                }
 
+                if (questions.length === 0) {
+                    throw new Error('No questions found in the dataset');
+                }
 
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('quizScreen').style.display = 'block';
+                renderQuestion();
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('errorScreen').style.display = 'block';
+                document.getElementById('errorMessage').textContent = error.message;
+            }
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestionIndex];
+            const total = questions.length;
+
+            document.getElementById('questionNum').textContent = q.question_number || (currentQuestionIndex + 1);
+            document.getElementById('questionText').textContent = q.question_text;
+            document.getElementById('difficultyBadge').textContent = q.difficulty || 'medium';
+            document.getElementById('difficultyBadge').className = `difficulty-badge difficulty-${q.difficulty || 'medium'}`;
+            
+            if (q.dataset) {
+                document.getElementById('datasetBadge').textContent = `Dataset: ${q.dataset}`;
+                document.getElementById('datasetBadge').style.display = 'inline-block';
+            } else {
+                document.getElementById('datasetBadge').style.display = 'none';
+            }
+
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${total}`;
+            document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${total}`;
+            
+            const progress = ((currentQuestionIndex + 1) / total) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+
+            const answerContainer = document.getElementById('answerContainer');
+            answerContainer.innerHTML = '';
+
+            if (q.type === 'mcq' && q.options) {
+                document.getElementById('answerInstruction').textContent = 'Select one answer';
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                
+                q.options.forEach((opt, i) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'option';
+                    if (userAnswers[currentQuestionIndex] === opt) {
+                        optDiv.classList.add('selected');
+                    }
+                    
+                    optDiv.innerHTML = `
+                        <input type="radio" name="q${currentQuestionIndex}" id="opt${i}" value="${opt}" 
+                            ${userAnswers[currentQuestionIndex] === opt ? 'checked' : ''}>
+                        <label for="opt${i}">${opt}</label>
+                    `;
+                    
+                    optDiv.onclick = () => {
+                        userAnswers[currentQuestionIndex] = opt;
+                        renderQuestion();
+                    };
+                    
+                    optionsDiv.appendChild(optDiv);
+                });
+                
+                answerContainer.appendChild(optionsDiv);
+            } else if (q.type === 'msq' && q.options) {
+                document.getElementById('answerInstruction').textContent = 'Select all that apply';
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                
+                if (!Array.isArray(userAnswers[currentQuestionIndex])) {
+                    userAnswers[currentQuestionIndex] = [];
+                }
+                
+                q.options.forEach((opt, i) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'option';
+                    if (userAnswers[currentQuestionIndex].includes(opt)) {
+                        optDiv.classList.add('selected');
+                    }
+                    
+                    optDiv.innerHTML = `
+                        <input type="checkbox" name="q${currentQuestionIndex}" id="opt${i}" value="${opt}"
+                            ${userAnswers[currentQuestionIndex].includes(opt) ? 'checked' : ''}>
+                        <label for="opt${i}">${opt}</label>
+                    `;
+                    
+                    optDiv.onclick = (e) => {
+                        if (e.target.tagName !== 'INPUT') {
+                            const checkbox = optDiv.querySelector('input');
+                            checkbox.checked = !checkbox.checked;
+                        }
+                        
+                        if (!Array.isArray(userAnswers[currentQuestionIndex])) {
+                            userAnswers[currentQuestionIndex] = [];
+                        }
+                        
+                        const idx = userAnswers[currentQuestionIndex].indexOf(opt);
+                        if (optDiv.querySelector('input').checked) {
+                            if (idx === -1) userAnswers[currentQuestionIndex].push(opt);
+                        } else {
+                            if (idx > -1) userAnswers[currentQuestionIndex].splice(idx, 1);
+                        }
+                        
+                        renderQuestion();
+                    };
+                    
+                    optionsDiv.appendChild(optDiv);
+                });
+                
+                answerContainer.appendChild(optionsDiv);
+            } else if (q.type === 'numeric') {
+                document.getElementById('answerInstruction').textContent = 'Enter a numeric answer';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'numeric-input';
+                input.placeholder = 'Enter your answer';
+                input.value = userAnswers[currentQuestionIndex] || '';
+                input.oninput = (e) => {
+                    userAnswers[currentQuestionIndex] = e.target.value;
+                };
+                answerContainer.appendChild(input);
+            }
+
+            updateAnsweredStatus();
+            updateButtons();
+        }
+
+        function updateAnsweredStatus() {
+            const answered = userAnswers[currentQuestionIndex] !== undefined && 
+                           userAnswers[currentQuestionIndex] !== '' &&
+                           userAnswers[currentQuestionIndex] !== null;
+            
+            const badge = document.getElementById('answeredStatus');
+            if (answered) {
+                badge.textContent = 'Answered';
+                badge.className = 'status-badge status-answered';
+            } else {
+                badge.textContent = 'Unanswered';
+                badge.className = 'status-badge status-unanswered';
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            const unanswered = questions.length - Object.keys(userAnswers).length;
+            
+            if (unanswered > 0) {
+                if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
+                    return;
+                }
+            }
+
+            let score = 0;
+            let totalPoints = 0;
+
+            questions.forEach((q, i) => {
+                totalPoints += q.points || 1;
+                const userAns = userAnswers[i];
+                
+                if (q.type === 'numeric') {
+                    if (parseFloat(userAns) === parseFloat(q.correct_answer)) {
+                        score += q.points || 1;
+                    }
+                } else if (q.type === 'mcq') {
+                    if (userAns === q.correct_answer) {
+                        score += q.points || 1;
+                    }
+                } else if (q.type === 'msq') {
+                    const userSet = new Set((userAns || []).map(a => a.toLowerCase().trim()));
+                    const correctSet = new Set((q.correct_answer || []).map(a => a.toLowerCase().trim()));
+                    
+                    if (userSet.size === correctSet.size && 
+                        [...userSet].every(a => correctSet.has(a))) {
+                        score += q.points || 1;
+                    }
+                }
+            });
+
+            const percentage = ((score / totalPoints) * 100).toFixed(2);
+            alert(`Quiz Completed!\n\nYour Score: ${score}/${totalPoints} (${percentage}%)`);
+        }
+
+        window.addEventListener('DOMContentLoaded', loadQuestions);
+    </script>
 </body>
 </html>
-
-
-
-
-
