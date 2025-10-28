@@ -1693,6 +1693,34 @@ router.post('/iitm_ct_scores', async (req, res) => {
   }
 });
 
+
+// GET: /api/iitm_ct_scores/:email
+router.get('/iitm_ct_scores/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const user = await iitm_ct_scores.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      message: 'User quiz history fetched successfully',
+      totalAttempts: user.quizScores.length,
+      user
+    });
+  } catch (error) {
+    console.error('Error fetching user CT scores:', error);
+    res.status(500).json({ error: 'Internal server error: ' + error.message });
+  }
+});
+
+
 // GET CT Scores
 router.get('/iitm_ct_scores', async (req, res) => {
   try {
@@ -2868,6 +2896,7 @@ router.get('/physics_topics', async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
