@@ -29,5 +29,6 @@ const userScoreSchema = new mongoose.Schema(
 );
 
 const IITM_Maths_2_Score = mongoose.model("iitm_maths_2_score", userScoreSchema);
+module.exports = IITM_Maths_2_Score;
 
 
