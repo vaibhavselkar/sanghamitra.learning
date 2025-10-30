@@ -3172,13 +3172,11 @@ router.get("/iitm_math2_questions", async (req, res) => {
 router.post("/iitm_math2_scores", async (req, res) => {
   try {
     const { email, name, week, subtopic, totalQuestions, correctAnswers, score, responses } = req.body;
-
-    if (!email || !name || !week || !responses)
+    if (!email || !name || !week || !subtopic || !responses)
       return res.status(400).json({ message: "Missing required fields" });
-
+    
     let user = await IITM_Maths_2_Score.findOne({ email });
     const newEntry = { week, subtopic, totalQuestions, correctAnswers, score, responses };
-
     if (user) {
       user.scores.push(newEntry);
       await user.save();
@@ -3186,7 +3184,6 @@ router.post("/iitm_math2_scores", async (req, res) => {
       user = new IITM_Maths_2_Score({ email, name, scores: [newEntry] });
       await user.save();
     }
-
     res.status(201).json({ message: "Score and responses saved successfully", user });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -3249,6 +3246,7 @@ router.get("/iitm_math2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
