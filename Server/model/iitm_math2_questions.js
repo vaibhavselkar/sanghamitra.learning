@@ -16,5 +16,6 @@ const questionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const IITM_Maths_2_Question = mongoose.model("iitm_maths_2_question", questionSchema);
+const IITM_Maths_2_Question = mongoose.model("iitm_maths_2_question", questionSchema);
+
 
