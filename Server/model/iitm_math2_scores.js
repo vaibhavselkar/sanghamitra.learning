@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
 const responseSchema = new mongoose.Schema({
   questionId: { type: mongoose.Schema.Types.ObjectId, ref: "iitm_maths_2_question", required: true },
@@ -29,3 +29,4 @@ const userScoreSchema = new mongoose.Schema(
 );
 
 export const IITM_Maths_2_Score = mongoose.model("iitm_maths_2_score", userScoreSchema);
+
