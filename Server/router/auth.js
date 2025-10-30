@@ -40,6 +40,8 @@ const AlgorithmSubmission = require('../model/AlgorithmSubmission');
 const Statistics_questions = require('../model/statisticsQuestion'); // Add this import
 const iitm_ct_questions = require('../model/iitm_ct_questions');
 const iitm_ct_scores = require('../model/iitm_ct_scores');
+const IITM_Maths_2_Question = require('../model/iitm_math2_questions')
+const IITM_Maths_2_Score = require('../model/iitm_math2_scores')
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -3011,7 +3013,107 @@ router.get('/physics_topics', async (req, res) => {
   }
 });
 
+router.get("/iitm_math2_questions", async (req, res) => {
+  try {
+    const { week, subtopic } = req.query;
+    const filter = {};
+
+    if (week) filter.week = Number(week);
+    if (subtopic) filter.subtopic = subtopic;
+
+    const questions = await IITM_Maths_2_Question.find(filter);
+
+    if (questions.length === 0) {
+      return res.status(404).json({ message: "No questions found for the given criteria" });
+    }
+
+    res.status(200).json(questions);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+});
+
+router.post("/iitm_math2_scores", async (req, res) => {
+  try {
+    const { email, name, week, subtopic, totalQuestions, correctAnswers, score, responses } = req.body;
+
+    if (!email || !name || !week || !responses)
+      return res.status(400).json({ message: "Missing required fields" });
+
+    let user = await IITM_Maths_2_Score.findOne({ email });
+    const newEntry = { week, subtopic, totalQuestions, correctAnswers, score, responses };
+
+    if (user) {
+      user.scores.push(newEntry);
+      await user.save();
+    } else {
+      user = new IITM_Maths_2_Score({ email, name, scores: [newEntry] });
+      await user.save();
+    }
+
+    res.status(201).json({ message: "Score and responses saved successfully", user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get("/iitm_math2_scores", async (req, res) => {
+  try {
+    const { email, week } = req.query;
+
+    // Case 1: No filters — return all user scores
+    if (!email && !week) {
+      const allScores = await IITM_Maths_2_Score.find();
+      if (!allScores.length)
+        return res.status(404).json({ message: "No scores found" });
+      return res.status(200).json(allScores);
+    }
+
+    // Case 2: Filter by email only
+    if (email && !week) {
+      const user = await IITM_Maths_2_Score.findOne({ email });
+      if (!user) return res.status(404).json({ message: "User not found" });
+      return res.status(200).json(user);
+    }
+
+    // Case 3: Filter by week only (across all users)
+    if (week && !email) {
+      const all = await IITM_Maths_2_Score.find({ "scores.week": Number(week) });
+      if (!all.length)
+        return res
+          .status(404)
+          .json({ message: "No scores found for the given week" });
+
+      // Flatten week-specific entries
+      const weekData = all.map((u) => ({
+        email: u.email,
+        name: u.name,
+        scores: u.scores.filter((s) => s.week === Number(week)),
+      }));
+
+      return res.status(200).json(weekData);
+    }
+
+    // Case 4: Filter by both email & week
+    if (email && week) {
+      const user = await IITM_Maths_2_Score.findOne({ email });
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const weekScores = user.scores.filter((s) => s.week === Number(week));
+      if (!weekScores.length)
+        return res
+          .status(404)
+          .json({ message: "No scores found for this week for the user" });
+
+      return res.status(200).json({ email: user.email, name: user.name, scores: weekScores });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+});
+
 module.exports = router
+
 
 
 
