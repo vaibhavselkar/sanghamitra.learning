@@ -1971,7 +1971,7 @@ router.get('/iitm-stats-questions/week6', async (req, res) => {
 
     // Find all available Week 6 questions excluding completed ones
     let availableQuestions = await Statistics_questions.find({
-      topic: "Permutations and Combinations",
+      topic: "Permutations and combinations",
       _id: { $nin: completedQuestionIds }
     });
 
@@ -1979,7 +1979,7 @@ router.get('/iitm-stats-questions/week6', async (req, res) => {
 
     // Handle case where user has completed all questions
     if (availableQuestions.length === 0) {
-      const totalInPool = await Statistics_questions.countDocuments({ topic: "Permutations and Combinations" });
+      const totalInPool = await Statistics_questions.countDocuments({ topic: "Permutations and combinations" });
       return res.status(200).json({
         message: "All Week 6 questions completed",
         questions: [],
@@ -3246,6 +3246,7 @@ router.get("/iitm_math2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
