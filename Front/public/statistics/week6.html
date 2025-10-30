@@ -518,6 +518,7 @@
 
         function normalizeArray(arr) {
             if (!Array.isArray(arr)) {
+                // Try to convert to array if it's a string
                 if (typeof arr === 'string') {
                     arr = arr.split(',').map(item => item.trim());
                 } else {
@@ -527,7 +528,7 @@
             
             return arr
                 .map(item => normalizeText(item))
-                .filter(item => item && item.length > 0)
+                .filter(item => item && item.length > 0) // Filter out empty strings
                 .sort();
         }
 
@@ -840,7 +841,7 @@
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
             
-            console.log('Rendering question type:', question.type);
+            console.log('Rendering question type:', question.type); // DEBUG
             
             container.innerHTML = '';
 
@@ -873,6 +874,7 @@
             }else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input' || question.type === 'text') {
                 const placeholder = question.format_hint || "Enter your answer";
                 
+                // Add specific placeholders based on type
                 let specificPlaceholder = placeholder;
                 if (question.type === 'coordinate_input') {
                     specificPlaceholder = "Enter coordinates as (x, y)";
@@ -923,6 +925,7 @@
 
             container.appendChild(questionDiv);
             
+            // Restore selection for multiple choice questions
             if (question.type === 'multiple_choice' || question.type === 'multiple_select') {
                 restoreAnswer();
             }
@@ -931,84 +934,90 @@
         }
 
         function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (!savedAnswer) return;
+    const question = questions[currentQuestionIndex];
+    const savedAnswer = userAnswers[currentQuestionIndex];
+    
+    if (!savedAnswer) return;
 
-            if (question.type === 'multiple_choice' || question.type === 'mcq') {
-                const option = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${savedAnswer}"]`);
-                if (option) {
-                    option.checked = true;
-                    option.closest('.option').classList.add('selected');
-                }
-            } 
-            else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${answer}"]`);
-                    if (option) {
-                        option.checked = true;
-                        option.closest('.option').classList.add('selected');
-                    }
-                });
-            }
-            
-            const inputField = document.querySelector('.numeric-input, .text-input');
-            if (inputField && savedAnswer !== undefined && savedAnswer !== null) {
-                inputField.value = savedAnswer;
-            }
+    // Handle multiple choice questions (including 'mcq' type)
+    if (question.type === 'multiple_choice' || question.type === 'mcq') {
+        const option = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${savedAnswer}"]`);
+        if (option) {
+            option.checked = true;
+            option.closest('.option').classList.add('selected');
         }
+    } 
+    else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+        savedAnswer.forEach(answer => {
+            const option = document.querySelector(`input[name="q${currentQuestionIndex}"][value="${answer}"]`);
+            if (option) {
+                option.checked = true;
+                option.closest('.option').classList.add('selected');
+            }
+        });
+    }
+    
+    // Also ensure input fields show saved values
+    const inputField = document.querySelector('.numeric-input, .text-input');
+    if (inputField && savedAnswer !== undefined && savedAnswer !== null) {
+        inputField.value = savedAnswer;
+    }
+}
 
         // ============================================
         // USER INPUT HANDLERS
         // ============================================
 
         function selectOption(questionIndex, value, type, event) {
-            if (type === 'radio') {
-                userAnswers[questionIndex] = value.trim();
+    if (type === 'radio') {
+        // Store trimmed value
+        userAnswers[questionIndex] = value.trim();
+        
+        // Update UI - remove all selections first
+        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+        options.forEach(opt => opt.closest('.option').classList.remove('selected'));
+        
+        // Select the clicked option
+        if (event && event.target) {
+            const clickedOption = event.target.closest('.option');
+            if (clickedOption) {
+                clickedOption.classList.add('selected');
+                const radio = clickedOption.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            }
+        }
+    } 
+    else if (type === 'checkbox') {
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+        
+        const trimmedValue = value.trim();
+        
+        if (event && event.target) {
+            const clickedOption = event.target.closest('.option');
+            const checkbox = clickedOption ? clickedOption.querySelector('input[type="checkbox"]') : null;
+            
+            if (checkbox) {
+                // Toggle checkbox state
+                checkbox.checked = !checkbox.checked;
                 
-                const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-                options.forEach(opt => opt.closest('.option').classList.remove('selected'));
-                
-                if (event && event.target) {
-                    const clickedOption = event.target.closest('.option');
-                    if (clickedOption) {
-                        clickedOption.classList.add('selected');
-                        const radio = clickedOption.querySelector('input[type="radio"]');
-                        if (radio) radio.checked = true;
+                if (checkbox.checked) {
+                    if (!userAnswers[questionIndex].includes(trimmedValue)) {
+                        userAnswers[questionIndex].push(trimmedValue);
                     }
-                }
-            } 
-            else if (type === 'checkbox') {
-                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
-                
-                const trimmedValue = value.trim();
-                
-                if (event && event.target) {
-                    const clickedOption = event.target.closest('.option');
-                    const checkbox = clickedOption ? clickedOption.querySelector('input[type="checkbox"]') : null;
+                    clickedOption.classList.add('selected');
+                } else {
+                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
+                    clickedOption.classList.remove('selected');
                     
-                    if (checkbox) {
-                        checkbox.checked = !checkbox.checked;
-                        
-                        if (checkbox.checked) {
-                            if (!userAnswers[questionIndex].includes(trimmedValue)) {
-                                userAnswers[questionIndex].push(trimmedValue);
-                            }
-                            clickedOption.classList.add('selected');
-                        } else {
-                            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
-                            clickedOption.classList.remove('selected');
-                            
-                            if (userAnswers[questionIndex].length === 0) {
-                                delete userAnswers[questionIndex];
-                            }
-                        }
+                    if (userAnswers[questionIndex].length === 0) {
+                        delete userAnswers[questionIndex];
                     }
                 }
             }
-            updateAnswerStatus();
         }
+    }
+    updateAnswerStatus();
+}
 
         function handleNumericInput(questionIndex, value) {
             const trimmedValue = value.trim();
@@ -1124,6 +1133,7 @@
             const quizEndTime = new Date();
             const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
 
+            // Calculate scores
             let score = 0;
             let totalPossiblePoints = 0;
             const questionResults = [];
