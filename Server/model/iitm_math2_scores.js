@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const responseSchema = new mongoose.Schema({
-  questionId: { type: mongoose.Schema.Types.ObjectId, ref: "iitm_maths_2_question", required: true },
+  questionId: { type: mongoose.Schema.Types.Mixed, required: true },
   questionText: { type: String, required: true },
   userResponse: [{ type: mongoose.Schema.Types.Mixed, required: true }],
   correctAnswers: [{ type: mongoose.Schema.Types.Mixed, required: true }],
@@ -30,5 +30,3 @@ const userScoreSchema = new mongoose.Schema(
 
 const IITM_Maths_2_Score = mongoose.model("iitm_maths_2_score", userScoreSchema);
 module.exports = IITM_Maths_2_Score;
-
-
