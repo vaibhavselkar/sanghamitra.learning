@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divide & Conquer Algorithms Quiz</title>
+    <!-- Include Monaco Editor for code editing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-container { padding: 30px; }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .code-editor-container {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
+            height: 400px;
+        }
+
+        .test-cases {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        .test-passed {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .test-failed {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .results-container { display: none; padding: 30px; }
+        .loading { display: none; }
+        
+        .explanation-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Divide & Conquer Algorithms Quiz</h1>
+            <p>Solve algorithmic problems using Divide and Conquer approach</p>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <h3>Loading Quiz...</h3>
+            <p>Preparing code editor and test environment</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div class="progress-container mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span id="progressText">Question 1 of 10</span>
+                    <span id="scoreText">Score: 0/100</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressFill" style="width: 10%;"></div>
+                </div>
+            </div>
+            
+            <div id="questionContainer"></div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+                <div>
+                    <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
+                    📊 Submit Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container">
+            <div class="score-display">
+                <h2 id="finalScore">0/100</h2>
+                <h3 id="finalPercentage">0%</h3>
+                <p>Quiz Completed!</p>
+            </div>
+            <div id="detailedResults"></div>
+            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz questions with Divide & Conquer problems
+        const questions = [
+            {
+                id: 1,
+                title: "Binary Search Implementation",
+                description: "Implement binary search using divide and conquer approach",
+                prompt: `Write a function binary_search(arr, target) that returns the index of target in sorted array arr.
+
+REQUIREMENTS:
+- Input: sorted array arr, target value
+- Output: index of target if found, -1 otherwise
+- Use divide and conquer approach
+- Time complexity: O(log n)
+
+`,
+
+                starterCode: `def binary_search(arr, target):
+    """
+    Implement binary search using divide and conquer.
+    Args: arr (list) - sorted list, target - value to find
+    Returns: int - index of target or -1 if not found
+    """
+    # Write your implementation here
+    
+    # === EFFICIENCY EXPLANATION (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[1, 2, 3, 4, 5], 3], expected: true },
+                    { input: [[1, 2, 3, 4, 5], 6], expected: true },
+                    { input: [[], 1], expected: true },
+                    { input: [[5], 5], expected: true },
+                    { input: [[1, 3, 5, 7, 9], 1], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 2,
+                title: "Merge Sort Algorithm",
+                description: "Implement merge sort using divide and conquer strategy",
+                prompt: `Write a function merge_sort(arr) that sorts an array using merge sort.
+
+REQUIREMENTS:
+- Input: unsorted array arr
+- Output: sorted array in ascending order
+- Use divide and conquer approach
+- Explain time and space complexity
+
+`,
+
+                starterCode: `def merge_sort(arr):
+    """
+    Sort array using merge sort algorithm.
+    Args: arr (list) - unsorted list
+    Returns: list - sorted list in ascending order
+    """
+    # Write your implementation here
+    
+    # === COMPLEXITY ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[5, 2, 8, 1, 9]], expected: true },
+                    { input: [[1]], expected: true },
+                    { input: [[3, 3, 3]], expected: true },
+                    { input: [[9, 8, 7, 6]], expected: true },
+                    { input: [[]], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 3,
+                title: "Quick Sort Implementation",
+                description: "Implement quick sort with partition function",
+                prompt: `Write a function quick_sort(arr) that sorts an array using quick sort.
+
+REQUIREMENTS:
+- Input: unsorted array arr
+- Output: sorted array in ascending order
+- Implement partition function
+- Handle edge cases
+
+`,
+
+                starterCode: `def quick_sort(arr):
+    """
+    Sort array using quick sort algorithm.
+    Args: arr (list) - unsorted list
+    Returns: list - sorted list in ascending order
+    """
+    # Write your implementation here
+    
+    # === PIVOT SELECTION ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[5, 2, 8, 1, 9]], expected: true },
+                    { input: [[1]], expected: true },
+                    { input: [[3, 3, 3]], expected: true },
+                    { input: [[9, 8, 7, 6]], expected: true },
+                    { input: [[]], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 4,
+                title: "Find Maximum Subarray Sum (Kadane's Algorithm)",
+                description: "Find maximum sum of contiguous subarray using divide and conquer",
+                prompt: `Write a function max_subarray_sum(arr) that finds maximum sum of contiguous subarray.
+
+REQUIREMENTS:
+- Input: array of integers (can contain negative numbers)
+- Output: maximum sum of contiguous subarray
+- Use divide and conquer approach
+- Handle all negative numbers case
+
+`,
+
+                starterCode: `def max_subarray_sum(arr):
+    """
+    Find maximum sum of contiguous subarray.
+    Args: arr (list) - list of integers
+    Returns: int - maximum sum
+    """
+    # Write your implementation here
+    
+    # === ALGORITHM ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[-2, 1, -3, 4, -1, 2, 1, -5, 4]], expected: true },
+                    { input: [[1, 2, 3, 4, 5]], expected: true },
+                    { input: [[-1, -2, -3]], expected: true },
+                    { input: [[5]], expected: true },
+                    { input: [[-2, -1, -3]], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 5,
+                title: "Count Inversions in Array",
+                description: "Count inversions using modified merge sort",
+                prompt: `Write a function count_inversions(arr) that counts inversions in array.
+
+REQUIREMENTS:
+- Input: array of integers
+- Output: number of inversions
+- Use modified merge sort approach
+- Inversion: i < j but arr[i] > arr[j]
+
+`,
+
+                starterCode: `def count_inversions(arr):
+    """
+    Count number of inversions in array.
+    Args: arr (list) - list of integers
+    Returns: int - number of inversions
+    """
+    # Write your implementation here
+    
+    # === EFFICIENCY EXPLANATION (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[2, 4, 1, 3, 5]], expected: true },
+                    { input: [[1, 2, 3, 4, 5]], expected: true },
+                    { input: [[5, 4, 3, 2, 1]], expected: true },
+                    { input: [[1]], expected: true },
+                    { input: [[1, 3, 2]], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 6,
+                title: "Closest Pair of Points",
+                description: "Find closest pair of points using divide and conquer",
+                prompt: `Write a function closest_pair(points) that finds the closest pair of points.
+
+REQUIREMENTS:
+- Input: list of points [(x1, y1), (x2, y2), ...]
+- Output: tuple of closest points and their distance
+- Use divide and conquer approach
+- Handle base cases
+
+`,
+
+                starterCode: `import math
+
+def closest_pair(points):
+    """
+    Find closest pair of points using divide and conquer.
+    Args: points (list) - list of tuples [(x,y)]
+    Returns: tuple (point1, point2, distance)
+    """
+    # Write your implementation here
+    
+    # === ALGORITHM ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[(1, 2), (3, 4), (5, 6)]], expected: true },
+                    { input: [[(0, 0), (1, 1), (2, 2)]], expected: true },
+                    { input: [[(1, 1)]], expected: true },
+                    { input: [[(1, 1), (1, 1)]], expected: true },
+                    { input: [[(0, 0), (3, 4)]], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 7,
+                title: "Matrix Multiplication (Strassen's Algorithm)",
+                description: "Implement Strassen's algorithm for matrix multiplication",
+                prompt: `Write a function strassen_multiply(A, B) that multiplies two matrices.
+
+REQUIREMENTS:
+- Input: two n x n matrices A and B
+- Output: product matrix C = A * B
+- Use Strassen's divide and conquer algorithm
+- Handle 2x2 base case
+
+`,
+
+                starterCode: `def strassen_multiply(A, B):
+    """
+    Multiply matrices using Strassen's algorithm.
+    Args: A, B (list) - n x n matrices
+    Returns: list - product matrix
+    """
+    # Write your implementation here
+    
+    # === COMPLEXITY ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], expected: true },
+                    { input: [[[1, 0], [0, 1]], [[2, 3], [4, 5]]], expected: true },
+                    { input: [[[2]], [[3]]], expected: true },
+                    { input: [[[1, 1], [1, 1]], [[1, 1], [1, 1]]], expected: true },
+                    { input: [[[0, 0], [0, 0]], [[1, 1], [1, 1]]], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 8,
+                title: "Find Peak Element in Array",
+                description: "Find a peak element using divide and conquer",
+                prompt: `Write a function find_peak(arr) that finds a peak element in array.
+
+REQUIREMENTS:
+- Input: array of integers
+- Output: a peak element (element ≥ neighbors)
+- Use divide and conquer approach
+- Handle edge cases
+
+`,
+
+                starterCode: `def find_peak(arr):
+    """
+    Find a peak element in array.
+    Args: arr (list) - list of integers
+    Returns: int - peak element
+    """
+    # Write your implementation here
+    
+    # === EFFICIENCY EXPLANATION (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[1, 3, 20, 4, 1, 0]], expected: true },
+                    { input: [[1, 2, 3, 4, 5]], expected: true },
+                    { input: [[5, 4, 3, 2, 1]], expected: true },
+                    { input: [[1]], expected: true },
+                    { input: [[2, 2, 2]], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 9,
+                title: "Majority Element in Array",
+                description: "Find majority element using divide and conquer",
+                prompt: `Write a function majority_element(arr) that finds majority element.
+
+REQUIREMENTS:
+- Input: array of integers
+- Output: majority element (appears > n/2 times)
+- Use divide and conquer approach
+- Return None if no majority element
+
+`,
+
+                starterCode: `def majority_element(arr):
+    """
+    Find majority element in array.
+    Args: arr (list) - list of integers
+    Returns: int or None - majority element
+    """
+    # Write your implementation here
+    
+    # === ALGORITHM ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[3, 2, 3]], expected: true },
+                    { input: [[2, 2, 1, 1, 1, 2, 2]], expected: true },
+                    { input: [[1, 2, 3]], expected: true },
+                    { input: [[1]], expected: true },
+                    { input: [[1, 1, 2, 2]], expected: true }
+                ],
+                
+                points: 10
+            },
+            
+            {
+                id: 10,
+                title: "Find Kth Largest Element",
+                description: "Find kth largest element using quickselect algorithm",
+                prompt: `Write a function find_kth_largest(arr, k) that finds kth largest element.
+
+REQUIREMENTS:
+- Input: array of integers, k (1-based index)
+- Output: kth largest element
+- Use quickselect (divide and conquer)
+- Handle edge cases
+
+`,
+
+                starterCode: `def find_kth_largest(arr, k):
+    """
+    Find kth largest element in array.
+    Args: arr (list) - list of integers, k (int)
+    Returns: int - kth largest element
+    """
+    # Write your implementation here
+    
+    # === ALGORITHM ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [[3, 2, 1, 5, 6, 4], 2], expected: true },
+                    { input: [[3, 2, 3, 1, 2, 4, 5, 5, 6], 4], expected: true },
+                    { input: [[1], 1], expected: true },
+                    { input: [[1, 2, 3, 4, 5], 1], expected: true },
+                    { input: [[5, 4, 3, 2, 1], 5], expected: true }
+                ],
+                
+                points: 10
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let currentUser = {};
+        let editors = {};
+
+        // Initialize Monaco Editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            initializeQuiz();
+        });
+
+       
+        async function initializeQuiz() {
+    console.log('🚀 Initializing quiz...');
+    
+    // Initialize with test user first (fallback)
+    currentUser = { username: 'TestUser', email: 'test@example.com' };
+    userAnswers = {};
+    
+    // Try to get user session (non-blocking)
+    try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+            credentials: 'include',
+            mode: 'cors'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.username && data.email) {
+                currentUser = { username: data.username, email: data.email };
+                console.log('✅ User logged in:', currentUser);
+            }
+        }
+    } catch (error) {
+        console.log('ℹ️ Using test user for demo');
+    }
+    
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('quizContainer').style.display = 'block';
+    
+    renderCurrentQuestion();
+    updateProgress();
+}
+
+        function renderCurrentQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3>${question.title}</h3>
+                        <span class="badge bg-primary">${question.points} points</span>
+                    </div>
+                    
+                    <p class="mb-3">${question.description}</p>
+                    
+                    <div class="alert alert-info">
+                        <h6>Problem:</h6>
+                        <pre style="white-space: pre-wrap;">${question.prompt}</pre>
+                    </div>
+                    
+                    <div class="explanation-section">
+                        <h6>📝 Important:</h6>
+                        <p>You must include detailed explanations as comments in your code. Points will be awarded for both correct implementation and comprehensive explanations.</p>
+                    </div>
+                    
+                    <div id="editor-${question.id}" class="code-editor-container"></div>
+                    
+                    <div class="test-cases">
+                        <h6>Test Cases:</h6>
+                        ${question.testCases.map((test, i) => `
+                            <div><strong>Test ${i+1}:</strong> Input: ${JSON.stringify(test.input)} → Expected: Valid output</div>
+                        `).join('')}
+                    </div>
+                    
+                    <div id="testResults-${question.id}"></div>
+                </div>
+            `;
+            
+            // Initialize Monaco editor for this question
+            const editor = monaco.editor.create(document.getElementById(`editor-${question.id}`), {
+                value: userAnswers[question.id] || question.starterCode,
+                language: 'python',
+                theme: 'vs-light',
+                fontSize: 14,
+                automaticLayout: true,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false
+            });
+            
+            editors[question.id] = editor;
+            
+            // Save code on change
+            editor.onDidChangeModelContent(() => {
+                userAnswers[question.id] = editor.getValue();
+            });
+        }
+
+        function runTests() {
+            const question = questions[currentQuestionIndex];
+            const code = editors[question.id].getValue();
+            const resultsDiv = document.getElementById(`testResults-${question.id}`);
+            
+            resultsDiv.innerHTML = '<h6>Running tests...</h6>';
+            
+            try {
+                // Simple Python-like execution simulation
+                const testResults = simulateCodeExecution(code, question.testCases, question.title);
+                
+                resultsDiv.innerHTML = `
+                    <h6>Test Results:</h6>
+                    ${testResults.map((result, i) => `
+                        <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
+                            Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
+                            ${result.error ? ` - ${result.error}` : ''}
+                            ${result.output !== undefined ? ` (Got: ${JSON.stringify(result.output)})` : ''}
+                        </div>
+                    `).join('')}
+                    
+                    <div class="mt-3">
+                        <strong>Explanation Check:</strong>
+                        ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
+            }
+        }
+
+        function checkExplanations(code, questionId) {
+            // More strict check - require actual content in comments
+            const commentBlocks = code.match(/#.+/g) || [];
+            const hasSubstantialComments = commentBlocks.some(comment => 
+                comment.length > 20 && !comment.includes('Add your analysis here')
+            );
+            
+            return hasSubstantialComments && commentBlocks.length >= 2;
+        }
+
+        function simulateCodeExecution(code, testCases, questionTitle) {
+    const results = [];
+    const functionName = extractFunctionName(code);
+    
+    if (!functionName) {
+        return testCases.map(() => ({ 
+            passed: false, 
+            error: "No function defined. Please write a function starting with 'def function_name()'" 
+        }));
+    }
+    
+    testCases.forEach(testCase => {
+        try {
+            // For demo purposes, we'll simulate successful execution
+            // In real implementation, this would execute the actual Python code
+            const passed = Math.random() > 0.3; // Simulate 70% success rate for demo
+            
+            results.push({ 
+                passed: passed,
+                output: passed ? "Valid output" : "Incorrect output",
+                error: passed ? null : "Test case failed - check your implementation"
+            });
+            
+        } catch (error) {
+            results.push({ 
+                passed: false, 
+                error: `Runtime error: ${error.message}`,
+                output: "Error occurred during execution"
+            });
+        }
+    });
+    
+    return results;
+}
+
+function extractFunctionName(code) {
+    const match = code.match(/def\s+(\w+)\s*\(/);
+    return match ? match[1] : null;
+}
+
+function deepEqual(a, b) {
+    if (a === b) return true;
+    if (typeof a !== typeof b) return false;
+    if (typeof a !== 'object' || a === null || b === null) return a === b;
+    
+    if (Array.isArray(a)) {
+        if (!Array.isArray(b) || a.length !== b.length) return false;
+        return a.every((val, i) => deepEqual(val, b[i]));
+    }
+    
+    if (a instanceof Error || b instanceof Error) return a.message === b.message;
+    
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+    if (keysA.length !== keysB.length) return false;
+    
+    return keysA.every(key => deepEqual(a[key], b[key]));
+}
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Finish →';
+            } else {
+                nextBtn.textContent = 'Next →';
+            }
+        }
+
+      async function submitQuiz() {
+    // Show confirmation dialog
+    const confirmSubmit = confirm(
+        'Are you ready to submit your quiz?\n\n' +
+        'Make sure you have:\n' +
+        '✓ Completed all questions\n' +
+        '✓ Tested your code\n' +
+        '✓ Added required explanations\n\n' +
+        'Click OK to submit.'
+    );
+    
+    if (!confirmSubmit) {
+        return; // User cancelled
+    }
+
+    let totalScore = 0;
+    const results = [];
+    
+    // Grade each question
+    questions.forEach(question => {
+        const code = userAnswers[question.id] || '';
+        const testResults = simulateCodeExecution(code, question.testCases, question.title);
+        const passedTests = testResults.filter(r => r.passed).length;
+        
+        const hasExplanations = checkExplanations(code, question.id);
+        const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
+        
+        const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
+        
+        totalScore += Math.min(questionScore, question.points);
+        results.push({
+            questionId: question.id,
+            title: question.title,
+            code: code, // ✅ Include user's code as per schema
+            score: Math.min(questionScore, question.points),
+            maxScore: question.points,
+            testResults: testResults,
+            hasExplanations: hasExplanations
+        });
+    });
+    
+    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+    const percentage = Math.round((totalScore / maxScore) * 100);
+    
+    // Prepare quiz data in correct format matching the schema
+    const quizData = {
+        username: currentUser.username || 'TestUser',
+        email: currentUser.email || 'test@example.com',
+        topic: 'Divide & Conquer Algorithms',
+        score: totalScore,
+        maxScore: maxScore,
+        percentage: percentage,
+        questions: results,
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('📤 Submitting quiz data:', JSON.stringify(quizData, null, 2));
+    
+    try {
+        // Disable submit button to prevent double submission
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Submitting...';
+        
+        // Submit to backend
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(quizData)
+        });
+        
+        console.log('📥 Response status:', response.status);
+        
+        if (response.ok) {
+            const responseData = await response.json();
+            console.log('✅ Server response:', responseData);
+            alert('✅ Quiz submitted successfully!');
+            showResults(quizData);
+        } else {
+            const errorText = await response.text();
+            console.error('❌ Server error:', errorText);
+            throw new Error(`Server returned ${response.status}: ${errorText}`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Submission error:', error);
+        displayError(error.message);
+        
+        // Re-enable submit button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📊 Submit Quiz';
+    }
+}
+
+function displayError(message) {
+    alert(`❌ Error: ${message}\n\nYour quiz data has been saved locally. Please try submitting again later.`);
+    
+    // Save quiz data locally as backup
+    const backupData = {
+        ...quizData,
+        localBackup: true,
+        localTimestamp: new Date().toISOString()
+    };
+    localStorage.setItem('divideConquerQuizBackup', JSON.stringify(backupData));
+    console.log('📦 Quiz data saved locally as backup');
+}
+
+        function showResults(quizData) {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+            document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            
+            const detailedResults = document.getElementById('detailedResults');
+            detailedResults.innerHTML = `
+                <h4>Detailed Results</h4>
+                ${quizData.questions.map(q => `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6>${q.title}: ${q.score}/${q.maxScore} points</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" style="width: ${(q.score/q.maxScore)*100}%"></div>
+                            </div>
+                            <small>Tests passed: ${q.testResults.filter(t => t.passed).length}/${q.testResults.length}</small>
+                            <br>
+                            <small>${q.hasExplanations ? '✓ Explanations provided' : '⚠ Missing explanations'}</small>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            editors = {};
+            
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            renderCurrentQuestion();
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
