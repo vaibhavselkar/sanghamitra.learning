@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-
+const mongoose = require('mongoose');
 const questionSchema = new mongoose.Schema(
   {
     week: { type: Number, required: true },
@@ -18,3 +17,4 @@ const questionSchema = new mongoose.Schema(
 );
 
 export const IITM_Maths_2_Question = mongoose.model("iitm_maths_2_question", questionSchema);
+
