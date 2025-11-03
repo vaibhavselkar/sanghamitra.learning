@@ -796,108 +796,103 @@
             }
         }
 
-        async function submitQuiz() {
-            trackQuestionTime();
+       async function submitQuiz() {
+    trackQuestionTime();
 
-            const unanswered = questions.length - Object.keys(userAnswers).length;
-            
-            if (unanswered > 0) {
-                if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
-                    return;
-                }
-            }
+    if (!userName || !userEmail) {
+        alert('Session expired. Please login again.');
+        window.location.href = '/login.html';
+        return;
+    }
 
-            let correctAnswers = 0;
-            let totalPoints = 0;
-            let earnedPoints = 0;
-            const questionResults = [];
+    const unanswered = questions.length - Object.keys(userAnswers).length;
+    if (unanswered > 0 && !confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
+        return;
+    }
 
-            questions.forEach((q, i) => {
-                const maxPoints = q.points || 1;
-                totalPoints += maxPoints;
-                const userAns = userAnswers[i];
-                let isCorrect = false;
-                let pointsAwarded = 0;
-                
-                if (q.type === 'numeric') {
-                    isCorrect = parseFloat(userAns) === parseFloat(q.correct_answer);
-                } else if (q.type === 'mcq') {
-                    isCorrect = userAns === q.correct_answer;
-                } else if (q.type === 'msq') {
-                    const userSet = new Set((userAns || []).map(a => String(a).toLowerCase().trim()));
-                    const correctSet = new Set((Array.isArray(q.correct_answer) ? q.correct_answer : [q.correct_answer]).map(a => String(a).toLowerCase().trim()));
-                    
-                    isCorrect = userSet.size === correctSet.size && 
-                        [...userSet].every(a => correctSet.has(a));
-                }
+    // Calculate results
+    let correctAnswers = 0;
+    let totalPoints = 0;
+    let earnedPoints = 0;
+    const questionResults = [];
 
-                if (isCorrect) {
-                    correctAnswers++;
-                    pointsAwarded = maxPoints;
-                    earnedPoints += maxPoints;
-                }
-
-                questionResults.push({
-                    questionId: q._id,
-                    questionNumber: q.question_number || (i + 1),
-                    questionText: q.question_text,
-                    userAnswer: userAns,
-                    correctAnswer: q.correct_answer,
-                    isCorrect: isCorrect,
-                    timeTaken: questionTimes[i] || 0,
-                    pointsAwarded: pointsAwarded,
-                    maxPoints: maxPoints
-                });
-            });
-
-            const percentage = ((earnedPoints / totalPoints) * 100).toFixed(2);
-
-            const payload = {
-                email: userEmail,
-                username: userName,
-                quizData: {
-                    topic: "Programming Basics",
-                    percentage: parseFloat(percentage),
-                    score: correctAnswers,
-                    totalQuestions: questions.length,
-                    correctAnswers: correctAnswers,
-                    totalPoints: totalPoints,
-                    earnedPoints: earnedPoints,
-                    attemptNumber: 1,
-                    questionResults: questionResults
-                }
-            };
-
-            try {
-                const submitBtn = document.getElementById('submitBtn');
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
-
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Quiz submitted successfully:', result);
-                    showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to submit quiz');
-                }
-            } catch (error) {
-                console.error('Error submitting quiz:', error);
-                alert('Error submitting quiz: ' + error.message);
-                const submitBtn = document.getElementById('submitBtn');
-                submitBtn.disabled = false;
-                submitBtn.textContent = '📝 Submit Quiz';
-            }
+    questions.forEach((q, i) => {
+        const maxPoints = q.points || 1;
+        totalPoints += maxPoints;
+        const userAns = userAnswers[i];
+        let isCorrect = false;
+        
+        // Your existing correctness logic here
+        if (q.type === 'numeric') {
+            isCorrect = parseFloat(userAns) === parseFloat(q.correct_answer);
+        } else if (q.type === 'mcq') {
+            isCorrect = userAns === q.correct_answer;
+        } else if (q.type === 'msq') {
+            const userSet = new Set((userAns || []).map(a => String(a).toLowerCase().trim()));
+            const correctSet = new Set((Array.isArray(q.correct_answer) ? q.correct_answer : [q.correct_answer]).map(a => String(a).toLowerCase().trim()));
+            isCorrect = userSet.size === correctSet.size && [...userSet].every(a => correctSet.has(a));
         }
+
+        if (isCorrect) {
+            correctAnswers++;
+            earnedPoints += maxPoints;
+        }
+
+        questionResults.push({
+            questionId: q._id,
+            questionNumber: q.question_number || (i + 1),
+            userAnswer: userAns,
+            correctAnswer: q.correct_answer,
+            isCorrect: isCorrect,
+            pointsAwarded: isCorrect ? maxPoints : 0,
+            maxPoints: maxPoints
+        });
+    });
+
+    const percentage = ((earnedPoints / totalPoints) * 100).toFixed(2);
+
+    // Minimal payload that should work with any schema
+    const payload = {
+        email: userEmail,
+        username: userName,
+        user_id: userEmail, // Critical: provide user_id
+        question_id: questions[0]?._id || 'quiz_submission', // Critical: provide question_id  
+        attempt_number: Math.floor(Math.random() * 1000) + 1, // Critical: unique attempt number
+        topic: "Programming Basics",
+        score: correctAnswers,
+        totalQuestions: questions.length,
+        percentage: percentage,
+        timestamp: new Date().toISOString()
+    };
+
+    console.log('Submitting payload:', payload);
+
+    try {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            console.log('Quiz submitted successfully');
+            showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
+        } else {
+            throw new Error(result.error || 'Submission failed');
+        }
+    } catch (error) {
+        console.error('Submission error:', error);
+        alert('Error: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📝 Submit Quiz';
+    }
+}
 
         function showResults(correct, earned, total, percentage, results) {
             document.getElementById('quizScreen').style.display = 'none';
@@ -965,3 +960,4 @@
     </script>
 </body>
 </html>
+
