@@ -2516,6 +2516,68 @@ router.get('/iitm-math-questions/quiz9', async (req, res) => {
 
 
 // Quiz 10: Function Limits questions route
+router.get('/iitm-math-questions/quiz9', async (req, res) => {
+  try {
+    const { email, count = 50 } = req.query;
+   
+    if (!email) {
+      return res.status(400).json({
+        error: 'Email is required to track question history'
+      });
+    }
+
+    let userScore = await iitm_math_score.findOne({ email });
+    const completedQuestionIds = userScore?.completedQuestionIds || [];
+   
+    console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
+
+    // Find all available questions excluding completed ones
+    let availableQuestions = await IITMathQuestion.find({
+      topic: "logarithmic_functions",  // Topic for Quiz 9
+      _id: { $nin: completedQuestionIds }
+    });
+
+    console.log(`Found ${availableQuestions.length} new questions available for logarithmic_functions topic`);
+
+    // Handle case where user has completed most questions
+    if (availableQuestions.length === 0) {
+      return res.status(200).json({
+        message: "All logarithmic_functions questions completed",
+        questions: [],
+        resetAvailable: true,
+        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "logarithmic_functions" })
+      });
+    }
+
+    // If less than requested count available, return all available
+    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+   
+    // Randomly shuffle and select questions
+    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+    const selectedQuestions = shuffled.slice(0, questionsToReturn);
+   
+    // Sort selected questions by question_number for consistent display
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`Returning ${selectedQuestions.length} random logarithmic_functions questions for user ${email}`);
+
+    res.json({
+      questions: selectedQuestions,
+      metadata: {
+        totalAvailable: availableQuestions.length,
+        totalCompleted: completedQuestionIds.length,
+        selectedCount: selectedQuestions.length,
+        requestedCount: parseInt(count)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching Quiz 9 (logarithmic_functions) questions:', error);
+    res.status(500).json({ error: 'Failed to fetch logarithmic_functions questions' });
+  }
+});
+
+// Quiz 10 - Function Limits
 router.get('/iitm-math-questions/quiz10', async (req, res) => {
   try {
     const { email, count = 50 } = req.query;
@@ -3309,6 +3371,7 @@ router.get("/iitm_math2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
