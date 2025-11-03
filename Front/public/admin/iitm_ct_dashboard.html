@@ -334,7 +334,7 @@
     // Load data from CT API
     async function loadData() {
       try {
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm-ct-scores');
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores');
         const result = await response.json();
         
         if (!result.success) {
@@ -821,5 +821,6 @@
   </script>
 </body>
 </html>
+
 
 
