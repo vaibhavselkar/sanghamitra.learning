@@ -799,18 +799,23 @@
        async function submitQuiz() {
     trackQuestionTime();
 
+    // Validate session info before submitting
     if (!userName || !userEmail) {
         alert('Session expired. Please login again.');
         window.location.href = '/login.html';
         return;
     }
+    
+    console.log('Submitting with user:', { userName, userEmail });
 
     const unanswered = questions.length - Object.keys(userAnswers).length;
-    if (unanswered > 0 && !confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
-        return;
+    
+    if (unanswered > 0) {
+        if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
+            return;
+        }
     }
 
-    // Calculate results
     let correctAnswers = 0;
     let totalPoints = 0;
     let earnedPoints = 0;
@@ -821,8 +826,8 @@
         totalPoints += maxPoints;
         const userAns = userAnswers[i];
         let isCorrect = false;
+        let pointsAwarded = 0;
         
-        // Your existing correctness logic here
         if (q.type === 'numeric') {
             isCorrect = parseFloat(userAns) === parseFloat(q.correct_answer);
         } else if (q.type === 'mcq') {
@@ -830,67 +835,167 @@
         } else if (q.type === 'msq') {
             const userSet = new Set((userAns || []).map(a => String(a).toLowerCase().trim()));
             const correctSet = new Set((Array.isArray(q.correct_answer) ? q.correct_answer : [q.correct_answer]).map(a => String(a).toLowerCase().trim()));
-            isCorrect = userSet.size === correctSet.size && [...userSet].every(a => correctSet.has(a));
+            
+            isCorrect = userSet.size === correctSet.size && 
+                [...userSet].every(a => correctSet.has(a));
         }
 
         if (isCorrect) {
             correctAnswers++;
+            pointsAwarded = maxPoints;
             earnedPoints += maxPoints;
         }
 
         questionResults.push({
             questionId: q._id,
             questionNumber: q.question_number || (i + 1),
+            questionText: q.question_text,
             userAnswer: userAns,
             correctAnswer: q.correct_answer,
             isCorrect: isCorrect,
-            pointsAwarded: isCorrect ? maxPoints : 0,
+            timeTaken: questionTimes[i] || 0,
+            pointsAwarded: pointsAwarded,
             maxPoints: maxPoints
         });
     });
 
     const percentage = ((earnedPoints / totalPoints) * 100).toFixed(2);
 
-    // Minimal payload that should work with any schema
+    // Create payload that matches backend expectations
     const payload = {
+        user_id: userEmail, // Use email as user_id since it's unique
         email: userEmail,
         username: userName,
-        user_id: userEmail, // Critical: provide user_id
-        question_id: questions[0]?._id || 'quiz_submission', // Critical: provide question_id  
-        attempt_number: Math.floor(Math.random() * 1000) + 1, // Critical: unique attempt number
+        question_id: questions[currentQuestionIndex]?._id || 'default_question_id', // Provide a default
+        attempt_number: 1, // Explicitly set attempt number
         topic: "Programming Basics",
+        percentage: parseFloat(percentage),
         score: correctAnswers,
         totalQuestions: questions.length,
-        percentage: percentage,
-        timestamp: new Date().toISOString()
+        correctAnswers: correctAnswers,
+        totalPoints: totalPoints,
+        earnedPoints: earnedPoints,
+        timestamp: new Date().toISOString(),
+        questionResults: questionResults,
+        // Include all possible fields that backend might expect
+        completedQuestionIds: questions.map(q => q._id).filter(id => id), // Only include valid IDs
+        quizData: {
+            topic: "Programming Basics",
+            percentage: parseFloat(percentage),
+            score: correctAnswers,
+            totalQuestions: questions.length,
+            correctAnswers: correctAnswers,
+            totalPoints: totalPoints,
+            earnedPoints: earnedPoints,
+            attemptNumber: 1,
+            timestamp: new Date().toISOString(),
+            questionResults: questionResults
+        }
     };
 
-    console.log('Submitting payload:', payload);
+    // Clean up payload - remove any null/undefined values that might cause index conflicts
+    Object.keys(payload).forEach(key => {
+        if (payload[key] === null || payload[key] === undefined) {
+            delete payload[key];
+        }
+    });
+
+    // Detailed logging
+    console.log('=== FINAL PAYLOAD ===');
+    console.log('User ID:', payload.user_id);
+    console.log('Email:', payload.email);
+    console.log('Question ID:', payload.question_id);
+    console.log('Attempt Number:', payload.attempt_number);
+    console.log('All required fields present:', 
+        payload.user_id && payload.email && payload.question_id && payload.attempt_number);
+    console.log('Full payload:', JSON.stringify(payload, null, 2));
 
     try {
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting...';
 
+        console.log('Sending POST request...');
         const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
             body: JSON.stringify(payload)
         });
 
-        const result = await response.json();
-        
+        console.log('Response status:', response.status);
+        const responseText = await response.text();
+        console.log('Response body:', responseText);
+
         if (response.ok) {
-            console.log('Quiz submitted successfully');
+            const result = JSON.parse(responseText);
+            console.log('✓ Quiz submitted successfully:', result);
             showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
         } else {
-            throw new Error(result.error || 'Submission failed');
+            let errorData;
+            try {
+                errorData = JSON.parse(responseText);
+            } catch (e) {
+                errorData = { error: responseText };
+            }
+            console.error('❌ Server returned error:', errorData);
+            
+            // If it's still a duplicate key error, try with a different attempt number
+            if (responseText.includes('duplicate key') || responseText.includes('E11000')) {
+                console.log('Retrying with different attempt number...');
+                payload.attempt_number = 2; // Try a different attempt number
+                await retrySubmission(payload);
+            } else {
+                throw new Error(errorData.error || 'Failed to submit quiz');
+            }
         }
     } catch (error) {
-        console.error('Submission error:', error);
-        alert('Error: ' + error.message);
+        console.error('❌ Submit error:', error);
+        alert('Error submitting quiz: ' + error.message + '\n\nCheck console for details.');
+        const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = false;
         submitBtn.textContent = '📝 Submit Quiz';
+    }
+}
+
+// Retry function for duplicate key errors
+async function retrySubmission(payload) {
+    try {
+        // Increment attempt number for retry
+        payload.attempt_number = (payload.attempt_number || 1) + 1;
+        
+        console.log('Retrying with attempt number:', payload.attempt_number);
+        
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        });
+
+        const responseText = await response.text();
+        console.log('Retry response status:', response.status);
+
+        if (response.ok) {
+            const result = JSON.parse(responseText);
+            console.log('✓ Quiz submitted successfully on retry:', result);
+            showResults(
+                payload.quizData.correctAnswers, 
+                payload.quizData.earnedPoints, 
+                payload.quizData.totalPoints, 
+                payload.quizData.percentage, 
+                payload.quizData.questionResults
+            );
+        } else {
+            throw new Error(`Retry failed: ${responseText}`);
+        }
+    } catch (error) {
+        console.error('❌ Retry failed:', error);
+        throw error;
     }
 }
 
@@ -960,4 +1065,5 @@
     </script>
 </body>
 </html>
+
 
