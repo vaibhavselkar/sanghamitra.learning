@@ -891,7 +891,7 @@
                     throw new Error(errorData.error || 'Failed to submit quiz');
                 }
             } catch (error) {
-                console.error('Error submitting quiz:', error);
+    
                 alert('Error submitting quiz: ' + error.message);
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = false;
@@ -965,3 +965,4 @@
     </script>
 </body>
 </html>
+
