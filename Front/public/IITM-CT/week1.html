@@ -838,6 +838,9 @@
                 }
 
                 questionResults.push({
+                    user_id: userEmail,           // ADD THIS LINE
+                    question_id: q._id,           // ADD THIS LINE
+                    attempt_number: 1,            // ADD THIS LINE
                     questionId: q._id,
                     questionNumber: q.question_number || (i + 1),
                     questionText: q.question_text,
@@ -965,6 +968,7 @@
     </script>
 </body>
 </html>
+
 
 
 
