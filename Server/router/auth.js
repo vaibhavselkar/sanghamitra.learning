@@ -2580,50 +2580,57 @@ router.get('/iitm-math-questions/quiz9', async (req, res) => {
 });
 
 // Quiz 10 - Function Limits
+// Add this route for Quiz 10 - Function Limits
 router.get('/iitm-math-questions/quiz10', async (req, res) => {
   try {
     const { email, count = 50 } = req.query;
-   
+    
     if (!email) {
-      return res.status(400).json({
-        error: 'Email is required to track question history'
+      return res.status(400).json({ 
+        error: 'Email is required to track question history' 
       });
     }
 
+    console.log(`📥 Fetching Quiz 10 questions for: ${email}`);
+    
+    // Find user's progress
     let userScore = await iitm_math_score.findOne({ email });
     const completedQuestionIds = userScore?.completedQuestionIds || [];
-   
-    console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
+    
+    console.log(`✅ User ${email} has completed ${completedQuestionIds.length} questions`);
 
-    // Find all available questions excluding completed ones
+    // Find available questions
     let availableQuestions = await IITMathQuestion.find({
-      topic: "function_limits",  // Topic for Quiz 10
+      topic: "function_limits",
       _id: { $nin: completedQuestionIds }
     });
 
-    console.log(`Found ${availableQuestions.length} new questions available for function_limits topic`);
+    console.log(`📚 Found ${availableQuestions.length} available questions`);
 
-    // Handle case where user has completed most questions
+    // Handle no questions available
     if (availableQuestions.length === 0) {
+      const totalInPool = await IITMathQuestion.countDocuments({ topic: "function_limits" });
+      console.log(`❌ No questions available. Total in pool: ${totalInPool}`);
+      
       return res.status(200).json({
         message: "All function_limits questions completed",
         questions: [],
         resetAvailable: true,
-        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "function_limits" })
+        totalQuestionsInPool: totalInPool
       });
     }
 
-    // If less than requested count available, return all available
+    // Select questions
     const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-   
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+    
+    // Random selection
+    const shuffled = [...availableQuestions].sort(() => 0.5 - Math.random());
     const selectedQuestions = shuffled.slice(0, questionsToReturn);
-   
-    // Sort selected questions by question_number for consistent display
+    
+    // Sort by question number
     selectedQuestions.sort((a, b) => a.question_number - b.question_number);
 
-    console.log(`Returning ${selectedQuestions.length} random function_limits questions for user ${email}`);
+    console.log(`🎯 Returning ${selectedQuestions.length} questions`);
 
     res.json({
       questions: selectedQuestions,
@@ -2636,44 +2643,33 @@ router.get('/iitm-math-questions/quiz10', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error fetching Quiz 10 (function_limits) questions:', error);
-    res.status(500).json({ error: 'Failed to fetch function_limits questions' });
+    console.error('❌ Error fetching Quiz 10 questions:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch function_limits questions',
+      details: error.message 
+    });
   }
 });
 
-router.get('/iitmmath_scores', async (req, res) => {
+// Add this test endpoint to check database
+router.get('/debug-function-limits', async (req, res) => {
   try {
-    const { email } = req.query;
-
-    if (email) {
-      const user = await iitm_math_score.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-      res.json({ success: true, data: user });
-    } else {
-      const users = await iitm_math_score.find({});
-      res.json({ success: true, data: users });
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Test route to check what's in your database
-router.get('/api/test-iitm-questions', async (req, res) => {
-  try {
-    const count = await IITMathQuestion.countDocuments();
-    const topics = await IITMathQuestion.distinct('topic');
-    const sampleQuestions = await IITMathQuestion.find().limit(3);
+    const totalQuestions = await IITMathQuestion.countDocuments({ topic: "function_limits" });
+    const sampleQuestions = await IITMathQuestion.find({ topic: "function_limits" }).limit(3);
+    const allTopics = await IITMathQuestion.distinct('topic');
     
-    res.json({ 
-      totalQuestions: count,
-      availableTopics: topics,
-      sampleQuestions: sampleQuestions
+    res.json({
+      totalFunctionLimitsQuestions: totalQuestions,
+      availableTopics: allTopics,
+      sampleQuestions: sampleQuestions.map(q => ({
+        id: q._id,
+        topic: q.topic,
+        question_text: q.question_text?.substring(0, 100) + '...',
+        type: q.type,
+        difficulty: q.difficulty
+      }))
     });
   } catch (error) {
-    console.error('Database test error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -3469,6 +3465,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
