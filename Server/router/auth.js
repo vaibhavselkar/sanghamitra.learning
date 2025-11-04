@@ -2583,7 +2583,7 @@ router.get('/iitm-math-questions/quiz9', async (req, res) => {
 // Add this route for Quiz 10 - Function Limits
 router.get('/iitm-math-questions/quiz10', async (req, res) => {
   try {
-    const { email, count = 50 } = req.query;
+    const { email, count = 34, topic = "Function_Limits" } = req.query;
     
     if (!email) {
       return res.status(400).json({ 
@@ -2591,7 +2591,7 @@ router.get('/iitm-math-questions/quiz10', async (req, res) => {
       });
     }
 
-    console.log(`📥 Fetching Quiz 10 questions for: ${email}`);
+    console.log(`📥 Fetching Quiz 10 questions for: ${email}, topic: ${topic}`);
     
     // Find user's progress
     let userScore = await iitm_math_score.findOne({ email });
@@ -2599,21 +2599,21 @@ router.get('/iitm-math-questions/quiz10', async (req, res) => {
     
     console.log(`✅ User ${email} has completed ${completedQuestionIds.length} questions`);
 
-    // Find available questions
+    // Find available questions - FIXED: using correct topic name
     let availableQuestions = await IITMathQuestion.find({
-      topic: "function_limits",
+      topic: topic, // Use the topic from query parameter
       _id: { $nin: completedQuestionIds }
     });
 
-    console.log(`📚 Found ${availableQuestions.length} available questions`);
+    console.log(`📚 Found ${availableQuestions.length} available questions for topic: ${topic}`);
 
     // Handle no questions available
     if (availableQuestions.length === 0) {
-      const totalInPool = await IITMathQuestion.countDocuments({ topic: "function_limits" });
+      const totalInPool = await IITMathQuestion.countDocuments({ topic: topic });
       console.log(`❌ No questions available. Total in pool: ${totalInPool}`);
       
       return res.status(200).json({
-        message: "All function_limits questions completed",
+        message: `All ${topic} questions completed`,
         questions: [],
         resetAvailable: true,
         totalQuestionsInPool: totalInPool
@@ -2627,8 +2627,8 @@ router.get('/iitm-math-questions/quiz10', async (req, res) => {
     const shuffled = [...availableQuestions].sort(() => 0.5 - Math.random());
     const selectedQuestions = shuffled.slice(0, questionsToReturn);
     
-    // Sort by question number
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+    // Sort by question number for consistent display
+    selectedQuestions.sort((a, b) => (a.question_number || 0) - (b.question_number || 0));
 
     console.log(`🎯 Returning ${selectedQuestions.length} questions`);
 
@@ -2645,7 +2645,7 @@ router.get('/iitm-math-questions/quiz10', async (req, res) => {
   } catch (error) {
     console.error('❌ Error fetching Quiz 10 questions:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch function_limits questions',
+      error: `Failed to fetch ${req.query.topic || 'Function_Limits'} questions`,
       details: error.message 
     });
   }
@@ -2654,8 +2654,8 @@ router.get('/iitm-math-questions/quiz10', async (req, res) => {
 // Add this test endpoint to check database
 router.get('/debug-function-limits', async (req, res) => {
   try {
-    const totalQuestions = await IITMathQuestion.countDocuments({ topic: "function_limits" });
-    const sampleQuestions = await IITMathQuestion.find({ topic: "function_limits" }).limit(3);
+    const totalQuestions = await IITMathQuestion.countDocuments({ topic: "Function_Limits" });
+    const sampleQuestions = await IITMathQuestion.find({ topic: "Function_Limits" }).limit(3);
     const allTopics = await IITMathQuestion.distinct('topic');
     
     res.json({
@@ -3465,6 +3465,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
