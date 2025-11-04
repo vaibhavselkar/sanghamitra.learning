@@ -727,7 +727,7 @@ router.post('/rc_score', async (req, res) => {
   const scorePercentage = (correctAnswers / totalQuestions) * 100;
 
   try {
-      // Find or create user progress
+      // Find or create user progress.
       let userProgress = await ReadingComprehensionScore.findOne({ email });
 
       if (!userProgress) {
@@ -3469,6 +3469,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
