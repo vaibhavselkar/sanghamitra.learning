@@ -58,6 +58,17 @@
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
         }
+
+                /* Allow interaction with quiz options */
+        .option, .option *, .numeric-input {
+            pointer-events: auto !important;
+            user-select: auto;
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            pointer-events: auto !important;
+            cursor: pointer;
+        }
         
         body {
             -webkit-print-color-adjust: exact;
@@ -338,7 +349,7 @@
     <div class="container">
         <div class="header">
             <h1>Function Concepts Quiz</h1>
-            <p>Test your knowledge of function concepts with 30 comprehensive questions</p>
+            <p>Test your knowledge of function concepts with 50 comprehensive questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -417,7 +428,7 @@
                 
                 // CHANGED: function_concepts topic use karo
                 // NEW: Pass email to get personalized question set
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/quiz8?email=${encodeURIComponent(email)}&count=30`, {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/quiz8?email=${encodeURIComponent(email)}&count=50`, {
                     credentials: 'include'
                 });
                 
@@ -578,7 +589,7 @@
     }
     
     // Auto-submit quiz after too many attempts
-    if (cheatingAttempts >= 9) {
+    if (cheatingAttempts >= 5) {
         alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
         submitQuiz();
     }
@@ -1364,7 +1375,4 @@ if (question.type === 'interval_input') {
 </body>
 
 </html>
-
-
-
 
