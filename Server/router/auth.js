@@ -2583,7 +2583,7 @@ router.get('/iitm-math-questions/quiz9', async (req, res) => {
 // Add this route for Quiz 10 - Function Limits
 router.get('/iitm-math-questions/quiz10', async (req, res) => {
   try {
-    const { email, count = 34, topic = "Function_Limits" } = req.query;
+    const { email, count = 50, topic = "Function_Limits" } = req.query;
     
     if (!email) {
       return res.status(400).json({ 
@@ -3465,6 +3465,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
