@@ -60,14 +60,30 @@
         }
 
                 /* Allow interaction with quiz options */
+     /* Allow interaction with quiz options */
         .option, .option *, .numeric-input {
             pointer-events: auto !important;
-            user-select: auto;
+            -webkit-user-select: auto !important;
+            -moz-user-select: auto !important;
+            -ms-user-select: auto !important;
+            user-select: auto !important;
         }
 
         input[type="radio"], input[type="checkbox"] {
             pointer-events: auto !important;
-            cursor: pointer;
+            cursor: pointer !important;
+            -webkit-appearance: radio;
+            appearance: radio;
+        }
+        
+        input[type="checkbox"] {
+            -webkit-appearance: checkbox;
+            appearance: checkbox;
+        }
+        
+        label {
+            cursor: pointer !important;
+            pointer-events: auto !important;
         }
         
         body {
@@ -1375,4 +1391,5 @@ if (question.type === 'interval_input') {
 </body>
 
 </html>
+
 
