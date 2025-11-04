@@ -49,18 +49,16 @@
             border-radius: 8px;
             font-size: 16px;
         }
+        
         /* Anti-cheating CSS */
-        * {
+        body, .container, .header, .question-text {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
-                /* Allow interaction with quiz options */
-     /* Allow interaction with quiz options */
+        /* Allow interaction with quiz options */
         .option, .option *, .numeric-input {
             pointer-events: auto !important;
             -webkit-user-select: auto !important;
@@ -69,21 +67,20 @@
             user-select: auto !important;
         }
 
-        input[type="radio"], input[type="checkbox"] {
+        input[type="radio"] {
             pointer-events: auto !important;
             cursor: pointer !important;
             -webkit-appearance: radio;
             appearance: radio;
+            margin-right: 10px;
         }
-        
+
         input[type="checkbox"] {
+            pointer-events: auto !important;
+            cursor: pointer !important;
             -webkit-appearance: checkbox;
             appearance: checkbox;
-        }
-        
-        label {
-            cursor: pointer !important;
-            pointer-events: auto !important;
+            margin-right: 10px;
         }
         
         body {
@@ -296,6 +293,22 @@
             padding: 15px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .option input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
         }
 
         .option:hover { border-color: #667eea; background: #f0f8ff; }
@@ -1391,5 +1404,4 @@ if (question.type === 'interval_input') {
 </body>
 
 </html>
-
 
