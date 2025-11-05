@@ -480,7 +480,7 @@
         }
        
 
-        function renderCurrentQuestion() {
+       function renderCurrentQuestion() {
     const container = document.getElementById('questionContainer');
     const question = questions[currentQuestionIndex];
     
@@ -575,36 +575,7 @@
     console.log('Question rendered successfully'); // Debug log
 }
 
-        function restoreAnswer() {
-    const question = questions[currentQuestionIndex];
-    const savedAnswer = userAnswers[currentQuestionIndex];
-    
-    if (!savedAnswer) return;
-
-    if (question.type === 'multiple_choice') {
-        // Find and select the option that matches the saved answer
-        const options = document.querySelectorAll(`.option input[name="q${currentQuestionIndex}"]`);
-        options.forEach(option => {
-            if (option.value === savedAnswer) {
-                option.checked = true;
-                option.closest('.option').classList.add('selected');
-            }
-        });
-    } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-        savedAnswer.forEach(answer => {
-            const option = document.querySelector(`input[value="${answer}"]`);
-            if (option) {
-                option.checked = true;
-                option.closest('.option').classList.add('selected');
-            }
-        });
-    } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
-        const input = document.querySelector('.numeric-input');
-        if (input) {
-            input.value = savedAnswer;
-        }
-    }
-}
+       function selectOption(questionIndex, value, type) {
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
@@ -1222,6 +1193,7 @@ async function submitQuiz() {
 </body>
 
 </html>
+
 
 
 
