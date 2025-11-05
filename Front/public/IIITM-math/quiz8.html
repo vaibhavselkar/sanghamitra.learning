@@ -480,11 +480,14 @@
         }
        
 
-       function renderCurrentQuestion() {
+      function renderCurrentQuestion() {
     const container = document.getElementById('questionContainer');
     const question = questions[currentQuestionIndex];
     
-    console.log('Rendering question:', question); // Debug log
+    // Debug logging to see what's happening
+    console.log('Current question:', question);
+    console.log('Question type:', question.type);
+    console.log('Options available:', question.options);
     
     container.innerHTML = '';
 
@@ -493,36 +496,32 @@
 
     let optionsHtml = '';
     
-    // Debug: Check question type and options
-    console.log('Question type:', question.type);
-    console.log('Options available:', question.options);
-    
-    if (question.type === 'multiple_choice') {
+    // Handle different question types more robustly
+    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
         optionsHtml = question.options.map((option, optIndex) => {
-            // Clean the option text for HTML
-            const cleanOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+            // Sanitize option text for HTML
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${cleanOption}', 'radio')">
-                    <input type="radio" name="q${currentQuestionIndex}" value="${cleanOption}" id="q${currentQuestionIndex}_${optIndex}">
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                     <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
             `;
         }).join('');
-        
-        console.log('Generated MCQ HTML:', optionsHtml); // Debug log
-        
-    } else if (question.type === 'multiple_select') {
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
         optionsHtml = question.options.map((option, optIndex) => {
-            const cleanOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${cleanOption}', 'checkbox')">
-                    <input type="checkbox" name="q${currentQuestionIndex}" value="${cleanOption}" id="q${currentQuestionIndex}_${optIndex}">
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                     <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
             `;
         }).join('');
-    } else {
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
         const placeholder = question.format_hint || "Enter your answer";
+        
+        // Add specific placeholders based on type
         let specificPlaceholder = placeholder;
         if (question.type === 'coordinate_input') {
             specificPlaceholder = "Enter coordinates as (x, y)";
@@ -539,29 +538,42 @@
                    onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
                    oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
                    autocomplete="off"
-                   spellcheck="false">
+                   spellcheck="false"
+                   style="width: 100%; max-width: 300px;">
             <div class="format-help" style="font-size: 12px; color: #666; margin-top: 5px;">
                 ${question.format_hint || ''}
             </div>
         `;
+    } else {
+        // Fallback for unknown or missing question types
+        console.warn('Unknown question type or missing options:', question.type, question);
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options. Please contact administrator.
+            </div>
+        `;
     }
 
+    // Add difficulty badge with fallback
     const difficultyColor = {
         'easy': '#28a745',
         'medium': '#ffc107', 
         'hard': '#dc3545'
     };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
     questionDiv.innerHTML = `
         <div class="question-header">
             <div class="question-number">${currentQuestionIndex + 1}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                    ${question.difficulty}
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
                 </span>
             </div>
         </div>
-        <div class="question-text">${question.question_text}</div>
+        <div class="question-text">${question.question_text || 'Question text not available'}</div>
         ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
         <div class="options">${optionsHtml}</div>
     `;
@@ -571,8 +583,6 @@
     // Restore previous answer if exists
     restoreAnswer();
     updateAnswerStatus();
-    
-    console.log('Question rendered successfully'); // Debug log
 }
 
         function restoreAnswer() {
@@ -1203,6 +1213,7 @@ async function submitQuiz() {
 </body>
 
 </html>
+
 
 
 
