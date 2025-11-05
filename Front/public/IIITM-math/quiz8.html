@@ -285,28 +285,7 @@
         display: none; 
     }
 
-    /* Warning overlay */
-    .warning-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(220, 53, 69, 0.95);
-        color: white;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        font-size: 2rem;
-        text-align: center;
-    }
-
-    /* Blur content when window loses focus */
-    body.blurred {
-        filter: blur(5px);
-        transition: filter 0.3s ease;
-    }
+    
 
     @media (max-width: 768px) {
         .results-container {
@@ -384,14 +363,7 @@
             <button class="btn" onclick="goback()">Home Page</button>
         </div>
     </div>
-   <!-- Anti-cheating warning overlay -->
-    <div id="warningOverlay" class="warning-overlay">
-        <div>
-            <h2>CHEATING ATTEMPT DETECTED</h2>
-            <p>Please return to the quiz window</p>
-            <p>Your activity is being monitored</p>
-        </div>
-    </div>
+  
 
     
     <script>
@@ -465,142 +437,6 @@
             }
         }
 
-
-       // Anti-cheating variables
-        let cheatingAttempts = 0;
-        let isQuizActive = false;
-        let devToolsWarned = false;
-        
-        // Anti-cheating initialization
-        function initializeAntiCheating() {
-            // Disable right-click
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                recordCheatingAttempt('right_click');
-                return false;
-            });
-            
-            // Disable common keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
-                if (e.keyCode === 123 || // F12
-                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
-                    (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
-                    (e.ctrlKey && e.keyCode === 83) || // Ctrl+S
-                    e.keyCode === 44) { // Print Screen
-                    e.preventDefault();
-                    recordCheatingAttempt('keyboard_shortcut');
-                    return false;
-                }
-                
-                // Disable Ctrl+A, Ctrl+C, Ctrl+V
-                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
-                    e.preventDefault();
-                    recordCheatingAttempt('copy_attempt');
-                    return false;
-                }
-            });
-            
-            // Detect developer tools
-            let devtools = {open: false, orientation: null};
-            const threshold = 160;
-            
-            setInterval(function() {
-                if (window.outerHeight - window.innerHeight > threshold || 
-                    window.outerWidth - window.innerWidth > threshold) {
-                    if (!devtools.open) {
-                        devtools.open = true;
-                        recordCheatingAttempt('developer_tools');
-                        if (!devToolsWarned) {
-                            alert('Developer tools detected! This attempt has been logged.');
-                            devToolsWarned = true;
-                        }
-                    }
-                } else {
-                    devtools.open = false;
-                }
-            }, 500);
-            
-            // Detect window focus changes
-            window.addEventListener('blur', function() {
-                if (isQuizActive) {
-                    document.body.classList.add('blurred');
-                    document.getElementById('warningOverlay').style.display = 'flex';
-                    recordCheatingAttempt('window_blur');
-                }
-            });
-            
-            window.addEventListener('focus', function() {
-                document.body.classList.remove('blurred');
-                document.getElementById('warningOverlay').style.display = 'none';
-            });
-            
-            // Prevent text selection
-            document.onselectstart = function() {
-                recordCheatingAttempt('text_selection');
-                return false;
-            };
-            
-            // Disable drag
-            document.ondragstart = function() {
-                return false;
-            };
-            
-            // Monitor for screenshot attempts (limited effectiveness)
-            document.addEventListener('keyup', function(e) {
-                if (e.keyCode === 44) { // Print Screen released
-                    recordCheatingAttempt('screenshot_attempt');
-                    alert('Screenshot attempt detected and logged!');
-                }
-            });
-        }
-        
-        // Record cheating attempts
-        function recordCheatingAttempt(type) {
-    cheatingAttempts++;
-    console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
-    
-    // FIXED: Correct API endpoint for logging cheating
-    if (username && email) {
-        fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-                username: username,
-                email: email,
-                cheatingType: type,
-                timestamp: new Date(),
-                currentQuestion: currentQuestionIndex + 1
-            })
-        }).catch(err => console.error('Failed to log cheating attempt:', err));
-    }
-    
-    // Auto-submit quiz after too many attempts
-    if (cheatingAttempts >= 5) {
-        alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
-        submitQuiz();
-    }
-}
-        
-        // Disable printing
-        window.addEventListener('beforeprint', function(e) {
-            recordCheatingAttempt('print_attempt');
-            e.preventDefault();
-            return false;
-        });
-        
-        // Hide questions from view source
-        function obfuscateQuestions() {
-            // This would require server-side implementation
-            // For now, we'll just make it harder to find in console
-            Object.defineProperty(window, 'questions', {
-                get: function() {
-                    recordCheatingAttempt('questions_access');
-                    return [];
-                }
-            });
-        }
         
         // Initialize quiz timing
         function initializeQuizTiming() {
@@ -640,46 +476,6 @@
                 console.error('Error fetching session info:', error);
                 alert('Error connecting to server. Please try again.');
                 return false;
-            }
-        }
-
-       async function initializeQuiz() {
-            try {
-                // Initialize anti-cheating first
-                initializeAntiCheating();
-                
-                const sessionValid = await fetchSessionInfo();
-                if (!sessionValid) return;
-                
-                // NEW: Load questions from API
-                const questionsLoaded = await loadQuestions();
-                if (!questionsLoaded) return;
-                
-                currentUser = { username, email };
-                
-                // Initialize timing
-                initializeQuizTiming();
-                isQuizActive = true; // Enable anti-cheating monitoring
-                
-                // Hide loading screen and show quiz
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('quizContainer').style.display = 'block';
-                
-                // Obfuscate questions
-                obfuscateQuestions();
-                
-                renderCurrentQuestion();
-                updateProgress();
-                
-                // Full screen request (optional)
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.log('Fullscreen request failed:', err);
-                    });
-                }
-            } catch (error) {
-                console.error('Error initializing quiz:', error);
-                alert('Error starting quiz. Please try again.');
             }
         }
        
@@ -1047,211 +843,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
             return 'hard';
         }
 
-        // FIXED: Updated submit function with correct request structure
-        async function submitQuiz() {
-            // Show polite confirmation popup
-            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Function Concepts Quiz?`);
-            
-            if (!confirmSubmit) {
-                return; // User clicked Cancel, don't submit
-            }
-        
-            if (!username || !email) {
-                alert("Error: User session data not found. Please log in.");
-                return;
-            }
-
-            // Track final question time
-            trackQuestionTime();
-            isQuizActive = false;
-            const quizEndTime = new Date();
-            const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
-
-            // Calculate scores and build detailed results
-            let score = 0;
-            let totalPossiblePoints = 0;
-            const questionResults = [];
-            const difficultyBreakdown = {
-                easy: { attempted: 0, correct: 0, points: 0 },
-                medium: { attempted: 0, correct: 0, points: 0 },
-                hard: { attempted: 0, correct: 0, points: 0 }
-            };
-            
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                totalPossiblePoints += question.points;
-                
-                let isCorrect = false;
-                
-                // Enhanced answer checking using the answerValidator from your questions file
-            // Enhanced answer checking with proper normalization
-if (question.type === 'interval_input') {
-    if (typeof answerValidator !== 'undefined') {
-        isCorrect = answerValidator.validateAnswer(
-            userAnswer || '', 
-            question.correct_answer, 
-            question.alternative_answers
-        );
-    } else {
-        // Normalize both answers for comparison
-        const normalizeInterval = (answer) => {
-            return (answer || '').toString().trim()
-                .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
-                .replace(/\s*,\s*/g, ',')  // Remove spaces around commas
-                .replace(/\s*\(\s*/g, '(')  // Remove spaces around opening parenthesis
-                .replace(/\s*\)\s*/g, ')')  // Remove spaces around closing parenthesis
-                .toLowerCase();
-        };
-        isCorrect = normalizeInterval(userAnswer) === normalizeInterval(question.correct_answer);
-    }
-} else if (question.type === 'multiple_choice') {
-    // Normalize string comparison
-    const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
-    isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
-} else if (question.type === 'multiple_select') {
-    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-        // Sort and compare arrays
-        const normalizeArray = (arr) => arr.map(item => item.toString().trim().toLowerCase()).sort();
-        const userNorm = normalizeArray(userAnswer);
-        const correctNorm = normalizeArray(question.correct_answer);
-        isCorrect = userNorm.length === correctNorm.length &&
-                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
-    }
-} else if (question.type === 'numeric' || question.type === 'numeric_input') {
-    const userNum = parseFloat((userAnswer || '').toString().replace(/[^\d.-]/g, ''));
-    const correctNum = parseFloat((question.correct_answer || '').toString().replace(/[^\d.-]/g, ''));
-    if (!isNaN(userNum) && !isNaN(correctNum)) {
-        const tolerance = Math.abs(correctNum) * 0.01 || 0.01; // 1% tolerance or 0.01
-        isCorrect = Math.abs(userNum - correctNum) <= tolerance;
-    }
-} else if (question.type === 'coordinate_input') {
-    // Normalize coordinate format: remove spaces, standardize parentheses
-    const normalizeCoordinate = (coord) => {
-        return (coord || '').toString().trim()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/[()]/g, '')  // Remove parentheses
-            .toLowerCase();
-    };
-    isCorrect = normalizeCoordinate(userAnswer) === normalizeCoordinate(question.correct_answer);
-} else if (question.type === 'equation_input') {
-    // Normalize equations: remove spaces, standardize format
-    const normalizeEquation = (eq) => {
-        return (eq || '').toString()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/\+\-/g, '-')  // Fix +- to -
-            .replace(/\-\+/g, '-')  // Fix -+ to -
-            .toLowerCase();
-    };
-    isCorrect = normalizeEquation(userAnswer) === normalizeEquation(question.correct_answer);
-} else {
-    // General text comparison with normalization
-    const normalizeText = (text) => (text || '').toString().trim().toLowerCase();
-    isCorrect = normalizeText(userAnswer) === normalizeText(question.correct_answer);
-}
-            
-            if (isCorrect) {
-                score += question.points;
-            }
-            
-            // Update difficulty breakdown
-            difficultyBreakdown[question.difficulty].attempted++;
-            if (isCorrect) {
-                difficultyBreakdown[question.difficulty].correct++;
-                difficultyBreakdown[question.difficulty].points += question.points;
-            }
-            
-            // Build question result
-            // Build question result with question ID for tracking
-            questionResults.push({
-                questionId: question._id, // IMPORTANT: Include MongoDB _id
-                questionNumber: question.question_number,
-                questionText: question.question_text,
-                difficulty: question.difficulty,
-                points: question.points,
-                userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-                correctAnswer: question.correct_answer.toString(),
-                explanation: question.explanation || '',
-                isCorrect: isCorrect,
-                timeTaken: questionTimes[index] || 0
-            });
-            });
-
-            // Build complete quiz data matching new schema
-            // CHANGED: Topic to function_concepts
-            const quizData = {
-                topic: 'function_concepts',
-                quizType: 'practice',
-                score: score,
-                maxPossibleScore: totalPossiblePoints,
-                totalQuestions: questions.length,
-                correctAnswers: questionResults.filter(q => q.isCorrect).length,
-                percentage: Math.round((score / totalPossiblePoints) * 100),
-                difficultyBreakdown: difficultyBreakdown,
-                questionResults: questionResults,
-                startTime: quizStartTime,
-                endTime: quizEndTime,
-                totalTimeTaken: totalTimeTaken,
-                isCompleted: true,
-                adaptiveData: {
-                    startingDifficulty: 'easy',
-                    finalDifficulty: questions[questions.length - 1]?.difficulty || 'easy',
-                    difficultyProgression: questionResults.map((q, index) => ({
-                        questionNumber: q.questionNumber,
-                        difficulty: q.difficulty,
-                        wasCorrect: q.isCorrect
-                    }))
-                }
-            };
-
-            try {
-                // Show loading state
-                document.getElementById('submitText').style.display = 'none';
-                document.getElementById('submitLoading').style.display = 'inline-block';
-                document.getElementById('submitBtn').disabled = true;
-
-                // FIXED: Correct request body structure with debug logging
-                console.log('Submitting quiz data:', {
-                    email: email,
-                    username: username,
-                    quizData: quizData
-                });
-                
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        email: email,
-                        username: username,
-                        quizData: quizData
-                    })
-                });
-
-                if (response.ok) {
-                    console.log('Quiz submitted successfully');
-                    // Show detailed results
-                    displayDetailedResults(quizData);
-                } else {
-                    const errorText = await response.text();
-                    console.error('Failed to submit quiz:', errorText);
-                    alert('Failed to submit quiz. Please try again.');
-                    
-                    // Reset button state
-                    document.getElementById('submitText').style.display = 'inline';
-                    document.getElementById('submitLoading').style.display = 'none';
-                    document.getElementById('submitBtn').disabled = false;
-                    return;
-                }
-            } catch (error) {
-                console.error('Error submitting quiz:', error);
-                alert('Error submitting quiz. Please check your connection and try again.');
-                // Reset button state
-                document.getElementById('submitText').style.display = 'inline';
-                document.getElementById('submitLoading').style.display = 'none';
-                document.getElementById('submitBtn').disabled = false;
-                return;
-            }
-        }
+       
 
         // Enhanced results display
         function displayDetailedResults(quizData) {
@@ -1403,6 +995,7 @@ if (question.type === 'interval_input') {
 </body>
 
 </html>
+
 
 
 
