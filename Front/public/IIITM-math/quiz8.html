@@ -17,11 +17,6 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
         min-height: 100vh;
         padding: 20px;
-        /* Basic anti-cheating */
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
     }
 
     .container {
@@ -47,69 +42,6 @@
     .header p { 
         font-size: 1.1rem; 
         opacity: 0.9; 
-    }
-
-    .user-form {
-        padding: 30px;
-        background: #f8f9fa;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .form-group { 
-        margin-bottom: 20px; 
-    }
-    .form-group label { 
-        display: block; 
-        margin-bottom: 8px; 
-        font-weight: 600; 
-    }
-    .form-group input {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 16px;
-    }
-    
-    /* Simple anti-cheating */
-    .question-text, .header, .container {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
-
-    /* Allow interaction with quiz elements */
-    .option, .option *, .numeric-input, input[type="radio"], input[type="checkbox"] {
-        -webkit-user-select: auto !important;
-        -moz-user-select: auto !important;
-        -ms-user-select: auto !important;
-        user-select: auto !important;
-        pointer-events: auto !important;
-        cursor: pointer !important;
-    }
-
-    /* Warning overlay */
-    .warning-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(220, 53, 69, 0.95);
-        color: white;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        font-size: 2rem;
-        text-align: center;
-    }
-
-    /* Blur content when window loses focus */
-    body.blurred {
-        filter: blur(5px);
-        transition: filter 0.3s ease;
     }
 
     .btn {
@@ -278,7 +210,6 @@
         line-height: 1.6;
         color: #333;
         margin-bottom: 20px;
-        white-space: pre-line;
     }
 
     .options { 
@@ -308,11 +239,8 @@
     .option label {
         cursor: pointer;
         flex: 1;
-        /* Allow text selection for options */
-        -webkit-user-select: text;
-        -moz-user-select: text;
-        -ms-user-select: text;
-        user-select: text;
+        font-size: 1rem;
+        line-height: 1.4;
     }
 
     .option:hover { 
@@ -330,11 +258,6 @@
         border: 2px solid #e9ecef;
         border-radius: 8px;
         font-size: 16px;
-        /* Allow input interaction */
-        -webkit-user-select: text;
-        -moz-user-select: text;
-        -ms-user-select: text;
-        user-select: text;
     }
 
     .results-container {
@@ -361,33 +284,28 @@
     .hidden { 
         display: none; 
     }
-    
-    /* Difficulty badges */
-    .difficulty-badge {
-        font-size: 0.7rem;
-        padding: 0.2rem 0.5rem;
-        border-radius: 12px;
-        text-transform: uppercase;
+
+    /* Warning overlay */
+    .warning-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(220, 53, 69, 0.95);
+        color: white;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        font-size: 2rem;
+        text-align: center;
     }
 
-    .difficulty-easy { 
-        background: #d4edda; 
-        color: #155724; 
-    }
-    .difficulty-medium { 
-        background: #fff3cd; 
-        color: #856404; 
-    }
-    .difficulty-hard { 
-        background: #f8d7da; 
-        color: #721c24; 
-    }
-    
-    /* Results review styling */
-    .results-container h3 {
-        color: #333;
-        border-bottom: 2px solid #667eea;
-        padding-bottom: 10px;
+    /* Blur content when window loses focus */
+    body.blurred {
+        filter: blur(5px);
+        transition: filter 0.3s ease;
     }
 
     @media (max-width: 768px) {
@@ -767,83 +685,99 @@
        
 
         function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            container.innerHTML = '';
-
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
-
-            let optionsHtml = '';
-            if (question.type === 'multiple_choice') {
-                optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
-                        <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `).join('');
-            } else if (question.type === 'multiple_select') {
-                optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
-                        <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `).join('');
-          } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
-    const placeholder = question.format_hint || "Enter your answer";
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
     
-    // Add specific placeholders based on type
-    let specificPlaceholder = placeholder;
-    if (question.type === 'coordinate_input') {
-        specificPlaceholder = "Enter coordinates as (x, y)";
-    } else if (question.type === 'equation_input') {
-        specificPlaceholder = "Enter equation (e.g., y = mx + b)";
-    } else if (question.type === 'interval_input') {
-        specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
-    }
+    console.log('Rendering question:', question); // Debug log
     
-    optionsHtml = `
-        <input type="text" 
-               class="numeric-input" 
-               placeholder="${specificPlaceholder}" 
-               onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-               oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-               autocomplete="off"
-               spellcheck="false">
-        <div class="format-help" style="font-size: 12px; color: #666; margin-top: 5px;">
-            ${question.format_hint || ''}
-        </div>
-    `;
-}
+    container.innerHTML = '';
 
-            // Add difficulty badge
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107', 
-                'hard': '#dc3545'
-            };
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
 
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${question.difficulty}
-                        </span>
-                    </div>
+    let optionsHtml = '';
+    
+    // Debug: Check question type and options
+    console.log('Question type:', question.type);
+    console.log('Options available:', question.options);
+    
+    if (question.type === 'multiple_choice') {
+        optionsHtml = question.options.map((option, optIndex) => {
+            // Clean the option text for HTML
+            const cleanOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${cleanOption}', 'radio')">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${cleanOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
-                <div class="question-text">${question.question_text}</div>
-                ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
-                <div class="options">${optionsHtml}</div>
             `;
-
-            container.appendChild(questionDiv);
-            
-            // Restore previous answer if exists
-            restoreAnswer();
-            updateAnswerStatus();
+        }).join('');
+        
+        console.log('Generated MCQ HTML:', optionsHtml); // Debug log
+        
+    } else if (question.type === 'multiple_select') {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const cleanOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${cleanOption}', 'checkbox')">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${cleanOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    } else {
+        const placeholder = question.format_hint || "Enter your answer";
+        let specificPlaceholder = placeholder;
+        if (question.type === 'coordinate_input') {
+            specificPlaceholder = "Enter coordinates as (x, y)";
+        } else if (question.type === 'equation_input') {
+            specificPlaceholder = "Enter equation (e.g., y = mx + b)";
+        } else if (question.type === 'interval_input') {
+            specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
         }
+        
+        optionsHtml = `
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${specificPlaceholder}" 
+                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false">
+            <div class="format-help" style="font-size: 12px; color: #666; margin-top: 5px;">
+                ${question.format_hint || ''}
+            </div>
+        `;
+    }
+
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107', 
+        'hard': '#dc3545'
+    };
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${question.difficulty}
+                </span>
+            </div>
+        </div>
+        <div class="question-text">${question.question_text}</div>
+        ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
+        <div class="options">${optionsHtml}</div>
+    `;
+
+    container.appendChild(questionDiv);
+    
+    // Restore previous answer if exists
+    restoreAnswer();
+    updateAnswerStatus();
+    
+    console.log('Question rendered successfully'); // Debug log
+}
 
         function restoreAnswer() {
     const question = questions[currentQuestionIndex];
@@ -932,49 +866,54 @@
         }
 
       function selectOption(questionIndex, value, type) {
+    console.log('Selecting option:', value, 'Type:', type); // Debug log
+    
     if (type === 'radio') {
-        // Store trimmed value
-        userAnswers[questionIndex] = value.trim();
+        // Store the answer
+        userAnswers[questionIndex] = value;
         
-        // Update UI - unselect all options first
-        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        options.forEach(opt => {
-            opt.checked = false;
-            opt.closest('.option').classList.remove('selected');
+        // Update all radio buttons
+        const allOptions = document.querySelectorAll(`.option input[name="q${questionIndex}"]`);
+        allOptions.forEach(opt => {
+            const optionDiv = opt.closest('.option');
+            if (opt.value === value) {
+                opt.checked = true;
+                optionDiv.classList.add('selected');
+            } else {
+                opt.checked = false;
+                optionDiv.classList.remove('selected');
+            }
         });
         
-        // Select the clicked option
-        const clickedOption = event.currentTarget;
-        const radioInput = clickedOption.querySelector('input[type="radio"]');
-        radioInput.checked = true;
-        clickedOption.classList.add('selected');
-        
     } else if (type === 'checkbox') {
-        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+        if (!userAnswers[questionIndex]) {
+            userAnswers[questionIndex] = [];
+        }
         
-        const clickedOption = event.currentTarget;
-        const checkbox = clickedOption.querySelector('input[type="checkbox"]');
-        const trimmedValue = value.trim();
+        const checkbox = event.currentTarget.querySelector('input[type="checkbox"]');
+        const isChecked = !checkbox.checked; // Toggle state
         
-        // Toggle checkbox state
-        checkbox.checked = !checkbox.checked;
+        // Update checkbox state
+        checkbox.checked = isChecked;
         
-        if (checkbox.checked) {
-            if (!userAnswers[questionIndex].includes(trimmedValue)) {
-                userAnswers[questionIndex].push(trimmedValue);
+        if (isChecked) {
+            if (!userAnswers[questionIndex].includes(value)) {
+                userAnswers[questionIndex].push(value);
             }
-            clickedOption.classList.add('selected');
+            event.currentTarget.classList.add('selected');
         } else {
-            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
-            clickedOption.classList.remove('selected');
-            
-            // Clean up empty array
-            if (userAnswers[questionIndex].length === 0) {
-                delete userAnswers[questionIndex];
-            }
+            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value);
+            event.currentTarget.classList.remove('selected');
+        }
+        
+        // Clean up empty array
+        if (userAnswers[questionIndex].length === 0) {
+            delete userAnswers[questionIndex];
         }
     }
+    
     updateAnswerStatus();
+    console.log('Current answers:', userAnswers); // Debug log
 }
 
         function handleNumericInput(questionIndex, value) {
@@ -1464,6 +1403,7 @@ if (question.type === 'interval_input') {
 </body>
 
 </html>
+
 
 
 
