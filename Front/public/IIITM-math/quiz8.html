@@ -575,7 +575,38 @@
     console.log('Question rendered successfully'); // Debug log
 }
 
-       function selectOption(questionIndex, value, type) {
+        function restoreAnswer() {
+    const question = questions[currentQuestionIndex];
+    const savedAnswer = userAnswers[currentQuestionIndex];
+    
+    if (!savedAnswer) return;
+
+    if (question.type === 'multiple_choice') {
+        // Find and select the option that matches the saved answer
+        const options = document.querySelectorAll(`.option input[name="q${currentQuestionIndex}"]`);
+        options.forEach(option => {
+            if (option.value === savedAnswer) {
+                option.checked = true;
+                option.closest('.option').classList.add('selected');
+            }
+        });
+    } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+        savedAnswer.forEach(answer => {
+            const option = document.querySelector(`input[value="${answer}"]`);
+            if (option) {
+                option.checked = true;
+                option.closest('.option').classList.add('selected');
+            }
+        });
+    } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+        const input = document.querySelector('.numeric-input');
+        if (input) {
+            input.value = savedAnswer;
+        }
+    }
+}
+
+     
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
@@ -633,54 +664,33 @@
         }
 
       function selectOption(questionIndex, value, type) {
-    console.log('Selecting option:', value, 'Type:', type); // Debug log
-    
     if (type === 'radio') {
-        // Store the answer
-        userAnswers[questionIndex] = value;
-        
-        // Update all radio buttons
-        const allOptions = document.querySelectorAll(`.option input[name="q${questionIndex}"]`);
-        allOptions.forEach(opt => {
-            const optionDiv = opt.closest('.option');
-            if (opt.value === value) {
-                opt.checked = true;
-                optionDiv.classList.add('selected');
-            } else {
-                opt.checked = false;
-                optionDiv.classList.remove('selected');
-            }
-        });
-        
+        // Store the exact value without modification
+        userAnswers[questionIndex] = value.trim();
+        // Update UI
+        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+        options.forEach(opt => opt.closest('.option').classList.remove('selected'));
+        event.target.closest('.option').classList.add('selected');
     } else if (type === 'checkbox') {
-        if (!userAnswers[questionIndex]) {
-            userAnswers[questionIndex] = [];
-        }
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
-        const checkbox = event.currentTarget.querySelector('input[type="checkbox"]');
-        const isChecked = !checkbox.checked; // Toggle state
-        
-        // Update checkbox state
-        checkbox.checked = isChecked;
-        
-        if (isChecked) {
-            if (!userAnswers[questionIndex].includes(value)) {
-                userAnswers[questionIndex].push(value);
+        const checkbox = event.target.closest('.option').querySelector('input');
+        if (checkbox.checked) {
+            if (!userAnswers[questionIndex].includes(value.trim())) {
+                userAnswers[questionIndex].push(value.trim());
             }
-            event.currentTarget.classList.add('selected');
+            event.target.closest('.option').classList.add('selected');
         } else {
-            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value);
-            event.currentTarget.classList.remove('selected');
-        }
-        
-        // Clean up empty array
-        if (userAnswers[questionIndex].length === 0) {
-            delete userAnswers[questionIndex];
+            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+            event.target.closest('.option').classList.remove('selected');
+            
+            // Clean up empty array
+            if (userAnswers[questionIndex].length === 0) {
+                delete userAnswers[questionIndex];
+            }
         }
     }
-    
     updateAnswerStatus();
-    console.log('Current answers:', userAnswers); // Debug log
 }
 
         function handleNumericInput(questionIndex, value) {
@@ -1193,6 +1203,7 @@ async function submitQuiz() {
 </body>
 
 </html>
+
 
 
 
