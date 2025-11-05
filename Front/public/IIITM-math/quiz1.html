@@ -288,7 +288,7 @@
         </div>
 
         <!-- Loading Screen -->
-        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px; display: block;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
             <h3>Loading Domain and Range Quiz...</h3>
             <p>Verifying your session and preparing questions</p>
@@ -357,51 +357,51 @@
             }
         }
 
-       function renderCurrentQuestion() {
-    const container = document.getElementById('questionContainer');
-    const question = questions[currentQuestionIndex];
-    
-    container.innerHTML = '';
+        function renderCurrentQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            
+            container.innerHTML = '';
 
-    const questionDiv = document.createElement('div');
-    questionDiv.className = 'question-card';
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-card';
 
-    let optionsHtml = '';
-    
-    if (question.type === 'multiple_choice') {
-        optionsHtml = question.options.map((option, optIndex) => `
-            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
-                <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-            </div>
-        `).join('');
-    } else if (question.type === 'multiple_select') {
-        optionsHtml = question.options.map((option, optIndex) => `
-            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
-                <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-            </div>
-        `).join('');
-    } else if (question.type === 'numeric') {
-        optionsHtml = `<input type="number" class="numeric-input" placeholder="Enter your answer" 
-                       step="0.01" oninput="handleNumericInput(${currentQuestionIndex}, this.value)">`;
-    }
+            let optionsHtml = '';
+            
+            if (question.type === 'multiple_choice') {
+                optionsHtml = question.options.map((option, optIndex) => `
+                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', event)">
+                        <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
+                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                    </div>
+                `).join('');
+            } else if (question.type === 'multiple_select') {
+                optionsHtml = question.options.map((option, optIndex) => `
+                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', event)">
+                        <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
+                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                    </div>
+                `).join('');
+            } else if (question.type === 'numeric') {
+                optionsHtml = `<input type="number" class="numeric-input" placeholder="Enter your answer" 
+                               step="0.01" oninput="handleNumericInput(${currentQuestionIndex}, this.value)">`;
+            }
 
-    questionDiv.innerHTML = `
-        <div class="question-header">
-            <div class="question-number">${question.question_number}</div>
-            <div style="font-weight: 600;">Points: ${question.points}</div>
-        </div>
-        <div class="question-text">${question.question_text}</div>
-        <div class="options">${optionsHtml}</div>
-    `;
+            questionDiv.innerHTML = `
+                <div class="question-header">
+                    <div class="question-number">${currentQuestionIndex + 1}</div>
+                    <div style="font-weight: 600;">Points: ${question.points}</div>
+                </div>
+                <div class="question-text">${question.question_text}</div>
+                <div class="options">${optionsHtml}</div>
+            `;
 
-    container.appendChild(questionDiv);
-    
-    // Restore previous answer if exists
-    restoreAnswer();
-    updateAnswerStatus();
-}
+            container.appendChild(questionDiv);
+            
+            // Restore previous answer if exists
+            restoreAnswer();
+            updateAnswerStatus();
+        }
 
         function restoreAnswer() {
             const question = questions[currentQuestionIndex];
@@ -429,7 +429,7 @@
                     input.value = savedAnswer;
                 }
             }
-             updateAnswerStatus();
+            updateAnswerStatus();
         }
 
         function updateProgress() {
@@ -457,35 +457,35 @@
         }
 
         function updateAnswerStatus() {
-    const statusSpan = document.getElementById('answeredStatus');
-    const userAnswer = userAnswers[currentQuestionIndex];
-    
-    let hasAnswer = false;
-    
-    if (userAnswer !== undefined && userAnswer !== null) {
-        if (Array.isArray(userAnswer)) {
-            // For multiple select, check if array has at least one answer
-            hasAnswer = userAnswer.length > 0;
-        } else if (typeof userAnswer === 'string') {
-            // For text answers, check if not empty
-            hasAnswer = userAnswer.trim() !== '';
-        } else if (typeof userAnswer === 'number') {
-            // For numeric answers, any number is valid
-            hasAnswer = true;
-        } else {
-            // For other types
-            hasAnswer = true;
+            const statusSpan = document.getElementById('answeredStatus');
+            const userAnswer = userAnswers[currentQuestionIndex];
+            
+            let hasAnswer = false;
+            
+            if (userAnswer !== undefined && userAnswer !== null) {
+                if (Array.isArray(userAnswer)) {
+                    // For multiple select, check if array has at least one answer
+                    hasAnswer = userAnswer.length > 0;
+                } else if (typeof userAnswer === 'string') {
+                    // For text answers, check if not empty
+                    hasAnswer = userAnswer.trim() !== '';
+                } else if (typeof userAnswer === 'number') {
+                    // For numeric answers, any number is valid
+                    hasAnswer = true;
+                } else {
+                    // For other types
+                    hasAnswer = true;
+                }
+            }
+            
+            if (hasAnswer) {
+                statusSpan.textContent = 'Answered';
+                statusSpan.className = 'status-answered';
+            } else {
+                statusSpan.textContent = 'Unanswered';
+                statusSpan.className = 'status-unanswered';
+            }
         }
-    }
-    
-    if (hasAnswer) {
-        statusSpan.textContent = 'Answered';
-        statusSpan.className = 'status-answered';
-    } else {
-        statusSpan.textContent = 'Unanswered';
-        statusSpan.className = 'status-unanswered';
-    }
-}
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
@@ -503,7 +503,7 @@
             }
         }
 
-        function selectOption(questionIndex, value, type) {
+        function selectOption(questionIndex, value, type, event) {
             if (type === 'radio') {
                 userAnswers[questionIndex] = value;
                 // Update UI
@@ -524,21 +524,21 @@
                     event.target.closest('.option').classList.remove('selected');
                 }
             }
-             updateAnswerStatus();
+            updateAnswerStatus();
         }
 
         function handleNumericInput(questionIndex, value) {
             // Only store if there's an actual value
-        if (value && value.trim() !== '') {
-            userAnswers[questionIndex] = parseFloat(value) || value;
-        } else {
-            // Remove answer if input is empty
-            delete userAnswers[questionIndex];
+            if (value && value.trim() !== '') {
+                userAnswers[questionIndex] = parseFloat(value) || value;
+            } else {
+                // Remove answer if input is empty
+                delete userAnswers[questionIndex];
+            }
+            
+            // Update the answer status
+            updateAnswerStatus();
         }
-        
-        // Update the answer status
-        updateAnswerStatus();
-}
 
         async function submitQuiz() {
             if (!username || !email) {
@@ -624,7 +624,3 @@
     </script>
 </body>
 </html>
-
-
-
-
