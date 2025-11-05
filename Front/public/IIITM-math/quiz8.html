@@ -785,7 +785,7 @@
 
             questionDiv.innerHTML = `
                 <div class="question-header">
-                    
+                    <div class="question-number">${currentQuestionIndex + 1}</div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                             ${question.difficulty}
@@ -891,10 +891,16 @@
     if (type === 'radio') {
         // Store the exact value without modification
         userAnswers[questionIndex] = value.trim();
-        // Update UI
-        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        options.forEach(opt => opt.closest('.option').classList.remove('selected'));
-        event.target.closest('.option').classList.add('selected');
+        // Update UI - unselect all options first
+        const options = document.querySelectorAll(`.option input[name="q${questionIndex}"]`);
+        options.forEach(opt => {
+            opt.checked = false;
+            opt.closest('.option').classList.remove('selected');
+        });
+        // Select the clicked option
+        const clickedOption = event.target.closest('.option');
+        clickedOption.querySelector('input').checked = true;
+        clickedOption.classList.add('selected');
     } else if (type === 'checkbox') {
         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
@@ -1404,4 +1410,3 @@ if (question.type === 'interval_input') {
 </body>
 
 </html>
-
