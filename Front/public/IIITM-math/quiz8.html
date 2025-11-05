@@ -51,36 +51,13 @@
         }
         
         /* Anti-cheating CSS */
-        body, .container, .header, .question-text {
+        * {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-        }
-
-        /* Allow interaction with quiz options */
-        .option, .option *, .numeric-input {
-            pointer-events: auto !important;
-            -webkit-user-select: auto !important;
-            -moz-user-select: auto !important;
-            -ms-user-select: auto !important;
-            user-select: auto !important;
-        }
-
-        input[type="radio"] {
-            pointer-events: auto !important;
-            cursor: pointer !important;
-            -webkit-appearance: radio;
-            appearance: radio;
-            margin-right: 10px;
-        }
-
-        input[type="checkbox"] {
-            pointer-events: auto !important;
-            cursor: pointer !important;
-            -webkit-appearance: checkbox;
-            appearance: checkbox;
-            margin-right: 10px;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -887,31 +864,28 @@
             }
         }
 
-       function selectOption(questionIndex, value, type) {
+      function selectOption(questionIndex, value, type) {
     if (type === 'radio') {
-        // Store the exact value without modification
+        // Store trimmed value
         userAnswers[questionIndex] = value.trim();
-        // Update UI - unselect all options first
-        const options = document.querySelectorAll(`.option input[name="q${questionIndex}"]`);
-        options.forEach(opt => {
-            opt.checked = false;
-            opt.closest('.option').classList.remove('selected');
-        });
-        // Select the clicked option
-        const clickedOption = event.target.closest('.option');
-        clickedOption.querySelector('input').checked = true;
-        clickedOption.classList.add('selected');
+        
+        // Update UI
+        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+        options.forEach(opt => opt.closest('.option').classList.remove('selected'));
+        event.target.closest('.option').classList.add('selected');
     } else if (type === 'checkbox') {
         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
         const checkbox = event.target.closest('.option').querySelector('input');
+        const trimmedValue = value.trim();
+        
         if (checkbox.checked) {
-            if (!userAnswers[questionIndex].includes(value.trim())) {
-                userAnswers[questionIndex].push(value.trim());
+            if (!userAnswers[questionIndex].includes(trimmedValue)) {
+                userAnswers[questionIndex].push(trimmedValue);
             }
             event.target.closest('.option').classList.add('selected');
         } else {
-            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
             event.target.closest('.option').classList.remove('selected');
             
             // Clean up empty array
@@ -1410,3 +1384,4 @@ if (question.type === 'interval_input') {
 </body>
 
 </html>
+
