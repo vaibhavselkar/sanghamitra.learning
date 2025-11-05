@@ -689,27 +689,41 @@
     const container = document.getElementById('questionContainer');
     const question = questions[currentQuestionIndex];
     
+    // Debug logging to see what's happening
+    console.log('Current question:', question);
+    console.log('Question type:', question.type);
+    console.log('Options available:', question.options);
+    
     container.innerHTML = '';
 
     const questionDiv = document.createElement('div');
     questionDiv.className = 'question-card';
 
     let optionsHtml = '';
-    if (question.type === 'multiple_choice') {
-        optionsHtml = question.options.map((option, optIndex) => `
-            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
-                <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-            </div>
-        `).join('');
-    } else if (question.type === 'multiple_select') {
-        optionsHtml = question.options.map((option, optIndex) => `
-            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
-                <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-            </div>
-        `).join('');
-    } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+    
+    // Handle different question types more robustly
+    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            // Sanitize option text for HTML
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
         const placeholder = question.format_hint || "Enter your answer";
         
         // Add specific placeholders based on type
@@ -729,30 +743,42 @@
                    onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
                    oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
                    autocomplete="off"
-                   spellcheck="false">
+                   spellcheck="false"
+                   style="width: 100%; max-width: 300px;">
             <div class="format-help" style="font-size: 12px; color: #666; margin-top: 5px;">
                 ${question.format_hint || ''}
             </div>
         `;
+    } else {
+        // Fallback for unknown or missing question types
+        console.warn('Unknown question type or missing options:', question.type, question);
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options. Please contact administrator.
+            </div>
+        `;
     }
 
-    // Add difficulty badge
+    // Add difficulty badge with fallback
     const difficultyColor = {
         'easy': '#28a745',
         'medium': '#ffc107', 
         'hard': '#dc3545'
     };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
     questionDiv.innerHTML = `
         <div class="question-header">
             <div class="question-number">${currentQuestionIndex + 1}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                    ${question.difficulty}
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
                 </span>
             </div>
         </div>
-        <div class="question-text">${question.question_text}</div>
+        <div class="question-text">${question.question_text || 'Question text not available'}</div>
         ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
         <div class="options">${optionsHtml}</div>
     `;
