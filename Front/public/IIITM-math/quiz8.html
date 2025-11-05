@@ -846,32 +846,35 @@
         }
 
         function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (!savedAnswer) return;
+    const question = questions[currentQuestionIndex];
+    const savedAnswer = userAnswers[currentQuestionIndex];
+    
+    if (!savedAnswer) return;
 
-            if (question.type === 'multiple_choice') {
-                const option = document.querySelector(`input[value="${savedAnswer}"]`);
-                if (option) {
-                    option.checked = true;
-                    option.closest('.option').classList.add('selected');
-                }
-            } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[value="${answer}"]`);
-                    if (option) {
-                        option.checked = true;
-                        option.closest('.option').classList.add('selected');
-                    }
-                });
-            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
-                const input = document.querySelector('.numeric-input');
-                if (input) {
-                    input.value = savedAnswer;
-                }
+    if (question.type === 'multiple_choice') {
+        // Find and select the option that matches the saved answer
+        const options = document.querySelectorAll(`.option input[name="q${currentQuestionIndex}"]`);
+        options.forEach(option => {
+            if (option.value === savedAnswer) {
+                option.checked = true;
+                option.closest('.option').classList.add('selected');
             }
+        });
+    } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+        savedAnswer.forEach(answer => {
+            const option = document.querySelector(`input[value="${answer}"]`);
+            if (option) {
+                option.checked = true;
+                option.closest('.option').classList.add('selected');
+            }
+        });
+    } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+        const input = document.querySelector('.numeric-input');
+        if (input) {
+            input.value = savedAnswer;
         }
+    }
+}
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
@@ -933,24 +936,37 @@
         // Store trimmed value
         userAnswers[questionIndex] = value.trim();
         
-        // Update UI
+        // Update UI - unselect all options first
         const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        options.forEach(opt => opt.closest('.option').classList.remove('selected'));
-        event.target.closest('.option').classList.add('selected');
+        options.forEach(opt => {
+            opt.checked = false;
+            opt.closest('.option').classList.remove('selected');
+        });
+        
+        // Select the clicked option
+        const clickedOption = event.currentTarget;
+        const radioInput = clickedOption.querySelector('input[type="radio"]');
+        radioInput.checked = true;
+        clickedOption.classList.add('selected');
+        
     } else if (type === 'checkbox') {
         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
-        const checkbox = event.target.closest('.option').querySelector('input');
+        const clickedOption = event.currentTarget;
+        const checkbox = clickedOption.querySelector('input[type="checkbox"]');
         const trimmedValue = value.trim();
+        
+        // Toggle checkbox state
+        checkbox.checked = !checkbox.checked;
         
         if (checkbox.checked) {
             if (!userAnswers[questionIndex].includes(trimmedValue)) {
                 userAnswers[questionIndex].push(trimmedValue);
             }
-            event.target.closest('.option').classList.add('selected');
+            clickedOption.classList.add('selected');
         } else {
             userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
-            event.target.closest('.option').classList.remove('selected');
+            clickedOption.classList.remove('selected');
             
             // Clean up empty array
             if (userAnswers[questionIndex].length === 0) {
@@ -1448,5 +1464,6 @@ if (question.type === 'interval_input') {
 </body>
 
 </html>
+
 
 
