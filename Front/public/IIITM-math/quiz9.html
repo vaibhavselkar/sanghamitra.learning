@@ -685,84 +685,85 @@
         }
        
 
-        function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            container.innerHTML = '';
-
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
-
-            let optionsHtml = '';
-            if (question.type === 'multiple_choice') {
-                optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
-                        <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `).join('');
-            } else if (question.type === 'multiple_select') {
-                optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
-                        <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `).join('');
-          } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
-    const placeholder = question.format_hint || "Enter your answer";
+       function renderCurrentQuestion() {
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
     
-    // Add specific placeholders based on type
-    let specificPlaceholder = placeholder;
-    if (question.type === 'coordinate_input') {
-        specificPlaceholder = "Enter coordinates as (x, y)";
-    } else if (question.type === 'equation_input') {
-        specificPlaceholder = "Enter equation (e.g., y = mx + b)";
-    } else if (question.type === 'interval_input') {
-        specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
+    container.innerHTML = '';
+
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
+
+    let optionsHtml = '';
+    if (question.type === 'multiple_choice') {
+        optionsHtml = question.options.map((option, optIndex) => `
+            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
+                <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
+                <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+            </div>
+        `).join('');
+    } else if (question.type === 'multiple_select') {
+        optionsHtml = question.options.map((option, optIndex) => `
+            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
+                <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
+                <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+            </div>
+        `).join('');
+    } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+        const placeholder = question.format_hint || "Enter your answer";
+        
+        // Add specific placeholders based on type
+        let specificPlaceholder = placeholder;
+        if (question.type === 'coordinate_input') {
+            specificPlaceholder = "Enter coordinates as (x, y)";
+        } else if (question.type === 'equation_input') {
+            specificPlaceholder = "Enter equation (e.g., y = mx + b)";
+        } else if (question.type === 'interval_input') {
+            specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
+        }
+        
+        optionsHtml = `
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${specificPlaceholder}" 
+                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false">
+            <div class="format-help" style="font-size: 12px; color: #666; margin-top: 5px;">
+                ${question.format_hint || ''}
+            </div>
+        `;
     }
-    
-    optionsHtml = `
-        <input type="text" 
-               class="numeric-input" 
-               placeholder="${specificPlaceholder}" 
-               onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-               oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-               autocomplete="off"
-               spellcheck="false">
-        <div class="format-help" style="font-size: 12px; color: #666; margin-top: 5px;">
-            ${question.format_hint || ''}
+
+    // Add difficulty badge
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107', 
+        'hard': '#dc3545'
+    };
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${question.difficulty}
+                </span>
+            </div>
         </div>
+        <div class="question-text">${question.question_text}</div>
+        ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
+        <div class="options">${optionsHtml}</div>
     `;
+
+    container.appendChild(questionDiv);
+    
+    // Restore previous answer if exists
+    restoreAnswer();
+    updateAnswerStatus();
 }
 
-            // Add difficulty badge
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107', 
-                'hard': '#dc3545'
-            };
-
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${question.difficulty}
-                        </span>
-                    </div>
-                </div>
-                <div class="question-text">${question.question_text}</div>
-                ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
-                <div class="options">${optionsHtml}</div>
-            `;
-
-            container.appendChild(questionDiv);
-            
-            // Restore previous answer if exists
-            restoreAnswer();
-            updateAnswerStatus();
-        }
 
         function restoreAnswer() {
             const question = questions[currentQuestionIndex];
