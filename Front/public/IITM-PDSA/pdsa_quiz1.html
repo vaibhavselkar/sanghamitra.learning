@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Algorithms Programming Quiz</title>
-    <!-- Include Monaco Editor for code editing -->
+    <!-- Include Pyodide -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <!-- Include Monaco Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -125,9 +127,14 @@
 
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Quiz...</h3>
-            <p>Preparing code editor and test environment</p>
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h3>Loading Python Environment...</h3>
+            <p>This may take a few seconds. Downloading Pyodide (Python in WebAssembly)...</p>
+            <div class="progress mt-3" style="height: 10px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+            </div>
         </div>
 
         <!-- Quiz Container -->
@@ -384,6 +391,178 @@ def gcd_three(a, b, c):
         let userAnswers = {};
         let currentUser = {};
         let editors = {};
+        let pyodide = null;
+        let isPyodideLoaded = false;
+
+        // Initialize Pyodide
+        async function initializePyodide() {
+            console.log("Loading Pyodide...");
+            try {
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+                });
+                
+                // Load required packages
+                await pyodide.loadPackage("micropip");
+                console.log("Pyodide loaded successfully!");
+                isPyodideLoaded = true;
+                return pyodide;
+            } catch (error) {
+                console.error("Failed to load Pyodide:", error);
+                throw error;
+            }
+        }
+
+        // Execute Python code with Pyodide
+        async function executePythonCode(code, testCases, questionTitle) {
+            if (!isPyodideLoaded || !pyodide) {
+                throw new Error("Python environment not loaded yet");
+            }
+
+            const results = [];
+            
+            try {
+                // First, run the user's code to define their functions
+                await pyodide.runPythonAsync(`
+import sys
+import traceback
+import json
+
+# Clear any previous definitions
+for func_name in ['find_factors', 'prime_factorization', 'batch_prime_factorization', 'gcd', 'lcm', 'gcd_three']:
+    if func_name in globals():
+        del globals()[func_name]
+
+${code}
+`);
+
+                // Test each test case
+                for (let i = 0; i < testCases.length; i++) {
+                    const testCase = testCases[i];
+                    
+                    try {
+                        // Determine which function to call based on the code
+                        let functionName = null;
+                        const funcNames = ['find_factors', 'prime_factorization', 'batch_prime_factorization', 'gcd', 'lcm', 'gcd_three'];
+                        
+                        for (const name of funcNames) {
+                            try {
+                                const funcExists = await pyodide.runPythonAsync(`"${name}" in globals() and callable(${name})`);
+                                if (funcExists) {
+                                    functionName = name;
+                                    break;
+                                }
+                            } catch (e) {
+                                // Function doesn't exist, continue checking
+                                continue;
+                            }
+                        }
+
+                        if (!functionName) {
+                            results.push({
+                                passed: false,
+                                output: null,
+                                error: "No valid function found. Please define one of: find_factors, prime_factorization, gcd, lcm, etc."
+                            });
+                            continue;
+                        }
+
+                        // Execute the function with test case inputs
+                        const inputStr = JSON.stringify(testCase.input);
+                        const pythonCode = `
+try:
+    result = ${functionName}(*${inputStr})
+    print(f"TEST_JSON_RESULT: {json.dumps({'success': True, 'result': result, 'error': None})}")
+except Exception as e:
+    error_msg = f"{type(e).__name__}: {str(e)}"
+    print(f"TEST_JSON_RESULT: {json.dumps({'success': False, 'result': None, 'error': error_msg})}")
+`;
+
+                        const output = await pyodide.runPythonAsync(pythonCode);
+                        
+                        // Parse the JSON output from Python
+                        const outputLines = output.split('\n');
+                        let jsonResult = null;
+                        
+                        for (const line of outputLines) {
+                            if (line.startsWith('TEST_JSON_RESULT: ')) {
+                                jsonResult = JSON.parse(line.substring('TEST_JSON_RESULT: '.length));
+                                break;
+                            }
+                        }
+
+                        if (jsonResult && jsonResult.success) {
+                            const passed = deepEqual(jsonResult.result, testCase.expected);
+                            results.push({
+                                passed: passed,
+                                output: jsonResult.result,
+                                error: passed ? null : `Expected ${JSON.stringify(testCase.expected)}, got ${JSON.stringify(jsonResult.result)}`
+                            });
+                        } else {
+                            // Handle ValueError cases specially
+                            if (testCase.expected === "ValueError" && jsonResult && jsonResult.error && jsonResult.error.includes("ValueError")) {
+                                results.push({
+                                    passed: true,
+                                    output: "ValueError",
+                                    error: null
+                                });
+                            } else {
+                                results.push({
+                                    passed: false,
+                                    output: null,
+                                    error: jsonResult ? jsonResult.error : "Unknown error occurred"
+                                });
+                            }
+                        }
+
+                    } catch (error) {
+                        results.push({
+                            passed: false,
+                            output: null,
+                            error: `Execution error: ${error.message}`
+                        });
+                    }
+                }
+
+            } catch (error) {
+                console.error("Python execution error:", error);
+                results.push({
+                    passed: false,
+                    output: null,
+                    error: `Code compilation error: ${error.message}`
+                });
+            }
+
+            return results;
+        }
+
+        // Deep equality check
+        function deepEqual(a, b) {
+            if (a === b) return true;
+            if (typeof a !== typeof b) return false;
+            if (typeof a !== 'object' || a === null || b === null) return a === b;
+            
+            if (Array.isArray(a)) {
+                if (!Array.isArray(b) || a.length !== b.length) return false;
+                return a.every((val, i) => deepEqual(val, b[i]));
+            }
+            
+            const keysA = Object.keys(a);
+            const keysB = Object.keys(b);
+            if (keysA.length !== keysB.length) return false;
+            
+            return keysA.every(key => deepEqual(a[key], b[key]));
+        }
+
+        // Check for explanations in code
+        function checkExplanations(code, questionId) {
+            const commentBlocks = code.match(/#.+/g) || [];
+            const hasSubstantialComments = commentBlocks.some(comment => 
+                comment.length > 20 && !comment.includes('Add your analysis here')
+            );
+            
+            return hasSubstantialComments && commentBlocks.length >= 2;
+        }
 
         // Initialize Monaco Editor
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
@@ -407,6 +586,13 @@ def gcd_three(a, b, c):
             } catch (error) {
                 currentUser = { username: 'TestUser', email: 'test@example.com' };
             }
+            
+            // Start loading Pyodide in background
+            initializePyodide().then(() => {
+                console.log("Pyodide ready!");
+            }).catch(error => {
+                console.error("Failed to load Pyodide:", error);
+            });
             
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
@@ -470,16 +656,27 @@ def gcd_three(a, b, c):
             });
         }
 
-        function runTests() {
+        async function runTests() {
             const question = questions[currentQuestionIndex];
             const code = editors[question.id].getValue();
             const resultsDiv = document.getElementById(`testResults-${question.id}`);
             
-            resultsDiv.innerHTML = '<h6>Running tests...</h6>';
+            resultsDiv.innerHTML = `
+                <h6>🔄 Initializing Python environment...</h6>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            `;
             
             try {
-                // Simple Python-like execution simulation
-                const testResults = simulateCodeExecution(code, question.testCases, question.title);
+                // Initialize Pyodide if not already loaded
+                if (!isPyodideLoaded) {
+                    await initializePyodide();
+                }
+                
+                resultsDiv.innerHTML = '<h6>🔬 Running Python tests...</h6>';
+                
+                const testResults = await executePythonCode(code, question.testCases, question.title);
                 
                 resultsDiv.innerHTML = `
                     <h6>Test Results:</h6>
@@ -487,7 +684,8 @@ def gcd_three(a, b, c):
                         <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
                             Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
                             ${result.error ? ` - ${result.error}` : ''}
-                            ${result.output !== undefined ? ` (Got: ${JSON.stringify(result.output)})` : ''}
+                            ${result.output !== undefined && result.output !== null ? 
+                                ` (Output: ${JSON.stringify(result.output)})` : ''}
                         </div>
                     `).join('')}
                     
@@ -496,122 +694,18 @@ def gcd_three(a, b, c):
                         ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
                     </div>
                 `;
+                
             } catch (error) {
-                resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
+                resultsDiv.innerHTML = `
+                    <div class="test-result test-failed">
+                        Error: ${error.message}
+                    </div>
+                    <div class="mt-2">
+                        <small>If this persists, try refreshing the page to reload the Python environment.</small>
+                    </div>
+                `;
             }
         }
-
-        function checkExplanations(code, questionId) {
-            // More strict check - require actual content in comments
-            const commentBlocks = code.match(/#.+/g) || [];
-            const hasSubstantialComments = commentBlocks.some(comment => 
-                comment.length > 20 && !comment.includes('Add your analysis here')
-            );
-            
-            return hasSubstantialComments && commentBlocks.length >= 2;
-        }
-
-        function simulateCodeExecution(code, testCases, questionTitle) {
-    const results = [];
-    const functionName = extractFunctionName(code);
-    
-    if (!functionName) {
-        return testCases.map(() => ({ 
-            passed: false, 
-            error: "No function defined. Please write a function starting with 'def function_name()'" 
-        }));
-    }
-    
-    testCases.forEach(testCase => {
-        try {
-            // Execute user's actual code
-            const output = executeUserCode(code, functionName, testCase.input);
-            const passed = deepEqual(output, testCase.expected);
-            
-            results.push({ 
-                passed, 
-                output: output !== undefined ? output : "No output returned",
-                error: passed ? null : `Expected ${JSON.stringify(testCase.expected)}, got ${JSON.stringify(output)}`
-            });
-            
-        } catch (error) {
-            results.push({ 
-                passed: false, 
-                error: `Runtime error: ${error.message}`,
-                output: "Error occurred during execution"
-            });
-        }
-    });
-    
-    return results;
-}
-
-function executeUserCode(code, functionName, inputs) {
-    try {
-        // Convert Python-like code to JavaScript
-        let jsCode = code
-            .replace(/def\s+(\w+)\s*\((.*?)\):/g, 'function $1($2) {')
-            .replace(/"""[\s\S]*?"""/g, '') // Remove docstrings
-            .replace(/#.*/g, '') // Remove comments temporarily for execution
-            .replace(/pass\s*$/gm, 'return null;')
-            .replace(/raise ValueError\((.*?)\)/g, 'throw new Error("ValueError")')
-            .replace(/isinstance\((.*?),\s*int\)/g, 'Number.isInteger($1)')
-            .replace(/\bTrue\b/g, 'true')
-            .replace(/\bFalse\b/g, 'false')
-            .replace(/\bNone\b/g, 'null');
-        
-        // Create execution function
-        const func = new Function('args', `
-            ${jsCode}
-            try {
-                const result = ${functionName}(...args);
-                return result !== undefined && result !== null ? result : null;
-            } catch (error) {
-                if (error.message === "ValueError" || error.message.includes("invalid") || error.message.includes("positive integer")) {
-                    return "ValueError";
-                }
-                throw error;
-            }
-        `);
-        
-        const result = func(inputs);
-        return result;
-    } catch (error) {
-        if (error.message === "ValueError" || error.message.includes("invalid")) {
-            return "ValueError";
-        }
-        return `Execution Error: ${error.message}`;
-    }
-}
-
-function extractFunctionName(code) {
-    const match = code.match(/def\s+(\w+)\s*\(/);
-    return match ? match[1] : null;
-}
-
-function deepEqual(a, b) {
-    if (a === b) return true;
-    if (typeof a !== typeof b) return false;
-    if (typeof a !== 'object' || a === null || b === null) return a === b;
-    
-    if (Array.isArray(a)) {
-        if (!Array.isArray(b) || a.length !== b.length) return false;
-        return a.every((val, i) => deepEqual(val, b[i]));
-    }
-    
-    if (a instanceof Error || b instanceof Error) return a.message === b.message;
-    
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
-    if (keysA.length !== keysB.length) return false;
-    
-    return keysA.every(key => deepEqual(a[key], b[key]));
-}
-
-       
-
-
-        
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
@@ -645,89 +739,113 @@ function deepEqual(a, b) {
         }
 
         async function submitQuiz() {
-    let totalScore = 0;
-    const results = [];
-    
-    // Grade each question (your existing grading logic)
-    questions.forEach(question => {
-        const code = userAnswers[question.id] || '';
-        const testResults = simulateCodeExecution(code, question.testCases, question.title);
-        const passedTests = testResults.filter(r => r.passed).length;
-        
-        const hasExplanations = checkExplanations(code, question.id);
-        const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
-        
-        const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
-        
-        totalScore += Math.min(questionScore, question.points);
-        results.push({
-            questionId: question.id,
-            title: question.title,
-            code: code,
-            score: Math.min(questionScore, question.points),
-            maxScore: question.points,
-            testResults: testResults,
-            hasExplanations: hasExplanations
-        });
-    });
-    
-    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
-    const percentage = Math.round((totalScore / maxScore) * 100);
-    
-    const quizData = {
-        username: currentUser.username || 'TestUser',
-        email: currentUser.email || 'test@example.com',
-        topic: 'Algorithms & Programming',
-        score: totalScore,
-        maxScore: maxScore,
-        percentage: percentage,
-        questions: results,
-        timestamp: new Date().toISOString()
-    };
-    
-    console.log('📤 Submitting quiz data:', quizData);
-    
-    try {
-        // First test if the endpoint is reachable
-        const testResponse = await fetch('https://sanghamitra-learnworld.vercel.app/api/test-algorithm-endpoint');
-        if (testResponse.ok) {
-            console.log('✅ Test endpoint is working');
+            let totalScore = 0;
+            const results = [];
+            
+            // Grade each question
+            for (const question of questions) {
+                const code = userAnswers[question.id] || question.starterCode;
+                let testResults = [];
+                let hasExplanations = false;
+                
+                try {
+                    if (isPyodideLoaded) {
+                        testResults = await executePythonCode(code, question.testCases, question.title);
+                    } else {
+                        // Fallback if Pyodide not loaded
+                        testResults = question.testCases.map(() => ({
+                            passed: false,
+                            output: null,
+                            error: "Python environment not available"
+                        }));
+                    }
+                    
+                    hasExplanations = checkExplanations(code, question.id);
+                    const passedTests = testResults.filter(r => r.passed).length;
+                    const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
+                    const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
+                    
+                    totalScore += Math.min(questionScore, question.points);
+                    results.push({
+                        questionId: question.id,
+                        title: question.title,
+                        code: code,
+                        score: Math.min(questionScore, question.points),
+                        maxScore: question.points,
+                        testResults: testResults,
+                        hasExplanations: hasExplanations
+                    });
+                    
+                } catch (error) {
+                    results.push({
+                        questionId: question.id,
+                        title: question.title,
+                        code: code,
+                        score: 0,
+                        maxScore: question.points,
+                        testResults: [],
+                        hasExplanations: false,
+                        error: error.message
+                    });
+                }
+            }
+            
+            const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+            const percentage = Math.round((totalScore / maxScore) * 100);
+            
+            const quizData = {
+                username: currentUser.username || 'TestUser',
+                email: currentUser.email || 'test@example.com',
+                topic: 'Algorithms & Programming',
+                score: totalScore,
+                maxScore: maxScore,
+                percentage: percentage,
+                questions: results,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('📤 Submitting quiz data:', quizData);
+            
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(quizData)
+                });
+                
+                console.log('📥 Response status:', response.status);
+                
+                if (response.ok) {
+                    const responseData = await response.json();
+                    console.log('✅ Response data:', responseData);
+                    showResults(quizData);
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Server error:', errorText);
+                    // Fallback: Save to localStorage
+                    localStorage.setItem('algorithm-quiz-results', JSON.stringify({
+                        ...quizData,
+                        savedLocally: true,
+                        localSaveTime: new Date().toISOString()
+                    }));
+                    alert('⚠️ Failed to submit to server. Results saved locally.');
+                    showResults(quizData);
+                }
+                
+            } catch (error) {
+                console.error('❌ Submission error:', error);
+                // Fallback: Save to localStorage
+                localStorage.setItem('algorithm-quiz-results', JSON.stringify({
+                    ...quizData,
+                    savedLocally: true,
+                    localSaveTime: new Date().toISOString()
+                }));
+                alert('⚠️ Failed to submit to server. Results saved locally.');
+                showResults(quizData);
+            }
         }
-        
-        // Submit the actual data
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(quizData)
-        });
-        
-        console.log('📥 Response status:', response.status);
-        
-        if (response.ok) {
-            const responseData = await response.json();
-            console.log('✅ Response data:', responseData);
-            alert('✅ Quiz submitted successfully!');
-            showResults(quizData);
-        } else {
-            const errorText = await response.text();
-            console.error('❌ Server error:', errorText);
-            throw new Error(`Server returned ${response.status}: ${errorText}`);
-        }
-        
-    } catch (error) {
-        console.error('❌ Submission error:', error);
-        // Fallback: Save to localStorage
-        localStorage.setItem('algorithm-quiz-results', JSON.stringify({
-            ...quizData,
-            savedLocally: true,
-            localSaveTime: new Date().toISOString()
-        }));
-        alert('⚠️ Failed to submit to server. Results saved locally.');
-        showResults(quizData);
-    }
-}
 
         function showResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
@@ -749,6 +867,7 @@ function deepEqual(a, b) {
                             <small>Tests passed: ${q.testResults.filter(t => t.passed).length}/${q.testResults.length}</small>
                             <br>
                             <small>${q.hasExplanations ? '✓ Explanations provided' : '⚠ Missing explanations'}</small>
+                            ${q.error ? `<br><small class="text-danger">Error: ${q.error}</small>` : ''}
                         </div>
                     </div>
                 `).join('')}
