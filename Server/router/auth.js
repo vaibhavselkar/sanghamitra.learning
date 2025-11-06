@@ -40,10 +40,6 @@ const AlgorithmSubmission = require('../model/AlgorithmSubmission');
 const Statistics_questions = require('../model/statisticsQuestion'); // Add this import
 const iitm_ct_questions = require('../model/iitm_ct_questions');
 const iitm_ct_scores = require('../model/iitm_ct_scores');
-const IITM_Maths_2_Question = require('../model/iitm_math2_questions')
-const IITM_Maths_2_Score = require('../model/iitm_math2_scores')
-const IITM_Stats_2_Question = require('../model/iitm_stats2_questions')
-const IITM_Stats_2_Score = require('../model/iitm_stats2_scores')
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -727,7 +723,7 @@ router.post('/rc_score', async (req, res) => {
   const scorePercentage = (correctAnswers / totalQuestions) * 100;
 
   try {
-      // Find or create user progress.
+      // Find or create user progress
       let userProgress = await ReadingComprehensionScore.findOne({ email });
 
       if (!userProgress) {
@@ -1885,74 +1881,6 @@ router.get('/iitm-stats-questions/week4', async (req, res) => {
   }
 });
 
-router.get('/iitm-stats-questions/week5', async (req, res) => {
-  try {
-    const { email, count = 50 } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
-      });
-    }
-
-    console.log(`Fetching Week 5 statistics questions for: ${email}`);
-    
-    // Find user's completed questions
-    let userScore = await Statistics_scores.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
-
-    // Find all available Week 5 questions excluding completed ones
-    let availableQuestions = await Statistics_questions.find({
-      topic: "Basic Principles of Counting",
-      _id: { $nin: completedQuestionIds }
-    });
-
-    console.log(`Found ${availableQuestions.length} new statistics Week 5 questions available`);
-
-    // Handle case where user has completed all questions
-    if (availableQuestions.length === 0) {
-      const totalInPool = await Statistics_questions.countDocuments({ topic: "Basic Principles of Counting" });
-      return res.status(200).json({
-        message: "All Week 5 questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: totalInPool
-      });
-    }
-
-    // Select requested number of questions
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    
-    // Sort selected questions by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 5`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching statistics Week 5 questions:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch Week 5 statistics questions',
-      details: error.message 
-    });
-  }
-});
-
 router.get('/iitm-stats-questions/week6', async (req, res) => {
   try {
     const { email, count = 50 } = req.query;
@@ -1973,7 +1901,7 @@ router.get('/iitm-stats-questions/week6', async (req, res) => {
 
     // Find all available Week 6 questions excluding completed ones
     let availableQuestions = await Statistics_questions.find({
-      topic: "Permutations and combinations",
+      topic: "Permutations and Combinations",
       _id: { $nin: completedQuestionIds }
     });
 
@@ -1981,7 +1909,7 @@ router.get('/iitm-stats-questions/week6', async (req, res) => {
 
     // Handle case where user has completed all questions
     if (availableQuestions.length === 0) {
-      const totalInPool = await Statistics_questions.countDocuments({ topic: "Permutations and combinations" });
+      const totalInPool = await Statistics_questions.countDocuments({ topic: "Permutations and Combinations" });
       return res.status(200).json({
         message: "All Week 6 questions completed",
         questions: [],
@@ -2516,141 +2444,42 @@ router.get('/iitm-math-questions/quiz9', async (req, res) => {
   }
 });
 
-
-// Quiz 10: Function Limits questions route
-router.get('/iitm-math-questions/quiz9', async (req, res) => {
+router.get('/iitmmath_scores', async (req, res) => {
   try {
-    const { email, count = 50 } = req.query;
-   
-    if (!email) {
-      return res.status(400).json({
-        error: 'Email is required to track question history'
-      });
-    }
+    const { email } = req.query;
 
-    let userScore = await iitm_math_score.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-   
-    console.log(`User ${email} has completed ${completedQuestionIds.length} questions`);
-
-    // Find all available questions excluding completed ones
-    let availableQuestions = await IITMathQuestion.find({
-      topic: "logarithmic_functions",  // Topic for Quiz 9
-      _id: { $nin: completedQuestionIds }
-    });
-
-    console.log(`Found ${availableQuestions.length} new questions available for logarithmic_functions topic`);
-
-    // Handle case where user has completed most questions
-    if (availableQuestions.length === 0) {
-      return res.status(200).json({
-        message: "All logarithmic_functions questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: await IITMathQuestion.countDocuments({ topic: "logarithmic_functions" })
-      });
-    }
-
-    // If less than requested count available, return all available
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-   
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-   
-    // Sort selected questions by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(`Returning ${selectedQuestions.length} random logarithmic_functions questions for user ${email}`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
+    if (email) {
+      const user = await iitm_math_score.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
       }
-    });
-
+      res.json({ success: true, data: user });
+    } else {
+      const users = await iitm_math_score.find({});
+      res.json({ success: true, data: users });
+    }
   } catch (error) {
-    console.error('Error fetching Quiz 9 (logarithmic_functions) questions:', error);
-    res.status(500).json({ error: 'Failed to fetch logarithmic_functions questions' });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Quiz 10 - Function Limits
-// Add this route for Quiz 10 - Function Limits
-router.get('/iitm-math-questions/quiz10', async (req, res) => {
+// Test route to check what's in your database
+router.get('/api/test-iitm-questions', async (req, res) => {
   try {
-    const { email, count = 50, topic = "Function_Limits" } = req.query;
+    const count = await IITMathQuestion.countDocuments();
+    const topics = await IITMathQuestion.distinct('topic');
+    const sampleQuestions = await IITMathQuestion.find().limit(3);
     
-    if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
-      });
-    }
-
-    console.log(`📥 Fetching Quiz 10 questions for: ${email}, topic: ${topic}`);
-    
-    // Find user's progress
-    let userScore = await iitm_math_score.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`✅ User ${email} has completed ${completedQuestionIds.length} questions`);
-
-    // Find available questions - FIXED: using correct topic name
-    let availableQuestions = await IITMathQuestion.find({
-      topic: topic, // Use the topic from query parameter
-      _id: { $nin: completedQuestionIds }
+    res.json({ 
+      totalQuestions: count,
+      availableTopics: topics,
+      sampleQuestions: sampleQuestions
     });
-
-    console.log(`📚 Found ${availableQuestions.length} available questions for topic: ${topic}`);
-
-    // Handle no questions available
-    if (availableQuestions.length === 0) {
-      const totalInPool = await IITMathQuestion.countDocuments({ topic: topic });
-      console.log(`❌ No questions available. Total in pool: ${totalInPool}`);
-      
-      return res.status(200).json({
-        message: `All ${topic} questions completed`,
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: totalInPool
-      });
-    }
-
-    // Select questions
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    
-    // Random selection
-    const shuffled = [...availableQuestions].sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    
-    // Sort by question number for consistent display
-    selectedQuestions.sort((a, b) => (a.question_number || 0) - (b.question_number || 0));
-
-    console.log(`🎯 Returning ${selectedQuestions.length} questions`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
-      }
-    });
-
   } catch (error) {
-    console.error('❌ Error fetching Quiz 10 questions:', error);
-    res.status(500).json({ 
-      error: `Failed to fetch ${req.query.topic || 'Function_Limits'} questions`,
-      details: error.message 
-    });
+    console.error('Database test error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
-
 
 // Quiz 5: Linear Functions questions route (following Quiz 4 pattern)
 router.get('/iitm-math-questions/quiz5', async (req, res) => {
@@ -2714,53 +2543,6 @@ router.get('/iitm-math-questions/quiz5', async (req, res) => {
   }
 });
 
-// GET IITM Math Scores - Add this route
-router.get('/api/iitmmath_scores', async (req, res) => {
-  try {
-    console.log('📊 Fetching IITM Math scores...');
-    
-    // Fetch all math scores from your database
-    const mathScores = await iitm_math_score.find({});
-    
-    console.log(`✅ Found ${mathScores.length} math score records`);
-    
-    // Transform the data to match what your dashboard expects
-    const transformedData = mathScores.map(user => {
-      // Extract quiz scores and format them for the dashboard
-      const quizScores = user.quizScores || [];
-      
-      return {
-        username: user.username,
-        email: user.email,
-        quizScores: quizScores.map(quiz => ({
-          topic: quiz.topic || 'Unknown Topic',
-          score: quiz.score || 0,
-          totalQuestions: quiz.totalQuestions || 0,
-          correctAnswers: quiz.correctAnswers || quiz.score || 0,
-          percentage: quiz.percentage || 0,
-          attemptNumber: quiz.attemptNumber || 1,
-          timestamp: quiz.timestamp || user.updatedAt,
-          questionResults: quiz.questionResults || []
-        })),
-        // Keep for backwards compatibility
-        scores: [] 
-      };
-    });
-
-    res.status(200).json({
-      success: true,
-      data: transformedData
-    });
-
-  } catch (error) {
-    console.error('❌ Error fetching IITM Math scores:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch IITM Math scores',
-      message: error.message
-    });
-  }
-});
 
 router.post('/iitmmath_scores', async (req, res) => {
   try {
@@ -3297,213 +3079,7 @@ router.get('/physics_topics', async (req, res) => {
   }
 });
 
-router.get("/iitm_math2_questions", async (req, res) => {
-  try {
-    const { week, subtopic } = req.query;
-    const filter = {};
-
-    if (week) filter.week = Number(week);
-    if (subtopic) filter.subtopic = subtopic;
-
-    const questions = await IITM_Maths_2_Question.find(filter);
-
-    if (questions.length === 0) {
-      return res.status(404).json({ message: "No questions found for the given criteria" });
-    }
-
-    res.status(200).json(questions);
-  } catch (err) {
-    res.status(500).json({ message: "Server Error", error: err.message });
-  }
-});
-
-router.post("/iitm_math2_scores", async (req, res) => {
-  try {
-    const { email, name, week, subtopic, totalQuestions, correctAnswers, score, responses } = req.body;
-    if (!email || !name || !week || !subtopic || !responses)
-      return res.status(400).json({ message: "Missing required fields" });
-    
-    let user = await IITM_Maths_2_Score.findOne({ email });
-    const newEntry = { week, subtopic, totalQuestions, correctAnswers, score, responses };
-    if (user) {
-      user.scores.push(newEntry);
-      await user.save();
-    } else {
-      user = new IITM_Maths_2_Score({ email, name, scores: [newEntry] });
-      await user.save();
-    }
-    res.status(201).json({ message: "Score and responses saved successfully", user });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.get("/iitm_math2_scores", async (req, res) => {
-  try {
-    const { email, week } = req.query;
-
-    // Case 1: No filters — return all user scores
-    if (!email && !week) {
-      const allScores = await IITM_Maths_2_Score.find();
-      if (!allScores.length)
-        return res.status(404).json({ message: "No scores found" });
-      return res.status(200).json(allScores);
-    }
-
-    // Case 2: Filter by email only
-    if (email && !week) {
-      const user = await IITM_Maths_2_Score.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User not found" });
-      return res.status(200).json(user);
-    }
-
-    // Case 3: Filter by week only (across all users)
-    if (week && !email) {
-      const all = await IITM_Maths_2_Score.find({ "scores.week": Number(week) });
-      if (!all.length)
-        return res
-          .status(404)
-          .json({ message: "No scores found for the given week" });
-
-      // Flatten week-specific entries
-      const weekData = all.map((u) => ({
-        email: u.email,
-        name: u.name,
-        scores: u.scores.filter((s) => s.week === Number(week)),
-      }));
-
-      return res.status(200).json(weekData);
-    }
-
-    // Case 4: Filter by both email & week
-    if (email && week) {
-      const user = await IITM_Maths_2_Score.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User not found" });
-
-      const weekScores = user.scores.filter((s) => s.week === Number(week));
-      if (!weekScores.length)
-        return res
-          .status(404)
-          .json({ message: "No scores found for this week for the user" });
-
-      return res.status(200).json({ email: user.email, name: user.name, scores: weekScores });
-    }
-  } catch (err) {
-    res.status(500).json({ message: "Server Error", error: err.message });
-  }
-});
-
-
-router.get("/iitm_stats2_questions", async (req, res) => {
-  try {
-    const { week, subtopic } = req.query;
-    const filter = {};
-
-    if (week) filter.week = Number(week);
-    if (subtopic) filter.subtopic = subtopic;
-
-    const questions = await IITM_Stats_2_Question.find(filter);
-
-    if (questions.length === 0) {
-      return res.status(404).json({ message: "No questions found for the given criteria" });
-    }
-
-    res.status(200).json(questions);
-  } catch (err) {
-    res.status(500).json({ message: "Server Error", error: err.message });
-  }
-});
-
-router.post("/iitm_stats2_scores", async (req, res) => {
-  try {
-    const { email, name, week, subtopic, totalQuestions, correctAnswers, score, responses } = req.body;
-    if (!email || !name || !week || !subtopic || !responses)
-      return res.status(400).json({ message: "Missing required fields" });
-    
-    let user = await IITM_Stats_2_Score.findOne({ email });
-    const newEntry = { week, subtopic, totalQuestions, correctAnswers, score, responses };
-    if (user) {
-      user.scores.push(newEntry);
-      await user.save();
-    } else {
-      user = new IITM_Stats_2_Score({ email, name, scores: [newEntry] });
-      await user.save();
-    }
-    res.status(201).json({ message: "Score and responses saved successfully", user });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.get("/iitm_stats2_scores", async (req, res) => {
-  try {
-    const { email, week } = req.query;
-
-    // Case 1: No filters — return all user scores
-    if (!email && !week) {
-      const allScores = await IITM_Stats_2_Score.find();
-      if (!allScores.length)
-        return res.status(404).json({ message: "No scores found" });
-      return res.status(200).json(allScores);
-    }
-
-    // Case 2: Filter by email only
-    if (email && !week) {
-      const user = await IITM_Stats_2_Score.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User not found" });
-      return res.status(200).json(user);
-    }
-
-    // Case 3: Filter by week only (across all users)
-    if (week && !email) {
-      const all = await IITM_Stats_2_Score.find({ "scores.week": Number(week) });
-      if (!all.length)
-        return res
-          .status(404)
-          .json({ message: "No scores found for the given week" });
-
-      // Flatten week-specific entries
-      const weekData = all.map((u) => ({
-        email: u.email,
-        name: u.name,
-        scores: u.scores.filter((s) => s.week === Number(week)),
-      }));
-
-      return res.status(200).json(weekData);
-    }
-
-    // Case 4: Filter by both email & week
-    if (email && week) {
-      const user = await IITM_Stats_2_Score.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User not found" });
-
-      const weekScores = user.scores.filter((s) => s.week === Number(week));
-      if (!weekScores.length)
-        return res
-          .status(404)
-          .json({ message: "No scores found for this week for the user" });
-
-      return res.status(200).json({ email: user.email, name: user.name, scores: weekScores });
-    }
-  } catch (err) {
-    res.status(500).json({ message: "Server Error", error: err.message });
-  }
-});
 module.exports = router
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
