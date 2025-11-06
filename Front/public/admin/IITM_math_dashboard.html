@@ -806,7 +806,7 @@
         ${isQuiz8 ? `
           <div class="alert function-concepts-alert mb-3">
             <i class="bi bi-info-circle me-2"></i>
-            <strong>Function Concepts (Quiz 8):</strong> This assessment covers function concepts including 
+            <strong>Exponential Functions (Quiz 8):</strong> This assessment covers Exponential Functions including 
             domain, range, function composition, inverse functions, and properties of various function types.
           </div>
         ` : ''}
@@ -1178,7 +1178,7 @@
             // Add topic-specific information for different quizzes
             let topicDisplay = item.topic;
             if (item.topic.includes('Quiz4') || item.topic.includes('quadratic')) {
-                topicDisplay = 'Quadratic Functions (Quiz 4)';
+                topicDisplay = 'Quadratic Functions (Week-3)';
             } else if (item.topic.includes('Quiz5') || (item.topic.includes('Linear') && item.totalQuestions === 50)) {
                 topicDisplay = 'Linear Functions (Quiz 5) - 50 Questions';
             } else if (item.topic.includes('Linear') && item.totalQuestions === 30) {
@@ -1186,13 +1186,13 @@
             } else if (item.topic.includes('Quiz6') || item.topic.includes('Sets') || item.topic.includes('Relations')) {
                 topicDisplay = 'Sets and Relations (Quiz 6)';
             } else if (item.topic.includes('Quiz7') || item.topic.includes('Polynomial')) {
-                topicDisplay = 'Polynomials (Quiz 7) - 50 Questions';
+                topicDisplay = 'Polynomials (Week-4) - 50 Questions';
             } else if (item.topic.includes('Quiz8') || item.topic.includes('Function')) {
-                topicDisplay = 'Function Concepts (Quiz 8)';
+                topicDisplay = 'Exponential Functions (Week-5)';
             } else if (item.topic.includes('Quiz9') || item.topic.includes('Logarithmic')) {
-                topicDisplay = 'Logarithmic Functions (Quiz 9)';
+                topicDisplay = 'Logarithmic Functions (Week-6)';
             } else if (item.topic.includes('Quiz10') || item.topic.includes('Function Limits') || item.topic.includes('limits')) {
-                topicDisplay = 'Function Limits (Quiz 10)';
+                topicDisplay = 'Function Limits Week-7)';
             } else if (item.topic.includes('Linear')) {
                 topicDisplay = `Linear Functions (${item.totalQuestions} Questions)`;
             }
@@ -1292,7 +1292,7 @@
       );
       
       if (functionConceptsData.length === 0) {
-        alert('No Function Concepts (Quiz 8) data available yet.');
+        alert('No Exponential Functions (Week-5) data available yet.');
         return;
       }
       
