@@ -40,6 +40,10 @@ const AlgorithmSubmission = require('../model/AlgorithmSubmission');
 const Statistics_questions = require('../model/statisticsQuestion'); // Add this import
 const iitm_ct_questions = require('../model/iitm_ct_questions');
 const iitm_ct_scores = require('../model/iitm_ct_scores');
+const { spawn } = require('child_process');
+const { v4: uuidv4 } = require('uuid');
+const path = require('path');
+const fs = require('fs');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -951,6 +955,233 @@ router.get('/readingcomprehensionscore', async (req, res) => {
     });
   }
 });
+
+
+
+// Add this route to your existing backend
+// Add this route to your existing backend
+router.post('/execute-python', async (req, res) => {
+    try {
+        const { code, testCases, questionId } = req.body;
+        
+        console.log('🔧 Executing Python code for question:', questionId);
+        
+        if (!code || !testCases) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Code and test cases are required' 
+            });
+        }
+
+        // 🔒 SECURITY CHECKS - ADD THIS BLOCK RIGHT HERE
+        const dangerousPatterns = [
+            /import\s+(os|subprocess|sys|shutil|socket)/gi,
+            /__import__/g,
+            /eval\(/g,
+            /exec\(/g,
+            /open\(/g,
+            /file\(/g,
+            /compile\(/g,
+            /__builtins__/g,
+            /__globals__/g,
+            /\.__/g,
+            /input\(/g,
+            /raw_input\(/g
+        ];
+        
+        for (const pattern of dangerousPatterns) {
+            if (pattern.test(code)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Security violation: Dangerous operations detected in code'
+                });
+            }
+        }
+        
+        // Limit code length
+        if (code.length > 5000) {
+            return res.status(400).json({
+                success: false,
+                error: 'Code too long (max 5000 characters)'
+            });
+        }
+        // 🔒 END SECURITY CHECKS
+
+        // Execute Python code safely
+        const result = await executePythonInSandbox(code, testCases, questionId);
+        
+        res.json({
+            success: true,
+            ...result
+        });
+
+    } catch (error) {
+        console.error('❌ Python execution error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to execute Python code',
+            details: error.message 
+        });
+    }
+});
+
+// Safe Python execution function
+async function executePythonInSandbox(code, testCases, questionId) {
+    return new Promise((resolve, reject) => {
+        const executionId = uuidv4();
+        const tempDir = path.join(__dirname, 'temp');
+        
+        // Create temp directory if it doesn't exist
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
+        }
+
+        const pythonScript = `
+import json
+import sys
+import traceback
+
+# User's code
+${code}
+
+# Test execution
+results = []
+test_cases = ${JSON.stringify(testCases)}
+
+try:
+    for i, test_case in enumerate(test_cases):
+        try:
+            # Get function name from code
+            function_name = None
+            for line in """${code}""".split('\\n'):
+                if line.strip().startswith('def '):
+                    function_name = line.split('def ')[1].split('(')[0].strip()
+                    break
+            
+            if not function_name:
+                results.append({
+                    "passed": False,
+                    "error": "No function found in code",
+                    "output": None
+                })
+                continue
+            
+            # Execute the function
+            func = globals()[function_name]
+            output = func(*test_case.input)
+            
+            # Compare with expected result
+            expected = test_case.expected
+            
+            # Special handling for ValueError
+            if expected == "ValueError":
+                results.append({
+                    "passed": False,
+                    "error": "Expected ValueError but function executed successfully",
+                    "output": output
+                })
+            else:
+                # Deep comparison
+                def deep_equal(a, b):
+                    if a == b:
+                        return True
+                    if type(a) != type(b):
+                        return False
+                    if isinstance(a, list):
+                        return len(a) == len(b) and all(deep_equal(x, y) for x, y in zip(a, b))
+                    if isinstance(a, dict):
+                        return len(a) == len(b) and all(k in b and deep_equal(a[k], b[k]) for k in a)
+                    return False
+                
+                passed = deep_equal(output, expected)
+                results.append({
+                    "passed": passed,
+                    "output": output,
+                    "error": None if passed else f"Expected {expected}, got {output}"
+                })
+                
+        except ValueError as e:
+            if test_case.expected == "ValueError":
+                results.append({
+                    "passed": True,
+                    "output": "ValueError",
+                    "error": None
+                })
+            else:
+                results.append({
+                    "passed": False,
+                    "output": None,
+                    "error": f"ValueError: {str(e)}"
+                })
+        except Exception as e:
+            results.append({
+                "passed": False,
+                "output": None,
+                "error": f"{type(e).__name__}: {str(e)}"
+            })
+            
+    # Output results as JSON
+    print(json.dumps({
+        "success": True,
+        "testResults": results,
+        "passedCount": sum(1 for r in results if r["passed"]),
+        "totalCount": len(results)
+    }))
+    
+except Exception as e:
+    print(json.dumps({
+        "success": False,
+        "error": f"Execution failed: {str(e)}",
+        "traceback": traceback.format_exc()
+    }))
+`;
+
+        const scriptPath = path.join(tempDir, `${executionId}.py`);
+        fs.writeFileSync(scriptPath, pythonScript);
+
+        // Execute Python with timeout
+        const pythonProcess = spawn('python3', [scriptPath], {
+            timeout: 10000, // 10 second timeout
+            stdio: ['pipe', 'pipe', 'pipe']
+        });
+
+        let stdout = '';
+        let stderr = '';
+
+        pythonProcess.stdout.on('data', (data) => {
+            stdout += data.toString();
+        });
+
+        pythonProcess.stderr.on('data', (data) => {
+            stderr += data.toString();
+        });
+
+        pythonProcess.on('close', (code) => {
+            // Clean up temp file
+            try {
+                fs.unlinkSync(scriptPath);
+            } catch (cleanupError) {
+                console.warn('Could not clean up temp file:', cleanupError);
+            }
+
+            if (stderr && !stdout) {
+                return reject(new Error(`Python error: ${stderr}`));
+            }
+
+            try {
+                const result = JSON.parse(stdout);
+                resolve(result);
+            } catch (parseError) {
+                reject(new Error(`Failed to parse Python output: ${stdout} | Error: ${stderr}`));
+            }
+        });
+
+        pythonProcess.on('error', (error) => {
+            reject(new Error(`Failed to start Python process: ${error.message}`));
+        });
+
+    });
+}
 
     router.get('/algorithm-submissions', async (req, res) => {
       try {
