@@ -2651,28 +2651,6 @@ router.get('/iitm-math-questions/quiz10', async (req, res) => {
   }
 });
 
-// Add this test endpoint to check database
-router.get('/debug-function-limits', async (req, res) => {
-  try {
-    const totalQuestions = await IITMathQuestion.countDocuments({ topic: "Function_Limits" });
-    const sampleQuestions = await IITMathQuestion.find({ topic: "Function_Limits" }).limit(3);
-    const allTopics = await IITMathQuestion.distinct('topic');
-    
-    res.json({
-      totalFunctionLimitsQuestions: totalQuestions,
-      availableTopics: allTopics,
-      sampleQuestions: sampleQuestions.map(q => ({
-        id: q._id,
-        topic: q.topic,
-        question_text: q.question_text?.substring(0, 100) + '...',
-        type: q.type,
-        difficulty: q.difficulty
-      }))
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // Quiz 5: Linear Functions questions route (following Quiz 4 pattern)
 router.get('/iitm-math-questions/quiz5', async (req, res) => {
@@ -2736,6 +2714,53 @@ router.get('/iitm-math-questions/quiz5', async (req, res) => {
   }
 });
 
+// GET IITM Math Scores - Add this route
+router.get('/api/iitmmath_scores', async (req, res) => {
+  try {
+    console.log('📊 Fetching IITM Math scores...');
+    
+    // Fetch all math scores from your database
+    const mathScores = await iitm_math_score.find({});
+    
+    console.log(`✅ Found ${mathScores.length} math score records`);
+    
+    // Transform the data to match what your dashboard expects
+    const transformedData = mathScores.map(user => {
+      // Extract quiz scores and format them for the dashboard
+      const quizScores = user.quizScores || [];
+      
+      return {
+        username: user.username,
+        email: user.email,
+        quizScores: quizScores.map(quiz => ({
+          topic: quiz.topic || 'Unknown Topic',
+          score: quiz.score || 0,
+          totalQuestions: quiz.totalQuestions || 0,
+          correctAnswers: quiz.correctAnswers || quiz.score || 0,
+          percentage: quiz.percentage || 0,
+          attemptNumber: quiz.attemptNumber || 1,
+          timestamp: quiz.timestamp || user.updatedAt,
+          questionResults: quiz.questionResults || []
+        })),
+        // Keep for backwards compatibility
+        scores: [] 
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: transformedData
+    });
+
+  } catch (error) {
+    console.error('❌ Error fetching IITM Math scores:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch IITM Math scores',
+      message: error.message
+    });
+  }
+});
 
 router.post('/iitmmath_scores', async (req, res) => {
   try {
@@ -3465,6 +3490,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
   }
 });
 module.exports = router
+
 
 
 
