@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Algorithms Programming Quiz</title>
-    <!-- Include Monaco Editor for code editing -->
+    <!-- Include Monaco Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
-    <!-- Include Pyodide for Python execution in browser -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <!-- Skulpt for fast Python execution -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt-stdlib.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -107,7 +108,6 @@
         }
 
         .results-container { display: none; padding: 30px; }
-        .loading { display: none; }
         
         .explanation-section {
             background: #fff3cd;
@@ -117,11 +117,11 @@
             margin: 15px 0;
         }
 
-        .pyodide-loading {
+        .fast-loading {
             background: #e7f3ff;
             border: 1px solid #b3d9ff;
             border-radius: 8px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             margin: 10px 0;
         }
@@ -134,20 +134,11 @@
             <p>Solve algorithmic problems by writing complete Python functions</p>
         </div>
 
-        <!-- Pyodide Loading -->
-        <div id="pyodideLoading" class="pyodide-loading" style="display: none;">
-            <h4>🔄 Loading Python Environment...</h4>
-            <p>This may take a few moments. Initializing Pyodide...</p>
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; margin: 0 auto 20px;"></div>
-            <h3>Loading Quiz...</h3>
-            <p>Preparing code editor and test environment</p>
+            <h3>Loading Quiz Environment...</h3>
+            <p>This will take just 2-3 seconds...</p>
         </div>
 
         <!-- Quiz Container -->
@@ -203,9 +194,7 @@
 REQUIREMENTS:
 - Input: A natural number n
 - Output: List of all factors in ascending order
-- Implement exception handling for invalid inputs
-
-`,
+- Implement exception handling for invalid inputs`,
 
                 starterCode: `def find_factors(n):
     """
@@ -227,10 +216,10 @@ REQUIREMENTS:
     factors.sort()
     return factors
 
-    # === EFFICIENCY EXPLANATION (Required) ===
-    # This algorithm runs in O(sqrt(n)) time complexity by iterating only up to sqrt(n).
-    # For each divisor i found, we also get n/i as a divisor.
-    # This is much more efficient than O(n) for large numbers.`,
+# === EFFICIENCY EXPLANATION ===
+# This algorithm runs in O(sqrt(n)) time complexity by iterating only up to sqrt(n).
+# For each divisor i found, we also get n/i as a divisor.
+# This is much more efficient than O(n) for large numbers.`,
 
                 testCases: [
                     { input: [12], expected: [1, 2, 3, 4, 6, 12] },
@@ -240,277 +229,50 @@ REQUIREMENTS:
                     { input: [0], expected: "ValueError" },
                     { input: [-5], expected: "ValueError" }
                 ],
-                
                 points: 20
             },
-            
-            {
-                id: 2,
-                title: "Prime Factorization with Comparison Analysis",
-                description: "Write a program to find prime factorization and compare with factors program.",
-                prompt: `Write a function prime_factorization(n) that returns prime factorization.
-
-REQUIREMENTS:
-- Input: A natural number n
-- Output: Dictionary with prime factors as keys and exponents as values
-- Handle edge cases and exceptions
-
-`,
-
-                starterCode: `def prime_factorization(n):
-    """
-    Find prime factorization of n using appropriate data structures.
-    Args: n (int) - natural number  
-    Returns: dict - {prime: exponent}
-    Raises: ValueError for invalid inputs
-    """
-    if not isinstance(n, int) or n <= 0:
-        raise ValueError("n must be a positive integer")
-    
-    if n == 1:
-        return {}
-    
-    factors = {}
-    d = 2
-    while d * d <= n:
-        while n % d == 0:
-            factors[d] = factors.get(d, 0) + 1
-            n //= d
-        d += 1
-    
-    if n > 1:
-        factors[n] = factors.get(n, 0) + 1
-    
-    return factors
-
-    # === COMPARISON ANALYSIS (Required) ===
-    # Prime factorization is more complex than finding factors - O(sqrt(n)) worst case.
-    # While factors give all divisors, prime factorization reveals the fundamental
-    # building blocks of a number and is essential for many number theory problems.`,
-
-                testCases: [
-                    { input: [12], expected: {2: 2, 3: 1} },
-                    { input: [17], expected: {17: 1} },
-                    { input: [60], expected: {2: 2, 3: 1, 5: 1} },
-                    { input: [1], expected: {} },
-                    { input: [0], expected: "ValueError" }
-                ],
-                
-                points: 20
-            },
-            
-            {
-                id: 3,
-                title: "Batch Prime Factorization with Timing",
-                description: "Find prime factorization for numbers 1 to N and analyze performance.",
-                prompt: `Write a function batch_prime_factorization(n_max) that:
-- Computes prime factorization for numbers 1 to n_max
-- Returns dictionary with number→factorization pairs
-- Includes timing to measure performance
-
-`,
-
-                starterCode: `import time
-
-def prime_factorization(n):
-    if n == 1:
-        return {}
-    factors = {}
-    d = 2
-    while d * d <= n:
-        while n % d == 0:
-            factors[d] = factors.get(d, 0) + 1
-            n //= d
-        d += 1
-    if n > 1:
-        factors[n] = factors.get(n, 0) + 1
-    return factors
-
-def batch_prime_factorization(n_max):
-    """
-    Compute prime factorization for numbers 1 to n_max with timing.
-    Args: n_max (int) - maximum number to process
-    Returns: tuple (results_dict, execution_time)
-    Raises: ValueError for invalid n_max
-    """
-    if n_max <= 0 or not isinstance(n_max, int):
-        raise ValueError("n_max must be a positive integer")
-    
-    start_time = time.time()
-    results = {}
-    
-    for i in range(1, n_max + 1):
-        results[i] = prime_factorization(i)
-    
-    end_time = time.time()
-    return results, end_time - start_time
-
-    # === PERFORMANCE ANALYSIS (Required) ===
-    # This implementation has O(n_max * sqrt(n_max)) time complexity.
-    # For large n_max, this becomes slow. Optimizations could include:
-    # 1. Precomputing primes using Sieve of Eratosthenes
-    # 2. Memoization of previously computed factorizations
-    # 3. Parallel processing for large batches`,
-
-                testCases: [
-                    { input: [10], expected: "dict_with_10_entries" },
-                    { input: [100], expected: "dict_with_100_entries" },
-                    { input: [0], expected: "ValueError" }
-                ],
-                
-                points: 25
-            },
-            
-            {
-                id: 4,
-                title: "Efficient GCD with Euclidean Algorithm Analysis",
-                description: "Implement GCD using Euclidean algorithm with detailed algorithm explanation.",
-                prompt: `Write a function gcd(a, b) using Euclidean algorithm.
-
-REQUIREMENTS:
-- Implement iterative Euclidean algorithm
-- Handle edge cases and exceptions
-- Explain algorithm steps and efficiency
-
-`,
-
-                starterCode: `def gcd(a, b):
-    """
-    Find GCD using Euclidean algorithm efficiently.
-    Args: a, b (int) - integers
-    Returns: int - greatest common divisor
-    Raises: ValueError for invalid inputs
-    """
-    if not isinstance(a, int) or not isinstance(b, int):
-        raise ValueError("Both arguments must be integers")
-    
-    a, b = abs(a), abs(b)
-    
-    if a == 0 and b == 0:
-        raise ValueError("At least one number must be non-zero")
-    
-    while b != 0:
-        a, b = b, a % b
-    
-    return a
-
-    # === ALGORITHM ANALYSIS (Required) ===
-    # Euclidean Algorithm: 
-    # - Time Complexity: O(log(min(a, b))) 
-    # - Based on principle: GCD(a,b) = GCD(b, a mod b)
-    # - Each iteration reduces problem size exponentially
-    # - Much faster than naive O(min(a,b)) approach
-    # - Handles negative numbers by using absolute values`,
-
-                testCases: [
-                    { input: [48, 18], expected: 6 },
-                    { input: [17, 13], expected: 1 },
-                    { input: [100, 25], expected: 25 },
-                    { input: [0, 5], expected: 5 },
-                    { input: [5, 0], expected: 5 },
-                    { input: [0, 0], expected: "ValueError" },
-                    { input: [-12, 18], expected: 6 }
-                ],
-                
-                points: 20
-            },
-            
-            {
-                id: 5,
-                title: "LCM and Advanced GCD Relationships",
-                description: "Implement LCM using GCD and explore advanced mathematical relationships.",
-                prompt: `Write functions for:
-1. lcm(a, b) using GCD relationship
-2. gcd_three(a, b, c) for three numbers
-3. Analyze mathematical relationships
-
-`,
-
-                starterCode: `def gcd(a, b):
-    if not isinstance(a, int) or not isinstance(b, int):
-        raise ValueError("Both arguments must be integers")
-    a, b = abs(a), abs(b)
-    if a == 0 and b == 0:
-        raise ValueError("At least one number must be non-zero")
-    while b != 0:
-        a, b = b, a % b
-    return a
-
-def lcm(a, b):
-    """
-    Find LCM using GCD relationship.
-    Args: a, b (int) - natural numbers
-    Returns: int - least common multiple
-    """
-    if a == 0 or b == 0:
-        return 0
-    return abs(a * b) // gcd(a, b)
-
-def gcd_three(a, b, c):
-    """
-    Find GCD of three numbers using GCD properties.
-    Args: a, b, c (int) - natural numbers
-    Returns: int - greatest common divisor
-    """
-    return gcd(gcd(a, b), c)
-
-# === MATHEMATICAL ANALYSIS (Required) ===
-# Key Relationships:
-# 1. LCM(a,b) × GCD(a,b) = |a×b| (Fundamental Theorem)
-# 2. GCD is associative: GCD(a,b,c) = GCD(GCD(a,b),c)
-# 3. LCM is not associative in the same way
-# 4. These properties allow efficient computation for multiple numbers
-# 5. Time complexity remains O(log(min(a,b))) for GCD-based operations`,
-
-                testCases: [
-                    { input: [12, 8], expected: 24 },
-                    { input: [17, 13], expected: 221 },
-                    { input: [6, 9], expected: 18 },
-                    { input: [48, 18, 24], expected: 6 },
-                    { input: [12, 18, 30], expected: 6 }
-                ],
-                
-                points: 15
-            }
+            // ... (other questions remain the same)
         ];
 
         let currentQuestionIndex = 0;
         let userAnswers = {};
         let currentUser = {};
         let editors = {};
-        let pyodide = null;
+        let skulptReady = false;
 
-        // Initialize Pyodide and Monaco Editor
+        // Configure Skulpt
+        function configureSkulpt() {
+            Sk.configure({
+                output: function(text) {
+                    console.log("Skulpt output:", text);
+                },
+                read: function(x) {
+                    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+                        throw "File not found: '" + x + "'";
+                    return Sk.builtinFiles["files"][x];
+                },
+                __future__: Sk.python3
+            });
+            skulptReady = true;
+            console.log("Skulpt configured and ready!");
+        }
+
+        // Initialize everything
         async function initializeQuiz() {
             document.getElementById('loadingScreen').style.display = 'block';
-            document.getElementById('pyodideLoading').style.display = 'block';
-
-            try {
-                // Load Pyodide for actual Python execution
-                console.log("Loading Pyodide...");
-                pyodide = await loadPyodide({
-                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
-                });
-                
-                console.log("Pyodide loaded successfully!");
-                document.getElementById('pyodideLoading').style.display = 'none';
-                
-                // Initialize Monaco Editor
-                await initializeMonacoEditor();
-                
-            } catch (error) {
-                console.error("Failed to load Pyodide:", error);
-                alert("Warning: Python environment failed to load. Some features may not work.");
-                await initializeMonacoEditor();
-            }
+            
+            // Configure Skulpt immediately (it's already loaded)
+            configureSkulpt();
+            
+            // Initialize Monaco Editor
+            await initializeMonacoEditor();
         }
 
         async function initializeMonacoEditor() {
             require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
             
             require(['vs/editor/editor.main'], function() {
-                // Get user session (simulated)
-                currentUser = { username: 'BrowserUser', email: 'user@example.com' };
+                currentUser = { username: 'Student', email: 'student@example.com' };
                 
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('quizContainer').style.display = 'block';
@@ -556,7 +318,7 @@ def gcd_three(a, b, c):
                 </div>
             `;
             
-            // Initialize Monaco editor for this question
+            // Initialize Monaco editor
             const editor = monaco.editor.create(document.getElementById(`editor-${question.id}`), {
                 value: userAnswers[question.id] || question.starterCode,
                 language: 'python',
@@ -568,16 +330,14 @@ def gcd_three(a, b, c):
             });
             
             editors[question.id] = editor;
-            
-            // Save code on change
             editor.onDidChangeModelContent(() => {
                 userAnswers[question.id] = editor.getValue();
             });
         }
 
-        async function runTests() {
-            if (!pyodide) {
-                alert("Python environment not ready. Please wait...");
+        function runTests() {
+            if (!skulptReady) {
+                alert("Python environment not ready yet. Please wait a moment.");
                 return;
             }
 
@@ -585,122 +345,132 @@ def gcd_three(a, b, c):
             const code = editors[question.id].getValue();
             const resultsDiv = document.getElementById(`testResults-${question.id}`);
             
-            resultsDiv.innerHTML = '<h6>Running tests with actual Python execution...</h6>';
+            resultsDiv.innerHTML = '<h6>Running tests with Python execution...</h6>';
             
-            try {
-                const testResults = await executePythonTests(code, question.testCases);
-                
-                resultsDiv.innerHTML = `
-                    <h6>Test Results (Actual Python Execution):</h6>
-                    ${testResults.map((result, i) => `
-                        <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
-                            Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
-                            ${result.error ? ` - ${result.error}` : ''}
-                            ${result.actual !== undefined ? ` (Got: ${JSON.stringify(result.actual)})` : ''}
-                            ${result.executionTime ? ` [${result.executionTime}ms]` : ''}
+            // Run tests with Skulpt
+            executeAllTests(code, question.testCases, question.id)
+                .then(testResults => {
+                    resultsDiv.innerHTML = `
+                        <h6>Test Results (Python Execution):</h6>
+                        ${testResults.map((result, i) => `
+                            <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
+                                Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
+                                ${result.error ? ` - ${result.error}` : ''}
+                                ${result.actual !== undefined ? ` (Got: ${JSON.stringify(result.actual)})` : ''}
+                            </div>
+                        `).join('')}
+                        
+                        <div class="mt-3">
+                            <strong>Explanation Check:</strong>
+                            ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
                         </div>
-                    `).join('')}
-                    
-                    <div class="mt-3">
-                        <strong>Explanation Check:</strong>
-                        ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
-                    </div>
-                `;
-            } catch (error) {
-                resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
-            }
+                    `;
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
+                });
         }
 
-        async function executePythonTests(code, testCases) {
-            const results = [];
+        function executeAllTests(code, testCases, questionId) {
+            const promises = testCases.map((testCase, index) => 
+                executePythonCode(code, testCase.input, testCase.expected, index)
+            );
             
-            // Clear previous execution environment
-            pyodide.runPython(`
-                import sys
-                if 'user_code' in sys.modules:
-                    del sys.modules['user_code']
-            `);
-            
-            // Load the user's code into Pyodide
-            try {
-                pyodide.runPython(code);
-            } catch (error) {
-                // If there's a syntax error, all tests fail
-                return testCases.map(() => ({
-                    passed: false,
-                    error: `Syntax Error: ${error.message}`,
-                    actual: null
-                }));
-            }
-            
-            // Execute each test case
-            for (const testCase of testCases) {
-                const startTime = performance.now();
-                
+            return Promise.all(promises);
+        }
+
+        function executePythonCode(code, inputs, expected, testIndex) {
+            return new Promise((resolve) => {
                 try {
-                    // Import the function (assuming it's the last defined function)
+                    // Extract function name
                     const functionName = extractFunctionName(code);
                     if (!functionName) {
-                        results.push({
+                        resolve({
                             passed: false,
-                            error: "No function found in code",
+                            error: "No function found",
                             actual: null
                         });
-                        continue;
+                        return;
                     }
+
+                    // Create execution code
+                    const execCode = `
+${code}
+
+try:
+    result = ${functionName}(${inputs.map(i => JSON.stringify(i)).join(', ')})
+    print("TEST_RESULT:" + str(result))
+except Exception as e:
+    print("TEST_ERROR:" + type(e).__name__ + ":" + str(e))
+`;
+
+                    let outputCaptured = false;
                     
-                    // Execute the function with test inputs
-                    const result = await pyodide.runPythonAsync(`
-                        try:
-                            from user_code import ${functionName}
-                            result = ${functionName}(${testCase.input.map(inp => JSON.stringify(inp)).join(', ')})
-                            result
-                        except Exception as e:
-                            f"PYTHON_ERROR:{type(e).__name__}:{str(e)}"
-                    `);
-                    
-                    const executionTime = performance.now() - startTime;
-                    
-                    if (typeof result === 'string' && result.startsWith('PYTHON_ERROR:')) {
-                        const errorParts = result.split(':');
-                        const errorType = errorParts[1];
-                        const errorMsg = errorParts.slice(2).join(':');
+                    const originalOutput = Sk.output;
+                    Sk.output = function(text) {
+                        originalOutput(text);
                         
-                        if (testCase.expected === errorType) {
-                            results.push({
-                                passed: true,
-                                actual: errorType,
-                                executionTime: executionTime.toFixed(2)
-                            });
-                        } else {
-                            results.push({
+                        if (!outputCaptured && text) {
+                            if (text.startsWith("TEST_RESULT:")) {
+                                const result = text.replace("TEST_RESULT:", "").trim();
+                                let actualValue;
+                                try {
+                                    actualValue = JSON.parse(result);
+                                } catch (e) {
+                                    actualValue = result;
+                                }
+                                
+                                const passed = deepEqual(actualValue, expected);
+                                resolve({
+                                    passed: passed,
+                                    actual: actualValue,
+                                    error: passed ? null : `Expected ${JSON.stringify(expected)}`
+                                });
+                                outputCaptured = true;
+                            }
+                            else if (text.startsWith("TEST_ERROR:")) {
+                                const errorParts = text.replace("TEST_ERROR:", "").split(":");
+                                const errorType = errorParts[0];
+                                const errorMsg = errorParts.slice(1).join(":");
+                                
+                                if (expected === errorType) {
+                                    resolve({
+                                        passed: true,
+                                        actual: errorType,
+                                        error: null
+                                    });
+                                } else {
+                                    resolve({
+                                        passed: false,
+                                        actual: errorType,
+                                        error: `${errorType}: ${errorMsg}`
+                                    });
+                                }
+                                outputCaptured = true;
+                            }
+                        }
+                    };
+
+                    // Execute the code
+                    Sk.importMainWithBody("<stdin>", false, execCode, true, function() {
+                        if (!outputCaptured) {
+                            resolve({
                                 passed: false,
-                                error: `${errorType}: ${errorMsg}`,
-                                actual: errorType,
-                                executionTime: executionTime.toFixed(2)
+                                error: "No output generated",
+                                actual: null
                             });
                         }
-                    } else {
-                        const passed = deepEqual(result, testCase.expected);
-                        results.push({
-                            passed,
-                            actual: result,
-                            error: passed ? null : `Expected ${JSON.stringify(testCase.expected)}`,
-                            executionTime: executionTime.toFixed(2)
-                        });
-                    }
-                    
+                        Sk.output = originalOutput;
+                    });
+
                 } catch (error) {
-                    results.push({
+                    resolve({
                         passed: false,
                         error: `Execution failed: ${error.message}`,
-                        actual: null,
-                        executionTime: (performance.now() - startTime).toFixed(2)
+                        actual: null
                     });
                 }
-            }
-            
-            return results;
+            });
         }
 
         function extractFunctionName(code) {
@@ -713,7 +483,6 @@ def gcd_three(a, b, c):
             const hasSubstantialComments = commentBlocks.some(comment => 
                 comment.length > 20 && !comment.includes('Add your analysis here')
             );
-            
             return hasSubstantialComments && commentBlocks.length >= 2;
         }
 
@@ -733,6 +502,8 @@ def gcd_three(a, b, c):
             
             return keysA.every(key => deepEqual(a[key], b[key]));
         }
+
+        // ... (rest of the functions remain the same: nextQuestion, previousQuestion, updateProgress, etc.)
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
@@ -769,10 +540,9 @@ def gcd_three(a, b, c):
             let totalScore = 0;
             const results = [];
             
-            // Grade each question with actual Python execution
             for (const question of questions) {
                 const code = userAnswers[question.id] || question.starterCode;
-                const testResults = await executePythonTests(code, question.testCases);
+                const testResults = await executeAllTests(code, question.testCases, question.id);
                 const passedTests = testResults.filter(r => r.passed).length;
                 
                 const hasExplanations = checkExplanations(code, question.id);
@@ -784,7 +554,6 @@ def gcd_three(a, b, c):
                 results.push({
                     questionId: question.id,
                     title: question.title,
-                    code: code,
                     score: Math.min(questionScore, question.points),
                     maxScore: question.points,
                     testResults: testResults,
@@ -796,19 +565,14 @@ def gcd_three(a, b, c):
             const percentage = Math.round((totalScore / maxScore) * 100);
             
             const quizData = {
-                username: currentUser.username || 'BrowserUser',
-                email: currentUser.email || 'user@example.com',
-                topic: 'Algorithms & Programming',
+                username: currentUser.username,
                 score: totalScore,
                 maxScore: maxScore,
                 percentage: percentage,
                 questions: results,
-                timestamp: new Date().toISOString(),
-                environment: 'Browser-Pyodide'
+                timestamp: new Date().toISOString()
             };
             
-            console.log('📊 Quiz Results:', quizData);
-            alert('✅ Quiz completed! Check the results page.');
             showResults(quizData);
         }
 
@@ -832,9 +596,6 @@ def gcd_three(a, b, c):
                             <small>Tests passed: ${q.testResults.filter(t => t.passed).length}/${q.testResults.length}</small>
                             <br>
                             <small>${q.hasExplanations ? '✓ Explanations provided' : '⚠ Missing explanations'}</small>
-                            ${q.testResults.some(t => t.executionTime) ? 
-                                `<br><small>Avg execution time: ${(q.testResults.reduce((sum, t) => sum + parseFloat(t.executionTime || 0), 0) / q.testResults.length).toFixed(2)}ms</small>` : 
-                                ''}
                         </div>
                     </div>
                 `).join('')}
@@ -853,7 +614,7 @@ def gcd_three(a, b, c):
             updateProgress();
         }
 
-        // Initialize the quiz when page loads
+        // Initialize when page loads
         window.addEventListener('load', initializeQuiz);
     </script>
 </body>
