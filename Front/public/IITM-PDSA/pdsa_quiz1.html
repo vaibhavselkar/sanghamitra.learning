@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Algorithms Programming Quiz</title>
-    <!-- Include Monaco Editor -->
+    <!-- Include Monaco Editor for code editing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
-    <!-- Skulpt for fast Python execution -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/skulpt/1.2.0/skulpt-stdlib.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -108,6 +105,7 @@
         }
 
         .results-container { display: none; padding: 30px; }
+        .loading { display: none; }
         
         .explanation-section {
             background: #fff3cd;
@@ -117,13 +115,57 @@
             margin: 15px 0;
         }
 
-        .fast-loading {
-            background: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 8px;
-            padding: 15px;
+                /* Anti-cheating CSS */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Allow text selection only for code editor */
+        .code-editor-container * {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+
+        /* Blur content when window loses focus */
+        body.blurred {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+
+        /* Warning overlay */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 1.5rem;
             text-align: center;
-            margin: 10px 0;
+            flex-direction: column;
+        }
+
+        /* Hide scrollbars to prevent inspection */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        body {
+            -webkit-print-color-adjust: exact;
+            pointer-events: auto;
         }
     </style>
 </head>
@@ -136,9 +178,9 @@
 
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem; margin: 0 auto 20px;"></div>
-            <h3>Loading Quiz Environment...</h3>
-            <p>This will take just 2-3 seconds...</p>
+            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <h3>Loading Quiz...</h3>
+            <p>Preparing code editor and test environment</p>
         </div>
 
         <!-- Quiz Container -->
@@ -181,6 +223,18 @@
             <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
         </div>
     </div>
+              </div>
+    </div>
+
+    <!-- Anti-cheating warning overlay -->
+    <div id="warningOverlay" class="warning-overlay" style="display: none;">
+        <div>
+            <h2>⚠️ QUIZ WINDOW NOT ACTIVE</h2>
+            <p>Please return to the quiz window immediately</p>
+            <p>Your activity is being monitored and recorded</p>
+            <p>Cheating attempts will result in quiz termination</p>
+        </div>
+    </div>
 
     <script>
         // Quiz questions with code problems
@@ -194,7 +248,9 @@
 REQUIREMENTS:
 - Input: A natural number n
 - Output: List of all factors in ascending order
-- Implement exception handling for invalid inputs`,
+- Implement exception handling for invalid inputs
+
+`,
 
                 starterCode: `def find_factors(n):
     """
@@ -203,23 +259,11 @@ REQUIREMENTS:
     Returns: list - all factors in ascending order
     Raises: ValueError for invalid inputs
     """
-    if not isinstance(n, int) or n <= 0:
-        raise ValueError("n must be a positive integer")
+    # Write your efficient implementation here
     
-    factors = []
-    for i in range(1, int(n**0.5) + 1):
-        if n % i == 0:
-            factors.append(i)
-            if i != n // i:
-                factors.append(n // i)
-    
-    factors.sort()
-    return factors
-
-# === EFFICIENCY EXPLANATION ===
-# This algorithm runs in O(sqrt(n)) time complexity by iterating only up to sqrt(n).
-# For each divisor i found, we also get n/i as a divisor.
-# This is much more efficient than O(n) for large numbers.`,
+    # === EFFICIENCY EXPLANATION (Required) ===
+    # Add your analysis here
+    pass`,
 
                 testCases: [
                     { input: [12], expected: [1, 2, 3, 4, 6, 12] },
@@ -229,57 +273,353 @@ REQUIREMENTS:
                     { input: [0], expected: "ValueError" },
                     { input: [-5], expected: "ValueError" }
                 ],
+                
                 points: 20
             },
-            // ... (other questions remain the same)
+            
+            {
+                id: 2,
+                title: "Prime Factorization with Comparison Analysis",
+                description: "Write a program to find prime factorization and compare with factors program.",
+                prompt: `Write a function prime_factorization(n) that returns prime factorization.
+
+REQUIREMENTS:
+- Input: A natural number n
+- Output: Dictionary with prime factors as keys and exponents as values
+- Handle edge cases and exceptions
+
+`,
+
+                starterCode: `def prime_factorization(n):
+    """
+    Find prime factorization of n using appropriate data structures.
+    Args: n (int) - natural number  
+    Returns: dict - {prime: exponent}
+    Raises: ValueError for invalid inputs
+    """
+    # Write your implementation here
+    
+    # === COMPARISON ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [12], expected: {2: 2, 3: 1} },
+                    { input: [17], expected: {17: 1} },
+                    { input: [60], expected: {2: 2, 3: 1, 5: 1} },
+                    { input: [1], expected: {} },
+                    { input: [0], expected: "ValueError" }
+                ],
+                
+                points: 20
+            },
+            
+            {
+                id: 3,
+                title: "Batch Prime Factorization with Timing",
+                description: "Find prime factorization for numbers 1 to N and analyze performance.",
+                prompt: `Write a function batch_prime_factorization(n_max) that:
+- Computes prime factorization for numbers 1 to n_max
+- Returns dictionary with number→factorization pairs
+- Includes timing to measure performance
+
+`,
+
+                starterCode: `import time
+
+def batch_prime_factorization(n_max):
+    """
+    Compute prime factorization for numbers 1 to n_max with timing.
+    Args: n_max (int) - maximum number to process
+    Returns: tuple (results_dict, execution_time)
+    Raises: ValueError for invalid n_max
+    """
+    if n_max <= 0 or not isinstance(n_max, int):
+        raise ValueError("n_max must be a positive integer")
+    
+    start_time = time.time()
+    results = {}
+    
+    # Implement efficient batch processing here
+    
+    # === PERFORMANCE ANALYSIS (Required) ===
+    # Add your analysis here
+    pass
+
+    end_time = time.time()
+    return results, end_time - start_time`,
+
+                testCases: [
+                    { input: [10], expected: "dict_with_10_entries" },
+                    { input: [100], expected: "dict_with_100_entries" },
+                    { input: [0], expected: "ValueError" }
+                ],
+                
+                points: 25
+            },
+            
+            {
+                id: 4,
+                title: "Efficient GCD with Euclidean Algorithm Analysis",
+                description: "Implement GCD using Euclidean algorithm with detailed algorithm explanation.",
+                prompt: `Write a function gcd(a, b) using Euclidean algorithm.
+
+REQUIREMENTS:
+- Implement iterative Euclidean algorithm
+- Handle edge cases and exceptions
+- Explain algorithm steps and efficiency
+
+`,
+
+                starterCode: `def gcd(a, b):
+    """
+    Find GCD using Euclidean algorithm efficiently.
+    Args: a, b (int) - integers
+    Returns: int - greatest common divisor
+    Raises: ValueError for invalid inputs
+    """
+    # Implement Euclidean algorithm here
+    
+    # === ALGORITHM ANALYSIS (Required) ===
+    # Add your analysis here
+    pass`,
+
+                testCases: [
+                    { input: [48, 18], expected: 6 },
+                    { input: [17, 13], expected: 1 },
+                    { input: [100, 25], expected: 25 },
+                    { input: [0, 5], expected: 5 },
+                    { input: [5, 0], expected: 5 },
+                    { input: [0, 0], expected: "ValueError" },
+                    { input: [-12, 18], expected: 6 }
+                ],
+                
+                points: 20
+            },
+            
+            {
+                id: 5,
+                title: "LCM and Advanced GCD Relationships",
+                description: "Implement LCM using GCD and explore advanced mathematical relationships.",
+                prompt: `Write functions for:
+1. lcm(a, b) using GCD relationship
+2. gcd_three(a, b, c) for three numbers
+3. Analyze mathematical relationships
+
+`,
+
+                starterCode: `def gcd(a, b):
+    # Implement or reuse your Euclidean algorithm
+    pass
+
+def lcm(a, b):
+    """
+    Find LCM using GCD relationship.
+    Args: a, b (int) - natural numbers
+    Returns: int - least common multiple
+    """
+    # Implement using LCM(a,b) = |a*b| / GCD(a,b)
+    pass
+
+def gcd_three(a, b, c):
+    """
+    Find GCD of three numbers using GCD properties.
+    Args: a, b, c (int) - natural numbers
+    Returns: int - greatest common divisor
+    """
+    # Implement using GCD(a,b,c) = GCD(GCD(a,b), c)
+    pass
+
+# === MATHEMATICAL ANALYSIS (Required) ===
+# Add your analysis here`,
+
+                testCases: [
+                    { input: [12, 8], expected: 24 },
+                    { input: [17, 13], expected: 221 },
+                    { input: [6, 9], expected: 18 },
+                    { input: [48, 18, 24], expected: 6 },
+                    { input: [12, 18, 30], expected: 6 }
+                ],
+                
+                points: 15
+            }
         ];
 
         let currentQuestionIndex = 0;
         let userAnswers = {};
         let currentUser = {};
         let editors = {};
-        let skulptReady = false;
+        // Anti-cheating variables
+        let cheatingAttempts = 0;
+        let isQuizActive = false;
+        let devToolsWarned = false;
+        let quizStartTime = null;
+        let questionStartTime = null;
+        let questionTimes = {};
 
-        // Configure Skulpt
-        function configureSkulpt() {
-            Sk.configure({
-                output: function(text) {
-                    console.log("Skulpt output:", text);
-                },
-                read: function(x) {
-                    if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
-                        throw "File not found: '" + x + "'";
-                    return Sk.builtinFiles["files"][x];
-                },
-                __future__: Sk.python3
+        // Initialize Monaco Editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            initializeQuiz();
+        });
+
+               // Anti-cheating initialization
+        function initializeAntiCheating() {
+            // Disable right-click
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                recordCheatingAttempt('right_click');
+                return false;
             });
-            skulptReady = true;
-            console.log("Skulpt configured and ready!");
+            
+            // Disable common keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
+                if (e.keyCode === 123 || // F12
+                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
+                    (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
+                    (e.ctrlKey && e.keyCode === 83) || // Ctrl+S
+                    e.keyCode === 44) { // Print Screen
+                    e.preventDefault();
+                    recordCheatingAttempt('keyboard_shortcut');
+                    return false;
+                }
+                
+                // Disable Ctrl+A, Ctrl+C, Ctrl+V
+                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                    e.preventDefault();
+                    recordCheatingAttempt('copy_attempt');
+                    return false;
+                }
+            });
+            
+            // Detect developer tools
+            const threshold = 160;
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > threshold || 
+                    window.outerWidth - window.innerWidth > threshold) {
+                    if (!devToolsWarned) {
+                        recordCheatingAttempt('developer_tools');
+                        alert('Developer tools detected! This attempt has been logged.');
+                        devToolsWarned = true;
+                    }
+                }
+            }, 500);
+            
+            // Detect window focus changes
+            window.addEventListener('blur', function() {
+                if (isQuizActive) {
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                    recordCheatingAttempt('window_blur');
+                }
+            });
+            
+            window.addEventListener('focus', function() {
+                document.body.classList.remove('blurred');
+                document.getElementById('warningOverlay').style.display = 'none';
+            });
+            
+            // Prevent text selection
+            document.onselectstart = function() {
+                recordCheatingAttempt('text_selection');
+                return false;
+            };
+            
+            // Disable drag
+            document.ondragstart = function() {
+                return false;
+            };
+            
+            // Monitor for screenshot attempts
+            document.addEventListener('keyup', function(e) {
+                if (e.keyCode === 44) {
+                    recordCheatingAttempt('screenshot_attempt');
+                    alert('Screenshot attempt detected and logged!');
+                }
+            });
+            
+            // Disable printing
+            window.addEventListener('beforeprint', function(e) {
+                recordCheatingAttempt('print_attempt');
+                e.preventDefault();
+                return false;
+            });
         }
 
-        // Initialize everything
+        // Record cheating attempts
+        function recordCheatingAttempt(type) {
+            cheatingAttempts++;
+            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+            
+            if (currentUser.username && currentUser.email) {
+                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: currentUser.username,
+                        email: currentUser.email,
+                        cheatingType: type,
+                        timestamp: new Date(),
+                        currentQuestion: currentQuestionIndex + 1,
+                        quizType: 'algorithms_programming'
+                    })
+                }).catch(err => console.error('Failed to log cheating attempt:', err));
+            }
+            
+            // Auto-submit quiz after too many attempts
+            if (cheatingAttempts >= 5) {
+                alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
+                submitQuiz();
+            }
+        }
+
         async function initializeQuiz() {
-            document.getElementById('loadingScreen').style.display = 'block';
+            console.log('🚀 Initializing quiz...');
             
-            // Configure Skulpt immediately (it's already loaded)
-            configureSkulpt();
+            // Initialize anti-cheating first
+            initializeAntiCheating();
             
-            // Initialize Monaco Editor
-            await initializeMonacoEditor();
-        }
-
-        async function initializeMonacoEditor() {
-            require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+            // Initialize with test user first (fallback)
+            currentUser = { username: 'TestUser', email: 'test@example.com' };
+            userAnswers = {};
             
-            require(['vs/editor/editor.main'], function() {
-                currentUser = { username: 'Student', email: 'student@example.com' };
+            // Try to get user session (non-blocking)
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                    credentials: 'include',
+                    mode: 'cors'
+                });
                 
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('quizContainer').style.display = 'block';
-                
-                renderCurrentQuestion();
-                updateProgress();
-            });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.username && data.email) {
+                        currentUser = { username: data.username, email: data.email };
+                        console.log('✅ User logged in:', currentUser);
+                    }
+                }
+            } catch (error) {
+                console.log('ℹ️ Using test user for demo');
+            }
+            
+            // Initialize quiz timing
+            quizStartTime = new Date();
+            questionStartTime = new Date();
+            isQuizActive = true;
+            
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            renderCurrentQuestion();
+            updateProgress();
+            
+            // Request fullscreen (optional)
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request failed:', err);
+                });
+            }
         }
 
         function renderCurrentQuestion() {
@@ -318,7 +658,7 @@ REQUIREMENTS:
                 </div>
             `;
             
-            // Initialize Monaco editor
+            // Initialize Monaco editor for this question
             const editor = monaco.editor.create(document.getElementById(`editor-${question.id}`), {
                 value: userAnswers[question.id] || question.starterCode,
                 language: 'python',
@@ -330,183 +670,108 @@ REQUIREMENTS:
             });
             
             editors[question.id] = editor;
+            
+            // Save code on change
             editor.onDidChangeModelContent(() => {
                 userAnswers[question.id] = editor.getValue();
             });
         }
-
-        function runTests() {
-            if (!skulptReady) {
-                alert("Python environment not ready yet. Please wait a moment.");
-                return;
-            }
-
-            const question = questions[currentQuestionIndex];
-            const code = editors[question.id].getValue();
-            const resultsDiv = document.getElementById(`testResults-${question.id}`);
+// Replace the current runTests function
+async function runTests() {
+    const question = questions[currentQuestionIndex];
+    const code = editors[question.id].getValue();
+    const resultsDiv = document.getElementById(`testResults-${question.id}`);
+    
+    resultsDiv.innerHTML = '<h6>🔧 Running tests with real Python execution...</h6>';
+    
+    try {
+        const testResults = await executePythonOnBackend(code, question.testCases, question.id);
+        
+        resultsDiv.innerHTML = `
+            <h6>Test Results (Real Python Execution):</h6>
+            ${testResults.testResults.map((result, i) => `
+                <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
+                    Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
+                    ${result.error ? ` - ${result.error}` : ''}
+                    ${result.output !== undefined ? ` (Got: ${JSON.stringify(result.output)})` : ''}
+                </div>
+            `).join('')}
             
-            resultsDiv.innerHTML = '<h6>Running tests with Python execution...</h6>';
+            <div class="mt-3">
+                <strong>Summary:</strong> ${testResults.passedCount}/${testResults.totalCount} tests passed
+            </div>
             
-            // Run tests with Skulpt
-            executeAllTests(code, question.testCases, question.id)
-                .then(testResults => {
-                    resultsDiv.innerHTML = `
-                        <h6>Test Results (Python Execution):</h6>
-                        ${testResults.map((result, i) => `
-                            <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
-                                Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
-                                ${result.error ? ` - ${result.error}` : ''}
-                                ${result.actual !== undefined ? ` (Got: ${JSON.stringify(result.actual)})` : ''}
-                            </div>
-                        `).join('')}
-                        
-                        <div class="mt-3">
-                            <strong>Explanation Check:</strong>
-                            ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
-                        </div>
-                    `;
-                })
-                .catch(error => {
-                    resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
-                });
-        }
+            <div class="mt-2">
+                <strong>Explanation Check:</strong>
+                ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
+            </div>
+        `;
+    } catch (error) {
+        resultsDiv.innerHTML = `
+            <div class="test-result test-failed">
+                ❌ Execution Error: ${error.message}
+            </div>
+            <div class="mt-2">
+                <small>Make sure your Python syntax is correct and all required functions are defined.</small>
+            </div>
+        `;
+    }
+}
 
-        function executeAllTests(code, testCases, questionId) {
-            const promises = testCases.map((testCase, index) => 
-                executePythonCode(code, testCase.input, testCase.expected, index)
-            );
-            
-            return Promise.all(promises);
-        }
+// New function to call backend
+async function executePythonOnBackend(code, testCases, questionId) {
+    const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/execute-python', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            code: code,
+            testCases: testCases,
+            questionId: questionId
+        })
+    });
 
-        function executePythonCode(code, inputs, expected, testIndex) {
-            return new Promise((resolve) => {
-                try {
-                    // Extract function name
-                    const functionName = extractFunctionName(code);
-                    if (!functionName) {
-                        resolve({
-                            passed: false,
-                            error: "No function found",
-                            actual: null
-                        });
-                        return;
-                    }
+    if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+    }
 
-                    // Create execution code
-                    const execCode = `
-${code}
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(result.error || 'Execution failed');
+    }
+    
+    return result;
+}
 
-try:
-    result = ${functionName}(${inputs.map(i => JSON.stringify(i)).join(', ')})
-    print("TEST_RESULT:" + str(result))
-except Exception as e:
-    print("TEST_ERROR:" + type(e).__name__ + ":" + str(e))
-`;
-
-                    let outputCaptured = false;
-                    
-                    const originalOutput = Sk.output;
-                    Sk.output = function(text) {
-                        originalOutput(text);
-                        
-                        if (!outputCaptured && text) {
-                            if (text.startsWith("TEST_RESULT:")) {
-                                const result = text.replace("TEST_RESULT:", "").trim();
-                                let actualValue;
-                                try {
-                                    actualValue = JSON.parse(result);
-                                } catch (e) {
-                                    actualValue = result;
-                                }
-                                
-                                const passed = deepEqual(actualValue, expected);
-                                resolve({
-                                    passed: passed,
-                                    actual: actualValue,
-                                    error: passed ? null : `Expected ${JSON.stringify(expected)}`
-                                });
-                                outputCaptured = true;
-                            }
-                            else if (text.startsWith("TEST_ERROR:")) {
-                                const errorParts = text.replace("TEST_ERROR:", "").split(":");
-                                const errorType = errorParts[0];
-                                const errorMsg = errorParts.slice(1).join(":");
-                                
-                                if (expected === errorType) {
-                                    resolve({
-                                        passed: true,
-                                        actual: errorType,
-                                        error: null
-                                    });
-                                } else {
-                                    resolve({
-                                        passed: false,
-                                        actual: errorType,
-                                        error: `${errorType}: ${errorMsg}`
-                                    });
-                                }
-                                outputCaptured = true;
-                            }
-                        }
-                    };
-
-                    // Execute the code
-                    Sk.importMainWithBody("<stdin>", false, execCode, true, function() {
-                        if (!outputCaptured) {
-                            resolve({
-                                passed: false,
-                                error: "No output generated",
-                                actual: null
-                            });
-                        }
-                        Sk.output = originalOutput;
-                    });
-
-                } catch (error) {
-                    resolve({
-                        passed: false,
-                        error: `Execution failed: ${error.message}`,
-                        actual: null
-                    });
-                }
-            });
-        }
-
-        function extractFunctionName(code) {
-            const match = code.match(/def\s+(\w+)\s*\(/);
-            return match ? match[1] : null;
-        }
+// Remove the old simulateCodeExecution and executeUserCode functions completely
 
         function checkExplanations(code, questionId) {
+            // More strict check - require actual content in comments
             const commentBlocks = code.match(/#.+/g) || [];
             const hasSubstantialComments = commentBlocks.some(comment => 
                 comment.length > 20 && !comment.includes('Add your analysis here')
             );
+            
             return hasSubstantialComments && commentBlocks.length >= 2;
         }
 
-        function deepEqual(a, b) {
-            if (a === b) return true;
-            if (typeof a !== typeof b) return false;
-            if (typeof a !== 'object' || a === null || b === null) return a === b;
-            
-            if (Array.isArray(a)) {
-                if (!Array.isArray(b) || a.length !== b.length) return false;
-                return a.every((val, i) => deepEqual(val, b[i]));
+                // Track question timing
+        function trackQuestionTime() {
+            if (questionStartTime) {
+                const timeSpent = Math.floor((new Date() - questionStartTime) / 1000);
+                questionTimes[currentQuestionIndex] = timeSpent;
             }
-            
-            const keysA = Object.keys(a);
-            const keysB = Object.keys(b);
-            if (keysA.length !== keysB.length) return false;
-            
-            return keysA.every(key => deepEqual(a[key], b[key]));
+            questionStartTime = new Date();
         }
 
-        // ... (rest of the functions remain the same: nextQuestion, previousQuestion, updateProgress, etc.)
+        
+              
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
+                trackQuestionTime();
                 currentQuestionIndex++;
                 renderCurrentQuestion();
                 updateProgress();
@@ -515,6 +780,7 @@ except Exception as e:
 
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
+                trackQuestionTime();
                 currentQuestionIndex--;
                 renderCurrentQuestion();
                 updateProgress();
@@ -536,45 +802,147 @@ except Exception as e:
             }
         }
 
-        async function submitQuiz() {
-            let totalScore = 0;
-            const results = [];
+      async function submitQuiz() {
+    // Show confirmation dialog
+    const confirmSubmit = confirm(
+        'Are you ready to submit your quiz?\n\n' +
+        'Make sure you have:\n' +
+        '✓ Completed all questions\n' +
+        '✓ Tested your code\n' +
+        '✓ Added required explanations\n\n' +
+        'Click OK to submit.'
+    );
+    
+    if (!confirmSubmit) {
+        return; // User cancelled
+    }
+
+    let totalScore = 0;
+    const results = [];
+    
+    // Grade each question using REAL backend execution
+    for (const question of questions) {
+        const code = userAnswers[question.id] || '';
+        
+        try {
+            // Use REAL Python execution for final grading
+            const testResults = await executePythonOnBackend(code, question.testCases, question.id);
+            const passedTests = testResults.passedCount;
             
-            for (const question of questions) {
-                const code = userAnswers[question.id] || question.starterCode;
-                const testResults = await executeAllTests(code, question.testCases, question.id);
-                const passedTests = testResults.filter(r => r.passed).length;
-                
-                const hasExplanations = checkExplanations(code, question.id);
-                const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
-                
-                const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
-                
-                totalScore += Math.min(questionScore, question.points);
-                results.push({
-                    questionId: question.id,
-                    title: question.title,
-                    score: Math.min(questionScore, question.points),
-                    maxScore: question.points,
-                    testResults: testResults,
-                    hasExplanations: hasExplanations
-                });
-            }
+            const hasExplanations = checkExplanations(code, question.id);
+            const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
             
-            const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
-            const percentage = Math.round((totalScore / maxScore) * 100);
+            const questionScore = Math.round((passedTests / testResults.totalCount) * question.points) + explanationBonus;
             
-            const quizData = {
-                username: currentUser.username,
-                score: totalScore,
-                maxScore: maxScore,
-                percentage: percentage,
-                questions: results,
-                timestamp: new Date().toISOString()
-            };
-            
-            showResults(quizData);
+            totalScore += Math.min(questionScore, question.points);
+            results.push({
+                questionId: question.id,
+                title: question.title,
+                code: code,
+                score: Math.min(questionScore, question.points),
+                maxScore: question.points,
+                testResults: testResults.testResults,
+                hasExplanations: hasExplanations
+            });
+        } catch (error) {
+            // If execution fails, give minimal points
+            console.error(`Error grading question ${question.id}:`, error);
+            results.push({
+                questionId: question.id,
+                title: question.title,
+                code: code,
+                score: 0,
+                maxScore: question.points,
+                testResults: [],
+                hasExplanations: checkExplanations(code, question.id),
+                error: error.message
+            });
         }
+    }
+    
+    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+    const percentage = Math.round((totalScore / maxScore) * 100);
+    
+    // Prepare quiz data in correct format
+    const quizData = {
+        username: currentUser.username || 'TestUser',
+        email: currentUser.email || 'test@example.com',
+        topic: 'Algorithms & Programming',
+        score: totalScore,
+        maxScore: maxScore,
+        percentage: percentage,
+        questions: results,
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('📤 Submitting quiz data:', JSON.stringify(quizData, null, 2));
+    
+    try {
+        // Disable submit button to prevent double submission
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Submitting...';
+        
+        // Submit to backend
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(quizData)
+        });
+        
+        console.log('📥 Response status:', response.status);
+        
+        if (response.ok) {
+            const responseData = await response.json();
+            console.log('✅ Server response:', responseData);
+            alert('✅ Quiz submitted successfully!');
+            showResults(quizData);
+        } else {
+            const errorText = await response.text();
+            console.error('❌ Server error:', errorText);
+            throw new Error(`Server returned ${response.status}: ${errorText}`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Submission error:', error);
+        displayError(error.message);
+        
+        // Re-enable submit button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📊 Submit Quiz';
+    }
+}
+
+function displayError(message) {
+    alert(`❌ Error: ${message}\n\nYour quiz data has been saved locally. Please try submitting again later.`);
+    
+    // Save quiz data locally as backup
+    const backupData = {
+        ...quizData,
+        localBackup: true,
+        localTimestamp: new Date().toISOString()
+    };
+    localStorage.setItem('algorithmQuizBackup', JSON.stringify(backupData));
+    console.log('📦 Quiz data saved locally as backup');
+}
+
+
+
+function displayError(message) {
+    alert(`❌ Error: ${message}\n\nYour quiz data has been saved locally. Please try submitting again later.`);
+    
+    // Save quiz data locally as backup
+    const backupData = {
+        ...quizData,
+        localBackup: true,
+        localTimestamp: new Date().toISOString()
+    };
+    localStorage.setItem('algorithmQuizBackup', JSON.stringify(backupData));
+    console.log('📦 Quiz data saved locally as backup');
+}
 
         function showResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
@@ -613,9 +981,6 @@ except Exception as e:
             renderCurrentQuestion();
             updateProgress();
         }
-
-        // Initialize when page loads
-        window.addEventListener('load', initializeQuiz);
     </script>
 </body>
 </html>
