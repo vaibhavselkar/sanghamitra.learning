@@ -311,27 +311,6 @@
       border: none;
       color: #5d4037;
     }
-    
-    .function-limits-btn {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      border: none;
-      color: white;
-      font-weight: 600;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      transition: all 0.3s;
-    }
-
-    .function-limits-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    .function-limits-alert {
-      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
-      border: none;
-      color: #0c5460;
-    }
   </style>
 </head>
 
@@ -394,7 +373,7 @@
       </div>
     </div>
 
-
+   
     <!-- Filters and Table -->
     <div class="table-container">
       <div class="row filter-row">
@@ -683,16 +662,6 @@
                        results[0].questionText.toLowerCase().includes('ln') ||
                        results[0].questionText.toLowerCase().includes('natural log')));
 
-      const isQuiz10 = item.topic.includes('Quiz10') || item.topic.includes('Function Limits') ||
-                      item.topic.includes('limits') ||
-                      (results[0] && results[0].questionText && 
-                       (results[0].questionText.toLowerCase().includes('limit') || 
-                        results[0].questionText.toLowerCase().includes('lim') ||
-                        results[0].questionText.toLowerCase().includes('approaches') ||
-                        results[0].questionText.toLowerCase().includes('continuity') ||
-                        results[0].questionText.toLowerCase().includes('continuous') ||
-                        results[0].questionText.toLowerCase().includes('discontinuous')));
-
       let detailHtml = `
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h6 class="mb-0">
@@ -749,14 +718,6 @@
             properties of logarithms, solving logarithmic equations, and applications of logarithms.
           </div>
         ` : ''}
-        
-        ${isQuiz10 ? `
-          <div class="alert function-limits-alert mb-3">
-            <i class="bi bi-info-circle me-2"></i>
-            <strong>Function Limits (Quiz 10):</strong> This assessment covers limits of functions, 
-            including evaluating limits, one-sided limits, limits at infinity, continuity, and the formal definition of limits.
-          </div>
-        ` : ''}
           
         <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px;">
           <div class="row">
@@ -801,15 +762,6 @@
                               result.questionText.includes('exponent') ||
                               result.questionText.includes('natural log'));
         
-        // Special handling for function limits in quiz10
-        const isFunctionLimit = result.questionText && 
-                              (result.questionText.includes('limit') || 
-                               result.questionText.includes('lim') ||
-                               result.questionText.includes('approaches') ||
-                               result.questionText.includes('continuity') ||
-                               result.questionText.includes('continuous') ||
-                               result.questionText.includes('discontinuous'));
-        
         detailHtml += `
           <div class="col-md-6 mb-3">
             <div class="question-detail h-100">
@@ -820,7 +772,6 @@
                   ${isSetNotation ? '<span class="badge bg-warning ms-1">Set Theory</span>' : ''}
                   ${isFunctionConcept ? '<span class="badge bg-success ms-1">Function Concept</span>' : ''}
                   ${isLogarithmic ? '<span class="badge bg-warning ms-1">Logarithm</span>' : ''}
-                  ${isFunctionLimit ? '<span class="badge bg-primary ms-1">Limit</span>' : ''}
                 </h6>
                 <span class="badge ${isCorrect ? 'bg-success' : 'bg-danger'}">
                   ${isCorrect ? '✓ CORRECT' : '✗ INCORRECT'}
@@ -835,13 +786,13 @@
               
               <div class="mb-2">
                 <strong>Correct Answer:</strong> 
-                <span class="answer-display">${formatAnswer(result.correctAnswer, isIntervalInput, isSetNotation, isFunctionConcept, isLogarithmic, isFunctionLimit)}</span>
+                <span class="answer-display">${formatAnswer(result.correctAnswer, isIntervalInput, isSetNotation, isFunctionConcept, isLogarithmic)}</span>
               </div>
               
               <div class="mb-2">
                 <strong>Student Answer:</strong> 
                 <span class="answer-display ${isCorrect ? 'text-success' : 'text-danger'}">
-                  ${formatAnswer(result.userAnswer, isIntervalInput, isSetNotation, isFunctionConcept, isLogarithmic, isFunctionLimit)}
+                  ${formatAnswer(result.userAnswer, isIntervalInput, isSetNotation, isFunctionConcept, isLogarithmic)}
                 </span>
               </div>
               
@@ -878,7 +829,7 @@
     }
 
     // Helper function to format answers (especially for interval, set, and function notation)
-    function formatAnswer(answer, isInterval = false, isSetNotation = false, isFunctionConcept = false, isLogarithmic = false, isFunctionLimit = false) {
+    function formatAnswer(answer, isInterval = false, isSetNotation = false, isFunctionConcept = false, isLogarithmic = false) {
       if (!answer || answer === 'No answer provided') return answer;
       
       if (isInterval && typeof answer === 'string') {
@@ -931,17 +882,6 @@
           .replace('10^', '10^')
           .replace('log(', 'log(')
           .replace('ln(', 'ln(');
-      }
-      
-      if (isFunctionLimit && typeof answer === 'string') {
-        // Format limit notation for better readability
-        return answer
-          .replace('lim', 'lim')
-          .replace('->', '→')
-          .replace('infinity', '∞')
-          .replace('infty', '∞')
-          .replace('DNE', 'Does Not Exist')
-          .replace('undefined', 'Undefined');
       }
       
       return answer;
@@ -1012,8 +952,6 @@
             displayName = 'Function Concepts (Quiz 8)';
         } else if (topic.includes('Quiz9') || topic.includes('Logarithmic')) {
             displayName = 'Logarithmic Functions (Quiz 9)';
-        } else if (topic.includes('Quiz10') || topic.includes('Function Limits') || topic.includes('limits')) {
-            displayName = 'Function Limits (Quiz 10)';
         } else if (topic.includes('Linear')) {
             displayName = `Linear Functions (${questionCount} Questions)`;
         }
@@ -1122,8 +1060,6 @@
                 topicDisplay = 'Function Concepts (Quiz 8)';
             } else if (item.topic.includes('Quiz9') || item.topic.includes('Logarithmic')) {
                 topicDisplay = 'Logarithmic Functions (Quiz 9)';
-            } else if (item.topic.includes('Quiz10') || item.topic.includes('Function Limits') || item.topic.includes('limits')) {
-                topicDisplay = 'Function Limits (Quiz 10)';
             } else if (item.topic.includes('Linear')) {
                 topicDisplay = `Linear Functions (${item.totalQuestions} Questions)`;
             }
@@ -1260,31 +1196,7 @@
       document.getElementById('tableContainer').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Show Function Limits data (Quiz 10)
-    function showFunctionLimits() {
-      // Filter to show only Function Limits data
-      const functionLimitsData = allData.filter(item => 
-        item.topic.includes('Quiz10') || 
-        item.topic.includes('Function Limits') ||
-        item.topic.includes('limits')
-      );
-      
-      if (functionLimitsData.length === 0) {
-        alert('No Function Limits (Quiz 10) data available yet.');
-        return;
-      }
-      
-      // Update the topic filter to show only Function Limits
-      document.getElementById('topicFilter').value = functionLimitsData[0].topic;
-      
-      // Apply the filter
-      applyFilters();
-      
-      // Scroll to the table
-      document.getElementById('tableContainer').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // Real-time search
+    // Real-time searchh
     document.addEventListener('DOMContentLoaded', function() {
       const searchInput = document.getElementById('searchFilter');
       searchInput.addEventListener('input', applyFilters);
