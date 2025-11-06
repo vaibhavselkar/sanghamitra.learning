@@ -395,146 +395,49 @@ def gcd_three(a, b, c):
         let isPyodideLoaded = false;
 
         // Initialize Pyodide
-        async function initializePyodide() {
-            console.log("Loading Pyodide...");
-            try {
-                pyodide = await loadPyodide({
-                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
-                });
-                
-                // Load required packages
-                await pyodide.loadPackage("micropip");
-                console.log("Pyodide loaded successfully!");
-                isPyodideLoaded = true;
-                return pyodide;
-            } catch (error) {
-                console.error("Failed to load Pyodide:", error);
-                throw error;
-            }
-        }
+       // Initialize Pyodide with better error handling
+async function initializePyodide() {
+    console.log("Loading Pyodide...");
+    try {
+        // Show loading progress
+        document.getElementById('loadingScreen').innerHTML = `
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h3>Loading Python Environment...</h3>
+            <p>Downloading Pyodide (this may take 10-30 seconds)...</p>
+            <div class="progress mt-3" style="height: 10px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%"></div>
+            </div>
+            <p><small>File size: ~10MB</small></p>
+        `;
+        
+        pyodide = await loadPyodide({
+            indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+        });
+        
+        // Load minimal required packages
+        await pyodide.loadPackage(["micropip"]);
+        
+        console.log("Pyodide loaded successfully!");
+        isPyodideLoaded = true;
+        
+        // Test Pyodide is working
+        await pyodide.runPythonAsync(`
+def test_pyodide():
+    return "Pyodide is working!"
+`);
+        
+        return pyodide;
+    } catch (error) {
+        console.error("Failed to load Pyodide:", error);
+        isPyodideLoaded = false;
+        throw new Error(`Failed to load Python environment: ${error.message}`);
+    }
+}
 
         // Execute Python code with Pyodide
         async function executePythonCode(code, testCases, questionTitle) {
-            if (!isPyodideLoaded || !pyodide) {
-                throw new Error("Python environment not loaded yet");
-            }
-
-            const results = [];
-            
-            try {
-                // First, run the user's code to define their functions
-                await pyodide.runPythonAsync(`
-import sys
-import traceback
-import json
-
-# Clear any previous definitions
-for func_name in ['find_factors', 'prime_factorization', 'batch_prime_factorization', 'gcd', 'lcm', 'gcd_three']:
-    if func_name in globals():
-        del globals()[func_name]
-
-${code}
-`);
-
-                // Test each test case
-                for (let i = 0; i < testCases.length; i++) {
-                    const testCase = testCases[i];
-                    
-                    try {
-                        // Determine which function to call based on the code
-                        let functionName = null;
-                        const funcNames = ['find_factors', 'prime_factorization', 'batch_prime_factorization', 'gcd', 'lcm', 'gcd_three'];
-                        
-                        for (const name of funcNames) {
-                            try {
-                                const funcExists = await pyodide.runPythonAsync(`"${name}" in globals() and callable(${name})`);
-                                if (funcExists) {
-                                    functionName = name;
-                                    break;
-                                }
-                            } catch (e) {
-                                // Function doesn't exist, continue checking
-                                continue;
-                            }
-                        }
-
-                        if (!functionName) {
-                            results.push({
-                                passed: false,
-                                output: null,
-                                error: "No valid function found. Please define one of: find_factors, prime_factorization, gcd, lcm, etc."
-                            });
-                            continue;
-                        }
-
-                        // Execute the function with test case inputs
-                        const inputStr = JSON.stringify(testCase.input);
-                        const pythonCode = `
-try:
-    result = ${functionName}(*${inputStr})
-    print(f"TEST_JSON_RESULT: {json.dumps({'success': True, 'result': result, 'error': None})}")
-except Exception as e:
-    error_msg = f"{type(e).__name__}: {str(e)}"
-    print(f"TEST_JSON_RESULT: {json.dumps({'success': False, 'result': None, 'error': error_msg})}")
-`;
-
-                        const output = await pyodide.runPythonAsync(pythonCode);
-                        
-                        // Parse the JSON output from Python
-                        const outputLines = output.split('\n');
-                        let jsonResult = null;
-                        
-                        for (const line of outputLines) {
-                            if (line.startsWith('TEST_JSON_RESULT: ')) {
-                                jsonResult = JSON.parse(line.substring('TEST_JSON_RESULT: '.length));
-                                break;
-                            }
-                        }
-
-                        if (jsonResult && jsonResult.success) {
-                            const passed = deepEqual(jsonResult.result, testCase.expected);
-                            results.push({
-                                passed: passed,
-                                output: jsonResult.result,
-                                error: passed ? null : `Expected ${JSON.stringify(testCase.expected)}, got ${JSON.stringify(jsonResult.result)}`
-                            });
-                        } else {
-                            // Handle ValueError cases specially
-                            if (testCase.expected === "ValueError" && jsonResult && jsonResult.error && jsonResult.error.includes("ValueError")) {
-                                results.push({
-                                    passed: true,
-                                    output: "ValueError",
-                                    error: null
-                                });
-                            } else {
-                                results.push({
-                                    passed: false,
-                                    output: null,
-                                    error: jsonResult ? jsonResult.error : "Unknown error occurred"
-                                });
-                            }
-                        }
-
-                    } catch (error) {
-                        results.push({
-                            passed: false,
-                            output: null,
-                            error: `Execution error: ${error.message}`
-                        });
-                    }
-                }
-
-            } catch (error) {
-                console.error("Python execution error:", error);
-                results.push({
-                    passed: false,
-                    output: null,
-                    error: `Code compilation error: ${error.message}`
-                });
-            }
-
-            return results;
-        }
 
         // Deep equality check
         function deepEqual(a, b) {
@@ -657,55 +560,6 @@ except Exception as e:
         }
 
         async function runTests() {
-            const question = questions[currentQuestionIndex];
-            const code = editors[question.id].getValue();
-            const resultsDiv = document.getElementById(`testResults-${question.id}`);
-            
-            resultsDiv.innerHTML = `
-                <h6>🔄 Initializing Python environment...</h6>
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            `;
-            
-            try {
-                // Initialize Pyodide if not already loaded
-                if (!isPyodideLoaded) {
-                    await initializePyodide();
-                }
-                
-                resultsDiv.innerHTML = '<h6>🔬 Running Python tests...</h6>';
-                
-                const testResults = await executePythonCode(code, question.testCases, question.title);
-                
-                resultsDiv.innerHTML = `
-                    <h6>Test Results:</h6>
-                    ${testResults.map((result, i) => `
-                        <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
-                            Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
-                            ${result.error ? ` - ${result.error}` : ''}
-                            ${result.output !== undefined && result.output !== null ? 
-                                ` (Output: ${JSON.stringify(result.output)})` : ''}
-                        </div>
-                    `).join('')}
-                    
-                    <div class="mt-3">
-                        <strong>Explanation Check:</strong>
-                        ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
-                    </div>
-                `;
-                
-            } catch (error) {
-                resultsDiv.innerHTML = `
-                    <div class="test-result test-failed">
-                        Error: ${error.message}
-                    </div>
-                    <div class="mt-2">
-                        <small>If this persists, try refreshing the page to reload the Python environment.</small>
-                    </div>
-                `;
-            }
-        }
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
@@ -888,3 +742,4 @@ except Exception as e:
     </script>
 </body>
 </html>
+
