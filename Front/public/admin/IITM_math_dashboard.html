@@ -581,7 +581,7 @@
                      (results[0] && results[0].questionText && 
                       results[0].questionText.toLowerCase().includes('linear'));
 
-      const isQuiz6 = item.topic.includes('Quiz6') || item.topic.includes('Sets') ||
+      const isQuiz7 = item.topic.includes('Quiz7') || item.topic.includes('Sets') || 
                      item.topic.includes('Relations') || 
                      (results[0] && results[0].questionText && 
                       (results[0].questionText.toLowerCase().includes('set') || 
@@ -612,10 +612,10 @@
           </div>
         ` : ''}
         
-        ${isQuiz6 ? `
+        ${isQuiz7 ? `
           <div class="alert sets-relations-alert mb-3">
             <i class="bi bi-info-circle me-2"></i>
-            <strong>Sets and Relations Quiz (Quiz 6):</strong> This assessment covers set theory, relations,
+            <strong>Sets and Relations Quiz:</strong> This assessment covers set theory, relations, 
             functions, and their properties including equivalence relations, partial orders, and more.
           </div>
         ` : ''}
@@ -800,8 +800,8 @@
             displayName = 'Linear Functions 2';
         } else if (topic.includes('Linear') && questionCount === 30) {
             displayName = 'Linear Functions 1';
-        } else if (topic.includes('Quiz6') || topic.includes('Sets') || topic.includes('Relations')) {
-            displayName = 'Sets and Relations (Quiz 6)';
+        } else if (topic.includes('Quiz7') || topic.includes('Sets') || topic.includes('Relations')) {
+            displayName = 'Sets and Relations (Quiz 7)';
         } else if (topic.includes('Linear')) {
             displayName = `Linear Functions (${questionCount} Questions)`;
         }
@@ -902,8 +902,8 @@
                 topicDisplay = 'Linear Functions (Quiz 5) - 50 Questions';
             } else if (item.topic.includes('Linear') && item.totalQuestions === 30) {
                 topicDisplay = 'Linear Functions 1 - 30 Questions';
-            } else if (item.topic.includes('Quiz6') || item.topic.includes('Sets') || item.topic.includes('Relations')) {
-                topicDisplay = 'Sets and Relations (Quiz 6)';
+            } else if (item.topic.includes('Quiz7') || item.topic.includes('Sets') || item.topic.includes('Relations')) {
+                topicDisplay = 'Sets and Relations (Quiz 7)';
             } else if (item.topic.includes('Linear')) {
                 topicDisplay = `Linear Functions (${item.totalQuestions} Questions)`;
             }
@@ -951,10 +951,10 @@
     function showSetsRelations() {
       // Filter to show only Sets and Relations data
       const setsRelationsData = allData.filter(item => 
-    item.topic.includes('Quiz6') || 
-    item.topic.includes('Sets') || 
-    item.topic.includes('Relations')
-    );
+        item.topic.includes('Quiz7') || 
+        item.topic.includes('Sets') || 
+        item.topic.includes('Relations')
+      );
       
       if (setsRelationsData.length === 0) {
         alert('No Sets and Relations quiz data available yet.');
