@@ -410,7 +410,7 @@ ll.insert_at_end(3)
 print(ll.display())  # Should print [1, 2, 3]`,
                 testCases: [
                     { input: [["insert", 1], ["insert", 2], ["insert", 3], ["display"]], expected: [1, 2, 3] },
-                    { input: [["insert", 5], ["search", 5], ["search", 10]], expected: ["True", "False"] },
+                    { input: [["insert", 5], ["search", 5], ["search", 10]], expected: [true, false] },
                     { input: [["display"]], expected: [] },
                     { input: [["insert", 1], ["insert", 2], ["display"]], expected: [1, 2] }
                 ],
@@ -497,7 +497,7 @@ stack.push(2)
 print(stack.pop())  # Should print 2`,
                 testCases: [
                     { input: [["push", 1], ["push", 2], ["pop"], ["peek"]], expected: [2, 1] },
-                    { input: [["is_empty"]], expected: ["True"] },
+                    { input: [["is_empty"]], expected: [true] },
                     { input: [["push", 5], ["push", 10], ["size"], ["pop"], ["pop"]], expected: [2, 10, 5] }
                 ],
                 functionName: 'Stack',
@@ -549,8 +549,8 @@ q.enqueue(2)
 print(q.dequeue())  # Should print 1`,
                 testCases: [
                     { input: [["enqueue", 1], ["enqueue", 2], ["dequeue"], ["get_front"]], expected: [1, 2] },
-                    { input: [["is_empty"]], expected: ["True"] },
-                    { input: [["enqueue", 5], ["enqueue", 10], ["dequeue"], ["dequeue"], ["is_empty"]], expected: [5, 10, "True"] }
+                    { input: [["is_empty"]], expected: [true] },
+                    { input: [["enqueue", 5], ["enqueue", 10], ["dequeue"], ["dequeue"], ["is_empty"]], expected: [5, 10, true] }
                 ],
                 functionName: 'Queue',
                 points: 10
@@ -748,8 +748,8 @@ cq.enqueue(2)
 print(cq.dequeue())  # Should print 1`,
                 testCases: [
                     { input: [["enqueue", 1], ["enqueue", 2], ["dequeue"], ["get_front"]], expected: [1, 2] },
-                    { input: [["is_empty"]], expected: ["True"] },
-                    { input: [["enqueue", 1], ["enqueue", 2], ["enqueue", 3], ["is_full"]], expected: ["True"] }
+                    { input: [["is_empty"]], expected: [true] },
+                    { input: [["enqueue", 1], ["enqueue", 2], ["enqueue", 3], ["is_full"]], expected: [true] }
                 ],
                 functionName: 'CircularQueue',
                 points: 10
@@ -817,11 +817,11 @@ REQUIREMENTS:
 print(is_valid_parentheses("()[]{}"))  # Should return True
 print(is_valid_parentheses("([)]"))    # Should return False`,
                 testCases: [
-                    { input: ["()[]{}"], expected: "True" },
-                    { input: ["([)]"], expected: "False" },
-                    { input: ["{[]}"], expected: "True" },
-                    { input: ["((()))"], expected: "True" },
-                    { input: ["([)"], expected: "False" }
+                    { input: ["()[]{}"], expected: true },
+                    { input: ["([)]"], expected: false },
+                    { input: ["{[]}"], expected: true },
+                    { input: ["((()))"], expected: true },
+                    { input: ["([)"], expected: false }
                 ],
                 functionName: 'is_valid_parentheses',
                 points: 10
