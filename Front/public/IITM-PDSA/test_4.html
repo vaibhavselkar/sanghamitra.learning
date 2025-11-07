@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Algorithms Quiz</title>
+    <!-- Include Monaco Editor for code editing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-container { padding: 30px; }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .code-editor-container {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
+            height: 400px;
+        }
+
+        .test-cases {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        .test-passed {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .test-failed {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .results-container { display: none; padding: 30px; }
+        .loading { display: none; }
+        
+        .explanation-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .option-label {
+            display: block;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-label:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option-label.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .numerical-input {
+            width: 200px;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .numerical-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .code-snippet {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Graph Algorithms Quiz</h1>
+            <p>Test your knowledge of BFS, DFS, DAGs, and Topological Sorting</p>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <h3>Loading Quiz...</h3>
+            <p>Preparing your test environment</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div class="progress-container mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span id="progressText">Question 1 of 24</span>
+                    <span id="scoreText">Score: 0/24</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressFill" style="width: 4.17%;"></div>
+                </div>
+            </div>
+            
+            <div id="questionContainer"></div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+                <div>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
+                    📊 Submit Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container">
+            <div class="score-display">
+                <h2 id="finalScore">0/24</h2>
+                <h3 id="finalPercentage">0%</h3>
+                <p>Quiz Completed!</p>
+            </div>
+            <div id="detailedResults"></div>
+            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // BFS Questions
+            {
+                questionId: 1,
+                title: "What is the fundamental principle behind BFS traversal?",
+                type: "mcq-single",
+                options: [
+                    "It explores all nodes at the present depth level before moving to nodes at the next depth level",
+                    "It explores as far as possible along each branch before backtracking",
+                    "It randomly selects nodes to visit",
+                    "It prioritizes nodes with higher values"
+                ],
+                correctAnswer: "It explores all nodes at the present depth level before moving to nodes at the next depth level",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "BFS explores nodes level by level, visiting all nodes at the current depth before moving to nodes at the next depth level."
+            },
+            {
+                questionId: 2,
+                title: "Why is a queue used in BFS instead of a stack?",
+                type: "mcq-single",
+                options: [
+                    "Queue follows FIFO principle, ensuring level-order traversal",
+                    "Queue follows LIFO principle, enabling depth-first exploration",
+                    "Queue provides random access to elements",
+                    "Queue is more memory efficient than stack"
+                ],
+                correctAnswer: "Queue follows FIFO principle, ensuring level-order traversal",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "The FIFO (First-In-First-Out) property of queues ensures that nodes are processed in the order they were discovered, maintaining level-order traversal."
+            },
+            {
+                questionId: 3,
+                title: "What is the purpose of the visited set in the BFS implementation?",
+                type: "mcq-single",
+                options: [
+                    "To prevent revisiting nodes and avoid infinite loops",
+                    "To store the final traversal order",
+                    "To track the distance from start node",
+                    "To optimize memory usage"
+                ],
+                correctAnswer: "To prevent revisiting nodes and avoid infinite loops",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "The visited set ensures each node is processed only once, preventing cycles and infinite loops in graphs with cycles."
+            },
+            {
+                questionId: 4,
+                title: "What does queue.popleft() do in the implementation?",
+                type: "mcq-single",
+                options: [
+                    "Removes and returns the leftmost element (FIFO)",
+                    "Removes and returns the rightmost element (LIFO)",
+                    "Adds an element to the left end",
+                    "Returns the leftmost element without removing it"
+                ],
+                correctAnswer: "Removes and returns the leftmost element (FIFO)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "popleft() removes and returns the element from the left end of the deque, following FIFO principle essential for BFS."
+            },
+            {
+                questionId: 5,
+                title: "What is the time complexity of the BFS algorithm?",
+                type: "mcq-single",
+                options: [
+                    "O(V + E) where V is vertices and E is edges",
+                    "O(V × E)",
+                    "O(log V)",
+                    "O(V²)"
+                ],
+                correctAnswer: "O(V + E) where V is vertices and E is edges",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "BFS visits each vertex once and checks each edge once, resulting in O(V + E) time complexity."
+            },
+            {
+                questionId: 6,
+                title: "In the shortest path implementation, why do we store the entire path with each queue element?",
+                type: "mcq-single",
+                options: [
+                    "To reconstruct the path when we reach the target node",
+                    "To optimize memory usage",
+                    "To avoid using a visited set",
+                    "To enable parallel processing"
+                ],
+                correctAnswer: "To reconstruct the path when we reach the target node",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Storing the complete path allows immediate reconstruction when the target is found, without needing additional data structures."
+            },
+            {
+                questionId: 7,
+                title: "Why is deque from collections used instead of a regular list for the queue?",
+                type: "mcq-single",
+                options: [
+                    "popleft() from deque is O(1) while pop(0) from list is O(n)",
+                    "Deque uses less memory than list",
+                    "Deque allows random access to elements",
+                    "Deque automatically sorts elements"
+                ],
+                correctAnswer: "popleft() from deque is O(1) while pop(0) from list is O(n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "deque provides O(1) operations for append and popleft, while list would have O(n) for pop(0), making BFS more efficient."
+            },
+            {
+                questionId: 8,
+                title: "What would happen if we used a stack instead of a queue in BFS?",
+                type: "mcq-single",
+                options: [
+                    "The algorithm would become DFS (Depth-First Search)",
+                    "It would still perform BFS but more efficiently",
+                    "It would cause a runtime error",
+                    "It would visit nodes in the same order"
+                ],
+                correctAnswer: "The algorithm would become DFS (Depth-First Search)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Using a stack (LIFO) instead of a queue (FIFO) changes the traversal order from breadth-first to depth-first."
+            },
+            {
+                questionId: 9,
+                title: "How does the graph representation (adjacency list) affect BFS performance?",
+                type: "mcq-single",
+                options: [
+                    "Adjacency list provides O(1) access to neighbors, optimal for BFS",
+                    "Adjacency matrix would be faster for sparse graphs",
+                    "Edge list representation would improve time complexity",
+                    "The representation doesn't affect BFS performance"
+                ],
+                correctAnswer: "Adjacency list provides O(1) access to neighbors, optimal for BFS",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Adjacency list allows efficient access to all neighbors of a node, which is crucial for BFS performance."
+            },
+            {
+                questionId: 10,
+                title: "In the shortest path BFS, why is the first found path guaranteed to be the shortest?",
+                type: "mcq-single",
+                options: [
+                    "BFS explores nodes in increasing order of distance from start",
+                    "The algorithm uses dynamic programming to optimize paths",
+                    "It compares all possible paths simultaneously",
+                    "The queue automatically sorts paths by length"
+                ],
+                correctAnswer: "BFS explores nodes in increasing order of distance from start",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "BFS processes nodes level by level, so the first time a node is reached, it's via the shortest path from the start."
+            },
+            {
+                questionId: 11,
+                title: "What modification would be needed to handle weighted graphs with BFS?",
+                type: "mcq-single",
+                options: [
+                    "BFS cannot handle weighted graphs directly; Dijkstra's algorithm is needed",
+                    "Use priority queue instead of regular queue",
+                    "Store weights in the visited set",
+                    "Multiply edge weights during traversal"
+                ],
+                correctAnswer: "BFS cannot handle weighted graphs directly; Dijkstra's algorithm is needed",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "BFS assumes all edges have equal weight. For weighted graphs, Dijkstra's algorithm or other weighted graph algorithms are required."
+            },
+            {
+                questionId: 12,
+                title: "How would you modify BFS to find connected components in an undirected graph?",
+                type: "mcq-single",
+                options: [
+                    "Run BFS from each unvisited node and count separate components",
+                    "Use DFS instead as it's better for connected components",
+                    "Modify the queue to store component IDs",
+                    "Sort nodes before running BFS"
+                ],
+                correctAnswer: "Run BFS from each unvisited node and count separate components",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Each BFS call from an unvisited node will discover one connected component. Count these calls to find all components."
+            },
+
+            // DFS Questions
+            {
+                questionId: 13,
+                title: "What is the fundamental principle behind DFS traversal?",
+                type: "mcq-single",
+                options: [
+                    "It explores as far as possible along each branch before backtracking",
+                    "It explores all nodes at the present depth level before moving deeper",
+                    "It randomly selects nodes to visit",
+                    "It prioritizes nodes with higher values"
+                ],
+                correctAnswer: "It explores as far as possible along each branch before backtracking",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "DFS goes deep into one branch before backtracking to explore other branches, unlike BFS which explores level by level."
+            },
+            {
+                questionId: 14,
+                title: "What is the key difference between DFS recursion and iteration?",
+                type: "mcq-single",
+                options: [
+                    "Recursion uses call stack, iteration uses explicit stack",
+                    "Recursion is always faster than iteration",
+                    "Iteration can handle larger graphs than recursion",
+                    "Only recursion can implement DFS properly"
+                ],
+                correctAnswer: "Recursion uses call stack, iteration uses explicit stack",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Both methods use stack behavior, but recursion relies on the program's call stack while iteration uses an explicit stack data structure."
+            },
+            {
+                questionId: 15,
+                title: "Why might DFS recursion cause stack overflow for large graphs?",
+                type: "mcq-single",
+                options: [
+                    "Deep recursion exceeds call stack limit",
+                    "Too many variables are created",
+                    "Memory fragmentation occurs",
+                    "Python has recursion depth limit"
+                ],
+                correctAnswer: "Deep recursion exceeds call stack limit",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "For graphs with long paths, recursive DFS can create deep call stacks that exceed system limits, causing stack overflow."
+            },
+            {
+                questionId: 16,
+                title: "In the iterative DFS, why are neighbors pushed in reverse order?",
+                type: "mcq-single",
+                options: [
+                    "To maintain same traversal order as recursive DFS",
+                    "To optimize memory usage",
+                    "To avoid stack overflow",
+                    "To handle directed graphs properly"
+                ],
+                correctAnswer: "To maintain same traversal order as recursive DFS",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Pushing neighbors in reverse order ensures the leftmost neighbor is processed first, matching the recursive DFS order."
+            },
+            {
+                questionId: 17,
+                title: "What is the time complexity of DFS algorithm?",
+                type: "mcq-single",
+                options: [
+                    "O(V + E) where V is vertices and E is edges",
+                    "O(V × E)",
+                    "O(log V)",
+                    "O(V²)"
+                ],
+                correctAnswer: "O(V + E) where V is vertices and E is edges",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Like BFS, DFS visits each vertex once and checks each edge once, resulting in O(V + E) time complexity."
+            },
+            {
+                questionId: 18,
+                title: "In the path finding DFS, what does 'neighbor not in path' check prevent?",
+                type: "mcq-single",
+                options: [
+                    "Prevents cycles and infinite recursion",
+                    "Optimizes path finding",
+                    "Ensures shortest path",
+                    "Handles disconnected graphs"
+                ],
+                correctAnswer: "Prevents cycles and infinite recursion",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "This check ensures we don't revisit nodes already in the current path, preventing cycles and infinite recursion."
+            },
+            {
+                questionId: 19,
+                title: "Why is a stack used in iterative DFS instead of a queue?",
+                type: "mcq-single",
+                options: [
+                    "Stack follows LIFO principle, enabling depth-first exploration",
+                    "Stack follows FIFO principle, ensuring level-order traversal",
+                    "Stack provides random access to elements",
+                    "Stack is more memory efficient than queue"
+                ],
+                correctAnswer: "Stack follows LIFO principle, enabling depth-first exploration",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "The LIFO (Last-In-First-Out) property of stacks ensures we explore the most recently discovered nodes first, enabling depth-first behavior."
+            },
+            {
+                questionId: 20,
+                title: "What is the purpose of rec_stack in cycle detection?",
+                type: "mcq-single",
+                options: [
+                    "Tracks nodes in current recursion path to detect back edges",
+                    "Stores the final traversal order",
+                    "Optimizes memory usage",
+                    "Prevents stack overflow"
+                ],
+                correctAnswer: "Tracks nodes in current recursion path to detect back edges",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "rec_stack tracks nodes in the current recursion path. If we encounter a node already in rec_stack, we've found a cycle (back edge)."
+            },
+            {
+                questionId: 21,
+                title: "How does DFS handle disconnected graphs?",
+                type: "mcq-single",
+                options: [
+                    "Need to call DFS multiple times for each unvisited node",
+                    "Automatically handles all components in one call",
+                    "Requires special disconnected graph algorithm",
+                    "Only works on connected graphs"
+                ],
+                correctAnswer: "Need to call DFS multiple times for each unvisited node",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "For disconnected graphs, DFS must be initiated from each unvisited node to ensure all components are discovered."
+            },
+            {
+                questionId: 22,
+                title: "Why does DFS not guarantee shortest path in unweighted graphs?",
+                type: "mcq-single",
+                options: [
+                    "It explores depth-first and may find longer paths first",
+                    "It uses stack instead of queue",
+                    "It doesn't track path lengths",
+                    "It visits nodes in random order"
+                ],
+                correctAnswer: "It explores depth-first and may find longer paths first",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "DFS may explore a long path before finding a shorter one, unlike BFS which finds shortest paths in unweighted graphs."
+            },
+            {
+                questionId: 23,
+                title: "What is the space complexity of DFS recursion vs iteration?",
+                type: "mcq-single",
+                options: [
+                    "Both O(h) where h is maximum depth, but recursion has call stack overhead",
+                    "Recursion O(n), iteration O(1)",
+                    "Recursion O(1), iteration O(n)",
+                    "Both have same space complexity"
+                ],
+                correctAnswer: "Both O(h) where h is maximum depth, but recursion has call stack overhead",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Both require O(h) space for the stack, but recursion has additional call stack overhead that can be limiting for deep graphs."
+            },
+            {
+                questionId: 24,
+                title: "How does DFS work for topological sorting?",
+                type: "mcq-single",
+                options: [
+                    "Process nodes in reverse post-order after complete exploration",
+                    "Sort nodes by discovery time",
+                    "Use BFS instead for topological sort",
+                    "Requires modifying the graph structure"
+                ],
+                correctAnswer: "Process nodes in reverse post-order after complete exploration",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "For topological sort, DFS processes nodes in reverse order of finishing times (post-order), ensuring dependencies are satisfied."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let currentUser = {};
+
+        // Initialize Monaco Editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            initializeQuiz();
+        });
+
+        async function initializeQuiz() {
+            console.log('🚀 Initializing quiz...');
+            
+            // Initialize with test user first (fallback)
+            currentUser = { username: 'TestUser', email: 'test@example.com' };
+            userAnswers = {};
+            
+            // Try to get user session (non-blocking)
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.username && data.email) {
+                        currentUser = { username: data.username, email: data.email };
+                        console.log('✅ User logged in:', currentUser);
+                    }
+                }
+            } catch (error) {
+                console.log('ℹ️ Using test user for demo');
+            }
+            
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            renderCurrentQuestion();
+            updateProgress();
+        }
+
+        function renderCurrentQuestion() {
+            const question = questions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            let questionHTML = `
+                <div class="question-card">
+                    <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
+            `;
+
+            // Add code snippet if available
+            if (question.codeSnippet) {
+                questionHTML += `
+                    <div class="code-snippet">
+                        <pre>${question.codeSnippet}</pre>
+                    </div>
+                `;
+            }
+
+            if (question.type === 'mcq-single') {
+                questionHTML += `<div class="options-container mt-3">`;
+                question.options.forEach((option, index) => {
+                    const isSelected = userAnswers[question.questionId] === option;
+                    questionHTML += `
+                        <label class="option-label ${isSelected ? 'selected' : ''}">
+                            <input type="radio" name="q${question.questionId}" value="${option}" 
+                                   ${isSelected ? 'checked' : ''} style="display: none;">
+                            ${option}
+                        </label>
+                    `;
+                });
+                questionHTML += `</div>`;
+            } else if (question.type === 'numerical') {
+                const currentAnswer = userAnswers[question.questionId] || '';
+                questionHTML += `
+                    <div class="mt-3">
+                        <input type="number" class="numerical-input" 
+                               value="${currentAnswer}" 
+                               placeholder="Enter your answer"
+                               onchange="saveNumericalAnswer(${question.questionId}, this.value)">
+                    </div>
+                `;
+            }
+
+            questionHTML += `</div>`;
+
+            container.innerHTML = questionHTML;
+
+            // Add event listeners for MCQ options
+            if (question.type === 'mcq-single') {
+                document.querySelectorAll('.option-label').forEach(label => {
+                    label.addEventListener('click', function() {
+                        document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+                        this.classList.add('selected');
+                        const radio = this.querySelector('input[type="radio"]');
+                        radio.checked = true;
+                        userAnswers[question.questionId] = radio.value;
+                    });
+                });
+            }
+        }
+
+        function saveNumericalAnswer(questionId, value) {
+            userAnswers[questionId] = value ? parseInt(value) : '';
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').disabled = currentQuestionIndex === questions.length - 1;
+            
+            // Calculate current score
+            const currentScore = calculateCurrentScore();
+            document.getElementById('scoreText').textContent = `Score: ${currentScore}/${questions.length}`;
+        }
+
+        function calculateCurrentScore() {
+            let score = 0;
+            questions.forEach(question => {
+                const userAnswer = userAnswers[question.questionId];
+                if (userAnswer !== undefined && userAnswer !== '') {
+                    if (userAnswer === question.correctAnswer) {
+                        score += question.maxScore;
+                    }
+                }
+            });
+            return score;
+        }
+
+        async function submitQuiz() {
+            const quizData = {
+                username: currentUser.username,
+                email: currentUser.email,
+                topic: "Graph Algorithms - BFS, DFS, DAGs, Topological Sorting",
+                score: calculateCurrentScore(),
+                maxScore: questions.length,
+                percentage: Math.round((calculateCurrentScore() / questions.length) * 100),
+                timestamp: new Date(),
+                questions: questions.map(question => ({
+                    questionId: question.questionId,
+                    title: question.title,
+                    type: question.type,
+                    userAnswer: userAnswers[question.questionId] || '',
+                    correctAnswer: question.correctAnswer,
+                    options: question.options || [],
+                    score: (userAnswers[question.questionId] === question.correctAnswer) ? question.maxScore : 0,
+                    maxScore: question.maxScore,
+                    testResults: [{
+                        passed: userAnswers[question.questionId] === question.correctAnswer,
+                        expectedAnswer: question.correctAnswer,
+                        userAnswer: userAnswers[question.questionId] || ''
+                    }],
+                    hasExplanations: question.hasExplanations,
+                    explanation: question.explanation,
+                    codeSnippet: question.codeSnippet || ''
+                }))
+            };
+
+            // Save to backend api/algorithm-submissions
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(quizData)
+                });
+
+                if (response.ok) {
+                    console.log('✅ Quiz results saved successfully');
+                } else {
+                    console.log('⚠️ Failed to save results, but continuing...');
+                }
+            } catch (error) {
+                console.log('⚠️ Error saving results, but continuing...');
+            }
+
+            showResults(quizData);
+        }
+
+        function showResults(quizData) {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+            document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            
+            const detailedResults = document.getElementById('detailedResults');
+            let resultsHTML = `<h4>Detailed Results:</h4>`;
+            
+            quizData.questions.forEach((question, index) => {
+                const isCorrect = question.score > 0;
+                resultsHTML += `
+                    <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
+                        <h6>Q${index + 1}: ${question.title}</h6>
+                        ${question.codeSnippet ? `
+                            <div class="code-snippet">
+                                <pre>${question.codeSnippet}</pre>
+                            </div>
+                        ` : ''}
+                        <p><strong>Your Answer:</strong> ${question.userAnswer}</p>
+                        <p><strong>Correct Answer:</strong> ${question.correctAnswer}</p>
+                        <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
+                        ${question.hasExplanations ? `
+                            <div class="explanation-section">
+                                <strong>Explanation:</strong> ${question.explanation}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            detailedResults.innerHTML = resultsHTML;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            renderCurrentQuestion();
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
