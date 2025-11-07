@@ -72,6 +72,27 @@
       justify-content: space-between;
     }
 
+    /* CHANGES: Added styles for test paper button */
+    .test-paper-btn {
+      background: linear-gradient(45deg, #28a745, #20c997);
+      color: white;
+      border: none;
+      min-width: 120px;
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .test-paper-btn:hover {
+      background: linear-gradient(45deg, #218838, #1e9e8a);
+      color: white;
+      transform: translateY(-1px);
+    }
+
     .percentage-badge {
       background: linear-gradient(45deg, #007bff, #0056b3);
       color: white;
@@ -103,6 +124,14 @@
       color: #dc3545;
       font-size: 0.85rem;
       margin-top: 0.5rem;
+    }
+
+    /* CHANGES: Added style for button container to stack buttons vertically */
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
     }
   </style>
 </head>
@@ -231,7 +260,8 @@
         displayName: 'WEEK 1: Python Codes',
         description: 'Assessment on basic data structures: Lists and Tuples',
         icon: 'bi-list-ul',
-        url: 'pdsa_quiz1.html'
+        url: 'pdsa_quiz1.html',
+        testUrl: 'test_1.html' // CHANGES: Added test URL for test paper
       },
       {
         id: 'Sorting-Algorithms',
@@ -239,7 +269,8 @@
         displayName: 'WEEK 2: Sorting Algorithms',
         description: 'Assessment on Quick Sort, Merge Sort, Selection Sort, Insertion Sort, and Bubble Sort',
         icon: 'bi-diagram-3',
-        url: 'pdsa_quiz2.html'
+        url: 'quiz_2.html',
+        testUrl: 'test_2.html' // CHANGES: Added test URL for test paper
       },
       {
         id: 'Linear-Data-Structures',
@@ -247,7 +278,7 @@
         displayName: 'WEEK 3: Linear Data Structures',
         description: 'Assessment on Linked Lists, Arrays, Stacks, Queues, and Hashing',
         icon: 'bi-arrow-repeat',
-        url: 'pdsa_quiz3.html'
+        url: 'quiz_3.html'
       },
       {
         id: 'Introduction-to-Graphs',
@@ -255,7 +286,7 @@
         displayName: 'WEEK 4: Introduction to Graphs',
         description: 'Assessment on BFS (Breadth-First Search), DFS (Depth-First Search), Directed Acyclic Graphs (DAGs), and Topological Sorting',
         icon: 'bi-diagram-2',
-        url: 'pdsa_quiz4.html'
+        url: 'quiz_4.html'
       },
       {
         id: 'Graph-Algorithms',
@@ -440,7 +471,7 @@
         badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
       }
 
-      // Update the action button logic
+      // CHANGES: Updated the action button logic to include Test Paper button
       const actionButton = isCompleted 
         ? `<div class="completed-badge">
             <i class="bi bi-check-circle me-2"></i>
@@ -453,6 +484,14 @@
             <span>Start Assessment</span>
             <i class="bi bi-arrow-right ms-2"></i>
           </a>`;
+
+      // CHANGES: Added Test Paper button for topics that have testUrl defined
+      const testPaperButton = topic.testUrl 
+        ? `<a href="${topic.testUrl}" class="btn test-paper-btn btn-sm">
+            <span>Test Paper</span>
+            <i class="bi bi-file-text ms-2"></i>
+          </a>`
+        : '';
 
       // Set progress bar width
       const progressWidth = isCompleted ? score : 0;
@@ -489,8 +528,12 @@
                 <div class="col-lg-2 col-md-2 text-center">
                   <span class="percentage-badge" style="${badgeStyle}">${score}%</span>
                 </div>
-                <div class="col-lg-3 col-md-3 text-end">
-                  ${actionButton}
+                <div class="col-lg-3 col-md-3">
+                  <!-- CHANGES: Added button container to stack buttons vertically -->
+                  <div class="button-container">
+                    ${actionButton}
+                    ${testPaperButton}
+                  </div>
                 </div>
               </div>
             </div>
@@ -553,8 +596,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
