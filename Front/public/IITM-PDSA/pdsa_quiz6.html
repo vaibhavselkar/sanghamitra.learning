@@ -3,17 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Structures Programming Quiz</title>
-    <!-- Include Monaco Editor for code editing -->
+    <title>Advanced Data Structures Programming Quiz</title>
+    <!-- Pyodide for Python execution -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <!-- Monaco Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Anti-cheating CSS */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Allow text selection ONLY in code editors */
+        .monaco-editor,
+        .monaco-editor *,
+        .view-lines,
+        .view-line {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            -webkit-print-color-adjust: exact;
+            pointer-events: auto;
         }
+        
+        /* Hide scrollbars to prevent inspection */
+        ::-webkit-scrollbar {
+            width: 8px;
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        /* Blur content when window loses focus */
+        body.blurred {
+            filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        /* Warning overlay */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 2rem;
+            text-align: center;
+            flex-direction: column;
+        }
+        
+        .warning-overlay h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -22,16 +94,13 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
-
         .quiz-container { padding: 30px; }
-
         .question-card {
             background: #f8f9fa;
             border-radius: 12px;
@@ -39,14 +108,12 @@
             margin-bottom: 25px;
             border-left: 5px solid #667eea;
         }
-
         .code-editor-container {
             border: 2px solid #e9ecef;
             border-radius: 8px;
             margin: 20px 0;
             height: 400px;
         }
-
         .test-cases {
             background: #e8f4fd;
             border: 1px solid #bee5eb;
@@ -54,26 +121,22 @@
             padding: 15px;
             margin: 15px 0;
         }
-
         .test-result {
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
             font-family: monospace;
         }
-
         .test-passed {
             background: #d4edda;
             border: 1px solid #c3e6cb;
             color: #155724;
         }
-
         .test-failed {
             background: #f8d7da;
             border: 1px solid #f5c6cb;
             color: #721c24;
         }
-
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -84,16 +147,13 @@
             cursor: pointer;
             transition: transform 0.2s ease;
         }
-
         .btn:hover { transform: translateY(-2px); }
-
         .progress-bar {
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             height: 8px;
             border-radius: 4px;
             transition: width 0.3s ease;
         }
-
         .score-display {
             background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
             color: white;
@@ -102,10 +162,7 @@
             margin-bottom: 30px;
             text-align: center;
         }
-
         .results-container { display: none; padding: 30px; }
-        .loading { display: none; }
-        
         .explanation-section {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -113,31 +170,157 @@
             padding: 15px;
             margin: 15px 0;
         }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(102, 126, 234, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            color: white;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        
+        /* Security indicator */
+        .security-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .security-indicator.warning {
+            background: rgba(220, 53, 69, 0.9);
+            animation: pulse 1s infinite;
+        }
+        
+        .security-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        /* Answers Modal */
+        .answers-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .answers-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            width: 800px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
     </style>
 </head>
 <body>
+    <!-- Security Indicator -->
+    <div id="securityIndicator" class="security-indicator">
+        <div class="security-dot"></div>
+        <span id="securityText">Monitoring Active</span>
+    </div>
+
+    <!-- Warning overlay -->
+    <div id="warningOverlay" class="warning-overlay">
+        <div>
+            <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
+            <p style="font-size: 1.5rem;">Please return to the quiz window</p>
+            <p style="font-size: 1.2rem;">Your activity is being monitored and logged</p>
+            <p style="font-size: 1rem; margin-top: 20px;">Attempts logged: <span id="attemptCount">0</span></p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading Python Environment...</div>
+        <small style="margin-top: 10px; opacity: 0.8;">This may take 10-15 seconds</small>
+    </div>
+
+    <!-- Answers Modal -->
+    <div id="answersModal" class="answers-modal">
+        <div class="answers-content">
+            <h3>📝 Your Submitted Answers</h3>
+            <div id="answersList"></div>
+            <div class="text-center mt-4">
+                <button class="btn btn-secondary" onclick="closeAnswersModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>🔬 Data Structures Programming Quiz</h1>
-            <p>Solve problems on Union-Find, Priority Queues, Heaps, and Binary Search Trees</p>
-        </div>
-
-        <!-- Loading Screen -->
-        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Quiz...</h3>
-            <p>Preparing code editor and test environment</p>
+            <h1>🔬 Advanced Data Structures Programming Quiz</h1>
+            <p>Implement Union-Find, Priority Queues, Heaps, and Binary Search Trees in Python</p>
+            <small style="opacity: 0.8;">⚠️ Anti-cheating measures active</small>
         </div>
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
-                    <span id="progressText">Question 1 of 20</span>
+                    <span id="progressText">Question 1 of 10</span>
                     <span id="scoreText">Score: 0/100</span>
                 </div>
                 <div class="progress">
-                    <div class="progress-bar" id="progressFill" style="width: 5%;"></div>
+                    <div class="progress-bar" id="progressFill" style="width: 10%;"></div>
                 </div>
             </div>
             
@@ -166,742 +349,797 @@
                 <p>Quiz Completed!</p>
             </div>
             <div id="detailedResults"></div>
-            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+            <div class="text-center mt-4">
+                <button class="btn btn-info me-3" onclick="showMyAnswers()">📋 View My Answers</button>
+                <button class="btn" onclick="restartQuiz()">🔄 Take Quiz Again</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Quiz questions with code problems
+        // Anti-cheating variables
+        let cheatingAttempts = 0;
+        let isQuizActive = false;
+        let devToolsWarned = false;
+        let tabSwitchCount = 0;
+        let lastActivityTime = Date.now();
+        
+        // Global Pyodide instance
+        let pyodide = null;
+        let pyodideReady = false;
+
         const questions = [
-            // Beginner Questions (1-15)
             {
                 id: 1,
-                title: "Union-Find Basic Implementation",
-                description: "Implement a basic Union-Find data structure with path compression.",
-                prompt: `Implement a Union-Find (Disjoint Set Union) data structure with path compression.
+                title: "Union-Find (Disjoint Set) Implementation",
+                description: "Implement the Union-Find data structure with path compression and union by rank.",
+                prompt: `Implement a UnionFind class with the following methods:
+- __init__(n): Initialize with n elements (0 to n-1)
+- find(x): Find the root of x with path compression
+- union(x, y): Union the sets containing x and y using union by rank
 
 REQUIREMENTS:
-- Implement find(x) method with path compression
-- Implement union(x, y) method
-- Initialize with n elements
-
-`,
-
+- Use path compression in find operation
+- Use union by rank for optimal performance
+- Return the root parent in find method`,
                 starterCode: `class UnionFind:
     def __init__(self, n):
         """
-        Initialize Union-Find with n elements (0 to n-1)
+        Initialize Union-Find data structure with n elements.
+        
+        Args:
+            n: Number of elements
         """
         self.parent = list(range(n))
         self.rank = [0] * n
     
     def find(self, x):
         """
-        Find root of x with path compression
+        Find the root of x with path compression.
+        
+        Args:
+            x: Element to find
+            
+        Returns:
+            Root element of x
         """
+        # Your implementation here
         pass
     
     def union(self, x, y):
         """
-        Union sets containing x and y
+        Union the sets containing x and y using union by rank.
+        
+        Args:
+            x: First element
+            y: Second element
         """
+        # Your implementation here
         pass
 
-# === EFFICIENCY EXPLANATION ===
-# Add your analysis here`,
-
+# Test your implementation
+uf = UnionFind(5)
+uf.union(0, 1)
+uf.union(2, 3)
+print(uf.find(0) == uf.find(1))  # Should be true`,
                 testCases: [
-                    { input: [5, [0,1], [2,3], [1,2]], expected: true },
-                    { input: [3, [0,1], [1,2]], expected: true },
-                    { input: [4, [0,1], [2,3]], expected: true }
+                    { 
+                        input: [5, [[0, 1], [2, 3], [1, 4], [3, 4]]],
+                        expected: [true, true, true, true, true],
+                        setup: (input) => {
+                            const [n, unions] = input;
+                            const uf = new UnionFind(n);
+                            for (const [x, y] of unions) {
+                                uf.union(x, y);
+                            }
+                            return Array.from({length: n}, (_, i) => uf.find(0) === uf.find(i));
+                        }
+                    },
+                    { 
+                        input: [3, [[0, 1]]],
+                        expected: [true, true, false],
+                        setup: (input) => {
+                            const [n, unions] = input;
+                            const uf = new UnionFind(n);
+                            for (const [x, y] of unions) {
+                                uf.union(x, y);
+                            }
+                            return [uf.find(0) === uf.find(1), uf.find(1) === uf.find(0), uf.find(0) === uf.find(2)];
+                        }
+                    }
                 ],
-                
-                points: 5
+                functionName: 'UnionFind',
+                points: 10
             },
-
             {
                 id: 2,
                 title: "Min Heap Implementation",
-                description: "Implement a basic Min Heap data structure.",
-                prompt: `Implement a Min Heap with basic operations.
+                description: "Implement a Min Heap data structure with basic operations.",
+                prompt: `Implement a MinHeap class with the following methods:
+- __init__(): Initialize empty heap
+- insert(val): Insert value into heap
+- extract_min(): Remove and return minimum value
+- get_min(): Return minimum value without removing it
 
 REQUIREMENTS:
-- Implement insert(value) method
-- Implement extract_min() method
-- Implement get_min() method
-
-`,
-
+- Maintain min heap property
+- Implement heapify operations
+- Handle edge cases (empty heap, etc.)`,
                 starterCode: `class MinHeap:
     def __init__(self):
+        """Initialize empty min heap."""
         self.heap = []
     
-    def insert(self, value):
+    def insert(self, val):
         """
-        Insert value into min heap
+        Insert value into min heap.
+        
+        Args:
+            val: Value to insert
         """
+        # Your implementation here
         pass
     
     def extract_min(self):
         """
-        Remove and return minimum value
+        Remove and return minimum value.
+        
+        Returns:
+            Minimum value in heap
         """
+        # Your implementation here
         pass
     
     def get_min(self):
         """
-        Return minimum value without removing
+        Return minimum value without removing it.
+        
+        Returns:
+            Minimum value in heap
         """
+        # Your implementation here
         pass
 
-# === EFFICIENCY EXPLANATION ===
-# Add your analysis here`,
-
+# Test your implementation
+heap = MinHeap()
+heap.insert(3)
+heap.insert(1)
+heap.insert(2)
+print(heap.extract_min())  # Should be 1`,
                 testCases: [
-                    { input: [[3,1,4,2]], expected: true },
-                    { input: [[5,2,8,1]], expected: true },
-                    { input: [[10]], expected: true }
+                    { 
+                        input: [[3, 1, 4, 1, 5, 9, 2, 6]],
+                        expected: [1, 1, 2, 3, 4, 5, 6, 9],
+                        setup: (input) => {
+                            const heap = new MinHeap();
+                            for (const val of input[0]) {
+                                heap.insert(val);
+                            }
+                            const result = [];
+                            while (heap.heap.length > 0) {
+                                result.push(heap.extract_min());
+                            }
+                            return result;
+                        }
+                    },
+                    { 
+                        input: [[5, 2, 8]],
+                        expected: 2,
+                        setup: (input) => {
+                            const heap = new MinHeap();
+                            for (const val of input[0]) {
+                                heap.insert(val);
+                            }
+                            return heap.get_min();
+                        }
+                    }
                 ],
-                
-                points: 5
+                functionName: 'MinHeap',
+                points: 10
             },
-
             {
                 id: 3,
-                title: "BST Insert Operation",
-                description: "Implement insertion in a Binary Search Tree.",
-                prompt: `Implement BST node insertion.
+                title: "Priority Queue using Heap",
+                description: "Implement a priority queue using a min heap with priority values.",
+                prompt: `Implement a PriorityQueue class that stores (priority, value) pairs:
+- __init__(): Initialize empty priority queue
+- enqueue(priority, value): Add element with given priority
+- dequeue(): Remove and return element with highest priority (lowest number)
+- is_empty(): Check if queue is empty
 
 REQUIREMENTS:
-- Implement insert(root, value) method
-- Maintain BST property
-- Return updated root
-
-`,
-
-                starterCode: `class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
-
-def insert(root, value):
-    """
-    Insert value into BST and return root
-    """
-    pass
-
-# === EFFICIENCY EXPLANATION ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [[5,3,7,2,4]], expected: true },
-                    { input: [[1,2,3,4]], expected: true },
-                    { input: [[10,5,15]], expected: true }
-                ],
-                
-                points: 5
-            },
-
-            {
-                id: 4,
-                title: "Priority Queue Basic",
-                description: "Implement a basic priority queue using list.",
-                prompt: `Implement a priority queue with basic operations.
-
-REQUIREMENTS:
-- Implement enqueue(item, priority)
-- Implement dequeue()
-- Implement is_empty()
-
-`,
-
+- Use min heap internally
+- Handle elements with same priority (FIFO)`,
                 starterCode: `class PriorityQueue:
     def __init__(self):
-        self.queue = []
+        """Initialize empty priority queue."""
+        self.heap = []
+        self.counter = 0  # For handling ties
     
-    def enqueue(self, item, priority):
+    def enqueue(self, priority, value):
         """
-        Add item with given priority
+        Add element with given priority.
+        
+        Args:
+            priority: Priority value (lower = higher priority)
+            value: Element value
         """
+        # Your implementation here
         pass
     
     def dequeue(self):
         """
-        Remove and return highest priority item
+        Remove and return element with highest priority.
+        
+        Returns:
+            Value with highest priority
         """
+        # Your implementation here
         pass
     
     def is_empty(self):
         """
-        Check if queue is empty
+        Check if queue is empty.
+        
+        Returns:
+            true if empty, false otherwise
         """
+        # Your implementation here
         pass
 
-# === EFFICIENCY EXPLANATION ===
-# Add your analysis here`,
-
+# Test your implementation
+pq = PriorityQueue()
+pq.enqueue(2, "Task 1")
+pq.enqueue(1, "Task 2")
+print(pq.dequeue())  # Should be "Task 2"`,
                 testCases: [
-                    { input: [["A",1], ["B",2], ["C",3]], expected: true },
-                    { input: [["X",5], ["Y",1]], expected: true },
-                    { input: [[]], expected: true }
+                    { 
+                        input: [[[2, "A"], [1, "B"], [3, "C"], [1, "D"]]],
+                        expected: ["B", "D", "A", "C"],
+                        setup: (input) => {
+                            const pq = new PriorityQueue();
+                            for (const [priority, value] of input[0]) {
+                                pq.enqueue(priority, value);
+                            }
+                            const result = [];
+                            while (!pq.is_empty()) {
+                                result.push(pq.dequeue());
+                            }
+                            return result;
+                        }
+                    },
+                    { 
+                        input: [[]],
+                        expected: true,
+                        setup: (input) => {
+                            const pq = new PriorityQueue();
+                            return pq.is_empty();
+                        }
+                    }
                 ],
-                
-                points: 5
+                functionName: 'PriorityQueue',
+                points: 10
             },
+            {
+                id: 4,
+                title: "Binary Search Tree Implementation",
+                description: "Implement a Binary Search Tree with insertion, search, and traversal.",
+                prompt: `Implement a BST class with the following methods:
+- __init__(): Initialize empty BST
+- insert(val): Insert value into BST
+- search(val): Search for value in BST
+- inorder_traversal(): Return inorder traversal as list
 
+REQUIREMENTS:
+- Maintain BST properties
+- Implement recursive methods
+- Handle duplicate values appropriately`,
+                starterCode: `class BST:
+    class Node:
+        def __init__(self, val):
+            self.val = val
+            self.left = None
+            self.right = None
+    
+    def __init__(self):
+        """Initialize empty BST."""
+        self.root = None
+    
+    def insert(self, val):
+        """
+        Insert value into BST.
+        
+        Args:
+            val: Value to insert
+        """
+        # Your implementation here
+        pass
+    
+    def search(self, val):
+        """
+        Search for value in BST.
+        
+        Args:
+            val: Value to search for
+            
+        Returns:
+            true if found, false otherwise
+        """
+        # Your implementation here
+        pass
+    
+    def inorder_traversal(self):
+        """
+        Return inorder traversal as list.
+        
+        Returns:
+            List of values in inorder
+        """
+        # Your implementation here
+        pass
+
+# Test your implementation
+bst = BST()
+bst.insert(5)
+bst.insert(3)
+bst.insert(7)
+print(bst.search(3))  # Should be true`,
+                testCases: [
+                    { 
+                        input: [[5, 3, 7, 1, 4, 6, 8]],
+                        expected: [1, 3, 4, 5, 6, 7, 8],
+                        setup: (input) => {
+                            const bst = new BST();
+                            for (const val of input[0]) {
+                                bst.insert(val);
+                            }
+                            return bst.inorder_traversal();
+                        }
+                    },
+                    { 
+                        input: [[2, 1, 3], 4],
+                        expected: false,
+                        setup: (input) => {
+                            const [values, search_val] = input;
+                            const bst = new BST();
+                            for (const val of values) {
+                                bst.insert(val);
+                            }
+                            return bst.search(search_val);
+                        }
+                    }
+                ],
+                functionName: 'BST',
+                points: 10
+            },
             {
                 id: 5,
-                title: "Heap Sort Implementation",
-                description: "Implement heap sort algorithm using max heap.",
-                prompt: `Implement heap sort algorithm.
+                title: "BST Deletion Operation",
+                description: "Implement deletion in Binary Search Tree with all three cases.",
+                prompt: `Extend the BST class with delete method:
+- delete(val): Delete value from BST
 
 REQUIREMENTS:
-- Use max heap approach
-- Sort array in ascending order
-- Implement in-place if possible
+- Handle three cases: no children, one child, two children
+- Use inorder successor for two children case
+- Maintain BST properties after deletion`,
+                starterCode: `class BSTWithDelete:
+    class Node:
+        def __init__(self, val):
+            self.val = val
+            self.left = None
+            self.right = None
+    
+    def __init__(self):
+        """Initialize empty BST."""
+        self.root = None
+    
+    def insert(self, val):
+        # Your implementation from previous question
+        pass
+    
+    def delete(self, val):
+        """
+        Delete value from BST.
+        
+        Args:
+            val: Value to delete
+        """
+        # Your implementation here
+        pass
+    
+    def inorder_traversal(self):
+        # Your implementation from previous question
+        pass
 
-`,
-
-                starterCode: `def heap_sort(arr):
-    """
-    Sort array using heap sort algorithm
-    """
-    pass
-
-# === ALGORITHM ANALYSIS ===
-# Add your analysis here`,
-
+# Test your implementation
+bst = BSTWithDelete()
+bst.insert(5)
+bst.insert(3)
+bst.insert(7)
+bst.delete(3)
+print(bst.inorder_traversal())  # Should be [5, 7]`,
                 testCases: [
-                    { input: [[3,1,4,2]], expected: true },
-                    { input: [[5,2,8,1,9]], expected: true },
-                    { input: [[1]], expected: true }
+                    { 
+                        input: [[5, 3, 7, 2, 4, 6, 8], [3]],
+                        expected: [2, 4, 5, 6, 7, 8],
+                        setup: (input) => {
+                            const [values, to_delete] = input;
+                            const bst = new BSTWithDelete();
+                            for (const val of values) {
+                                bst.insert(val);
+                            }
+                            for (const val of to_delete) {
+                                bst.delete(val);
+                            }
+                            return bst.inorder_traversal();
+                        }
+                    },
+                    { 
+                        input: [[5, 3, 7], [5]],
+                        expected: [3, 7],
+                        setup: (input) => {
+                            const [values, to_delete] = input;
+                            const bst = new BSTWithDelete();
+                            for (const val of values) {
+                                bst.insert(val);
+                            }
+                            for (const val of to_delete) {
+                                bst.delete(val);
+                            }
+                            return bst.inorder_traversal();
+                        }
+                    }
                 ],
-                
-                points: 5
+                functionName: 'BSTWithDelete',
+                points: 10
             },
-
             {
                 id: 6,
-                title: "BST Search Operation",
-                description: "Implement search in Binary Search Tree.",
-                prompt: `Implement BST search operation.
+                title: "Max Heap Implementation",
+                description: "Implement a Max Heap data structure with basic operations.",
+                prompt: `Implement a MaxHeap class with the following methods:
+- __init__(): Initialize empty heap
+- insert(val): Insert value into heap
+- extract_max(): Remove and return maximum value
+- get_max(): Return maximum value without removing it
 
 REQUIREMENTS:
-- Implement search(root, value) method
-- Return true if value exists, False otherwise
-- Use BST properties for efficiency
-
-`,
-
-                starterCode: `def search_bst(root, value):
-    """
-    Search for value in BST
-    """
-    pass
-
-# === EFFICIENCY EXPLANATION ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [[5,3,7,2,4], 3], expected: true },
-                    { input: [[5,3,7,2,4], 6], expected: false },
-                    { input: [[1], 1], expected: true }
-                ],
-                
-                points: 5
-            },
-
-            {
-                id: 7,
-                title: "Union-Find Connected Components",
-                description: "Find number of connected components using Union-Find.",
-                prompt: `Count connected components in a graph using Union-Find.
-
-REQUIREMENTS:
-- Given n nodes and edges list
-- Return number of connected components
-- Use Union-Find data structure
-
-`,
-
-                starterCode: `def count_components(n, edges):
-    """
-    Count connected components using Union-Find
-    """
-    pass
-
-# === ALGORITHM ANALYSIS ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [5, [[0,1],[1,2],[3,4]]], expected: true },
-                    { input: [3, [[0,1],[1,2]]], expected: true },
-                    { input: [4, []], expected: true }
-                ],
-                
-                points: 5
-            },
-
-            {
-                id: 8,
-                title: "Heap Height Calculation",
-                description: "Calculate height of a heap given number of elements.",
-                prompt: `Calculate height of a complete binary heap.
-
-REQUIREMENTS:
-- Given number of elements in heap
-- Return height of the heap
-- Height is number of edges from root to deepest leaf
-
-`,
-
-                starterCode: `def heap_height(n):
-    """
-    Calculate height of heap with n elements
-    """
-    pass
-
-# === MATHEMATICAL ANALYSIS ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [7], expected: true },
-                    { input: [1], expected: true },
-                    { input: [15], expected: true }
-                ],
-                
-                points: 5
-            },
-
-            {
-                id: 9,
-                title: "BST Inorder Traversal",
-                description: "Implement inorder traversal of BST.",
-                prompt: `Implement inorder traversal (left, root, right).
-
-REQUIREMENTS:
-- Return list of values in inorder
-- Handle empty tree case
-- Use recursion or iteration
-
-`,
-
-                starterCode: `def inorder_traversal(root):
-    """
-    Return inorder traversal of BST
-    """
-    pass
-
-# === TRAVERSAL ANALYSIS ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [[5,3,7,2,4]], expected: true },
-                    { input: [[1,2,3]], expected: true },
-                    { input: [[]], expected: true }
-                ],
-                
-                points: 5
-            },
-
-            {
-                id: 10,
-                title: "Priority Queue with Heap",
-                description: "Implement priority queue using min heap.",
-                prompt: `Implement priority queue using heap data structure.
-
-REQUIREMENTS:
-- Use heap for efficient operations
-- Implement insert and extract_min
-- Maintain heap property
-
-`,
-
-                starterCode: `class HeapPriorityQueue:
+- Maintain max heap property
+- Implement heapify operations`,
+                starterCode: `class MaxHeap:
     def __init__(self):
+        """Initialize empty max heap."""
         self.heap = []
     
-    def insert(self, item, priority):
+    def insert(self, val):
+        """
+        Insert value into max heap.
+        
+        Args:
+            val: Value to insert
+        """
+        # Your implementation here
         pass
     
-    def extract_min(self):
+    def extract_max(self):
+        """
+        Remove and return maximum value.
+        
+        Returns:
+            Maximum value in heap
+        """
+        # Your implementation here
         pass
     
-    def is_empty(self):
+    def get_max(self):
+        """
+        Return maximum value without removing it.
+        
+        Returns:
+            Maximum value in heap
+        """
+        # Your implementation here
         pass
 
-# === EFFICIENCY COMPARISON ===
-# Add your analysis here`,
-
+# Test your implementation
+heap = MaxHeap()
+heap.insert(3)
+heap.insert(1)
+heap.insert(4)
+print(heap.extract_max())  # Should be 4`,
                 testCases: [
-                    { input: [["A",3], ["B",1], ["C",2]], expected: true },
-                    { input: [["X",5]], expected: true },
-                    { input: [[]], expected: true }
+                    { 
+                        input: [[3, 1, 4, 1, 5, 9, 2, 6]],
+                        expected: [9, 6, 5, 4, 3, 2, 1, 1],
+                        setup: (input) => {
+                            const heap = new MaxHeap();
+                            for (const val of input[0]) {
+                                heap.insert(val);
+                            }
+                            const result = [];
+                            while (heap.heap.length > 0) {
+                                result.push(heap.extract_max());
+                            }
+                            return result;
+                        }
+                    },
+                    { 
+                        input: [[5, 2, 8]],
+                        expected: 8,
+                        setup: (input) => {
+                            const heap = new MaxHeap();
+                            for (const val of input[0]) {
+                                heap.insert(val);
+                            }
+                            return heap.get_max();
+                        }
+                    }
                 ],
-                
-                points: 5
+                functionName: 'MaxHeap',
+                points: 10
             },
-
             {
-                id: 11,
-                title: "Union-Find Cycle Detection",
-                description: "Detect cycle in undirected graph using Union-Find.",
-                prompt: `Detect cycle in undirected graph using Union-Find.
+                id: 7,
+                title: "Heap Sort Algorithm",
+                description: "Implement heap sort using your max heap implementation.",
+                prompt: `Implement heap_sort(arr) function that sorts an array using heap sort.
 
 REQUIREMENTS:
-- Given n nodes and edges list
-- Return true if cycle exists, False otherwise
-- Use Union-Find for efficient detection
-
-`,
-
-                starterCode: `def has_cycle(n, edges):
+- Use max heap to sort in ascending order
+- Implement in-place sorting if possible
+- Time complexity: O(n log n)`,
+                starterCode: `def heap_sort(arr):
     """
-    Detect cycle using Union-Find
+    Sort array using heap sort algorithm.
+    
+    Args:
+        arr: List to sort
+        
+    Returns:
+        Sorted list in ascending order
     """
+    # Your implementation here
     pass
 
-# === CYCLE DETECTION ANALYSIS ===
-# Add your analysis here`,
-
+# Test your function
+print(heap_sort([3, 1, 4, 1, 5, 9, 2, 6]))`,
                 testCases: [
-                    { input: [3, [[0,1],[1,2],[2,0]]], expected: true },
-                    { input: [3, [[0,1],[1,2]]], expected: false },
-                    { input: [1, []], expected: false }
+                    { input: [[3, 1, 4, 1, 5, 9, 2, 6]], expected: [1, 1, 2, 3, 4, 5, 6, 9] },
+                    { input: [[5, 2, 8, 1, 9]], expected: [1, 2, 5, 8, 9] },
+                    { input: [[1]], expected: [1] },
+                    { input: [[]], expected: [] }
                 ],
-                
-                points: 5
+                functionName: 'heap_sort',
+                points: 10
             },
-
             {
-                id: 12,
-                title: "Heap Build from Array",
-                description: "Build a max heap from an unsorted array.",
-                prompt: `Build max heap from array using heapify.
+                id: 8,
+                title: "BST Height and Balance Check",
+                description: "Implement methods to calculate BST height and check if it's balanced.",
+                prompt: `Extend BST class with:
+- height(): Return height of the tree
+- is_balanced(): Check if tree is balanced (height difference <= 1 for all nodes)
 
 REQUIREMENTS:
-- Implement build_max_heap function
-- Use heapify procedure
-- Modify array in-place
+- Height: longest path from root to leaf
+- Balanced: |left_height - right_height| <= 1 for all nodes`,
+                starterCode: `class BSTWithHeight:
+    class Node:
+        def __init__(self, val):
+            self.val = val
+            self.left = None
+            self.right = None
+    
+    def __init__(self):
+        self.root = None
+    
+    def insert(self, val):
+        # Your implementation
+        pass
+    
+    def height(self):
+        """
+        Return height of the tree.
+        
+        Returns:
+            Height of the tree
+        """
+        # Your implementation here
+        pass
+    
+    def is_balanced(self):
+        """
+        Check if tree is balanced.
+        
+        Returns:
+            true if balanced, false otherwise
+        """
+        # Your implementation here
+        pass
 
-`,
-
-                starterCode: `def build_max_heap(arr):
-    """
-    Build max heap from array
-    """
-    pass
-
-def heapify(arr, n, i):
-    """
-    Heapify subtree rooted at i
-    """
-    pass
-
-# === HEAP CONSTRUCTION ANALYSIS ===
-# Add your analysis here`,
-
+# Test your implementation
+bst = BSTWithHeight()
+bst.insert(5)
+bst.insert(3)
+bst.insert(7)
+print(bst.height())  # Should be 2`,
                 testCases: [
-                    { input: [[3,1,4,2]], expected: true },
-                    { input: [[5,2,8,1,9]], expected: true },
-                    { input: [[1]], expected: true }
+                    { 
+                        input: [[5, 3, 7, 2, 8]],
+                        expected: [3, true],
+                        setup: (input) => {
+                            const bst = new BSTWithHeight();
+                            for (const val of input[0]) {
+                                bst.insert(val);
+                            }
+                            return [bst.height(), bst.is_balanced()];
+                        }
+                    },
+                    { 
+                        input: [[1, 2, 3, 4, 5]],
+                        expected: [5, false],
+                        setup: (input) => {
+                            const bst = new BSTWithHeight();
+                            for (const val of input[0]) {
+                                bst.insert(val);
+                            }
+                            return [bst.height(), bst.is_balanced()];
+                        }
+                    }
                 ],
-                
-                points: 5
+                functionName: 'BSTWithHeight',
+                points: 10
             },
-
             {
-                id: 13,
-                title: "BST Validation",
-                description: "Validate if a binary tree is a valid BST.",
-                prompt: `Check if binary tree is valid BST.
+                id: 9,
+                title: "Union-Find with Size Tracking",
+                description: "Extend Union-Find to track component sizes.",
+                prompt: `Extend UnionFind to track sizes of components:
+- component_size(x): Return size of component containing x
+- Use size for union by size instead of rank
 
 REQUIREMENTS:
-- Implement is_valid_bst(root)
-- Return true if valid BST, False otherwise
-- Consider BST properties
-
-`,
-
-                starterCode: `def is_valid_bst(root):
-    """
-    Check if binary tree is valid BST
-    """
-    pass
-
-# === VALIDATION ALGORITHM ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [[5,3,7,2,4]], expected: true },
-                    { input: [[5,3,7,2,8]], expected: false },
-                    { input: [[]], expected: true }
-                ],
-                
-                points: 5
-            },
-
-            {
-                id: 14,
-                title: "Kth Largest in Heap",
-                description: "Find kth largest element using heap.",
-                prompt: `Find kth largest element using min heap.
-
-REQUIREMENTS:
-- Given array and integer k
-- Return kth largest element
-- Use heap for efficiency
-
-`,
-
-                starterCode: `def find_kth_largest(nums, k):
-    """
-    Find kth largest element using heap
-    """
-    pass
-
-# === ALGORITHM SELECTION ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [[3,2,1,5,6,4], 2], expected: true },
-                    { input: [[1,2,3,4,5], 1], expected: true },
-                    { input: [[7], 1], expected: true }
-                ],
-                
-                points: 5
-            },
-
-            {
-                id: 15,
-                title: "Union-Find with Size",
-                description: "Implement Union-Find with union by size.",
-                prompt: `Implement Union-Find with union by size optimization.
-
-REQUIREMENTS:
-- Track size of each component
-- Use size for union operation
-- Implement path compression
-
-`,
-
-                starterCode: `class UnionFindSize:
+- Track sizes of each component
+- Use union by size for optimal performance`,
+                starterCode: `class UnionFindWithSize:
     def __init__(self, n):
+        """
+        Initialize Union-Find with size tracking.
+        
+        Args:
+            n: Number of elements
+        """
         self.parent = list(range(n))
         self.size = [1] * n
     
     def find(self, x):
+        # Your implementation with path compression
         pass
     
     def union(self, x, y):
-        pass
-
-# === OPTIMIZATION ANALYSIS ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [5, [0,1], [2,3], [1,2]], expected: true },
-                    { input: [3, [0,1]], expected: true },
-                    { input: [4, []], expected: true }
-                ],
-                
-                points: 5
-            },
-
-            // Advanced Questions (16-20)
-            {
-                id: 16,
-                title: "BST Iterator Implementation",
-                description: "Implement BST iterator with next() and hasNext() methods.",
-                prompt: `Implement BST iterator that performs inorder traversal.
-
-REQUIREMENTS:
-- Implement __init__(root)
-- Implement next() - returns next smallest number
-- Implement hasNext() - returns boolean
-- Average O(1) time and O(h) memory
-
-`,
-
-                starterCode: `class BSTIterator:
-    def __init__(self, root):
         """
-        Initialize BST iterator
+        Union by size.
         """
+        # Your implementation here
         pass
     
-    def next(self):
+    def component_size(self, x):
         """
-        Return next smallest number
+        Return size of component containing x.
+        
+        Args:
+            x: Element
+            
+        Returns:
+            Size of component
         """
-        pass
-    
-    def hasNext(self):
-        """
-        Check if there are more elements
-        """
+        # Your implementation here
         pass
 
-# === ITERATOR DESIGN ANALYSIS ===
-# Add your analysis here`,
-
+# Test your implementation
+uf = UnionFindWithSize(5)
+uf.union(0, 1)
+print(uf.component_size(0))  # Should be 2`,
                 testCases: [
-                    { input: [[7,3,15,1,5,9,20]], expected: true },
-                    { input: [[1]], expected: true },
-                    { input: [[]], expected: true }
+                    { 
+                        input: [5, [[0, 1], [2, 3], [1, 4]]],
+                        expected: [3, 2, 3, 2, 3],
+                        setup: (input) => {
+                            const [n, unions] = input;
+                            const uf = new UnionFindWithSize(n);
+                            for (const [x, y] of unions) {
+                                uf.union(x, y);
+                            }
+                            return Array.from({length: n}, (_, i) => uf.component_size(i));
+                        }
+                    },
+                    { 
+                        input: [3, [[0, 1], [1, 2]]],
+                        expected: 3,
+                        setup: (input) => {
+                            const [n, unions] = input;
+                            const uf = new UnionFindWithSize(n);
+                            for (const [x, y] of unions) {
+                                uf.union(x, y);
+                            }
+                            return uf.component_size(0);
+                        }
+                    }
                 ],
-                
-                points: 8
+                functionName: 'UnionFindWithSize',
+                points: 10
             },
-
             {
-                id: 17,
-                title: "Merge K Sorted Lists with Heap",
-                description: "Merge k sorted lists using priority queue.",
-                prompt: `Merge k sorted linked lists into one sorted list.
+                id: 10,
+                title: "Priority Queue with Dynamic Priorities",
+                description: "Implement a priority queue that supports priority updates.",
+                prompt: `Implement an UpdatablePriorityQueue with:
+- update_priority(value, new_priority): Update priority of existing value
+- Maintain heap properties after update
 
 REQUIREMENTS:
-- Given list of k linked lists
-- Return one merged sorted linked list
-- Use priority queue for efficiency
-
-`,
-
-                starterCode: `class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
-def merge_k_lists(lists):
-    """
-    Merge k sorted linked lists
-    """
-    pass
-
-# === COMPLEXITY ANALYSIS ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [[[1,4,5],[1,3,4],[2,6]]], expected: true },
-                    { input: [[]], expected: true },
-                    { input: [[[]]], expected: true }
-                ],
-                
-                points: 8
-            },
-
-            {
-                id: 18,
-                title: "Union-Find with Dynamic Connectivity",
-                description: "Solve dynamic connectivity problem with Union-Find.",
-                prompt: `Handle dynamic connectivity queries with Union-Find.
-
-REQUIREMENTS:
-- Implement add_edge(u, v)
-- Implement connected(u, v)
-- Implement get_components_count()
-- Handle multiple operations efficiently
-
-`,
-
-                starterCode: `class DynamicConnectivity:
-    def __init__(self, n):
-        """
-        Initialize with n nodes
-        """
+- Track positions of elements for efficient updates
+- Handle priority increases and decreases
+- Maintain heap invariant after updates`,
+                starterCode: `class UpdatablePriorityQueue:
+    def __init__(self):
+        """Initialize empty updatable priority queue."""
+        self.heap = []
+        self.position = {}  # value -> index in heap
+    
+    def enqueue(self, priority, value):
+        # Your implementation
         pass
     
-    def add_edge(self, u, v):
-        """
-        Add edge between u and v
-        """
+    def dequeue(self):
+        # Your implementation
         pass
     
-    def connected(self, u, v):
+    def update_priority(self, value, new_priority):
         """
-        Check if u and v are connected
+        Update priority of existing value.
+        
+        Args:
+            value: Value to update
+            new_priority: New priority value
         """
+        # Your implementation here
         pass
     
-    def get_components_count(self):
-        """
-        Return number of connected components
-        """
+    def is_empty(self):
+        # Your implementation
         pass
 
-# === DYNAMIC OPERATIONS ANALYSIS ===
-# Add your analysis here`,
-
+# Test your implementation
+pq = UpdatablePriorityQueue()
+pq.enqueue(2, "A")
+pq.enqueue(1, "B")
+pq.update_priority("A", 0)
+print(pq.dequeue())  # Should be "A"`,
                 testCases: [
-                    { input: [5, [[0,1],[1,2],[3,4],[0,2]]], expected: true },
-                    { input: [3, [[0,1]]], expected: true },
-                    { input: [4, []], expected: true }
+                    { 
+                        input: [[[2, "A"], [1, "B"], [3, "C"]], [["A", 0], ["C", 1]]],
+                        expected: ["A", "C", "B"],
+                        setup: (input) => {
+                            const [initial, updates] = input;
+                            const pq = new UpdatablePriorityQueue();
+                            for (const [priority, value] of initial) {
+                                pq.enqueue(priority, value);
+                            }
+                            for (const [value, new_priority] of updates) {
+                                pq.update_priority(value, new_priority);
+                            }
+                            const result = [];
+                            while (!pq.is_empty()) {
+                                result.push(pq.dequeue());
+                            }
+                            return result;
+                        }
+                    }
                 ],
-                
-                points: 8
-            },
-
-            {
-                id: 19,
-                title: "BST to Balanced BST",
-                description: "Convert normal BST to balanced BST.",
-                prompt: `Convert any BST to balanced BST (height balanced).
-
-REQUIREMENTS:
-- Given root of BST
-- Return root of balanced BST
-- Balance the tree while maintaining BST property
-
-`,
-
-                starterCode: `def balance_bst(root):
-    """
-    Convert BST to balanced BST
-    """
-    pass
-
-# === BALANCING ALGORITHM ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [[1,2,3,4,5,6,7]], expected: true },
-                    { input: [[1]], expected: true },
-                    { input: [[]], expected: true }
-                ],
-                
-                points: 8
-            },
-
-            {
-                id: 20,
-                title: "Sliding Window Maximum with Heap",
-                description: "Find maximum in sliding window using heap.",
-                prompt: `Find maximum in each sliding window of size k.
-
-REQUIREMENTS:
-- Given array and window size k
-- Return list of maximums for each window
-- Use heap for optimal solution
-
-`,
-
-                starterCode: `def max_sliding_window(nums, k):
-    """
-    Find maximum in each sliding window
-    """
-    pass
-
-# === SLIDING WINDOW OPTIMIZATION ===
-# Add your analysis here`,
-
-                testCases: [
-                    { input: [[1,3,-1,-3,5,3,6,7], 3], expected: true },
-                    { input: [[1], 1], expected: true },
-                    { input: [[1,-1], 1], expected: true }
-                ],
-                
-                points: 8
+                functionName: 'UpdatablePriorityQueue',
+                points: 10
             }
         ];
 
@@ -909,45 +1147,236 @@ REQUIREMENTS:
         let userAnswers = {};
         let currentUser = {};
         let editors = {};
+        let submittedQuizData = null;
 
-        // Initialize Monaco Editor
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
-            initializeQuiz();
-        });
-
-       
-        async function initializeQuiz() {
-    console.log('🚀 Initializing quiz...');
-    
-    // Initialize with test user first (fallback)
-    currentUser = { username: 'TestUser', email: 'test@example.com' };
-    userAnswers = {};
-    
-    // Try to get user session (non-blocking)
-    try {
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-            credentials: 'include',
-            mode: 'cors'
-        });
+        // ===== ANTI-CHEATING SYSTEM =====
         
-        if (response.ok) {
-            const data = await response.json();
-            if (data.username && data.email) {
-                currentUser = { username: data.username, email: data.email };
-                console.log('✅ User logged in:', currentUser);
+        function initializeAntiCheating() {
+            // Disable right-click everywhere except code editor
+            document.addEventListener('contextmenu', function(e) {
+                if (!e.target.closest('.monaco-editor')) {
+                    e.preventDefault();
+                    recordCheatingAttempt('right_click');
+                    return false;
+                }
+            });
+            
+            // Disable keyboard shortcuts (except in editor)
+            document.addEventListener('keydown', function(e) {
+                // Allow all keys in Monaco editor
+                if (e.target.closest('.monaco-editor') || e.target.classList.contains('monaco-editor')) {
+                    return true;
+                }
+                
+                // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
+                if (e.keyCode === 123 || // F12
+                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
+                    (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
+                    (e.ctrlKey && e.keyCode === 83) || // Ctrl+S
+                    e.keyCode === 44) { // Print Screen
+                    e.preventDefault();
+                    recordCheatingAttempt('keyboard_shortcut');
+                    return false;
+                }
+                
+                // Disable Ctrl+A, Ctrl+C, Ctrl+V outside editor
+                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                    e.preventDefault();
+                    recordCheatingAttempt('copy_attempt');
+                    return false;
+                }
+            });
+            
+            // Detect developer tools
+            let devtools = {open: false, orientation: null};
+            const threshold = 160;
+            
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > threshold || 
+                    window.outerWidth - window.innerWidth > threshold) {
+                    if (!devtools.open && isQuizActive) {
+                        devtools.open = true;
+                        recordCheatingAttempt('developer_tools');
+                        if (!devToolsWarned) {
+                            alert('⚠️ Developer tools detected! This attempt has been logged.\n\nContinued violations may result in quiz auto-submission.');
+                            devToolsWarned = true;
+                        }
+                    }
+                } else {
+                    devtools.open = false;
+                }
+            }, 500);
+            
+            // Detect window focus changes (tab switching)
+            window.addEventListener('blur', function() {
+                if (isQuizActive) {
+                    tabSwitchCount++;
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                    document.getElementById('attemptCount').textContent = cheatingAttempts;
+                    recordCheatingAttempt('window_blur_tab_switch');
+                }
+            });
+            
+            window.addEventListener('focus', function() {
+                document.body.classList.remove('blurred');
+                document.getElementById('warningOverlay').style.display = 'none';
+                updateSecurityIndicator();
+            });
+            
+            // Monitor for screenshot attempts
+            document.addEventListener('keyup', function(e) {
+                if (e.keyCode === 44 && isQuizActive) { // Print Screen released
+                    recordCheatingAttempt('screenshot_attempt');
+                    alert('⚠️ Screenshot attempt detected and logged!');
+                }
+            });
+            
+            // Disable printing
+            window.addEventListener('beforeprint', function(e) {
+                if (isQuizActive) {
+                    recordCheatingAttempt('print_attempt');
+                    e.preventDefault();
+                    alert('⚠️ Printing is disabled during the quiz.');
+                    return false;
+                }
+            });
+            
+            // Monitor visibility changes
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && isQuizActive) {
+                    recordCheatingAttempt('visibility_change');
+                }
+            });
+            
+            // Prevent text selection outside editor
+            document.addEventListener('selectstart', function(e) {
+                if (!e.target.closest('.monaco-editor') && isQuizActive) {
+                    recordCheatingAttempt('text_selection');
+                    return false;
+                }
+            });
+        }
+        
+        // Record cheating attempts
+        function recordCheatingAttempt(type) {
+            cheatingAttempts++;
+            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+            
+            // Update UI
+            document.getElementById('attemptCount').textContent = cheatingAttempts;
+            updateSecurityIndicator(true);
+            
+            // Log to server
+            if (currentUser.username && currentUser.email) {
+                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: currentUser.username,
+                        email: currentUser.email,
+                        cheatingType: type,
+                        timestamp: new Date(),
+                        currentQuestion: currentQuestionIndex + 1,
+                        totalAttempts: cheatingAttempts
+                    })
+                }).catch(err => console.error('Failed to log cheating attempt:', err));
+            }
+            
+            // Auto-submit after too many attempts
+            if (cheatingAttempts >= 10) {
+                alert('⚠️ Too many suspicious activities detected!\n\nYour quiz will be auto-submitted now.');
+                submitQuiz();
+            } else if (cheatingAttempts >= 5) {
+                alert(`⚠️ Warning: ${cheatingAttempts} suspicious activities detected!\n\nQuiz will auto-submit at 10 attempts.`);
             }
         }
-    } catch (error) {
-        console.log('ℹ️ Using test user for demo');
-    }
-    
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('quizContainer').style.display = 'block';
-    
-    renderCurrentQuestion();
-    updateProgress();
-}
+        
+        // Update security indicator
+        function updateSecurityIndicator(warning = false) {
+            const indicator = document.getElementById('securityIndicator');
+            const text = document.getElementById('securityText');
+            
+            if (warning) {
+                indicator.classList.add('warning');
+                text.textContent = `${cheatingAttempts} Violations Detected`;
+                setTimeout(() => {
+                    indicator.classList.remove('warning');
+                    text.textContent = 'Monitoring Active';
+                }, 3000);
+            }
+        }
+
+        // ===== QUIZ INITIALIZATION =====
+
+        async function initPyodide() {
+            const loadingText = document.querySelector('.loading-text');
+            
+            try {
+                loadingText.textContent = 'Loading Python interpreter...';
+                
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+                });
+                
+                loadingText.textContent = 'Python ready! Initializing quiz...';
+                pyodideReady = true;
+                
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+                require(['vs/editor/editor.main'], function() {
+                    setTimeout(() => initializeQuiz(), 500);
+                });
+                
+            } catch (error) {
+                console.error('Failed to load Pyodide:', error);
+                loadingText.textContent = 'Error loading Python. Please refresh.';
+                alert('Failed to load Python environment. Please refresh the page.');
+            }
+        }
+
+        async function initializeQuiz() {
+            console.log('🚀 Initializing quiz...');
+            
+            // Initialize anti-cheating FIRST
+            initializeAntiCheating();
+            
+            currentUser = { username: 'TestUser', email: 'test@example.com' };
+            userAnswers = {};
+            
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.username && data.email) {
+                        currentUser = { username: data.username, email: data.email };
+                        console.log('✅ User logged in:', currentUser);
+                    }
+                }
+            } catch (error) {
+                console.log('ℹ️ Using test user for demo');
+            }
+            
+            // Enable quiz monitoring
+            isQuizActive = true;
+            
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            // Request fullscreen (optional, user can decline)
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request declined:', err);
+                });
+            }
+            
+            renderCurrentQuestion();
+            updateProgress();
+        }
 
         function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
@@ -959,33 +1388,26 @@ REQUIREMENTS:
                         <h3>${question.title}</h3>
                         <span class="badge bg-primary">${question.points} points</span>
                     </div>
-                    
                     <p class="mb-3">${question.description}</p>
-                    
                     <div class="alert alert-info">
                         <h6>Problem:</h6>
                         <pre style="white-space: pre-wrap;">${question.prompt}</pre>
                     </div>
-                    
                     <div class="explanation-section">
                         <h6>📝 Important:</h6>
-                        <p>You must include detailed explanations as comments in your code. Points will be awarded for both correct implementation and comprehensive explanations.</p>
+                        <p>Include explanations as comments for full credit.</p>
                     </div>
-                    
                     <div id="editor-${question.id}" class="code-editor-container"></div>
-                    
                     <div class="test-cases">
                         <h6>Test Cases:</h6>
                         ${question.testCases.map((test, i) => `
-                            <div><strong>Test ${i+1}:</strong> Input: ${JSON.stringify(test.input)} → Expected: ${JSON.stringify(test.expected)}</div>
+                            <div><strong>Test ${i+1}:</strong> ${formatTestCase(test)}</div>
                         `).join('')}
                     </div>
-                    
                     <div id="testResults-${question.id}"></div>
                 </div>
             `;
             
-            // Initialize Monaco editor for this question
             const editor = monaco.editor.create(document.getElementById(`editor-${question.id}`), {
                 value: userAnswers[question.id] || question.starterCode,
                 language: 'python',
@@ -997,92 +1419,165 @@ REQUIREMENTS:
             });
             
             editors[question.id] = editor;
-            
-            // Save code on change
             editor.onDidChangeModelContent(() => {
                 userAnswers[question.id] = editor.getValue();
             });
         }
 
-        function runTests() {
+        function formatTestCase(test) {
+            if (test.input && Array.isArray(test.input)) {
+                const input = test.input.map(v => Array.isArray(v) ? JSON.stringify(v) : v).join(', ');
+                const expected = JSON.stringify(test.expected);
+                return `Input: ${input} → Expected: ${expected}`;
+            }
+            return `Expected: ${JSON.stringify(test.expected)}`;
+        }
+
+        async function executePythonTests(code, question) {
+            if (!pyodideReady) {
+                throw new Error('Python environment not ready');
+            }
+
+            const results = [];
+            
+            for (let i = 0; i < question.testCases.length; i++) {
+                const testCase = question.testCases[i];
+                
+                try {
+                    await pyodide.runPythonAsync(`
+import sys
+for name in list(globals().keys()):
+    if not name.startswith('__') and name not in ['sys']:
+        try:
+            del globals()[name]
+        except:
+            pass
+                    `);
+                    
+                    await pyodide.runPythonAsync(code);
+                    
+                    let functionCall;
+                    if (Array.isArray(testCase.input)) {
+                        functionCall = `${question.functionName}(${testCase.input.map(v => 
+                            Array.isArray(v) ? JSON.stringify(v) : v
+                        ).join(', ')})`;
+                    } else {
+                        functionCall = `${question.functionName}(${testCase.input})`;
+                    }
+                    
+                    const result = await pyodide.runPythonAsync(functionCall);
+                    
+                    let output;
+                    if (result && typeof result === 'object' && result.toJs) {
+                        output = result.toJs({ dict_converter: Object.fromEntries });
+                    } else {
+                        output = result;
+                    }
+                    
+                    const passed = deepEqual(output, testCase.expected);
+                    
+                    results.push({
+                        passed,
+                        output,
+                        expected: testCase.expected,
+                        error: null
+                    });
+                    
+                } catch (error) {
+                    results.push({
+                        passed: false,
+                        output: null,
+                        expected: testCase.expected,
+                        error: error.message
+                    });
+                }
+            }
+            
+            return results;
+        }
+
+        function deepEqual(a, b) {
+            if (a === b) return true;
+            if (a == null || b == null) return false;
+            if (typeof a !== typeof b) return false;
+            
+            if (Array.isArray(a) && Array.isArray(b)) {
+                if (a.length !== b.length) return false;
+                for (let i = 0; i < a.length; i++) {
+                    if (!deepEqual(a[i], b[i])) return false;
+                }
+                return true;
+            }
+            
+            if (typeof a === 'object' && typeof b === 'object') {
+                const keysA = Object.keys(a).sort();
+                const keysB = Object.keys(b).sort();
+                if (keysA.length !== keysB.length) return false;
+                for (let key of keysA) {
+                    if (!deepEqual(a[key], b[key])) return false;
+                }
+                return true;
+            }
+            
+            return false;
+        }
+
+        async function runTests() {
+            if (!pyodideReady) {
+                alert('Python environment is still loading. Please wait...');
+                return;
+            }
+
             const question = questions[currentQuestionIndex];
             const code = editors[question.id].getValue();
             const resultsDiv = document.getElementById(`testResults-${question.id}`);
             
-            resultsDiv.innerHTML = '<h6>Running tests...</h6>';
+            resultsDiv.innerHTML = '<h6>🔧 Running tests...</h6>';
             
             try {
-                // Simple Python-like execution simulation
-                const testResults = simulateCodeExecution(code, question.testCases, question.title);
+                const testResults = await executePythonTests(code, question);
                 
-                resultsDiv.innerHTML = `
-                    <h6>Test Results:</h6>
-                    ${testResults.map((result, i) => `
+                let testHtml = '<h6>Test Results:</h6>';
+                let passedCount = 0;
+                
+                testResults.forEach((result, i) => {
+                    if (result.passed) passedCount++;
+                    
+                    testHtml += `
                         <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
                             Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
-                            ${result.error ? ` - ${result.error}` : ''}
-                            ${result.output !== undefined ? ` (Got: ${JSON.stringify(result.output)})` : ''}
+                            ${result.error ? `<br>Error: ${result.error}` : ''}
+                            ${!result.passed && !result.error ? `<br>Expected: ${JSON.stringify(result.expected)}<br>Got: ${JSON.stringify(result.output)}` : ''}
                         </div>
-                    `).join('')}
-                    
+                    `;
+                });
+                
+                testHtml += `
                     <div class="mt-3">
+                        <strong>Summary:</strong> ${passedCount}/${testResults.length} tests passed
+                    </div>
+                    <div class="mt-2">
                         <strong>Explanation Check:</strong>
-                        ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
+                        ${checkExplanations(code) ? '✓ Explanations found' : '⚠ Add comments'}
                     </div>
                 `;
+                
+                resultsDiv.innerHTML = testHtml;
+                
             } catch (error) {
-                resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
+                console.error('Test execution error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="test-result test-failed">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
             }
         }
 
-        function checkExplanations(code, questionId) {
-            // More strict check - require actual content in comments
-            const commentBlocks = code.match(/#.+/g) || [];
-            const hasSubstantialComments = commentBlocks.some(comment => 
-                comment.length > 20 && !comment.includes('Add your analysis here')
-            );
-            
-            return hasSubstantialComments && commentBlocks.length >= 2;
+        function checkExplanations(code) {
+            const comments = code.match(/#.+/g) || [];
+            return comments.some(c => c.length > 20) && comments.length >= 2;
         }
-
-        function simulateCodeExecution(code, testCases, questionTitle) {
-    const results = [];
-    
-    testCases.forEach(testCase => {
-        try {
-            // For demo purposes, return passed if code contains required elements
-            const hasRequiredStructure = checkCodeStructure(code, questionTitle);
-            results.push({ 
-                passed: hasRequiredStructure, 
-                output: hasRequiredStructure,
-                error: hasRequiredStructure ? null : "Code structure incomplete"
-            });
-            
-        } catch (error) {
-            results.push({ 
-                passed: false, 
-                error: `Runtime error: ${error.message}`,
-                output: "Error occurred during execution"
-            });
-        }
-    });
-    
-    return results;
-}
-
-function checkCodeStructure(code, questionTitle) {
-    // Basic structure validation for demo
-    if (questionTitle.includes("Union-Find")) {
-        return code.includes("class") && code.includes("def find") && code.includes("def union");
-    } else if (questionTitle.includes("Heap")) {
-        return code.includes("class") && (code.includes("def insert") || code.includes("def heapify"));
-    } else if (questionTitle.includes("BST")) {
-        return code.includes("class") || code.includes("def ") && code.includes("TreeNode");
-    } else if (questionTitle.includes("Priority")) {
-        return code.includes("class") && code.includes("def enqueue") && code.includes("def dequeue");
-    }
-    return code.length > 50; // Basic length check
-}
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
@@ -1104,137 +1599,114 @@ function checkCodeStructure(code, questionTitle) {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-            
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
             
             const nextBtn = document.getElementById('nextBtn');
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.textContent = 'Finish →';
-            } else {
-                nextBtn.textContent = 'Next →';
+            nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish →' : 'Next →';
+        }
+
+        async function submitQuiz() {
+            if (!confirm('Submit your quiz? Make sure you\'ve tested all answers.')) return;
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
+            
+            // Disable monitoring
+            isQuizActive = false;
+
+            let totalScore = 0;
+            const results = [];
+            
+            for (const question of questions) {
+                const code = userAnswers[question.id] || '';
+                
+                try {
+                    const testResults = await executePythonTests(code, question);
+                    const passedTests = testResults.filter(r => r.passed).length;
+                    const hasExplanations = checkExplanations(code);
+                    const bonus = hasExplanations ? question.points * 0.2 : 0;
+                    const score = Math.min(
+                        Math.round((passedTests / testResults.length) * question.points) + bonus,
+                        question.points
+                    );
+                    
+                    totalScore += score;
+                    results.push({
+                        questionId: question.id,
+                        title: question.title,
+                        code,
+                        score,
+                        maxScore: question.points,
+                        passedTests,
+                        totalTests: testResults.length,
+                        hasExplanations
+                    });
+                } catch (error) {
+                    results.push({
+                        questionId: question.id,
+                        title: question.title,
+                        code,
+                        score: 0,
+                        maxScore: question.points,
+                        passedTests: 0,
+                        totalTests: question.testCases.length,
+                        hasExplanations: checkExplanations(code),
+                        error: error.message
+                    });
+                }
             }
+            
+            const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+            const percentage = Math.round((totalScore / maxScore) * 100);
+            
+            submittedQuizData = {
+                username: currentUser.username,
+                email: currentUser.email,
+                topic: 'Advanced Data Structures',
+                score: totalScore,
+                maxScore,
+                percentage,
+                questions: results,
+                timestamp: new Date().toISOString(),
+                cheatingAttempts: cheatingAttempts,
+                tabSwitches: tabSwitchCount
+            };
+            
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submittedQuizData)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Quiz submitted successfully!');
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                alert('⚠️ Could not submit to server, but showing results.');
+            }
+            
+            showResults(submittedQuizData);
         }
-
-      async function submitQuiz() {
-    // Show confirmation dialog
-    const confirmSubmit = confirm(
-        'Are you ready to submit your quiz?\n\n' +
-        'Make sure you have:\n' +
-        '✓ Completed all questions\n' +
-        '✓ Tested your code\n' +
-        '✓ Added required explanations\n\n' +
-        'Click OK to submit.'
-    );
-    
-    if (!confirmSubmit) {
-        return; // User cancelled
-    }
-
-    let totalScore = 0;
-    const results = [];
-    
-    // Grade each question
-    questions.forEach(question => {
-        const code = userAnswers[question.id] || '';
-        const testResults = simulateCodeExecution(code, question.testCases, question.title);
-        const passedTests = testResults.filter(r => r.passed).length;
-        
-        const hasExplanations = checkExplanations(code, question.id);
-        const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
-        
-        const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
-        
-        totalScore += Math.min(questionScore, question.points);
-        results.push({
-            questionId: question.id,
-            title: question.title,
-            code: code, // ✅ Include user's code
-            score: Math.min(questionScore, question.points),
-            maxScore: question.points,
-            testResults: testResults,
-            hasExplanations: hasExplanations
-        });
-    });
-    
-    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
-    const percentage = Math.round((totalScore / maxScore) * 100);
-    
-    // Prepare quiz data in correct format
-    const quizData = {
-        username: currentUser.username || 'TestUser',
-        email: currentUser.email || 'test@example.com',
-        topic: 'Data Structures - Union-Find, Heaps, BST, Priority Queues',
-        score: totalScore,
-        maxScore: maxScore,
-        percentage: percentage,
-        questions: results,
-        timestamp: new Date().toISOString()
-    };
-    
-    console.log('📤 Submitting quiz data:', JSON.stringify(quizData, null, 2));
-    
-    try {
-        // Disable submit button to prevent double submission
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Submitting...';
-        
-        // Submit to backend
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
-    method: 'POST',
-    headers: { 
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(quizData)
-});
-        
-        console.log('📥 Response status:', response.status);
-        
-        if (response.ok) {
-            const responseData = await response.json();
-            console.log('✅ Server response:', responseData);
-            alert('✅ Quiz submitted successfully!');
-            showResults(quizData);
-        } else {
-            const errorText = await response.text();
-            console.error('❌ Server error:', errorText);
-            throw new Error(`Server returned ${response.status}: ${errorText}`);
-        }
-        
-    } catch (error) {
-        console.error('❌ Submission error:', error);
-       displayError(error.message);
-        
-        // Re-enable submit button
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = false;
-        submitBtn.textContent = '📊 Submit Quiz';
-    }
-}
-
-function displayError(message) {
-    alert(`❌ Error: ${message}\n\nYour quiz data has been saved locally. Please try submitting again later.`);
-    
-    // Save quiz data locally as backup
-    const backupData = {
-        ...quizData,
-        localBackup: true,
-        localTimestamp: new Date().toISOString()
-    };
-    localStorage.setItem('dataStructuresQuizBackup', JSON.stringify(backupData));
-    console.log('📦 Quiz data saved locally as backup');
-}
 
         function showResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
-            
             document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
             document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
             
             const detailedResults = document.getElementById('detailedResults');
             detailedResults.innerHTML = `
                 <h4>Detailed Results</h4>
+                ${quizData.cheatingAttempts > 0 ? `
+                    <div class="alert alert-warning">
+                        ⚠️ Security Note: ${quizData.cheatingAttempts} suspicious activities were detected during this quiz.
+                    </div>
+                ` : ''}
                 ${quizData.questions.map(q => `
                     <div class="card mb-3">
                         <div class="card-body">
@@ -1242,26 +1714,56 @@ function displayError(message) {
                             <div class="progress mb-2">
                                 <div class="progress-bar" style="width: ${(q.score/q.maxScore)*100}%"></div>
                             </div>
-                            <small>Tests passed: ${q.testResults.filter(t => t.passed).length}/${q.testResults.length}</small>
-                            <br>
-                            <small>${q.hasExplanations ? '✓ Explanations provided' : '⚠ Missing explanations'}</small>
+                            <small>Tests: ${q.passedTests}/${q.totalTests} | ${q.hasExplanations ? '✓ Explained' : '⚠ No explanation'}</small>
                         </div>
                     </div>
                 `).join('')}
             `;
         }
 
+        function showMyAnswers() {
+            if (!submittedQuizData) {
+                alert('No quiz data found. Please submit the quiz first.');
+                return;
+            }
+
+            const answersList = document.getElementById('answersList');
+            answersList.innerHTML = submittedQuizData.questions.map(q => `
+                <div class="mb-4">
+                    <h5>${q.title} (Score: ${q.score}/${q.maxScore})</h5>
+                    <div class="code-block">${escapeHtml(q.code)}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('answersModal').style.display = 'flex';
+        }
+
+        function closeAnswersModal() {
+            document.getElementById('answersModal').style.display = 'none';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function restartQuiz() {
             currentQuestionIndex = 0;
             userAnswers = {};
             editors = {};
-            
+            cheatingAttempts = 0;
+            tabSwitchCount = 0;
+            submittedQuizData = null;
+            isQuizActive = true;
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
-            
             renderCurrentQuestion();
             updateProgress();
         }
+
+        // Start loading Pyodide immediately
+        window.addEventListener('DOMContentLoaded', initPyodide);
     </script>
 </body>
 </html>
