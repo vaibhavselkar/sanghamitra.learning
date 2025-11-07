@@ -861,7 +861,7 @@ print(has_cycle_directed(graph_without_cycle))`,
                             'B': ['C'],
                             'C': ['A']
                         }], 
-                        expected: "True"
+                        expected: true
                     },
                     { 
                         input: [{
@@ -924,11 +924,11 @@ print(has_cycle_undirected(edges_without_cycle, 4))`,
                 testCases: [
                     { 
                         input: [[(0, 1), (1, 2), (2, 0)], 3], 
-                        expected: "True"
+                        expected: true
                     },
                     { 
                         input: [[(0, 1), (1, 2), (2, 3)], 4], 
-                        expected: "False"
+                        expected: false
                     }
                 ],
                 functionName: 'has_cycle_undirected',
