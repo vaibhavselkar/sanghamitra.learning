@@ -459,7 +459,7 @@ print(has_cycle(graph))`,
                                 'C': ['A']
                             }
                         ], 
-                        expected: "True" 
+                        expected: true 
                     },
                     { 
                         input: [
@@ -470,7 +470,7 @@ print(has_cycle(graph))`,
                                 'D': []
                             }
                         ], 
-                        expected: "False" 
+                        expected: false 
                     },
                     { 
                         input: [
@@ -480,7 +480,7 @@ print(has_cycle(graph))`,
                                 '3': ['1']
                             }
                         ], 
-                        expected: "True"  
+                        expected: true  
                     }
                 ],
                 functionName: 'has_cycle',
@@ -664,15 +664,15 @@ print(can_finish_courses(2, [[1, 0]]))`,
                 testCases: [
                     { 
                         input: [2, [[1, 0]]], 
-                        expected: "True"  
+                        expected: true  
                     },
                     { 
                         input: [2, [[1, 0], [0, 1]]], 
-                        expected: "False" 
+                        expected: false 
                     },
                     { 
                         input: [3, [[1, 0], [2, 1]]], 
-                        expected: "True"  
+                        expected: true  
                     }
                 ],
                 functionName: 'can_finish_courses',
