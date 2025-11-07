@@ -150,13 +150,23 @@
             border-color: #667eea;
             outline: none;
         }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔬 Sorting Algorithms Quiz</h1>
-            <p>Test your knowledge of Quick Sort, Merge Sort, and other sorting algorithms</p>
+            <h1>🔬 Sorting Algorithms & Time Complexity Quiz</h1>
+            <p>Test your knowledge of Quick Sort, Merge Sort, and algorithm time complexity</p>
         </div>
 
         <!-- Loading Screen -->
@@ -170,11 +180,11 @@
         <div id="quizContainer" class="quiz-container" style="display: none;">
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
-                    <span id="progressText">Question 1 of 10</span>
-                    <span id="scoreText">Score: 0/10</span>
+                    <span id="progressText">Question 1 of 20</span>
+                    <span id="scoreText">Score: 0/20</span>
                 </div>
                 <div class="progress">
-                    <div class="progress-bar" id="progressFill" style="width: 10%;"></div>
+                    <div class="progress-bar" id="progressFill" style="width: 5%;"></div>
                 </div>
             </div>
             
@@ -197,7 +207,7 @@
         <!-- Results -->
         <div id="resultsContainer" class="results-container">
             <div class="score-display">
-                <h2 id="finalScore">0/10</h2>
+                <h2 id="finalScore">0/20</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
             </div>
@@ -208,6 +218,7 @@
 
     <script>
         const questions = [
+            // Original 10 questions
             {
                 questionId: 1,
                 title: "What is the worst-case time complexity of Quick Sort?",
@@ -303,6 +314,138 @@
                 maxScore: 1,
                 hasExplanations: true,
                 explanation: "Inversions: (3,1) and (3,2). Total 2 inversions."
+            },
+
+            // New 10 time complexity questions
+            {
+                questionId: 11,
+                title: "Nested Loop Time Complexity",
+                type: "mcq-single",
+                description: "Determine the time complexity of a nested loop where both loops run n times.",
+                code: `for i = 1 to n:
+    for j = 1 to n:
+        print(i, j)`,
+                options: ["O(n)", "O(n log n)", "O(n²)", "O(2ⁿ)"],
+                correctAnswer: "O(n²)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Both loops run n times, so total iterations = n × n = n². Therefore, time complexity is O(n²)."
+            },
+            {
+                questionId: 12,
+                title: "Triangular Loop Time Complexity",
+                type: "mcq-single",
+                description: "Find the time complexity of a nested loop where the inner loop depends on the outer loop.",
+                code: `for i = 1 to n:
+    for j = 1 to i:
+        print(i, j)`,
+                options: ["O(n)", "O(n log n)", "O(n²)", "O(n³)"],
+                correctAnswer: "O(n²)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Total iterations = 1 + 2 + 3 + ... + n = n(n+1)/2 ≈ n²/2. Therefore, time complexity is O(n²)."
+            },
+            {
+                questionId: 13,
+                title: "Logarithmic Loop Time Complexity",
+                type: "mcq-single",
+                description: "If a loop runs as i = 1 to n and the inner loop runs j = 1 to log n, what is the total time complexity?",
+                code: `for i = 1 to n:
+    for j = 1 to log n:
+        # Some constant time operation`,
+                options: ["O(n)", "O(n log n)", "O(log n)", "O(n²)"],
+                correctAnswer: "O(n log n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Outer loop runs n times, inner loop runs log n times. Total iterations = n × log n. Therefore, time complexity is O(n log n)."
+            },
+            {
+                questionId: 14,
+                title: "Binary Search Time Complexity",
+                type: "mcq-single",
+                description: "What is the time complexity of a binary search on a sorted array of n elements?",
+                explanationText: "Binary search repeatedly divides the search interval in half. What is its time complexity?",
+                options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"],
+                correctAnswer: "O(log n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Binary search halves the search space in each iteration. For n elements, it takes log₂n steps. Therefore, time complexity is O(log n)."
+            },
+            {
+                questionId: 15,
+                title: "Doubling Loop Time Complexity",
+                type: "mcq-single",
+                description: "What is the time complexity of a loop where the counter doubles each iteration?",
+                code: `for i = 1; i <= n; i *= 2:
+    print(i)`,
+                options: ["O(n)", "O(log n)", "O(n log n)", "O(2ⁿ)"],
+                correctAnswer: "O(log n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "The loop runs for values: 1, 2, 4, 8, ... until it reaches n. Number of iterations = log₂n. Therefore, time complexity is O(log n)."
+            },
+            {
+                questionId: 16,
+                title: "Halving Loop Time Complexity",
+                type: "mcq-single",
+                description: "Analyze the time complexity of nested loops where the outer loop halves and the inner loop runs proportional to the outer counter.",
+                code: `for i = n; i > 0; i /= 2:
+    for j = 1; j <= i; j++:
+        print(i, j)`,
+                options: ["O(n)", "O(n log n)", "O(log n)", "O(n²)"],
+                correctAnswer: "O(n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Total work = n + n/2 + n/4 + ... ≈ 2n. This forms a geometric series that sums to O(n)."
+            },
+            {
+                questionId: 17,
+                title: "BST Insertion Time Complexity",
+                type: "mcq-single",
+                description: "What is the time complexity of inserting n elements into a balanced binary search tree?",
+                explanationText: "For a balanced BST, each insertion takes O(log n) time. What is the total time for n insertions?",
+                options: ["O(n)", "O(log n)", "O(n log n)", "O(n²)"],
+                correctAnswer: "O(n log n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Each insertion in a balanced BST takes O(log n) time. For n insertions, total time = n × O(log n) = O(n log n)."
+            },
+            {
+                questionId: 18,
+                title: "Merging Sorted Arrays Time Complexity",
+                type: "mcq-single",
+                description: "What is the time complexity of merging two sorted arrays of size n and m?",
+                explanationText: "The merge operation in Merge Sort compares elements from both arrays. What is its time complexity?",
+                options: ["O(1)", "O(n)", "O(n + m)", "O(n log n)"],
+                correctAnswer: "O(n + m)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Merging requires comparing elements from both arrays until one is exhausted. In worst case, it requires n + m - 1 comparisons. Therefore, time complexity is O(n + m)."
+            },
+            {
+                questionId: 19,
+                title: "Step Loop Time Complexity",
+                type: "mcq-single",
+                description: "Find the time complexity of nested loops where the inner loop increments by 2.",
+                code: `for i = 1; i <= n; i++:
+    for j = 1; j <= n; j += 2:
+        print(i, j)`,
+                options: ["O(n)", "O(n log n)", "O(n²)", "O(n²/2)"],
+                correctAnswer: "O(n²)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Outer loop runs n times. Inner loop runs n/2 times (but constant factors are ignored in Big O). Total iterations = n × (n/2) = n²/2 = O(n²)."
+            },
+            {
+                questionId: 20,
+                title: "Quick Sort Average Case Complexity",
+                type: "mcq-single",
+                description: "What is the average-case time complexity of Quick Sort?",
+                options: ["O(n)", "O(n log n)", "O(n²)", "O(log n)"],
+                correctAnswer: "O(n log n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "On average, Quick Sort chooses good pivots that split the array evenly. The recurrence is T(n) = 2T(n/2) + O(n), which solves to O(n log n)."
             }
         ];
 
@@ -356,6 +499,25 @@
                 <div class="question-card">
                     <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
             `;
+
+            // Add description if available
+            if (question.description) {
+                questionHTML += `<p class="mb-3">${question.description}</p>`;
+            }
+
+            // Add explanation text if available
+            if (question.explanationText) {
+                questionHTML += `<p class="mb-3">${question.explanationText}</p>`;
+            }
+
+            // Add code block if available
+            if (question.code) {
+                questionHTML += `
+                    <div class="code-block">
+                        <pre>${question.code}</pre>
+                    </div>
+                `;
+            }
 
             if (question.type === 'mcq-single') {
                 questionHTML += `<div class="options-container mt-3">`;
@@ -425,7 +587,9 @@
             document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
-            document.getElementById('nextBtn').disabled = currentQuestionIndex === questions.length - 1;
+            
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish →' : 'Next →';
             
             // Calculate current score
             const currentScore = calculateCurrentScore();
@@ -449,7 +613,7 @@
             const quizData = {
                 username: currentUser.username,
                 email: currentUser.email,
-                topic: "Sorting Algorithms",
+                topic: "Sorting Algorithms & Time Complexity",
                 score: calculateCurrentScore(),
                 maxScore: questions.length,
                 percentage: Math.round((calculateCurrentScore() / questions.length) * 100),
@@ -473,7 +637,7 @@
                 }))
             };
 
-            // Save to backend  api/algorithm-submissions
+            // Save to backend api/algorithm-submissions
             try {
                 const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
                     method: 'POST',
