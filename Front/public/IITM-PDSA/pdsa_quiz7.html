@@ -3,18 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Divide & Conquer Algorithms Quiz</title>
-    <!-- Include Monaco Editor for code editing -->
+    <title>Advanced Algorithms Programming Quiz</title>
+    <!-- Pyodide for Python execution -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <!-- Monaco Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Anti-cheating CSS */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Allow text selection ONLY in code editors */
+        .monaco-editor,
+        .monaco-editor *,
+        .view-lines,
+        .view-line {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            -webkit-print-color-adjust: exact;
+            pointer-events: auto;
         }
-
+        
+        /* Hide scrollbars to prevent inspection */
+        ::-webkit-scrollbar {
+            width: 8px;
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        /* Blur content when window loses focus */
+        body.blurred {
+            filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        /* Warning overlay */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 2rem;
+            text-align: center;
+            flex-direction: column;
+        }
+        
+        .warning-overlay h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -23,16 +94,13 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
             text-align: center;
         }
-
         .quiz-container { padding: 30px; }
-
         .question-card {
             background: #f8f9fa;
             border-radius: 12px;
@@ -46,7 +114,6 @@
             margin: 20px 0;
             height: 400px;
         }
-
         .test-cases {
             background: #e8f4fd;
             border: 1px solid #bee5eb;
@@ -54,26 +121,22 @@
             padding: 15px;
             margin: 15px 0;
         }
-
         .test-result {
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
             font-family: monospace;
         }
-
         .test-passed {
             background: #d4edda;
             border: 1px solid #c3e6cb;
             color: #155724;
         }
-
         .test-failed {
             background: #f8d7da;
             border: 1px solid #f5c6cb;
             color: #721c24;
         }
-
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -84,16 +147,13 @@
             cursor: pointer;
             transition: transform 0.2s ease;
         }
-
         .btn:hover { transform: translateY(-2px); }
-
         .progress-bar {
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             height: 8px;
             border-radius: 4px;
             transition: width 0.3s ease;
         }
-
         .score-display {
             background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
             color: white;
@@ -102,10 +162,7 @@
             margin-bottom: 30px;
             text-align: center;
         }
-
         .results-container { display: none; padding: 30px; }
-        .loading { display: none; }
-        
         .explanation-section {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -113,20 +170,146 @@
             padding: 15px;
             margin: 15px 0;
         }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(102, 126, 234, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            color: white;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        
+        /* Security indicator */
+        .security-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .security-indicator.warning {
+            background: rgba(220, 53, 69, 0.9);
+            animation: pulse 1s infinite;
+        }
+        
+        .security-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        /* Answers Modal */
+        .answers-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .answers-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            width: 800px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
     </style>
 </head>
 <body>
+    <!-- Security Indicator -->
+    <div id="securityIndicator" class="security-indicator">
+        <div class="security-dot"></div>
+        <span id="securityText">Monitoring Active</span>
+    </div>
+
+    <!-- Warning overlay -->
+    <div id="warningOverlay" class="warning-overlay">
+        <div>
+            <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
+            <p style="font-size: 1.5rem;">Please return to the quiz window</p>
+            <p style="font-size: 1.2rem;">Your activity is being monitored and logged</p>
+            <p style="font-size: 1rem; margin-top: 20px;">Attempts logged: <span id="attemptCount">0</span></p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading Python Environment...</div>
+        <small style="margin-top: 10px; opacity: 0.8;">This may take 10-15 seconds</small>
+    </div>
+
+    <!-- Answers Modal -->
+    <div id="answersModal" class="answers-modal">
+        <div class="answers-content">
+            <h3>📝 Your Submitted Answers</h3>
+            <div id="answersList"></div>
+            <div class="text-center mt-4">
+                <button class="btn btn-secondary" onclick="closeAnswersModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>🔬 Divide & Conquer Algorithms Quiz</h1>
-            <p>Solve algorithmic problems using Divide and Conquer approach</p>
-        </div>
-
-        <!-- Loading Screen -->
-        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Quiz...</h3>
-            <p>Preparing code editor and test environment</p>
+            <h1>🔬 Advanced Algorithms Programming Quiz</h1>
+            <p>Implement advanced algorithms including Balanced Search Trees, Scheduling, and Huffman Coding</p>
+            <small style="opacity: 0.8;">⚠️ Anti-cheating measures active</small>
         </div>
 
         <!-- Quiz Container -->
@@ -166,382 +349,489 @@
                 <p>Quiz Completed!</p>
             </div>
             <div id="detailedResults"></div>
-            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+            <div class="text-center mt-4">
+                <button class="btn btn-info me-3" onclick="showMyAnswers()">📋 View My Answers</button>
+                <button class="btn" onclick="restartQuiz()">🔄 Take Quiz Again</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Quiz questions with Divide & Conquer problems
+        // Anti-cheating variables
+        let cheatingAttempts = 0;
+        let isQuizActive = false;
+        let devToolsWarned = false;
+        let tabSwitchCount = 0;
+        let lastActivityTime = Date.now();
+        
+        // Global Pyodide instance
+        let pyodide = null;
+        let pyodideReady = false;
+
         const questions = [
             {
                 id: 1,
-                title: "Binary Search Implementation",
-                description: "Implement binary search using divide and conquer approach",
-                prompt: `Write a function binary_search(arr, target) that returns the index of target in sorted array arr.
+                title: "AVL Tree Insertion",
+                description: "Implement AVL tree insertion with balancing operations.",
+                prompt: `Implement AVL tree insertion with automatic balancing.
 
 REQUIREMENTS:
-- Input: sorted array arr, target value
-- Output: index of target if found, -1 otherwise
-- Use divide and conquer approach
-- Time complexity: O(log n)
+- Implement Node class with value, left, right, height
+- Implement insert(root, key) function
+- Implement balance factor calculation and rotations
+- Return the root after insertion`,
+                starterCode: `class Node:
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+        self.height = 1
 
-`,
+def get_height(node):
+    if not node:
+        return 0
+    return node.height
 
-                starterCode: `def binary_search(arr, target):
-    """
-    Implement binary search using divide and conquer.
-    Args: arr (list) - sorted list, target - value to find
-    Returns: int - index of target or -1 if not found
-    """
-    # Write your implementation here
-    
-    # === EFFICIENCY EXPLANATION (Required) ===
-    # Add your analysis here
-    pass`,
+def get_balance(node):
+    if not node:
+        return 0
+    return get_height(node.left) - get_height(node.right)
 
+def left_rotate(z):
+    # Implement left rotation
+    pass
+
+def right_rotate(z):
+    # Implement right rotation
+    pass
+
+def insert(root, key):
+    # Implement AVL insertion with balancing
+    pass
+
+# Test your implementation
+root = None
+for key in [10, 20, 30, 40, 50, 25]:
+    root = insert(root, key)`,
                 testCases: [
-                    { input: [[1, 2, 3, 4, 5], 3], expected: true },
-                    { input: [[1, 2, 3, 4, 5], 6], expected: true },
-                    { input: [[], 1], expected: true },
-                    { input: [[5], 5], expected: true },
-                    { input: [[1, 3, 5, 7, 9], 1], expected: true }
+                    { 
+                        input: [[10, 20, 30]], 
+                        expected: { 
+                            "root_key": 20, 
+                            "left_key": 10, 
+                            "right_key": 30,
+                            "balanced": true
+                        } 
+                    },
+                    { 
+                        input: [[40, 30, 20]], 
+                        expected: { 
+                            "root_key": 30, 
+                            "left_key": 20, 
+                            "right_key": 40,
+                            "balanced": true
+                        } 
+                    }
                 ],
-                
+                functionName: 'insert',
                 points: 10
             },
-            
             {
                 id: 2,
-                title: "Merge Sort Algorithm",
-                description: "Implement merge sort using divide and conquer strategy",
-                prompt: `Write a function merge_sort(arr) that sorts an array using merge sort.
+                title: "Red-Black Tree Insertion",
+                description: "Implement Red-Black tree insertion following the rules.",
+                prompt: `Implement Red-Black tree insertion with color fixing.
 
 REQUIREMENTS:
-- Input: unsorted array arr
-- Output: sorted array in ascending order
-- Use divide and conquer approach
-- Explain time and space complexity
+- Implement Node class with color (RED/BLACK)
+- Implement insert and fix_colors functions
+- Maintain Red-Black tree properties
+- Return the root after insertion`,
+                starterCode: `RED = 'RED'
+BLACK = 'BLACK'
 
-`,
+class RBNode:
+    def __init__(self, key, color=RED):
+        self.key = key
+        self.color = color
+        self.left = None
+        self.right = None
+        self.parent = None
 
-                starterCode: `def merge_sort(arr):
-    """
-    Sort array using merge sort algorithm.
-    Args: arr (list) - unsorted list
-    Returns: list - sorted list in ascending order
-    """
-    # Write your implementation here
-    
-    # === COMPLEXITY ANALYSIS (Required) ===
-    # Add your analysis here
-    pass`,
+def rb_insert(root, key):
+    # Implement Red-Black tree insertion
+    pass
 
+def fix_colors(node):
+    # Implement color fixing after insertion
+    pass
+
+# Test your implementation
+root = None
+for key in [7, 3, 18, 10, 22, 8, 11]:
+    root = rb_insert(root, key)`,
                 testCases: [
-                    { input: [[5, 2, 8, 1, 9]], expected: true },
-                    { input: [[1]], expected: true },
-                    { input: [[3, 3, 3]], expected: true },
-                    { input: [[9, 8, 7, 6]], expected: true },
-                    { input: [[]], expected: true }
+                    { 
+                        input: [[10, 5, 15]], 
+                        expected: { 
+                            "root_color": BLACK,
+                            "valid_rb": true
+                        } 
+                    },
+                    { 
+                        input: [[1, 2, 3, 4, 5]], 
+                        expected: { 
+                            "root_color": BLACK,
+                            "valid_rb": true
+                        } 
+                    }
                 ],
-                
+                functionName: 'rb_insert',
                 points: 10
             },
-            
             {
                 id: 3,
-                title: "Quick Sort Implementation",
-                description: "Implement quick sort with partition function",
-                prompt: `Write a function quick_sort(arr) that sorts an array using quick sort.
+                title: "FCFS Scheduling",
+                description: "Implement First-Come-First-Served CPU scheduling algorithm.",
+                prompt: `Implement FCFS scheduling algorithm.
 
 REQUIREMENTS:
-- Input: unsorted array arr
-- Output: sorted array in ascending order
-- Implement partition function
-- Handle edge cases
-
-`,
-
-                starterCode: `def quick_sort(arr):
+- Input: List of processes with arrival_time and burst_time
+- Output: Dictionary with completion_time, turnaround_time, waiting_time
+- Calculate average waiting time and turnaround time`,
+                starterCode: `def fcfs_scheduling(processes):
     """
-    Sort array using quick sort algorithm.
-    Args: arr (list) - unsorted list
-    Returns: list - sorted list in ascending order
+    processes: list of tuples (process_id, arrival_time, burst_time)
+    returns: dictionary with process metrics
     """
-    # Write your implementation here
-    
-    # === PIVOT SELECTION ANALYSIS (Required) ===
-    # Add your analysis here
-    pass`,
+    # Your implementation here
+    pass
 
+# Test your function
+processes = [(1, 0, 10), (2, 1, 5), (3, 2, 8)]
+print(fcfs_scheduling(processes))`,
                 testCases: [
-                    { input: [[5, 2, 8, 1, 9]], expected: true },
-                    { input: [[1]], expected: true },
-                    { input: [[3, 3, 3]], expected: true },
-                    { input: [[9, 8, 7, 6]], expected: true },
-                    { input: [[]], expected: true }
+                    { 
+                        input: [[[1, 0, 10], [2, 1, 5], [3, 2, 8]]], 
+                        expected: { 
+                            "avg_waiting": 6.33,
+                            "avg_turnaround": 13.33,
+                            "completion_times": [10, 15, 23]
+                        } 
+                    },
+                    { 
+                        input: [[[1, 0, 5], [2, 2, 3]]], 
+                        expected: { 
+                            "avg_waiting": 1.5,
+                            "avg_turnaround": 4.5,
+                            "completion_times": [5, 8]
+                        } 
+                    }
                 ],
-                
+                functionName: 'fcfs_scheduling',
                 points: 10
             },
-            
             {
                 id: 4,
-                title: "Find Maximum Subarray Sum (Kadane's Algorithm)",
-                description: "Find maximum sum of contiguous subarray using divide and conquer",
-                prompt: `Write a function max_subarray_sum(arr) that finds maximum sum of contiguous subarray.
+                title: "SJF Scheduling",
+                description: "Implement Shortest Job First (Non-preemptive) scheduling.",
+                prompt: `Implement SJF non-preemptive scheduling algorithm.
 
 REQUIREMENTS:
-- Input: array of integers (can contain negative numbers)
-- Output: maximum sum of contiguous subarray
-- Use divide and conquer approach
-- Handle all negative numbers case
-
-`,
-
-                starterCode: `def max_subarray_sum(arr):
+- Input: List of processes with arrival_time and burst_time
+- Output: Dictionary with completion_time, turnaround_time, waiting_time
+- Always select the process with shortest burst time`,
+                starterCode: `def sjf_scheduling(processes):
     """
-    Find maximum sum of contiguous subarray.
-    Args: arr (list) - list of integers
-    Returns: int - maximum sum
+    processes: list of tuples (process_id, arrival_time, burst_time)
+    returns: dictionary with process metrics
     """
-    # Write your implementation here
-    
-    # === ALGORITHM ANALYSIS (Required) ===
-    # Add your analysis here
-    pass`,
+    # Your implementation here
+    pass
 
+# Test your function
+processes = [(1, 0, 6), (2, 2, 8), (3, 3, 7), (4, 5, 3)]
+print(sjf_scheduling(processes))`,
                 testCases: [
-                    { input: [[-2, 1, -3, 4, -1, 2, 1, -5, 4]], expected: true },
-                    { input: [[1, 2, 3, 4, 5]], expected: true },
-                    { input: [[-1, -2, -3]], expected: true },
-                    { input: [[5]], expected: true },
-                    { input: [[-2, -1, -3]], expected: true }
+                    { 
+                        input: [[[1, 0, 6], [2, 2, 8], [3, 3, 7], [4, 5, 3]]], 
+                        expected: { 
+                            "avg_waiting": 7.0,
+                            "avg_turnaround": 13.0,
+                            "completion_times": [6, 24, 16, 9]
+                        } 
+                    },
+                    { 
+                        input: [[[1, 0, 8], [2, 1, 4], [3, 2, 9]]], 
+                        expected: { 
+                            "avg_waiting": 4.67,
+                            "avg_turnaround": 10.67,
+                            "completion_times": [8, 12, 21]
+                        } 
+                    }
                 ],
-                
+                functionName: 'sjf_scheduling',
                 points: 10
             },
-            
             {
                 id: 5,
-                title: "Count Inversions in Array",
-                description: "Count inversions using modified merge sort",
-                prompt: `Write a function count_inversions(arr) that counts inversions in array.
+                title: "Round Robin Scheduling",
+                description: "Implement Round Robin CPU scheduling algorithm.",
+                prompt: `Implement Round Robin scheduling with time quantum.
 
 REQUIREMENTS:
-- Input: array of integers
-- Output: number of inversions
-- Use modified merge sort approach
-- Inversion: i < j but arr[i] > arr[j]
-
-`,
-
-                starterCode: `def count_inversions(arr):
+- Input: List of processes and time quantum
+- Output: Dictionary with completion_time, turnaround_time, waiting_time
+- Handle processes in circular fashion`,
+                starterCode: `def round_robin(processes, time_quantum):
     """
-    Count number of inversions in array.
-    Args: arr (list) - list of integers
-    Returns: int - number of inversions
+    processes: list of tuples (process_id, arrival_time, burst_time)
+    time_quantum: integer time slice
+    returns: dictionary with process metrics
     """
-    # Write your implementation here
-    
-    # === EFFICIENCY EXPLANATION (Required) ===
-    # Add your analysis here
-    pass`,
+    # Your implementation here
+    pass
 
+# Test your function
+processes = [(1, 0, 10), (2, 1, 5), (3, 2, 8)]
+print(round_robin(processes, 2))`,
                 testCases: [
-                    { input: [[2, 4, 1, 3, 5]], expected: true },
-                    { input: [[1, 2, 3, 4, 5]], expected: true },
-                    { input: [[5, 4, 3, 2, 1]], expected: true },
-                    { input: [[1]], expected: true },
-                    { input: [[1, 3, 2]], expected: true }
+                    { 
+                        input: [[[1, 0, 10], [2, 1, 5], [3, 2, 8]], 2], 
+                        expected: { 
+                            "avg_waiting": 11.33,
+                            "avg_turnaround": 18.33,
+                            "completion_times": [20, 11, 23]
+                        } 
+                    },
+                    { 
+                        input: [[[1, 0, 5], [2, 1, 3]], 3], 
+                        expected: { 
+                            "avg_waiting": 2.5,
+                            "avg_turnaround": 5.5,
+                            "completion_times": [8, 6]
+                        } 
+                    }
                 ],
-                
+                functionName: 'round_robin',
                 points: 10
             },
-            
             {
                 id: 6,
-                title: "Closest Pair of Points",
-                description: "Find closest pair of points using divide and conquer",
-                prompt: `Write a function closest_pair(points) that finds the closest pair of points.
+                title: "Priority Scheduling",
+                description: "Implement Priority-based CPU scheduling (Non-preemptive).",
+                prompt: `Implement Priority scheduling algorithm.
 
 REQUIREMENTS:
-- Input: list of points [(x1, y1), (x2, y2), ...]
-- Output: tuple of closest points and their distance
-- Use divide and conquer approach
-- Handle base cases
-
-`,
-
-                starterCode: `import math
-
-def closest_pair(points):
+- Input: List of processes with priority (lower number = higher priority)
+- Output: Dictionary with completion_time, turnaround_time, waiting_time
+- Sort processes by priority`,
+                starterCode: `def priority_scheduling(processes):
     """
-    Find closest pair of points using divide and conquer.
-    Args: points (list) - list of tuples [(x,y)]
-    Returns: tuple (point1, point2, distance)
+    processes: list of tuples (process_id, arrival_time, burst_time, priority)
+    returns: dictionary with process metrics
     """
-    # Write your implementation here
-    
-    # === ALGORITHM ANALYSIS (Required) ===
-    # Add your analysis here
-    pass`,
+    # Your implementation here
+    pass
 
+# Test your function
+processes = [(1, 0, 10, 3), (2, 0, 5, 1), (3, 0, 8, 2)]
+print(priority_scheduling(processes))`,
                 testCases: [
-                    { input: [[(1, 2), (3, 4), (5, 6)]], expected: true },
-                    { input: [[(0, 0), (1, 1), (2, 2)]], expected: true },
-                    { input: [[(1, 1)]], expected: true },
-                    { input: [[(1, 1), (1, 1)]], expected: true },
-                    { input: [[(0, 0), (3, 4)]], expected: true }
+                    { 
+                        input: [[[1, 0, 10, 3], [2, 0, 5, 1], [3, 0, 8, 2]]], 
+                        expected: { 
+                            "avg_waiting": 6.67,
+                            "avg_turnaround": 13.67,
+                            "completion_times": [23, 5, 13]
+                        } 
+                    },
+                    { 
+                        input: [[[1, 0, 8, 2], [2, 1, 4, 1]]], 
+                        expected: { 
+                            "avg_waiting": 3.5,
+                            "avg_turnaround": 7.5,
+                            "completion_times": [12, 5]
+                        } 
+                    }
                 ],
-                
+                functionName: 'priority_scheduling',
                 points: 10
             },
-            
             {
                 id: 7,
-                title: "Matrix Multiplication (Strassen's Algorithm)",
-                description: "Implement Strassen's algorithm for matrix multiplication",
-                prompt: `Write a function strassen_multiply(A, B) that multiplies two matrices.
+                title: "Huffman Coding - Tree Building",
+                description: "Build Huffman coding tree from character frequencies.",
+                prompt: `Implement Huffman tree building from character frequencies.
 
 REQUIREMENTS:
-- Input: two n x n matrices A and B
-- Output: product matrix C = A * B
-- Use Strassen's divide and conquer algorithm
-- Handle 2x2 base case
+- Input: Dictionary of characters and their frequencies
+- Output: Huffman tree root node
+- Use min-heap to build the tree
+- Return the root of Huffman tree`,
+                starterCode: `import heapq
 
-`,
-
-                starterCode: `def strassen_multiply(A, B):
-    """
-    Multiply matrices using Strassen's algorithm.
-    Args: A, B (list) - n x n matrices
-    Returns: list - product matrix
-    """
-    # Write your implementation here
+class HuffmanNode:
+    def __init__(self, char, freq):
+        self.char = char
+        self.freq = freq
+        self.left = None
+        self.right = None
     
-    # === COMPLEXITY ANALYSIS (Required) ===
-    # Add your analysis here
-    pass`,
+    def __lt__(self, other):
+        return self.freq < other.freq
 
+def build_huffman_tree(freq_dict):
+    """
+    freq_dict: dictionary with characters as keys and frequencies as values
+    returns: root node of Huffman tree
+    """
+    # Your implementation here
+    pass
+
+# Test your function
+freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13, 'e': 16, 'f': 45}
+print(build_huffman_tree(freq))`,
                 testCases: [
-                    { input: [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], expected: true },
-                    { input: [[[1, 0], [0, 1]], [[2, 3], [4, 5]]], expected: true },
-                    { input: [[[2]], [[3]]], expected: true },
-                    { input: [[[1, 1], [1, 1]], [[1, 1], [1, 1]]], expected: true },
-                    { input: [[[0, 0], [0, 0]], [[1, 1], [1, 1]]], expected: true }
+                    { 
+                        input: [{'a': 5, 'b': 9, 'c': 12, 'd': 13}], 
+                        expected: { 
+                            "root_freq": 39,
+                            "valid_tree": true
+                        } 
+                    },
+                    { 
+                        input: [{'x': 10, 'y': 15, 'z': 30}], 
+                        expected: { 
+                            "root_freq": 55,
+                            "valid_tree": true
+                        } 
+                    }
                 ],
-                
+                functionName: 'build_huffman_tree',
                 points: 10
             },
-            
             {
                 id: 8,
-                title: "Find Peak Element in Array",
-                description: "Find a peak element using divide and conquer",
-                prompt: `Write a function find_peak(arr) that finds a peak element in array.
+                title: "Huffman Coding - Code Generation",
+                description: "Generate Huffman codes from Huffman tree.",
+                prompt: `Generate Huffman codes by traversing the Huffman tree.
 
 REQUIREMENTS:
-- Input: array of integers
-- Output: a peak element (element ≥ neighbors)
-- Use divide and conquer approach
-- Handle edge cases
-
-`,
-
-                starterCode: `def find_peak(arr):
+- Input: Root of Huffman tree
+- Output: Dictionary with characters as keys and their Huffman codes as values
+- Traverse the tree to assign 0 for left and 1 for right`,
+                starterCode: `def generate_huffman_codes(root):
     """
-    Find a peak element in array.
-    Args: arr (list) - list of integers
-    Returns: int - peak element
+    root: root node of Huffman tree
+    returns: dictionary with characters and their Huffman codes
     """
-    # Write your implementation here
-    
-    # === EFFICIENCY EXPLANATION (Required) ===
-    # Add your analysis here
-    pass`,
+    # Your implementation here
+    pass
 
+def build_codes(node, current_code, codes):
+    # Helper function for recursive code generation
+    pass
+
+# Test your function
+# First build tree, then generate codes
+freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13}
+tree = build_huffman_tree(freq)
+codes = generate_huffman_codes(tree)
+print(codes)`,
                 testCases: [
-                    { input: [[1, 3, 20, 4, 1, 0]], expected: true },
-                    { input: [[1, 2, 3, 4, 5]], expected: true },
-                    { input: [[5, 4, 3, 2, 1]], expected: true },
-                    { input: [[1]], expected: true },
-                    { input: [[2, 2, 2]], expected: true }
+                    { 
+                        input: [{'a': 40, 'b': 30, 'c': 20, 'd': 10}], 
+                        expected: { 
+                            "codes_count": 4,
+                            "prefix_free": true
+                        } 
+                    },
+                    { 
+                        input: [{'p': 35, 'q': 25, 'r': 20, 's': 20}], 
+                        expected: { 
+                            "codes_count": 4,
+                            "prefix_free": true
+                        } 
+                    }
                 ],
-                
+                functionName: 'generate_huffman_codes',
                 points: 10
             },
-            
             {
                 id: 9,
-                title: "Majority Element in Array",
-                description: "Find majority element using divide and conquer",
-                prompt: `Write a function majority_element(arr) that finds majority element.
+                title: "Huffman Encoding",
+                description: "Encode a string using Huffman coding.",
+                prompt: `Encode a string using generated Huffman codes.
 
 REQUIREMENTS:
-- Input: array of integers
-- Output: majority element (appears > n/2 times)
-- Use divide and conquer approach
-- Return None if no majority element
-
-`,
-
-                starterCode: `def majority_element(arr):
+- Input: String to encode and Huffman codes dictionary
+- Output: Encoded binary string
+- Replace each character with its Huffman code`,
+                starterCode: `def huffman_encode(text, huffman_codes):
     """
-    Find majority element in array.
-    Args: arr (list) - list of integers
-    Returns: int or None - majority element
+    text: string to encode
+    huffman_codes: dictionary from generate_huffman_codes
+    returns: encoded binary string
     """
-    # Write your implementation here
-    
-    # === ALGORITHM ANALYSIS (Required) ===
-    # Add your analysis here
-    pass`,
+    # Your implementation here
+    pass
 
+# Test your function
+freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13}
+tree = build_huffman_tree(freq)
+codes = generate_huffman_codes(tree)
+encoded = huffman_encode("aabbccdd", codes)
+print(encoded)`,
                 testCases: [
-                    { input: [[3, 2, 3]], expected: true },
-                    { input: [[2, 2, 1, 1, 1, 2, 2]], expected: true },
-                    { input: [[1, 2, 3]], expected: true },
-                    { input: [[1]], expected: true },
-                    { input: [[1, 1, 2, 2]], expected: true }
+                    { 
+                        input: ["abc", {'a': '0', 'b': '10', 'c': '11'}], 
+                        expected: "01011" 
+                    },
+                    { 
+                        input: ["aabb", {'a': '0', 'b': '1'}], 
+                        expected: "0011" 
+                    }
                 ],
-                
+                functionName: 'huffman_encode',
                 points: 10
             },
-            
             {
                 id: 10,
-                title: "Find Kth Largest Element",
-                description: "Find kth largest element using quickselect algorithm",
-                prompt: `Write a function find_kth_largest(arr, k) that finds kth largest element.
+                title: "Huffman Decoding",
+                description: "Decode a binary string using Huffman tree.",
+                prompt: `Decode a binary string using Huffman tree.
 
 REQUIREMENTS:
-- Input: array of integers, k (1-based index)
-- Output: kth largest element
-- Use quickselect (divide and conquer)
-- Handle edge cases
-
-`,
-
-                starterCode: `def find_kth_largest(arr, k):
+- Input: Encoded binary string and Huffman tree root
+- Output: Decoded original string
+- Traverse the tree based on binary bits (0=left, 1=right)`,
+                starterCode: `def huffman_decode(encoded_text, root):
     """
-    Find kth largest element in array.
-    Args: arr (list) - list of integers, k (int)
-    Returns: int - kth largest element
+    encoded_text: binary string to decode
+    root: root of Huffman tree
+    returns: decoded string
     """
-    # Write your implementation here
-    
-    # === ALGORITHM ANALYSIS (Required) ===
-    # Add your analysis here
-    pass`,
+    # Your implementation here
+    pass
 
+# Test your function
+freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13}
+tree = build_huffman_tree(freq)
+encoded = "01011"  # Example encoded string
+decoded = huffman_decode(encoded, tree)
+print(decoded)`,
                 testCases: [
-                    { input: [[3, 2, 1, 5, 6, 4], 2], expected: true },
-                    { input: [[3, 2, 3, 1, 2, 4, 5, 5, 6], 4], expected: true },
-                    { input: [[1], 1], expected: true },
-                    { input: [[1, 2, 3, 4, 5], 1], expected: true },
-                    { input: [[5, 4, 3, 2, 1], 5], expected: true }
+                    { 
+                        input: ["01011", {'a': '0', 'b': '10', 'c': '11'}], 
+                        expected: "abc" 
+                    },
+                    { 
+                        input: ["0011", {'a': '0', 'b': '1'}], 
+                        expected: "aabb" 
+                    }
                 ],
-                
+                functionName: 'huffman_decode',
                 points: 10
             }
         ];
@@ -550,45 +840,236 @@ REQUIREMENTS:
         let userAnswers = {};
         let currentUser = {};
         let editors = {};
+        let submittedQuizData = null;
 
-        // Initialize Monaco Editor
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
-            initializeQuiz();
-        });
-
-       
-        async function initializeQuiz() {
-    console.log('🚀 Initializing quiz...');
-    
-    // Initialize with test user first (fallback)
-    currentUser = { username: 'TestUser', email: 'test@example.com' };
-    userAnswers = {};
-    
-    // Try to get user session (non-blocking)
-    try {
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-            credentials: 'include',
-            mode: 'cors'
-        });
+        // ===== ANTI-CHEATING SYSTEM =====
         
-        if (response.ok) {
-            const data = await response.json();
-            if (data.username && data.email) {
-                currentUser = { username: data.username, email: data.email };
-                console.log('✅ User logged in:', currentUser);
+        function initializeAntiCheating() {
+            // Disable right-click everywhere except code editor
+            document.addEventListener('contextmenu', function(e) {
+                if (!e.target.closest('.monaco-editor')) {
+                    e.preventDefault();
+                    recordCheatingAttempt('right_click');
+                    return false;
+                }
+            });
+            
+            // Disable keyboard shortcuts (except in editor)
+            document.addEventListener('keydown', function(e) {
+                // Allow all keys in Monaco editor
+                if (e.target.closest('.monaco-editor') || e.target.classList.contains('monaco-editor')) {
+                    return true;
+                }
+                
+                // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
+                if (e.keyCode === 123 || // F12
+                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
+                    (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
+                    (e.ctrlKey && e.keyCode === 83) || // Ctrl+S
+                    e.keyCode === 44) { // Print Screen
+                    e.preventDefault();
+                    recordCheatingAttempt('keyboard_shortcut');
+                    return false;
+                }
+                
+                // Disable Ctrl+A, Ctrl+C, Ctrl+V outside editor
+                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                    e.preventDefault();
+                    recordCheatingAttempt('copy_attempt');
+                    return false;
+                }
+            });
+            
+            // Detect developer tools
+            let devtools = {open: false, orientation: null};
+            const threshold = 160;
+            
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > threshold || 
+                    window.outerWidth - window.innerWidth > threshold) {
+                    if (!devtools.open && isQuizActive) {
+                        devtools.open = true;
+                        recordCheatingAttempt('developer_tools');
+                        if (!devToolsWarned) {
+                            alert('⚠️ Developer tools detected! This attempt has been logged.\n\nContinued violations may result in quiz auto-submission.');
+                            devToolsWarned = true;
+                        }
+                    }
+                } else {
+                    devtools.open = false;
+                }
+            }, 500);
+            
+            // Detect window focus changes (tab switching)
+            window.addEventListener('blur', function() {
+                if (isQuizActive) {
+                    tabSwitchCount++;
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                    document.getElementById('attemptCount').textContent = cheatingAttempts;
+                    recordCheatingAttempt('window_blur_tab_switch');
+                }
+            });
+            
+            window.addEventListener('focus', function() {
+                document.body.classList.remove('blurred');
+                document.getElementById('warningOverlay').style.display = 'none';
+                updateSecurityIndicator();
+            });
+            
+            // Monitor for screenshot attempts
+            document.addEventListener('keyup', function(e) {
+                if (e.keyCode === 44 && isQuizActive) { // Print Screen released
+                    recordCheatingAttempt('screenshot_attempt');
+                    alert('⚠️ Screenshot attempt detected and logged!');
+                }
+            });
+            
+            // Disable printing
+            window.addEventListener('beforeprint', function(e) {
+                if (isQuizActive) {
+                    recordCheatingAttempt('print_attempt');
+                    e.preventDefault();
+                    alert('⚠️ Printing is disabled during the quiz.');
+                    return false;
+                }
+            });
+            
+            // Monitor visibility changes
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && isQuizActive) {
+                    recordCheatingAttempt('visibility_change');
+                }
+            });
+            
+            // Prevent text selection outside editor
+            document.addEventListener('selectstart', function(e) {
+                if (!e.target.closest('.monaco-editor') && isQuizActive) {
+                    recordCheatingAttempt('text_selection');
+                    return false;
+                }
+            });
+        }
+        
+        // Record cheating attempts
+        function recordCheatingAttempt(type) {
+            cheatingAttempts++;
+            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+            
+            // Update UI
+            document.getElementById('attemptCount').textContent = cheatingAttempts;
+            updateSecurityIndicator(true);
+            
+            // Log to server
+            if (currentUser.username && currentUser.email) {
+                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: currentUser.username,
+                        email: currentUser.email,
+                        cheatingType: type,
+                        timestamp: new Date(),
+                        currentQuestion: currentQuestionIndex + 1,
+                        totalAttempts: cheatingAttempts
+                    })
+                }).catch(err => console.error('Failed to log cheating attempt:', err));
+            }
+            
+            // Auto-submit after too many attempts
+            if (cheatingAttempts >= 10) {
+                alert('⚠️ Too many suspicious activities detected!\n\nYour quiz will be auto-submitted now.');
+                submitQuiz();
+            } else if (cheatingAttempts >= 5) {
+                alert(`⚠️ Warning: ${cheatingAttempts} suspicious activities detected!\n\nQuiz will auto-submit at 10 attempts.`);
             }
         }
-    } catch (error) {
-        console.log('ℹ️ Using test user for demo');
-    }
-    
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('quizContainer').style.display = 'block';
-    
-    renderCurrentQuestion();
-    updateProgress();
-}
+        
+        // Update security indicator
+        function updateSecurityIndicator(warning = false) {
+            const indicator = document.getElementById('securityIndicator');
+            const text = document.getElementById('securityText');
+            
+            if (warning) {
+                indicator.classList.add('warning');
+                text.textContent = `${cheatingAttempts} Violations Detected`;
+                setTimeout(() => {
+                    indicator.classList.remove('warning');
+                    text.textContent = 'Monitoring Active';
+                }, 3000);
+            }
+        }
+
+        // ===== QUIZ INITIALIZATION =====
+
+        async function initPyodide() {
+            const loadingText = document.querySelector('.loading-text');
+            
+            try {
+                loadingText.textContent = 'Loading Python interpreter...';
+                
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+                });
+                
+                loadingText.textContent = 'Python ready! Initializing quiz...';
+                pyodideReady = true;
+                
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+                require(['vs/editor/editor.main'], function() {
+                    setTimeout(() => initializeQuiz(), 500);
+                });
+                
+            } catch (error) {
+                console.error('Failed to load Pyodide:', error);
+                loadingText.textContent = 'Error loading Python. Please refresh.';
+                alert('Failed to load Python environment. Please refresh the page.');
+            }
+        }
+
+        async function initializeQuiz() {
+            console.log('🚀 Initializing quiz...');
+            
+            // Initialize anti-cheating FIRST
+            initializeAntiCheating();
+            
+            currentUser = { username: 'TestUser', email: 'test@example.com' };
+            userAnswers = {};
+            
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.username && data.email) {
+                        currentUser = { username: data.username, email: data.email };
+                        console.log('✅ User logged in:', currentUser);
+                    }
+                }
+            } catch (error) {
+                console.log('ℹ️ Using test user for demo');
+            }
+            
+            // Enable quiz monitoring
+            isQuizActive = true;
+            
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            // Request fullscreen (optional, user can decline)
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request declined:', err);
+                });
+            }
+            
+            renderCurrentQuestion();
+            updateProgress();
+        }
 
         function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
@@ -600,33 +1081,26 @@ REQUIREMENTS:
                         <h3>${question.title}</h3>
                         <span class="badge bg-primary">${question.points} points</span>
                     </div>
-                    
                     <p class="mb-3">${question.description}</p>
-                    
                     <div class="alert alert-info">
                         <h6>Problem:</h6>
                         <pre style="white-space: pre-wrap;">${question.prompt}</pre>
                     </div>
-                    
                     <div class="explanation-section">
                         <h6>📝 Important:</h6>
-                        <p>You must include detailed explanations as comments in your code. Points will be awarded for both correct implementation and comprehensive explanations.</p>
+                        <p>Include explanations as comments for full credit.</p>
                     </div>
-                    
                     <div id="editor-${question.id}" class="code-editor-container"></div>
-                    
                     <div class="test-cases">
                         <h6>Test Cases:</h6>
                         ${question.testCases.map((test, i) => `
-                            <div><strong>Test ${i+1}:</strong> Input: ${JSON.stringify(test.input)} → Expected: Valid output</div>
+                            <div><strong>Test ${i+1}:</strong> ${formatTestCase(test)}</div>
                         `).join('')}
                     </div>
-                    
                     <div id="testResults-${question.id}"></div>
                 </div>
             `;
             
-            // Initialize Monaco editor for this question
             const editor = monaco.editor.create(document.getElementById(`editor-${question.id}`), {
                 value: userAnswers[question.id] || question.starterCode,
                 language: 'python',
@@ -638,112 +1112,162 @@ REQUIREMENTS:
             });
             
             editors[question.id] = editor;
-            
-            // Save code on change
             editor.onDidChangeModelContent(() => {
                 userAnswers[question.id] = editor.getValue();
             });
         }
 
-        function runTests() {
+        function formatTestCase(test) {
+            const input = Array.isArray(test.input) ? JSON.stringify(test.input) : test.input;
+            const expected = JSON.stringify(test.expected);
+            return `Input: ${input} → Expected: ${expected}`;
+        }
+
+        async function executePythonTests(code, question) {
+            if (!pyodideReady) {
+                throw new Error('Python environment not ready');
+            }
+
+            const results = [];
+            
+            for (let i = 0; i < question.testCases.length; i++) {
+                const testCase = question.testCases[i];
+                
+                try {
+                    await pyodide.runPythonAsync(`
+import sys
+for name in list(globals().keys()):
+    if not name.startswith('__') and name not in ['sys']:
+        try:
+            del globals()[name]
+        except:
+            pass
+                    `);
+                    
+                    await pyodide.runPythonAsync(code);
+                    
+                    let functionCall;
+                    if (Array.isArray(testCase.input)) {
+                        functionCall = `${question.functionName}(${testCase.input.map(v => 
+                            typeof v === 'object' ? JSON.stringify(v) : v
+                        ).join(', ')})`;
+                    } else {
+                        functionCall = `${question.functionName}(${testCase.input})`;
+                    }
+                    
+                    const result = await pyodide.runPythonAsync(functionCall);
+                    
+                    let output;
+                    if (result && typeof result === 'object' && result.toJs) {
+                        output = result.toJs({ dict_converter: Object.fromEntries });
+                    } else {
+                        output = result;
+                    }
+                    
+                    const passed = deepEqual(output, testCase.expected);
+                    
+                    results.push({
+                        passed,
+                        output,
+                        expected: testCase.expected,
+                        error: null
+                    });
+                    
+                } catch (error) {
+                    results.push({
+                        passed: false,
+                        output: null,
+                        expected: testCase.expected,
+                        error: error.message
+                    });
+                }
+            }
+            
+            return results;
+        }
+
+        function deepEqual(a, b) {
+            if (a === b) return true;
+            if (a == null || b == null) return false;
+            if (typeof a !== typeof b) return false;
+            
+            if (Array.isArray(a) && Array.isArray(b)) {
+                if (a.length !== b.length) return false;
+                for (let i = 0; i < a.length; i++) {
+                    if (!deepEqual(a[i], b[i])) return false;
+                }
+                return true;
+            }
+            
+            if (typeof a === 'object' && typeof b === 'object') {
+                const keysA = Object.keys(a).sort();
+                const keysB = Object.keys(b).sort();
+                if (keysA.length !== keysB.length) return false;
+                for (let key of keysA) {
+                    if (!deepEqual(a[key], b[key])) return false;
+                }
+                return true;
+            }
+            
+            return false;
+        }
+
+        async function runTests() {
+            if (!pyodideReady) {
+                alert('Python environment is still loading. Please wait...');
+                return;
+            }
+
             const question = questions[currentQuestionIndex];
             const code = editors[question.id].getValue();
             const resultsDiv = document.getElementById(`testResults-${question.id}`);
             
-            resultsDiv.innerHTML = '<h6>Running tests...</h6>';
+            resultsDiv.innerHTML = '<h6>🔧 Running tests...</h6>';
             
             try {
-                // Simple Python-like execution simulation
-                const testResults = simulateCodeExecution(code, question.testCases, question.title);
+                const testResults = await executePythonTests(code, question);
                 
-                resultsDiv.innerHTML = `
-                    <h6>Test Results:</h6>
-                    ${testResults.map((result, i) => `
+                let testHtml = '<h6>Test Results:</h6>';
+                let passedCount = 0;
+                
+                testResults.forEach((result, i) => {
+                    if (result.passed) passedCount++;
+                    
+                    testHtml += `
                         <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
                             Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
-                            ${result.error ? ` - ${result.error}` : ''}
-                            ${result.output !== undefined ? ` (Got: ${JSON.stringify(result.output)})` : ''}
+                            ${result.error ? `<br>Error: ${result.error}` : ''}
+                            ${!result.passed && !result.error ? `<br>Expected: ${JSON.stringify(result.expected)}<br>Got: ${JSON.stringify(result.output)}` : ''}
                         </div>
-                    `).join('')}
-                    
+                    `;
+                });
+                
+                testHtml += `
                     <div class="mt-3">
+                        <strong>Summary:</strong> ${passedCount}/${testResults.length} tests passed
+                    </div>
+                    <div class="mt-2">
                         <strong>Explanation Check:</strong>
-                        ${checkExplanations(code, question.id) ? '✓ Explanations found' : '⚠ Add required explanations as comments'}
+                        ${checkExplanations(code) ? '✓ Explanations found' : '⚠ Add comments'}
                     </div>
                 `;
+                
+                resultsDiv.innerHTML = testHtml;
+                
             } catch (error) {
-                resultsDiv.innerHTML = `<div class="test-result test-failed">Error: ${error.message}</div>`;
+                console.error('Test execution error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="test-result test-failed">
+                        ❌ Error: ${error.message}
+                    </div>
+                `;
             }
         }
 
-        function checkExplanations(code, questionId) {
-            // More strict check - require actual content in comments
-            const commentBlocks = code.match(/#.+/g) || [];
-            const hasSubstantialComments = commentBlocks.some(comment => 
-                comment.length > 20 && !comment.includes('Add your analysis here')
-            );
-            
-            return hasSubstantialComments && commentBlocks.length >= 2;
+        function checkExplanations(code) {
+            const comments = code.match(/#.+/g) || [];
+            return comments.some(c => c.length > 20) && comments.length >= 2;
         }
-
-        function simulateCodeExecution(code, testCases, questionTitle) {
-    const results = [];
-    const functionName = extractFunctionName(code);
-    
-    if (!functionName) {
-        return testCases.map(() => ({ 
-            passed: false, 
-            error: "No function defined. Please write a function starting with 'def function_name()'" 
-        }));
-    }
-    
-    testCases.forEach(testCase => {
-        try {
-            // For demo purposes, we'll simulate successful execution
-            // In real implementation, this would execute the actual Python code
-            const passed = Math.random() > 0.3; // Simulate 70% success rate for demo
-            
-            results.push({ 
-                passed: passed,
-                output: passed ? "Valid output" : "Incorrect output",
-                error: passed ? null : "Test case failed - check your implementation"
-            });
-            
-        } catch (error) {
-            results.push({ 
-                passed: false, 
-                error: `Runtime error: ${error.message}`,
-                output: "Error occurred during execution"
-            });
-        }
-    });
-    
-    return results;
-}
-
-function extractFunctionName(code) {
-    const match = code.match(/def\s+(\w+)\s*\(/);
-    return match ? match[1] : null;
-}
-
-function deepEqual(a, b) {
-    if (a === b) return true;
-    if (typeof a !== typeof b) return false;
-    if (typeof a !== 'object' || a === null || b === null) return a === b;
-    
-    if (Array.isArray(a)) {
-        if (!Array.isArray(b) || a.length !== b.length) return false;
-        return a.every((val, i) => deepEqual(val, b[i]));
-    }
-    
-    if (a instanceof Error || b instanceof Error) return a.message === b.message;
-    
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
-    if (keysA.length !== keysB.length) return false;
-    
-    return keysA.every(key => deepEqual(a[key], b[key]));
-}
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
@@ -765,137 +1289,114 @@ function deepEqual(a, b) {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-            
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
             
             const nextBtn = document.getElementById('nextBtn');
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.textContent = 'Finish →';
-            } else {
-                nextBtn.textContent = 'Next →';
+            nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish →' : 'Next →';
+        }
+
+        async function submitQuiz() {
+            if (!confirm('Submit your quiz? Make sure you\'ve tested all answers.')) return;
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
+            
+            // Disable monitoring
+            isQuizActive = false;
+
+            let totalScore = 0;
+            const results = [];
+            
+            for (const question of questions) {
+                const code = userAnswers[question.id] || '';
+                
+                try {
+                    const testResults = await executePythonTests(code, question);
+                    const passedTests = testResults.filter(r => r.passed).length;
+                    const hasExplanations = checkExplanations(code);
+                    const bonus = hasExplanations ? question.points * 0.2 : 0;
+                    const score = Math.min(
+                        Math.round((passedTests / testResults.length) * question.points) + bonus,
+                        question.points
+                    );
+                    
+                    totalScore += score;
+                    results.push({
+                        questionId: question.id,
+                        title: question.title,
+                        code,
+                        score,
+                        maxScore: question.points,
+                        passedTests,
+                        totalTests: testResults.length,
+                        hasExplanations
+                    });
+                } catch (error) {
+                    results.push({
+                        questionId: question.id,
+                        title: question.title,
+                        code,
+                        score: 0,
+                        maxScore: question.points,
+                        passedTests: 0,
+                        totalTests: question.testCases.length,
+                        hasExplanations: checkExplanations(code),
+                        error: error.message
+                    });
+                }
             }
+            
+            const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
+            const percentage = Math.round((totalScore / maxScore) * 100);
+            
+            submittedQuizData = {
+                username: currentUser.username,
+                email: currentUser.email,
+                topic: 'Advanced Algorithms',
+                score: totalScore,
+                maxScore,
+                percentage,
+                questions: results,
+                timestamp: new Date().toISOString(),
+                cheatingAttempts: cheatingAttempts,
+                tabSwitches: tabSwitchCount
+            };
+            
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submittedQuizData)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Quiz submitted successfully!');
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                alert('⚠️ Could not submit to server, but showing results.');
+            }
+            
+            showResults(submittedQuizData);
         }
-
-      async function submitQuiz() {
-    // Show confirmation dialog
-    const confirmSubmit = confirm(
-        'Are you ready to submit your quiz?\n\n' +
-        'Make sure you have:\n' +
-        '✓ Completed all questions\n' +
-        '✓ Tested your code\n' +
-        '✓ Added required explanations\n\n' +
-        'Click OK to submit.'
-    );
-    
-    if (!confirmSubmit) {
-        return; // User cancelled
-    }
-
-    let totalScore = 0;
-    const results = [];
-    
-    // Grade each question
-    questions.forEach(question => {
-        const code = userAnswers[question.id] || '';
-        const testResults = simulateCodeExecution(code, question.testCases, question.title);
-        const passedTests = testResults.filter(r => r.passed).length;
-        
-        const hasExplanations = checkExplanations(code, question.id);
-        const explanationBonus = hasExplanations ? question.points * 0.2 : 0;
-        
-        const questionScore = Math.round((passedTests / testResults.length) * question.points) + explanationBonus;
-        
-        totalScore += Math.min(questionScore, question.points);
-        results.push({
-            questionId: question.id,
-            title: question.title,
-            code: code, // ✅ Include user's code as per schema
-            score: Math.min(questionScore, question.points),
-            maxScore: question.points,
-            testResults: testResults,
-            hasExplanations: hasExplanations
-        });
-    });
-    
-    const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
-    const percentage = Math.round((totalScore / maxScore) * 100);
-    
-    // Prepare quiz data in correct format matching the schema
-    const quizData = {
-        username: currentUser.username || 'TestUser',
-        email: currentUser.email || 'test@example.com',
-        topic: 'Divide & Conquer Algorithms',
-        score: totalScore,
-        maxScore: maxScore,
-        percentage: percentage,
-        questions: results,
-        timestamp: new Date().toISOString()
-    };
-    
-    console.log('📤 Submitting quiz data:', JSON.stringify(quizData, null, 2));
-    
-    try {
-        // Disable submit button to prevent double submission
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Submitting...';
-        
-        // Submit to backend
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(quizData)
-        });
-        
-        console.log('📥 Response status:', response.status);
-        
-        if (response.ok) {
-            const responseData = await response.json();
-            console.log('✅ Server response:', responseData);
-            alert('✅ Quiz submitted successfully!');
-            showResults(quizData);
-        } else {
-            const errorText = await response.text();
-            console.error('❌ Server error:', errorText);
-            throw new Error(`Server returned ${response.status}: ${errorText}`);
-        }
-        
-    } catch (error) {
-        console.error('❌ Submission error:', error);
-        displayError(error.message);
-        
-        // Re-enable submit button
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = false;
-        submitBtn.textContent = '📊 Submit Quiz';
-    }
-}
-
-function displayError(message) {
-    alert(`❌ Error: ${message}\n\nYour quiz data has been saved locally. Please try submitting again later.`);
-    
-    // Save quiz data locally as backup
-    const backupData = {
-        ...quizData,
-        localBackup: true,
-        localTimestamp: new Date().toISOString()
-    };
-    localStorage.setItem('divideConquerQuizBackup', JSON.stringify(backupData));
-    console.log('📦 Quiz data saved locally as backup');
-}
 
         function showResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
-            
             document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
             document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
             
             const detailedResults = document.getElementById('detailedResults');
             detailedResults.innerHTML = `
                 <h4>Detailed Results</h4>
+                ${quizData.cheatingAttempts > 0 ? `
+                    <div class="alert alert-warning">
+                        ⚠️ Security Note: ${quizData.cheatingAttempts} suspicious activities were detected during this quiz.
+                    </div>
+                ` : ''}
                 ${quizData.questions.map(q => `
                     <div class="card mb-3">
                         <div class="card-body">
@@ -903,26 +1404,56 @@ function displayError(message) {
                             <div class="progress mb-2">
                                 <div class="progress-bar" style="width: ${(q.score/q.maxScore)*100}%"></div>
                             </div>
-                            <small>Tests passed: ${q.testResults.filter(t => t.passed).length}/${q.testResults.length}</small>
-                            <br>
-                            <small>${q.hasExplanations ? '✓ Explanations provided' : '⚠ Missing explanations'}</small>
+                            <small>Tests: ${q.passedTests}/${q.totalTests} | ${q.hasExplanations ? '✓ Explained' : '⚠ No explanation'}</small>
                         </div>
                     </div>
                 `).join('')}
             `;
         }
 
+        function showMyAnswers() {
+            if (!submittedQuizData) {
+                alert('No quiz data found. Please submit the quiz first.');
+                return;
+            }
+
+            const answersList = document.getElementById('answersList');
+            answersList.innerHTML = submittedQuizData.questions.map(q => `
+                <div class="mb-4">
+                    <h5>${q.title} (Score: ${q.score}/${q.maxScore})</h5>
+                    <div class="code-block">${escapeHtml(q.code)}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('answersModal').style.display = 'flex';
+        }
+
+        function closeAnswersModal() {
+            document.getElementById('answersModal').style.display = 'none';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function restartQuiz() {
             currentQuestionIndex = 0;
             userAnswers = {};
             editors = {};
-            
+            cheatingAttempts = 0;
+            tabSwitchCount = 0;
+            submittedQuizData = null;
+            isQuizActive = true;
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
-            
             renderCurrentQuestion();
             updateProgress();
         }
+
+        // Start loading Pyodide immediately
+        window.addEventListener('DOMContentLoaded', initPyodide);
     </script>
 </body>
 </html>
