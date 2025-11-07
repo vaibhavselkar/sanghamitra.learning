@@ -351,7 +351,7 @@ print(bubble_sort([5, 2, 8, 1, 9]))`,
             userAnswers = {};
             
             try {
-                const response = await fetch('http://localhost:5000/session-info', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                     credentials: 'include',
                     mode: 'cors'
                 });
@@ -669,7 +669,7 @@ for name in list(globals().keys()):
             };
             
             try {
-                const response = await fetch('http://localhost:5000/algorithm-submissions', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(quizData)
@@ -726,3 +726,4 @@ for name in list(globals().keys()):
     </script>
 </body>
 </html>
+
