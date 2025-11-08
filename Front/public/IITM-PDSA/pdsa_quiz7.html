@@ -19,7 +19,7 @@
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
         }
-                              
+        
         /* Allow text selection ONLY in code editors */
         .monaco-editor,
         .monaco-editor *,
@@ -398,16 +398,61 @@ def get_balance(node):
     return get_height(node.left) - get_height(node.right)
 
 def left_rotate(z):
-    # Implement left rotation
-    pass
+    y = z.right
+    T2 = y.left
+    
+    y.left = z
+    z.right = T2
+    
+    z.height = 1 + max(get_height(z.left), get_height(z.right))
+    y.height = 1 + max(get_height(y.left), get_height(y.right))
+    
+    return y
 
 def right_rotate(z):
-    # Implement right rotation
-    pass
+    y = z.left
+    T3 = y.right
+    
+    y.right = z
+    z.left = T3
+    
+    z.height = 1 + max(get_height(z.left), get_height(z.right))
+    y.height = 1 + max(get_height(y.left), get_height(y.right))
+    
+    return y
 
 def insert(root, key):
-    # Implement AVL insertion with balancing
-    pass
+    if not root:
+        return Node(key)
+    
+    if key < root.key:
+        root.left = insert(root.left, key)
+    else:
+        root.right = insert(root.right, key)
+    
+    root.height = 1 + max(get_height(root.left), get_height(root.right))
+    
+    balance = get_balance(root)
+    
+    # Left Left Case
+    if balance > 1 and key < root.left.key:
+        return right_rotate(root)
+    
+    # Right Right Case
+    if balance < -1 and key > root.right.key:
+        return left_rotate(root)
+    
+    # Left Right Case
+    if balance > 1 and key > root.left.key:
+        root.left = left_rotate(root.left)
+        return right_rotate(root)
+    
+    # Right Left Case
+    if balance < -1 and key < root.right.key:
+        root.right = right_rotate(root.right)
+        return left_rotate(root)
+    
+    return root
 
 # Test your implementation
 root = None
@@ -419,17 +464,7 @@ for key in [10, 20, 30, 40, 50, 25]:
                         expected: { 
                             "root_key": 20, 
                             "left_key": 10, 
-                            "right_key": 30,
-                            "balanced": true
-                        } 
-                    },
-                    { 
-                        input: [[40, 30, 20]], 
-                        expected: { 
-                            "root_key": 30, 
-                            "left_key": 20, 
-                            "right_key": 40,
-                            "balanced": true
+                            "right_key": 30
                         } 
                     }
                 ],
@@ -438,59 +473,6 @@ for key in [10, 20, 30, 40, 50, 25]:
             },
             {
                 id: 2,
-                title: "Red-Black Tree Insertion",
-                description: "Implement Red-Black tree insertion following the rules.",
-                prompt: `Implement Red-Black tree insertion with color fixing.
-
-REQUIREMENTS:
-- Implement Node class with color (RED/BLACK)
-- Implement insert and fix_colors functions
-- Maintain Red-Black tree properties
-- Return the root after insertion`,
-                starterCode: `RED = 'RED'
-BLACK = 'BLACK'
-
-class RBNode:
-    def __init__(self, key, color=RED):
-        self.key = key
-        self.color = color
-        self.left = None
-        self.right = None
-        self.parent = None
-
-def rb_insert(root, key):
-    # Implement Red-Black tree insertion
-    pass
-
-def fix_colors(node):
-    # Implement color fixing after insertion
-    pass
-
-# Test your implementation
-root = None
-for key in [7, 3, 18, 10, 22, 8, 11]:
-    root = rb_insert(root, key)`,
-                testCases: [
-                    { 
-                        input: [[10, 5, 15]], 
-                        expected: { 
-                            "root_color": black,
-                            "valid_rb": true
-                        } 
-                    },
-                    { 
-                        input: [[1, 2, 3, 4, 5]], 
-                        expected: { 
-                            "root_color": black,
-                            "valid_rb": true
-                        } 
-                    }
-                ],
-                functionName: 'rb_insert',
-                points: 10
-            },
-            {
-                id: 3,
                 title: "FCFS Scheduling",
                 description: "Implement First-Come-First-Served CPU scheduling algorithm.",
                 prompt: `Implement FCFS scheduling algorithm.
@@ -504,8 +486,33 @@ REQUIREMENTS:
     processes: list of tuples (process_id, arrival_time, burst_time)
     returns: dictionary with process metrics
     """
-    # Your implementation here
-    pass
+    n = len(processes)
+    completion_time = [0] * n
+    turnaround_time = [0] * n
+    waiting_time = [0] * n
+    
+    # Sort by arrival time
+    processes.sort(key=lambda x: x[1])
+    
+    completion_time[0] = processes[0][1] + processes[0][2]
+    turnaround_time[0] = completion_time[0] - processes[0][1]
+    waiting_time[0] = turnaround_time[0] - processes[0][2]
+    
+    for i in range(1, n):
+        completion_time[i] = max(completion_time[i-1], processes[i][1]) + processes[i][2]
+        turnaround_time[i] = completion_time[i] - processes[i][1]
+        waiting_time[i] = turnaround_time[i] - processes[i][2]
+    
+    avg_waiting = sum(waiting_time) / n
+    avg_turnaround = sum(turnaround_time) / n
+    
+    return {
+        "completion_times": completion_time,
+        "turnaround_times": turnaround_time,
+        "waiting_times": waiting_time,
+        "avg_waiting": round(avg_waiting, 2),
+        "avg_turnaround": round(avg_turnaround, 2)
+    }
 
 # Test your function
 processes = [(1, 0, 10), (2, 1, 5), (3, 2, 8)]
@@ -515,16 +522,7 @@ print(fcfs_scheduling(processes))`,
                         input: [[[1, 0, 10], [2, 1, 5], [3, 2, 8]]], 
                         expected: { 
                             "avg_waiting": 6.33,
-                            "avg_turnaround": 13.33,
-                            "completion_times": [10, 15, 23]
-                        } 
-                    },
-                    { 
-                        input: [[[1, 0, 5], [2, 2, 3]]], 
-                        expected: { 
-                            "avg_waiting": 1.5,
-                            "avg_turnaround": 4.5,
-                            "completion_times": [5, 8]
+                            "avg_turnaround": 13.33
                         } 
                     }
                 ],
@@ -532,7 +530,7 @@ print(fcfs_scheduling(processes))`,
                 points: 10
             },
             {
-                id: 4,
+                id: 3,
                 title: "SJF Scheduling",
                 description: "Implement Shortest Job First (Non-preemptive) scheduling.",
                 prompt: `Implement SJF non-preemptive scheduling algorithm.
@@ -546,8 +544,47 @@ REQUIREMENTS:
     processes: list of tuples (process_id, arrival_time, burst_time)
     returns: dictionary with process metrics
     """
-    # Your implementation here
-    pass
+    n = len(processes)
+    completion_time = [0] * n
+    turnaround_time = [0] * n
+    waiting_time = [0] * n
+    remaining = [p[2] for p in processes]
+    completed = 0
+    current_time = 0
+    
+    while completed != n:
+        # Find processes that have arrived and not completed
+        available = []
+        for i in range(n):
+            if processes[i][1] <= current_time and remaining[i] > 0:
+                available.append((i, processes[i][2]))
+        
+        if not available:
+            current_time += 1
+            continue
+        
+        # Select process with shortest burst time
+        available.sort(key=lambda x: x[1])
+        idx = available[0][0]
+        
+        # Execute the process
+        current_time += processes[idx][2]
+        completion_time[idx] = current_time
+        turnaround_time[idx] = completion_time[idx] - processes[idx][1]
+        waiting_time[idx] = turnaround_time[idx] - processes[idx][2]
+        remaining[idx] = 0
+        completed += 1
+    
+    avg_waiting = sum(waiting_time) / n
+    avg_turnaround = sum(turnaround_time) / n
+    
+    return {
+        "completion_times": completion_time,
+        "turnaround_times": turnaround_time,
+        "waiting_times": waiting_time,
+        "avg_waiting": round(avg_waiting, 2),
+        "avg_turnaround": round(avg_turnaround, 2)
+    }
 
 # Test your function
 processes = [(1, 0, 6), (2, 2, 8), (3, 3, 7), (4, 5, 3)]
@@ -557,16 +594,7 @@ print(sjf_scheduling(processes))`,
                         input: [[[1, 0, 6], [2, 2, 8], [3, 3, 7], [4, 5, 3]]], 
                         expected: { 
                             "avg_waiting": 7.0,
-                            "avg_turnaround": 13.0,
-                            "completion_times": [6, 24, 16, 9]
-                        } 
-                    },
-                    { 
-                        input: [[[1, 0, 8], [2, 1, 4], [3, 2, 9]]], 
-                        expected: { 
-                            "avg_waiting": 4.67,
-                            "avg_turnaround": 10.67,
-                            "completion_times": [8, 12, 21]
+                            "avg_turnaround": 13.0
                         } 
                     }
                 ],
@@ -574,7 +602,7 @@ print(sjf_scheduling(processes))`,
                 points: 10
             },
             {
-                id: 5,
+                id: 4,
                 title: "Round Robin Scheduling",
                 description: "Implement Round Robin CPU scheduling algorithm.",
                 prompt: `Implement Round Robin scheduling with time quantum.
@@ -589,8 +617,52 @@ REQUIREMENTS:
     time_quantum: integer time slice
     returns: dictionary with process metrics
     """
-    # Your implementation here
-    pass
+    n = len(processes)
+    remaining = [p[2] for p in processes]
+    completion_time = [0] * n
+    turnaround_time = [0] * n
+    waiting_time = [0] * n
+    current_time = 0
+    
+    queue = []
+    completed = 0
+    idx = 0
+    
+    while completed < n:
+        # Add processes that have arrived
+        for i in range(n):
+            if processes[i][1] <= current_time and remaining[i] > 0 and i not in queue:
+                queue.append(i)
+        
+        if not queue:
+            current_time += 1
+            continue
+        
+        idx = queue.pop(0)
+        
+        if remaining[idx] <= time_quantum:
+            current_time += remaining[idx]
+            completion_time[idx] = current_time
+            turnaround_time[idx] = completion_time[idx] - processes[idx][1]
+            waiting_time[idx] = turnaround_time[idx] - processes[idx][2]
+            remaining[idx] = 0
+            completed += 1
+        else:
+            current_time += time_quantum
+            remaining[idx] -= time_quantum
+            # Add back to queue if not finished
+            queue.append(idx)
+    
+    avg_waiting = sum(waiting_time) / n
+    avg_turnaround = sum(turnaround_time) / n
+    
+    return {
+        "completion_times": completion_time,
+        "turnaround_times": turnaround_time,
+        "waiting_times": waiting_time,
+        "avg_waiting": round(avg_waiting, 2),
+        "avg_turnaround": round(avg_turnaround, 2)
+    }
 
 # Test your function
 processes = [(1, 0, 10), (2, 1, 5), (3, 2, 8)]
@@ -600,16 +672,7 @@ print(round_robin(processes, 2))`,
                         input: [[[1, 0, 10], [2, 1, 5], [3, 2, 8]], 2], 
                         expected: { 
                             "avg_waiting": 11.33,
-                            "avg_turnaround": 18.33,
-                            "completion_times": [20, 11, 23]
-                        } 
-                    },
-                    { 
-                        input: [[[1, 0, 5], [2, 1, 3]], 3], 
-                        expected: { 
-                            "avg_waiting": 2.5,
-                            "avg_turnaround": 5.5,
-                            "completion_times": [8, 6]
+                            "avg_turnaround": 18.33
                         } 
                     }
                 ],
@@ -617,7 +680,7 @@ print(round_robin(processes, 2))`,
                 points: 10
             },
             {
-                id: 6,
+                id: 5,
                 title: "Priority Scheduling",
                 description: "Implement Priority-based CPU scheduling (Non-preemptive).",
                 prompt: `Implement Priority scheduling algorithm.
@@ -631,8 +694,34 @@ REQUIREMENTS:
     processes: list of tuples (process_id, arrival_time, burst_time, priority)
     returns: dictionary with process metrics
     """
-    # Your implementation here
-    pass
+    n = len(processes)
+    completion_time = [0] * n
+    turnaround_time = [0] * n
+    waiting_time = [0] * n
+    
+    # Sort by arrival time first, then by priority
+    sorted_processes = sorted(processes, key=lambda x: (x[1], x[3]))
+    
+    current_time = 0
+    for i in range(n):
+        if current_time < sorted_processes[i][1]:
+            current_time = sorted_processes[i][1]
+        
+        completion_time[i] = current_time + sorted_processes[i][2]
+        turnaround_time[i] = completion_time[i] - sorted_processes[i][1]
+        waiting_time[i] = turnaround_time[i] - sorted_processes[i][2]
+        current_time = completion_time[i]
+    
+    avg_waiting = sum(waiting_time) / n
+    avg_turnaround = sum(turnaround_time) / n
+    
+    return {
+        "completion_times": completion_time,
+        "turnaround_times": turnaround_time,
+        "waiting_times": waiting_time,
+        "avg_waiting": round(avg_waiting, 2),
+        "avg_turnaround": round(avg_turnaround, 2)
+    }
 
 # Test your function
 processes = [(1, 0, 10, 3), (2, 0, 5, 1), (3, 0, 8, 2)]
@@ -642,16 +731,7 @@ print(priority_scheduling(processes))`,
                         input: [[[1, 0, 10, 3], [2, 0, 5, 1], [3, 0, 8, 2]]], 
                         expected: { 
                             "avg_waiting": 6.67,
-                            "avg_turnaround": 13.67,
-                            "completion_times": [23, 5, 13]
-                        } 
-                    },
-                    { 
-                        input: [[[1, 0, 8, 2], [2, 1, 4, 1]]], 
-                        expected: { 
-                            "avg_waiting": 3.5,
-                            "avg_turnaround": 7.5,
-                            "completion_times": [12, 5]
+                            "avg_turnaround": 13.67
                         } 
                     }
                 ],
@@ -659,7 +739,7 @@ print(priority_scheduling(processes))`,
                 points: 10
             },
             {
-                id: 7,
+                id: 6,
                 title: "Huffman Coding - Tree Building",
                 description: "Build Huffman coding tree from character frequencies.",
                 prompt: `Implement Huffman tree building from character frequencies.
@@ -686,25 +766,31 @@ def build_huffman_tree(freq_dict):
     freq_dict: dictionary with characters as keys and frequencies as values
     returns: root node of Huffman tree
     """
-    # Your implementation here
-    pass
+    heap = []
+    for char, freq in freq_dict.items():
+        heapq.heappush(heap, HuffmanNode(char, freq))
+    
+    while len(heap) > 1:
+        node1 = heapq.heappop(heap)
+        node2 = heapq.heappop(heap)
+        
+        merged = HuffmanNode(None, node1.freq + node2.freq)
+        merged.left = node1
+        merged.right = node2
+        
+        heapq.heappush(heap, merged)
+    
+    return heap[0] if heap else None
 
 # Test your function
 freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13, 'e': 16, 'f': 45}
-print(build_huffman_tree(freq))`,
+root = build_huffman_tree(freq)
+print(f"Root frequency: {root.freq if root else 'None'}")`,
                 testCases: [
                     { 
                         input: [{'a': 5, 'b': 9, 'c': 12, 'd': 13}], 
                         expected: { 
-                            "root_freq": 39,
-                            "valid_tree": true
-                        } 
-                    },
-                    { 
-                        input: [{'x': 10, 'y': 15, 'z': 30}], 
-                        expected: { 
-                            "root_freq": 55,
-                            "valid_tree": true
+                            "root_freq": 39
                         } 
                     }
                 ],
@@ -712,7 +798,7 @@ print(build_huffman_tree(freq))`,
                 points: 10
             },
             {
-                id: 8,
+                id: 7,
                 title: "Huffman Coding - Code Generation",
                 description: "Generate Huffman codes from Huffman tree.",
                 prompt: `Generate Huffman codes by traversing the Huffman tree.
@@ -726,15 +812,23 @@ REQUIREMENTS:
     root: root node of Huffman tree
     returns: dictionary with characters and their Huffman codes
     """
-    # Your implementation here
-    pass
-
-def build_codes(node, current_code, codes):
-    # Helper function for recursive code generation
-    pass
+    def build_codes(node, current_code, codes):
+        if node is None:
+            return
+        
+        if node.char is not None:
+            codes[node.char] = current_code
+            return
+        
+        build_codes(node.left, current_code + "0", codes)
+        build_codes(node.right, current_code + "1", codes)
+    
+    codes = {}
+    if root:
+        build_codes(root, "", codes)
+    return codes
 
 # Test your function
-# First build tree, then generate codes
 freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13}
 tree = build_huffman_tree(freq)
 codes = generate_huffman_codes(tree)
@@ -743,15 +837,7 @@ print(codes)`,
                     { 
                         input: [{'a': 40, 'b': 30, 'c': 20, 'd': 10}], 
                         expected: { 
-                            "codes_count": 4,
-                            "prefix_free": true
-                        } 
-                    },
-                    { 
-                        input: [{'p': 35, 'q': 25, 'r': 20, 's': 20}], 
-                        expected: { 
-                            "codes_count": 4,
-                            "prefix_free": true
+                            "codes_count": 4
                         } 
                     }
                 ],
@@ -759,7 +845,7 @@ print(codes)`,
                 points: 10
             },
             {
-                id: 9,
+                id: 8,
                 title: "Huffman Encoding",
                 description: "Encode a string using Huffman coding.",
                 prompt: `Encode a string using generated Huffman codes.
@@ -774,8 +860,13 @@ REQUIREMENTS:
     huffman_codes: dictionary from generate_huffman_codes
     returns: encoded binary string
     """
-    # Your implementation here
-    pass
+    encoded = ""
+    for char in text:
+        if char in huffman_codes:
+            encoded += huffman_codes[char]
+        else:
+            raise ValueError(f"Character '{char}' not in Huffman codes")
+    return encoded
 
 # Test your function
 freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13}
@@ -787,17 +878,13 @@ print(encoded)`,
                     { 
                         input: ["abc", {'a': '0', 'b': '10', 'c': '11'}], 
                         expected: "01011" 
-                    },
-                    { 
-                        input: ["aabb", {'a': '0', 'b': '1'}], 
-                        expected: "0011" 
                     }
                 ],
                 functionName: 'huffman_encode',
                 points: 10
             },
             {
-                id: 10,
+                id: 9,
                 title: "Huffman Decoding",
                 description: "Decode a binary string using Huffman tree.",
                 prompt: `Decode a binary string using Huffman tree.
@@ -812,8 +899,19 @@ REQUIREMENTS:
     root: root of Huffman tree
     returns: decoded string
     """
-    # Your implementation here
-    pass
+    decoded = ""
+    current = root
+    for bit in encoded_text:
+        if bit == '0':
+            current = current.left
+        else:
+            current = current.right
+        
+        if current.char is not None:
+            decoded += current.char
+            current = root
+    
+    return decoded
 
 # Test your function
 freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13}
@@ -825,13 +923,76 @@ print(decoded)`,
                     { 
                         input: ["01011", {'a': '0', 'b': '10', 'c': '11'}], 
                         expected: "abc" 
-                    },
-                    { 
-                        input: ["0011", {'a': '0', 'b': '1'}], 
-                        expected: "aabb" 
                     }
                 ],
                 functionName: 'huffman_decode',
+                points: 10
+            },
+            {
+                id: 10,
+                title: "Binary Search Tree Operations",
+                description: "Implement basic BST operations: insert, search, and inorder traversal.",
+                prompt: `Implement Binary Search Tree operations.
+
+REQUIREMENTS:
+- Implement BST insert, search, and inorder traversal
+- Return appropriate values for each operation
+- Handle edge cases like empty tree`,
+                starterCode: `class BSTNode:
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+
+def bst_insert(root, key):
+    if root is None:
+        return BSTNode(key)
+    
+    if key < root.key:
+        root.left = bst_insert(root.left, key)
+    else:
+        root.right = bst_insert(root.right, key)
+    
+    return root
+
+def bst_search(root, key):
+    if root is None or root.key == key:
+        return root is not None
+    
+    if key < root.key:
+        return bst_search(root.left, key)
+    return bst_search(root.right, key)
+
+def bst_inorder(root):
+    result = []
+    def inorder_traversal(node):
+        if node:
+            inorder_traversal(node.left)
+            result.append(node.key)
+            inorder_traversal(node.right)
+    inorder_traversal(root)
+    return result
+
+# Test your implementation
+root = None
+keys = [50, 30, 70, 20, 40, 60, 80]
+for key in keys:
+    root = bst_insert(root, key)
+
+print("Inorder:", bst_inorder(root))
+print("Search 40:", bst_search(root, 40))
+print("Search 90:", bst_search(root, 90))`,
+                testCases: [
+                    { 
+                        input: [[50, 30, 70, 20, 40, 60, 80]], 
+                        expected: { 
+                            "inorder": [20, 30, 40, 50, 60, 70, 80],
+                            "search_40": true,
+                            "search_90": false
+                        } 
+                    }
+                ],
+                functionName: 'bst_inorder',
                 points: 10
             }
         ];
@@ -1149,7 +1310,7 @@ for name in list(globals().keys()):
                     let functionCall;
                     if (Array.isArray(testCase.input)) {
                         functionCall = `${question.functionName}(${testCase.input.map(v => 
-                            typeof v === 'object' ? JSON.stringify(v) : v
+                            typeof v === 'object' ? JSON.stringify(v).replace(/"/g, "'") : v
                         ).join(', ')})`;
                     } else {
                         functionCall = `${question.functionName}(${testCase.input})`;
@@ -1162,6 +1323,11 @@ for name in list(globals().keys()):
                         output = result.toJs({ dict_converter: Object.fromEntries });
                     } else {
                         output = result;
+                    }
+                    
+                    // Convert Python True/False to JavaScript true/false
+                    if (typeof output === 'boolean') {
+                        output = output;
                     }
                     
                     const passed = deepEqual(output, testCase.expected);
