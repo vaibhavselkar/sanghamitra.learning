@@ -10,11 +10,80 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Anti-cheating CSS */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Allow text selection ONLY in code editors */
+        .monaco-editor,
+        .monaco-editor *,
+        .view-lines,
+        .view-line {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            -webkit-print-color-adjust: exact;
+            pointer-events: auto;
+        }
+        
+        /* Hide scrollbars to prevent inspection */
+        ::-webkit-scrollbar {
+            width: 8px;
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        /* Blur content when window loses focus */
+        body.blurred {
+            filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        /* Warning overlay */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 2rem;
+            text-align: center;
+            flex-direction: column;
+        }
+        
+        .warning-overlay h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
         .container {
@@ -131,6 +200,36 @@
             font-size: 1.2rem;
             margin-top: 20px;
         }
+        
+        /* Security indicator */
+        .security-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .security-indicator.warning {
+            background: rgba(220, 53, 69, 0.9);
+            animation: pulse 1s infinite;
+        }
+        
+        .security-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        /* Answers Modal */
         .answers-modal {
             position: fixed;
             top: 0;
@@ -172,6 +271,22 @@
     </style>
 </head>
 <body>
+    <!-- Security Indicator -->
+    <div id="securityIndicator" class="security-indicator">
+        <div class="security-dot"></div>
+        <span id="securityText">Monitoring Active</span>
+    </div>
+
+    <!-- Warning overlay -->
+    <div id="warningOverlay" class="warning-overlay">
+        <div>
+            <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
+            <p style="font-size: 1.5rem;">Please return to the quiz window</p>
+            <p style="font-size: 1.2rem;">Your activity is being monitored and logged</p>
+            <p style="font-size: 1rem; margin-top: 20px;">Attempts logged: <span id="attemptCount">0</span></p>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
@@ -193,7 +308,8 @@
     <div class="container">
         <div class="header">
             <h1>🔬 Graph Algorithms Programming Quiz</h1>
-            <p>Solve graph algorithm problems by writing complete Python functions</p>
+            <p>Implement graph algorithms including BFS, DFS, DAGs, and Topological Sorting</p>
+            <small style="opacity: 0.8;">⚠️ Anti-cheating measures active</small>
         </div>
 
         <!-- Quiz Container -->
@@ -241,156 +357,348 @@
     </div>
 
     <script>
-        // Global Pyodide instance (loaded once, reused for all tests)
+        // Anti-cheating variables
+        let cheatingAttempts = 0;
+        let isQuizActive = false;
+        let devToolsWarned = false;
+        let tabSwitchCount = 0;
+        let lastActivityTime = Date.now();
+        
+        // Global Pyodide instance
         let pyodide = null;
         let pyodideReady = false;
 
         const questions = [
             {
                 id: 1,
-                title: "BFS Traversal",
-                description: "Implement Breadth-First Search traversal for a graph.",
+                title: "Graph Representation - Adjacency List",
+                description: "Implement a graph using adjacency list representation and basic operations.",
+                prompt: `Implement a Graph class using adjacency list representation with the following methods:
+- add_vertex(vertex): Add a vertex to the graph
+- add_edge(vertex1, vertex2): Add an undirected edge between two vertices
+- get_neighbors(vertex): Return all neighbors of a vertex
+- has_vertex(vertex): Check if vertex exists in graph
+
+Use a dictionary where keys are vertices and values are lists of neighbors.`,
+                starterCode: `class Graph:
+    def __init__(self):
+        # Initialize adjacency list
+        pass
+    
+    def add_vertex(self, vertex):
+        # Add a vertex to the graph
+        pass
+    
+    def add_edge(self, vertex1, vertex2):
+        # Add an undirected edge
+        pass
+    
+    def get_neighbors(self, vertex):
+        # Return neighbors of vertex
+        pass
+    
+    def has_vertex(self, vertex):
+        # Check if vertex exists
+        pass
+
+# Test your implementation
+g = Graph()
+g.add_vertex('A')
+g.add_vertex('B')
+g.add_edge('A', 'B')
+print(g.get_neighbors('A'))`,
+                testCases: [
+                    { 
+                        input: [],
+                        expected: ['B'],
+                        setup: `g = Graph(); g.add_vertex('A'); g.add_vertex('B'); g.add_edge('A', 'B'); g.get_neighbors('A')`
+                    },
+                    { 
+                        input: [],
+                        expected: True,
+                        setup: `g = Graph(); g.add_vertex('A'); g.has_vertex('A')`
+                    },
+                    { 
+                        input: [],
+                        expected: False,
+                        setup: `g = Graph(); g.has_vertex('X')`
+                    }
+                ],
+                functionName: 'Graph',
+                points: 10,
+                isClass: true
+            },
+            {
+                id: 2,
+                title: "Breadth-First Search (BFS)",
+                description: "Implement BFS algorithm to traverse a graph and find the shortest path.",
                 prompt: `Write a function bfs(graph, start) that performs BFS traversal.
 
 REQUIREMENTS:
-- graph: dictionary where keys are nodes and values are lists of neighbors
-- start: starting node for BFS
-- Return: list of nodes in BFS order
-- Handle disconnected graphs`,
-                starterCode: `from collections import deque
-
-def bfs(graph, start):
-    """Perform BFS traversal on a graph."""
+- Input: graph (adjacency list dict), start vertex
+- Output: List of vertices in BFS order
+- Handle disconnected graphs
+- Return empty list for invalid start vertex`,
+                starterCode: `def bfs(graph, start):
+    """
+    Perform BFS traversal on a graph.
+    
+    Args:
+        graph: Dictionary representing adjacency list
+        start: Starting vertex
+        
+    Returns:
+        List of vertices in BFS order
+    """
     # Your implementation here
     pass
 
 # Test your function
 graph = {
     'A': ['B', 'C'],
-    'B': ['D', 'E'],
-    'C': ['F'],
-    'D': [],
-    'E': ['F'],
-    'F': []
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'F'],
+    'D': ['B'],
+    'E': ['B', 'F'],
+    'F': ['C', 'E']
 }
 print(bfs(graph, 'A'))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': ['B', 'C'],
-                                'B': ['D', 'E'],
-                                'C': ['F'],
-                                'D': [],
-                                'E': ['F'],
-                                'F': []
-                            }, 
-                            'A'
-                        ], 
-                        expected: ['A', 'B', 'C', 'D', 'E', 'F'] 
+                        input: [{
+                            'A': ['B', 'C'],
+                            'B': ['A', 'D', 'E'],
+                            'C': ['A', 'F'],
+                            'D': ['B'],
+                            'E': ['B', 'F'],
+                            'F': ['C', 'E']
+                        }, 'A'],
+                        expected: ['A', 'B', 'C', 'D', 'E', 'F']
                     },
                     { 
-                        input: [
-                            {
-                                '1': ['2', '3'],
-                                '2': ['4'],
-                                '3': ['4'],
-                                '4': []
-                            }, 
-                            '1'
-                        ], 
-                        expected: ['1', '2', '3', '4'] 
-                    },
-                    { 
-                        input: [
-                            {
-                                'X': ['Y'],
-                                'Y': ['Z'],
-                                'Z': []
-                            }, 
-                            'X'
-                        ], 
-                        expected: ['X', 'Y', 'Z'] 
+                        input: [{
+                            '1': ['2', '3'],
+                            '2': ['1', '4'],
+                            '3': ['1'],
+                            '4': ['2']
+                        }, '1'],
+                        expected: ['1', '2', '3', '4']
                     }
                 ],
                 functionName: 'bfs',
                 points: 10
             },
             {
-                id: 2,
-                title: "DFS Traversal",
-                description: "Implement Depth-First Search traversal for a graph.",
-                prompt: `Write a function dfs(graph, start) that performs DFS traversal.
+                id: 3,
+                title: "Depth-First Search (DFS) - Recursive",
+                description: "Implement recursive DFS algorithm for graph traversal.",
+                prompt: `Write a function dfs_recursive(graph, start) that performs DFS using recursion.
 
 REQUIREMENTS:
-- graph: dictionary where keys are nodes and values are lists of neighbors
-- start: starting node for DFS
-- Return: list of nodes in DFS order (pre-order)`,
-                starterCode: `def dfs(graph, start):
-    """Perform DFS traversal on a graph."""
+- Input: graph (adjacency list dict), start vertex
+- Output: List of vertices in DFS order
+- Use recursion and maintain visited set
+- Handle disconnected components`,
+                starterCode: `def dfs_recursive(graph, start, visited=None):
+    """
+    Perform DFS traversal using recursion.
+    
+    Args:
+        graph: Dictionary representing adjacency list
+        start: Starting vertex
+        visited: Set of visited vertices (internal use)
+        
+    Returns:
+        List of vertices in DFS order
+    """
     # Your implementation here
     pass
 
 # Test your function
 graph = {
     'A': ['B', 'C'],
-    'B': ['D', 'E'],
-    'C': ['F'],
-    'D': [],
-    'E': ['F'],
-    'F': []
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'F'],
+    'D': ['B'],
+    'E': ['B', 'F'],
+    'F': ['C', 'E']
 }
-print(dfs(graph, 'A'))`,
+print(dfs_recursive(graph, 'A'))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': ['B', 'C'],
-                                'B': ['D', 'E'],
-                                'C': ['F'],
-                                'D': [],
-                                'E': ['F'],
-                                'F': []
-                            }, 
-                            'A'
-                        ], 
-                        expected: ['A', 'B', 'D', 'E', 'F', 'C'] 
+                        input: [{
+                            'A': ['B', 'C'],
+                            'B': ['A', 'D', 'E'],
+                            'C': ['A', 'F'],
+                            'D': ['B'],
+                            'E': ['B', 'F'],
+                            'F': ['C', 'E']
+                        }, 'A'],
+                        expected: ['A', 'B', 'D', 'E', 'F', 'C']
                     },
                     { 
-                        input: [
-                            {
-                                '1': ['2', '3'],
-                                '2': ['4'],
-                                '3': ['4'],
-                                '4': []
-                            }, 
-                            '1'
-                        ], 
-                        expected: ['1', '2', '4', '3'] 
+                        input: [{
+                            '1': ['2', '3'],
+                            '2': ['1', '4'],
+                            '3': ['1'],
+                            '4': ['2']
+                        }, '1'],
+                        expected: ['1', '2', '4', '3']
                     }
                 ],
-                functionName: 'dfs',
+                functionName: 'dfs_recursive',
                 points: 10
             },
             {
-                id: 3,
-                title: "Topological Sort",
-                description: "Implement topological sorting for a Directed Acyclic Graph (DAG).",
-                prompt: `Write a function topological_sort(graph) that returns a topological ordering.
+                id: 4,
+                title: "Depth-First Search (DFS) - Iterative",
+                description: "Implement iterative DFS algorithm using a stack.",
+                prompt: `Write a function dfs_iterative(graph, start) that performs DFS using a stack.
 
 REQUIREMENTS:
-- graph: dictionary representing a DAG
-- Return: list of nodes in topological order
-- Use Kahn's algorithm or DFS-based approach`,
-                starterCode: `from collections import deque
-
-def topological_sort(graph):
-    """Perform topological sort on a DAG."""
+- Input: graph (adjacency list dict), start vertex
+- Output: List of vertices in DFS order
+- Use explicit stack (no recursion)
+- Maintain visited set to avoid cycles`,
+                starterCode: `def dfs_iterative(graph, start):
+    """
+    Perform DFS traversal using iterative approach with stack.
+    
+    Args:
+        graph: Dictionary representing adjacency list
+        start: Starting vertex
+        
+    Returns:
+        List of vertices in DFS order
+    """
     # Your implementation here
     pass
 
 # Test your function
 graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'F'],
+    'D': ['B'],
+    'E': ['B', 'F'],
+    'F': ['C', 'E']
+}
+print(dfs_iterative(graph, 'A'))`,
+                testCases: [
+                    { 
+                        input: [{
+                            'A': ['B', 'C'],
+                            'B': ['A', 'D', 'E'],
+                            'C': ['A', 'F'],
+                            'D': ['B'],
+                            'E': ['B', 'F'],
+                            'F': ['C', 'E']
+                        }, 'A'],
+                        expected: ['A', 'C', 'F', 'E', 'B', 'D']
+                    },
+                    { 
+                        input: [{
+                            '1': ['2', '3'],
+                            '2': ['1', '4'],
+                            '3': ['1'],
+                            '4': ['2']
+                        }, '1'],
+                        expected: ['1', '3', '2', '4']
+                    }
+                ],
+                functionName: 'dfs_iterative',
+                points: 10
+            },
+            {
+                id: 5,
+                title: "Detect Cycle in Undirected Graph",
+                description: "Implement cycle detection in an undirected graph using DFS.",
+                prompt: `Write a function has_cycle_undirected(graph) that detects cycles in an undirected graph.
+
+REQUIREMENTS:
+- Input: graph (adjacency list dict)
+- Output: Boolean indicating if cycle exists
+- Use DFS approach
+- Handle disconnected graphs`,
+                starterCode: `def has_cycle_undirected(graph):
+    """
+    Detect cycle in undirected graph using DFS.
+    
+    Args:
+        graph: Dictionary representing adjacency list
+        
+    Returns:
+        True if cycle exists, False otherwise
+    """
+    # Your implementation here
+    pass
+
+# Test your function
+graph_with_cycle = {
+    'A': ['B', 'C'],
+    'B': ['A', 'C'],
+    'C': ['A', 'B']
+}
+graph_without_cycle = {
+    'A': ['B'],
+    'B': ['A']
+}
+print(has_cycle_undirected(graph_with_cycle))`,
+                testCases: [
+                    { 
+                        input: [{
+                            'A': ['B', 'C'],
+                            'B': ['A', 'C'],
+                            'C': ['A', 'B']
+                        }],
+                        expected: True
+                    },
+                    { 
+                        input: [{
+                            'A': ['B'],
+                            'B': ['A']
+                        }],
+                        expected: False
+                    },
+                    { 
+                        input: [{
+                            'A': ['B', 'C'],
+                            'B': ['A', 'D'],
+                            'C': ['A'],
+                            'D': ['B']
+                        }],
+                        expected: False
+                    }
+                ],
+                functionName: 'has_cycle_undirected',
+                points: 10
+            },
+            {
+                id: 6,
+                title: "Topological Sorting - Kahn's Algorithm",
+                description: "Implement topological sort using Kahn's algorithm for DAGs.",
+                prompt: `Write a function topological_sort_kahn(graph) that performs topological sort.
+
+REQUIREMENTS:
+- Input: graph (adjacency list dict) - directed graph
+- Output: List of vertices in topological order
+- Use Kahn's algorithm (BFS-based)
+- Return empty list if graph has cycles`,
+                starterCode: `def topological_sort_kahn(graph):
+    """
+    Perform topological sort using Kahn's algorithm.
+    
+    Args:
+        graph: Dictionary representing adjacency list (directed)
+        
+    Returns:
+        List of vertices in topological order, or empty list if cycle exists
+    """
+    # Your implementation here
+    pass
+
+# Test your function
+dag = {
     'A': ['C'],
     'B': ['C', 'D'],
     'C': ['E'],
@@ -398,163 +706,236 @@ graph = {
     'E': ['F'],
     'F': []
 }
-print(topological_sort(graph))`,
+print(topological_sort_kahn(dag))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': ['C'],
-                                'B': ['C', 'D'],
-                                'C': ['E'],
-                                'D': ['F'],
-                                'E': ['F'],
-                                'F': []
-                            }
-                        ], 
-                        expected: ['A', 'B', 'C', 'D', 'E', 'F'] 
+                        input: [{
+                            'A': ['C'],
+                            'B': ['C', 'D'],
+                            'C': ['E'],
+                            'D': ['F'],
+                            'E': ['F'],
+                            'F': []
+                        }],
+                        expected: ['A', 'B', 'C', 'D', 'E', 'F']
                     },
                     { 
-                        input: [
-                            {
-                                '1': ['2'],
-                                '2': ['3'],
-                                '3': ['4'],
-                                '4': []
-                            }
-                        ], 
-                        expected: ['1', '2', '3', '4'] 
+                        input: [{
+                            '1': ['2'],
+                            '2': ['3'],
+                            '3': []
+                        }],
+                        expected: ['1', '2', '3']
                     }
                 ],
-                functionName: 'topological_sort',
+                functionName: 'topological_sort_kahn',
                 points: 10
             },
             {
-                id: 4,
-                title: "Detect Cycle in Directed Graph",
-                description: "Check if a directed graph contains a cycle.",
-                prompt: `Write a function has_cycle(graph) that detects cycles in a directed graph.
+                id: 7,
+                title: "Topological Sorting - DFS Approach",
+                description: "Implement topological sort using DFS-based approach.",
+                prompt: `Write a function topological_sort_dfs(graph) that performs topological sort using DFS.
 
 REQUIREMENTS:
-- graph: dictionary representing a directed graph
-- Return: True if cycle exists, False otherwise
-- Use DFS with recursion stack`,
-                starterCode: `def has_cycle(graph):
-    """Check if directed graph has a cycle."""
+- Input: graph (adjacency list dict) - directed graph
+- Output: List of vertices in topological order
+- Use DFS with finishing times
+- Return empty list if graph has cycles`,
+                starterCode: `def topological_sort_dfs(graph):
+    """
+    Perform topological sort using DFS approach.
+    
+    Args:
+        graph: Dictionary representing adjacency list (directed)
+        
+    Returns:
+        List of vertices in topological order, or empty list if cycle exists
+    """
     # Your implementation here
     pass
 
 # Test your function
-graph = {
+dag = {
+    'A': ['C'],
+    'B': ['C', 'D'],
+    'C': ['E'],
+    'D': ['F'],
+    'E': ['F'],
+    'F': []
+}
+print(topological_sort_dfs(dag))`,
+                testCases: [
+                    { 
+                        input: [{
+                            'A': ['C'],
+                            'B': ['C', 'D'],
+                            'C': ['E'],
+                            'D': ['F'],
+                            'E': ['F'],
+                            'F': []
+                        }],
+                        expected: ['B', 'D', 'A', 'C', 'E', 'F']
+                    },
+                    { 
+                        input: [{
+                            '1': ['2'],
+                            '2': ['3'],
+                            '3': []
+                        }],
+                        expected: ['1', '2', '3']
+                    }
+                ],
+                functionName: 'topological_sort_dfs',
+                points: 10
+            },
+            {
+                id: 8,
+                title: "Detect Cycle in Directed Graph",
+                description: "Implement cycle detection in directed graphs using DFS.",
+                prompt: `Write a function has_cycle_directed(graph) that detects cycles in a directed graph.
+
+REQUIREMENTS:
+- Input: graph (adjacency list dict) - directed graph
+- Output: Boolean indicating if cycle exists
+- Use DFS with recursion stack tracking
+- Handle disconnected graphs`,
+                starterCode: `def has_cycle_directed(graph):
+    """
+    Detect cycle in directed graph using DFS.
+    
+    Args:
+        graph: Dictionary representing adjacency list (directed)
+        
+    Returns:
+        True if cycle exists, False otherwise
+    """
+    # Your implementation here
+    pass
+
+# Test your function
+graph_with_cycle = {
     'A': ['B'],
     'B': ['C'],
     'C': ['A']
 }
-print(has_cycle(graph))`,
+graph_without_cycle = {
+    'A': ['B'],
+    'B': ['C'],
+    'C': []
+}
+print(has_cycle_directed(graph_with_cycle))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': ['B'],
-                                'B': ['C'],
-                                'C': ['A']
-                            }
-                        ], 
-                        expected: true 
+                        input: [{
+                            'A': ['B'],
+                            'B': ['C'],
+                            'C': ['A']
+                        }],
+                        expected: True
                     },
                     { 
-                        input: [
-                            {
-                                'A': ['B', 'C'],
-                                'B': ['D'],
-                                'C': ['D'],
-                                'D': []
-                            }
-                        ], 
-                        expected: false 
+                        input: [{
+                            'A': ['B'],
+                            'B': ['C'],
+                            'C': []
+                        }],
+                        expected: False
                     },
                     { 
-                        input: [
-                            {
-                                '1': ['2'],
-                                '2': ['3'],
-                                '3': ['1']
-                            }
-                        ], 
-                        expected: true  
+                        input: [{
+                            'A': ['B', 'C'],
+                            'B': ['D'],
+                            'C': ['D'],
+                            'D': []
+                        }],
+                        expected: False
                     }
                 ],
-                functionName: 'has_cycle',
+                functionName: 'has_cycle_directed',
                 points: 10
             },
             {
-                id: 5,
-                title: "Shortest Path in Unweighted Graph",
-                description: "Find shortest path in an unweighted graph using BFS.",
-                prompt: `Write a function shortest_path(graph, start, end) that finds shortest path.
+                id: 9,
+                title: "Shortest Path in Unweighted Graph (BFS)",
+                description: "Find shortest path between two nodes in an unweighted graph using BFS.",
+                prompt: `Write a function shortest_path_bfs(graph, start, end) that finds the shortest path.
 
 REQUIREMENTS:
-- graph: unweighted graph as adjacency list
-- Return: list representing shortest path from start to end
-- Return empty list if no path exists`,
-                starterCode: `from collections import deque
-
-def shortest_path(graph, start, end):
-    """Find shortest path in unweighted graph using BFS."""
+- Input: graph (adjacency list), start vertex, end vertex
+- Output: List representing shortest path from start to end
+- Return empty list if no path exists
+- Use BFS to guarantee shortest path in unweighted graph`,
+                starterCode: `def shortest_path_bfs(graph, start, end):
+    """
+    Find shortest path in unweighted graph using BFS.
+    
+    Args:
+        graph: Dictionary representing adjacency list
+        start: Starting vertex
+        end: Target vertex
+        
+    Returns:
+        List of vertices representing shortest path, empty list if no path
+    """
     # Your implementation here
     pass
 
 # Test your function
 graph = {
     'A': ['B', 'C'],
-    'B': ['D', 'E'],
-    'C': ['F'],
-    'D': [],
-    'E': ['F'],
-    'F': []
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'F'],
+    'D': ['B'],
+    'E': ['B', 'F'],
+    'F': ['C', 'E']
 }
-print(shortest_path(graph, 'A', 'F'))`,
+print(shortest_path_bfs(graph, 'A', 'F'))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': ['B', 'C'],
-                                'B': ['D', 'E'],
-                                'C': ['F'],
-                                'D': [],
-                                'E': ['F'],
-                                'F': []
-                            },
-                            'A', 'F'
-                        ], 
-                        expected: ['A', 'C', 'F'] 
+                        input: [{
+                            'A': ['B', 'C'],
+                            'B': ['A', 'D', 'E'],
+                            'C': ['A', 'F'],
+                            'D': ['B'],
+                            'E': ['B', 'F'],
+                            'F': ['C', 'E']
+                        }, 'A', 'F'],
+                        expected: ['A', 'C', 'F']
                     },
                     { 
-                        input: [
-                            {
-                                '1': ['2'],
-                                '2': ['3'],
-                                '3': ['4'],
-                                '4': []
-                            },
-                            '1', '4'
-                        ], 
-                        expected: ['1', '2', '3', '4'] 
+                        input: [{
+                            '1': ['2'],
+                            '2': ['1', '3'],
+                            '3': ['2']
+                        }, '1', '3'],
+                        expected: ['1', '2', '3']
                     }
                 ],
-                functionName: 'shortest_path',
+                functionName: 'shortest_path_bfs',
                 points: 10
             },
             {
-                id: 6,
+                id: 10,
                 title: "Connected Components in Undirected Graph",
-                description: "Find all connected components in an undirected graph.",
+                description: "Find all connected components in an undirected graph using BFS/DFS.",
                 prompt: `Write a function connected_components(graph) that finds all connected components.
 
 REQUIREMENTS:
-- graph: undirected graph as adjacency list
-- Return: list of components, where each component is a list of nodes`,
+- Input: graph (adjacency list dict) - undirected graph
+- Output: List of lists, each inner list is a connected component
+- Components should be sorted in descending order of size
+- Handle empty graph case`,
                 starterCode: `def connected_components(graph):
-    """Find all connected components in an undirected graph."""
+    """
+    Find all connected components in undirected graph.
+    
+    Args:
+        graph: Dictionary representing adjacency list
+        
+    Returns:
+        List of connected components (each component is a list of vertices)
+    """
     # Your implementation here
     pass
 
@@ -569,216 +950,25 @@ graph = {
 print(connected_components(graph))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': ['B'],
-                                'B': ['A'],
-                                'C': ['D'],
-                                'D': ['C'],
-                                'E': []
-                            }
-                        ], 
-                        expected: [['A', 'B'], ['C', 'D'], ['E']] 
+                        input: [{
+                            'A': ['B'],
+                            'B': ['A'],
+                            'C': ['D'],
+                            'D': ['C'],
+                            'E': []
+                        }],
+                        expected: [['A', 'B'], ['C', 'D'], ['E']]
                     },
                     { 
-                        input: [
-                            {
-                                '1': ['2'],
-                                '2': ['1', '3'],
-                                '3': ['2'],
-                                '4': ['5'],
-                                '5': ['4']
-                            }
-                        ], 
-                        expected: [['1', '2', '3'], ['4', '5']] 
+                        input: [{
+                            '1': ['2'],
+                            '2': ['1', '3'],
+                            '3': ['2']
+                        }],
+                        expected: [['1', '2', '3']]
                     }
                 ],
                 functionName: 'connected_components',
-                points: 10
-            },
-            {
-                id: 7,
-                title: "Find Mother Vertex",
-                description: "Find a mother vertex in a directed graph (vertex that can reach all other vertices).",
-                prompt: `Write a function find_mother_vertex(graph) that finds a mother vertex.
-
-REQUIREMENTS:
-- graph: directed graph as adjacency list
-- Return: a mother vertex if exists, None otherwise`,
-                starterCode: `def find_mother_vertex(graph):
-    """Find a mother vertex in a directed graph."""
-    # Your implementation here
-    pass
-
-# Test your function
-graph = {
-    'A': ['B', 'C'],
-    'B': ['D'],
-    'C': ['D'],
-    'D': []
-}
-print(find_mother_vertex(graph))`,
-                testCases: [
-                    { 
-                        input: [
-                            {
-                                'A': ['B', 'C'],
-                                'B': ['D'],
-                                'C': ['D'],
-                                'D': []
-                            }
-                        ], 
-                        expected: 'A' 
-                    },
-                    { 
-                        input: [
-                            {
-                                '1': ['2'],
-                                '2': ['3'],
-                                '3': ['1']
-                            }
-                        ], 
-                        expected: '1' 
-                    }
-                ],
-                functionName: 'find_mother_vertex',
-                points: 10
-            },
-            {
-                id: 8,
-                title: "Course Schedule",
-                description: "Check if course schedule is possible given prerequisites.",
-                prompt: `Write a function can_finish_courses(num_courses, prerequisites) that checks schedule feasibility.
-
-REQUIREMENTS:
-- num_courses: total number of courses
-- prerequisites: list of pairs [a, b] meaning b is prerequisite for a
-- Return: True if schedule is possible, False otherwise`,
-                starterCode: `def can_finish_courses(num_courses, prerequisites):
-    """Check if course schedule is possible given prerequisites."""
-    # Your implementation here
-    pass
-
-# Test your function
-print(can_finish_courses(2, [[1, 0]]))`,
-                testCases: [
-                    { 
-                        input: [2, [[1, 0]]], 
-                        expected: true  
-                    },
-                    { 
-                        input: [2, [[1, 0], [0, 1]]], 
-                        expected: false 
-                    },
-                    { 
-                        input: [3, [[1, 0], [2, 1]]], 
-                        expected: true  
-                    }
-                ],
-                functionName: 'can_finish_courses',
-                points: 10
-            },
-            {
-                id: 9,
-                title: "Find All Paths Between Two Nodes",
-                description: "Find all possible paths between two nodes in a directed acyclic graph.",
-                prompt: `Write a function find_all_paths(graph, start, end) that finds all paths.
-
-REQUIREMENTS:
-- graph: directed acyclic graph as adjacency list
-- Return: list of all paths from start to end`,
-                starterCode: `def find_all_paths(graph, start, end):
-    """Find all paths between two nodes in a DAG."""
-    # Your implementation here
-    pass
-
-# Test your function
-graph = {
-    'A': ['B', 'C'],
-    'B': ['D'],
-    'C': ['D'],
-    'D': []
-}
-print(find_all_paths(graph, 'A', 'D'))`,
-                testCases: [
-                    { 
-                        input: [
-                            {
-                                'A': ['B', 'C'],
-                                'B': ['D'],
-                                'C': ['D'],
-                                'D': []
-                            },
-                            'A', 'D'
-                        ], 
-                        expected: [['A', 'B', 'D'], ['A', 'C', 'D']] 
-                    },
-                    { 
-                        input: [
-                            {
-                                '1': ['2'],
-                                '2': ['3'],
-                                '3': []
-                            },
-                            '1', '3'
-                        ], 
-                        expected: [['1', '2', '3']] 
-                    }
-                ],
-                functionName: 'find_all_paths',
-                points: 10
-            },
-            {
-                id: 10,
-                title: "Strongly Connected Components",
-                description: "Find strongly connected components in a directed graph using Kosaraju's algorithm.",
-                prompt: `Write a function strongly_connected_components(graph) that finds SCCs.
-
-REQUIREMENTS:
-- graph: directed graph as adjacency list
-- Return: list of SCCs, where each SCC is a list of nodes`,
-                starterCode: `def strongly_connected_components(graph):
-    """Find strongly connected components using Kosaraju's algorithm."""
-    # Your implementation here
-    pass
-
-# Test your function
-graph = {
-    'A': ['B'],
-    'B': ['C'],
-    'C': ['A', 'D'],
-    'D': ['E'],
-    'E': ['F'],
-    'F': ['D']
-}
-print(strongly_connected_components(graph))`,
-                testCases: [
-                    { 
-                        input: [
-                            {
-                                'A': ['B'],
-                                'B': ['C'],
-                                'C': ['A', 'D'],
-                                'D': ['E'],
-                                'E': ['F'],
-                                'F': ['D']
-                            }
-                        ], 
-                        expected: [['A', 'B', 'C'], ['D', 'E', 'F']] 
-                    },
-                    { 
-                        input: [
-                            {
-                                '1': ['2'],
-                                '2': ['1', '3'],
-                                '3': ['4'],
-                                '4': ['3']
-                            }
-                        ], 
-                        expected: [['1', '2'], ['3', '4']] 
-                    }
-                ],
-                functionName: 'strongly_connected_components',
                 points: 10
             }
         ];
@@ -789,14 +979,173 @@ print(strongly_connected_components(graph))`,
         let editors = {};
         let submittedQuizData = null;
 
-        // Initialize Pyodide ONCE at startup
+        // ===== ANTI-CHEATING SYSTEM =====
+        
+        function initializeAntiCheating() {
+            // Disable right-click everywhere except code editor
+            document.addEventListener('contextmenu', function(e) {
+                if (!e.target.closest('.monaco-editor')) {
+                    e.preventDefault();
+                    recordCheatingAttempt('right_click');
+                    return false;
+                }
+            });
+            
+            // Disable keyboard shortcuts (except in editor)
+            document.addEventListener('keydown', function(e) {
+                // Allow all keys in Monaco editor
+                if (e.target.closest('.monaco-editor') || e.target.classList.contains('monaco-editor')) {
+                    return true;
+                }
+                
+                // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
+                if (e.keyCode === 123 || // F12
+                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
+                    (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
+                    (e.ctrlKey && e.keyCode === 83) || // Ctrl+S
+                    e.keyCode === 44) { // Print Screen
+                    e.preventDefault();
+                    recordCheatingAttempt('keyboard_shortcut');
+                    return false;
+                }
+                
+                // Disable Ctrl+A, Ctrl+C, Ctrl+V outside editor
+                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                    e.preventDefault();
+                    recordCheatingAttempt('copy_attempt');
+                    return false;
+                }
+            });
+            
+            // Detect developer tools
+            let devtools = {open: false, orientation: null};
+            const threshold = 160;
+            
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > threshold || 
+                    window.outerWidth - window.innerWidth > threshold) {
+                    if (!devtools.open && isQuizActive) {
+                        devtools.open = true;
+                        recordCheatingAttempt('developer_tools');
+                        if (!devToolsWarned) {
+                            alert('⚠️ Developer tools detected! This attempt has been logged.\n\nContinued violations may result in quiz auto-submission.');
+                            devToolsWarned = true;
+                        }
+                    }
+                } else {
+                    devtools.open = false;
+                }
+            }, 500);
+            
+            // Detect window focus changes (tab switching)
+            window.addEventListener('blur', function() {
+                if (isQuizActive) {
+                    tabSwitchCount++;
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                    document.getElementById('attemptCount').textContent = cheatingAttempts;
+                    recordCheatingAttempt('window_blur_tab_switch');
+                }
+            });
+            
+            window.addEventListener('focus', function() {
+                document.body.classList.remove('blurred');
+                document.getElementById('warningOverlay').style.display = 'none';
+                updateSecurityIndicator();
+            });
+            
+            // Monitor for screenshot attempts
+            document.addEventListener('keyup', function(e) {
+                if (e.keyCode === 44 && isQuizActive) { // Print Screen released
+                    recordCheatingAttempt('screenshot_attempt');
+                    alert('⚠️ Screenshot attempt detected and logged!');
+                }
+            });
+            
+            // Disable printing
+            window.addEventListener('beforeprint', function(e) {
+                if (isQuizActive) {
+                    recordCheatingAttempt('print_attempt');
+                    e.preventDefault();
+                    alert('⚠️ Printing is disabled during the quiz.');
+                    return false;
+                }
+            });
+            
+            // Monitor visibility changes
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && isQuizActive) {
+                    recordCheatingAttempt('visibility_change');
+                }
+            });
+            
+            // Prevent text selection outside editor
+            document.addEventListener('selectstart', function(e) {
+                if (!e.target.closest('.monaco-editor') && isQuizActive) {
+                    recordCheatingAttempt('text_selection');
+                    return false;
+                }
+            });
+        }
+        
+        // Record cheating attempts
+        function recordCheatingAttempt(type) {
+            cheatingAttempts++;
+            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+            
+            // Update UI
+            document.getElementById('attemptCount').textContent = cheatingAttempts;
+            updateSecurityIndicator(true);
+            
+            // Log to server
+            if (currentUser.username && currentUser.email) {
+                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: currentUser.username,
+                        email: currentUser.email,
+                        cheatingType: type,
+                        timestamp: new Date(),
+                        currentQuestion: currentQuestionIndex + 1,
+                        totalAttempts: cheatingAttempts
+                    })
+                }).catch(err => console.error('Failed to log cheating attempt:', err));
+            }
+            
+            // Auto-submit after too many attempts
+            if (cheatingAttempts >= 10) {
+                alert('⚠️ Too many suspicious activities detected!\n\nYour quiz will be auto-submitted now.');
+                submitQuiz();
+            } else if (cheatingAttempts >= 5) {
+                alert(`⚠️ Warning: ${cheatingAttempts} suspicious activities detected!\n\nQuiz will auto-submit at 10 attempts.`);
+            }
+        }
+        
+        // Update security indicator
+        function updateSecurityIndicator(warning = false) {
+            const indicator = document.getElementById('securityIndicator');
+            const text = document.getElementById('securityText');
+            
+            if (warning) {
+                indicator.classList.add('warning');
+                text.textContent = `${cheatingAttempts} Violations Detected`;
+                setTimeout(() => {
+                    indicator.classList.remove('warning');
+                    text.textContent = 'Monitoring Active';
+                }, 3000);
+            }
+        }
+
+        // ===== QUIZ INITIALIZATION =====
+
         async function initPyodide() {
             const loadingText = document.querySelector('.loading-text');
             
             try {
                 loadingText.textContent = 'Loading Python interpreter...';
                 
-                // Load Pyodide
                 pyodide = await loadPyodide({
                     indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
                 });
@@ -804,7 +1153,6 @@ print(strongly_connected_components(graph))`,
                 loadingText.textContent = 'Python ready! Initializing quiz...';
                 pyodideReady = true;
                 
-                // Now initialize Monaco Editor
                 require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
                 require(['vs/editor/editor.main'], function() {
                     setTimeout(() => initializeQuiz(), 500);
@@ -819,6 +1167,9 @@ print(strongly_connected_components(graph))`,
 
         async function initializeQuiz() {
             console.log('🚀 Initializing quiz...');
+            
+            // Initialize anti-cheating FIRST
+            initializeAntiCheating();
             
             currentUser = { username: 'TestUser', email: 'test@example.com' };
             userAnswers = {};
@@ -840,8 +1191,18 @@ print(strongly_connected_components(graph))`,
                 console.log('ℹ️ Using test user for demo');
             }
             
+            // Enable quiz monitoring
+            isQuizActive = true;
+            
             document.getElementById('loadingOverlay').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
+            
+            // Request fullscreen (optional, user can decline)
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request declined:', err);
+                });
+            }
             
             renderCurrentQuestion();
             updateProgress();
@@ -894,14 +1255,16 @@ print(strongly_connected_components(graph))`,
         }
 
         function formatTestCase(test) {
-            const input = Array.isArray(test.input) ? 
-                test.input.map(inp => typeof inp === 'object' ? JSON.stringify(inp) : inp).join(', ') : 
-                test.input;
+            if (test.setup) {
+                return `Setup: ${test.setup} → Expected: ${JSON.stringify(test.expected)}`;
+            }
+            const input = Array.isArray(test.input) ? test.input.map(inp => 
+                typeof inp === 'object' ? 'graph' : JSON.stringify(inp)
+            ).join(', ') : test.input;
             const expected = JSON.stringify(test.expected);
             return `Input: ${input} → Expected: ${expected}`;
         }
 
-        // Execute Python code using Pyodide (INSTANT after initial load)
         async function executePythonTests(code, question) {
             if (!pyodideReady) {
                 throw new Error('Python environment not ready');
@@ -913,7 +1276,6 @@ print(strongly_connected_components(graph))`,
                 const testCase = question.testCases[i];
                 
                 try {
-                    // Clear previous code
                     await pyodide.runPythonAsync(`
 import sys
 for name in list(globals().keys()):
@@ -924,40 +1286,60 @@ for name in list(globals().keys()):
             pass
                     `);
                     
-                    // Run user's code
                     await pyodide.runPythonAsync(code);
                     
-                    // Build function call
                     let functionCall;
-                    if (Array.isArray(testCase.input)) {
+                    if (testCase.setup) {
+                        // For class-based questions or complex setups
+                        await pyodide.runPythonAsync(testCase.setup);
+                        results.push({
+                            passed: true,
+                            output: testCase.expected,
+                            expected: testCase.expected,
+                            error: null
+                        });
+                    } else if (Array.isArray(testCase.input)) {
                         functionCall = `${question.functionName}(${testCase.input.map(v => 
-                            typeof v === 'object' ? JSON.stringify(v).replace(/'/g, '"') : 
-                            typeof v === 'string' ? `'${v}'` : v
+                            typeof v === 'object' ? JSON.stringify(v).replace(/'/g, '"') : JSON.stringify(v)
                         ).join(', ')})`;
+                        
+                        const result = await pyodide.runPythonAsync(functionCall);
+                        
+                        let output;
+                        if (result && typeof result === 'object' && result.toJs) {
+                            output = result.toJs({ dict_converter: Object.fromEntries });
+                        } else {
+                            output = result;
+                        }
+                        
+                        const passed = deepEqual(output, testCase.expected);
+                        
+                        results.push({
+                            passed,
+                            output,
+                            expected: testCase.expected,
+                            error: null
+                        });
                     } else {
                         functionCall = `${question.functionName}(${testCase.input})`;
+                        const result = await pyodide.runPythonAsync(functionCall);
+                        
+                        let output;
+                        if (result && typeof result === 'object' && result.toJs) {
+                            output = result.toJs({ dict_converter: Object.fromEntries });
+                        } else {
+                            output = result;
+                        }
+                        
+                        const passed = deepEqual(output, testCase.expected);
+                        
+                        results.push({
+                            passed,
+                            output,
+                            expected: testCase.expected,
+                            error: null
+                        });
                     }
-                    
-                    // Execute test
-                    const result = await pyodide.runPythonAsync(functionCall);
-                    
-                    // Convert result
-                    let output;
-                    if (result && typeof result === 'object' && result.toJs) {
-                        output = result.toJs({ dict_converter: Object.fromEntries });
-                    } else {
-                        output = result;
-                    }
-                    
-                    // Compare
-                    const passed = deepEqual(output, testCase.expected);
-                    
-                    results.push({
-                        passed,
-                        output,
-                        expected: testCase.expected,
-                        error: null
-                    });
                     
                 } catch (error) {
                     results.push({
@@ -1087,6 +1469,9 @@ for name in list(globals().keys()):
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Submitting...';
+            
+            // Disable monitoring
+            isQuizActive = false;
 
             let totalScore = 0;
             const results = [];
@@ -1141,7 +1526,9 @@ for name in list(globals().keys()):
                 maxScore,
                 percentage,
                 questions: results,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                cheatingAttempts: cheatingAttempts,
+                tabSwitches: tabSwitchCount
             };
             
             try {
@@ -1173,6 +1560,11 @@ for name in list(globals().keys()):
             const detailedResults = document.getElementById('detailedResults');
             detailedResults.innerHTML = `
                 <h4>Detailed Results</h4>
+                ${quizData.cheatingAttempts > 0 ? `
+                    <div class="alert alert-warning">
+                        ⚠️ Security Note: ${quizData.cheatingAttempts} suspicious activities were detected during this quiz.
+                    </div>
+                ` : ''}
                 ${quizData.questions.map(q => `
                     <div class="card mb-3">
                         <div class="card-body">
@@ -1218,7 +1610,10 @@ for name in list(globals().keys()):
             currentQuestionIndex = 0;
             userAnswers = {};
             editors = {};
+            cheatingAttempts = 0;
+            tabSwitchCount = 0;
             submittedQuizData = null;
+            isQuizActive = true;
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
             renderCurrentQuestion();
