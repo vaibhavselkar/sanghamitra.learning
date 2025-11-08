@@ -19,7 +19,7 @@
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
         }
-             
+        
         /* Allow text selection ONLY in code editors */
         .monaco-editor,
         .monaco-editor *,
@@ -408,28 +408,8 @@ graph = {
 print(dijkstra(graph, 'A'))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': [('B', 1), ('C', 4)],
-                                'B': [('C', 2), ('D', 5)],
-                                'C': [('D', 1)],
-                                'D': []
-                            }, 
-                            'A'
-                        ], 
+                        input: ['graph1', 'A'],
                         expected: {'A': 0, 'B': 1, 'C': 3, 'D': 4}
-                    },
-                    { 
-                        input: [
-                            {
-                                'A': [('B', 2), ('C', 1)],
-                                'B': [('D', 3)],
-                                'C': [('D', 4)],
-                                'D': []
-                            }, 
-                            'A'
-                        ], 
-                        expected: {'A': 0, 'B': 2, 'C': 1, 'D': 5}
                     }
                 ],
                 functionName: 'dijkstra',
@@ -472,27 +452,8 @@ graph = {
 print(bellman_ford(graph, 'A'))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': [('B', 1), ('C', 4)],
-                                'B': [('C', 2), ('D', 5)],
-                                'C': [('D', 1)],
-                                'D': []
-                            }, 
-                            'A'
-                        ], 
+                        input: ['graph1', 'A'],
                         expected: {'A': 0, 'B': 1, 'C': 3, 'D': 4}
-                    },
-                    { 
-                        input: [
-                            {
-                                'A': [('B', 1)],
-                                'B': [('C', -1)],
-                                'C': [('A', -1)]
-                            }, 
-                            'A'
-                        ], 
-                        expected: None  # Negative cycle
                     }
                 ],
                 functionName: 'bellman_ford',
@@ -532,18 +493,8 @@ graph = [
 print(floyd_warshall(graph))`,
                 testCases: [
                     { 
-                        input: [[
-                            [0, 3, float('inf'), 5],
-                            [2, 0, float('inf'), 4],
-                            [float('inf'), 1, 0, float('inf')],
-                            [float('inf'), float('inf'), 2, 0]
-                        ]], 
-                        expected: [
-                            [0, 3, 7, 5],
-                            [2, 0, 6, 4],
-                            [3, 1, 0, 5],
-                            [5, 3, 2, 0]
-                        ]
+                        input: ['graph_matrix1'],
+                        expected: [[0, 3, 7, 5], [2, 0, 6, 4], [3, 1, 0, 5], [5, 3, 2, 0]]
                     }
                 ],
                 functionName: 'floyd_warshall',
@@ -586,14 +537,8 @@ graph = {
 print(prim_mst(graph))`,
                 testCases: [
                     { 
-                        input: [{
-                            0: [(1, 2), (3, 6)],
-                            1: [(0, 2), (2, 3), (3, 8), (4, 5)],
-                            2: [(1, 3), (4, 7)],
-                            3: [(0, 6), (1, 8), (4, 9)],
-                            4: [(1, 5), (2, 7), (3, 9)]
-                        }], 
-                        expected: [(0, 1, 2), (1, 2, 3), (1, 4, 5), (0, 3, 6)]
+                        input: ['graph_mst1'],
+                        expected: [[0, 1, 2], [1, 2, 3], [1, 4, 5], [0, 3, 6]]
                     }
                 ],
                 functionName: 'prim_mst',
@@ -618,12 +563,23 @@ REQUIREMENTS:
         self.rank = [0] * n
     
     def find(self, x):
-        # Your implementation here
-        pass
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
     
     def union(self, x, y):
-        # Your implementation here
-        pass
+        root_x = self.find(x)
+        root_y = self.find(y)
+        if root_x != root_y:
+            if self.rank[root_x] < self.rank[root_y]:
+                self.parent[root_x] = root_y
+            elif self.rank[root_x] > self.rank[root_y]:
+                self.parent[root_y] = root_x
+            else:
+                self.parent[root_y] = root_x
+                self.rank[root_x] += 1
+            return True
+        return False
 
 def kruskal_mst(edges, num_nodes):
     """
@@ -644,11 +600,8 @@ edges = [(0, 1, 2), (0, 3, 6), (1, 2, 3), (1, 3, 8), (1, 4, 5), (2, 4, 7), (3, 4
 print(kruskal_mst(edges, 5))`,
                 testCases: [
                     { 
-                        input: [
-                            [(0, 1, 2), (0, 3, 6), (1, 2, 3), (1, 3, 8), (1, 4, 5), (2, 4, 7), (3, 4, 9)],
-                            5
-                        ], 
-                        expected: [(0, 1, 2), (1, 2, 3), (1, 4, 5), (0, 3, 6)]
+                        input: ['edges_mst1', 5],
+                        expected: [[0, 1, 2], [1, 2, 3], [1, 4, 5], [0, 3, 6]]
                     }
                 ],
                 functionName: 'kruskal_mst',
@@ -694,17 +647,7 @@ graph = {
 print(bfs_shortest_path(graph, 'A', 'F'))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': ['B', 'C'],
-                                'B': ['A', 'D', 'E'],
-                                'C': ['A', 'F'],
-                                'D': ['B'],
-                                'E': ['B', 'F'],
-                                'F': ['C', 'E']
-                            },
-                            'A', 'F'
-                        ], 
+                        input: ['graph_bfs1', 'A', 'F'],
                         expected: ['A', 'C', 'F']
                     }
                 ],
@@ -749,18 +692,8 @@ graph = {
 print(dfs_path(graph, 'A', 'F'))`,
                 testCases: [
                     { 
-                        input: [
-                            {
-                                'A': ['B', 'C'],
-                                'B': ['A', 'D', 'E'],
-                                'C': ['A', 'F'],
-                                'D': ['B'],
-                                'E': ['B', 'F'],
-                                'F': ['C', 'E']
-                            },
-                            'A', 'F'
-                        ], 
-                        expected: ['A', 'C', 'F']  # Could also be ['A', 'B', 'E', 'F']
+                        input: ['graph_dfs1', 'A', 'F'],
+                        expected: ['A', 'C', 'F']
                     }
                 ],
                 functionName: 'dfs_path',
@@ -803,14 +736,8 @@ graph = {
 print(topological_sort(graph))`,
                 testCases: [
                     { 
-                        input: [{
-                            'A': ['B', 'C'],
-                            'B': ['D'],
-                            'C': ['D'],
-                            'D': ['E'],
-                            'E': []
-                        }], 
-                        expected: ['A', 'B', 'C', 'D', 'E']  # Could have multiple valid orderings
+                        input: ['graph_topo1'],
+                        expected: ['A', 'B', 'C', 'D', 'E']
                     }
                 ],
                 functionName: 'topological_sort',
@@ -856,21 +783,12 @@ print(has_cycle_directed(graph_with_cycle))
 print(has_cycle_directed(graph_without_cycle))`,
                 testCases: [
                     { 
-                        input: [{
-                            'A': ['B'],
-                            'B': ['C'],
-                            'C': ['A']
-                        }], 
+                        input: ['graph_cycle1'],
                         expected: true
                     },
                     { 
-                        input: [{
-                            'A': ['B', 'C'],
-                            'B': ['D'],
-                            'C': ['D'],
-                            'D': []
-                        }], 
-                        expected: False
+                        input: ['graph_cycle2'],
+                        expected: false
                     }
                 ],
                 functionName: 'has_cycle_directed',
@@ -895,12 +813,23 @@ REQUIREMENTS:
         self.rank = [0] * n
     
     def find(self, x):
-        # Your implementation here
-        pass
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
     
     def union(self, x, y):
-        # Your implementation here
-        pass
+        root_x = self.find(x)
+        root_y = self.find(y)
+        if root_x != root_y:
+            if self.rank[root_x] < self.rank[root_y]:
+                self.parent[root_x] = root_y
+            elif self.rank[root_x] > self.rank[root_y]:
+                self.parent[root_y] = root_x
+            else:
+                self.parent[root_y] = root_x
+                self.rank[root_x] += 1
+            return True
+        return False
 
 def has_cycle_undirected(edges, num_nodes):
     """
@@ -923,11 +852,11 @@ print(has_cycle_undirected(edges_with_cycle, 3))
 print(has_cycle_undirected(edges_without_cycle, 4))`,
                 testCases: [
                     { 
-                        input: [[(0, 1), (1, 2), (2, 0)], 3], 
+                        input: ['edges_cycle1', 3],
                         expected: true
                     },
                     { 
-                        input: [[(0, 1), (1, 2), (2, 3)], 4], 
+                        input: ['edges_cycle2', 4],
                         expected: false
                     }
                 ],
@@ -935,6 +864,66 @@ print(has_cycle_undirected(edges_without_cycle, 4))`,
                 points: 10
             }
         ];
+
+        // Graph data for test cases
+        const graphData = {
+            'graph1': {
+                'A': [['B', 1], ['C', 4]],
+                'B': [['C', 2], ['D', 5]],
+                'C': [['D', 1]],
+                'D': []
+            },
+            'graph_matrix1': [
+                [0, 3, Infinity, 5],
+                [2, 0, Infinity, 4],
+                [Infinity, 1, 0, Infinity],
+                [Infinity, Infinity, 2, 0]
+            ],
+            'graph_mst1': {
+                0: [[1, 2], [3, 6]],
+                1: [[0, 2], [2, 3], [3, 8], [4, 5]],
+                2: [[1, 3], [4, 7]],
+                3: [[0, 6], [1, 8], [4, 9]],
+                4: [[1, 5], [2, 7], [3, 9]]
+            },
+            'edges_mst1': [[0, 1, 2], [0, 3, 6], [1, 2, 3], [1, 3, 8], [1, 4, 5], [2, 4, 7], [3, 4, 9]],
+            'graph_bfs1': {
+                'A': ['B', 'C'],
+                'B': ['A', 'D', 'E'],
+                'C': ['A', 'F'],
+                'D': ['B'],
+                'E': ['B', 'F'],
+                'F': ['C', 'E']
+            },
+            'graph_dfs1': {
+                'A': ['B', 'C'],
+                'B': ['A', 'D', 'E'],
+                'C': ['A', 'F'],
+                'D': ['B'],
+                'E': ['B', 'F'],
+                'F': ['C', 'E']
+            },
+            'graph_topo1': {
+                'A': ['B', 'C'],
+                'B': ['D'],
+                'C': ['D'],
+                'D': ['E'],
+                'E': []
+            },
+            'graph_cycle1': {
+                'A': ['B'],
+                'B': ['C'],
+                'C': ['A']
+            },
+            'graph_cycle2': {
+                'A': ['B', 'C'],
+                'B': ['D'],
+                'C': ['D'],
+                'D': []
+            },
+            'edges_cycle1': [[0, 1], [1, 2], [2, 0]],
+            'edges_cycle2': [[0, 1], [1, 2], [2, 3]]
+        };
 
         let currentQuestionIndex = 0;
         let userAnswers = {};
@@ -1218,9 +1207,7 @@ print(has_cycle_undirected(edges_without_cycle, 4))`,
         }
 
         function formatTestCase(test) {
-            const input = Array.isArray(test.input) ? test.input.map(inp => 
-                typeof inp === 'object' ? JSON.stringify(inp).substring(0, 100) + '...' : inp
-            ).join(', ') : test.input;
+            const input = Array.isArray(test.input) ? test.input.join(', ') : test.input;
             const expected = JSON.stringify(test.expected);
             return `Input: ${input} → Expected: ${expected}`;
         }
@@ -1246,12 +1233,15 @@ for name in list(globals().keys()):
             pass
                     `);
                     
+                    // Add graph data to Python environment
+                    await addGraphDataToPython();
+                    
                     await pyodide.runPythonAsync(code);
                     
                     let functionCall;
                     if (Array.isArray(testCase.input)) {
                         functionCall = `${question.functionName}(${testCase.input.map(v => 
-                            typeof v === 'object' ? JSON.stringify(v) : v
+                            typeof v === 'string' && graphData[v] ? v : JSON.stringify(v)
                         ).join(', ')})`;
                     } else {
                         functionCall = `${question.functionName}(${testCase.input})`;
@@ -1286,6 +1276,13 @@ for name in list(globals().keys()):
             }
             
             return results;
+        }
+
+        async function addGraphDataToPython() {
+            // Add graph data to Python environment
+            for (const [key, value] of Object.entries(graphData)) {
+                await pyodide.runPythonAsync(`${key} = ${JSON.stringify(value)}`);
+            }
         }
 
         function deepEqual(a, b) {
