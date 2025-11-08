@@ -595,8 +595,8 @@ ht.put(11, 'banana')  # Collision
 print(ht.get(1))  # Should print 'apple'`,
                 testCases: [
                     { input: [["put", 1, "apple"], ["put", 11, "banana"], ["get", 1], ["get", 11]], expected: ["apple", "banana"] },
-                    { input: [["put", 5, "cat"], ["remove", 5], ["get", 5]], expected: [None] },
-                    { input: [["get", 10]], expected: [None] }
+                    { input: [["put", 5, "cat"], ["remove", 5], ["get", 5]], expected: [null] },
+                    { input: [["get", 10]], expected: [null] }
                 ],
                 functionName: 'HashTable',
                 points: 10
