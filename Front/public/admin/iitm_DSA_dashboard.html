@@ -250,7 +250,7 @@
             <i class="bi bi-people"></i>
           </div>
           <h3 class="mb-1" id="totalStudents">0</h3>
-          <p class="text-muted mb-0">Unique Students</p>
+          <p class="text-muted mb-0">Total Submissions</p>
         </div>
       </div>
       <div class="col-md-3 mb-3">
@@ -398,8 +398,8 @@
         throw new Error('Failed to fetch data');
       }
       
-      // Process all submissions
-      const allSubmissions = rawData.map(submission => ({
+      // Process all submissions - REMOVED THE FILTERING THAT SHOWS ONLY ONE PER USER
+      allData = rawData.map(submission => ({
         username: submission.username,
         email: submission.email,
         topic: submission.topic,
@@ -411,20 +411,6 @@
       }));
       
       // Sort by timestamp (newest first)
-      allSubmissions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      
-      // Get only the latest submission per user (by email)
-      const latestByUser = {};
-      allSubmissions.forEach(submission => {
-        if (!latestByUser[submission.email]) {
-          latestByUser[submission.email] = submission;
-        }
-      });
-      
-      // Convert back to array
-      allData = Object.values(latestByUser);
-      
-      // Sort again by timestamp
       allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
       filteredData = [...allData];
@@ -447,7 +433,8 @@
       const highestScore = Math.max(...percentages);
       const lowestScore = Math.min(...percentages);
 
-      document.getElementById('totalStudents').textContent = uniqueStudents;
+      // Changed to show total submissions instead of unique students
+      document.getElementById('totalStudents').textContent = totalSubmissions;
       document.getElementById('averageScore').textContent = averageScore + '%';
       document.getElementById('highestScore').textContent = highestScore.toFixed(0) + '%';
       document.getElementById('lowestScore').textContent = lowestScore.toFixed(0) + '%';
@@ -529,8 +516,7 @@
         
         <div class="alert alert-info mb-3">
           <i class="bi bi-info-circle me-2"></i>
-          <strong>${item.topic}</strong> - Latest submission on ${new Date(item.timestamp).toLocaleString()}
-          <br><small class="text-muted">Showing most recent attempt for this student</small>
+          <strong>${item.topic}</strong> - Submitted on ${new Date(item.timestamp).toLocaleString()}
         </div>
       `;
 
