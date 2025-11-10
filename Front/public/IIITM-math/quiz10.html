@@ -515,7 +515,7 @@ function preprocessQuestionText(text) {
         .replace(/θ/g, '\\\\theta')
         
         // Remove any backslash issues
-        .replace(/\\\\\\\/g, '\\\\')
+       
         .replace(/\\{/g, '{')
         .replace(/\\}/g, '}');
 }
@@ -1580,5 +1580,6 @@ async function resetUserProgress() {
 </body>
 
 </html>
+
 
 
