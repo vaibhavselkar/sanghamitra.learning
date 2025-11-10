@@ -956,7 +956,7 @@ router.get('/readingcomprehensionscore', async (req, res) => {
   }
 });
 
-    router.get('/algorithm-submissions', async (req, res) => {
+router.get('/algorithm-submissions', async (req, res) => {
       try {
         const { username, email } = req.query;
     
@@ -982,6 +982,51 @@ router.get('/readingcomprehensionscore', async (req, res) => {
         res.status(500).json({ message: 'Server Error', error });
       }
   });
+
+router.delete('/algorithm-submissions/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Validate ID format (MongoDB ObjectId)
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid submission ID format'
+            });
+        }
+
+        // Find and delete the submission
+        const deletedSubmission = await AlgorithmSubmission.findByIdAndDelete(id);
+
+        if (!deletedSubmission) {
+            return res.status(404).json({
+                success: false,
+                message: 'Submission not found'
+            });
+        }
+
+        // Success response
+        res.json({
+            success: true,
+            message: 'Submission deleted successfully',
+            data: {
+                id: deletedSubmission._id,
+                username: deletedSubmission.username,
+                topic: deletedSubmission.topic
+                }
+        });
+
+    } catch (error) {
+        console.error('Error deleting submission:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: process.env.NODE_ENV === 'production' ? undefined : error.message
+        });
+    }
+});
+
+        
 
   router.post('/programming/submit', async (req, res) => {
     try {
@@ -3346,6 +3391,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
