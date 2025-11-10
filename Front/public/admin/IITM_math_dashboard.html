@@ -219,13 +219,8 @@
   </div>
 
   <div class="container">
-    <!-- Auto-Detected Topics Section -->
-    <div class="topics-container" id="topicsContainer" style="display: none;">
-      <h5><i class="bi bi-tags me-2"></i>Auto-Detected Topics</h5>
-      <div id="topicsList" class="d-flex flex-wrap mt-3">
-        <!-- Topics will be auto-populated here -->
-      </div>
-    </div>
+   
+    
 
     <!-- Statistics Cards -->
     <div class="row stats-cards">
@@ -353,7 +348,7 @@
       try {
         await loadData();
         calculateStatistics();
-        populateTopicsList();
+       
         populateTable();
         populateFilters();
         showTable();
@@ -534,45 +529,51 @@
     }
 
     // Get display name for topic
-    function getTopicDisplayName(topic) {
-      // Auto-detect and format topic names
-      const topicLower = topic.toLowerCase();
-      
-      if (topicLower.includes('limit') || topicLower.includes('lim')) {
-        return 'Limits & Continuity';
-      } else if (topicLower.includes('function')) {
-        return 'Functions';
-      } else if (topicLower.includes('polynomial')) {
-        return 'Polynomials';
-      } else if (topicLower.includes('linear')) {
-        return 'Linear Functions';
-      } else if (topicLower.includes('quadratic')) {
-        return 'Quadratic Functions';
-      } else if (topicLower.includes('set') || topicLower.includes('relation')) {
-        return 'Sets & Relations';
-      } else if (topicLower.includes('log') || topicLower.includes('exponent')) {
-        return 'Logarithms & Exponents';
-      } else if (topicLower.includes('derivative') || topicLower.includes('different')) {
-        return 'Differentiation';
-      } else if (topicLower.includes('integral') || topicLower.includes('calculus')) {
-        return 'Integration';
-      } else if (topicLower.includes('trig')) {
-        return 'Trigonometry';
-      } else if (topicLower.includes('algebra')) {
-        return 'Algebra';
-      } else if (topicLower.includes('geometry')) {
-        return 'Geometry';
-      } else if (topicLower.includes('stat')) {
-        return 'Statistics';
-      } else if (topicLower.includes('probability')) {
-        return 'Probability';
-      } else {
-        // Return original topic name with proper capitalization
-        return topic.split('_').map(word => 
-          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        ).join(' ');
-      }
-    }
+    // Get display name for topic
+function getTopicDisplayName(topic) {
+  // Auto-detect and format topic names
+  const topicLower = topic.toLowerCase();
+  
+  // Specific name changes as requested
+  if (topicLower.includes('function_limits') || topicLower.includes('function limits')) {
+    return 'Sequence and Limit';
+  } else if (topicLower.includes('limit_concepts') || topicLower.includes('limit concepts')) {
+    return 'Limits, Continuity and Differentiation';
+  } else if (topicLower.includes('limit') || topicLower.includes('lim')) {
+    return 'Limits & Continuity';
+  } else if (topicLower.includes('function')) {
+    return 'Functions';
+  } else if (topicLower.includes('polynomial')) {
+    return 'Polynomials';
+  } else if (topicLower.includes('linear')) {
+    return 'Linear Functions';
+  } else if (topicLower.includes('quadratic')) {
+    return 'Quadratic Functions';
+  } else if (topicLower.includes('set') || topicLower.includes('relation')) {
+    return 'Sets & Relations';
+  } else if (topicLower.includes('log') || topicLower.includes('exponent')) {
+    return 'Logarithms & Exponents';
+  } else if (topicLower.includes('derivative') || topicLower.includes('different')) {
+    return 'Differentiation';
+  } else if (topicLower.includes('integral') || topicLower.includes('calculus')) {
+    return 'Integration';
+  } else if (topicLower.includes('trig')) {
+    return 'Trigonometry';
+  } else if (topicLower.includes('algebra')) {
+    return 'Algebra';
+  } else if (topicLower.includes('geometry')) {
+    return 'Geometry';
+  } else if (topicLower.includes('stat')) {
+    return 'Statistics';
+  } else if (topicLower.includes('probability')) {
+    return 'Probability';
+  } else {
+    // Return original topic name with proper capitalization
+    return topic.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+  }
+}
 
     // Get color for topic badge
     function getTopicColor(topic) {
@@ -948,7 +949,7 @@
         availableTopics.clear();
         await loadData();
         calculateStatistics();
-        populateTopicsList();
+     
         populateTable();
         populateFilters();
         showTable();
