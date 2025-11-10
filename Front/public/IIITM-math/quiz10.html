@@ -3,10 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Function Limits Quiz</title>
+    <title>Sequence, Limits and Continuity Quiz</title>
+
+    <!-- Add this right after <title> tag -->
+        <script>
+        window.MathJax = {
+            tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+            fontCache: 'global'
+            }
+        };
+        </script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
    
      <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+                /* MathJax styling */
+        .MathJax_SVG, .MathJax_SVG_Display {
+            max-width: 100% !important;
+            overflow-x: auto !important;
+        }
+
+        .mjx-chtml {
+            font-size: 110% !important;
+        }
+
+        .question-text mjx-container {
+            display: inline-block !important;
+            margin: 0 2px !important;
+        }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -329,7 +358,7 @@
     }
     
     .score-display h2 {
-        fontSize: 2rem;
+        font-size: 2rem;
     }
 }
     </style>
@@ -337,8 +366,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Function Limits Quiz</h1>
-            <p>Test your knowledge of Function Limits with 30 comprehensive questions</p>
+            <h1>Sequence, Limits and Continuity Quiz</h1>
+            <p>Test your knowledge of sequences, limits and continuity with 50 comprehensive questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -361,9 +390,9 @@
                 <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
             </div>
             
-            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #6a11cb;">
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
                 <button class="btn" onclick="submitQuiz()" id="submitBtn">
-                    <span id="submitText">Submit Function Limits Quiz</span>
+                    <span id="submitText">Submit Sequence, Limits and Continuity Quiz</span>
                     <span id="submitLoading" class="loading" style="display: none;"></span>
                 </button>
             </div>
@@ -372,7 +401,7 @@
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Function Limits Quiz...</h3>
+            <h3>Loading Sequence, Limits and Continuity Quiz...</h3>
             <p>Verifying your session and preparing questions</p>
         </div>
 
@@ -408,64 +437,122 @@
         let questionTimes = {}; // Track time per question
         let questions = []; // Add this line to declare the questions array globally
 
+        // Helper to normalize answers for better matching
+const answerNormalizer = {
+    normalizeInterval: (answer) => {
+        return (answer || '').toString().trim()
+            .replace(/\s+/g, '')  // Remove all spaces
+            .replace(/\[/g, '[')
+            .replace(/\]/g, ']')
+            .replace(/\(/g, '(')
+            .replace(/\)/g, ')')
+            .toLowerCase();
+    },
+    
+    normalizeCoordinate: (coord) => {
+        return (coord || '').toString().trim()
+            .replace(/\s+/g, '')  // Remove all spaces
+            .replace(/[()]/g, '')  // Remove parentheses for comparison
+            .toLowerCase();
+    },
+    
+    normalizeEquation: (eq) => {
+        return (eq || '').toString()
+            .replace(/\s+/g, '')  // Remove all spaces
+            .replace(/\*\*/g, '^')  // Convert ** to ^
+            .replace(/\^/g, '^')
+            .replace(/\+\-/g, '-')
+            .replace(/\-\+/g, '-')
+            .replace(/log/gi, 'log')  // Normalize log functions
+            .replace(/ln/gi, 'ln')    // Normalize natural log
+            .toLowerCase();
+    },
+    
+    normalizeNumeric: (num) => {
+        const cleaned = (num || '').toString().replace(/[^\d.-]/g, '').trim();
+        return cleaned ? parseFloat(cleaned) : NaN;
+    }
+};
+
       async function loadQuestions() {
-            try {
-                if (!email) {
-                    alert('Please login to take the assessment');
+    try {
+        if (!email) {
+            alert('Please login to take the assessment');
+            return false;
+        }
+        
+        // Fetch questions with personalization - backend should exclude already answered questions
+        const response = await fetch(`http://localhost:4000/api/iitm-math-questions/quiz10?email=${encodeURIComponent(email)}&count=30&excludeAnswered=true`, {
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Handle case where user has completed all questions
+        if (data.allQuestionsCompleted || (data.questions && data.questions.length === 0)) {
+            const resetConfirm = confirm(
+                `🎉 Congratulations! You have completed all available questions!\n\n` +
+                `Total questions in pool: ${data.totalQuestionsInPool || 'All'}\n` +
+                `Questions completed: ${data.totalCompleted || data.totalQuestionsInPool}\n\n` +
+                `Would you like to reset your progress and start over?`
+            );
+            
+            if (resetConfirm) {
+                const resetSuccess = await resetUserProgress();
+                if (resetSuccess) {
+                    return loadQuestions(); // Retry after reset
+                } else {
+                    alert('Failed to reset progress. Please try again or contact support.');
+                    window.location.href = 'iitm_math.html';
                     return false;
                 }
-                
-                console.log('Loading questions for email:', email);
-                
-                // FIXED: Correct API endpoint with proper parameters
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/quiz10?email=${encodeURIComponent(email)}&count=30&topic=Function_Limits`, {
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('API Response:', data);
-                
-                // Handle case where user has completed all questions
-                if (data.resetAvailable) {
-                    const resetConfirm = confirm(
-                        `You have completed all available questions!\n\n` +
-                        `Total questions in pool: ${data.totalQuestionsInPool}\n\n` +
-                        `Would you like to reset your progress to start over?`
-                    );
-                    
-                    if (resetConfirm) {
-                        await resetUserProgress();
-                        return loadQuestions(); // Retry after reset
-                    } else {
-                        alert('No new questions available. Please contact admin or try again later.');
-                        window.location.href = 'iitm_math.html';
-                        return false;
-                    }
-                }
-                
-                questions = data.questions || data; // Handle both response formats
-                
-                if (!questions || questions.length === 0) {
-                    throw new Error('No questions found in response');
-                }
-                
-                // Show user their progress
-                if (data.metadata) {
-                    console.log(`Progress: ${data.metadata.totalCompleted} completed, ${data.metadata.totalAvailable} available`);
-                }
-                
-                console.log(`Loaded ${questions.length} personalized questions successfully`);
-                return true;
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                alert('Failed to load quiz questions. Please refresh and try again.');
+            } else {
+                alert('No new questions available. Returning to home page.');
+                window.location.href = 'iitm_math.html';
                 return false;
             }
         }
+        
+        questions = data.questions || data;
+        
+        if (!questions || questions.length === 0) {
+            throw new Error('No questions found');
+        }
+        
+        // Show user their progress if available
+        if (data.metadata) {
+            console.log(`Progress: ${data.metadata.totalCompleted} completed, ${data.metadata.totalAvailable} available, ${data.metadata.remainingQuestions} remaining`);
+            
+            // Optional: Show progress to user
+            const progressInfo = document.createElement('div');
+            progressInfo.style.cssText = `
+                background: #e3f2fd;
+                padding: 10px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                text-align: center;
+                color: #1976d2;
+                font-size: 14px;
+            `;
+            progressInfo.innerHTML = `
+                📊 Your Progress: ${data.metadata.totalCompleted} questions completed | 
+                ${data.metadata.remainingQuestions} remaining in pool
+            `;
+            document.getElementById('quizContainer').prepend(progressInfo);
+        }
+        
+        console.log(`Loaded ${questions.length} new questions successfully`);
+        return true;
+    } catch (error) {
+        console.error('Error loading questions:', error);
+        alert('Failed to load quiz questions. Please refresh and try again.');
+        return false;
+    }
+}
 
 
        // Anti-cheating variables
@@ -559,31 +646,31 @@
         
         // Record cheating attempts
         function recordCheatingAttempt(type) {
-            cheatingAttempts++;
-            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
-            
-            // FIXED: Correct API endpoint for logging cheating
-            if (username && email) {
-                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        cheatingType: type,
-                        timestamp: new Date(),
-                        currentQuestion: currentQuestionIndex + 1
-                    })
-                }).catch(err => console.error('Failed to log cheating attempt:', err));
-            }
-            
-            // Auto-submit quiz after too many attempts
-            if (cheatingAttempts >= 5) {
-                alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
-                submitQuiz();
-            }
-        }
+    cheatingAttempts++;
+    console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+    
+    // FIXED: Correct API endpoint for logging cheating
+    if (username && email) {
+        fetch('http://localhost:4000/api/log-cheating', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                cheatingType: type,
+                timestamp: new Date(),
+                currentQuestion: currentQuestionIndex + 1
+            })
+        }).catch(err => console.error('Failed to log cheating attempt:', err));
+    }
+    
+    // Auto-submit quiz after too many attempts
+    if (cheatingAttempts >= 5) {
+        alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
+        submitQuiz();
+    }
+}
         
         // Disable printing
         window.addEventListener('beforeprint', function(e) {
@@ -622,7 +709,7 @@
         // Fetch user session info and start quiz immediately
         async function fetchSessionInfo() {
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                const response = await fetch('http://localhost:4000/api/session-info', {
                     credentials: 'include'
                 });
 
@@ -645,7 +732,6 @@
             }
         }
 
-
        async function initializeQuiz() {
             try {
                 // Initialize anti-cheating first
@@ -654,7 +740,7 @@
                 const sessionValid = await fetchSessionInfo();
                 if (!sessionValid) return;
                 
-                // Load questions from API
+                // NEW: Load questions from API
                 const questionsLoaded = await loadQuestions();
                 if (!questionsLoaded) return;
                 
@@ -688,88 +774,141 @@
        
 
         function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            if (!question) {
-                console.error('No question found at index:', currentQuestionIndex);
-                return;
-            }
-            
-            container.innerHTML = '';
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
+    
+    console.log('Rendering question:', question);
+    
+    container.innerHTML = '';
 
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
 
-            let optionsHtml = '';
-            if (question.type === 'multiple_choice') {
-                optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
-                        <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `).join('');
-            } else if (question.type === 'multiple_select') {
-                optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
-                        <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `).join('');
-            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
-                const placeholder = question.format_hint || "Enter your answer";
-                
-                // Add specific placeholders based on type
-                let specificPlaceholder = placeholder;
-                if (question.type === 'coordinate_input') {
-                    specificPlaceholder = "Enter coordinates as (x, y)";
-                } else if (question.type === 'equation_input') {
-                    specificPlaceholder = "Enter equation (e.g., y = mx + b)";
-                } else if (question.type === 'interval_input') {
-                    specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
-                }
-                
-                optionsHtml = `
-                    <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${specificPlaceholder}" 
-                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false">
-                    <div class="format-help" style="font-size: 12px; color: #666; margin-top: 5px;">
-                        ${question.format_hint || ''}
-                    </div>
-                `;
-            }
-
-            // Add difficulty badge
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107', 
-                'hard': '#dc3545'
-            };
-
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${question.difficulty}
-                        </span>
-                    </div>
+    let optionsHtml = '';
+    
+    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
-                <div class="question-text">${question.question_text}</div>
-                ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
-                <div class="options">${optionsHtml}</div>
             `;
-
-            container.appendChild(questionDiv);
-            
-            // Restore previous answer if exists
-            restoreAnswer();
-            updateAnswerStatus();
+        }).join('');
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+        // Enhanced input fields with better format hints
+        let placeholder, formatExample, formatHint;
+        
+        if (question.type === 'coordinate_input') {
+            placeholder = "e.g., (3, 4) or (3,4)";
+            formatExample = "(x, y)";
+            formatHint = "✓ Accepted: (3,4) or (3, 4) | ✗ Avoid: 3,4 or [3,4]";
+        } else if (question.type === 'equation_input') {
+            placeholder = "e.g., y = log(x) + 2";
+            formatExample = "equation with =";
+            formatHint = "✓ Accepted: y=log(x)+2 or y = log(x) + 2 | Use log for logarithms";
+        } else if (question.type === 'interval_input') {
+            placeholder = "e.g., (0, ∞) or [1, 10]";
+            formatExample = "[a,b] or (a,b)";
+            formatHint = "✓ Use [ ] for inclusive, ( ) for exclusive | Use 'inf' or ∞ for infinity";
+        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+            placeholder = "e.g., 42 or -3.14 or 2.718";
+            formatExample = "number";
+            formatHint = "✓ Accepted: 42, -3.14, 0.5 | Decimals are fine";
+        } else {
+            placeholder = question.format_hint || "Enter your answer";
+            formatExample = "text";
+            formatHint = question.format_hint || "";
         }
+        
+        optionsHtml = `
+            <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                    <span style="font-size: 18px;">📝</span>
+                    <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
+                </div>
+                <div style="font-size: 13px; color: #666; line-height: 1.5;">
+                    ${formatHint}
+                </div>
+            </div>
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${placeholder}" 
+                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false"
+                   style="width: 100%; max-width: 300px; font-size: 16px; font-family: 'Courier New', monospace;">
+            <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
+        `;
+    } else {
+        console.warn('Unknown question type or missing options:', question.type, question);
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options. Please contact administrator.
+            </div>
+        `;
+    }
+
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107', 
+        'hard': '#dc3545'
+    };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+    // Process question text to handle LaTeX
+    let processedQuestionText = question.question_text || 'Question text not available';
+    
+    // Wrap LaTeX expressions for MathJax processing
+    processedQuestionText = processedQuestionText
+        .replace(/\\lim_\{([^}]+)\}/g, '\\\\(\\\\lim_{$1}\\\\)')
+        .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '\\\\(\\\\frac{$1}{$2}\\\\)')
+        .replace(/\\sqrt\{([^}]+)\}/g, '\\\\(\\\\sqrt{$1}\\\\)')
+        .replace(/\\to/g, '\\\\(\\\\to\\\\)')
+        .replace(/\\infty/g, '\\\\(\\\\infty\\\\)');
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
+                </span>
+            </div>
+        </div>
+        <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
+        <div class="options">${optionsHtml}</div>
+    `;
+
+    container.appendChild(questionDiv);
+    
+    // Process MathJax after rendering
+    setTimeout(() => {
+        if (window.MathJax) {
+            window.MathJax.typesetPromise([questionDiv]).catch(err => {
+                console.log('MathJax typeset error:', err);
+            });
+        }
+    }, 100);
+    
+    // Restore previous answer if exists
+    restoreAnswer();
+    updateAnswerStatus();
+}
 
         function restoreAnswer() {
             const question = questions[currentQuestionIndex];
@@ -838,7 +977,7 @@
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
-                trackQuestionTime(); // Track time spent on current question
+                trackQuestionTime();
                 currentQuestionIndex++;
                 renderCurrentQuestion();
                 updateProgress();
@@ -847,7 +986,7 @@
 
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
-                trackQuestionTime(); // Track time spent on current question
+                trackQuestionTime();
                 currentQuestionIndex--;
                 renderCurrentQuestion();
                 updateProgress();
@@ -855,175 +994,175 @@
         }
 
        function selectOption(questionIndex, value, type) {
-            if (type === 'radio') {
-                // Store the exact value without modification
-                userAnswers[questionIndex] = value.trim();
-                // Update UI
-                const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-                options.forEach(opt => opt.closest('.option').classList.remove('selected'));
-                event.target.closest('.option').classList.add('selected');
-            } else if (type === 'checkbox') {
-                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
-                
-                const checkbox = event.target.closest('.option').querySelector('input');
-                if (checkbox.checked) {
-                    if (!userAnswers[questionIndex].includes(value.trim())) {
-                        userAnswers[questionIndex].push(value.trim());
-                    }
-                    event.target.closest('.option').classList.add('selected');
-                } else {
-                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-                    event.target.closest('.option').classList.remove('selected');
-                    
-                    // Clean up empty array
-                    if (userAnswers[questionIndex].length === 0) {
-                        delete userAnswers[questionIndex];
-                    }
-                }
+    if (type === 'radio') {
+        userAnswers[questionIndex] = value.trim();
+        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+        options.forEach(opt => opt.closest('.option').classList.remove('selected'));
+        event.target.closest('.option').classList.add('selected');
+    } else if (type === 'checkbox') {
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+        
+        const checkbox = event.target.closest('.option').querySelector('input');
+        if (checkbox.checked) {
+            if (!userAnswers[questionIndex].includes(value.trim())) {
+                userAnswers[questionIndex].push(value.trim());
             }
-            updateAnswerStatus();
+            event.target.closest('.option').classList.add('selected');
+        } else {
+            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+            event.target.closest('.option').classList.remove('selected');
+            
+            if (userAnswers[questionIndex].length === 0) {
+                delete userAnswers[questionIndex];
+            }
         }
+    }
+    updateAnswerStatus();
+}
 
         function handleNumericInput(questionIndex, value) {
-            // Store trimmed value, but preserve original format for equations/intervals
-            const question = questions[questionIndex];
-            
-            if (question.type === 'coordinate_input') {
-                // For coordinates, ensure proper format but allow flexible input
-                const trimmedValue = value.trim();
-                if (trimmedValue) {
-                    // If user didn't include parentheses, add them
-                    if (trimmedValue.includes(',') && !trimmedValue.includes('(')) {
-                        userAnswers[questionIndex] = `(${trimmedValue})`;
-                    } else {
-                        userAnswers[questionIndex] = trimmedValue;
-                    }
-                } else {
-                    delete userAnswers[questionIndex];
-                }
-            } else if (question.type === 'equation_input') {
-                // For equations, preserve the format but trim whitespace
-                const trimmedValue = value.trim();
-                if (trimmedValue) {
-                    userAnswers[questionIndex] = trimmedValue;
-                } else {
-                    delete userAnswers[questionIndex];
-                }
-            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                // For pure numeric, clean up the input
-                const cleanValue = value.replace(/[^\d.-]/g, '').trim();
-                if (cleanValue && !isNaN(parseFloat(cleanValue))) {
-                    userAnswers[questionIndex] = cleanValue;
-                } else if (value.trim() === '') {
-                    delete userAnswers[questionIndex];
-                }
+    const question = questions[questionIndex];
+    
+    if (question.type === 'coordinate_input') {
+        const trimmedValue = value.trim();
+        if (trimmedValue) {
+            if (trimmedValue.includes(',') && !trimmedValue.includes('(')) {
+                userAnswers[questionIndex] = `(${trimmedValue})`;
             } else {
-                // For other types, store trimmed value
-                const trimmedValue = value.trim();
-                if (trimmedValue) {
-                    userAnswers[questionIndex] = trimmedValue;
-                } else {
-                    delete userAnswers[questionIndex];
-                }
+                userAnswers[questionIndex] = trimmedValue;
             }
-            
-            updateAnswerStatus();
+        } else {
+            delete userAnswers[questionIndex];
         }
-
-        // Answer validation helper functions
-        function validateAnswerFormat(questionIndex, userAnswer) {
-            const question = questions[questionIndex];
-            let feedback = '';
-            let isValidFormat = true;
-            
-            if (question.type === 'coordinate_input') {
-                // Check for coordinate format (x,y) or (x, y)
-                const coordPattern = /^\s*\(\s*[^,]+\s*,\s*[^)]+\s*\)\s*$/;
-                if (!coordPattern.test(userAnswer)) {
-                    feedback = 'Please use format: (x, y)';
-                    isValidFormat = false;
-                }
-            } else if (question.type === 'equation_input') {
-                // Basic equation validation
-                if (!userAnswer.includes('=')) {
-                    feedback = 'Equation should contain an equals sign (=)';
-                    isValidFormat = false;
-                }
-            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                // Check if it's a valid number
-                if (isNaN(parseFloat(userAnswer))) {
-                    feedback = 'Please enter a valid number';
-                    isValidFormat = false;
-                }
-            } else if (question.type === 'interval_input') {
-                // Check for interval notation patterns
-                const intervalPattern = /[\[\(].*,.*[\]\)]/;
-                if (!intervalPattern.test(userAnswer)) {
-                    feedback = 'Please use interval notation: [a,b] or (a,b)';
-                    isValidFormat = false;
-                }
-            }
-            
-            return { isValidFormat, feedback };
+    } else if (question.type === 'equation_input') {
+        const trimmedValue = value.trim();
+        if (trimmedValue) {
+            userAnswers[questionIndex] = trimmedValue;
+        } else {
+            delete userAnswers[questionIndex];
         }
-
-        // Add real-time validation display
-        function showValidationFeedback(questionIndex, feedback) {
-            // Remove existing feedback
-            const existingFeedback = document.querySelector(`#feedback-${questionIndex}`);
-            if (existingFeedback) {
-                existingFeedback.remove();
-            }
-            
-            if (feedback) {
-                // Add new feedback
-                const questionContainer = document.querySelector('.question-card');
-                const feedbackDiv = document.createElement('div');
-                feedbackDiv.id = `feedback-${questionIndex}`;
-                feedbackDiv.style.cssText = `
-                    background: #fff3cd;
-                    border: 1px solid #ffeaa7;
-                    border-radius: 4px;
-                    padding: 8px;
-                    margin-top: 10px;
-                    color: #856404;
-                    font-size: 14px;
-                `;
-                feedbackDiv.textContent = `Format tip: ${feedback}`;
-                questionContainer.appendChild(feedbackDiv);
-            }
+    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+        const cleanValue = value.replace(/[^\d.-]/g, '').trim();
+        if (cleanValue && !isNaN(parseFloat(cleanValue))) {
+            userAnswers[questionIndex] = cleanValue;
+        } else if (value.trim() === '') {
+            delete userAnswers[questionIndex];
         }
-
-        // Enhanced numeric input with validation
-        function handleNumericInputWithValidation(questionIndex, value) {
-            // Call the original function
-            handleNumericInput(questionIndex, value);
-            
-            // Add validation feedback
-            if (value.trim()) {
-                const validation = validateAnswerFormat(questionIndex, value.trim());
-                if (!validation.isValidFormat) {
-                    showValidationFeedback(questionIndex, validation.feedback);
-                } else {
-                    showValidationFeedback(questionIndex, ''); // Clear feedback
-                }
-            }
+    } else {
+        const trimmedValue = value.trim();
+        if (trimmedValue) {
+            userAnswers[questionIndex] = trimmedValue;
+        } else {
+            delete userAnswers[questionIndex];
         }
+    }
+    
+    updateAnswerStatus();
+}
 
-        // Get question difficulty (mock function - in real app this would come from question data)
+function validateAnswerFormat(questionIndex, userAnswer) {
+    const question = questions[currentQuestionIndex];
+    let feedback = '';
+    let isValidFormat = true;
+    let suggestion = '';
+    
+    if (question.type === 'coordinate_input') {
+        const coordPattern = /^\s*\(\s*-?[\d.]+\s*,\s*-?[\d.]+\s*\)\s*$/;
+        if (!coordPattern.test(userAnswer)) {
+            feedback = 'Invalid format';
+            suggestion = 'Use format: (x, y) with numbers. Example: (3, 4) or (-2.5, 1.3)';
+            isValidFormat = false;
+        } else {
+            feedback = '✓ Format correct';
+            suggestion = '';
+        }
+    } else if (question.type === 'equation_input') {
+        if (!userAnswer.includes('=')) {
+            feedback = 'Missing equals sign';
+            suggestion = 'Equation must contain =. Example: y = log(x) + 2 or y = ln(x)';
+            isValidFormat = false;
+        } else {
+            feedback = '✓ Format correct';
+            suggestion = '';
+        }
+    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+        const numValue = parseFloat(userAnswer.replace(/[^\d.-]/g, ''));
+        if (isNaN(numValue)) {
+            feedback = 'Invalid number';
+            suggestion = 'Enter a valid number. Examples: 42, -3.14, 0.5, 2.718';
+            isValidFormat = false;
+        } else {
+            feedback = '✓ Valid number';
+            suggestion = '';
+        }
+    } else if (question.type === 'interval_input') {
+        const intervalPattern = /^[\[\(]\s*-?[\d.]+\s*,\s*-?[\d.]+\s*[\]\)]$/;
+        const infinityPattern = /^[\[\(]\s*-?[\d.]+\s*,\s*(inf|∞|infinity)\s*[\]\)]$/i;
+        const negInfinityPattern = /^[\[\(]\s*(-inf|-∞|-infinity)\s*,\s*-?[\d.]+\s*[\]\)]$/i;
+        
+        if (!intervalPattern.test(userAnswer) && !infinityPattern.test(userAnswer) && !negInfinityPattern.test(userAnswer)) {
+            feedback = 'Invalid interval format';
+            suggestion = 'Use: [a,b] for inclusive or (a,b) for exclusive. Example: (0, ∞) or [1, 10]. Use "inf" or ∞ for infinity';
+            isValidFormat = false;
+        } else {
+            feedback = '✓ Format correct';
+            suggestion = '';
+        }
+    }
+    
+    return { isValidFormat, feedback, suggestion };
+}
+
+function showValidationFeedback(questionIndex, feedback, suggestion) {
+    const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+    if (!feedbackDiv) return;
+    
+    if (!feedback) {
+        feedbackDiv.innerHTML = '';
+        return;
+    }
+    
+    const isValid = feedback.includes('✓');
+    feedbackDiv.style.cssText = `
+        background: ${isValid ? '#d4edda' : '#fff3cd'};
+        border: 1px solid ${isValid ? '#c3e6cb' : '#ffeaa7'};
+        border-radius: 6px;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.5;
+    `;
+    
+    feedbackDiv.innerHTML = `
+        <div style="color: ${isValid ? '#155724' : '#856404'}; font-weight: 600; margin-bottom: 4px;">
+            ${feedback}
+        </div>
+        ${suggestion ? `<div style="color: #666; font-size: 13px;">${suggestion}</div>` : ''}
+    `;
+}
+
+function handleNumericInputWithValidation(questionIndex, value) {
+    handleNumericInput(questionIndex, value);
+    
+    if (value.trim()) {
+        const validation = validateAnswerFormat(questionIndex, value.trim());
+        showValidationFeedback(questionIndex, validation.feedback, validation.suggestion);
+    } else {
+        showValidationFeedback(questionIndex, '', '');
+    }
+}
+
         function getQuestionDifficulty(questionNumber) {
             if (questionNumber <= 15) return 'easy';
             if (questionNumber <= 30) return 'medium';
             return 'hard';
         }
 
-        // FIXED: Updated submit function with correct request structure
         async function submitQuiz() {
-            // Show polite confirmation popup
-            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Function Limits Quiz?`);
+            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Sequence, Limits and Continuity Quiz?`);
             
             if (!confirmSubmit) {
-                return; // User clicked Cancel, don't submit
+                return;
             }
         
             if (!username || !email) {
@@ -1031,13 +1170,11 @@
                 return;
             }
 
-            // Track final question time
             trackQuestionTime();
             isQuizActive = false;
             const quizEndTime = new Date();
             const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
 
-            // Calculate scores and build detailed results
             let score = 0;
             let totalPossiblePoints = 0;
             const questionResults = [];
@@ -1046,100 +1183,89 @@
                 medium: { attempted: 0, correct: 0, points: 0 },
                 hard: { attempted: 0, correct: 0, points: 0 }
             };
-            
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                const questionPoints = question.points || 1; // Default to 1 point if not specified
-                totalPossiblePoints += questionPoints;
-                
-                let isCorrect = false;
-                
-                // Enhanced answer checking with proper normalization
-                if (question.type === 'interval_input') {
-                    // Normalize both answers for comparison
-                    const normalizeInterval = (answer) => {
-                        return (answer || '').toString().trim()
-                            .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
-                            .replace(/\s*,\s*/g, ',')  // Remove spaces around commas
-                            .replace(/\s*\(\s*/g, '(')  // Remove spaces around opening parenthesis
-                            .replace(/\s*\)\s*/g, ')')  // Remove spaces around closing parenthesis
-                            .toLowerCase();
-                    };
-                    isCorrect = normalizeInterval(userAnswer) === normalizeInterval(question.correct_answer);
-                } else if (question.type === 'multiple_choice') {
-                    // Normalize string comparison
-                    const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
-                    isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
-                } else if (question.type === 'multiple_select') {
-                    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                        // Sort and compare arrays
-                        const normalizeArray = (arr) => arr.map(item => item.toString().trim().toLowerCase()).sort();
-                        const userNorm = normalizeArray(userAnswer);
-                        const correctNorm = normalizeArray(question.correct_answer);
-                        isCorrect = userNorm.length === correctNorm.length &&
-                                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
-                    }
-                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                    const userNum = parseFloat((userAnswer || '').toString().replace(/[^\d.-]/g, ''));
-                    const correctNum = parseFloat((question.correct_answer || '').toString().replace(/[^\d.-]/g, ''));
-                    if (!isNaN(userNum) && !isNaN(correctNum)) {
-                        const tolerance = Math.abs(correctNum) * 0.01 || 0.01; // 1% tolerance or 0.01
-                        isCorrect = Math.abs(userNum - correctNum) <= tolerance;
-                    }
-                } else if (question.type === 'coordinate_input') {
-                    // Normalize coordinate format: remove spaces, standardize parentheses
-                    const normalizeCoordinate = (coord) => {
-                        return (coord || '').toString().trim()
-                            .replace(/\s+/g, '')  // Remove all spaces
-                            .replace(/[()]/g, '')  // Remove parentheses
-                            .toLowerCase();
-                    };
-                    isCorrect = normalizeCoordinate(userAnswer) === normalizeCoordinate(question.correct_answer);
-                } else if (question.type === 'equation_input') {
-                    // Normalize equations: remove spaces, standardize format
-                    const normalizeEquation = (eq) => {
-                        return (eq || '').toString()
-                            .replace(/\s+/g, '')  // Remove all spaces
-                            .replace(/\+\-/g, '-')  // Fix +- to -
-                            .replace(/\-\+/g, '-')  // Fix -+ to -
-                            .toLowerCase();
-                    };
-                    isCorrect = normalizeEquation(userAnswer) === normalizeEquation(question.correct_answer);
-                } else {
-                    // General text comparison with normalization
-                    const normalizeText = (text) => (text || '').toString().trim().toLowerCase();
-                    isCorrect = normalizeText(userAnswer) === normalizeText(question.correct_answer);
-                }
-                
-                if (isCorrect) {
-                    score += questionPoints;
-                }
-                
-                // Update difficulty breakdown
-                difficultyBreakdown[question.difficulty].attempted++;
-                if (isCorrect) {
-                    difficultyBreakdown[question.difficulty].correct++;
-                    difficultyBreakdown[question.difficulty].points += questionPoints;
-                }
-                
-                // Build question result with question ID for tracking
-                questionResults.push({
-                    questionId: question._id, // IMPORTANT: Include MongoDB _id
-                    questionNumber: index + 1,
-                    questionText: question.question_text,
-                    difficulty: question.difficulty,
-                    points: questionPoints,
-                    userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-                    correctAnswer: question.correct_answer.toString(),
-                    explanation: question.explanation || '',
-                    isCorrect: isCorrect,
-                    timeTaken: questionTimes[index] || 0
-                });
+          questions.forEach((question, index) => {
+    const userAnswer = userAnswers[index];
+    totalPossiblePoints += question.points;
+    
+    let isCorrect = false;
+    
+    if (question.type === 'interval_input') {
+        const normalizeInterval = answerNormalizer.normalizeInterval;
+        let normalizedUser = normalizeInterval(userAnswer);
+        let normalizedCorrect = normalizeInterval(question.correct_answer);
+        
+        normalizedUser = normalizedUser.replace(/inf|∞|infinity/gi, 'inf');
+        normalizedCorrect = normalizedCorrect.replace(/inf|∞|infinity/gi, 'inf');
+        
+        isCorrect = normalizedUser === normalizedCorrect;
+        
+        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+            isCorrect = question.alternative_answers.some(alt => {
+                let normalizedAlt = normalizeInterval(alt).replace(/inf|∞|infinity/gi, 'inf');
+                return normalizedAlt === normalizedUser;
             });
+        }
+    } else if (question.type === 'multiple_choice') {
+        const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
+        isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
+    } else if (question.type === 'multiple_select') {
+        if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+            const normalizeArray = (arr) => arr.map(item => item.toString().trim().toLowerCase()).sort();
+            const userNorm = normalizeArray(userAnswer);
+            const correctNorm = normalizeArray(question.correct_answer);
+            isCorrect = userNorm.length === correctNorm.length &&
+                       userNorm.every((ans, idx) => ans === correctNorm[idx]);
+        }
+    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+        const userNum = answerNormalizer.normalizeNumeric(userAnswer);
+        const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
+        if (!isNaN(userNum) && !isNaN(correctNum)) {
+            const tolerance = Math.max(Math.abs(correctNum) * 0.01, 0.01);
+            isCorrect = Math.abs(userNum - correctNum) <= tolerance;
+        }
+    } else if (question.type === 'coordinate_input') {
+        const normalizeCoord = answerNormalizer.normalizeCoordinate;
+        isCorrect = normalizeCoord(userAnswer) === normalizeCoord(question.correct_answer);
+    } else if (question.type === 'equation_input') {
+        const normalizeEq = answerNormalizer.normalizeEquation;
+        isCorrect = normalizeEq(userAnswer) === normalizeEq(question.correct_answer);
+        
+        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+            isCorrect = question.alternative_answers.some(alt => 
+                normalizeEq(alt) === normalizeEq(userAnswer)
+            );
+        }
+    } else {
+        const normalizeText = (text) => (text || '').toString().trim().toLowerCase();
+        isCorrect = normalizeText(userAnswer) === normalizeText(question.correct_answer);
+    }
+    
+    if (isCorrect) {
+        score += question.points;
+    }
+    
+    difficultyBreakdown[question.difficulty].attempted++;
+    if (isCorrect) {
+        difficultyBreakdown[question.difficulty].correct++;
+        difficultyBreakdown[question.difficulty].points += question.points;
+    }
+    
+    questionResults.push({
+        questionId: question._id,
+        questionNumber: question.question_number,
+        questionText: question.question_text,
+        difficulty: question.difficulty,
+        points: question.points,
+        userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
+        correctAnswer: question.correct_answer.toString(),
+        explanation: question.explanation || '',
+        isCorrect: isCorrect,
+        timeTaken: questionTimes[index] || 0
+    });
+});
 
-            // Build complete quiz data matching new schema
             const quizData = {
-                topic: 'Function_Limits',
+                topic: 'sequence_limits_continuity',
                 quizType: 'practice',
                 score: score,
                 maxPossibleScore: totalPossiblePoints,
@@ -1164,19 +1290,17 @@
             };
 
             try {
-                // Show loading state
                 document.getElementById('submitText').style.display = 'none';
                 document.getElementById('submitLoading').style.display = 'inline-block';
                 document.getElementById('submitBtn').disabled = true;
 
-                // FIXED: Correct request body structure with debug logging
                 console.log('Submitting quiz data:', {
                     email: email,
                     username: username,
                     quizData: quizData
                 });
                 
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
+                const response = await fetch('http://localhost:4000/api/iitmmath_scores', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -1189,14 +1313,12 @@
 
                 if (response.ok) {
                     console.log('Quiz submitted successfully');
-                    // Show detailed results
                     displayDetailedResults(quizData);
                 } else {
                     const errorText = await response.text();
                     console.error('Failed to submit quiz:', errorText);
                     alert('Failed to submit quiz. Please try again.');
                     
-                    // Reset button state
                     document.getElementById('submitText').style.display = 'inline';
                     document.getElementById('submitLoading').style.display = 'none';
                     document.getElementById('submitBtn').disabled = false;
@@ -1205,7 +1327,6 @@
             } catch (error) {
                 console.error('Error submitting quiz:', error);
                 alert('Error submitting quiz. Please check your connection and try again.');
-                // Reset button state
                 document.getElementById('submitText').style.display = 'inline';
                 document.getElementById('submitLoading').style.display = 'none';
                 document.getElementById('submitBtn').disabled = false;
@@ -1213,14 +1334,12 @@
             }
         }
 
-        // Enhanced results display
         function displayDetailedResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             
             const resultsContainer = document.getElementById('resultsContainer');
             resultsContainer.style.display = 'block';
             
-            // Update the results display with detailed information
             const scoreDisplay = document.querySelector('.score-display');
             scoreDisplay.innerHTML = `
                 <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
@@ -1244,7 +1363,6 @@
                 </p>
             `;
             
-            // Add detailed question review
             const reviewDiv = document.createElement('div');
             reviewDiv.style.cssText = `
                 margin-top: 30px;
@@ -1291,14 +1409,12 @@
                                 ${result.correctAnswer}
                             </span>
                         </div>
-                        ${result.explanation ? `
                         <div style="margin-bottom: 8px;">
                             <strong>Explanation:</strong> 
-                            <span style="color: #666;">
+                            <span style="color: #28a745; font-weight: bold;">
                                 ${result.explanation}
                             </span>
                         </div>
-                        ` : ''}
                         <div style="font-size: 0.9em; color: #666;">
                             Time taken: ${result.timeTaken}s
                         </div>
@@ -1309,7 +1425,15 @@
             resultsContainer.appendChild(reviewDiv);
         }
 
-        // Helper function for difficulty colors
+        // Process MathJax in results
+        setTimeout(() => {
+            if (window.MathJax) {
+                window.MathJax.typesetPromise([reviewDiv]).catch(err => {
+                    console.log('MathJax typeset error in results:', err);
+                });
+            }
+        }, 500);
+
         function getDifficultyColor(difficulty) {
             switch(difficulty) {
                 case 'easy': return '#28a745';
@@ -1319,46 +1443,47 @@
             }
         }
 
-        // Initialize the quiz when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initializeQuiz();
         });
 
-        // Fallback for browsers that don't support DOMContentLoaded
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeQuiz);
         } else {
-            // DOM is already loaded
             initializeQuiz();
         }
 
-        // Add function to reset user progress
-        async function resetUserProgress() {
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ email: email })
-                });
-                
-                if (response.ok) {
-                    alert('Progress reset successfully! You can now retake all questions.');
-                    return true;
-                } else {
-                    throw new Error('Failed to reset progress');
-                }
-            } catch (error) {
-                console.error('Error resetting progress:', error);
-                alert('Failed to reset progress. Please try again.');
-                return false;
-            }
+async function resetUserProgress() {
+    try {
+        const response = await fetch('http://localhost:4000/api/reset-user-progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ 
+                email: email,
+                topic: 'sequence_limits_continuity'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            console.log('Progress reset successfully:', data);
+            alert(`✅ Progress reset successfully!\n\nYou can now retake all ${data.questionsAvailable || 'available'} questions.`);
+            return true;
+        } else {
+            throw new Error(data.message || 'Failed to reset progress');
         }
+    } catch (error) {
+        console.error('Error resetting progress:', error);
+        alert('❌ Failed to reset progress. Please try again or contact support.');
+        return false;
+    }
+}
 
         function goback() {
             userAnswers = {};
             questionTimes = {};
-            // go to iitm_math.html
             window.location.href = 'iitm_math.html';
         }
     </script>
