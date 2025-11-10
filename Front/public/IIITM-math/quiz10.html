@@ -490,20 +490,18 @@ function preprocessQuestionText(text) {
     if (!text) return '';
     
     return text
-        // Convert limit notation to proper LaTeX
-        .replace(/lim\(x→(\d+)\)/g, '\\\\(\\\\lim_{x \\\\to $1}\\\\)')
-        .replace(/lim\(x→0\)/g, '\\\\(\\\\lim_{x \\\\to 0}\\\\)')
-        .replace(/lim_\{x→(\d+)\}/g, '\\\\(\\\\lim_{x \\\\to $1}\\\\)')
+        // Convert limit notation to proper LaTeX - fix the main issue
+        .replace(/lim\(x→(\d+)\)/g, '\\\\(\\\\lim\\\\limits_{x \\\\to $1}\\\\)')
+        .replace(/lim\(x→0\)/g, '\\\\(\\\\lim\\\\limits_{x \\\\to 0}\\\\)')
+        .replace(/lim_\{x→(\d+)\}/g, '\\\\(\\\\lim\\\\limits_{x \\\\to $1}\\\\)')
         
-        // Handle fractions in limits
+        // Handle fractions properly
         .replace(/\((\d+) - cos\(x\)\)\/x/g, '\\\\(\\\\frac{$1 - \\\\cos(x)}{x}\\\\)')
         .replace(/(\d+ - cos\(x\))\/x/g, '\\\\(\\\\frac{$1}{x}\\\\)')
+        .replace(/(\w+)\(x\)\/(\w+)\(x\)/g, '\\\\(\\\\frac{$1(x)}{$2(x)}\\\\)')
+        .replace(/([^\\])(\d+)\/(\d+)([^}])/g, '$1\\\\(\\\\frac{$2}{$3}\\\\)$4')
         
-        // Convert plain text fractions to LaTeX
-        .replace(/(\d+)\/(\d+)/g, '\\\\(\\\\frac{$1}{$2}\\\\)')
-        .replace(/(\w+)∕(\w+)/g, '\\\\(\\\\frac{$1}{$2}\\\\)')
-        
-        // Standardize mathematical functions
+        // Standardize mathematical functions - fix the cos issue
         .replace(/cos\(/g, '\\\\cos(')
         .replace(/sin\(/g, '\\\\sin(')
         .replace(/tan\(/g, '\\\\tan(')
@@ -514,7 +512,39 @@ function preprocessQuestionText(text) {
         .replace(/→/g, '\\\\to')
         .replace(/∞/g, '\\\\infty')
         .replace(/π/g, '\\\\pi')
-        .replace(/θ/g, '\\\\theta');
+        .replace(/θ/g, '\\\\theta')
+        
+        // Remove any backslash issues
+        .replace(/\\\\\\\/g, '\\\\')
+        .replace(/\\{/g, '{')
+        .replace(/\\}/g, '}');
+}
+
+function enhanceLaTeXProcessing(text) {
+    if (!text) return '';
+    
+    // First, handle common limit patterns more aggressively
+    let processed = text
+        // Handle various limit formats
+        .replace(/(lim|Lim)\(x\s*→\s*(\d+)\)/gi, '\\\\(\\\\lim\\\\limits_{x \\\\to $2}\\\\)')
+        .replace(/(lim|Lim)\(x\s*->\s*(\d+)\)/gi, '\\\\(\\\\lim\\\\limits_{x \\\\to $2}\\\\)')
+        .replace(/(lim|Lim)_\{x\s*→\s*(\d+)\}/gi, '\\\\(\\\\lim\\\\limits_{x \\\\to $2}\\\\)')
+        
+        // Handle the specific problematic pattern from your screenshot
+        .replace(/\{.*Min_x.*to 0.*\}.*frac\(1 - Vcos\(x\)\)\(x\)/g, 
+                 '\\\\(\\\\lim\\\\limits_{x \\\\to 0} \\\\frac{1 - \\\\cos(x)}{x}\\\\)')
+        
+        // Handle fractions more broadly
+        .replace(/(\d+)\s*\/\s*(\d+)/g, '\\\\(\\\\frac{$1}{$2}\\\\)')
+        .replace(/(\w+)\(x\)\s*\/\s*(\w+)\(x\)/g, '\\\\(\\\\frac{$1(x)}{$2(x)}\\\\)')
+        .replace(/(\d+)\s*-\s*(\w+)\(x\)\s*\/\s*x/g, '\\\\(\\\\frac{$1 - $2(x)}{x}\\\\)');
+    
+    // If the text still looks problematic, apply the original preprocessing
+    if (processed.includes('\\{') && processed.includes('\\frac')) {
+        processed = preprocessQuestionText(text);
+    }
+    
+    return processed;
 }
 
       async function loadQuestions() {
@@ -914,9 +944,9 @@ function preprocessQuestionText(text) {
     const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
     // Process question text to handle LaTeX using the preprocess function
-    let processedQuestionText = preprocessQuestionText(question.question_text) || 'Question text not available';
-
-    questionDiv.innerHTML = `
+let processedQuestionText = enhanceLaTeXProcessing(question.question_text) || 'Question text not available';
+   
+            questionDiv.innerHTML = `
         <div class="question-header">
             <div class="question-number">${currentQuestionIndex + 1}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -1550,4 +1580,5 @@ async function resetUserProgress() {
 </body>
 
 </html>
+
 
