@@ -333,7 +333,26 @@
       color: #0c5460;
     }
 
-  
+    .differentiation-btn {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.differentiation-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.differentiation-alert {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  border: none;
+  color: #721c24;
+}
   </style>
 </head>
 
@@ -356,7 +375,7 @@
   </div>
 
   <div class="container">
-    <!-- Math Cards -->
+    <!-- Statistics Cards -->
     <div class="row stats-cards">
       <div class="col-md-3 mb-3">
         <div class="stat-card">
@@ -393,19 +412,6 @@
           <h3 class="mb-1" id="lowestScore">0%</h3>
           <p class="text-muted mb-0">Lowest Score</p>
         </div>
-      </div>
-    </div>
-
-    <div class="row mb-3">
-      <div class="col-md-6 mb-2">
-        <button class="btn w-100 function-limits-btn" onclick="showFunctionLimits()">
-          <i class="bi bi-infinity me-2"></i>Function Limits (Quiz 10)
-        </button>
-      </div>
-      <div class="col-md-6 mb-2">
-        <button class="btn w-100 differentiation-btn" onclick="showDifferentiation()">
-          <i class="bi bi-graph-up me-2"></i>Limits, Continuity & Differentiation (Quiz 11)
-        </button>
       </div>
     </div>
 
@@ -768,16 +774,15 @@
                        results[0].questionText.toLowerCase().includes('natural log')));
 
       const isQuiz10 = item.topic.includes('Function_Limits') || item.topic.includes('Function Limits') ||
-          (results[0] && results[0].questionText && 
-           (results[0].questionText.toLowerCase().includes('limit') || 
-            results[0].questionText.toLowerCase().includes('continuity')));
+                    (results[0] && results[0].questionText && 
+                    (results[0].questionText.toLowerCase().includes('limit') || 
+                    results[0].questionText.toLowerCase().includes('continuity')));
 
-const isQuiz11 = item.topic.includes('Limit_Concepts') || 
-          (results[0] && results[0].questionText && 
-           (results[0].questionText.toLowerCase().includes('derivative') || 
-            results[0].questionText.toLowerCase().includes('differentiat') ||
-            results[0].questionText.toLowerCase().includes('tangent line') ||
-            results[0].questionText.toLowerCase().includes('limit concept')));
+     const isQuiz11 = item.topic.includes('Limit_Concepts') || item.topic.includes('Differentiation') ||
+                    (results[0] && results[0].questionText && 
+                    (results[0].questionText.toLowerCase().includes('derivative') || 
+                    results[0].questionText.toLowerCase().includes('differentiat') ||
+                    results[0].questionText.toLowerCase().includes('tangent line')));
 
       let detailHtml = `
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -836,24 +841,24 @@ const isQuiz11 = item.topic.includes('Limit_Concepts') ||
           </div>
         ` : ''}
         
-   ${isQuiz10 ? `
-  <div class="alert function-limits-alert mb-3">
-    <i class="bi bi-info-circle me-2"></i>
-    <strong>Function Limits (Quiz 10):</strong> This assessment covers limits of functions, 
-    including evaluating limits, one-sided limits, limits at infinity, continuity, and the formal definition of limits.
-  </div>
-` : ''}
+        ${isQuiz10 ? `
+          <div class="alert function-limits-alert mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Function Limits (Quiz 10):</strong> This assessment covers limits of functions, 
+            including evaluating limits, one-sided limits, limits at infinity, continuity, and the formal definition of limits.
+          </div>
+        ` : ''}
 
 ${isQuiz11 ? `
-  <div class="alert differentiation-alert mb-3">
-    <i class="bi bi-info-circle me-2"></i>
-    <strong>Limits, Continuity and Differentiation (Quiz 11):</strong> This assessment covers 
-    advanced limits, continuity concepts, and basic differentiation including derivative rules and applications.
-  </div>
-` : ''}
-        
-      <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px;">
-        <div class="row">
+          <div class="alert differentiation-alert mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Limits, Continuity and Differentiation (Quiz 11):</strong> This assessment covers 
+            advanced limits, continuity concepts, and basic differentiation including derivative rules and applications.
+          </div>
+        ` : ''}
+          
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px;">
+          <div class="row">
       `;
 
       results.forEach(result => {
@@ -1080,41 +1085,41 @@ ${isQuiz11 ? `
     }
 
     // Populate filter options
-   function populateFilters() {
-  const topics = [...new Set(allData.map(item => item.topic))];
-  const topicFilter = document.getElementById('topicFilter');
-  
-  topicFilter.innerHTML = '<option value="">All Topics</option>';
-  topics.forEach(topic => {
-    let displayName = topic;
-    
-    // Find a sample item with this topic to check question count
-    const sampleItem = allData.find(item => item.topic === topic);
-    const questionCount = sampleItem ? sampleItem.totalQuestions : 0;
-    
-    if (topic.includes('Quiz4') || topic.includes('quadratic')) {
-        displayName = 'Quadratic Functions (Quiz 4)';
-    } else if (topic.includes('Quiz5') || (topic.includes('Linear') && questionCount === 50)) {
-        displayName = 'Linear Functions (Quiz 5)';
-    } else if (topic.includes('Linear') && questionCount === 30) {
-        displayName = 'Linear Functions 1';
-    } else if (topic.includes('Quiz6') || topic.includes('Sets') || topic.includes('Relations')) {
-        displayName = 'Sets and Relations (Quiz 6)';
-    } else if (topic.includes('Quiz7') || topic.includes('Polynomial')) {
-        displayName = 'Polynomials (Quiz 7)';
-    } else if (topic.includes('Quiz8') || topic.includes('Function') || topic.includes('function_concepts')) {
-        displayName = 'Exponential Functions (Week-5)';
-    } else if (topic.includes('Quiz9') || topic.includes('Logarithmic')) {
-        displayName = 'Logarithmic Functions (Quiz 9)';
-    } else if (topic.includes('Function_Limits') || topic.includes('Function Limits')) {
-    displayName = 'Function Limits (Quiz 10)';
-} else if (topic.includes('Limit_Concepts') || topic.includes('Differentiation')) {
-    displayName = 'Limits, Continuity and Differentiation (Quiz 11)';
-}
-    
-    topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
-  });
-}
+    function populateFilters() {
+      const topics = [...new Set(allData.map(item => item.topic))];
+      const topicFilter = document.getElementById('topicFilter');
+      
+      topicFilter.innerHTML = '<option value="">All Topics</option>';
+      topics.forEach(topic => {
+        let displayName = topic;
+        
+        // Find a sample item with this topic to check question count
+        const sampleItem = allData.find(item => item.topic === topic);
+        const questionCount = sampleItem ? sampleItem.totalQuestions : 0;
+        
+        if (topic.includes('Quiz4') || topic.includes('quadratic')) {
+            displayName = 'Quadratic Functions (Quiz 4)';
+        } else if (topic.includes('Quiz5') || (topic.includes('Linear') && questionCount === 50)) {
+            displayName = 'Linear Functions (Quiz 5)';
+        } else if (topic.includes('Linear') && questionCount === 30) {
+            displayName = 'Linear Functions 1';
+        } else if (topic.includes('Quiz6') || topic.includes('Sets') || topic.includes('Relations')) {
+            displayName = 'Sets and Relations (Quiz 6)';
+        } else if (topic.includes('Quiz7') || topic.includes('Polynomial')) {
+            displayName = 'Polynomials (Quiz 7)';
+        } else if (topic.includes('Quiz8') || topic.includes('Function') || topic.includes('function_concepts')) {
+    displayName = 'Exponential Functions (Week-5)';
+        } else if (topic.includes('Quiz9') || topic.includes('Logarithmic')) {
+            displayName = 'Logarithmic Functions (Quiz 9)';
+        } else if (item.topic.includes('Function_Limits') || item.topic.includes('Function Limits')) {
+            topicDisplay = 'Sequences and Limits (Quiz 10)';
+        } else if (item.topic.includes('Limit_Concepts') || item.topic.includes('Differentiation')) {
+            topicDisplay = 'Limits, Continuity and Differentiation (Quiz 11)';
+        }
+        
+        topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
+      });
+    }
 
     // Apply filters
     function applyFilters() {
@@ -1213,15 +1218,15 @@ ${isQuiz11 ? `
             } else if (item.topic.includes('Quiz7') || item.topic.includes('Polynomial')) {
                 topicDisplay = 'Polynomials (Week-4) - 50 Questions';
             } else if (item.topic.includes('Week 6') || item.topic.includes('Exponential Functions') || item.topic.includes('function_concepts')) {
-    topicDisplay = 'Exponential Functions (Week-5)';
+                topicDisplay = 'Exponential Functions (Week-5)';
             } else if (item.topic.includes('Quiz9') || item.topic.includes('Logarithmic')) {
                 topicDisplay = 'Logarithmic Functions (Week-6)';
-            } else if (item.topic.includes('Quiz10') || item.topic.includes('Function Limits') || item.topic.includes('limits')) {
-                topicDisplay = 'Function Limits Week-7)';
-            } else if (topic.includes('Function_Limits') || topic.includes('Function Limits')) {
-              displayName = 'Function Limits (Quiz 10)';
-          } else if (topic.includes('Limit_Concepts') || topic.includes('Differentiation')) {
-               displayName = 'Limits, Continuity and Differentiation (Quiz 11)';}
+            } else if (item.topic.includes('Function_Limits') || item.topic.includes('Function Limits')) {
+            topicDisplay = 'Function Limits (Quiz 10)';
+            } else if (item.topic.includes('Limit_Concepts') || item.topic.includes('Differentiation')) {
+                topicDisplay = 'Limits, Continuity and Differentiation (Quiz 11)';
+            }
+            
             csv += [
             `"${item.username}"`,
             `"${item.email}"`,
@@ -1356,25 +1361,24 @@ ${isQuiz11 ? `
     }
 
     // Show Function Limits data (Quiz 10)
-    // Show Sequence, Limits and Continuity data (Quiz 11)
-function showSequenceLimits() {
-  const sequenceData = allData.filter(item => 
-    item.topic.includes('Sequence') || 
-    item.topic.includes('sequence') ||
-    item.topic.includes('Limit_Function')
+    // Show Function Limits data (Quiz 10)
+function showFunctionLimits() {
+  const functionLimitsData = allData.filter(item => 
+    item.topic.includes('Function_Limits') || 
+    item.topic.includes('Function Limits')
   );
   
-  if (sequenceData.length === 0) {
-    alert('No Sequence, Limits and Continuity (Quiz 11) data available yet.');
+  if (functionLimitsData.length === 0) {
+    alert('No Function Limits (Quiz 10) data available yet.');
     return;
   }
   
-  document.getElementById('topicFilter').value = sequenceData[0].topic;
+  document.getElementById('topicFilter').value = functionLimitsData[0].topic;
   applyFilters();
   document.getElementById('tableContainer').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Show Limits, Continuity and Differentiation data (Quiz 12)
+// Show Limits, Continuity and Differentiation data (Quiz 11)
 function showDifferentiation() {
   const differentiationData = allData.filter(item => 
     item.topic.includes('Limit_Concepts') || 
@@ -1382,7 +1386,7 @@ function showDifferentiation() {
   );
   
   if (differentiationData.length === 0) {
-    alert('No Limits, Continuity and Differentiation (Quiz 12) data available yet.');
+    alert('No Limits, Continuity and Differentiation (Quiz 11) data available yet.');
     return;
   }
   
