@@ -1086,40 +1086,42 @@ ${isQuiz11 ? `
 
     // Populate filter options
     function populateFilters() {
-      const topics = [...new Set(allData.map(item => item.topic))];
-      const topicFilter = document.getElementById('topicFilter');
-      
-      topicFilter.innerHTML = '<option value="">All Topics</option>';
-      topics.forEach(topic => {
-        let displayName = topic;
-        
-        // Find a sample item with this topic to check question count
-        const sampleItem = allData.find(item => item.topic === topic);
-        const questionCount = sampleItem ? sampleItem.totalQuestions : 0;
-        
-        if (topic.includes('Quiz4') || topic.includes('quadratic')) {
-            displayName = 'Quadratic Functions (Quiz 4)';
-        } else if (topic.includes('Quiz5') || (topic.includes('Linear') && questionCount === 50)) {
-            displayName = 'Linear Functions (Quiz 5)';
-        } else if (topic.includes('Linear') && questionCount === 30) {
-            displayName = 'Linear Functions 1';
-        } else if (topic.includes('Quiz6') || topic.includes('Sets') || topic.includes('Relations')) {
-            displayName = 'Sets and Relations (Quiz 6)';
-        } else if (topic.includes('Quiz7') || topic.includes('Polynomial')) {
-            displayName = 'Polynomials (Quiz 7)';
-        } else if (topic.includes('Quiz8') || topic.includes('Function') || topic.includes('function_concepts')) {
-    displayName = 'Exponential Functions (Week-5)';
-        } else if (topic.includes('Quiz9') || topic.includes('Logarithmic')) {
-            displayName = 'Logarithmic Functions (Quiz 9)';
-        } else if (item.topic.includes('Function_Limits') || item.topic.includes('Function Limits')) {
-            topicDisplay = 'Sequences and Limits (Quiz 10)';
-        } else if (item.topic.includes('Limit_Concepts') || item.topic.includes('Differentiation')) {
-            topicDisplay = 'Limits, Continuity and Differentiation (Quiz 11)';
-        }
-        
-        topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
-      });
+  const topics = [...new Set(allData.map(item => item.topic))];
+  const topicFilter = document.getElementById('topicFilter');
+  
+  topicFilter.innerHTML = '<option value="">All Topics</option>';
+  topics.forEach(topic => {
+    let displayName = topic;
+    
+    // Find a sample item with this topic to check question count
+    const sampleItem = allData.find(item => item.topic === topic);
+    const questionCount = sampleItem ? sampleItem.totalQuestions : 0;
+    
+    if (topic.includes('Quiz4') || topic.includes('quadratic')) {
+        displayName = 'Quadratic Functions (Quiz 4)';
+    } else if (topic.includes('Quiz5') || (topic.includes('Linear') && questionCount === 50)) {
+        displayName = 'Linear Functions (Quiz 5)';
+    } else if (topic.includes('Linear') && questionCount === 30) {
+        displayName = 'Linear Functions 1';
+    } else if (topic.includes('Quiz6') || topic.includes('Sets') || topic.includes('Relations')) {
+        displayName = 'Sets and Relations (Quiz 6)';
+    } else if (topic.includes('Quiz7') || topic.includes('Polynomial')) {
+        displayName = 'Polynomials (Quiz 7)';
+    } else if (topic.includes('Quiz8') || topic.includes('Function') || topic.includes('function_concepts')) {
+        displayName = 'Exponential Functions (Week-5)';
+    } else if (topic.includes('Quiz9') || topic.includes('Logarithmic')) {
+        displayName = 'Logarithmic Functions (Quiz 9)';
+    } else if (topic.includes('Function_Limits') || topic.includes('Function Limits')) {
+        displayName = 'Function Limits (Quiz 10)';
+    } else if (topic.includes('Limit_Concepts') || topic.includes('Differentiation')) {
+        displayName = 'Limits, Continuity and Differentiation (Quiz 11)';
+    } else if (topic.includes('Linear')) {
+        displayName = `Linear Functions (${questionCount} Questions)`;
     }
+    
+    topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
+  });
+}
 
     // Apply filters
     function applyFilters() {
