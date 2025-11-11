@@ -228,48 +228,57 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="iitm_ct_dashboard.html">
+                  <i class="bi bi-cpu"></i> Computational Thinking
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="programming_dashboard.html">
+                  <i class="bi bi-code-slash"></i> Python Dashboard
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="iitm_DSA_dashboard.html">
                   <i class="bi bi-diagram-3"></i> DSA Dashboard
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="iitm_CT_dashboard.html">
-                  <i class="bi bi-cpu"></i> Computational Thinking
+                <a class="nav-link" href="IITM_math_dashboard.html">
+                  <i class="bi bi-diagram-3"></i> MATH Dashboard
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="iitm_python_dashboard.html">
-                  <i class="bi bi-code-slash"></i> Python Dashboard
+                <a class="nav-link" href="iitm_math_2_dashboard.html">
+                  <i class="bi bi-diagram-3"></i> Math-2 Dashboard
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#" data-target="users">
-                  <i class="bi bi-people"></i> User Management
+                <a class="nav-link" href="statistics_dashboard.html">
+                  <i class="bi bi-diagram-3"></i> Statistics Dashboard
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#" data-target="analytics">
-                  <i class="bi bi-bar-chart"></i> Analytics
+                <a class="nav-link" href="iitm_stats_2_dashboard.html">
+                  <i class="bi bi-diagram-3"></i> Statistics-2 Dashboard
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#" data-target="settings">
-                  <i class="bi bi-gear"></i> System Settings
+                <a class="nav-link" href="activity_dashboard.html">
+                  <i class="bi bi-diagram-3"></i> Activity Dashboard
                 </a>
               </li>
-            </ul>
+              <li class="nav-item">
+                <a class="nav-link" href="content_dashboard.html">
+                  <i class="bi bi-diagram-3"></i> Content Dashboard
+                </a>
+              </li>
+            </ul> <!-- This was missing -->
             
             <div class="mt-4 pt-3 border-top">
               <h6 class="text-muted mb-3">Quick Actions</h6>
               <div class="quick-actions">
-                <button class="btn btn-outline-primary btn-sm">
-                  <i class="bi bi-plus-circle"></i> Add User
-                </button>
                 <button class="btn btn-outline-success btn-sm">
                   <i class="bi bi-download"></i> Export Data
-                </button>
-                <button class="btn btn-outline-info btn-sm">
-                  <i class="bi bi-bell"></i> Notifications
                 </button>
               </div>
             </div>
@@ -294,78 +303,8 @@
           </div>
           
           <!-- Stats Cards -->
-          <div class="row">
-            <div class="col-md-3 mb-4">
-              <div class="stats-card">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <p class="stats-label">Total Students</p>
-                    <h3 class="stats-value">1,248</h3>
-                    <span class="stats-change positive"><i class="bi bi-arrow-up"></i> 12% from last week</span>
-                  </div>
-                  <div class="card-icon icon-users">
-                    <i class="bi bi-people-fill"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 mb-4">
-              <div class="stats-card">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <p class="stats-label">DSA Submissions</p>
-                    <h3 class="stats-value">856</h3>
-                    <span class="stats-change positive"><i class="bi bi-arrow-up"></i> 8% from last week</span>
-                  </div>
-                  <div class="card-icon icon-dsa">
-                    <i class="bi bi-diagram-3"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 mb-4">
-              <div class="stats-card">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <p class="stats-label">CT Submissions</p>
-                    <h3 class="stats-value">642</h3>
-                    <span class="stats-change positive"><i class="bi bi-arrow-up"></i> 15% from last week</span>
-                  </div>
-                  <div class="card-icon icon-ct">
-                    <i class="bi bi-cpu"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-3 mb-4">
-              <div class="stats-card">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <p class="stats-label">Avg. Score</p>
-                    <h3 class="stats-value">78%</h3>
-                    <span class="stats-change negative"><i class="bi bi-arrow-down"></i> 2% from last week</span>
-                  </div>
-                  <div class="card-icon icon-analytics">
-                    <i class="bi bi-graph-up"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Dashboard Cards -->
-          <div class="row">
-            <div class="col-md-4 mb-4">
-              <div class="dashboard-card">
-                <div class="card-icon icon-dsa">
-                  <i class="bi bi-diagram-3"></i>
-                </div>
-                <h4>DSA Dashboard</h4>
-                <p class="text-muted">View and manage Data Structures and Algorithms submissions, scores, and student performance.</p>
-                <a href="iitm_DSA_dashboard.html" class="btn btn-primary">Open Dashboard</a>
-              </div>
-            </div>
-            
+          <div class="row"> <!-- Added row wrapper for all cards -->
+            <!-- Dashboard Cards -->
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-ct">
@@ -387,42 +326,62 @@
                 <a href="programming_dashboard.html" class="btn btn-primary">Open Dashboard</a>
               </div>
             </div>
-
+            
+            <div class="col-md-4 mb-4">
+              <div class="dashboard-card">
+                <div class="card-icon icon-dsa">
+                  <i class="bi bi-diagram-3"></i>
+                </div>
+                <h4>DSA Dashboard</h4>
+                <p class="text-muted">View and manage Data Structures and Algorithms submissions, scores, and student performance.</p>
+                <a href="iitm_DSA_dashboard.html" class="btn btn-primary">Open Dashboard</a>
+              </div>
+            </div>
+          
+            <div class="col-md-4 mb-4">
+              <div class="dashboard-card">
+                <div class="card-icon icon-python">
+                  <i class="bi bi-code-slash"></i>
+                </div>
+                <h4>Mathematic-1 Dashboard</h4>
+                <p class="text-muted">Track mathematics assignments, problem sets, and analytical reasoning exercises.</p>
+                <a href="IITM_math_dashboard.html" class="btn btn-primary">Open Dashboard</a>
+              </div>
+            </div>
+          
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-python">
                   <i class="bi bi-code-slash"></i>
                 </div>
                 <h4>Mathematic-2 Dashboard</h4>
-                <p class="text-muted">Monitor Python programming assignments, code submissions, and evaluation results.</p>
+                <p class="text-muted">Monitor advanced mathematics concepts, proofs, and mathematical modeling assignments.</p>
                 <a href="iitm_math_2_dashboard.html" class="btn btn-primary">Open Dashboard</a>
               </div>
             </div>
-
+          
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-python">
                   <i class="bi bi-code-slash"></i>
                 </div>
-                <h4>Statistic Dashboard</h4>
-                <p class="text-muted">Monitor Python programming assignments, code submissions, and evaluation results.</p>
+                <h4>Statistic-1 Dashboard</h4>
+                <p class="text-muted">View statistical analysis assignments, data interpretation tasks, and probability exercises.</p>
                 <a href="statistics_dashboard.html" class="btn btn-primary">Open Dashboard</a>
               </div>
             </div>
-
+          
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-python">
                   <i class="bi bi-code-slash"></i>
                 </div>
                 <h4>Statistics-2 Dashboard</h4>
-                <p class="text-muted">Monitor Python programming assignments, code submissions, and evaluation results.</p>
+                <p class="text-muted">Monitor advanced statistical methods, inferential statistics, and data modeling assignments.</p>
                 <a href="iitm_stats_2_dashboard.html" class="btn btn-primary">Open Dashboard</a>
               </div>
             </div>
-
-          
-            
+                    
             <div class="col-md-6 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-users">
@@ -443,155 +402,14 @@
                 <button class="btn btn-primary" onclick="showSection('analytics')">View Analytics</button>
               </div>
             </div>
-          </div>
-          
-          <!-- Recent Activity -->
-          <div class="recent-activity">
-            <h4 class="mb-3">Recent Activity</h4>
-            <div class="activity-item">
-              <div class="d-flex">
-                <div class="activity-icon activity-dsa">
-                  <i class="bi bi-diagram-3"></i>
-                </div>
-                <div>
-                  <h6 class="mb-1">New DSA submission from John Doe</h6>
-                  <p class="mb-1 text-muted">Submitted solution for "Binary Search Trees" problem</p>
-                  <small class="text-muted">10 minutes ago</small>
-                </div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="d-flex">
-                <div class="activity-icon activity-ct">
-                  <i class="bi bi-cpu"></i>
-                </div>
-                <div>
-                  <h6 class="mb-1">CT assignment completed</h6>
-                  <p class="mb-1 text-muted">"Algorithmic Thinking" module completed by 23 students</p>
-                  <small class="text-muted">2 hours ago</small>
-                </div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="d-flex">
-                <div class="activity-icon activity-python">
-                  <i class="bi bi-code-slash"></i>
-                </div>
-                <div>
-                  <h6 class="mb-1">Python assignment graded</h6>
-                  <p class="mb-1 text-muted">"File Handling Exercises" graded for 45 students</p>
-                  <small class="text-muted">5 hours ago</small>
-                </div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="d-flex">
-                <div class="activity-icon activity-user">
-                  <i class="bi bi-person-plus"></i>
-                </div>
-                <div>
-                  <h6 class="mb-1">New user registered</h6>
-                  <p class="mb-1 text-muted">Sarah Johnson joined the Python course</p>
-                  <small class="text-muted">Yesterday</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          </div> <!-- End of row -->
+        </div> <!-- End of overview section -->
+      </div> <!-- End of col-lg-9 -->
+    </div> <!-- End of main row -->
+  </div> <!-- End of container -->
 
-        <!-- User Management Section -->
-        <div id="users" class="dashboard-section">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>User Management</h2>
-            <button class="btn btn-outline-primary" onclick="showSection('overview')">
-              <i class="bi bi-arrow-left"></i> Back to Overview
-            </button>
-          </div>
-          
-          <div class="dashboard-card">
-            <h4 class="mb-3">Manage Students and Users</h4>
-            <p>User management functionality would be implemented here, allowing admins to:</p>
-            <ul>
-              <li>View all registered users</li>
-              <li>Add new users or students</li>
-              <li>Edit user permissions and roles</li>
-              <li>Reset passwords</li>
-              <li>Deactivate or delete user accounts</li>
-            </ul>
-            <div class="mt-4">
-              <button class="btn btn-success me-2">
-                <i class="bi bi-person-plus me-1"></i> Add New User
-              </button>
-              <button class="btn btn-outline-primary">
-                <i class="bi bi-download me-1"></i> Export User List
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <!-- Analytics Section -->
-        <div id="analytics" class="dashboard-section">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Analytics</h2>
-            <button class="btn btn-outline-primary" onclick="showSection('overview')">
-              <i class="bi bi-arrow-left"></i> Back to Overview
-            </button>
-          </div>
-          
-          <div class="dashboard-card">
-            <h4 class="mb-3">Platform Analytics</h4>
-            <p>Comprehensive analytics and reporting would be displayed here, including:</p>
-            <ul>
-              <li>Student engagement metrics</li>
-              <li>Course completion rates</li>
-              <li>Performance trends over time</li>
-              <li>Problem difficulty analysis</li>
-              <li>Learning path effectiveness</li>
-            </ul>
-            <div class="mt-4">
-              <button class="btn btn-primary me-2">
-                <i class="bi bi-graph-up me-1"></i> View Detailed Reports
-              </button>
-              <button class="btn btn-outline-success">
-                <i class="bi bi-download me-1"></i> Export Analytics
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Settings Section -->
-        <div id="settings" class="dashboard-section">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>System Settings</h2>
-            <button class="btn btn-outline-primary" onclick="showSection('overview')">
-              <i class="bi bi-arrow-left"></i> Back to Overview
-            </button>
-          </div>
-          
-          <div class="dashboard-card">
-            <h4 class="mb-3">Platform Configuration</h4>
-            <p>System settings and configuration options would be available here:</p>
-            <ul>
-              <li>Course management and configuration</li>
-              <li>Grading criteria and rubrics</li>
-              <li>Notification settings</li>
-              <li>API and integration settings</li>
-              <li>Backup and maintenance options</li>
-            </ul>
-            <div class="mt-4">
-              <button class="btn btn-primary me-2">
-                <i class="bi bi-save me-1"></i> Save Settings
-              </button>
-              <button class="btn btn-outline-warning">
-                <i class="bi bi-arrow-clockwise me-1"></i> Reset to Defaults
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -604,7 +422,10 @@
       });
       
       // Show the selected section
-      document.getElementById(sectionId).classList.add('active');
+      const targetSection = document.getElementById(sectionId);
+      if (targetSection) {
+        targetSection.classList.add('active');
+      }
       
       // Update active nav link
       document.querySelectorAll('.sidebar .nav-link').forEach(link => {
@@ -628,7 +449,8 @@
     
     // Initialize the dashboard
     document.addEventListener('DOMContentLoaded', function() {
-      // Any initialization code would go here
+      // Show overview section by default
+      showSection('overview');
     });
   </script>
 </body>
