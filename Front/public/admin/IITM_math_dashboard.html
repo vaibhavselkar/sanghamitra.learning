@@ -1085,90 +1085,127 @@ ${isQuiz11 ? `
     }
 
     // Populate filter options
-    function populateFilters() {
-  const topics = [...new Set(allData.map(item => item.topic))];
+    // Populate filter options - FIXED VERSION
+function populateFilters() {
   const topicFilter = document.getElementById('topicFilter');
   
-  topicFilter.innerHTML = '<option value="">All Topics</option>';
-  topics.forEach(topic => {
-    let displayName = topic;
+  // Define standardized topic names to avoid duplicates
+  const topicMapping = {
+    'Quiz4': 'Quadratic Functions (Quiz 4)',
+    'quadratic': 'Quadratic Functions (Quiz 4)',
+    'Quiz5': 'Linear Functions (Quiz 5)',
+    'Linear': 'Linear Functions (Quiz 5)',
+    'Quiz6': 'Sets and Relations (Quiz 6)',
+    'Sets': 'Sets and Relations (Quiz 6)',
+    'Relations': 'Sets and Relations (Quiz 6)',
+    'sets_and_relations': 'Sets and Relations (Quiz 6)',
+    'Quiz7': 'Polynomials (Quiz 7)',
+    'Polynomials': 'Polynomials (Quiz 7)',
+    'Quiz8': 'Exponential Functions (Week-5)',
+    'function_concepts': 'Exponential Functions (Week-5)',
+    'Exponential': 'Exponential Functions (Week-5)',
+    'Quiz9': 'Logarithmic Functions (Quiz 9)',
+    'Logarithmic': 'Logarithmic Functions (Quiz 9)',
+    'logarithmic_functions': 'Logarithmic Functions (Quiz 9)',
+    'Quiz10': 'Function Limits (Quiz 10)',
+    'Function_Limits': 'Function Limits (Quiz 10)',
+    'Function Limits': 'Function Limits (Quiz 10)',
+    'Quiz11': 'Limits, Continuity and Differentiation (Quiz 11)',
+    'Limit_Concepts': 'Limits, Continuity and Differentiation (Quiz 11)',
+    'Differentiation': 'Limits, Continuity and Differentiation (Quiz 11)'
+  };
+
+  // Get unique standardized topics
+  const uniqueTopics = new Set();
+  allData.forEach(item => {
+    let standardizedTopic = 'Other';
     
-    // Find a sample item with this topic to check question count
-    const sampleItem = allData.find(item => item.topic === topic);
-    const questionCount = sampleItem ? sampleItem.totalQuestions : 0;
-    
-    if (topic.includes('Quiz4') || topic.includes('quadratic')) {
-        displayName = 'Quadratic Functions (Quiz 4)';
-    } else if (topic.includes('Quiz5') || (topic.includes('Linear') && questionCount === 50)) {
-        displayName = 'Linear Functions (Quiz 5)';
-    } else if (topic.includes('Linear') && questionCount === 30) {
-        displayName = 'Linear Functions 1';
-    } else if (topic.includes('Quiz6') || topic.includes('Sets') || topic.includes('Relations')) {
-        displayName = 'Sets and Relations (Quiz 6)';
-    } else if (topic.includes('Quiz7') || topic.includes('Polynomial')) {
-        displayName = 'Polynomials (Quiz 7)';
-    } else if (topic.includes('Quiz8') || topic.includes('Function') || topic.includes('function_concepts')) {
-        displayName = 'Exponential Functions (Week-5)';
-    } else if (topic.includes('Quiz9') || topic.includes('Logarithmic')) {
-        displayName = 'Logarithmic Functions (Quiz 9)';
-    } else if (topic.includes('Function_Limits') || topic.includes('Function Limits')) {
-        displayName = 'Function Limits (Quiz 10)';
-    } else if (topic.includes('Limit_Concepts') || topic.includes('Differentiation')) {
-        displayName = 'Limits, Continuity and Differentiation (Quiz 11)';
-    } else if (topic.includes('Linear')) {
-        displayName = `Linear Functions (${questionCount} Questions)`;
+    // Find matching topic
+    for (const [key, value] of Object.entries(topicMapping)) {
+      if (item.topic && item.topic.includes(key)) {
+        standardizedTopic = value;
+        break;
+      }
     }
     
-    topicFilter.innerHTML += `<option value="${topic}">${displayName}</option>`;
+    uniqueTopics.add(standardizedTopic);
+  });
+
+  topicFilter.innerHTML = '<option value="">All Topics</option>';
+  
+  // Convert set to array and sort
+  const sortedTopics = Array.from(uniqueTopics).sort();
+  
+  sortedTopics.forEach(topic => {
+    topicFilter.innerHTML += `<option value="${topic}">${topic}</option>`;
   });
 }
 
     // Apply filters
-    function applyFilters() {
-      const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
-      const topicFilter = document.getElementById('topicFilter').value;
-      const scoreFilter = document.getElementById('scoreFilter').value;
-      const dateFilter = document.getElementById('dateFilter').value;
+    // Apply filters - UPDATED VERSION
+function applyFilters() {
+  const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
+  const topicFilter = document.getElementById('topicFilter').value;
+  const scoreFilter = document.getElementById('scoreFilter').value;
+  const dateFilter = document.getElementById('dateFilter').value;
 
-      filteredData = [...allData];
+  filteredData = [...allData];
 
-      // Search filter
-      if (searchTerm) {
-        filteredData = filteredData.filter(item => 
-          item.username.toLowerCase().includes(searchTerm) ||
-          item.email.toLowerCase().includes(searchTerm)
-        );
-      }
+  // Search filter
+  if (searchTerm) {
+    filteredData = filteredData.filter(item => 
+      item.username.toLowerCase().includes(searchTerm) ||
+      item.email.toLowerCase().includes(searchTerm)
+    );
+  }
 
-      // Topic filter
-      if (topicFilter) {
-        filteredData = filteredData.filter(item => item.topic === topicFilter);
-      }
+  // Topic filter - UPDATED LOGIC
+  if (topicFilter) {
+    // Define reverse mapping for filtering
+    const topicReverseMapping = {
+      'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic'],
+      'Linear Functions (Quiz 5)': ['Quiz5', 'Linear'],
+      'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations'],
+      'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials'],
+      'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential'],
+      'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions'],
+      'Function Limits (Quiz 10)': ['Quiz10', 'Function_Limits', 'Function Limits'],
+      'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation']
+    };
 
-      // Score filter
-      if (scoreFilter) {
-        if (scoreFilter === '0') {
-          filteredData = filteredData.filter(item => item.percentage === 0);
-        } else {
-          const [min, max] = scoreFilter.split('-').map(Number);
-          filteredData = filteredData.filter(item => item.percentage >= min && item.percentage <= max);
-        }
-      }
+    const topicKeywords = topicReverseMapping[topicFilter] || [topicFilter];
+    
+    filteredData = filteredData.filter(item => {
+      return topicKeywords.some(keyword => 
+        item.topic && item.topic.includes(keyword)
+      );
+    });
+  }
 
-      // Date filter
-      if (dateFilter) {
-        const filterDate = new Date(dateFilter);
-        filteredData = filteredData.filter(item => {
-          if (!item.timestamp) return false;
-          const itemDate = new Date(item.timestamp);
-          return itemDate.toDateString() === filterDate.toDateString();
-        });
-      }
-
-      expandedRows.clear(); // Reset expanded rows
-      calculateStatistics();
-      populateTable(filteredData);
+  // Score filter
+  if (scoreFilter) {
+    if (scoreFilter === '0') {
+      filteredData = filteredData.filter(item => item.percentage === 0);
+    } else {
+      const [min, max] = scoreFilter.split('-').map(Number);
+      filteredData = filteredData.filter(item => item.percentage >= min && item.percentage <= max);
     }
+  }
+
+  // Date filter
+  if (dateFilter) {
+    const filterDate = new Date(dateFilter);
+    filteredData = filteredData.filter(item => {
+      if (!item.timestamp) return false;
+      const itemDate = new Date(item.timestamp);
+      return itemDate.toDateString() === filterDate.toDateString();
+    });
+  }
+
+  expandedRows.clear(); // Reset expanded rows
+  calculateStatistics();
+  populateTable(filteredData);
+}
 
     // Clear filters
     function clearFilters() {
@@ -1200,36 +1237,49 @@ ${isQuiz11 ? `
     }
 
     // Generate CSV content
-    function generateCSV(data) {
-        const headers = ['Username', 'Email', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Attempt Number', 'Date'];
-        let csv = headers.join(',') + '\n';
+    // Generate CSV content - UPDATED VERSION
+function generateCSV(data) {
+    const headers = ['Username', 'Email', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Attempt Number', 'Date'];
+    let csv = headers.join(',') + '\n';
+    
+    // Topic mapping for CSV
+    const topicMapping = {
+        'Quiz4': 'Quadratic Functions (Quiz 4)',
+        'quadratic': 'Quadratic Functions (Quiz 4)',
+        'Quiz5': 'Linear Functions (Quiz 5)',
+        'Linear': 'Linear Functions (Quiz 5)',
+        'Quiz6': 'Sets and Relations (Quiz 6)',
+        'Sets': 'Sets and Relations (Quiz 6)',
+        'Relations': 'Sets and Relations (Quiz 6)',
+        'sets_and_relations': 'Sets and Relations (Quiz 6)',
+        'Quiz7': 'Polynomials (Quiz 7)',
+        'Polynomials': 'Polynomials (Quiz 7)',
+        'Quiz8': 'Exponential Functions (Week-5)',
+        'function_concepts': 'Exponential Functions (Week-5)',
+        'Quiz9': 'Logarithmic Functions (Quiz 9)',
+        'Logarithmic': 'Logarithmic Functions (Quiz 9)',
+        'logarithmic_functions': 'Logarithmic Functions (Quiz 9)',
+        'Quiz10': 'Function Limits (Quiz 10)',
+        'Function_Limits': 'Function Limits (Quiz 10)',
+        'Function Limits': 'Function Limits (Quiz 10)',
+        'Quiz11': 'Limits, Continuity and Differentiation (Quiz 11)',
+        'Limit_Concepts': 'Limits, Continuity and Differentiation (Quiz 11)',
+        'Differentiation': 'Limits, Continuity and Differentiation (Quiz 11)'
+    };
+    
+    data.forEach(item => {
+        const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
         
-        data.forEach(item => {
-            const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
-            
-            // Add topic-specific information for different quizzes
-            let topicDisplay = item.topic;
-            if (item.topic.includes('Quiz4') || item.topic.includes('quadratic')) {
-                topicDisplay = 'Quadratic Functions (Week-3)';
-            } else if (item.topic.includes('Quiz5') || (item.topic.includes('Linear') && item.totalQuestions === 50)) {
-                topicDisplay = 'Linear Functions (Quiz 5) - 50 Questions';
-            } else if (item.topic.includes('Linear') && item.totalQuestions === 30) {
-                topicDisplay = 'Linear Functions 1 - 30 Questions';
-            } else if (item.topic.includes('Quiz6') || item.topic.includes('Sets') || item.topic.includes('Relations')) {
-                topicDisplay = 'Sets and Relations (Quiz 6)';
-            } else if (item.topic.includes('Quiz7') || item.topic.includes('Polynomial')) {
-                topicDisplay = 'Polynomials (Week-4) - 50 Questions';
-            } else if (item.topic.includes('Week 6') || item.topic.includes('Exponential Functions') || item.topic.includes('function_concepts')) {
-                topicDisplay = 'Exponential Functions (Week-5)';
-            } else if (item.topic.includes('Quiz9') || item.topic.includes('Logarithmic')) {
-                topicDisplay = 'Logarithmic Functions (Week-6)';
-            } else if (item.topic.includes('Function_Limits') || item.topic.includes('Function Limits')) {
-            topicDisplay = 'Function Limits (Quiz 10)';
-            } else if (item.topic.includes('Limit_Concepts') || item.topic.includes('Differentiation')) {
-                topicDisplay = 'Limits, Continuity and Differentiation (Quiz 11)';
+        // Get standardized topic name
+        let topicDisplay = 'Other';
+        for (const [key, value] of Object.entries(topicMapping)) {
+            if (item.topic && item.topic.includes(key)) {
+                topicDisplay = value;
+                break;
             }
-            
-            csv += [
+        }
+        
+        csv += [
             `"${item.username}"`,
             `"${item.email}"`,
             `"${topicDisplay}"`,
@@ -1238,11 +1288,11 @@ ${isQuiz11 ? `
             `${item.percentage}%`,
             `${item.attemptNumber}`,
             `"${date}"`
-            ].join(',') + '\n';
-        });
-        
-        return csv;
-    }
+        ].join(',') + '\n';
+    });
+    
+    return csv;
+}
 
     // Refresh data
     async function refreshData() {
