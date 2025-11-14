@@ -1026,7 +1026,7 @@ function populateFilters() {
     'sets_and_relations': 'Sets and Relations (Quiz 6)',
     'Sets And Relations': 'Sets and Relations (Quiz 6)',
     'Quiz7': 'Polynomials (Quiz 7)',
-    'Polynomials': 'Polynomials (Quiz 7)',
+    'Polynomials': 'Polynomials ( Quiz 7)',
     'Polynomial Function': 'Polynomials (Quiz 7)',
     'Quiz8': 'Exponential Functions (Week-5)',
     'function_concepts': 'Exponential Functions (Week-5)',
@@ -1046,27 +1046,41 @@ function populateFilters() {
 
   // Get unique standardized topics
   const uniqueTopics = new Set();
+  
+  // First, let's debug what topics we actually have
+  const actualTopics = {};
+  allData.forEach(item => {
+    if (item.topic) {
+      actualTopics[item.topic] = (actualTopics[item.topic] || 0) + 1;
+    }
+  });
+  console.log('📊 Actual topics in data:', actualTopics);
+
   allData.forEach(item => {
     let standardizedTopic = 'Other';
     
     if (item.topic) {
       const topicLower = item.topic.toLowerCase();
       
-      // Check for Quiz 2 patterns first
-      if (topicLower.includes('quiz2') || 
-          topicLower.includes('domain_range') || 
-          topicLower.includes('domain and range-2') ||
-          topicLower.includes('domain-range') ||
-          (topicLower.includes('domain') && topicLower.includes('range') && !topicLower.includes('week 1'))) {
-        standardizedTopic = 'Domain and Range (Quiz 2)';
-      }
-      // Check for Quiz 1 patterns
-      else if (topicLower.includes('quiz1') || 
-               topicLower.includes('week 1 and 2') || 
-               (topicLower.includes('domain') && topicLower.includes('range') && topicLower.includes('week 1'))) {
+      // Check for Week 1 and 2 patterns FIRST (most specific)
+      if (topicLower.includes('week 1 and 2') || 
+          topicLower.includes('quiz1') ||
+          (topicLower.includes('domain') && topicLower.includes('range') && topicLower.includes('week 1'))) {
         standardizedTopic = 'Week 1 and 2 (Quiz 1)';
       }
-      // Check other topics
+      // Then check for Quiz 2 patterns (more specific than general domain/range)
+      else if (topicLower.includes('quiz2') || 
+               topicLower.includes('domain and range-2') ||
+               topicLower.includes('domain-range') ||
+               topicLower.includes('quiz2_domain_range')) {
+        standardizedTopic = 'Domain and Range (Quiz 2)';
+      }
+      // Then check for other specific patterns
+      else if (topicLower.includes('domain') && topicLower.includes('range')) {
+        // If it has both domain and range but not the specific patterns above, default to Quiz 1
+        standardizedTopic = 'Week 1 and 2 (Quiz 1)';
+      }
+      // Check other topics using the mapping
       else {
         for (const [key, value] of Object.entries(topicMapping)) {
           if (item.topic.includes(key)) {
@@ -1088,7 +1102,7 @@ function populateFilters() {
     topicFilter.innerHTML += `<option value="${topic}">${topic}</option>`;
   });
 
-  console.log('Available topics:', sortedTopics);
+  console.log('✅ Available topics in dropdown:', sortedTopics);
 }
 
 // Apply filters - FIXED VERSION
@@ -1108,10 +1122,10 @@ function applyFilters() {
   }
 
   if (topicFilter) {
-    // Define reverse mapping - IMPROVED
+    // Define reverse mapping - IMPROVED with better logic
     const topicReverseMapping = {
-      'Week 1 and 2 (Quiz 1)': ['Quiz1', 'Domain_Range', 'Domain and Range', 'Week 1 and 2'],
-      'Domain and Range (Quiz 2)': ['Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2', 'domain_range', 'domain and range', 'domain-range'],
+      'Week 1 and 2 (Quiz 1)': ['Quiz1', 'Domain_Range', 'Domain and Range', 'Week 1 and 2', 'domain', 'range'],
+      'Domain and Range (Quiz 2)': ['Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2', 'domain_range', 'domain and range-2', 'domain-range'],
       'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
       'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
       'Linear function - 2': ['Quiz5', 'Linear', 'Linear_functions - 2'],
@@ -1129,6 +1143,25 @@ function applyFilters() {
       if (!item.topic) return false;
       
       const itemTopicLower = item.topic.toLowerCase();
+      
+      // Special handling for Week 1 vs Quiz 2
+      if (topicFilter === 'Week 1 and 2 (Quiz 1)') {
+        return (itemTopicLower.includes('week 1 and 2') || 
+                itemTopicLower.includes('quiz1') ||
+                (itemTopicLower.includes('domain') && itemTopicLower.includes('range') && 
+                 !itemTopicLower.includes('quiz2') && 
+                 !itemTopicLower.includes('domain and range-2') &&
+                 !itemTopicLower.includes('domain-range')));
+      }
+      
+      if (topicFilter === 'Domain and Range (Quiz 2)') {
+        return (itemTopicLower.includes('quiz2') || 
+                itemTopicLower.includes('domain and range-2') ||
+                itemTopicLower.includes('domain-range') ||
+                itemTopicLower.includes('quiz2_domain_range'));
+      }
+      
+      // For other topics, use the keyword matching
       return topicKeywords.some(keyword => 
         itemTopicLower.includes(keyword.toLowerCase())
       );
