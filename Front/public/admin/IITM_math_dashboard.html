@@ -996,130 +996,152 @@
     }
 
     // Populate filter options - COMPLETE VERSION WITH ALL QUIZZES
-    function populateFilters() {
-      const topicFilter = document.getElementById('topicFilter');
-      
-      // Define standardized topic names - NOW INCLUDES ALL QUIZZES 1-11
-      const topicMapping = {
-        'Quiz1': 'Week 1 and 2 (Quiz 1)',
-        'Domain_Range': 'Week 1 and 2 (Quiz 1)',
-        'Quiz2': 'Domain and Range (Quiz 2)',
-        'Quiz2_Domain_Range': 'Domain and Range (Quiz 2)',
-        'Quiz3': 'Linear Functions (Quiz 3)',
-        'Quiz3_Linear_functions': 'Linear Functions (Quiz 3)',
-        'Linear_functions': 'Linear Functions (Quiz 3)',
-        'Quiz4': 'Quadratic Functions (Quiz 4)',
-        'quadratic': 'Quadratic Functions (Quiz 4)',
-        'Quadratic_functions': 'Quadratic Functions (Quiz 4)',
-        'Quiz5': 'Linear Functions (Quiz 5)',
-        'Linear': 'Linear Functions (Quiz 5)',
-        'Quiz6': 'Sets and Relations (Quiz 6)',
-        'Sets': 'Sets and Relations (Quiz 6)',
-        'Relations': 'Sets and Relations (Quiz 6)',
-        'sets_and_relations': 'Sets and Relations (Quiz 6)',
-        'Quiz7': 'Polynomials (Quiz 7)',
-        'Polynomials': 'Polynomials (Quiz 7)',
-        'Quiz8': 'Exponential Functions (Week-5)',
-        'function_concepts': 'Exponential Functions (Week-5)',
-        'Exponential': 'Exponential Functions (Week-5)',
-        'Quiz9': 'Logarithmic Functions (Quiz 9)',
-        'Logarithmic': 'Logarithmic Functions (Quiz 9)',
-        'logarithmic_functions': 'Logarithmic Functions (Quiz 9)',
-        'Quiz10': 'Function Limits (Quiz 10)',
-        'Function_Limits': 'Function Limits (Quiz 10)',
-        'Function Limits': 'Function Limits (Quiz 10)',
-        'Quiz11': 'Limits, Continuity and Differentiation (Quiz 11)',
-        'Limit_Concepts': 'Limits, Continuity and Differentiation (Quiz 11)',
-        'Differentiation': 'Limits, Continuity and Differentiation (Quiz 11)'
-      };
+    // Populate filter options - FIXED VERSION
+function populateFilters() {
+  const topicFilter = document.getElementById('topicFilter');
+  
+  // Define standardized topic names - FIXED QUIZ 2 MAPPING
+  const topicMapping = {
+    'Quiz1': 'Week 1 and 2 (Quiz 1)',
+    'Domain_Range': 'Week 1 and 2 (Quiz 1)',
+    'Quiz2': 'Domain and Range (Quiz 2)',
+    'Quiz2_Domain_Range': 'Domain and Range (Quiz 2)',
+    'Domain and Range': 'Domain and Range (Quiz 2)', // ADDED THIS LINE
+    'domain_range': 'Domain and Range (Quiz 2)', // ADDED THIS LINE
+    'domain and range': 'Domain and Range (Quiz 2)', // ADDED THIS LINE
+    'Quiz3': 'Linear Functions (Quiz 3)',
+    'Quiz3_Linear_functions': 'Linear Functions (Quiz 3)',
+    'Linear_functions': 'Linear Functions (Quiz 3)',
+    'Quiz4': 'Quadratic Functions (Quiz 4)',
+    'quadratic': 'Quadratic Functions (Quiz 4)',
+    'Quadratic_functions': 'Quadratic Functions (Quiz 4)',
+    'Quiz5': 'Linear Functions (Quiz 5)',
+    'Linear': 'Linear Functions ( Quiz 5)',
+    'Quiz6': 'Sets and Relations (Quiz 6)',
+    'Sets': 'Sets and Relations (Quiz 6)',
+    'Relations': 'Sets and Relations (Quiz 6)',
+    'sets_and_relations': 'Sets and Relations (Quiz 6)',
+    'Quiz7': 'Polynomials (Quiz 7)',
+    'Polynomials': 'Polynomials (Quiz 7)',
+    'Quiz8': 'Exponential Functions (Week-5)',
+    'function_concepts': 'Exponential Functions (Week-5)',
+    'Exponential': 'Exponential Functions (Week-5)',
+    'Quiz9': 'Logarithmic Functions (Quiz 9)',
+    'Logarithmic': 'Logarithmic Functions (Quiz 9)',
+    'logarithmic_functions': 'Logarithmic Functions (Quiz 9)',
+    'Quiz10': 'Function Limits (Quiz 10)',
+    'Function_Limits': 'Function Limits (Quiz 10)',
+    'Function Limits': 'Function Limits (Quiz 10)',
+    'Quiz11': 'Limits, Continuity and Differentiation (Quiz 11)',
+    'Limit_Concepts': 'Limits, Continuity and Differentiation (Quiz 11)',
+    'Differentiation': 'Limits, Continuity and Differentiation (Quiz 11)'
+  };
 
-      // Get unique standardized topics
-      const uniqueTopics = new Set();
-      allData.forEach(item => {
-        let standardizedTopic = 'Other';
-        
+  // Get unique standardized topics
+  const uniqueTopics = new Set();
+  allData.forEach(item => {
+    let standardizedTopic = 'Other';
+    
+    // First check if we have an exact match for common topic names
+    if (item.topic) {
+      const topicLower = item.topic.toLowerCase();
+      
+      // Direct matching for Quiz 2
+      if (topicLower.includes('quiz2') || 
+          topicLower.includes('domain and range') || 
+          topicLower.includes('domain_range') ||
+          topicLower.includes('domain-range')) {
+        standardizedTopic = 'Domain and Range (Quiz 2)';
+      } else {
+        // Fall back to the mapping
         for (const [key, value] of Object.entries(topicMapping)) {
-          if (item.topic && item.topic.includes(key)) {
+          if (item.topic.includes(key)) {
             standardizedTopic = value;
             break;
           }
         }
-        
-        uniqueTopics.add(standardizedTopic);
-      });
-
-      topicFilter.innerHTML = '<option value="">All Topics</option>';
-      
-      const sortedTopics = Array.from(uniqueTopics).sort();
-      
-      sortedTopics.forEach(topic => {
-        topicFilter.innerHTML += `<option value="${topic}">${topic}</option>`;
-      });
+      }
     }
+    
+    uniqueTopics.add(standardizedTopic);
+  });
+
+  topicFilter.innerHTML = '<option value="">All Topics</option>';
+  
+  const sortedTopics = Array.from(uniqueTopics).sort();
+  
+  sortedTopics.forEach(topic => {
+    topicFilter.innerHTML += `<option value="${topic}">${topic}</option>`;
+  });
+}
 
     // Apply filters - UPDATED VERSION WITH ALL QUIZZES
-    function applyFilters() {
-      const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
-      const topicFilter = document.getElementById('topicFilter').value;
-      const scoreFilter = document.getElementById('scoreFilter').value;
-      const dateFilter = document.getElementById('dateFilter').value;
+    // Apply filters - FIXED VERSION
+function applyFilters() {
+  const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
+  const topicFilter = document.getElementById('topicFilter').value;
+  const scoreFilter = document.getElementById('scoreFilter').value;
+  const dateFilter = document.getElementById('dateFilter').value;
 
-      filteredData = [...allData];
+  filteredData = [...allData];
 
-      if (searchTerm) {
-        filteredData = filteredData.filter(item => 
-          item.username.toLowerCase().includes(searchTerm) ||
-          item.email.toLowerCase().includes(searchTerm)
-        );
-      }
+  if (searchTerm) {
+    filteredData = filteredData.filter(item => 
+      item.username.toLowerCase().includes(searchTerm) ||
+      item.email.toLowerCase().includes(searchTerm)
+    );
+  }
 
-      if (topicFilter) {
-        // Define reverse mapping - NOW INCLUDES ALL QUIZZES 1-11
-        const topicReverseMapping = {
-          'Week 1 and 2 (Quiz 1)': ['Quiz1', 'Domain_Range'],
-          'Domain and Range (Quiz 2)': ['Quiz2', 'Quiz2_Domain_Range'],
-          'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
-          'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
-          'Linear Functions (Quiz 5)': ['Quiz5', 'Linear'],
-          'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations'],
-          'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials'],
-          'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential'],
-          'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions'],
-          'Function Limits (Quiz 10)': ['Quiz10', 'Function_Limits', 'Function Limits'],
-          'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation']
-        };
+  if (topicFilter) {
+    // Define reverse mapping - FIXED FOR QUIZ 2
+    const topicReverseMapping = {
+      'Week 1 and 2 (Quiz 1)': ['Quiz1', 'Domain_Range'],
+      'Domain and Range (Quiz 2)': ['Quiz2', 'Quiz2_Domain_Range', 'Domain and Range', 'domain_range', 'domain and range', 'domain-range'],
+      'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
+      'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
+      'Linear Functions (Quiz 5)': ['Quiz5', 'Linear'],
+      'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations'],
+      'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials'],
+      'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential'],
+      'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions'],
+      'Function Limits (Quiz 10)': ['Quiz10', 'Function_Limits', 'Function Limits'],
+      'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation']
+    };
 
-        const topicKeywords = topicReverseMapping[topicFilter] || [topicFilter];
-        
-        filteredData = filteredData.filter(item => {
-          return topicKeywords.some(keyword => 
-            item.topic && item.topic.includes(keyword)
-          );
-        });
-      }
+    const topicKeywords = topicReverseMapping[topicFilter] || [topicFilter];
+    
+    filteredData = filteredData.filter(item => {
+      if (!item.topic) return false;
+      
+      const itemTopicLower = item.topic.toLowerCase();
+      return topicKeywords.some(keyword => 
+        itemTopicLower.includes(keyword.toLowerCase())
+      );
+    });
+  }
 
-      if (scoreFilter) {
-        if (scoreFilter === '0') {
-          filteredData = filteredData.filter(item => item.percentage === 0);
-        } else {
-          const [min, max] = scoreFilter.split('-').map(Number);
-          filteredData = filteredData.filter(item => item.percentage >= min && item.percentage <= max);
-        }
-      }
-
-      if (dateFilter) {
-        const filterDate = new Date(dateFilter);
-        filteredData = filteredData.filter(item => {
-          if (!item.timestamp) return false;
-          const itemDate = new Date(item.timestamp);
-          return itemDate.toDateString() === filterDate.toDateString();
-        });
-      }
-
-      expandedRows.clear();
-      calculateStatistics();
-      populateTable(filteredData);
+  if (scoreFilter) {
+    if (scoreFilter === '0') {
+      filteredData = filteredData.filter(item => item.percentage === 0);
+    } else {
+      const [min, max] = scoreFilter.split('-').map(Number);
+      filteredData = filteredData.filter(item => item.percentage >= min && item.percentage <= max);
     }
+  }
+
+  if (dateFilter) {
+    const filterDate = new Date(dateFilter);
+    filteredData = filteredData.filter(item => {
+      if (!item.timestamp) return false;
+      const itemDate = new Date(item.timestamp);
+      return itemDate.toDateString() === filterDate.toDateString();
+    });
+  }
+
+  expandedRows.clear();
+  calculateStatistics();
+  populateTable(filteredData);
+}
 
     // Clear filters
     function clearFilters() {
