@@ -1016,9 +1016,9 @@ function populateFilters() {
     'Quiz4': 'Quadratic Functions (Quiz 4)',
     'quadratic': 'Quadratic Functions (Quiz 4)',
     'Quadratic_functions': 'Quadratic Functions (Quiz 4)',
-    'Quiz5': 'Linear Functions (Quiz 5)',
-    'Linear': 'Linear Functions (Quiz 5)',
-    'Linear_functions - 2': 'Linear Functions (Quiz 5)', // ADDED THIS LINE
+    'Quiz5': 'Linear function - 2', // CHANGED
+    'Linear': 'Linear function - 2', // CHANGED
+    'Linear_functions - 2': 'Linear function - 2', // CHANGED
     'Quiz6': 'Sets and Relations (Quiz 6)',
     'Sets': 'Sets and Relations (Quiz 6)',
     'Relations': 'Sets and Relations (Quiz 6)',
@@ -1055,7 +1055,7 @@ function populateFilters() {
       if (topicLower.includes('week 1 and 2') || topicLower.includes('quiz1')) {
         standardizedTopic = 'Week 1 and 2 (Quiz 1)';
       } else if (topicLower.includes('linear_functions - 2') || topicLower.includes('quiz5')) {
-        standardizedTopic = 'Linear Functions (Quiz 5)';
+        standardizedTopic = 'Linear function - 2';
       } else {
         // Fall back to the mapping
         for (const [key, value] of Object.entries(topicMapping)) {
@@ -1102,7 +1102,7 @@ function applyFilters() {
       'Domain and Range (Quiz 2)': ['Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2', 'domain_range', 'domain and range', 'domain-range'],
       'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
       'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
-      'Linear Functions (Quiz 5)': ['Quiz5', 'Linear', 'Linear_functions - 2'], // UPDATED
+      'Linear function - 2': ['Quiz5', 'Linear', 'Linear_functions - 2'], // CHANGED
       'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations', 'Sets And Relations'], // UPDATED
       'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials', 'Polynomial Function'], // UPDATED
       'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential', 'Function Concepts'], // UPDATED
@@ -1196,9 +1196,9 @@ function generateCSV(data) {
     'Quiz4': 'Quadratic Functions (Quiz 4)',
     'quadratic': 'Quadratic Functions (Quiz 4)',
     'Quadratic_functions': 'Quadratic Functions (Quiz 4)',
-    'Quiz5': 'Linear Functions (Quiz 5)',
-    'Linear': 'Linear Functions (Quiz 5)',
-    'Linear_functions - 2': 'Linear Functions (Quiz 5)',
+    'Quiz5': 'Linear function - 2', // CHANGED
+    'Linear': 'Linear function - 2', // CHANGED
+    'Linear_functions - 2': 'Linear function - 2', // CHANGED
     'Quiz6': 'Sets and Relations (Quiz 6)',
     'Sets': 'Sets and Relations (Quiz 6)',
     'Relations': 'Sets and Relations (Quiz 6)',
