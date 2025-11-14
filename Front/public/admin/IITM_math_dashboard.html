@@ -999,54 +999,6 @@
 function populateFilters() {
   const topicFilter = document.getElementById('topicFilter');
   
-  // Define standardized topic names - IMPROVED MAPPING
-  const topicMapping = {
-    'Quiz1': 'Week 1 and 2 (Quiz 1)',
-    'Domain_Range': 'Week 1 and 2 (Quiz 1)',
-    'Domain and Range': 'Week 1 and 2 (Quiz 1)',
-    'Week 1 and 2': 'Week 1 and 2 (Quiz 1)',
-    'Quiz2': 'Domain and Range (Quiz 2)',
-    'Quiz2_Domain_Range': 'Domain and Range (Quiz 2)',
-    'Domain and Range-2': 'Domain and Range (Quiz 2)',
-    'domain_range': 'Domain and Range (Quiz 2)',
-    'domain and range': 'Domain and Range (Quiz 2)',
-    'domain-range': 'Domain and Range (Quiz 2)',
-    'Quiz3': 'Linear Functions (Quiz 3)',
-    'Quiz3_Linear_functions': 'Linear Functions (Quiz 3)',
-    'Linear_functions': 'Linear Functions (Quiz 3)',
-    'Quiz4': 'Quadratic Functions (Quiz 4)',
-    'quadratic': 'Quadratic Functions (Quiz 4)',
-    'Quadratic_functions': 'Quadratic Functions (Quiz 4)',
-    'Quiz5': 'Linear function - 2',
-    'Linear': 'Linear function - 2',
-    'Linear_functions - 2': 'Linear function - 2',
-    'Quiz6': 'Sets and Relations (Quiz 6)',
-    'Sets': 'Sets and Relations (Quiz 6)',
-    'Relations': 'Sets and Relations (Quiz 6)',
-    'sets_and_relations': 'Sets and Relations (Quiz 6)',
-    'Sets And Relations': 'Sets and Relations (Quiz 6)',
-    'Quiz7': 'Polynomials (Quiz 7)',
-    'Polynomials': 'Polynomials ( Quiz 7)',
-    'Polynomial Function': 'Polynomials (Quiz 7)',
-    'Quiz8': 'Exponential Functions (Week-5)',
-    'function_concepts': 'Exponential Functions (Week-5)',
-    'Exponential': 'Exponential Functions (Week-5)',
-    'Function Concepts': 'Exponential Functions (Week-5)',
-    'Quiz9': 'Logarithmic Functions (Quiz 9)',
-    'Logarithmic': 'Logarithmic Functions (Quiz 9)',
-    'logarithmic_functions': 'Logarithmic Functions (Quiz 9)',
-    'Logarithmic Functions': 'Logarithmic Functions (Quiz 9)',
-    'Quiz10': 'Sequence and limit week 7',
-    'Function_Limits': 'Sequence and limit week 7',
-    'Function Limits': 'Sequence and limit week 7',
-    'Quiz11': 'Limits, Continuity and Differentiation (Quiz 11)',
-    'Limit_Concepts': 'Limits, Continuity and Differentiation (Quiz 11)',
-    'Differentiation': 'Limits, Continuity and Differentiation (Quiz 11)'
-  };
-
-  // Get unique standardized topics
-  const uniqueTopics = new Set();
-  
   // First, let's debug what topics we actually have
   const actualTopics = {};
   allData.forEach(item => {
@@ -1054,44 +1006,93 @@ function populateFilters() {
       actualTopics[item.topic] = (actualTopics[item.topic] || 0) + 1;
     }
   });
-  console.log('📊 Actual topics in data:', actualTopics);
+  console.log('📊 ALL Actual topics in data:', actualTopics);
 
-  allData.forEach(item => {
-    let standardizedTopic = 'Other';
+  // Get unique topics directly from data for debugging
+  const allUniqueTopics = [...new Set(allData.map(item => item.topic).filter(Boolean))];
+  console.log('🔍 Unique topics found:', allUniqueTopics);
+
+  // Define standardized topic names - SIMPLIFIED AND IMPROVED
+  const topicDisplayNames = {
+    // Quiz 1 - Week 1 and 2
+    'Quiz1': 'Week 1 and 2 (Quiz 1)',
+    'Domain_Range': 'Week 1 and 2 (Quiz 1)',
+    'Week 1 and 2': 'Week 1 and 2 (Quiz 1)',
     
-    if (item.topic) {
-      const topicLower = item.topic.toLowerCase();
-      
-      // Check for Week 1 and 2 patterns FIRST (most specific)
-      if (topicLower.includes('week 1 and 2') || 
-          topicLower.includes('quiz1') ||
-          (topicLower.includes('domain') && topicLower.includes('range') && topicLower.includes('week 1'))) {
-        standardizedTopic = 'Week 1 and 2 (Quiz 1)';
-      }
-      // Then check for Quiz 2 patterns (more specific than general domain/range)
-      else if (topicLower.includes('quiz2') || 
-               topicLower.includes('domain and range-2') ||
-               topicLower.includes('domain-range') ||
-               topicLower.includes('quiz2_domain_range')) {
-        standardizedTopic = 'Domain and Range (Quiz 2)';
-      }
-      // Then check for other specific patterns
-      else if (topicLower.includes('domain') && topicLower.includes('range')) {
-        // If it has both domain and range but not the specific patterns above, default to Quiz 1
-        standardizedTopic = 'Week 1 and 2 (Quiz 1)';
-      }
-      // Check other topics using the mapping
-      else {
-        for (const [key, value] of Object.entries(topicMapping)) {
-          if (item.topic.includes(key)) {
-            standardizedTopic = value;
-            break;
-          }
-        }
+    // Quiz 2 - Domain and Range
+    'Quiz2': 'Domain and Range (Quiz 2)',
+    'Quiz2_Domain_Range': 'Domain and Range (Quiz 2)',
+    'Domain and Range-2': 'Domain and Range (Quiz 2)',
+    'domain_range': 'Domain and Range (Quiz 2)',
+    'domain and range': 'Domain and Range (Quiz 2)',
+    'domain-range': 'Domain and Range (Quiz 2)',
+    
+    // Other quizzes
+    'Quiz3': 'Linear Functions (Quiz 3)',
+    'Quiz3_Linear_functions': 'Linear Functions (Quiz 3)',
+    'Linear_functions': 'Linear Functions (Quiz 3)',
+    
+    'Quiz4': 'Quadratic Functions (Quiz 4)',
+    'quadratic': 'Quadratic Functions (Quiz 4)',
+    'Quadratic_functions': 'Quadratic Functions (Quiz 4)',
+    
+    'Quiz5': 'Linear function - 2',
+    'Linear': 'Linear function - 2',
+    'Linear_functions - 2': 'Linear function - 2',
+    
+    'Quiz6': 'Sets and Relations (Quiz 6)',
+    'Sets': 'Sets and Relations (Quiz 6)',
+    'Relations': 'Sets and Relations (Quiz 6)',
+    'sets_and_relations': 'Sets and Relations (Quiz 6)',
+    'Sets And Relations': 'Sets and Relations (Quiz 6)',
+    
+    'Quiz7': 'Polynomials (Quiz 7)',
+    'Polynomials': 'Polynomials (Quiz 7)',
+    'Polynomial Function': 'Polynomials (Quiz 7)',
+    
+    'Quiz8': 'Exponential Functions (Week-5)',
+    'function_concepts': 'Exponential Functions (Week-5)',
+    'Exponential': 'Exponential Functions (Week-5)',
+    'Function Concepts': 'Exponential Functions (Week-5)',
+    
+    'Quiz9': 'Logarithmic Functions (Quiz 9)',
+    'Logarithmic': 'Logarithmic Functions (Quiz 9)',
+    'logarithmic_functions': 'Logarithmic Functions (Quiz 9)',
+    'Logarithmic Functions': 'Logarithmic Functions (Quiz 9)',
+    
+    'Quiz10': 'Sequence and limit week 7',
+    'Function_Limits': 'Sequence and limit week 7',
+    'Function Limits': 'Sequence and limit week 7',
+    
+    'Quiz11': 'Limits, Continuity and Differentiation (Quiz 11)',
+    'Limit_Concepts': 'Limits, Continuity and Differentiation (Quiz 11)',
+    'Differentiation': 'Limits, Continuity and Differentiation (Quiz 11)'
+  };
+
+  // Get unique standardized topics using a simpler approach
+  const uniqueTopics = new Set();
+  
+  allData.forEach(item => {
+    if (!item.topic) {
+      uniqueTopics.add('Other');
+      return;
+    }
+    
+    let foundMatch = false;
+    
+    // Try to find a match in the display names
+    for (const [key, displayName] of Object.entries(topicDisplayNames)) {
+      if (item.topic.includes(key)) {
+        uniqueTopics.add(displayName);
+        foundMatch = true;
+        break;
       }
     }
     
-    uniqueTopics.add(standardizedTopic);
+    // If no match found, use the original topic name
+    if (!foundMatch) {
+      uniqueTopics.add(item.topic);
+    }
   });
 
   topicFilter.innerHTML = '<option value="">All Topics</option>';
@@ -1102,10 +1103,10 @@ function populateFilters() {
     topicFilter.innerHTML += `<option value="${topic}">${topic}</option>`;
   });
 
-  console.log('✅ Available topics in dropdown:', sortedTopics);
+  console.log('✅ Final available topics in dropdown:', sortedTopics);
 }
 
-// Apply filters - FIXED VERSION
+// Apply filters - SIMPLIFIED VERSION
 function applyFilters() {
   const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
   const topicFilter = document.getElementById('topicFilter').value;
@@ -1122,49 +1123,36 @@ function applyFilters() {
   }
 
   if (topicFilter) {
-    // Define reverse mapping - IMPROVED with better logic
-    const topicReverseMapping = {
-      'Week 1 and 2 (Quiz 1)': ['Quiz1', 'Domain_Range', 'Domain and Range', 'Week 1 and 2', 'domain', 'range'],
-      'Domain and Range (Quiz 2)': ['Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2', 'domain_range', 'domain and range-2', 'domain-range'],
-      'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
-      'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
-      'Linear function - 2': ['Quiz5', 'Linear', 'Linear_functions - 2'],
-      'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations', 'Sets And Relations'],
-      'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials', 'Polynomial Function'],
-      'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential', 'Function Concepts'],
-      'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions', 'Logarithmic Functions'],
-      'Sequence and limit week 7': ['Quiz10', 'Function_Limits', 'Function Limits'],
-      'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation']
-    };
-
-    const topicKeywords = topicReverseMapping[topicFilter] || [topicFilter];
-    
     filteredData = filteredData.filter(item => {
       if (!item.topic) return false;
       
-      const itemTopicLower = item.topic.toLowerCase();
+      // For standardized display names, we need to check if the item's topic matches the selected display name
+      const itemTopic = item.topic;
       
-      // Special handling for Week 1 vs Quiz 2
-      if (topicFilter === 'Week 1 and 2 (Quiz 1)') {
-        return (itemTopicLower.includes('week 1 and 2') || 
-                itemTopicLower.includes('quiz1') ||
-                (itemTopicLower.includes('domain') && itemTopicLower.includes('range') && 
-                 !itemTopicLower.includes('quiz2') && 
-                 !itemTopicLower.includes('domain and range-2') &&
-                 !itemTopicLower.includes('domain-range')));
+      // Define which original topics belong to which display names
+      const topicGroups = {
+        'Week 1 and 2 (Quiz 1)': ['Quiz1', 'Domain_Range', 'Week 1 and 2'],
+        'Domain and Range (Quiz 2)': ['Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2', 'domain_range', 'domain and range', 'domain-range'],
+        'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
+        'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
+        'Linear function - 2': ['Quiz5', 'Linear', 'Linear_functions - 2'],
+        'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations', 'Sets And Relations'],
+        'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials', 'Polynomial Function'],
+        'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential', 'Function Concepts'],
+        'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions', 'Logarithmic Functions'],
+        'Sequence and limit week 7': ['Quiz10', 'Function_Limits', 'Function Limits'],
+        'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation']
+      };
+      
+      // If it's a standardized topic, check if the item's topic matches any of the group members
+      if (topicGroups[topicFilter]) {
+        return topicGroups[topicFilter].some(keyword => 
+          itemTopic.includes(keyword)
+        );
       }
       
-      if (topicFilter === 'Domain and Range (Quiz 2)') {
-        return (itemTopicLower.includes('quiz2') || 
-                itemTopicLower.includes('domain and range-2') ||
-                itemTopicLower.includes('domain-range') ||
-                itemTopicLower.includes('quiz2_domain_range'));
-      }
-      
-      // For other topics, use the keyword matching
-      return topicKeywords.some(keyword => 
-        itemTopicLower.includes(keyword.toLowerCase())
-      );
+      // If it's a custom topic (like 'Other'), do exact match
+      return item.topic === topicFilter;
     });
   }
 
@@ -1191,15 +1179,6 @@ function applyFilters() {
   populateTable(filteredData);
 }
 
-// Add this temporary debug function
-function debugTopicAssignment() {
-  console.log('🔍 Debugging topic assignment:');
-  allData.forEach((item, index) => {
-    if (item.topic && (item.topic.includes('domain') || item.topic.includes('range'))) {
-      console.log(`Item ${index}: "${item.topic}"`);
-    }
-  });
-}
 
 // Call it in your loadData function after processing:
 // debugTopicAssignment();
