@@ -1140,107 +1140,115 @@
             }
         }
 
-// Use the EXACT SAME display function as Linear Functions
-function displayDetailedResults(quizData) {
-    document.getElementById('quizContainer').style.display = 'none';
-    
-    const resultsContainer = document.getElementById('resultsContainer');
-    resultsContainer.style.display = 'block';
-    
-    // FIX: Update the final score display
-    document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxPossibleScore}`;
-    
-    // Update the results display with detailed information - SHOWING POINTS (SAME AS LINEAR)
-    const scoreDisplay = document.querySelector('.score-display');
-    scoreDisplay.innerHTML = `
-        <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
-        <p>Quiz Completed Successfully!</p>
-        <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
-            <div>
-                <strong>Easy Questions</strong><br>
-                ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
-            </div>
-            <div>
-                <strong>Medium Questions</strong><br>
-                ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
-            </div>
-            <div>
-                <strong>Hard Questions</strong><br>
-                ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
-            </div>
-        </div>
-        <p style="margin-top: 15px; font-size: 0.9em;">
-            Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
-        </p>
-    `;
-    
-    // Add detailed question review (SAME AS LINEAR)
-    const reviewDiv = document.createElement('div');
-    reviewDiv.style.cssText = `
-        margin-top: 30px;
-        text-align: left;
-        background: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    `;
-    
-    reviewDiv.innerHTML = `
-        <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question Review</h3>
-        ${quizData.questionResults.map(result => `
-            <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                        border-radius: 8px; 
-                        padding: 15px; 
-                        margin-bottom: 15px; 
-                        background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                    <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                color: white; 
-                                padding: 4px 8px; 
-                                border-radius: 50%; 
-                                margin-right: 10px; 
-                                font-weight: bold;">
-                        ${result.questionNumber}
-                    </span>
-                    <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
-                        ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                    </span>
-                    <span style="margin-left: auto; background: #667eea; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">
-                        ${result.points} point${result.points !== 1 ? 's' : ''}
-                    </span>
-                </div>
-                <div style="margin-bottom: 10px; line-height: 1.4;">
-                    <strong>Question:</strong> ${result.questionText}
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>Your Answer:</strong> 
-                    <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
-                        ${result.userAnswer || 'No answer provided'}
-                    </span>
-                </div>
-                <div style="margin-bottom: 8px;">
-                    <strong>Correct Answer:</strong> 
-                    <span style="color: #28a745; font-weight: bold;">
-                        ${result.correctAnswer}
-                    </span>
-                </div>
-                ${result.explanation ? `
-                <div style="margin-bottom: 8px;">
-                    <strong>Explanation:</strong> 
-                    <span style="color: #666; font-style: italic;">
-                        ${result.explanation}
-                    </span>
-                </div>
-                ` : ''}
-                <div style="font-size: 0.9em; color: #666;">
-                    Time taken: ${result.timeTaken}s
-                </div>
-            </div>
-        `).join('')}
-    `;
-    
-    resultsContainer.appendChild(reviewDiv);
-}
+        function displayDetailedResults(results) {
+            document.getElementById('quizContainer').style.display = 'none';
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.style.display = 'block';
+            
+            // Update final score display
+            document.getElementById('finalScore').textContent = `${results.score}/${results.totalQuestions}`;
+            
+            // Build score display WITHOUT difficulty breakdown (since it doesn't exist)
+            const scoreDisplay = document.querySelector('.score-display');
+            let scoreHtml = `
+                <h2>${results.score}/${results.totalQuestions} (${results.percentage}%)</h2>
+                <p>Quiz Completed Successfully!</p>
+                <p style="margin-top: 15px; font-size: 0.9em;">
+                    Time Taken: ${Math.floor(results.totalTimeTaken / 60)}m ${results.totalTimeTaken % 60}s
+                </p>
+            `;
+            
+            // Only add difficulty breakdown if it exists
+            if (results.difficultyBreakdown) {
+                scoreHtml += `
+                    <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
+                        <div>
+                            <strong>Easy Questions</strong><br>
+                            ${results.difficultyBreakdown.easy.correct}/${results.difficultyBreakdown.easy.attempted}
+                        </div>
+                        <div>
+                            <strong>Medium Questions</strong><br>
+                            ${results.difficultyBreakdown.medium.correct}/${results.difficultyBreakdown.medium.attempted}
+                        </div>
+                        <div>
+                            <strong>Hard Questions</strong><br>
+                            ${results.difficultyBreakdown.hard.correct}/${results.difficultyBreakdown.hard.attempted}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            scoreDisplay.innerHTML = scoreHtml;
+            
+            // Add question review if available
+            if (results.questionResults && results.questionResults.length > 0) {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.style.cssText = `
+                    margin-top: 30px;
+                    text-align: left;
+                    background: white;
+                    border-radius: 10px;
+                    padding: 20px;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    max-height: 400px;
+                    overflow-y: auto;
+                `;
+                
+                reviewDiv.innerHTML = `
+                    <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question Review</h3>
+                    ${results.questionResults.map(result => `
+                        <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
+                                    border-radius: 8px; 
+                                    padding: 15px; 
+                                    margin-bottom: 15px; 
+                                    background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
+                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
+                                            color: white; 
+                                            padding: 4px 8px; 
+                                            border-radius: 50%; 
+                                            margin-right: 10px; 
+                                            font-weight: bold;">
+                                    ${result.questionNumber}
+                                </span>
+                                <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
+                                    ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                                </span>
+                            </div>
+                            <div style="margin-bottom: 10px; line-height: 1.4;">
+                                <strong>Question:</strong> ${result.questionText}
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Your Answer:</strong> 
+                                <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                                    ${result.userAnswer}
+                                </span>
+                            </div>
+                            <div style="margin-bottom: 8px;">
+                                <strong>Correct Answer:</strong> 
+                                <span style="color: #28a745; font-weight: bold;">
+                                    ${result.correctAnswer}
+                                </span>
+                            </div>
+                            ${result.explanation ? `
+                            <div style="margin-bottom: 8px;">
+                                <strong>Explanation:</strong> 
+                                <span style="color: #666; font-style: italic;">
+                                    ${result.explanation}
+                                </span>
+                            </div>
+                            ` : ''}
+                            <div style="font-size: 0.9em; color: #666;">
+                                Time taken: ${result.timeTaken}s
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                
+                resultsContainer.appendChild(reviewDiv);
+            }
+        }
 
 
 
@@ -1266,3 +1274,4 @@ function displayDetailedResults(quizData) {
     </script>
 </body>
 </html>
+
