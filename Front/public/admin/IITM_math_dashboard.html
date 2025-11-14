@@ -1191,6 +1191,19 @@ function applyFilters() {
   populateTable(filteredData);
 }
 
+// Add this temporary debug function
+function debugTopicAssignment() {
+  console.log('🔍 Debugging topic assignment:');
+  allData.forEach((item, index) => {
+    if (item.topic && (item.topic.includes('domain') || item.topic.includes('range'))) {
+      console.log(`Item ${index}: "${item.topic}"`);
+    }
+  });
+}
+
+// Call it in your loadData function after processing:
+// debugTopicAssignment();
+    
     // Clear filters
     function clearFilters() {
       document.getElementById('searchFilter').value = '';
