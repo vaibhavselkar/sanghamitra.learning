@@ -384,8 +384,7 @@ REQUIREMENTS:
         Args:
             n: Number of elements
         """
-        self.parent = list(range(n))
-        self.rank = [0] * n
+        
     
     def find(self, x):
         """
@@ -397,9 +396,7 @@ REQUIREMENTS:
         Returns:
             Root element of x
         """
-        if self.parent[x] != x:
-            self.parent[x] = self.find(self.parent[x])
-        return self.parent[x]
+        
     
     def union(self, x, y):
         """
@@ -409,17 +406,7 @@ REQUIREMENTS:
             x: First element
             y: Second element
         """
-        root_x = self.find(x)
-        root_y = self.find(y)
         
-        if root_x != root_y:
-            if self.rank[root_x] < self.rank[root_y]:
-                self.parent[root_x] = root_y
-            elif self.rank[root_x] > self.rank[root_y]:
-                self.parent[root_y] = root_x
-            else:
-                self.parent[root_y] = root_x
-                self.rank[root_x] += 1
 
 # Test your implementation
 uf = UnionFind(5)
@@ -444,75 +431,75 @@ print(uf.find(0) == uf.find(1))  # Should be True`,
                 points: 10
             },
             {
-                id: 2,
-                title: "Min Heap Implementation",
-                description: "Implement a Min Heap data structure with basic operations.",
-                prompt: `Implement a MinHeap class with the following methods:
-- __init__(): Initialize empty heap
-- insert(val): Insert value into heap
-- extract_min(): Remove and return minimum value
-- get_min(): Return minimum value without removing it
-
-REQUIREMENTS:
-- Maintain min heap property
-- Implement heapify operations
-- Handle edge cases (empty heap, etc.)`,
-                starterCode: `class MinHeap:
-    def __init__(self):
-        """Initialize empty min heap."""
-        self.heap = []
-    
-    def insert(self, val):
-        """
-        Insert value into min heap.
-        
-        Args:
-            val: Value to insert
-        """
-        # Your implementation here
-        pass
-    
-    def extract_min(self):
-        """
-        Remove and return minimum value.
-        
-        Returns:
-            Minimum value in heap
-        """
-        # Your implementation here
-        pass
-    
-    def get_min(self):
-        """
-        Return minimum value without removing it.
-        
-        Returns:
-            Minimum value in heap
-        """
-        # Your implementation here
-        pass
-
-# Test your implementation
-heap = MinHeap()
-heap.insert(3)
-heap.insert(1)
-heap.insert(2)
-print(heap.extract_min())  # Should be 1`,
-                testCases: [
-                    { 
-                        type: 'heap-extract-all',
-                        input: [[3, 1, 4, 1, 5, 9, 2, 6]],
-                        expected: [1, 1, 2, 3, 4, 5, 6, 9]
-                    },
-                    { 
-                        type: 'heap-get-min',
-                        input: [[5, 2, 8]],
-                        expected: 2
-                    }
-                ],
-                functionName: 'MinHeap',
-                points: 10
-            },
+                    id: 2,
+                    title: "Min Heap Implementation",
+                    description: "Implement a Min Heap data structure with basic operations.",
+                    prompt: `Implement a MinHeap class with the following methods:
+                - __init__(): Initialize empty heap
+                - insert(val): Insert value into heap
+                - extract_min(): Remove and return minimum value
+                - get_min(): Return minimum value without removing it
+                
+                REQUIREMENTS:
+                - Maintain min heap property
+                - Implement heapify operations
+                - Handle edge cases (empty heap, etc.)`,
+                    starterCode: `class MinHeap:
+                    def __init__(self):
+                        """Initialize empty min heap."""
+                        self.heap = []
+                    
+                    def insert(self, val):
+                        """
+                        Insert value into min heap.
+                        
+                        Args:
+                            val: Value to insert
+                        """
+                        # Your implementation here
+                        pass
+                    
+                    def extract_min(self):
+                        """
+                        Remove and return minimum value.
+                        
+                        Returns:
+                            Minimum value in heap
+                        """
+                        # Your implementation here
+                        pass
+                    
+                    def get_min(self):
+                        """
+                        Return minimum value without removing it.
+                        
+                        Returns:
+                            Minimum value in heap
+                        """
+                        # Your implementation here
+                        pass
+                
+                # Test your implementation
+                heap = MinHeap()
+                heap.insert(3)
+                heap.insert(1)
+                heap.insert(2)
+                print(heap.extract_min())  # Should be 1`,
+                    testCases: [
+                        { 
+                            type: 'heap-extract-all',
+                            input: [[3, 1, 4, 1, 5, 9, 2, 6]],
+                            expected: [1, 1, 2, 3, 4, 5, 6, 9]
+                        },
+                        { 
+                            type: 'heap-get-min',
+                            input: [[5, 2, 8]],
+                            expected: 2
+                        }
+                    ],
+                    functionName: 'MinHeap',
+                    points: 10
+                },
             {
                 id: 3,
                 title: "Priority Queue using Heap",
@@ -729,58 +716,58 @@ print(bst.inorder_traversal())  # Should be [5, 7]`,
                 title: "Max Heap Implementation",
                 description: "Implement a Max Heap data structure with basic operations.",
                 prompt: `Implement a MaxHeap class with the following methods:
-- __init__(): Initialize empty heap
-- insert(val): Insert value into heap
-- extract_max(): Remove and return maximum value
-- get_max(): Return maximum value without removing it
-
-REQUIREMENTS:
-- Maintain max heap property
-- Implement heapify operations`,
+            - __init__(): Initialize empty heap
+            - insert(val): Insert value into heap
+            - extract_max(): Remove and return maximum value
+            - get_max(): Return maximum value without removing it
+            
+            REQUIREMENTS:
+            - Maintain max heap property
+            - Implement heapify operations`,
                 starterCode: `class MaxHeap:
-    def __init__(self):
-        """Initialize empty max heap."""
-        self.heap = []
-    
-    def insert(self, val):
-        """
-        Insert value into max heap.
-        
-        Args:
-            val: Value to insert
-        """
-        # Your implementation here
-        pass
-    
-    def extract_max(self):
-        """
-        Remove and return maximum value.
-        
-        Returns:
-            Maximum value in heap
-        """
-        # Your implementation here
-        pass
-    
-    def get_max(self):
-        """
-        Return maximum value without removing it.
-        
-        Returns:
-            Maximum value in heap
-        """
-        # Your implementation here
-        pass
-
-# Test your implementation
-heap = MaxHeap()
-heap.insert(3)
-heap.insert(1)
-heap.insert(4)
-print(heap.extract_max())  # Should be 4`,
+                def __init__(self):
+                    """Initialize empty max heap."""
+                    self.heap = []
+                
+                def insert(self, val):
+                    """
+                    Insert value into max heap.
+                    
+                    Args:
+                        val: Value to insert
+                    """
+                    # Your implementation here
+                    pass
+                
+                def extract_max(self):
+                    """
+                    Remove and return maximum value.
+                    
+                    Returns:
+                        Maximum value in heap
+                    """
+                    # Your implementation here
+                    pass
+                
+                def get_max(self):
+                    """
+                    Return maximum value without removing it.
+                    
+                    Returns:
+                        Maximum value in heap
+                    """
+                    # Your implementation here
+                    pass
+            
+            # Test your implementation
+            heap = MaxHeap()
+            heap.insert(3)
+            heap.insert(1)
+            heap.insert(4)
+            print(heap.extract_max())  # Should be 4`,
                 testCases: [
                     { 
-                        type: 'heap-extract-all',
+                        type: 'heap-extract-all-max',
                         input: [[3, 1, 4, 1, 5, 9, 2, 6]],
                         expected: [9, 6, 5, 4, 3, 2, 1, 1]
                     },
