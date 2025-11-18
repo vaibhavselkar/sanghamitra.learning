@@ -784,11 +784,11 @@ print(has_cycle_directed(graph_without_cycle))`,
                 testCases: [
                     { 
                         input: ['graph_cycle1'],
-                        expected: True
+                        expected: true
                     },
                     { 
                         input: ['graph_cycle2'],
-                        expected: False
+                        expected: false
                     }
                 ],
                 functionName: 'has_cycle_directed',
@@ -853,11 +853,11 @@ print(has_cycle_undirected(edges_without_cycle, 4))`,
                 testCases: [
                     { 
                         input: ['edges_cycle1', 3],
-                        expected: True
+                        expected: true
                     },
                     { 
                         input: ['edges_cycle2', 4],
-                        expected: False
+                        expected: false
                     }
                 ],
                 functionName: 'has_cycle_undirected',
@@ -866,66 +866,65 @@ print(has_cycle_undirected(edges_without_cycle, 4))`,
         ];
 
         // Graph data for test cases
-        // Replace the graphData object with this corrected version:
-            const graphData = {
-                'graph1': {
-                    'A': [['B', 1], ['C', 4]],
-                    'B': [['C', 2], ['D', 5]],
-                    'C': [['D', 1]],
-                    'D': []
-                },
-                'graph_matrix1': [
-                    [0, 3, 'float(\'inf\')', 5],
-                    [2, 0, 'float(\'inf\')', 4],
-                    ['float(\'inf\')', 1, 0, 'float(\'inf\')'],
-                    ['float(\'inf\')', 'float(\'inf\')', 2, 0]
-                ],
-                'graph_mst1': {
-                    0: [[1, 2], [3, 6]],
-                    1: [[0, 2], [2, 3], [3, 8], [4, 5]],
-                    2: [[1, 3], [4, 7]],
-                    3: [[0, 6], [1, 8], [4, 9]],
-                    4: [[1, 5], [2, 7], [3, 9]]
-                },
-                'edges_mst1': [[0, 1, 2], [0, 3, 6], [1, 2, 3], [1, 3, 8], [1, 4, 5], [2, 4, 7], [3, 4, 9]],
-                'graph_bfs1': {
-                    'A': ['B', 'C'],
-                    'B': ['A', 'D', 'E'],
-                    'C': ['A', 'F'],
-                    'D': ['B'],
-                    'E': ['B', 'F'],
-                    'F': ['C', 'E']
-                },
-                'graph_dfs1': {
-                    'A': ['B', 'C'],
-                    'B': ['A', 'D', 'E'],
-                    'C': ['A', 'F'],
-                    'D': ['B'],
-                    'E': ['B', 'F'],
-                    'F': ['C', 'E']
-                },
-                'graph_topo1': {
-                    'A': ['B', 'C'],
-                    'B': ['D'],
-                    'C': ['D'],
-                    'D': ['E'],
-                    'E': []
-                },
-                'graph_cycle1': {
-                    'A': ['B'],
-                    'B': ['C'],
-                    'C': ['A']
-                },
-                'graph_cycle2': {
-                    'A': ['B', 'C'],
-                    'B': ['D'],
-                    'C': ['D'],
-                    'D': []
-                },
-                'edges_cycle1': [[0, 1], [1, 2], [2, 0]],
-                'edges_cycle2': [[0, 1], [1, 2], [2, 3]]
-            };
-
+        const graphData = {
+            'graph1': {
+                'A': [['B', 1], ['C', 4]],
+                'B': [['C', 2], ['D', 5]],
+                'C': [['D', 1]],
+                'D': []
+            },
+            'graph_matrix1': [
+                [0, 3, 'float("inf")', 5],
+                [2, 0, 'float("inf")', 4],
+                ['float("inf")', 1, 0, 'float("inf")'],
+                ['float("inf")', 'float("inf")', 2, 0]
+            ],
+            'graph_mst1': {
+                0: [[1, 2], [3, 6]],
+                1: [[0, 2], [2, 3], [3, 8], [4, 5]],
+                2: [[1, 3], [4, 7]],
+                3: [[0, 6], [1, 8], [4, 9]],
+                4: [[1, 5], [2, 7], [3, 9]]
+            },
+            'edges_mst1': [[0, 1, 2], [0, 3, 6], [1, 2, 3], [1, 3, 8], [1, 4, 5], [2, 4, 7], [3, 4, 9]],
+            'graph_bfs1': {
+                'A': ['B', 'C'],
+                'B': ['A', 'D', 'E'],
+                'C': ['A', 'F'],
+                'D': ['B'],
+                'E': ['B', 'F'],
+                'F': ['C', 'E']
+            },
+            'graph_dfs1': {
+                'A': ['B', 'C'],
+                'B': ['A', 'D', 'E'],
+                'C': ['A', 'F'],
+                'D': ['B'],
+                'E': ['B', 'F'],
+                'F': ['C', 'E']
+            },
+            'graph_topo1': {
+                'A': ['B', 'C'],
+                'B': ['D'],
+                'C': ['D'],
+                'D': ['E'],
+                'E': []
+            },
+            'graph_cycle1': {
+                'A': ['B'],
+                'B': ['C'],
+                'C': ['A']
+            },
+            'graph_cycle2': {
+                'A': ['B', 'C'],
+                'B': ['D'],
+                'C': ['D'],
+                'D': []
+            },
+            'edges_cycle1': [[0, 1], [1, 2], [2, 0]],
+            'edges_cycle2': [[0, 1], [1, 2], [2, 3]]
+        };
+        
 
         let currentQuestionIndex = 0;
         let userAnswers = {};
@@ -1215,87 +1214,117 @@ print(has_cycle_undirected(edges_without_cycle, 4))`,
         }
 
         async function executePythonTests(code, question) {
-            if (!pyodideReady) {
-                throw new Error('Python environment not ready');
-            }
-
-            const results = [];
+                if (!pyodideReady) {
+                    throw new Error('Python environment not ready');
+                }
             
-            for (let i = 0; i < question.testCases.length; i++) {
-                const testCase = question.testCases[i];
+                const results = [];
                 
-                try {
-                    await pyodide.runPythonAsync(`
-import sys
-for name in list(globals().keys()):
-    if not name.startswith('__') and name not in ['sys']:
-        try:
-            del globals()[name]
-        except:
-            pass
-                    `);
+                for (let i = 0; i < question.testCases.length; i++) {
+                    const testCase = question.testCases[i];
                     
-                    // Add graph data to Python environment
-                    await addGraphDataToPython();
+                    try {
+                        await pyodide.runPythonAsync(`
+            import sys
+            for name in list(globals().keys()):
+                if not name.startswith('__') and name not in ['sys']:
+                    try:
+                        del globals()[name]
+                    except:
+                        pass
+                        `);
+                        
+                        // Add graph data to Python environment
+                        await addGraphDataToPython();
+                        
+                        await pyodide.runPythonAsync(code);
+                        
+                        let functionCall;
+                        if (Array.isArray(testCase.input)) {
+                            functionCall = `${question.functionName}(${testCase.input.map(v => 
+                                typeof v === 'string' && graphData[v] ? v : JSON.stringify(v)
+                            ).join(', ')})`;
+                        } else {
+                            functionCall = `${question.functionName}(${testCase.input})`;
+                        }
+                        
+                        const result = await pyodide.runPythonAsync(functionCall);
+                        
+                        let output;
+                        if (result && typeof result === 'object' && result.toJs) {
+                            output = result.toJs({ dict_converter: Object.fromEntries });
+                        } else {
+                            output = result;
+                        }
+                        
+                        // Handle boolean comparisons specially
+                        let passed;
+                        if (typeof testCase.expected === 'boolean') {
+                            // For boolean results, convert Python bool to JavaScript bool
+                            passed = Boolean(output) === testCase.expected;
+                        } else {
+                            passed = deepEqual(output, testCase.expected);
+                        }
+                        
+                        results.push({
+                            passed,
+                            output,
+                            expected: testCase.expected,
+                            error: null
+                        });
+                        
+                    } catch (error) {
+                        results.push({
+                            passed: false,
+                            output: null,
+                            expected: testCase.expected,
+                            error: error.message
+                        });
+                    }
+                }
+                
+                return results;
+            }
+                
+
+           async function addGraphDataToPython() {
+                // Add graph data to Python environment
+                for (const [key, value] of Object.entries(graphData)) {
+                    let pythonCode;
                     
-                    await pyodide.runPythonAsync(code);
-                    
-                    let functionCall;
-                    if (Array.isArray(testCase.input)) {
-                        functionCall = `${question.functionName}(${testCase.input.map(v => 
-                            typeof v === 'string' && graphData[v] ? v : JSON.stringify(v)
-                        ).join(', ')})`;
+                    if (key === 'graph_matrix1') {
+                        // Special handling for the matrix with infinity values
+                        pythonCode = `${key} = [\n`;
+                        for (let i = 0; i < value.length; i++) {
+                            pythonCode += '  [';
+                            for (let j = 0; j < value[i].length; j++) {
+                                if (value[i][j] === 'float("inf")') {
+                                    pythonCode += 'float("inf")';
+                                } else {
+                                    pythonCode += value[i][j];
+                                }
+                                if (j < value[i].length - 1) pythonCode += ', ';
+                            }
+                            pythonCode += ']';
+                            if (i < value.length - 1) pythonCode += ',';
+                            pythonCode += '\n';
+                        }
+                        pythonCode += ']';
                     } else {
-                        functionCall = `${question.functionName}(${testCase.input})`;
+                        // For other graph data, use JSON stringify and replace
+                        pythonCode = `${key} = ${JSON.stringify(value)}`;
                     }
                     
-                    const result = await pyodide.runPythonAsync(functionCall);
-                    
-                    let output;
-                    if (result && typeof result === 'object' && result.toJs) {
-                        output = result.toJs({ dict_converter: Object.fromEntries });
-                    } else {
-                        output = result;
-                    }
-                    
-                    const passed = deepEqual(output, testCase.expected);
-                    
-                    results.push({
-                        passed,
-                        output,
-                        expected: testCase.expected,
-                        error: null
-                    });
-                    
-                } catch (error) {
-                    results.push({
-                        passed: false,
-                        output: null,
-                        expected: testCase.expected,
-                        error: error.message
-                    });
+                    await pyodide.runPythonAsync(pythonCode);
                 }
             }
-            
-            return results;
-        }
-
-    
-
-                async function addGraphDataToPython() {
-            // Add graph data to Python environment
-            for (const [key, value] of Object.entries(graphData)) {
-                // Convert the value to a string that Python can evaluate
-                const pythonValue = JSON.stringify(value)
-                    .replace(/"float\\(\\'inf\\'\\)"/g, "float('inf')")
-                    .replace(/"True"/g, "True")
-                    .replace(/"False"/g, "False");
-                
-                await pyodide.runPythonAsync(`${key} = ${pythonValue}`);
-            }
-        }
 
         function deepEqual(a, b) {
+            // Handle boolean comparisons
+            if (typeof a === 'boolean' && typeof b === 'boolean') {
+                return a === b;
+            }
+            
             if (a === b) return true;
             if (a == null || b == null) return false;
             if (typeof a !== typeof b) return false;
@@ -1320,7 +1349,6 @@ for name in list(globals().keys()):
             
             return false;
         }
-
         async function runTests() {
             if (!pyodideReady) {
                 alert('Python environment is still loading. Please wait...');
