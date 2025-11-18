@@ -6,30 +6,36 @@
     <title>Limits, Continuity and Differentiation Quiz</title>
 
     <!-- Add this right after <title> tag -->
-    <script>
+   <script>
 window.MathJax = {
     tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
         displayMath: [['$$', '$$'], ['\\[', '\\]']],
         processEscapes: true,
-        processEnvironments: true
+        processEnvironments: true,
+        packages: {'[+]': ['ams']}
     },
     options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
         ignoreHtmlClass: 'tex2jax_ignore',
         processHtmlClass: 'tex2jax_process'
     },
     svg: {
-        fontCache: 'global'
+        fontCache: 'global',
+        scale: 1.1
     },
     startup: {
         ready: () => {
             console.log('MathJax is loaded and ready');
             MathJax.startup.defaultReady();
+            MathJax.startup.promise.then(() => {
+                console.log('MathJax initial typesetting complete');
+            });
         }
     }
 };
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
    
@@ -966,22 +972,59 @@ mjx-container[jax="SVG"] {
             const difficulty = question.difficulty || 'medium';
             const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
-            // Process question text - ensure math expressions are wrapped
-            let processedQuestionText = question.question_text || 'Question text not available';
+           // Process question text - ensure math expressions are wrapped
+let processedQuestionText = question.question_text || 'Question text not available';
 
-            // If the text doesn't have $ delimiters, wrap math expressions
-            if (!processedQuestionText.includes('$')) {
-                // Auto-detect and wrap common math patterns
-                processedQuestionText = processedQuestionText
-                    .replace(/f\(x\)/g, '$f(x)$')
-                    .replace(/lim\(([^)]+)\)/g, '$\\lim_{$1}$')
-                    .replace(/lim_\{([^}]+)\}/g, '$\\lim_{$1}$')
-                    .replace(/→/g, '\\to')
-                    .replace(/cos\(x\)/g, '$\\cos(x)$')
-                    .replace(/sin\(x\)/g, '$\\sin(x)$')
-                    .replace(/\(([^)]*[+\-*/^][^)]*)\)\/x/g, '$\\frac{$1}{x}$');
-            }
+// Enhanced LaTeX processing
+if (!processedQuestionText.includes('$')) {
+    processedQuestionText = processedQuestionText
+        // Wrap f(x) and similar functions
+        .replace(/f\s*\(([^)]+)\)/g, '$f($1)$')
+        .replace(/f'\s*\(([^)]+)\)/g, "$f'($1)$")
+        
+        // Wrap arctan, sin, cos, tan, log, ln functions
+        .replace(/arctan\s*\(([^)]+)\)/g, '$\\arctan($1)$')
+        .replace(/\bsin\s*\(([^)]+)\)/g, '$\\sin($1)$')
+        .replace(/\bcos\s*\(([^)]+)\)/g, '$\\cos($1)$')
+        .replace(/\btan\s*\(([^)]+)\)/g, '$\\tan($1)$')
+        .replace(/\blog\s*\(([^)]+)\)/g, '$\\log($1)$')
+        .replace(/\bln\s*\(([^)]+)\)/g, '$\\ln($1)$')
+        
+        // Wrap expressions with superscripts like x² or x^2
+        .replace(/([a-z])\^?([0-9]+)/g, '$$$1^{$2}$$')
+        .replace(/([a-z])²/g, '$$$1^2$$')
+        
+        // Wrap limit expressions
+        .replace(/lim\s*\(([^)]+)\)/g, '$\\lim_{$1}$')
+        .replace(/lim_\{([^}]+)\}/g, '$\\lim_{$1}$')
+        
+        // Replace arrows
+        .replace(/→/g, '$\\to$')
+        .replace(/->/g, '$\\to$')
+        
+        // Wrap fractions
+        .replace(/\(([^)]+)\)\/\(([^)]+)\)/g, '$\\frac{$1}{$2}$')
+        .replace(/\(([^)]+)\)\/([a-z0-9]+)/gi, '$\\frac{$1}{$2}$');
+}
 
+// Additional cleanup and wrapping
+processedQuestionText = processedQuestionText
+    // Fix any double-wrapped expressions
+    .replace(/\$\$([^$]+)\$\$/g, '$$$$1$$')
+    
+    // Wrap any remaining mathematical expressions
+    .replace(/([a-zA-Z])\(([^)]+)\)(?!\$)/g, function(match, func, content) {
+        const mathFunctions = ['f', 'g', 'h', 'sin', 'cos', 'tan', 'log', 'ln', 'arctan', 'arcsin', 'arccos'];
+        if (mathFunctions.includes(func.toLowerCase())) {
+            return `$${func}(${content})$`;
+        }
+        return match;
+    })
+    
+    // Clean up any spacing issues in math mode
+    .replace(/\$\s+/g, '$')
+    .replace(/\s+\$/g, '$');
+    
             questionDiv.innerHTML = `
                 <div class="question-header">
                     <div class="question-number">${currentQuestionIndex + 1}</div>
@@ -997,19 +1040,23 @@ mjx-container[jax="SVG"] {
 
             container.appendChild(questionDiv);
             
+           
             // Force MathJax to process the new content
             if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise([questionDiv]).then(() => {
-                    console.log('MathJax rendered successfully for question', currentQuestionIndex + 1);
-                }).catch(err => {
-                    console.error('MathJax typeset error:', err);
-                    // Fallback: try again after a delay
-                    setTimeout(() => {
-                        window.MathJax.typesetPromise([questionDiv]).catch(e => 
-                            console.error('MathJax retry failed:', e)
-                        );
-                    }, 500);
-                });
+                // Wait a bit for DOM to fully render
+                setTimeout(() => {
+                    window.MathJax.typesetPromise([questionDiv]).then(() => {
+                        console.log('✅ MathJax rendered successfully for question', currentQuestionIndex + 1);
+                    }).catch(err => {
+                        console.error('❌ MathJax typeset error:', err);
+                        // Retry with full page typeset
+                        setTimeout(() => {
+                            window.MathJax.typesetPromise().catch(e => 
+                                console.error('MathJax retry failed:', e)
+                            );
+                        }, 1000);
+                    });
+                }, 200);
             }
             
             // Restore previous answer if exists
