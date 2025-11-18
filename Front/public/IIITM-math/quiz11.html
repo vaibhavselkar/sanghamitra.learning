@@ -6,34 +6,29 @@
     <title>Limits, Continuity and Differentiation Quiz</title>
 
     <!-- Add this right after <title> tag -->
-   <script>
+<script>
 window.MathJax = {
     tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
         displayMath: [['$$', '$$'], ['\\[', '\\]']],
         processEscapes: true,
-        processEnvironments: true,
-        packages: {'[+]': ['ams']}
+        processEnvironments: true
     },
     options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
-        ignoreHtmlClass: 'tex2jax_ignore',
-        processHtmlClass: 'tex2jax_process'
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
     },
     svg: {
-        fontCache: 'global',
-        scale: 1.1
+        fontCache: 'global'
     },
     startup: {
         ready: () => {
             console.log('MathJax is loaded and ready');
             MathJax.startup.defaultReady();
-            MathJax.startup.promise.then(() => {
-                console.log('MathJax initial typesetting complete');
-            });
         }
     }
 };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
@@ -876,205 +871,136 @@ mjx-container[jax="SVG"] {
         }
 
         function renderCurrentQuestion() {
-
-             console.log('=== QUESTION DEBUG ===');
-                console.log('Raw question_text:', question.question_text);
-                console.log('Has $ delimiter:', question.question_text.includes('$'));
-                console.log('Has \\( delimiter:', question.question_text.includes('\\('));
-                console.log('First 200 chars:', question.question_text.substring(0, 200));
-                console.log('======================');
-                // ===== END DEBUG =====
-                
-                console.log('Rendering question:', question);
-                
-                container.innerHTML = '';
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            console.log('Rendering question:', question);
-            
-            container.innerHTML = '';
-
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
-
-            let optionsHtml = '';
-            
-            if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
-                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-                // Enhanced input fields with better format hints
-                let placeholder, formatExample, formatHint;
-                
-                if (question.type === 'coordinate_input') {
-                    placeholder = "e.g., (3, 4) or (3,4)";
-                    formatExample = "(x, y)";
-                    formatHint = "✓ Accepted: (3,4) or (3, 4) | ✗ Avoid: 3,4 or [3,4]";
-                } else if (question.type === 'equation_input') {
-                    placeholder = "e.g., y = log(x) + 2";
-                    formatExample = "equation with =";
-                    formatHint = "✓ Accepted: y=log(x)+2 or y = log(x) + 2 | Use log for logarithms";
-                } else if (question.type === 'interval_input') {
-                    placeholder = "e.g., (0, ∞) or [1, 10]";
-                    formatExample = "[a,b] or (a,b)";
-                    formatHint = "✓ Use [ ] for inclusive, ( ) for exclusive | Use 'inf' or ∞ for infinity";
-                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                    placeholder = "e.g., 42 or -3.14 or 2.718";
-                    formatExample = "number";
-                    formatHint = "✓ Accepted: 42, -3.14, 0.5 | Decimals are fine";
-                } else {
-                    placeholder = question.format_hint || "Enter your answer";
-                    formatExample = "text";
-                    formatHint = question.format_hint || "";
-                }
-                
-                optionsHtml = `
-                    <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                            <span style="font-size: 18px;">📝</span>
-                            <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
-                        </div>
-                        <div style="font-size: 13px; color: #666; line-height: 1.5;">
-                            ${formatHint}
-                        </div>
-                    </div>
-                    <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${placeholder}" 
-                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false"
-                           style="width: 100%; max-width: 300px; font-size: 16px; font-family: 'Courier New', monospace;">
-                    <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
-                `;
-            } else {
-                console.warn('Unknown question type or missing options:', question.type, question);
-                optionsHtml = `
-                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                        <strong>Error:</strong> Unable to display question options. Please contact administrator.
-                    </div>
-                `;
-            }
-
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107', 
-                'hard': '#dc3545'
-            };
-            
-            const difficulty = question.difficulty || 'medium';
-            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-           // Process question text - ensure math expressions are wrapped
-let processedQuestionText = question.question_text || 'Question text not available';
-
-// Enhanced LaTeX processing
-if (!processedQuestionText.includes('$')) {
-    processedQuestionText = processedQuestionText
-        // Wrap f(x) and similar functions
-        .replace(/f\s*\(([^)]+)\)/g, '$f($1)$')
-        .replace(/f'\s*\(([^)]+)\)/g, "$f'($1)$")
-        
-        // Wrap arctan, sin, cos, tan, log, ln functions
-        .replace(/arctan\s*\(([^)]+)\)/g, '$\\arctan($1)$')
-        .replace(/\bsin\s*\(([^)]+)\)/g, '$\\sin($1)$')
-        .replace(/\bcos\s*\(([^)]+)\)/g, '$\\cos($1)$')
-        .replace(/\btan\s*\(([^)]+)\)/g, '$\\tan($1)$')
-        .replace(/\blog\s*\(([^)]+)\)/g, '$\\log($1)$')
-        .replace(/\bln\s*\(([^)]+)\)/g, '$\\ln($1)$')
-        
-        // Wrap expressions with superscripts like x² or x^2
-        .replace(/([a-z])\^?([0-9]+)/g, '$$$1^{$2}$$')
-        .replace(/([a-z])²/g, '$$$1^2$$')
-        
-        // Wrap limit expressions
-        .replace(/lim\s*\(([^)]+)\)/g, '$\\lim_{$1}$')
-        .replace(/lim_\{([^}]+)\}/g, '$\\lim_{$1}$')
-        
-        // Replace arrows
-        .replace(/→/g, '$\\to$')
-        .replace(/->/g, '$\\to$')
-        
-        // Wrap fractions
-        .replace(/\(([^)]+)\)\/\(([^)]+)\)/g, '$\\frac{$1}{$2}$')
-        .replace(/\(([^)]+)\)\/([a-z0-9]+)/gi, '$\\frac{$1}{$2}$');
-}
-
-// Additional cleanup and wrapping
-processedQuestionText = processedQuestionText
-    // Fix any double-wrapped expressions
-    .replace(/\$\$([^$]+)\$\$/g, '$$$$1$$')
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
     
-    // Wrap any remaining mathematical expressions
-    .replace(/([a-zA-Z])\(([^)]+)\)(?!\$)/g, function(match, func, content) {
-        const mathFunctions = ['f', 'g', 'h', 'sin', 'cos', 'tan', 'log', 'ln', 'arctan', 'arcsin', 'arccos'];
-        if (mathFunctions.includes(func.toLowerCase())) {
-            return `$${func}(${content})$`;
-        }
-        return match;
-    })
+    console.log('Rendering question:', currentQuestionIndex + 1, question);
     
-    // Clean up any spacing issues in math mode
-    .replace(/\$\s+/g, '$')
-    .replace(/\s+\$/g, '$');
+    container.innerHTML = '';
+
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
+
+    let optionsHtml = '';
     
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${difficultyText}
-                        </span>
-                    </div>
+    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
-                <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
-                <div class="options">${optionsHtml}</div>
             `;
-
-            container.appendChild(questionDiv);
-            
-           
-            // Force MathJax to process the new content
-            if (window.MathJax && window.MathJax.typesetPromise) {
-                // Wait a bit for DOM to fully render
-                setTimeout(() => {
-                    window.MathJax.typesetPromise([questionDiv]).then(() => {
-                        console.log('✅ MathJax rendered successfully for question', currentQuestionIndex + 1);
-                    }).catch(err => {
-                        console.error('❌ MathJax typeset error:', err);
-                        // Retry with full page typeset
-                        setTimeout(() => {
-                            window.MathJax.typesetPromise().catch(e => 
-                                console.error('MathJax retry failed:', e)
-                            );
-                        }, 1000);
-                    });
-                }, 200);
-            }
-            
-            // Restore previous answer if exists
-            restoreAnswer();
-            updateAnswerStatus();
+        }).join('');
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+        let placeholder, formatExample, formatHint;
+        
+        if (question.type === 'coordinate_input') {
+            placeholder = "e.g., (3, 4) or (3,4)";
+            formatExample = "(x, y)";
+            formatHint = "✓ Accepted: (3,4) or (3, 4) | ✗ Avoid: 3,4 or [3,4]";
+        } else if (question.type === 'equation_input') {
+            placeholder = "e.g., y = log(x) + 2";
+            formatExample = "equation with =";
+            formatHint = "✓ Accepted: y=log(x)+2 or y = log(x) + 2 | Use log for logarithms";
+        } else if (question.type === 'interval_input') {
+            placeholder = "e.g., (0, ∞) or [1, 10]";
+            formatExample = "[a,b] or (a,b)";
+            formatHint = "✓ Use [ ] for inclusive, ( ) for exclusive | Use 'inf' or ∞ for infinity";
+        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+            placeholder = "e.g., 42 or -3.14 or 2.718";
+            formatExample = "number";
+            formatHint = "✓ Accepted: 42, -3.14, 0.5 | Decimals are fine";
+        } else {
+            placeholder = question.format_hint || "Enter your answer";
+            formatExample = "text";
+            formatHint = question.format_hint || "";
         }
+        
+        optionsHtml = `
+            <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                    <span style="font-size: 18px;">📝</span>
+                    <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
+                </div>
+                <div style="font-size: 13px; color: #666; line-height: 1.5;">
+                    ${formatHint}
+                </div>
+            </div>
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${placeholder}" 
+                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false"
+                   style="width: 100%; max-width: 300px; font-size: 16px; font-family: 'Courier New', monospace;">
+            <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
+        `;
+    } else {
+        console.warn('Unknown question type or missing options:', question.type, question);
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options. Please contact administrator.
+            </div>
+        `;
+    }
+
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107', 
+        'hard': '#dc3545'
+    };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+    // Use question text exactly as stored in database - NO PROCESSING
+    let processedQuestionText = question.question_text || 'Question text not available';
+    
+    console.log('Question text to render:', processedQuestionText);
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
+                </span>
+            </div>
+        </div>
+        <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
+        <div class="options">${optionsHtml}</div>
+    `;
+
+    container.appendChild(questionDiv);
+    
+    // Force MathJax rendering with error handling
+    setTimeout(() => {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([questionDiv]).then(() => {
+                console.log('✅ MathJax rendered for question', currentQuestionIndex + 1);
+            }).catch(err => {
+                console.error('❌ MathJax error:', err);
+            });
+        }
+    }, 200);
+    
+    // Restore previous answer if exists
+    restoreAnswer();
+    updateAnswerStatus();
+}
 
         function restoreAnswer() {
             const question = questions[currentQuestionIndex];
@@ -1598,14 +1524,7 @@ processedQuestionText = processedQuestionText
             resultsContainer.appendChild(reviewDiv);
         }
 
-        // Process MathJax in results
-        setTimeout(() => {
-            if (window.MathJax) {
-                window.MathJax.typesetPromise([reviewDiv]).catch(err => {
-                    console.log('MathJax typeset error in results:', err);
-                });
-            }
-        }, 500);
+      
 
         function getDifficultyColor(difficulty) {
             switch(difficulty) {
