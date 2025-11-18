@@ -7,30 +7,65 @@
 
     <!-- Add this right after <title> tag -->
     <script>
-    window.MathJax = {
-        tex: {
+window.MathJax = {
+    tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
-        },
-        svg: {
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+    },
+    options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
+    },
+    svg: {
         fontCache: 'global'
+    },
+    startup: {
+        ready: () => {
+            console.log('MathJax is loaded and ready');
+            MathJax.startup.defaultReady();
         }
-    };
-    </script>
+    }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         /* MathJax styling */
-        .MathJax_SVG, .MathJax_SVG_Display {
-            max-width: 100% !important;
-            overflow-x: auto !important;
-        }
+       /* MathJax styling */
+.MathJax, .MathJax_SVG, .MathJax_Display, mjx-container {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    display: inline-block !important;
+}
 
-        .mjx-chtml {
-            font-size: 110% !important;
-        }
+mjx-container[jax="SVG"] {
+    direction: ltr;
+    display: inline-block;
+    font-style: normal;
+    font-weight: normal;
+    line-height: normal;
+    font-size: 115%;
+    text-indent: 0;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: normal;
+    word-spacing: normal;
+    white-space: nowrap;
+    float: none;
+    max-width: none;
+    max-height: none;
+    min-width: 0;
+    min-height: 0;
+    border: 0;
+    margin: 0;
+    padding: 2px 0;
+}
 
         .question-text mjx-container {
             display: inline-block !important;
@@ -931,16 +966,21 @@
             const difficulty = question.difficulty || 'medium';
             const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
-            // Process question text to handle LaTeX
+            // Process question text - ensure math expressions are wrapped
             let processedQuestionText = question.question_text || 'Question text not available';
-            
-            // Wrap LaTeX expressions for MathJax processing
-            processedQuestionText = processedQuestionText
-                .replace(/\\lim_\{([^}]+)\}/g, '\\\\(\\\\lim_{$1}\\\\)')
-                .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '\\\\(\\\\frac{$1}{$2}\\\\)')
-                .replace(/\\sqrt\{([^}]+)\}/g, '\\\\(\\\\sqrt{$1}\\\\)')
-                .replace(/\\to/g, '\\\\(\\\\to\\\\)')
-                .replace(/\\infty/g, '\\\\(\\\\infty\\\\)');
+
+            // If the text doesn't have $ delimiters, wrap math expressions
+            if (!processedQuestionText.includes('$')) {
+                // Auto-detect and wrap common math patterns
+                processedQuestionText = processedQuestionText
+                    .replace(/f\(x\)/g, '$f(x)$')
+                    .replace(/lim\(([^)]+)\)/g, '$\\lim_{$1}$')
+                    .replace(/lim_\{([^}]+)\}/g, '$\\lim_{$1}$')
+                    .replace(/→/g, '\\to')
+                    .replace(/cos\(x\)/g, '$\\cos(x)$')
+                    .replace(/sin\(x\)/g, '$\\sin(x)$')
+                    .replace(/\(([^)]*[+\-*/^][^)]*)\)\/x/g, '$\\frac{$1}{x}$');
+            }
 
             questionDiv.innerHTML = `
                 <div class="question-header">
@@ -957,14 +997,20 @@
 
             container.appendChild(questionDiv);
             
-            // Process MathJax after rendering
-            setTimeout(() => {
-                if (window.MathJax) {
-                    window.MathJax.typesetPromise([questionDiv]).catch(err => {
-                        console.log('MathJax typeset error:', err);
-                    });
-                }
-            }, 100);
+            // Force MathJax to process the new content
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([questionDiv]).then(() => {
+                    console.log('MathJax rendered successfully for question', currentQuestionIndex + 1);
+                }).catch(err => {
+                    console.error('MathJax typeset error:', err);
+                    // Fallback: try again after a delay
+                    setTimeout(() => {
+                        window.MathJax.typesetPromise([questionDiv]).catch(e => 
+                            console.error('MathJax retry failed:', e)
+                        );
+                    }, 500);
+                });
+            }
             
             // Restore previous answer if exists
             restoreAnswer();
@@ -1103,11 +1149,17 @@
                     delete userAnswers[questionIndex];
                 }
             } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                const cleanValue = value.replace(/[^\d.-]/g, '').trim();
-                if (cleanValue && !isNaN(parseFloat(cleanValue))) {
-                    userAnswers[questionIndex] = cleanValue;
-                } else if (value.trim() === '') {
-                    delete userAnswers[questionIndex];
+                const trimmedValue = value.trim();
+                // Allow infinity values
+                if (trimmedValue.match(/^-?(inf|infinity|∞)$/i)) {
+                    userAnswers[questionIndex] = trimmedValue;
+                } else {
+                    const cleanValue = trimmedValue.replace(/[^\d.-]/g, '');
+                    if (cleanValue && !isNaN(parseFloat(cleanValue))) {
+                        userAnswers[questionIndex] = cleanValue;
+                    } else if (trimmedValue === '') {
+                        delete userAnswers[questionIndex];
+                    }
                 }
             } else {
                 const trimmedValue = value.trim();
