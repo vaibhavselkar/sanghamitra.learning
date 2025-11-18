@@ -6,63 +6,31 @@
     <title>Limits, Continuity and Differentiation Quiz</title>
 
     <!-- Add this right after <title> tag -->
-<script>
-window.MathJax = {
-    tex: {
+    <script>
+    window.MathJax = {
+        tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
-        processEscapes: true,
-        processEnvironments: true
-    },
-    options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-    },
-    svg: {
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
+        svg: {
         fontCache: 'global'
-    },
-    startup: {
-        ready: () => {
-            console.log('MathJax is loaded and ready');
-            MathJax.startup.defaultReady();
         }
-    }
-};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         /* MathJax styling */
-       /* MathJax styling */
-.MathJax, .MathJax_SVG, .MathJax_Display, mjx-container {
-    max-width: 100% !important;
-    overflow-x: auto !important;
-    display: inline-block !important;
-}
+        .MathJax_SVG, .MathJax_SVG_Display {
+            max-width: 100% !important;
+            overflow-x: auto !important;
+        }
 
-mjx-container[jax="SVG"] {
-    direction: ltr;
-    display: inline-block;
-    font-style: normal;
-    font-weight: normal;
-    line-height: normal;
-    font-size: 115%;
-    text-indent: 0;
-    text-align: left;
-    text-transform: none;
-    letter-spacing: normal;
-    word-spacing: normal;
-    white-space: nowrap;
-    float: none;
-    max-width: none;
-    max-height: none;
-    min-width: 0;
-    min-height: 0;
-    border: 0;
-    margin: 0;
-    padding: 2px 0;
-}
+        .mjx-chtml {
+            font-size: 110% !important;
+        }
 
         .question-text mjx-container {
             display: inline-block !important;
@@ -282,29 +250,6 @@ mjx-container[jax="SVG"] {
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 12px;
-        }
-
-                /* Better MathJax display */
-        .question-text {
-            font-size: 1.1rem;
-            line-height: 2 !important;
-            color: #333;
-            margin-bottom: 20px;
-            white-space: normal;
-            word-wrap: break-word;
-        }
-
-        .question-text mjx-container {
-            display: inline !important;
-            margin: 0 3px !important;
-            vertical-align: middle;
-        }
-
-        /* Results page math rendering */
-        .results-container mjx-container {
-            display: inline !important;
-            margin: 0 3px !important;
-            vertical-align: middle;
         }
 
         .quiz-container { padding: 30px; display: none; }
@@ -728,13 +673,13 @@ mjx-container[jax="SVG"] {
             }, 500);
             
             // Detect window focus changes
-           // window.addEventListener('blur', function() {
-              //  if (isQuizActive) {
-              //      document.body.classList.add('blurred');
-              //      document.getElementById('warningOverlay').style.display = 'flex';
-              //      recordCheatingAttempt('window_blur');
-             //   }
-          //  });
+            window.addEventListener('blur', function() {
+                if (isQuizActive) {
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                    recordCheatingAttempt('window_blur');
+                }
+            });
             
             window.addEventListener('focus', function() {
                 document.body.classList.remove('blurred');
@@ -796,22 +741,17 @@ mjx-container[jax="SVG"] {
             return false;
         });
         
-       function obfuscateQuestions() {
-    // Only define once to avoid "cannot redefine" error
-    try {
-        if (!Object.getOwnPropertyDescriptor(window, 'questions')?.get) {
+        // Hide questions from view source
+        function obfuscateQuestions() {
+            // This would require server-side implementation
+            // For now, we'll just make it harder to find in console
             Object.defineProperty(window, 'questions', {
                 get: function() {
                     recordCheatingAttempt('questions_access');
                     return [];
-                },
-                configurable: true
+                }
             });
         }
-    } catch (err) {
-        console.warn('Could not obfuscate questions:', err);
-    }
-}
         
         // Initialize quiz timing
         function initializeQuizTiming() {
@@ -895,339 +835,141 @@ mjx-container[jax="SVG"] {
         }
 
         function renderCurrentQuestion() {
-    const container = document.getElementById('questionContainer');
-    const question = questions[currentQuestionIndex];
-    
-    console.log('Rendering question:', currentQuestionIndex + 1, question);
-    
-    container.innerHTML = '';
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            
+            console.log('Rendering question:', question);
+            
+            container.innerHTML = '';
 
-    const questionDiv = document.createElement('div');
-    questionDiv.className = 'question-card';
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-card';
 
-    let optionsHtml = '';
-    
-    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-        optionsHtml = question.options.map((option, optIndex) => {
-            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-            return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
-                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                </div>
-            `;
-        }).join('');
-    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-        optionsHtml = question.options.map((option, optIndex) => {
-            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-            return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
-                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                </div>
-            `;
-        }).join('');
-    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-        let placeholder, formatExample, formatHint;
-        
-        if (question.type === 'coordinate_input') {
-            placeholder = "e.g., (3, 4) or (3,4)";
-            formatExample = "(x, y)";
-            formatHint = "✓ Accepted: (3,4) or (3, 4) | ✗ Avoid: 3,4 or [3,4]";
-        } else if (question.type === 'equation_input') {
-            placeholder = "e.g., y = log(x) + 2";
-            formatExample = "equation with =";
-            formatHint = "✓ Accepted: y=log(x)+2 or y = log(x) + 2 | Use log for logarithms";
-        } else if (question.type === 'interval_input') {
-            placeholder = "e.g., (0, ∞) or [1, 10]";
-            formatExample = "[a,b] or (a,b)";
-            formatHint = "✓ Use [ ] for inclusive, ( ) for exclusive | Use 'inf' or ∞ for infinity";
-        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-            placeholder = "e.g., 42 or -3.14 or 2.718";
-            formatExample = "number";
-            formatHint = "✓ Accepted: 42, -3.14, 0.5 | Decimals are fine";
-        } else {
-            placeholder = question.format_hint || "Enter your answer";
-            formatExample = "text";
-            formatHint = question.format_hint || "";
-        }
-        
-        optionsHtml = `
-            <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                    <span style="font-size: 18px;">📝</span>
-                    <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
-                </div>
-                <div style="font-size: 13px; color: #666; line-height: 1.5;">
-                    ${formatHint}
-                </div>
-            </div>
-            <input type="text" 
-                   class="numeric-input" 
-                   placeholder="${placeholder}" 
-                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                   autocomplete="off"
-                   spellcheck="false"
-                   style="width: 100%; max-width: 300px; font-size: 16px; font-family: 'Courier New', monospace;">
-            <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
-        `;
-    } else {
-        console.warn('Unknown question type or missing options:', question.type, question);
-        optionsHtml = `
-            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                <strong>Error:</strong> Unable to display question options. Please contact administrator.
-            </div>
-        `;
-    }
-
-    const difficultyColor = {
-        'easy': '#28a745',
-        'medium': '#ffc107', 
-        'hard': '#dc3545'
-    };
-    
-    const difficulty = question.difficulty || 'medium';
-    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-// Use question text exactly as stored in database
-let processedQuestionText = question.question_text || 'Question text not available';
-
-console.log('🔍 Original question:', processedQuestionText);
-
-// ============================================
-// COMPREHENSIVE LATEX PROCESSOR
-// Handles all possible mathematical notation
-// ============================================
-
-// Step 1: Normalize special characters and unicode
-// Replace this section in the renderCurrentQuestion function:
-
-// Step 10: Process REGULAR FUNCTIONS
-processedQuestionText = processedQuestionText
-    // Standard functions: f(x), g(t), h(a), but NOT if already wrapped
-    .replace(/\b([fghlmnpqrFGHLMNPQR])\s*\(([^)]+)\)(?![^$]*\$)/g, '$$$$1($2)$$')
-    // Numerical functions: 1(x), 2(a) - for piecewise notation (SPECIAL CASE)
-    .replace(/\b([0-9]+)\s*\(([a-z])\)(?![^$]*\$)/g, '$$$1($2)$$');
-
-// ADD THIS NEW STEP FOR THE SPECIFIC CASE IN THE IMAGE:
-// Step 10.5: Fix the specific case from the image - 1(x) with dollar signs inside
-processedQuestionText = processedQuestionText
-    // Handle cases like: 1(x) = \frac{\$1^2\$-4}{x-2}
-    .replace(/(\b[0-9]+\([a-z]\)\s*=\s*)\\frac{\\\$([^\\$]+)\\\$-\s*([^}]+)}/g, '$$$1\\frac{$2-$3}$$')
-    // Handle the specific pattern from the image
-    .replace(/\\frac{\\\$([^\\$]+)\\\$-\s*([^}]+)}/g, '$$\\frac{$1-$2}$$')
-    // Clean up escaped dollar signs
-    .replace(/\\\$/g, '$');
-processedQuestionText = processedQuestionText
-    .replace(/≠/g, '\\neq')
-    .replace(/≤/g, '\\leq')
-    .replace(/≥/g, '\\geq')
-    .replace(/→/g, '\\to')
-    .replace(/←/g, '\\leftarrow')
-    .replace(/∞/g, '\\infty')
-    .replace(/±/g, '\\pm')
-    .replace(/×/g, '\\times')
-    .replace(/÷/g, '\\div')
-    .replace(/√/g, '\\sqrt')
-    .replace(/π/g, '\\pi')
-    .replace(/θ/g, '\\theta')
-    .replace(/∑/g, '\\sum')
-    .replace(/∫/g, '\\int')
-    .replace(/∂/g, '\\partial')
-    .replace(/∆/g, '\\Delta')
-    .replace(/α/g, '\\alpha')
-    .replace(/β/g, '\\beta')
-    .replace(/γ/g, '\\gamma');
-
-// Step 2: Protect already wrapped math expressions
-const protectedExpressions = [];
-let protectCounter = 0;
-
-processedQuestionText = processedQuestionText
-    .replace(/\$\$([^$]+)\$\$/g, (match) => {
-        const placeholder = `__PROTECTED_${protectCounter}__`;
-        protectedExpressions.push({ placeholder, content: match });
-        protectCounter++;
-        return placeholder;
-    })
-    .replace(/\$([^$]+)\$/g, (match) => {
-        const placeholder = `__PROTECTED_${protectCounter}__`;
-        protectedExpressions.push({ placeholder, content: match });
-        protectCounter++;
-        return placeholder;
-    })
-    .replace(/\\\(([^)]+)\\\)/g, (match) => {
-        const placeholder = `__PROTECTED_${protectCounter}__`;
-        protectedExpressions.push({ placeholder, content: match });
-        protectCounter++;
-        return placeholder;
-    });
-
-// Step 3: Process LIMITS (must come first, before function wrapping)
-processedQuestionText = processedQuestionText
-    // lim(x→0), lim(x->0), lim as x→0
-    .replace(/lim\s*\(\s*([a-z])\s*→\s*([^)]+)\)/gi, '$\\lim_{$1 \\to $2}$')
-    .replace(/lim\s*\(\s*([a-z])\s*->\s*([^)]+)\)/gi, '$\\lim_{$1 \\to $2}$')
-    .replace(/lim\s+as\s+([a-z])\s*→\s*([^\s,;.]+)/gi, '$\\lim_{$1 \\to $2}$')
-    .replace(/lim\s+as\s+([a-z])\s*->\s*([^\s,;.]+)/gi, '$\\lim_{$1 \\to $2}$')
-    // lim_{x→0}, lim x→0
-    .replace(/lim_\{([a-z])\s*→\s*([^}]+)\}/gi, '$\\lim_{$1 \\to $2}$')
-    .replace(/lim_\{([a-z])\s*->\s*([^}]+)\}/gi, '$\\lim_{$1 \\to $2}$')
-    .replace(/lim\s+([a-z])\s*→\s*([^\s,;.]+)/gi, '$\\lim_{$1 \\to $2}$');
-
-// Step 4: Process FRACTIONS (comprehensive patterns)
-processedQuestionText = processedQuestionText
-    // Complex fractions: (x-1)/(x²-1), (a+b)/(c+d)
-    .replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '$\\frac{$1}{$2}$')
-    // Simple fractions with parentheses: (x-1)/x², a/(x+1)
-    .replace(/\(([^)]+)\)\s*\/\s*([a-z][a-z0-9²³]*(?:\^[0-9]+)?)/gi, '$\\frac{$1}{$2}$')
-    .replace(/([a-z0-9]+)\s*\/\s*\(([^)]+)\)/gi, '$\\frac{$1}{$2}$')
-    // Number/variable fractions: 1/x, 1/x², x/y
-    .replace(/([0-9]+)\s*\/\s*([a-z](?:\^[0-9]+|²|³)?)/gi, '$\\frac{$1}{$2}$')
-    .replace(/([a-z])\s*\/\s*([a-z](?:\^[0-9]+|²|³)?)/gi, '$\\frac{$1}{$2}$')
-    // Handle malformed fractions like /1², /x²
-    .replace(/\/\s*([0-9]+)²/g, '/x^{$1}') // Fix /1² to /x²
-    .replace(/\/\s*([a-z])²/gi, '/$1^2')
-    .replace(/\/\s*([a-z])\^([0-9]+)/gi, '/$1^{$2}');
-
-// Step 5: Process EXPONENTS
-processedQuestionText = processedQuestionText
-    // Exponents with parentheses: e^(-x), x^(1/x), 2^(n+1)
-    .replace(/([a-z0-9])\^\(([^)]+)\)/gi, '$$$$1^{$2}$$')
-    // Unicode superscripts: x², x³
-    .replace(/([a-z0-9])²/gi, '$$$$1^2$$')
-    .replace(/([a-z0-9])³/gi, '$$$$1^3$$')
-    // Caret notation: x^2, e^x, 10^n
-    .replace(/([a-z0-9])\^([0-9]+)/gi, '$$$$1^{$2}$$')
-    .replace(/([a-z0-9])\^([a-z])/gi, '$$$$1^{$2}$$')
-    // Negative exponents: x^-1, e^-x
-    .replace(/([a-z0-9])\^-([a-z0-9]+)/gi, '$$$$1^{-$2}$$');
-
-// Step 6: Process DERIVATIVES
-processedQuestionText = processedQuestionText
-    // Function derivatives: f'(x), g'(1), h''(x)
-    .replace(/\b([fghlmnpqrFGHLMNPQR])''+\s*\(([^)]+)\)/g, (match, func, arg) => {
-        const primes = match.match(/'+/)[0];
-        return `$$${func}${primes}(${arg})$$`;
-    })
-    .replace(/\b([fghlmnpqrFGHLMNPQR])'\s*\(([^)]+)\)/g, "$$$$1'($2)$$")
-    // Composition derivatives: (f∘g)'(x), (fog)'(x)
-    .replace(/\(([fgh])\s*∘\s*([fgh])\)'\s*\(([^)]+)\)/g, "$$($$1 \\circ $$2)'($3)$$")
-    .replace(/\(([fgh])o([fgh])\)'\s*\(([^)]+)\)/g, "$$($$1 \\circ $$2)'($3)$$");
-
-// Step 7: Process TRIG & LOG FUNCTIONS
-processedQuestionText = processedQuestionText
-    .replace(/\b(sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|arcsec|arccsc|arccot|sinh|cosh|tanh|sech|csch|coth)\s*\(([^)]+)\)/gi, '$$\\$1($2)$$')
-    .replace(/\b(ln|log|exp)\s*\(([^)]+)\)/gi, '$$\\$1($2)$$');
-
-// Step 8: Process SQUARE ROOTS
-processedQuestionText = processedQuestionText
-    .replace(/sqrt\s*\(([^)]+)\)/gi, '$$\\sqrt{$1}$$')
-    .replace(/√\s*\(([^)]+)\)/g, '$$\\sqrt{$1}$$')
-    .replace(/√\s*([0-9]+)/g, '$$\\sqrt{$1}$$');
-
-// Step 9: Process ABSOLUTE VALUES
-processedQuestionText = processedQuestionText
-    .replace(/\|([^|]+)\|/g, '$$|$1|$$');
-
-// Step 10: Process REGULAR FUNCTIONS
-processedQuestionText = processedQuestionText
-    // Standard functions: f(x), g(t), h(a), but NOT if already wrapped
-    .replace(/\b([fghlmnpqrFGHLMNPQR])\s*\(([^)]+)\)(?![^$]*\$)/g, '$$$$1($2)$$')
-    // Numerical functions: 1(x), 2(a) - for piecewise notation
-    .replace(/\b([0-9]+)\s*\(([a-z])\)(?![^$]*\$)/g, '$$$1($2)$$');
-
-// Step 11: Process PIECEWISE FUNCTIONS & CASES
-processedQuestionText = processedQuestionText
-    // Piecewise with { }: { x² if x > 0; x if x ≤ 0 }
-    .replace(/\{([^}]*\bif\b[^}]*)\}/g, (match, inner) => {
-        // Check if it's a complex piecewise
-        if (inner.includes(';') || inner.includes(',')) {
-            const cases = inner.split(/[;,]/).map(c => c.trim());
-            const formatted = cases.map(c => {
-                const parts = c.split(/\s+if\s+/i);
-                if (parts.length === 2) {
-                    return `${parts[0]} & \\text{if } ${parts[1]}`;
+            let optionsHtml = '';
+            
+            if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+                optionsHtml = question.options.map((option, optIndex) => {
+                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    return `
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
+                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        </div>
+                    `;
+                }).join('');
+            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+                optionsHtml = question.options.map((option, optIndex) => {
+                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    return `
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
+                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        </div>
+                    `;
+                }).join('');
+            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+                // Enhanced input fields with better format hints
+                let placeholder, formatExample, formatHint;
+                
+                if (question.type === 'coordinate_input') {
+                    placeholder = "e.g., (3, 4) or (3,4)";
+                    formatExample = "(x, y)";
+                    formatHint = "✓ Accepted: (3,4) or (3, 4) | ✗ Avoid: 3,4 or [3,4]";
+                } else if (question.type === 'equation_input') {
+                    placeholder = "e.g., y = log(x) + 2";
+                    formatExample = "equation with =";
+                    formatHint = "✓ Accepted: y=log(x)+2 or y = log(x) + 2 | Use log for logarithms";
+                } else if (question.type === 'interval_input') {
+                    placeholder = "e.g., (0, ∞) or [1, 10]";
+                    formatExample = "[a,b] or (a,b)";
+                    formatHint = "✓ Use [ ] for inclusive, ( ) for exclusive | Use 'inf' or ∞ for infinity";
+                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+                    placeholder = "e.g., 42 or -3.14 or 2.718";
+                    formatExample = "number";
+                    formatHint = "✓ Accepted: 42, -3.14, 0.5 | Decimals are fine";
+                } else {
+                    placeholder = question.format_hint || "Enter your answer";
+                    formatExample = "text";
+                    formatHint = question.format_hint || "";
                 }
-                return c;
-            }).join(' \\\\ ');
-            return `$\\begin{cases} ${formatted} \\end{cases}$`;
+                
+                optionsHtml = `
+                    <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="font-size: 18px;">📝</span>
+                            <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
+                        </div>
+                        <div style="font-size: 13px; color: #666; line-height: 1.5;">
+                            ${formatHint}
+                        </div>
+                    </div>
+                    <input type="text" 
+                           class="numeric-input" 
+                           placeholder="${placeholder}" 
+                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                           autocomplete="off"
+                           spellcheck="false"
+                           style="width: 100%; max-width: 300px; font-size: 16px; font-family: 'Courier New', monospace;">
+                    <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
+                `;
+            } else {
+                console.warn('Unknown question type or missing options:', question.type, question);
+                optionsHtml = `
+                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                        <strong>Error:</strong> Unable to display question options. Please contact administrator.
+                    </div>
+                `;
+            }
+
+            const difficultyColor = {
+                'easy': '#28a745',
+                'medium': '#ffc107', 
+                'hard': '#dc3545'
+            };
+            
+            const difficulty = question.difficulty || 'medium';
+            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+            // Process question text to handle LaTeX
+            let processedQuestionText = question.question_text || 'Question text not available';
+            
+            // Wrap LaTeX expressions for MathJax processing
+            processedQuestionText = processedQuestionText
+                .replace(/\\lim_\{([^}]+)\}/g, '\\\\(\\\\lim_{$1}\\\\)')
+                .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '\\\\(\\\\frac{$1}{$2}\\\\)')
+                .replace(/\\sqrt\{([^}]+)\}/g, '\\\\(\\\\sqrt{$1}\\\\)')
+                .replace(/\\to/g, '\\\\(\\\\to\\\\)')
+                .replace(/\\infty/g, '\\\\(\\\\infty\\\\)');
+
+            questionDiv.innerHTML = `
+                <div class="question-header">
+                    <div class="question-number">${currentQuestionIndex + 1}</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                            ${difficultyText}
+                        </span>
+                    </div>
+                </div>
+                <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
+                <div class="options">${optionsHtml}</div>
+            `;
+
+            container.appendChild(questionDiv);
+            
+            // Process MathJax after rendering
+            setTimeout(() => {
+                if (window.MathJax) {
+                    window.MathJax.typesetPromise([questionDiv]).catch(err => {
+                        console.log('MathJax typeset error:', err);
+                    });
+                }
+            }, 100);
+            
+            // Restore previous answer if exists
+            restoreAnswer();
+            updateAnswerStatus();
         }
-        return `$\\{${inner}\\}$`;
-    });
-
-// Step 12: Process INTERVALS
-processedQuestionText = processedQuestionText
-    // Interval notation: [0, 1], (-∞, ∞), (a, b]
-    .replace(/\[([^,\]]+),\s*([^\]]+)\]/g, '$$[$1, $2]$$')
-    .replace(/\(([^,)]+),\s*([^)]+)\)/g, '$$($$1, $$2)$$');
-
-// Step 13: Process COMPARISON OPERATORS & EQUATIONS
-processedQuestionText = processedQuestionText
-    // Equations: x = 1, y ≠ 0, a < b
-    .replace(/\b([a-z])\s*(=|≠|<|>|≤|≥|\\neq|\\leq|\\geq)\s*(-?[0-9.]+)(?![^$]*\$)/g, '$$$$1 $2 $3$$')
-    .replace(/\b([a-z])\s*(=|≠|<|>|≤|≥|\\neq|\\leq|\\geq)\s*([a-z])(?![^$]*\$)/g, '$$$$1 $2 $3$$');
-
-// Step 14: Process STANDALONE VARIABLES IN CONTEXT
-processedQuestionText = processedQuestionText
-    // Variables in phrases: "at x = 1", "for x > 0"
-    .replace(/\bat\s+([a-z])\s*=\s*(-?[0-9.]+)/gi, 'at $$$$1 = $2$$')
-    .replace(/\bfor\s+([a-z])\s*([<>≤≥≠])\s*(-?[0-9.]+)/gi, 'for $$$$1 $2 $3$$')
-    .replace(/\bwhen\s+([a-z])\s*=\s*(-?[0-9.]+)/gi, 'when $$$$1 = $2$$');
-
-// Step 15: Clean up multiple/nested dollar signs
-processedQuestionText = processedQuestionText
-    // Remove nested dollars: $...$...$
-    .replace(/\$+/g, '$')
-    // Remove empty math: $$
-    .replace(/\$\s*\$/g, '')
-    // Remove space around dollars
-    .replace(/\$\s+/g, '$')
-    .replace(/\s+\$/g, '$')
-    // Fix double dollars that got created
-    .replace(/\$\$/g, '$');
-
-// Step 16: Restore protected expressions
-protectedExpressions.forEach(({ placeholder, content }) => {
-    processedQuestionText = processedQuestionText.replace(placeholder, content);
-});
-
-// Final cleanup
-processedQuestionText = processedQuestionText.trim();
-
-console.log('✅ Processed question:', processedQuestionText);
-
-    questionDiv.innerHTML = `
-        <div class="question-header">
-            <div class="question-number">${currentQuestionIndex + 1}</div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                    ${difficultyText}
-                </span>
-            </div>
-        </div>
-        <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
-        <div class="options">${optionsHtml}</div>
-    `;
-
-    container.appendChild(questionDiv);
-    
-    // Force MathJax rendering with error handling
-    setTimeout(() => {
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            window.MathJax.typesetPromise([questionDiv]).then(() => {
-                console.log('✅ MathJax rendered for question', currentQuestionIndex + 1);
-            }).catch(err => {
-                console.error('❌ MathJax error:', err);
-            });
-        }
-    }, 200);
-    
-    // Restore previous answer if exists
-    restoreAnswer();
-    updateAnswerStatus();
-}
 
         function restoreAnswer() {
             const question = questions[currentQuestionIndex];
@@ -1361,17 +1103,11 @@ console.log('✅ Processed question:', processedQuestionText);
                     delete userAnswers[questionIndex];
                 }
             } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                const trimmedValue = value.trim();
-                // Allow infinity values
-                if (trimmedValue.match(/^-?(inf|infinity|∞)$/i)) {
-                    userAnswers[questionIndex] = trimmedValue;
-                } else {
-                    const cleanValue = trimmedValue.replace(/[^\d.-]/g, '');
-                    if (cleanValue && !isNaN(parseFloat(cleanValue))) {
-                        userAnswers[questionIndex] = cleanValue;
-                    } else if (trimmedValue === '') {
-                        delete userAnswers[questionIndex];
-                    }
+                const cleanValue = value.replace(/[^\d.-]/g, '').trim();
+                if (cleanValue && !isNaN(parseFloat(cleanValue))) {
+                    userAnswers[questionIndex] = cleanValue;
+                } else if (value.trim() === '') {
+                    delete userAnswers[questionIndex];
                 }
             } else {
                 const trimmedValue = value.trim();
@@ -1749,21 +1485,16 @@ console.log('✅ Processed question:', processedQuestionText);
             `;
             
             resultsContainer.appendChild(reviewDiv);
+        }
 
-            // Process MathJax for results page with delay
-            setTimeout(() => {
-                if (window.MathJax && window.MathJax.typesetPromise) {
-                    window.MathJax.typesetPromise([reviewDiv]).then(() => {
-                        console.log('✅ MathJax rendered in results');
-                    }).catch(err => {
-                        console.error('❌ MathJax error in results:', err);
-                    });
-                }
-            }, 800);
+        // Process MathJax in results
+        setTimeout(() => {
+            if (window.MathJax) {
+                window.MathJax.typesetPromise([reviewDiv]).catch(err => {
+                    console.log('MathJax typeset error in results:', err);
+                });
             }
-        
-
-      
+        }, 500);
 
         function getDifficultyColor(difficulty) {
             switch(difficulty) {
@@ -1820,6 +1551,4 @@ console.log('✅ Processed question:', processedQuestionText);
     </script>
 </body>
 </html>
-
-
 
