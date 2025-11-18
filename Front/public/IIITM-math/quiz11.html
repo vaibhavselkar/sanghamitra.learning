@@ -1001,6 +1001,24 @@ console.log('🔍 Original question:', processedQuestionText);
 // ============================================
 
 // Step 1: Normalize special characters and unicode
+// Replace this section in the renderCurrentQuestion function:
+
+// Step 10: Process REGULAR FUNCTIONS
+processedQuestionText = processedQuestionText
+    // Standard functions: f(x), g(t), h(a), but NOT if already wrapped
+    .replace(/\b([fghlmnpqrFGHLMNPQR])\s*\(([^)]+)\)(?![^$]*\$)/g, '$$$$1($2)$$')
+    // Numerical functions: 1(x), 2(a) - for piecewise notation (SPECIAL CASE)
+    .replace(/\b([0-9]+)\s*\(([a-z])\)(?![^$]*\$)/g, '$$$1($2)$$');
+
+// ADD THIS NEW STEP FOR THE SPECIFIC CASE IN THE IMAGE:
+// Step 10.5: Fix the specific case from the image - 1(x) with dollar signs inside
+processedQuestionText = processedQuestionText
+    // Handle cases like: 1(x) = \frac{\$1^2\$-4}{x-2}
+    .replace(/(\b[0-9]+\([a-z]\)\s*=\s*)\\frac{\\\$([^\\$]+)\\\$-\s*([^}]+)}/g, '$$$1\\frac{$2-$3}$$')
+    // Handle the specific pattern from the image
+    .replace(/\\frac{\\\$([^\\$]+)\\\$-\s*([^}]+)}/g, '$$\\frac{$1-$2}$$')
+    // Clean up escaped dollar signs
+    .replace(/\\\$/g, '$');
 processedQuestionText = processedQuestionText
     .replace(/≠/g, '\\neq')
     .replace(/≤/g, '\\leq')
@@ -1802,5 +1820,6 @@ console.log('✅ Processed question:', processedQuestionText);
     </script>
 </body>
 </html>
+
 
 
