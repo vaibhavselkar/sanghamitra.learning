@@ -876,6 +876,18 @@ mjx-container[jax="SVG"] {
         }
 
         function renderCurrentQuestion() {
+
+             console.log('=== QUESTION DEBUG ===');
+                console.log('Raw question_text:', question.question_text);
+                console.log('Has $ delimiter:', question.question_text.includes('$'));
+                console.log('Has \\( delimiter:', question.question_text.includes('\\('));
+                console.log('First 200 chars:', question.question_text.substring(0, 200));
+                console.log('======================');
+                // ===== END DEBUG =====
+                
+                console.log('Rendering question:', question);
+                
+                container.innerHTML = '';
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
             
