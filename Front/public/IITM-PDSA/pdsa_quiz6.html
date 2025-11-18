@@ -1501,7 +1501,7 @@ for name in list(globals().keys()):
                         
                     } else if (testCase.type === 'updatable-priority-queue') {
                         // For updatable priority queue
-                        const instanceName = `pq_instance_${i}`;
+                        const instanceName = `upq_instance_${i}`;
                         await pyodide.runPythonAsync(`${instanceName} = ${question.functionName}()`);
                         
                         for (const [priority, value] of testCase.input[0]) {
