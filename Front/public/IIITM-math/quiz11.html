@@ -29,10 +29,6 @@ window.MathJax = {
 };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -286,6 +282,29 @@ mjx-container[jax="SVG"] {
             padding: 2px 8px;
             border-radius: 12px;
             font-size: 12px;
+        }
+
+                /* Better MathJax display */
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 2 !important;
+            color: #333;
+            margin-bottom: 20px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .question-text mjx-container {
+            display: inline !important;
+            margin: 0 3px !important;
+            vertical-align: middle;
+        }
+
+        /* Results page math rendering */
+        .results-container mjx-container {
+            display: inline !important;
+            margin: 0 3px !important;
+            vertical-align: middle;
         }
 
         .quiz-container { padding: 30px; display: none; }
@@ -971,50 +990,195 @@ mjx-container[jax="SVG"] {
     const difficulty = question.difficulty || 'medium';
     const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
-    // Use question text exactly as stored in database - NO PROCESSING
-    // Use question text exactly as stored in database
+// Use question text exactly as stored in database
 let processedQuestionText = question.question_text || 'Question text not available';
 
-// Add LaTeX delimiters for mathematical expressions
-processedQuestionText = processedQuestionText
-    // Wrap f(x), g(x), h(x) and similar
-    .replace(/\b([fgh])'\s*\(([^)]+)\)/g, "$$$$$1'($2)$$")
-    .replace(/\b([fgh])\s*\(([^)]+)\)/g, '$$$$1($2)$$')
-    
-    // Wrap expressions with exponents (x², e^(-x))
-    .replace(/([a-z])²/gi, '$$$$1^2$$')
-    .replace(/([a-z])³/gi, '$$$$1^3$$')
-    .replace(/([a-z])\^(\d+)/gi, '$$$$1^{$2}$$')
-    .replace(/([a-z])\^\(([^)]+)\)/gi, '$$$$1^{$2}$$')
-    .replace(/e\^\(([^)]+)\)/gi, '$$e^{$1}$$')
-    .replace(/e\^([a-z0-9-]+)/gi, '$$e^{$1}$$')
-    
-    // Wrap lim expressions
-    .replace(/lim_\{([^}]+)\}/gi, '$$\\lim_{$1}$$')
-    .replace(/lim\s+as\s+([a-z])\s*→\s*([^\s,]+)/gi, '$$\\lim_{$1 \\to $2}$$')
-    
-    // Wrap sqrt, sin, cos, etc.
-    .replace(/sqrt\(([^)]+)\)/gi, '$$\\sqrt{$1}$$')
-    .replace(/\b(sin|cos|tan|ln|log|arctan|arcsin|arccos)\(([^)]+)\)/gi, '$$\\$1($2)$$')
-    
-    // Wrap fractions
-    .replace(/\(([^)]+)\)\/\(([^)]+)\)/g, '$$\\frac{$1}{$2}$$')
-    
-    // Wrap absolute values
-    .replace(/\|([^|]+)\|/g, '$$|$1|$$')
-    
-    // Wrap standalone variables and numbers in equations
-    .replace(/=\s*([a-z0-9.-]+)(?!\$)/gi, '= $$$1$$')
-    .replace(/([a-z])\s*=\s*(?!\$)/gi, '$$$$1$$ =')
-    
-    // Clean up any double dollar signs
-    .replace(/\$\$+/g, '$$')
-    .replace(/\$\s*\$/g, '')
-    .trim();
+console.log('🔍 Original question:', processedQuestionText);
 
-console.log('Question text to render:', processedQuestionText);
-    
-    console.log('Question text to render:', processedQuestionText);
+// ============================================
+// COMPREHENSIVE LATEX PROCESSOR
+// Handles all possible mathematical notation
+// ============================================
+
+// Step 1: Normalize special characters and unicode
+processedQuestionText = processedQuestionText
+    .replace(/≠/g, '\\neq')
+    .replace(/≤/g, '\\leq')
+    .replace(/≥/g, '\\geq')
+    .replace(/→/g, '\\to')
+    .replace(/←/g, '\\leftarrow')
+    .replace(/∞/g, '\\infty')
+    .replace(/±/g, '\\pm')
+    .replace(/×/g, '\\times')
+    .replace(/÷/g, '\\div')
+    .replace(/√/g, '\\sqrt')
+    .replace(/π/g, '\\pi')
+    .replace(/θ/g, '\\theta')
+    .replace(/∑/g, '\\sum')
+    .replace(/∫/g, '\\int')
+    .replace(/∂/g, '\\partial')
+    .replace(/∆/g, '\\Delta')
+    .replace(/α/g, '\\alpha')
+    .replace(/β/g, '\\beta')
+    .replace(/γ/g, '\\gamma');
+
+// Step 2: Protect already wrapped math expressions
+const protectedExpressions = [];
+let protectCounter = 0;
+
+processedQuestionText = processedQuestionText
+    .replace(/\$\$([^$]+)\$\$/g, (match) => {
+        const placeholder = `__PROTECTED_${protectCounter}__`;
+        protectedExpressions.push({ placeholder, content: match });
+        protectCounter++;
+        return placeholder;
+    })
+    .replace(/\$([^$]+)\$/g, (match) => {
+        const placeholder = `__PROTECTED_${protectCounter}__`;
+        protectedExpressions.push({ placeholder, content: match });
+        protectCounter++;
+        return placeholder;
+    })
+    .replace(/\\\(([^)]+)\\\)/g, (match) => {
+        const placeholder = `__PROTECTED_${protectCounter}__`;
+        protectedExpressions.push({ placeholder, content: match });
+        protectCounter++;
+        return placeholder;
+    });
+
+// Step 3: Process LIMITS (must come first, before function wrapping)
+processedQuestionText = processedQuestionText
+    // lim(x→0), lim(x->0), lim as x→0
+    .replace(/lim\s*\(\s*([a-z])\s*→\s*([^)]+)\)/gi, '$\\lim_{$1 \\to $2}$')
+    .replace(/lim\s*\(\s*([a-z])\s*->\s*([^)]+)\)/gi, '$\\lim_{$1 \\to $2}$')
+    .replace(/lim\s+as\s+([a-z])\s*→\s*([^\s,;.]+)/gi, '$\\lim_{$1 \\to $2}$')
+    .replace(/lim\s+as\s+([a-z])\s*->\s*([^\s,;.]+)/gi, '$\\lim_{$1 \\to $2}$')
+    // lim_{x→0}, lim x→0
+    .replace(/lim_\{([a-z])\s*→\s*([^}]+)\}/gi, '$\\lim_{$1 \\to $2}$')
+    .replace(/lim_\{([a-z])\s*->\s*([^}]+)\}/gi, '$\\lim_{$1 \\to $2}$')
+    .replace(/lim\s+([a-z])\s*→\s*([^\s,;.]+)/gi, '$\\lim_{$1 \\to $2}$');
+
+// Step 4: Process FRACTIONS (comprehensive patterns)
+processedQuestionText = processedQuestionText
+    // Complex fractions: (x-1)/(x²-1), (a+b)/(c+d)
+    .replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '$\\frac{$1}{$2}$')
+    // Simple fractions with parentheses: (x-1)/x², a/(x+1)
+    .replace(/\(([^)]+)\)\s*\/\s*([a-z][a-z0-9²³]*(?:\^[0-9]+)?)/gi, '$\\frac{$1}{$2}$')
+    .replace(/([a-z0-9]+)\s*\/\s*\(([^)]+)\)/gi, '$\\frac{$1}{$2}$')
+    // Number/variable fractions: 1/x, 1/x², x/y
+    .replace(/([0-9]+)\s*\/\s*([a-z](?:\^[0-9]+|²|³)?)/gi, '$\\frac{$1}{$2}$')
+    .replace(/([a-z])\s*\/\s*([a-z](?:\^[0-9]+|²|³)?)/gi, '$\\frac{$1}{$2}$')
+    // Handle malformed fractions like /1², /x²
+    .replace(/\/\s*([0-9]+)²/g, '/x^{$1}') // Fix /1² to /x²
+    .replace(/\/\s*([a-z])²/gi, '/$1^2')
+    .replace(/\/\s*([a-z])\^([0-9]+)/gi, '/$1^{$2}');
+
+// Step 5: Process EXPONENTS
+processedQuestionText = processedQuestionText
+    // Exponents with parentheses: e^(-x), x^(1/x), 2^(n+1)
+    .replace(/([a-z0-9])\^\(([^)]+)\)/gi, '$$$$1^{$2}$$')
+    // Unicode superscripts: x², x³
+    .replace(/([a-z0-9])²/gi, '$$$$1^2$$')
+    .replace(/([a-z0-9])³/gi, '$$$$1^3$$')
+    // Caret notation: x^2, e^x, 10^n
+    .replace(/([a-z0-9])\^([0-9]+)/gi, '$$$$1^{$2}$$')
+    .replace(/([a-z0-9])\^([a-z])/gi, '$$$$1^{$2}$$')
+    // Negative exponents: x^-1, e^-x
+    .replace(/([a-z0-9])\^-([a-z0-9]+)/gi, '$$$$1^{-$2}$$');
+
+// Step 6: Process DERIVATIVES
+processedQuestionText = processedQuestionText
+    // Function derivatives: f'(x), g'(1), h''(x)
+    .replace(/\b([fghlmnpqrFGHLMNPQR])''+\s*\(([^)]+)\)/g, (match, func, arg) => {
+        const primes = match.match(/'+/)[0];
+        return `$$${func}${primes}(${arg})$$`;
+    })
+    .replace(/\b([fghlmnpqrFGHLMNPQR])'\s*\(([^)]+)\)/g, "$$$$1'($2)$$")
+    // Composition derivatives: (f∘g)'(x), (fog)'(x)
+    .replace(/\(([fgh])\s*∘\s*([fgh])\)'\s*\(([^)]+)\)/g, "$$($$1 \\circ $$2)'($3)$$")
+    .replace(/\(([fgh])o([fgh])\)'\s*\(([^)]+)\)/g, "$$($$1 \\circ $$2)'($3)$$");
+
+// Step 7: Process TRIG & LOG FUNCTIONS
+processedQuestionText = processedQuestionText
+    .replace(/\b(sin|cos|tan|sec|csc|cot|arcsin|arccos|arctan|arcsec|arccsc|arccot|sinh|cosh|tanh|sech|csch|coth)\s*\(([^)]+)\)/gi, '$$\\$1($2)$$')
+    .replace(/\b(ln|log|exp)\s*\(([^)]+)\)/gi, '$$\\$1($2)$$');
+
+// Step 8: Process SQUARE ROOTS
+processedQuestionText = processedQuestionText
+    .replace(/sqrt\s*\(([^)]+)\)/gi, '$$\\sqrt{$1}$$')
+    .replace(/√\s*\(([^)]+)\)/g, '$$\\sqrt{$1}$$')
+    .replace(/√\s*([0-9]+)/g, '$$\\sqrt{$1}$$');
+
+// Step 9: Process ABSOLUTE VALUES
+processedQuestionText = processedQuestionText
+    .replace(/\|([^|]+)\|/g, '$$|$1|$$');
+
+// Step 10: Process REGULAR FUNCTIONS
+processedQuestionText = processedQuestionText
+    // Standard functions: f(x), g(t), h(a), but NOT if already wrapped
+    .replace(/\b([fghlmnpqrFGHLMNPQR])\s*\(([^)]+)\)(?![^$]*\$)/g, '$$$$1($2)$$')
+    // Numerical functions: 1(x), 2(a) - for piecewise notation
+    .replace(/\b([0-9]+)\s*\(([a-z])\)(?![^$]*\$)/g, '$$$1($2)$$');
+
+// Step 11: Process PIECEWISE FUNCTIONS & CASES
+processedQuestionText = processedQuestionText
+    // Piecewise with { }: { x² if x > 0; x if x ≤ 0 }
+    .replace(/\{([^}]*\bif\b[^}]*)\}/g, (match, inner) => {
+        // Check if it's a complex piecewise
+        if (inner.includes(';') || inner.includes(',')) {
+            const cases = inner.split(/[;,]/).map(c => c.trim());
+            const formatted = cases.map(c => {
+                const parts = c.split(/\s+if\s+/i);
+                if (parts.length === 2) {
+                    return `${parts[0]} & \\text{if } ${parts[1]}`;
+                }
+                return c;
+            }).join(' \\\\ ');
+            return `$\\begin{cases} ${formatted} \\end{cases}$`;
+        }
+        return `$\\{${inner}\\}$`;
+    });
+
+// Step 12: Process INTERVALS
+processedQuestionText = processedQuestionText
+    // Interval notation: [0, 1], (-∞, ∞), (a, b]
+    .replace(/\[([^,\]]+),\s*([^\]]+)\]/g, '$$[$1, $2]$$')
+    .replace(/\(([^,)]+),\s*([^)]+)\)/g, '$$($$1, $$2)$$');
+
+// Step 13: Process COMPARISON OPERATORS & EQUATIONS
+processedQuestionText = processedQuestionText
+    // Equations: x = 1, y ≠ 0, a < b
+    .replace(/\b([a-z])\s*(=|≠|<|>|≤|≥|\\neq|\\leq|\\geq)\s*(-?[0-9.]+)(?![^$]*\$)/g, '$$$$1 $2 $3$$')
+    .replace(/\b([a-z])\s*(=|≠|<|>|≤|≥|\\neq|\\leq|\\geq)\s*([a-z])(?![^$]*\$)/g, '$$$$1 $2 $3$$');
+
+// Step 14: Process STANDALONE VARIABLES IN CONTEXT
+processedQuestionText = processedQuestionText
+    // Variables in phrases: "at x = 1", "for x > 0"
+    .replace(/\bat\s+([a-z])\s*=\s*(-?[0-9.]+)/gi, 'at $$$$1 = $2$$')
+    .replace(/\bfor\s+([a-z])\s*([<>≤≥≠])\s*(-?[0-9.]+)/gi, 'for $$$$1 $2 $3$$')
+    .replace(/\bwhen\s+([a-z])\s*=\s*(-?[0-9.]+)/gi, 'when $$$$1 = $2$$');
+
+// Step 15: Clean up multiple/nested dollar signs
+processedQuestionText = processedQuestionText
+    // Remove nested dollars: $...$...$
+    .replace(/\$+/g, '$')
+    // Remove empty math: $$
+    .replace(/\$\s*\$/g, '')
+    // Remove space around dollars
+    .replace(/\$\s+/g, '$')
+    .replace(/\s+\$/g, '$')
+    // Fix double dollars that got created
+    .replace(/\$\$/g, '$');
+
+// Step 16: Restore protected expressions
+protectedExpressions.forEach(({ placeholder, content }) => {
+    processedQuestionText = processedQuestionText.replace(placeholder, content);
+});
+
+// Final cleanup
+processedQuestionText = processedQuestionText.trim();
+
+console.log('✅ Processed question:', processedQuestionText);
 
     questionDiv.innerHTML = `
         <div class="question-header">
@@ -1567,7 +1731,19 @@ console.log('Question text to render:', processedQuestionText);
             `;
             
             resultsContainer.appendChild(reviewDiv);
-        }
+
+            // Process MathJax for results page with delay
+            setTimeout(() => {
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([reviewDiv]).then(() => {
+                        console.log('✅ MathJax rendered in results');
+                    }).catch(err => {
+                        console.error('❌ MathJax error in results:', err);
+                    });
+                }
+            }, 800);
+            }
+        
 
       
 
