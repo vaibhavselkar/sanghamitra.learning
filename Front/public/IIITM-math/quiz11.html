@@ -709,13 +709,13 @@ mjx-container[jax="SVG"] {
             }, 500);
             
             // Detect window focus changes
-            window.addEventListener('blur', function() {
-                if (isQuizActive) {
-                    document.body.classList.add('blurred');
-                    document.getElementById('warningOverlay').style.display = 'flex';
-                    recordCheatingAttempt('window_blur');
-                }
-            });
+           // window.addEventListener('blur', function() {
+              //  if (isQuizActive) {
+              //      document.body.classList.add('blurred');
+              //      document.getElementById('warningOverlay').style.display = 'flex';
+              //      recordCheatingAttempt('window_blur');
+             //   }
+          //  });
             
             window.addEventListener('focus', function() {
                 document.body.classList.remove('blurred');
@@ -777,17 +777,22 @@ mjx-container[jax="SVG"] {
             return false;
         });
         
-        // Hide questions from view source
-        function obfuscateQuestions() {
-            // This would require server-side implementation
-            // For now, we'll just make it harder to find in console
+       function obfuscateQuestions() {
+    // Only define once to avoid "cannot redefine" error
+    try {
+        if (!Object.getOwnPropertyDescriptor(window, 'questions')?.get) {
             Object.defineProperty(window, 'questions', {
                 get: function() {
                     recordCheatingAttempt('questions_access');
                     return [];
-                }
+                },
+                configurable: true
             });
         }
+    } catch (err) {
+        console.warn('Could not obfuscate questions:', err);
+    }
+}
         
         // Initialize quiz timing
         function initializeQuizTiming() {
@@ -967,7 +972,47 @@ mjx-container[jax="SVG"] {
     const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
     // Use question text exactly as stored in database - NO PROCESSING
-    let processedQuestionText = question.question_text || 'Question text not available';
+    // Use question text exactly as stored in database
+let processedQuestionText = question.question_text || 'Question text not available';
+
+// Add LaTeX delimiters for mathematical expressions
+processedQuestionText = processedQuestionText
+    // Wrap f(x), g(x), h(x) and similar
+    .replace(/\b([fgh])'\s*\(([^)]+)\)/g, "$$$$$1'($2)$$")
+    .replace(/\b([fgh])\s*\(([^)]+)\)/g, '$$$$1($2)$$')
+    
+    // Wrap expressions with exponents (x², e^(-x))
+    .replace(/([a-z])²/gi, '$$$$1^2$$')
+    .replace(/([a-z])³/gi, '$$$$1^3$$')
+    .replace(/([a-z])\^(\d+)/gi, '$$$$1^{$2}$$')
+    .replace(/([a-z])\^\(([^)]+)\)/gi, '$$$$1^{$2}$$')
+    .replace(/e\^\(([^)]+)\)/gi, '$$e^{$1}$$')
+    .replace(/e\^([a-z0-9-]+)/gi, '$$e^{$1}$$')
+    
+    // Wrap lim expressions
+    .replace(/lim_\{([^}]+)\}/gi, '$$\\lim_{$1}$$')
+    .replace(/lim\s+as\s+([a-z])\s*→\s*([^\s,]+)/gi, '$$\\lim_{$1 \\to $2}$$')
+    
+    // Wrap sqrt, sin, cos, etc.
+    .replace(/sqrt\(([^)]+)\)/gi, '$$\\sqrt{$1}$$')
+    .replace(/\b(sin|cos|tan|ln|log|arctan|arcsin|arccos)\(([^)]+)\)/gi, '$$\\$1($2)$$')
+    
+    // Wrap fractions
+    .replace(/\(([^)]+)\)\/\(([^)]+)\)/g, '$$\\frac{$1}{$2}$$')
+    
+    // Wrap absolute values
+    .replace(/\|([^|]+)\|/g, '$$|$1|$$')
+    
+    // Wrap standalone variables and numbers in equations
+    .replace(/=\s*([a-z0-9.-]+)(?!\$)/gi, '= $$$1$$')
+    .replace(/([a-z])\s*=\s*(?!\$)/gi, '$$$$1$$ =')
+    
+    // Clean up any double dollar signs
+    .replace(/\$\$+/g, '$$')
+    .replace(/\$\s*\$/g, '')
+    .trim();
+
+console.log('Question text to render:', processedQuestionText);
     
     console.log('Question text to render:', processedQuestionText);
 
