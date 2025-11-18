@@ -373,83 +373,81 @@
                 title: "Union-Find (Disjoint Set) Implementation",
                 description: "Implement the Union-Find data structure with path compression and union by rank.",
                 prompt: `Implement a UnionFind class with the following methods:
-- __init__(n): Initialize with n elements (0 to n-1)
-- find(x): Find the root of x with path compression
-- union(x, y): Union the sets containing x and y using union by rank
-
-REQUIREMENTS:
-- Use path compression in find operation
-- Use union by rank for optimal performance
-- Return the root parent in find method`,
+        - __init__(n): Initialize with n elements (0 to n-1)
+        - find(x): Find the root of x with path compression
+        - union(x, y): Union the sets containing x and y using union by rank
+        
+        REQUIREMENTS:
+        - Use path compression in find operation
+        - Use union by rank for optimal performance
+        - Return the root parent in find method`,
                 starterCode: `class UnionFind:
-    def __init__(self, n):
-        """
-        Initialize Union-Find data structure with n elements.
-        
-        Args:
-            n: Number of elements
-        """
-        self.parent = list(range(n))
-        self.rank = [0] * n
-    
-    def find(self, x):
-        """
-        Find the root of x with path compression.
-        
-        Args:
-            x: Element to find
+            def __init__(self, n):
+                """
+                Initialize Union-Find data structure with n elements.
+                
+                Args:
+                    n: Number of elements
+                """
+                self.parent = list(range(n))
+                self.rank = [0] * n
             
-        Returns:
-            Root element of x
-        """
-        # Your implementation here
-        pass
-    
-    def union(self, x, y):
-        """
-        Union the sets containing x and y using union by rank.
+            def find(self, x):
+                """
+                Find the root of x with path compression.
+                
+                Args:
+                    x: Element to find
+                    
+                Returns:
+                    Root element of x
+                """
+                if self.parent[x] != x:
+                    self.parent[x] = self.find(self.parent[x])
+                return self.parent[x]
+            
+            def union(self, x, y):
+                """
+                Union the sets containing x and y using union by rank.
+                
+                Args:
+                    x: First element
+                    y: Second element
+                """
+                root_x = self.find(x)
+                root_y = self.find(y)
+                
+                if root_x != root_y:
+                    if self.rank[root_x] < self.rank[root_y]:
+                        self.parent[root_x] = root_y
+                    elif self.rank[root_x] > self.rank[root_y]:
+                        self.parent[root_y] = root_x
+                    else:
+                        self.parent[root_y] = root_x
+                        self.rank[root_x] += 1
         
-        Args:
-            x: First element
-            y: Second element
-        """
-        # Your implementation here
-        pass
-
-# Test your implementation
-uf = UnionFind(5)
-uf.union(0, 1)
-uf.union(2, 3)
-print(uf.find(0) == uf.find(1))  # Should be true`,
+        # Test your implementation
+        uf = UnionFind(5)
+        uf.union(0, 1)
+        uf.union(2, 3)
+        print(uf.find(0) == uf.find(1))  # Should be True`,
                 testCases: [
                     { 
-                        input: [5, [[0, 1], [2, 3], [1, 4], [3, 4]]],
-                        expected: [true, true, true, true, true],
-                        setup: (input) => {
-                            const [n, unions] = input;
-                            const uf = new UnionFind(n);
-                            for (const [x, y] of unions) {
-                                uf.union(x, y);
-                            }
-                            return Array.from({length: n}, (_, i) => uf.find(0) === uf.find(i));
-                        }
+                        input: [5],
+                        unions: [[0, 1], [2, 3], [1, 4], [3, 4]],
+                        expected: [true, true, true, true, true]
                     },
                     { 
-                        input: [3, [[0, 1]]],
-                        expected: [true, true, false],
-                        setup: (input) => {
-                            const [n, unions] = input;
-                            const uf = new UnionFind(n);
-                            for (const [x, y] of unions) {
-                                uf.union(x, y);
-                            }
-                            return [uf.find(0) === uf.find(1), uf.find(1) === uf.find(0), uf.find(0) === uf.find(2)];
-                        }
+                        input: [3],
+                        unions: [[0, 1]],
+                        expected: [true, true, false]
                     }
                 ],
                 functionName: 'UnionFind',
-                points: 10
+                points: 10,
+                type: 'class'
             },
+    
             {
                 id: 2,
                 title: "Min Heap Implementation",
@@ -509,28 +507,12 @@ print(heap.extract_min())  # Should be 1`,
                     { 
                         input: [[3, 1, 4, 1, 5, 9, 2, 6]],
                         expected: [1, 1, 2, 3, 4, 5, 6, 9],
-                        setup: (input) => {
-                            const heap = new MinHeap();
-                            for (const val of input[0]) {
-                                heap.insert(val);
-                            }
-                            const result = [];
-                            while (heap.heap.length > 0) {
-                                result.push(heap.extract_min());
-                            }
-                            return result;
-                        }
+                        
                     },
                     { 
                         input: [[5, 2, 8]],
                         expected: 2,
-                        setup: (input) => {
-                            const heap = new MinHeap();
-                            for (const val of input[0]) {
-                                heap.insert(val);
-                            }
-                            return heap.get_min();
-                        }
+                        
                     }
                 ],
                 functionName: 'MinHeap',
@@ -595,25 +577,12 @@ print(pq.dequeue())  # Should be "Task 2"`,
                     { 
                         input: [[[2, "A"], [1, "B"], [3, "C"], [1, "D"]]],
                         expected: ["B", "D", "A", "C"],
-                        setup: (input) => {
-                            const pq = new PriorityQueue();
-                            for (const [priority, value] of input[0]) {
-                                pq.enqueue(priority, value);
-                            }
-                            const result = [];
-                            while (!pq.is_empty()) {
-                                result.push(pq.dequeue());
-                            }
-                            return result;
-                        }
+                        
                     },
                     { 
                         input: [[]],
                         expected: true,
-                        setup: (input) => {
-                            const pq = new PriorityQueue();
-                            return pq.is_empty();
-                        }
+                        
                     }
                 ],
                 functionName: 'PriorityQueue',
@@ -687,25 +656,12 @@ print(bst.search(3))  # Should be true`,
                     { 
                         input: [[5, 3, 7, 1, 4, 6, 8]],
                         expected: [1, 3, 4, 5, 6, 7, 8],
-                        setup: (input) => {
-                            const bst = new BST();
-                            for (const val of input[0]) {
-                                bst.insert(val);
-                            }
-                            return bst.inorder_traversal();
-                        }
+                        
                     },
                     { 
                         input: [[2, 1, 3], 4],
                         expected: false,
-                        setup: (input) => {
-                            const [values, search_val] = input;
-                            const bst = new BST();
-                            for (const val of values) {
-                                bst.insert(val);
-                            }
-                            return bst.search(search_val);
-                        }
+                        
                     }
                 ],
                 functionName: 'BST',
@@ -762,32 +718,12 @@ print(bst.inorder_traversal())  # Should be [5, 7]`,
                     { 
                         input: [[5, 3, 7, 2, 4, 6, 8], [3]],
                         expected: [2, 4, 5, 6, 7, 8],
-                        setup: (input) => {
-                            const [values, to_delete] = input;
-                            const bst = new BSTWithDelete();
-                            for (const val of values) {
-                                bst.insert(val);
-                            }
-                            for (const val of to_delete) {
-                                bst.delete(val);
-                            }
-                            return bst.inorder_traversal();
-                        }
+                        
                     },
                     { 
                         input: [[5, 3, 7], [5]],
                         expected: [3, 7],
-                        setup: (input) => {
-                            const [values, to_delete] = input;
-                            const bst = new BSTWithDelete();
-                            for (const val of values) {
-                                bst.insert(val);
-                            }
-                            for (const val of to_delete) {
-                                bst.delete(val);
-                            }
-                            return bst.inorder_traversal();
-                        }
+                        
                     }
                 ],
                 functionName: 'BSTWithDelete',
@@ -851,58 +787,77 @@ print(heap.extract_max())  # Should be 4`,
                     { 
                         input: [[3, 1, 4, 1, 5, 9, 2, 6]],
                         expected: [9, 6, 5, 4, 3, 2, 1, 1],
-                        setup: (input) => {
-                            const heap = new MaxHeap();
-                            for (const val of input[0]) {
-                                heap.insert(val);
-                            }
-                            const result = [];
-                            while (heap.heap.length > 0) {
-                                result.push(heap.extract_max());
-                            }
-                            return result;
-                        }
+                        
                     },
                     { 
                         input: [[5, 2, 8]],
                         expected: 8,
-                        setup: (input) => {
-                            const heap = new MaxHeap();
-                            for (const val of input[0]) {
-                                heap.insert(val);
-                            }
-                            return heap.get_max();
-                        }
+                        
                     }
                 ],
                 functionName: 'MaxHeap',
                 points: 10
             },
+           // ... keep other questions but remove the setup functions from test cases ...
             {
                 id: 7,
                 title: "Heap Sort Algorithm",
                 description: "Implement heap sort using your max heap implementation.",
                 prompt: `Implement heap_sort(arr) function that sorts an array using heap sort.
-
-REQUIREMENTS:
-- Use max heap to sort in ascending order
-- Implement in-place sorting if possible
-- Time complexity: O(n log n)`,
-                starterCode: `def heap_sort(arr):
-    """
-    Sort array using heap sort algorithm.
-    
-    Args:
-        arr: List to sort
         
-    Returns:
-        Sorted list in ascending order
-    """
-    # Your implementation here
-    pass
-
-# Test your function
-print(heap_sort([3, 1, 4, 1, 5, 9, 2, 6]))`,
+        REQUIREMENTS:
+        - Use max heap to sort in ascending order
+        - Implement in-place sorting if possible
+        - Time complexity: O(n log n)`,
+                starterCode: `def heap_sort(arr):
+            """
+            Sort array using heap sort algorithm.
+            
+            Args:
+                arr: List to sort
+                
+            Returns:
+                Sorted list in ascending order
+            """
+            # Build max heap
+            n = len(arr)
+            
+            # Build a max heap
+            for i in range(n // 2 - 1, -1, -1):
+                heapify(arr, n, i)
+            
+            # Extract elements one by one
+            for i in range(n-1, 0, -1):
+                arr[i], arr[0] = arr[0], arr[i]  # swap
+                heapify(arr, i, 0)
+            
+            return arr
+        
+        def heapify(arr, n, i):
+            """
+            Heapify subtree rooted at index i.
+            
+            Args:
+                arr: The array
+                n: Size of heap
+                i: Root index
+            """
+            largest = i
+            left = 2 * i + 1
+            right = 2 * i + 2
+            
+            if left < n and arr[left] > arr[largest]:
+                largest = left
+                
+            if right < n and arr[right] > arr[largest]:
+                largest = right
+                
+            if largest != i:
+                arr[i], arr[largest] = arr[largest], arr[i]
+                heapify(arr, n, largest)
+        
+        # Test your function
+        print(heap_sort([3, 1, 4, 1, 5, 9, 2, 6]))`,
                 testCases: [
                     { input: [[3, 1, 4, 1, 5, 9, 2, 6]], expected: [1, 1, 2, 3, 4, 5, 6, 9] },
                     { input: [[5, 2, 8, 1, 9]], expected: [1, 2, 5, 8, 9] },
@@ -910,8 +865,10 @@ print(heap_sort([3, 1, 4, 1, 5, 9, 2, 6]))`,
                     { input: [[]], expected: [] }
                 ],
                 functionName: 'heap_sort',
-                points: 10
+                points: 10,
+                type: 'function'
             },
+            
             {
                 id: 8,
                 title: "BST Height and Balance Check",
@@ -967,24 +924,11 @@ print(bst.height())  # Should be 2`,
                     { 
                         input: [[5, 3, 7, 2, 8]],
                         expected: [3, true],
-                        setup: (input) => {
-                            const bst = new BSTWithHeight();
-                            for (const val of input[0]) {
-                                bst.insert(val);
-                            }
-                            return [bst.height(), bst.is_balanced()];
-                        }
+
                     },
                     { 
                         input: [[1, 2, 3, 4, 5]],
                         expected: [5, false],
-                        setup: (input) => {
-                            const bst = new BSTWithHeight();
-                            for (const val of input[0]) {
-                                bst.insert(val);
-                            }
-                            return [bst.height(), bst.is_balanced()];
-                        }
                     }
                 ],
                 functionName: 'BSTWithHeight',
@@ -1044,26 +988,12 @@ print(uf.component_size(0))  # Should be 2`,
                     { 
                         input: [5, [[0, 1], [2, 3], [1, 4]]],
                         expected: [3, 2, 3, 2, 3],
-                        setup: (input) => {
-                            const [n, unions] = input;
-                            const uf = new UnionFindWithSize(n);
-                            for (const [x, y] of unions) {
-                                uf.union(x, y);
-                            }
-                            return Array.from({length: n}, (_, i) => uf.component_size(i));
-                        }
+                        
                     },
                     { 
                         input: [3, [[0, 1], [1, 2]]],
                         expected: 3,
-                        setup: (input) => {
-                            const [n, unions] = input;
-                            const uf = new UnionFindWithSize(n);
-                            for (const [x, y] of unions) {
-                                uf.union(x, y);
-                            }
-                            return uf.component_size(0);
-                        }
+                        
                     }
                 ],
                 functionName: 'UnionFindWithSize',
@@ -1120,21 +1050,7 @@ print(pq.dequeue())  # Should be "A"`,
                     { 
                         input: [[[2, "A"], [1, "B"], [3, "C"]], [["A", 0], ["C", 1]]],
                         expected: ["A", "C", "B"],
-                        setup: (input) => {
-                            const [initial, updates] = input;
-                            const pq = new UpdatablePriorityQueue();
-                            for (const [priority, value] of initial) {
-                                pq.enqueue(priority, value);
-                            }
-                            for (const [value, new_priority] of updates) {
-                                pq.update_priority(value, new_priority);
-                            }
-                            const result = [];
-                            while (!pq.is_empty()) {
-                                result.push(pq.dequeue());
-                            }
-                            return result;
-                        }
+                        
                     }
                 ],
                 functionName: 'UpdatablePriorityQueue',
@@ -1433,17 +1349,17 @@ print(pq.dequeue())  # Should be "A"`,
         }
 
         async function executePythonTests(code, question) {
-            if (!pyodideReady) {
-                throw new Error('Python environment not ready');
-            }
+    if (!pyodideReady) {
+        throw new Error('Python environment not ready');
+    }
 
-            const results = [];
-            
-            for (let i = 0; i < question.testCases.length; i++) {
-                const testCase = question.testCases[i];
-                
-                try {
-                    await pyodide.runPythonAsync(`
+    const results = [];
+    
+    for (let i = 0; i < question.testCases.length; i++) {
+        const testCase = question.testCases[i];
+        
+        try {
+            await pyodide.runPythonAsync(`
 import sys
 for name in list(globals().keys()):
     if not name.startswith('__') and name not in ['sys']:
@@ -1451,50 +1367,77 @@ for name in list(globals().keys()):
             del globals()[name]
         except:
             pass
-                    `);
-                    
-                    await pyodide.runPythonAsync(code);
-                    
-                    let functionCall;
-                    if (Array.isArray(testCase.input)) {
-                        functionCall = `${question.functionName}(${testCase.input.map(v => 
-                            Array.isArray(v) ? JSON.stringify(v) : v
-                        ).join(', ')})`;
-                    } else {
-                        functionCall = `${question.functionName}(${testCase.input})`;
+            `);
+            
+            await pyodide.runPythonAsync(code);
+            
+            let result;
+            
+            if (question.type === 'class') {
+                // For class-based questions
+                const instanceName = `instance_${i}`;
+                const createCode = `${instanceName} = ${question.functionName}(${testCase.input[0]})`;
+                await pyodide.runPythonAsync(createCode);
+                
+                // Perform unions if specified
+                if (testCase.unions) {
+                    for (const [x, y] of testCase.unions) {
+                        await pyodide.runPythonAsync(`${instanceName}.union(${x}, ${y})`);
                     }
-                    
-                    const result = await pyodide.runPythonAsync(functionCall);
-                    
-                    let output;
-                    if (result && typeof result === 'object' && result.toJs) {
-                        output = result.toJs({ dict_converter: Object.fromEntries });
-                    } else {
-                        output = result;
-                    }
-                    
-                    const passed = deepEqual(output, testCase.expected);
-                    
-                    results.push({
-                        passed,
-                        output,
-                        expected: testCase.expected,
-                        error: null
-                    });
-                    
-                } catch (error) {
-                    results.push({
-                        passed: false,
-                        output: null,
-                        expected: testCase.expected,
-                        error: error.message
-                    });
                 }
+                
+                // Test the results
+                if (Array.isArray(testCase.expected)) {
+                    const testResults = [];
+                    for (let j = 0; j < testCase.expected.length; j++) {
+                        const findResult = await pyodide.runPythonAsync(`${instanceName}.find(${j})`);
+                        const isConnected = await pyodide.runPythonAsync(`${instanceName}.find(0) == ${instanceName}.find(${j})`);
+                        testResults.push(isConnected);
+                    }
+                    result = testResults;
+                }
+            } else {
+                // For function-based questions
+                let functionCall;
+                if (Array.isArray(testCase.input)) {
+                    functionCall = `${question.functionName}(${testCase.input.map(v => 
+                        JSON.stringify(v)
+                    ).join(', ')})`;
+                } else {
+                    functionCall = `${question.functionName}(${JSON.stringify(testCase.input)})`;
+                }
+                
+                result = await pyodide.runPythonAsync(functionCall);
             }
             
-            return results;
+            let output;
+            if (result && typeof result === 'object' && result.toJs) {
+                output = result.toJs({ dict_converter: Object.fromEntries });
+            } else {
+                output = result;
+            }
+            
+            const passed = deepEqual(output, testCase.expected);
+            
+            results.push({
+                passed,
+                output,
+                expected: testCase.expected,
+                error: null
+            });
+            
+        } catch (error) {
+            results.push({
+                passed: false,
+                output: null,
+                expected: testCase.expected,
+                error: error.message
+            });
         }
-
+    }
+    
+    return results;
+}
         function deepEqual(a, b) {
             if (a === b) return true;
             if (a == null || b == null) return false;
