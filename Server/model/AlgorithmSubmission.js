@@ -7,7 +7,6 @@ const testResultSchema = new mongoose.Schema({
     expectedAnswer: mongoose.Schema.Types.Mixed,
     userAnswer: mongoose.Schema.Types.Mixed
 });
-
 const questionSchema = new mongoose.Schema({
     questionId: Number,
     title: String,
@@ -40,3 +39,4 @@ const algorithmSubmissionSchema = new mongoose.Schema({
 
 
 module.exports = mongoose.model('AlgorithmSubmission', algorithmSubmissionSchema, 'algorithm_submissions');
+
