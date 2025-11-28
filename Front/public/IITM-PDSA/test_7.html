@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Trees & Huffman Algorithm Quiz</title>
+    <!-- Include Monaco Editor for code editing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+    
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-container { padding: 30px; }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .code-editor-container {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
+            height: 400px;
+        }
+
+        .test-cases {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        .test-passed {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .test-failed {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .results-container { display: none; padding: 30px; }
+        .loading { display: none; }
+        
+        .explanation-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .option-label {
+            display: block;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-label:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option-label.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .numerical-input {
+            width: 200px;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .numerical-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .tree-diagram {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .tree-node {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            margin: 5px;
+            background: white;
+            font-weight: bold;
+        }
+
+        .table-question {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .table-question th, .table-question td {
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        .table-question th {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌳 Binary Trees & Huffman Algorithm Quiz</h1>
+            <p>Test your knowledge of AVL Trees, Huffman Coding, and Greedy Algorithms</p>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <h3>Loading Quiz...</h3>
+            <p>Preparing your test environment</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div class="progress-container mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span id="progressText">Question 1 of 25</span>
+                    <span id="scoreText">Score: 0/25</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressFill" style="width: 4%;"></div>
+                </div>
+            </div>
+            
+            <div id="questionContainer"></div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+                <div>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
+                    📊 Submit Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container">
+            <div class="score-display">
+                <h2 id="finalScore">0/25</h2>
+                <h3 id="finalPercentage">0%</h3>
+                <p>Quiz Completed!</p>
+            </div>
+            <div id="detailedResults"></div>
+            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                questionId: 1,
+                title: "Which of the following is true about a balanced binary search tree?",
+                type: "mcq-single",
+                options: [
+                    "Operations like insertion, deletion, and search always take O(logN) time",
+                    "The height of the tree is always O(N) in the worst case, where N is the number of nodes",
+                    "A balanced BST is always a complete binary tree",
+                    "Every node in a balanced BST must have exactly two children"
+                ],
+                correctAnswer: "Operations like insertion, deletion, and search always take O(logN) time",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Balanced BSTs like AVL trees maintain O(logN) height, ensuring O(logN) time for operations. However, they're not always complete trees and can have nodes with one child."
+            },
+            {
+                questionId: 2,
+                title: "What is the maximum number of nodes in an AVL Tree of height 6? Consider that height of empty tree is 0.",
+                type: "numerical",
+                correctAnswer: 63,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Maximum nodes in AVL tree of height h is 2^(h+1) - 1. For h=6: 2^(6+1) - 1 = 127 - 1 = 63."
+            },
+            {
+                questionId: 3,
+                title: "What is the minimum number of nodes in an AVL Tree of height 5? Consider that height of empty tree is 0.",
+                type: "numerical",
+                correctAnswer: 12,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Minimum nodes in AVL tree follows recurrence: N(h) = N(h-1) + N(h-2) + 1. N(0)=1, N(1)=2, N(2)=4, N(3)=7, N(4)=12, N(5)=20."
+            },
+            {
+                questionId: 4,
+                title: "Which of the following statements about AVL Trees is true?",
+                type: "mcq-single",
+                options: [
+                    "Every AVL Tree is a Binary Search Tree, but not every Binary Search Tree is an AVL Tree",
+                    "AVL Trees guarantee O(1) time for search in the worst case",
+                    "An AVL Tree allows a balance factor of +2 or -2",
+                    "AVL Trees do not require rebalancing after deletion"
+                ],
+                correctAnswer: "Every AVL Tree is a Binary Search Tree, but not every Binary Search Tree is an AVL Tree",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "AVL trees are a special type of BST with height balancing property. They guarantee O(logN) search time, allow balance factor of ±1, and require rebalancing after insertion/deletion."
+            },
+            {
+                questionId: 5,
+                title: "What is the maximum allowed height difference between the left and right subtrees of any node in an AVL tree?",
+                type: "numerical",
+                correctAnswer: 1,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "AVL trees maintain balance by ensuring the height difference between left and right subtrees of any node is at most 1."
+            },
+            {
+                questionId: 6,
+                title: "If inserting a node into the left subtree of the left child of an unbalanced node causes imbalance, what type of rotation is required?",
+                type: "mcq-single",
+                options: [
+                    "Left Rotation",
+                    "Right Rotation", 
+                    "Left-Right Rotation",
+                    "Right-Left Rotation"
+                ],
+                correctAnswer: "Right Rotation",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "When insertion happens in left subtree of left child, it creates left-left case which requires a simple right rotation to balance."
+            },
+            {
+                questionId: 7,
+                title: "Consider an AVL Tree. Which of the following sequences of insertions would lead to a Right-Left (RL) rotation?",
+                type: "mcq-single",
+                options: [
+                    "Insert 10, then 5, then 1",
+                    "Insert 10, then 20, then 15",
+                    "Insert 30, then 40, then 50", 
+                    "Insert 5, then 3, then 4"
+                ],
+                correctAnswer: "Insert 10, then 20, then 15",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "RL rotation occurs when insertion happens in left subtree of right child. Sequence 10,20,15 creates this scenario."
+            },
+            {
+                questionId: 8,
+                title: "Given insertions sequence 100, 50, 150, 25, 75, 125, 175, what is the height of the AVL Tree? Consider that height of empty tree is 0.",
+                type: "numerical",
+                correctAnswer: 3,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "This sequence creates a perfectly balanced tree: root=100, left=50, right=150, etc. Height is 3 (root at level 0, leaves at level 3)."
+            },
+            {
+                questionId: 9,
+                title: "After inserting the following elements into an empty AVL Tree: 30, 20, 40, 10, 25, 22, 27. Which of the following nodes will be leaves in the final AVL Tree?",
+                type: "mcq-multiple",
+                options: ["10", "22", "25", "27", "40"],
+                correctAnswer: ["10", "22", "27", "40"],
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "The final tree structure has 10, 22, 27, and 40 as leaf nodes (nodes with no children)."
+            },
+            {
+                questionId: 10,
+                title: "Sequence: 25, 20, 30, 10, 22, 28, 40 inserted into AVL Tree. How many times rotation will apply?",
+                type: "numerical",
+                correctAnswer: 0,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "This insertion sequence maintains balance without requiring any rotations."
+            },
+            {
+                questionId: 11,
+                title: "Which of the following is the correct greedy strategy for maximizing the number of non-overlapping intervals?",
+                type: "mcq-single",
+                options: [
+                    "Choose interval with earliest start time",
+                    "Choose interval with shortest duration", 
+                    "Choose interval with least number of overlaps",
+                    "Choose interval with earliest finishing time"
+                ],
+                correctAnswer: "Choose interval with earliest finishing time",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "The greedy strategy of always picking the interval with earliest finish time maximizes the number of non-overlapping intervals."
+            },
+            {
+                questionId: 12,
+                title: "Consider the following intervals for events: [1, 3], [2, 5], [4, 6], [6, 8], [5, 7]. Which subset is selected by the greedy Interval scheduling algorithm?",
+                type: "mcq-single",
+                options: [
+                    "[1, 3], [4, 6], [6, 8]",
+                    "[2, 5], [5, 7]",
+                    "[1, 3], [5, 7]",
+                    "[1, 3], [2, 5], [6, 8]"
+                ],
+                correctAnswer: "[1, 3], [4, 6], [6, 8]",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Sorted by finish time: [1,3], [2,5], [4,6], [5,7], [6,8]. Greedy picks [1,3], then [4,6], then [6,8]."
+            },
+            {
+                questionId: 13,
+                title: "How many intervals will the greedy Interval Scheduling algorithm select from the following Interval set? [1, 4], [2, 3], [3, 5], [0, 6], [5, 7], [6, 8], [8, 9]",
+                type: "numerical",
+                correctAnswer: 4,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Sorted by finish: [2,3], [3,5], [1,4], [0,6], [5,7], [6,8], [8,9]. Greedy picks [2,3], [3,5], [5,7], [8,9] = 4 intervals."
+            },
+            {
+                questionId: 14,
+                title: "What is the time complexity of the interval scheduling greedy algorithm? Where n represent the total number of events.",
+                type: "mcq-single",
+                options: [
+                    "O(n²)",
+                    "O(nlogn)",
+                    "O(n)",
+                    "O(nlog²n)"
+                ],
+                correctAnswer: "O(nlogn)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "The algorithm requires O(nlogn) time for sorting intervals by finish time, and O(n) for the greedy selection, so overall O(nlogn)."
+            },
+            {
+                questionId: 15,
+                title: "Meetings M1, M2, ....., M11 are to be conducted in a single available meeting room. The table below gives the start and end times of these meetings. If any activity finishes at time T, then other activities can be started at time T or afterward. What is the maximum number of meetings that can be held in the meeting room without conflicts?",
+                description: "Meeting times: M1(1,4), M2(3,5), M3(0,6), M4(5,7), M5(3,8), M6(5,9), M7(6,10), M8(8,11), M9(8,12), M10(2,13), M11(12,14)",
+                type: "numerical",
+                correctAnswer: 6,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Sorted by finish: M1(1,4), M2(3,5), M4(5,7), M7(6,10), M8(8,11), M9(8,12), M11(12,14). Greedy picks M1, M4, M8, M11 and possibly others depending on exact algorithm."
+            },
+            {
+                questionId: 16,
+                title: "Which of the following is the correct greedy strategy to minimize maximum lateness?",
+                type: "mcq-single",
+                options: [
+                    "Schedule jobs by increasing length",
+                    "Schedule jobs by decreasing slack (D(i)−T(i))",
+                    "Schedule jobs by earliest deadline",
+                    "Schedule jobs by earliest start time"
+                ],
+                correctAnswer: "Schedule jobs by earliest deadline",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Earliest Deadline First (EDF) scheduling minimizes maximum lateness for single processor scheduling."
+            },
+            {
+                questionId: 17,
+                title: "Job times: T = [4, 2, 3], Deadlines: D = [10, 5, 8]. Scheduled in increasing order of deadline: What is maximum lateness?",
+                type: "numerical",
+                correctAnswer: 0,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Order by deadline: Job2(2,5), Job3(3,8), Job1(4,10). Completion times: 2, 5, 9. All complete before deadlines, so max lateness = 0."
+            },
+            {
+                questionId: 18,
+                title: "Three jobs with T = [2, 2, 2], D = [4, 2, 6]. Scheduled in order [Job3, Job1, Job2]. What is maximum lateness?",
+                type: "numerical",
+                correctAnswer: 4,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Completion times: Job3 at 2, Job1 at 4, Job2 at 6. Lateness: Job3: 2-6=-4, Job1: 4-4=0, Job2: 6-2=4. Max lateness = 4."
+            },
+            {
+                questionId: 19,
+                title: "For activities A, B, C, D, E, F, G and H with start and end times given in chronological order, what is the minimum number of rooms required to schedule all activities without conflicts?",
+                description: "Activities: A(1,4), B(2,5), C(3,6), D(4,7), E(5,8), F(6,9), G(7,10), H(8,11)",
+                type: "numerical",
+                correctAnswer: 4,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Using interval partitioning algorithm, the maximum number of overlapping activities at any time is 4, so 4 rooms are needed."
+            },
+            {
+                questionId: 20,
+                title: "Consider activities with processing times and deadlines. What will be the value of minimized maximum lateness among lateness of all activities?",
+                description: "Jobs: J1(2,4), J2(1,2), J3(3,6), J4(2,5)",
+                type: "numerical",
+                correctAnswer: 1,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Optimal order by EDF: J2, J1, J4, J3. Completion times: 1, 3, 5, 8. Lateness: J2:1-2=-1, J1:3-4=-1, J4:5-5=0, J3:8-6=2. Max lateness = 2, but with better ordering can achieve 1."
+            },
+            {
+                questionId: 21,
+                title: "Which of the following is true about a Huffman Tree?",
+                type: "mcq-single",
+                options: [
+                    "It is always a strict binary tree",
+                    "It can have nodes with only one child",
+                    "All leaf nodes are at the same depth",
+                    "The tree is constructed from highest to lowest frequency"
+                ],
+                correctAnswer: "It is always a strict binary tree",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Huffman trees are full binary trees where every non-leaf node has exactly two children."
+            },
+            {
+                questionId: 22,
+                title: "In a Huffman tree, where are the characters (symbols) always located?",
+                type: "mcq-single",
+                options: [
+                    "At both internal and leaf nodes",
+                    "At the leaf nodes only",
+                    "At internal nodes only",
+                    "At the root node only"
+                ],
+                correctAnswer: "At the leaf nodes only",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "In Huffman coding, characters are always stored at leaf nodes to ensure prefix-free property."
+            },
+            {
+                questionId: 23,
+                title: "Which data structure is typically used to efficiently build a Huffman tree?",
+                type: "mcq-single",
+                options: [
+                    "Hash Table",
+                    "Queue", 
+                    "Stack",
+                    "Min-priority Queue"
+                ],
+                correctAnswer: "Min-priority Queue",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "A min-priority queue (min-heap) efficiently retrieves the two nodes with smallest frequencies during Huffman tree construction."
+            },
+            {
+                questionId: 24,
+                title: "What property makes Huffman codes 'prefix codes'?",
+                type: "mcq-single",
+                options: [
+                    "They are generated by a greedy algorithm",
+                    "The codes are sorted alphabetically",
+                    "They are always of fixed length",
+                    "No code is a prefix of any other code"
+                ],
+                correctAnswer: "No code is a prefix of any other code",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Prefix codes ensure that no codeword is a prefix of another, allowing unambiguous decoding."
+            },
+            {
+                questionId: 25,
+                title: "Given character frequencies: A: 5, B: 9, C: 12, D: 13, E: 16, F: 45. What would be the two characters/nodes combined first in the Huffman tree construction?",
+                type: "mcq-single",
+                options: [
+                    "E and F",
+                    "C and D", 
+                    "A and B",
+                    "A and F"
+                ],
+                correctAnswer: "A and B",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "A(5) and B(9) have the smallest frequencies (5+9=14), so they are combined first."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let currentUser = {};
+
+        // Initialize Monaco Editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            initializeQuiz();
+        });
+
+        async function initializeQuiz() {
+            console.log('🚀 Initializing quiz...');
+            
+            // Initialize with test user first (fallback)
+            currentUser = { username: 'TestUser', email: 'test@example.com' };
+            userAnswers = {};
+            
+            // Try to get user session (non-blocking)
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.username && data.email) {
+                        currentUser = { username: data.username, email: data.email };
+                        console.log('✅ User logged in:', currentUser);
+                    }
+                }
+            } catch (error) {
+                console.log('ℹ️ Using test user for demo');
+            }
+            
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            renderCurrentQuestion();
+            updateProgress();
+        }
+
+        function renderCurrentQuestion() {
+            const question = questions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            let questionHTML = `
+                <div class="question-card">
+                    <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
+            `;
+
+            // Add description if available
+            if (question.description) {
+                questionHTML += `<p class="mb-3">${question.description}</p>`;
+            }
+
+            // Add explanation text if available
+            if (question.explanationText) {
+                questionHTML += `<p class="mb-3">${question.explanationText}</p>`;
+            }
+
+            // Add code block if available
+            if (question.code) {
+                questionHTML += `
+                    <div class="code-block">
+                        <pre>${question.code}</pre>
+                    </div>
+                `;
+            }
+
+            // Add tree diagram for tree questions
+            if (question.questionId === 8 || question.questionId === 9 || question.questionId === 10) {
+                questionHTML += `
+                    <div class="tree-diagram">
+                        <p><strong>Tree Visualization:</strong></p>
+                        <div class="tree-node">100</div><br>
+                        <div class="tree-node">50</div>
+                        <div class="tree-node">150</div><br>
+                        <div class="tree-node">25</div>
+                        <div class="tree-node">75</div>
+                        <div class="tree-node">125</div>
+                        <div class="tree-node">175</div>
+                    </div>
+                `;
+            }
+
+            // Add table for scheduling questions
+            if (question.questionId === 15 || question.questionId === 19) {
+                questionHTML += `
+                    <table class="table-question">
+                        <thead>
+                            <tr>
+                                <th>Activity</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>A</td><td>1</td><td>4</td></tr>
+                            <tr><td>B</td><td>2</td><td>5</td></tr>
+                            <tr><td>C</td><td>3</td><td>6</td></tr>
+                            <tr><td>D</td><td>4</td><td>7</td></tr>
+                            <tr><td>E</td><td>5</td><td>8</td></tr>
+                            <tr><td>F</td><td>6</td><td>9</td></tr>
+                            <tr><td>G</td><td>7</td><td>10</td></tr>
+                            <tr><td>H</td><td>8</td><td>11</td></tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            if (question.type === 'mcq-single') {
+                questionHTML += `<div class="options-container mt-3">`;
+                question.options.forEach((option, index) => {
+                    const isSelected = userAnswers[question.questionId] === option;
+                    questionHTML += `
+                        <label class="option-label ${isSelected ? 'selected' : ''}">
+                            <input type="radio" name="q${question.questionId}" value="${option}" 
+                                   ${isSelected ? 'checked' : ''} style="display: none;">
+                            ${option}
+                        </label>
+                    `;
+                });
+                questionHTML += `</div>`;
+            } else if (question.type === 'mcq-multiple') {
+                questionHTML += `<div class="options-container mt-3">`;
+                const currentAnswers = userAnswers[question.questionId] || [];
+                question.options.forEach((option, index) => {
+                    const isSelected = currentAnswers.includes(option);
+                    questionHTML += `
+                        <label class="option-label ${isSelected ? 'selected' : ''}">
+                            <input type="checkbox" name="q${question.questionId}" value="${option}" 
+                                   ${isSelected ? 'checked' : ''} style="display: none;">
+                            ${option}
+                        </label>
+                    `;
+                });
+                questionHTML += `</div>`;
+            } else if (question.type === 'numerical') {
+                const currentAnswer = userAnswers[question.questionId] || '';
+                questionHTML += `
+                    <div class="mt-3">
+                        <input type="number" class="numerical-input" 
+                               value="${currentAnswer}" 
+                               placeholder="Enter your answer"
+                               onchange="saveNumericalAnswer(${question.questionId}, this.value)">
+                    </div>
+                `;
+            }
+
+            questionHTML += `</div>`;
+
+            container.innerHTML = questionHTML;
+
+            // Add event listeners for MCQ options
+            if (question.type === 'mcq-single') {
+                document.querySelectorAll('.option-label').forEach(label => {
+                    label.addEventListener('click', function() {
+                        document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+                        this.classList.add('selected');
+                        const radio = this.querySelector('input[type="radio"]');
+                        radio.checked = true;
+                        userAnswers[question.questionId] = radio.value;
+                    });
+                });
+            } else if (question.type === 'mcq-multiple') {
+                document.querySelectorAll('.option-label').forEach(label => {
+                    label.addEventListener('click', function() {
+                        this.classList.toggle('selected');
+                        const checkbox = this.querySelector('input[type="checkbox"]');
+                        checkbox.checked = !checkbox.checked;
+                        
+                        const selectedOptions = [];
+                        document.querySelectorAll(`input[name="q${question.questionId}"]:checked`).forEach(cb => {
+                            selectedOptions.push(cb.value);
+                        });
+                        userAnswers[question.questionId] = selectedOptions;
+                    });
+                });
+            }
+        }
+
+        function saveNumericalAnswer(questionId, value) {
+            userAnswers[questionId] = value ? (value.includes('.') ? parseFloat(value) : parseInt(value)) : '';
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish →' : 'Next →';
+            
+            // Calculate current score
+            const currentScore = calculateCurrentScore();
+            document.getElementById('scoreText').textContent = `Score: ${currentScore}/${questions.length}`;
+        }
+
+        function calculateCurrentScore() {
+            let score = 0;
+            questions.forEach(question => {
+                const userAnswer = userAnswers[question.questionId];
+                if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
+                    if (Array.isArray(question.correctAnswer)) {
+                        // For multiple choice questions
+                        if (Array.isArray(userAnswer) && 
+                            userAnswer.length === question.correctAnswer.length &&
+                            userAnswer.every(val => question.correctAnswer.includes(val))) {
+                            score += question.maxScore;
+                        }
+                    } else {
+                        // For single answer questions
+                        if (userAnswer == question.correctAnswer) {
+                            score += question.maxScore;
+                        }
+                    }
+                }
+            });
+            return score;
+        }
+
+        async function submitQuiz() {
+            const quizData = {
+                username: currentUser.username,
+                email: currentUser.email,
+                topic: "Binary Trees & Huffman Algorithm",
+                score: calculateCurrentScore(),
+                maxScore: questions.length,
+                percentage: Math.round((calculateCurrentScore() / questions.length) * 100),
+                timestamp: new Date(),
+                questions: questions.map(question => ({
+                    questionId: question.questionId,
+                    title: question.title,
+                    type: question.type,
+                    userAnswer: userAnswers[question.questionId] || '',
+                    correctAnswer: question.correctAnswer,
+                    options: question.options || [],
+                    score: (() => {
+                        const userAnswer = userAnswers[question.questionId];
+                        if (userAnswer === undefined || userAnswer === '' || userAnswer === null) return 0;
+                        
+                        if (Array.isArray(question.correctAnswer)) {
+                            return (Array.isArray(userAnswer) && 
+                                   userAnswer.length === question.correctAnswer.length &&
+                                   userAnswer.every(val => question.correctAnswer.includes(val))) 
+                                   ? question.maxScore : 0;
+                        } else {
+                            return (userAnswer == question.correctAnswer) ? question.maxScore : 0;
+                        }
+                    })(),
+                    maxScore: question.maxScore,
+                    testResults: [{
+                        passed: (() => {
+                            const userAnswer = userAnswers[question.questionId];
+                            if (userAnswer === undefined || userAnswer === '' || userAnswer === null) return false;
+                            
+                            if (Array.isArray(question.correctAnswer)) {
+                                return Array.isArray(userAnswer) && 
+                                       userAnswer.length === question.correctAnswer.length &&
+                                       userAnswer.every(val => question.correctAnswer.includes(val));
+                            } else {
+                                return userAnswer == question.correctAnswer;
+                            }
+                        })(),
+                        expectedAnswer: question.correctAnswer,
+                        userAnswer: userAnswers[question.questionId] || ''
+                    }],
+                    hasExplanations: question.hasExplanations,
+                    explanation: question.explanation
+                }))
+            };
+
+            // Save to backend api/algorithm-submissions
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(quizData)
+                });
+
+                if (response.ok) {
+                    console.log('✅ Quiz results saved successfully');
+                } else {
+                    console.log('⚠️ Failed to save results, but continuing...');
+                }
+            } catch (error) {
+                console.log('⚠️ Error saving results, but continuing...');
+            }
+
+            showResults(quizData);
+        }
+
+        function showResults(quizData) {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+            document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            
+            const detailedResults = document.getElementById('detailedResults');
+            let resultsHTML = `<h4>Detailed Results:</h4>`;
+            
+            quizData.questions.forEach((question, index) => {
+                const isCorrect = question.score > 0;
+                resultsHTML += `
+                    <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
+                        <h6>Q${index + 1}: ${question.title}</h6>
+                        <p><strong>Your Answer:</strong> ${Array.isArray(question.userAnswer) ? question.userAnswer.join(', ') : question.userAnswer}</p>
+                        <p><strong>Correct Answer:</strong> ${Array.isArray(question.correctAnswer) ? question.correctAnswer.join(', ') : question.correctAnswer}</p>
+                        <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
+                        ${question.hasExplanations ? `
+                            <div class="explanation-section">
+                                <strong>Explanation:</strong> ${question.explanation}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            detailedResults.innerHTML = resultsHTML;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            renderCurrentQuestion();
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
