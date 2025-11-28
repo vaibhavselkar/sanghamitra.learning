@@ -3,17 +3,28 @@ const mongoose = require('mongoose');
 const testResultSchema = new mongoose.Schema({
     passed: Boolean,
     output: mongoose.Schema.Types.Mixed,
-    error: String
+    error: String,
+    expectedAnswer: mongoose.Schema.Types.Mixed,
+    userAnswer: mongoose.Schema.Types.Mixed
 });
 
 const questionSchema = new mongoose.Schema({
     questionId: Number,
     title: String,
-    code: String,        // ✅ User's actual code stored here
+    type: { 
+        type: String, 
+        enum: ['coding', 'mcq-single', 'mcq-multiple', 'numerical'], 
+        required: true 
+    },
+    userAnswer: mongoose.Schema.Types.Mixed,
+    correctAnswer: mongoose.Schema.Types.Mixed,
+    options: [String], // For MCQ questions
+    code: String,        // For coding questions only
     score: Number,
     maxScore: Number,
     testResults: [testResultSchema],
-    hasExplanations: Boolean
+    hasExplanations: Boolean,
+    explanation: String // Store explanation text
 });
 
 const algorithmSubmissionSchema = new mongoose.Schema({
