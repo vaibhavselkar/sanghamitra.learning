@@ -3,27 +3,17 @@ const mongoose = require('mongoose');
 const testResultSchema = new mongoose.Schema({
     passed: Boolean,
     output: mongoose.Schema.Types.Mixed,
-    error: String,
-    expectedAnswer: mongoose.Schema.Types.Mixed,
-    userAnswer: mongoose.Schema.Types.Mixed
+    error: String
 });
+
 const questionSchema = new mongoose.Schema({
     questionId: Number,
     title: String,
-    type: { 
-        type: String, 
-        enum: ['coding', 'mcq-single', 'mcq-multiple', 'numerical'], 
-        required: true 
-    },
-    userAnswer: mongoose.Schema.Types.Mixed,
-    correctAnswer: mongoose.Schema.Types.Mixed,
-    options: [String], // For MCQ questions
-    code: String,        // For coding questions only
+    code: String,        // ✅ User's actual code stored here
     score: Number,
     maxScore: Number,
     testResults: [testResultSchema],
-    hasExplanations: Boolean,
-    explanation: String // Store explanation text
+    hasExplanations: Boolean
 });
 
 const algorithmSubmissionSchema = new mongoose.Schema({
@@ -39,4 +29,3 @@ const algorithmSubmissionSchema = new mongoose.Schema({
 
 
 module.exports = mongoose.model('AlgorithmSubmission', algorithmSubmissionSchema, 'algorithm_submissions');
-
