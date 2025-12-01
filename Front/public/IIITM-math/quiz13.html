@@ -840,9 +840,9 @@
 
     let imageHtml = '';
     if (question.image_file) {
-        const imagePath = `../../../Graph-questions/${question.image_file}`;
-        imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
-    }
+    const imagePath = `../../Graph-questions/${question.image_file}`;
+    imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
+}
     questionDiv.innerHTML = `
         <div class="question-section">
             <div class="question-header">
@@ -1544,3 +1544,4 @@
 </body>
 
 </html>
+
