@@ -840,6 +840,14 @@
 
     let imageHtml = '';
     if (question.image_file) {
+    console.log('🔍 Database has:', question.image_file);
+    const convertedName = question.image_file.replace('.png', '.PNG');
+    console.log('🔄 Converted to:', convertedName);
+    const imagePath = `/Graph-questions/${convertedName}`;
+    console.log('📁 Full path:', imagePath);
+    
+    imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
+}
     // Convert filename to uppercase .PNG
     const imagePath = `/Graph-questions/${question.image_file.replace('.png', '.PNG')}`;
     imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
@@ -1545,6 +1553,7 @@
 </body>
 
 </html>
+
 
 
 
