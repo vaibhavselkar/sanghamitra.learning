@@ -1,8 +1,8 @@
-<!DOCTYPE html>      
-<html lang="en">    
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graph Theory Quiz</title>
    
     <style>
@@ -10,7 +10,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -94,10 +94,10 @@
             transition: transform 0.2s ease;
         }
 
-        .btn:disabled { 
-            background: #6c757d; 
-            cursor: not-allowed; 
-            transform: none; 
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .loading {
@@ -260,10 +260,10 @@
             margin-right: 15px;
         }
 
-        .options { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             flex-grow: 1;
         }
 
@@ -287,9 +287,9 @@
 
         .question-image {
             width: 100%;
-            max-width: 100%; /* Full width of container */
+            max-width: 100%;
             height: auto;
-            min-height: 400px; /* Minimum height to ensure visibility */
+            min-height: 400px;
             margin: 20px 0;
             border-radius: 8px;
             box-shadow: 0 6px 12px rgba(0,0,0,0.15);
@@ -442,10 +442,10 @@
         const answerNormalizer = {
             normalizeInterval: (answer) => {
                 return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf') // Convert all infinity variations to 'inf'
-                    .replace(/\+inf/gi, 'inf') // Convert +inf to inf
-                    .replace(/-\s*inf/gi, '-inf') // Ensure -inf format
+                    .replace(/\s+/g, '')
+                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+                    .replace(/\+inf/gi, 'inf')
+                    .replace(/-\s*inf/gi, '-inf')
                     .replace(/\[/g, '[')
                     .replace(/\]/g, ']')
                     .replace(/\(/g, '(')
@@ -455,20 +455,20 @@
             
             normalizeCoordinate: (coord) => {
                 return (coord || '').toString().trim()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/[()]/g, '')  // Remove parentheses for comparison
+                    .replace(/\s+/g, '')
+                    .replace(/[()]/g, '')
                     .toLowerCase();
             },
             
             normalizeEquation: (eq) => {
                 return (eq || '').toString()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/\*\*/g, '^')  // Convert ** to ^
+                    .replace(/\s+/g, '')
+                    .replace(/\*\*/g, '^')
                     .replace(/\^/g, '^')
                     .replace(/\+\-/g, '-')
                     .replace(/\-\+/g, '-')
-                    .replace(/log/gi, 'log')  // Normalize log functions
-                    .replace(/ln/gi, 'ln')    // Normalize natural log
+                    .replace(/log/gi, 'log')
+                    .replace(/ln/gi, 'ln')
                     .toLowerCase();
             },
             
@@ -480,7 +480,7 @@
                     return Infinity;
                 }
                 
-                // Handle negative infinity variations  
+                // Handle negative infinity variations
                 if (str === '-inf' || str === '-infinity' || str === '-∞' || str === '-inf' || str === '-infinity') {
                     return -Infinity;
                 }
@@ -500,8 +500,8 @@
                     return answerNormalizer.normalizeInterval(str);
                 } else if (questionType === 'numeric' || questionType === 'numeric_input') {
                     const normalized = answerNormalizer.normalizeNumeric(str);
-                    return isFinite(normalized) ? normalized.toString() : 
-                           normalized === Infinity ? 'inf' : 
+                    return isFinite(normalized) ? normalized.toString() :
+                           normalized === Infinity ? 'inf' :
                            normalized === -Infinity ? '-inf' : str;
                 } else if (questionType === 'coordinate_input') {
                     return answerNormalizer.normalizeCoordinate(str);
@@ -520,8 +520,8 @@
         let currentQuestionIndex = 0;
         let quizStartTime = null;
         let questionStartTime = null;
-        let questionTimes = {}; // Track time per question
-        let questions = []; // Add this line to declare the questions array globally
+        let questionTimes = {};
+        let questions = [];
 
         // Anti-cheating variables
         let cheatingAttempts = 0;
@@ -540,11 +540,11 @@
             // Disable common keyboard shortcuts
             document.addEventListener('keydown', function(e) {
                 // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
-                if (e.keyCode === 123 || // F12
-                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
-                    (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
-                    (e.ctrlKey && e.keyCode === 83) || // Ctrl+S
-                    e.keyCode === 44) { // Print Screen
+                if (e.keyCode === 123 ||
+                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) ||
+                    (e.ctrlKey && e.keyCode === 85) ||
+                    (e.ctrlKey && e.keyCode === 83) ||
+                    e.keyCode === 44) {
                     e.preventDefault();
                     recordCheatingAttempt('keyboard_shortcut');
                     return false;
@@ -563,7 +563,7 @@
             const threshold = 160;
             
             setInterval(function() {
-                if (window.outerHeight - window.innerHeight > threshold || 
+                if (window.outerHeight - window.innerHeight > threshold ||
                     window.outerWidth - window.innerWidth > threshold) {
                     if (!devtools.open) {
                         devtools.open = true;
@@ -597,7 +597,7 @@
             
             // Monitor for screenshot attempts (limited effectiveness)
             document.addEventListener('keyup', function(e) {
-                if (e.keyCode === 44) { // Print Screen released
+                if (e.keyCode === 44) {
                     recordCheatingAttempt('screenshot_attempt');
                     alert('Screenshot attempt detected and logged!');
                 }
@@ -640,21 +640,21 @@
         });
         
        function obfuscateQuestions() {
-    // Only define once to avoid "cannot redefine" error
-    try {
-        if (!Object.getOwnPropertyDescriptor(window, 'questions')?.get) {
-            Object.defineProperty(window, 'questions', {
-                get: function() {
-                    recordCheatingAttempt('questions_access');
-                    return [];
-                },
-                configurable: true
-            });
+            // Only define once to avoid "cannot redefine" error
+            try {
+                if (!Object.getOwnPropertyDescriptor(window, 'questions')?.get) {
+                    Object.defineProperty(window, 'questions', {
+                        get: function() {
+                            recordCheatingAttempt('questions_access');
+                            return [];
+                        },
+                        configurable: true
+                    });
+                }
+            } catch (err) {
+                console.warn('Could not obfuscate questions:', err);
+            }
         }
-    } catch (err) {
-        console.warn('Could not obfuscate questions:', err);
-    }
-}
         
         // Initialize quiz timing
         function initializeQuizTiming() {
@@ -668,7 +668,7 @@
                 const timeSpent = Math.floor((new Date() - questionStartTime) / 1000);
                 questionTimes[currentQuestionIndex] = timeSpent;
             }
-            questionStartTime = new Date(); // Reset for next question
+            questionStartTime = new Date();
         }
 
         // Fetch user session info and start quiz immediately
@@ -713,7 +713,7 @@
                 
                 // Initialize timing
                 initializeQuizTiming();
-                isQuizActive = true; // Enable anti-cheating monitoring
+                isQuizActive = true;
                 
                 // Hide loading screen and show quiz
                 document.getElementById('loadingScreen').style.display = 'none';
@@ -738,144 +738,135 @@
         }
 
         function renderCurrentQuestion() {
-    const container = document.getElementById('questionContainer');
-    const question = questions[currentQuestionIndex];
-    
-    console.log('Rendering question:', currentQuestionIndex + 1, question);
-    
-    container.innerHTML = '';
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            
+            console.log('Rendering question:', currentQuestionIndex + 1, question);
+            
+            container.innerHTML = '';
 
-    const questionDiv = document.createElement('div');
-    questionDiv.className = 'question-card';
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-card';
 
-    let optionsHtml = '';
-    
-    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-        optionsHtml = question.options.map((option, optIndex) => {
-            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-            return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
-                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+            let optionsHtml = '';
+            
+            if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+                optionsHtml = question.options.map((option, optIndex) => {
+                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    return `
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
+                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        </div>
+                    `;
+                }).join('');
+            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+                optionsHtml = question.options.map((option, optIndex) => {
+                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    return `
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
+                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        </div>
+                    `;
+                }).join('');
+            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+                let placeholder, formatExample, formatHint;
+                
+                if (question.type === 'coordinate_input') {
+                    placeholder = "e.g., (3, 4) or (3,4) or any format";
+                    formatExample = "(x, y) - any format accepted";
+                    formatHint = "✓ All formats accepted: (3,4), (3, 4), x=3,y=4";
+                } else if (question.type === 'equation_input') {
+                    placeholder = "e.g., y = log(x) + 2 or any equation";
+                    formatExample = "equation with = - any format accepted";
+                    formatHint = "✓ All formats accepted: y=log(x)+2, y = log(x) + 2, f(x)=x^2";
+                } else if (question.type === 'interval_input') {
+                    placeholder = "e.g., (0, inf), [1, ∞), (-infinity, 5], or any interval";
+                    formatExample = "[a,b] or (a,b) with any infinity format";
+                    formatHint = "✓ All infinity formats: inf, infinity, Inf, ∞, -inf, -∞";
+                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+                    placeholder = "e.g., 42, -3.14, inf, -infinity, ∞, or any number";
+                    formatExample = "number or infinity - any format accepted";
+                    formatHint = "✓ All formats accepted: 42, -3.14, 0.5, inf, -infinity, ∞, +∞";
+                } else {
+                    placeholder = "Enter your answer - any format accepted";
+                    formatExample = "text - any format accepted";
+                    formatHint = "✓ All text formats accepted";
+                }
+                
+                optionsHtml = `
+                    <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <span style="font-size: 18px;">📝</span>
+                            <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
+                        </div>
+                        <div style="font-size: 13px; color: #666; line-height: 1.5;">
+                            ${formatHint}
+                        </div>
+                    </div>
+                    <input type="text"
+                           class="numeric-input"
+                           placeholder="${placeholder}"
+                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                           autocomplete="off"
+                           spellcheck="false"
+                           style="width: 100%; max-width: 300px; font-size: 16px; font-family: 'Courier New', monospace;">
+                    <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
+                `;
+            } else {
+                console.warn('Unknown question type or missing options:', question.type, question);
+                optionsHtml = `
+                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                        <strong>Error:</strong> Unable to display question options. Please contact administrator.
+                    </div>
+                `;
+            }
+
+            const difficultyColor = {
+                'easy': '#28a745',
+                'medium': '#ffc107',
+                'hard': '#dc3545'
+            };
+            
+            const difficulty = question.difficulty || 'medium';
+            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+            // Use question text exactly as stored in database - NO MATH PROCESSING
+            let processedQuestionText = question.question_text || 'Question text not available';
+            
+            // Add image if available
+            let imageHtml = '';
+            if (question.image_file) {
+                const imagePath = `/Graph-questions/${question.image_file.replace('.png', '.PNG')}`;
+                imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
+            }
+            
+            questionDiv.innerHTML = `
+                <div class="question-section">
+                    <div class="question-header">
+                        <div class="question-number">${currentQuestionIndex + 1}</div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                                ${difficultyText}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
+                    ${imageHtml}
+                </div>
+                <div class="options-section">
+                    <div class="options">${optionsHtml}</div>
                 </div>
             `;
-        }).join('');
-    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-        optionsHtml = question.options.map((option, optIndex) => {
-            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-            return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
-                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                </div>
-            `;
-        }).join('');
-    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-        let placeholder, formatExample, formatHint;
-        
-        if (question.type === 'coordinate_input') {
-            placeholder = "e.g., (3, 4) or (3,4) or any format";
-            formatExample = "(x, y) - any format accepted";
-            formatHint = "✓ All formats accepted: (3,4), (3, 4), x=3,y=4";
-        } else if (question.type === 'equation_input') {
-            placeholder = "e.g., y = log(x) + 2 or any equation";
-            formatExample = "equation with = - any format accepted";
-            formatHint = "✓ All formats accepted: y=log(x)+2, y = log(x) + 2, f(x)=x^2";
-        } else if (question.type === 'interval_input') {
-            placeholder = "e.g., (0, inf), [1, ∞), (-infinity, 5], or any interval";
-            formatExample = "[a,b] or (a,b) with any infinity format";
-            formatHint = "✓ All infinity formats: inf, infinity, Inf, ∞, -inf, -∞";
-        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-            placeholder = "e.g., 42, -3.14, inf, -infinity, ∞, or any number";
-            formatExample = "number or infinity - any format accepted";
-            formatHint = "✓ All formats accepted: 42, -3.14, 0.5, inf, -infinity, ∞, +∞";
-        } else {
-            placeholder = "Enter your answer - any format accepted";
-            formatExample = "text - any format accepted";
-            formatHint = "✓ All text formats accepted";
+
+            container.appendChild(questionDiv);
+            
+            // Restore previous answer if exists
+            restoreAnswer();
+            updateAnswerStatus();
         }
-        
-        optionsHtml = `
-            <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                    <span style="font-size: 18px;">📝</span>
-                    <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
-                </div>
-                <div style="font-size: 13px; color: #666; line-height: 1.5;">
-                    ${formatHint}
-                </div>
-            </div>
-            <input type="text" 
-                   class="numeric-input" 
-                   placeholder="${placeholder}" 
-                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                   autocomplete="off"
-                   spellcheck="false"
-                   style="width: 100%; max-width: 300px; font-size: 16px; font-family: 'Courier New', monospace;">
-            <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
-        `;
-    } else {
-        console.warn('Unknown question type or missing options:', question.type, question);
-        optionsHtml = `
-            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                <strong>Error:</strong> Unable to display question options. Please contact administrator.
-            </div>
-        `;
-    }
-
-    const difficultyColor = {
-        'easy': '#28a745',
-        'medium': '#ffc107', 
-        'hard': '#dc3545'
-    };
-    
-    const difficulty = question.difficulty || 'medium';
-    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-    // Use question text exactly as stored in database - NO MATH PROCESSING
-    let processedQuestionText = question.question_text || 'Question text not available';
-    
-    // Add image if available
-
-    let imageHtml = '';
-    if (question.image_file) {
-    console.log('🔍 Database has:', question.image_file);
-    const convertedName = question.image_file.replace('.png', '.PNG');
-    console.log('🔄 Converted to:', convertedName);
-    const imagePath = `/Graph-questions/${convertedName}`;
-    console.log('📁 Full path:', imagePath);
-    
-    imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
-}
-    // Convert filename to uppercase .PNG
-    const imagePath = `/Graph-questions/${question.image_file.replace('.png', '.PNG')}`;
-    imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
-}
-    questionDiv.innerHTML = `
-        <div class="question-section">
-            <div class="question-header">
-                <div class="question-number">${currentQuestionIndex + 1}</div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                        ${difficultyText}
-                    </span>
-                </div>
-            </div>
-            <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
-            ${imageHtml}
-        </div>
-        <div class="options-section">
-            <div class="options">${optionsHtml}</div>
-        </div>
-    `;
-
-    container.appendChild(questionDiv);
-    
-    // Restore previous answer if exists
-    restoreAnswer();
-    updateAnswerStatus();
-}
 
         function restoreAnswer() {
             const question = questions[currentQuestionIndex];
@@ -918,9 +909,9 @@
             if (currentQuestionIndex === questions.length - 1) {
                 nextBtn.textContent = 'Finish';
                 nextBtn.onclick = () => {
-                    document.getElementById('quizContainer').scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'end' 
+                    document.getElementById('quizContainer').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'end'
                     });
                 };
             } else {
@@ -992,7 +983,7 @@
             const trimmedValue = value.trim();
             
             if (trimmedValue) {
-                userAnswers[questionIndex] = trimmedValue; // Stores EXACTLY what user typed
+                userAnswers[questionIndex] = trimmedValue;
             } else {
                 delete userAnswers[questionIndex];
             }
@@ -1007,7 +998,6 @@
             let suggestion = '';
             
             if (question.type === 'coordinate_input') {
-                // Remove strict validation, just provide guidance
                 feedback = '✓ Any format accepted';
                 suggestion = 'Examples: (3, 4), (2.5, -1.3), (x, y)';
                 isValidFormat = true;
@@ -1129,7 +1119,7 @@
                         isCorrect = normalizedUser === normalizedCorrect;
                     } else if (question.type === 'multiple_select') {
                         if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                            const normalizeArray = (arr) => arr.map(item => 
+                            const normalizeArray = (arr) => arr.map(item =>
                                 answerNormalizer.normalizeAnswer(item, question.type)).sort();
                             const userNorm = normalizeArray(userAnswer);
                             const correctNorm = normalizeArray(question.correct_answer);
@@ -1318,17 +1308,17 @@
             reviewDiv.innerHTML = `
                 <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question Review</h3>
                 ${quizData.questionResults.map(result => `
-                    <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                border-radius: 8px; 
-                                padding: 15px; 
-                                margin-bottom: 15px; 
+                    <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'};
+                                border-radius: 8px;
+                                padding: 15px;
+                                margin-bottom: 15px;
                                 background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
                         <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                        color: white; 
-                                        padding: 4px 8px; 
-                                        border-radius: 50%; 
-                                        margin-right: 10px; 
+                            <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'};
+                                        color: white;
+                                        padding: 4px 8px;
+                                        border-radius: 50%;
+                                        margin-right: 10px;
                                         font-weight: bold;">
                                 ${result.questionNumber}
                             </span>
@@ -1340,19 +1330,19 @@
                             <strong>Question:</strong> ${result.questionText}
                         </div>
                         <div style="margin-bottom: 8px;">
-                            <strong>Your Answer:</strong> 
+                            <strong>Your Answer:</strong>
                             <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
                                 ${result.userAnswer || 'No answer provided'}
                             </span>
                         </div>
                         <div style="margin-bottom: 8px;">
-                            <strong>Correct Answer:</strong> 
+                            <strong>Correct Answer:</strong>
                             <span style="color: #28a745; font-weight: bold;">
                                 ${result.correctAnswer}
                             </span>
                         </div>
                         <div style="margin-bottom: 8px;">
-                            <strong>Explanation:</strong> 
+                            <strong>Explanation:</strong>
                             <span style="color: #28a745; font-weight: bold;">
                                 ${result.explanation}
                             </span>
@@ -1367,7 +1357,6 @@
             resultsContainer.appendChild(reviewDiv);
         }
         
-
         function getDifficultyColor(difficulty) {
             switch(difficulty) {
                 case 'easy': return '#28a745';
@@ -1375,16 +1364,6 @@
                 case 'hard': return '#dc3545';
                 default: return '#6c757d';
             }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeQuiz();
-        });
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeQuiz);
-        } else {
-            initializeQuiz();
         }
 
         async function loadQuestions() {
@@ -1400,9 +1379,8 @@
                 
                 // Step 2: Fetch ALL questions for this topic
                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/graph_theory?email=${encodeURIComponent(email)}&count=1000`, {
-    credentials: 'include'
-});
-            
+                    credentials: 'include'
+                });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -1457,8 +1435,6 @@
                 
                 console.log(`✨ Loaded ${questions.length} NEW (never-seen) questions`);
                 
-                
-                
                 return true;
             } catch (error) {
                 console.error('Error loading questions:', error);
@@ -1502,7 +1478,7 @@
                 return Array.from(answeredIds);
             } catch (error) {
                 console.error('Error fetching answered questions:', error);
-                return []; // Return empty array if error (will show all questions)
+                return [];
             }
         }
         
@@ -1522,7 +1498,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         email: email,
                         topic: 'graph_theory'
                     })
@@ -1549,14 +1525,16 @@
             questionTimes = {};
             window.location.href = 'iitm_math.html';
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeQuiz();
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeQuiz);
+        } else {
+            initializeQuiz();
+        }
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
