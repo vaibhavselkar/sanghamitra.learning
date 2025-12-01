@@ -839,7 +839,7 @@
             // Add image if available
             let imageHtml = '';
             if (question.image_file) {
-                const imagePath = `/Graph-questions/${question.image_file.replace('.png', '.PNG')}`;
+                const imagePath = `./Graph-questions/${question.image_file}`;
                 imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
             }
             
@@ -1538,3 +1538,4 @@
     </script>
 </body>
 </html>
+
