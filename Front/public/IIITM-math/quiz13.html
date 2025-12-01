@@ -513,6 +513,34 @@
             }
         };
 
+        // Add this function at the top of your script
+function getImagePath(filename) {
+    if (!filename) return '';
+    
+    // Detect environment
+    const isVercel = window.location.hostname.includes('vercel.app');
+    const isLocal = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1';
+    
+    if (isVercel) {
+        // Vercel deployment - images are served from root
+        return `/Graph-questions/${filename}`;
+    } else if (isLocal) {
+        // Local development - use relative path
+        return `../../../Graph-questions/${filename}`;
+    } else {
+        // Fallback for other deployments
+        return `/Graph-questions/${filename}`;
+    }
+}
+
+// Then use it in renderCurrentQuestion:
+let imageHtml = '';
+if (question.image_file) {
+    const imagePath = getImagePath(question.image_file);
+    imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
+}
+
         let userAnswers = {};
         let currentUser = {};
         let username = null;
@@ -1540,5 +1568,6 @@
     </script>
 </body>
 </html>
+
 
 
