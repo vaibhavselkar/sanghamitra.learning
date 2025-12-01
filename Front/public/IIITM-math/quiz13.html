@@ -837,9 +837,11 @@
             let processedQuestionText = question.question_text || 'Question text not available';
             
             // Add image if available
+           // In quiz13.html, update the image loading code:
             let imageHtml = '';
             if (question.image_file) {
-                const imagePath = `./Graph-questions/${question.image_file}`;
+                // For both local and Vercel deployment
+                const imagePath = `/Graph-questions/${question.image_file}`;
                 imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
             }
             
@@ -1538,4 +1540,5 @@
     </script>
 </body>
 </html>
+
 
