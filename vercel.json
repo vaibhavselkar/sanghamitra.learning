@@ -9,12 +9,20 @@
     {
       "src": "Front/public/**/*",
       "use": "@vercel/static"
+    },
+    {
+      "src": "Graph-questions/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "/Server/app.js"
+    },
+    {
+      "src": "/Graph-questions/(.*)",
+      "dest": "/Graph-questions/$1"
     },
     {
       "src": "/(.*)",
