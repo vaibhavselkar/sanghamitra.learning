@@ -486,6 +486,24 @@
         let isQuizActive = false;
         let devToolsWarned = false;
         
+        // Function to validate and prepare questions with default values
+        function validateAndPrepareQuestions(questionsArray) {
+            return questionsArray.map((q, index) => {
+                return {
+                    ...q,
+                    _id: q._id || `question-${index}`,
+                    question_number: q.question_number || (index + 1),
+                    question_text: q.question_text || 'Question text not available',
+                    correct_answer: q.correct_answer !== undefined ? q.correct_answer : '',
+                    explanation: q.explanation || '',
+                    difficulty: q.difficulty || 'medium',
+                    points: q.points || 1,
+                    type: q.type || 'multiple_choice',
+                    alternative_answers: q.alternative_answers || []
+                };
+            });
+        }
+        
         // Anti-cheating initialization
         function initializeAntiCheating() {
             // Disable right-click
@@ -1043,13 +1061,36 @@
             // Enhanced answer comparison with flexible infinity support
             questions.forEach((question, index) => {
                 const userAnswer = userAnswers[index];
-                totalPossiblePoints += question.points;
+                
+                // Safely get question points - default to 1 if undefined
+                const questionPoints = question.points || 1;
+                totalPossiblePoints += questionPoints;
                 
                 let isCorrect = false;
                 
                 if (userAnswer !== undefined && userAnswer !== null) {
+                    // SAFELY get correct answer with fallback
+                    const correctAnswer = question.correct_answer;
+                    
+                    if (correctAnswer === undefined || correctAnswer === null) {
+                        console.warn(`Question ${index + 1} has undefined correct_answer`);
+                        questionResults.push({
+                            questionId: question._id || index,
+                            questionNumber: question.question_number || (index + 1),
+                            questionText: question.question_text || 'Question text not available',
+                            difficulty: question.difficulty || 'medium',
+                            points: questionPoints,
+                            userAnswer: userAnswer.toString(),
+                            correctAnswer: 'ERROR: No correct answer defined',
+                            explanation: question.explanation || '',
+                            isCorrect: false,
+                            timeTaken: questionTimes[index] || 0
+                        });
+                        return; // Skip to next question
+                    }
+                    
                     const normalizedUser = answerNormalizer.normalizeAnswer(userAnswer, question.type);
-                    const normalizedCorrect = answerNormalizer.normalizeAnswer(question.correct_answer, question.type);
+                    const normalizedCorrect = answerNormalizer.normalizeAnswer(correctAnswer, question.type);
                     
                     if (question.type === 'interval_input') {
                         // For intervals, compare normalized strings
@@ -1120,23 +1161,25 @@
                 }
                 
                 if (isCorrect) {
-                    score += question.points;
+                    score += questionPoints;
                 }
                 
-                difficultyBreakdown[question.difficulty].attempted++;
+                // Safely get difficulty with fallback
+                const difficulty = question.difficulty || 'medium';
+                difficultyBreakdown[difficulty].attempted++;
                 if (isCorrect) {
-                    difficultyBreakdown[question.difficulty].correct++;
-                    difficultyBreakdown[question.difficulty].points += question.points;
+                    difficultyBreakdown[difficulty].correct++;
+                    difficultyBreakdown[difficulty].points += questionPoints;
                 }
                 
                 questionResults.push({
-                    questionId: question._id,
-                    questionNumber: question.question_number,
-                    questionText: question.question_text,
-                    difficulty: question.difficulty,
-                    points: question.points,
+                    questionId: question._id || index,
+                    questionNumber: question.question_number || (index + 1),
+                    questionText: question.question_text || 'Question text not available',
+                    difficulty: difficulty,
+                    points: questionPoints,
                     userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-                    correctAnswer: question.correct_answer.toString(),
+                    correctAnswer: question.correct_answer ? question.correct_answer.toString() : 'ERROR: No correct answer defined',
                     explanation: question.explanation || '',
                     isCorrect: isCorrect,
                     timeTaken: questionTimes[index] || 0
@@ -1324,6 +1367,16 @@
             initializeQuiz();
         }
 
+        // NEW FUNCTION: Shuffle array for random question selection
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
         async function loadQuestions() {
             try {
                 if (!email) {
@@ -1387,13 +1440,16 @@
                     }
                 }
                 
-                // Step 5: Select random subset (e.g., 30 questions) from unanswered pool
+                // Step 5: Select random subset (e.g., 50 questions) from unanswered pool
                 const questionsToShow = Math.min(50, unansweredQuestions.length);
                 questions = shuffleArray(unansweredQuestions).slice(0, questionsToShow);
                 
+                // Step 6: Validate and prepare questions with default values
+                questions = validateAndPrepareQuestions(questions);
+                
                 console.log(`✨ Loaded ${questions.length} NEW (never-seen) questions`);
                 
-                // Step 6: Show progress to user
+                // Step 7: Show progress to user
                 const progressInfo = document.createElement('div');
                 progressInfo.style.cssText = `
                     background: #e3f2fd;
@@ -1458,16 +1514,6 @@
             }
         }
         
-        // NEW FUNCTION: Shuffle array for random question selection
-        function shuffleArray(array) {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        }
-
         async function resetUserProgress() {
             try {
                 const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
@@ -1504,4 +1550,3 @@
     </script>
 </body>
 </html>
-
