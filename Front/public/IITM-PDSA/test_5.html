@@ -1,1 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Graph Algorithms Quiz</title>
+ <!-- Include Monaco Editor for code editing -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+ <style>
+        body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        }
+        .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        }
+        
+        .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        }
 
+        .quiz-container { padding: 30px; }
+
+        .question-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-left: 5px solid #667eea;
+        }
+
+        .code-editor-container {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        margin: 20px 0;
+        height: 400px;
+        }
+
+        .test-cases {
+        background: #e8f4fd;
+        border: 1px solid #bee5eb;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        }
+
+        .test-result {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+        font-family: monospace;
+        }
+
+        .test-passed {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        }
+
+        .test-failed {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        }
+
+        .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .progress-bar {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        height: 8px;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        }
+
+        .score-display {
+        background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+        }
+
+        .results-container { display: none; padding: 30px; }
+        .loading { display: none; }
+        
+        .explanation-section {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 15px 0;
+        }
+
+        .option-label {
+        display: block;
+        padding: 12px 15px;
+        margin: 8px 0;
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        }
+
+        .option-label:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+        }
+
+        .option-label.selected {
+        border-color: #667eea;
+        background: #667eea;
+        color: white;
+        }
+
+        .numerical-input {
+        width: 200px;
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 16px;
+        margin: 10px 0;
+        }
+
+        .numerical-input:focus {
+        border-color: #667eea;
+        outline: none;
+        }
+
+        .code-block {
+        background: #2d2d2d;
+        color: #f8f8f2;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        margin: 15px 0;
+        overflow-x: auto;
+        }
+ </style>
+</head>
+<body>
+        <div class="container">
+        <div class="header">
+        <h1>📍 Graph Algorithms Quiz</h1>
+        <p>Dijkstra · Floyd–Warshall · Spanning Trees · Prim · Kruskal</p>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+        <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+        <h3>Loading Quiz...</h3>
+        <p>Preparing your test environment</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+        <div class="progress-container mb-4">
+        <div class="d-flex justify-content-between mb-2">
+        <span id="progressText">Question 1 of 50</span>
+        <span id="scoreText">Score: 0/50</span>
+        </div>
+        <div class="progress">
+        <div class="progress-bar" id="progressFill" style="width: 2%;"></div>
+        </div>
+        </div>
+        
+        <div id="questionContainer"></div>
+        
+        <div class="d-flex justify-content-between mt-4">
+        <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+        <div>
+        <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+        </div>
+        </div>
+        
+        <div class="text-center mt-4">
+        <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
+        📊 Submit Quiz
+        </button>
+        </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container">
+        <div class="score-display">
+        <h2 id="finalScore">0/50</h2>
+        <h3 id="finalPercentage">0%</h3>
+        <p>Quiz Completed!</p>
+        </div>
+        <div id="detailedResults"></div>
+        <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+        </div>
+
+<script>
+        const questions = [
+        // =========================
+        // 1–10: Dijkstra (first 10)
+        // =========================
+        {
+        questionId: 1,
+        title: "What problem does Dijkstra's algorithm solve?",
+        type: "mcq-single",
+        options: [
+        "Minimum spanning tree",
+        "Single-source shortest path with non-negative weights",
+        "All-pairs shortest paths",
+        "Topological sorting"
+        ],
+        correctAnswer: "Single-source shortest path with non-negative weights",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Dijkstra's algorithm finds shortest path distances from a single source to all other vertices in a weighted graph with non-negative edge weights."
+        },
+        {
+        questionId: 2,
+        title: "Which type of graphs can Dijkstra's algorithm be safely applied to?",
+        type: "mcq-single",
+        options: [
+        "Graphs with any edge weights (negative or positive)",
+        "Only unweighted graphs",
+        "Graphs with non-negative edge weights",
+        "Only trees"
+        ],
+        correctAnswer: "Graphs with non-negative edge weights",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Dijkstra's algorithm assumes non-negative edge weights; with negative edges it can give incorrect results."
+        },
+        {
+        questionId: 3,
+        title: "Time complexity of Dijkstra using adjacency matrix and linear search for min vertex is:",
+        type: "mcq-single",
+        options: [
+        "O(V + E)",
+        "O(V²)",
+        "O(E log V)",
+        "O(V log V)"
+        ],
+        correctAnswer: "O(V²)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "With adjacency matrix and a simple array to find the minimum distance vertex, each of the V iterations scans all V vertices → O(V²)."
+        },
+        {
+        questionId: 4,
+        title: "Time complexity of Dijkstra using adjacency list and binary heap (priority queue) is:",
+        type: "mcq-single",
+        options: [
+        "O(V²)",
+        "O(E + V)",
+        "O((V + E) log V)",
+        "O(E²)"
+        ],
+        correctAnswer: "O((V + E) log V)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Each vertex is inserted/extracted from the priority queue and each edge may cause a decrease-key operation. Overall complexity is O((V + E) log V)."
+        },
+        {
+        questionId: 5,
+        title: "What is the name of the key operation that updates distances in Dijkstra's algorithm?",
+        type: "mcq-single",
+        options: [
+        "Selection",
+        "Partitioning",
+        "Relaxation",
+        "Contraction"
+        ],
+        correctAnswer: "Relaxation",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Relaxation checks whether going through a new vertex offers a shorter path; if so, it updates the distance."
+        },
+        {
+        questionId: 6,
+        title: "Dijkstra's algorithm is an example of which strategy?",
+        type: "mcq-single",
+        options: [
+        "Divide and conquer",
+        "Dynamic programming",
+        "Greedy algorithm",
+        "Backtracking"
+        ],
+        correctAnswer: "Greedy algorithm",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Dijkstra greedily picks the unvisited vertex with the smallest tentative distance at each step."
+        },
+        {
+        questionId: 7,
+        title: "What value are all distances (except the source) initialized to in Dijkstra's algorithm?",
+        type: "mcq-single",
+        options: [
+        "0",
+        "1",
+        "A very large value (infinity)",
+        "The edge weights of the graph"
+        ],
+        correctAnswer: "A very large value (infinity)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Distances are initialized to infinity to indicate that no path has been discovered yet, except for the source which is 0."
+        },
+        {
+        questionId: 8,
+        title: "What happens if you run Dijkstra's algorithm on a graph that has a negative weight edge?",
+        type: "mcq-single",
+        options: [
+        "It always crashes",
+        "It may produce incorrect shortest path distances",
+        "It becomes O(V³)",
+        "It converts negative edges to zero"
+        ],
+        correctAnswer: "It may produce incorrect shortest path distances",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "The correctness proof of Dijkstra relies on non-negative edges; with negative edges, it may lock in incorrect distances."
+        },
+        {
+        questionId: 9,
+        title: "Which data structure is typically used to efficiently pick the next vertex with minimum distance?",
+        type: "mcq-single",
+        options: [
+        "Stack",
+        "Queue",
+        "Priority queue (min-heap)",
+        "Hash table"
+        ],
+        correctAnswer: "Priority queue (min-heap)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "A min-heap priority queue allows extracting the minimum distance vertex in O(log V) time."
+        },
+        {
+        questionId: 10,
+        title: "Numerical: Distance from source in a simple graph",
+        type: "numerical",
+        description: "Given a graph with edges: S→A (weight 2), S→B (weight 5), A→B (weight 1), B→C (weight 3), A→C (weight 6). Using Dijkstra from S, what is the shortest distance from S to C?",
+        correctAnswer: 6,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Paths: S→B→C has cost 5+3=8, S→A→C has 2+6=8, S→A→B→C has 2+1+3=6. Minimum distance is 6."
+        },
+
+        // =========================
+        // 11–20: Floyd–Warshall
+        // =========================
+        {
+        questionId: 11,
+        title: "What problem does the Floyd–Warshall algorithm solve?",
+        type: "mcq-single",
+        options: [
+        "Single-source shortest path",
+        "All-pairs shortest paths",
+        "Minimum spanning tree",
+        "Topological sorting"
+        ],
+        correctAnswer: "All-pairs shortest paths",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Floyd–Warshall computes shortest path distances between every pair of vertices in a weighted graph."
+        },
+        {
+        questionId: 12,
+        title: "Which statement about Floyd–Warshall is TRUE?",
+        type: "mcq-single",
+        options: [
+        "It only works on unweighted graphs.",
+        "It cannot handle any negative edge weights.",
+        "It can handle negative edges as long as there are no negative cycles.",
+        "It is faster than Dijkstra for all single-source shortest path problems."
+        ],
+        correctAnswer: "It can handle negative edges as long as there are no negative cycles.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Floyd–Warshall correctly handles negative edge weights but fails if a negative cycle is reachable."
+        },
+        {
+        questionId: 13,
+        title: "What is the standard time and space complexity of Floyd–Warshall on a graph with V vertices?",
+        type: "mcq-single",
+        options: [
+        "Time: O(V²), Space: O(V)",
+        "Time: O(V³), Space: O(V²)",
+        "Time: O(E log V), Space: O(E)",
+        "Time: O(VE), Space: O(V²)"
+        ],
+        correctAnswer: "Time: O(V³), Space: O(V²)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "The algorithm uses three nested loops over V and a V×V distance matrix."
+        },
+        {
+        questionId: 14,
+        title: "How can we detect a negative cycle using Floyd–Warshall?",
+        type: "mcq-single",
+        options: [
+        "If any dist[i][j] is zero.",
+        "If any dist[i][j] is infinity.",
+        "If dist[i][i] < 0 for some i.",
+        "If the number of edges is more than V."
+        ],
+        correctAnswer: "If dist[i][i] < 0 for some i.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "A negative value on the diagonal after running Floyd–Warshall indicates a negative cycle reachable from that vertex."
+        },
+        {
+        questionId: 15,
+        title: "Meaning of the DP state in Floyd–Warshall",
+        type: "mcq-single",
+        description: "Let dist[k][i][j] represent the shortest path distance from i to j using only intermediate vertices from {1,...,k}. What does dist[V][i][j] represent at the end?",
+        options: [
+        "Shortest path from i to j using exactly V edges.",
+        "Shortest path from i to j using any vertices as intermediates.",
+        "Shortest path from i to j that avoids vertex V.",
+        "Shortest path from vertex V to j."
+        ],
+        correctAnswer: "Shortest path from i to j using any vertices as intermediates.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "After k runs from 1 to V, all vertices are allowed as intermediates."
+        },
+        {
+        questionId: 16,
+        title: "Numerical: simplest Floyd–Warshall example",
+        type: "numerical",
+        description: "Vertices {1, 2, 3}. Edges: 1→2 (3), 2→3 (4), 1→3 (10). After Floyd–Warshall, what is the shortest distance from 1 to 3?",
+        correctAnswer: 7,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Direct 1→3 is 10; via 2 is 3+4=7, which is smaller."
+        },
+        {
+        questionId: 17,
+        title: "Numerical: shortest path in a 4-vertex graph",
+        type: "numerical",
+        description: "Vertices {1, 2, 3, 4}. Edges: 1→2 (5), 2→3 (2), 1→3 (9), 3→4 (1), 2→4 (6). After Floyd–Warshall, what is the shortest distance from 1 to 4?",
+        correctAnswer: 8,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Paths: 1→2→3→4 = 5+2+1=8, 1→3→4 = 9+1=10, 1→2→4 = 5+6=11. Minimum is 8."
+        },
+        {
+        questionId: 18,
+        title: "Which representation is most natural for implementing Floyd–Warshall?",
+        type: "mcq-single",
+        options: [
+        "Adjacency list with heap",
+        "Adjacency matrix of distances",
+        "Edge list sorted by weight",
+        "Parent pointer tree"
+        ],
+        correctAnswer: "Adjacency matrix of distances",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Floyd–Warshall repeatedly updates a V×V matrix of distances."
+        },
+        {
+        questionId: 19,
+        title: "When is Floyd–Warshall especially suitable?",
+        type: "mcq-single",
+        options: [
+        "When we only need a single-source shortest path.",
+        "When the graph is extremely sparse and V is huge.",
+        "When we need all-pairs shortest paths on a dense graph or when negative edges (but no negative cycles) are present.",
+        "When the graph has no edges."
+        ],
+        correctAnswer: "When we need all-pairs shortest paths on a dense graph or when negative edges (but no negative cycles) are present.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "For APSP with possible negative edges and moderate V, Floyd–Warshall is straightforward."
+        },
+        {
+        questionId: 20,
+        title: "Initialization step in Floyd–Warshall",
+        type: "mcq-single",
+        options: [
+        "Set all dist[i][j] = 0.",
+        "Set dist[i][i] = 0, dist[i][j] = weight(i, j) if edge exists, otherwise infinity.",
+        "Set dist[i][j] = 1 for all edges.",
+        "Set dist[i][j] = infinity for all i, j including i = j."
+        ],
+        correctAnswer: "Set dist[i][i] = 0, dist[i][j] = weight(i, j) if edge exists, otherwise infinity.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "We start with direct edge weights; no self-loop cost, so dist[i][i] = 0."
+        },
+
+        // =========================
+        // 21–30: Spanning Trees & MST
+        // =========================
+        {
+        questionId: 21,
+        title: "What is a spanning tree of a connected undirected graph?",
+        type: "mcq-single",
+        options: [
+        "Any subgraph with the smallest number of edges.",
+        "A subgraph that is a tree and includes all vertices.",
+        "A directed acyclic subgraph.",
+        "A tree containing only leaf vertices."
+        ],
+        correctAnswer: "A subgraph that is a tree and includes all vertices.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "A spanning tree connects all vertices with no cycles."
+        },
+        {
+        questionId: 22,
+        title: "Number of edges in a spanning tree",
+        type: "mcq-single",
+        options: [
+        "V",
+        "E",
+        "V−1",
+        "E−1"
+        ],
+        correctAnswer: "V−1",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Any spanning tree of a connected undirected graph with V vertices has exactly V−1 edges."
+        },
+        {
+        questionId: 23,
+        title: "What is a Minimum Spanning Tree (MST)?",
+        type: "mcq-single",
+        options: [
+        "A spanning tree with the fewest edges.",
+        "A spanning tree with minimum possible total edge weight.",
+        "A tree of minimum height.",
+        "Any spanning tree that contains a specific root."
+        ],
+        correctAnswer: "A spanning tree with minimum possible total edge weight.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "The MST minimizes the sum of edge weights among all spanning trees."
+        },
+        {
+        questionId: 24,
+        title: "Which statement about MST uniqueness is TRUE (for a connected graph)?",
+        type: "mcq-single",
+        options: [
+        "MST is always unique.",
+        "MST is unique if all edge weights are distinct.",
+        "MST is unique only if the graph is a tree.",
+        "MST is never unique."
+        ],
+        correctAnswer: "MST is unique if all edge weights are distinct.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Distinct edge weights guarantee a unique MST; ties can lead to multiple MSTs with same total weight."
+        },
+        {
+        questionId: 25,
+        title: "Difference between MST and shortest path tree",
+        type: "mcq-single",
+        options: [
+        "They are always the same.",
+        "MST minimizes total edge weight; shortest path tree minimizes distances from a single source.",
+        "Shortest path tree always has fewer edges than MST.",
+        "MST is only defined for directed graphs."
+        ],
+        correctAnswer: "MST minimizes total edge weight; shortest path tree minimizes distances from a single source.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "They optimize different objectives; usually they are not the same tree."
+        },
+        {
+        questionId: 26,
+        title: "Numerical: number of spanning trees of K₄",
+        type: "numerical",
+        description: "How many distinct spanning trees does a complete graph K₄ have? (Use Cayley's formula: n^(n−2).)",
+        correctAnswer: 16,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "For n = 4, we get 4^(4−2) = 4² = 16."
+        },
+        {
+        questionId: 27,
+        title: "Numerical: edges in an MST",
+        type: "numerical",
+        description: "In a connected undirected graph with 9 vertices, how many edges will any MST have?",
+        correctAnswer: 8,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "MST is a spanning tree → number of edges = V−1 = 9−1 = 8."
+        },
+        {
+        questionId: 28,
+        title: "Can a graph have more than one MST?",
+        type: "mcq-single",
+        options: [
+        "No, MST is always unique.",
+        "Yes, if some edges have equal weights.",
+        "Only if the graph is disconnected.",
+        "Only if the graph is a tree."
+        ],
+        correctAnswer: "Yes, if some edges have equal weights.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Equal-weight edges can lead to different MST structures but the same total weight."
+        },
+        {
+        questionId: 29,
+        title: "Which of the following algorithms can be used to find an MST?",
+        type: "mcq-single",
+        options: [
+        "Dijkstra’s algorithm",
+        "Floyd–Warshall algorithm",
+        "Prim’s and Kruskal’s algorithms",
+        "Bellman–Ford algorithm"
+        ],
+        correctAnswer: "Prim’s and Kruskal’s algorithms",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Prim and Kruskal are classic MST algorithms."
+        },
+        {
+        questionId: 30,
+        title: "Cut property of MSTs",
+        type: "mcq-single",
+        options: [
+        "The heaviest edge crossing any cut must be in every MST.",
+        "The lightest edge crossing any cut that respects the MST is safe to include in some MST.",
+        "Every edge crossing a cut must be in the MST.",
+        "Edges that form cycles must be included."
+        ],
+        correctAnswer: "The lightest edge crossing any cut that respects the MST is safe to include in some MST.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "This is the cut property used by both Prim and Kruskal."
+        },
+
+        // =========================
+        // 31–40: Prim’s Algorithm
+        // =========================
+        {
+        questionId: 31,
+        title: "Prim’s algorithm is used to compute:",
+        type: "mcq-single",
+        options: [
+        "Single-source shortest paths",
+        "All-pairs shortest paths",
+        "Minimum spanning tree",
+        "Maximum flow"
+        ],
+        correctAnswer: "Minimum spanning tree",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Prim’s algorithm grows an MST from an arbitrary starting vertex."
+        },
+        {
+        questionId: 32,
+        title: "Prim’s algorithm strategy",
+        type: "mcq-single",
+        options: [
+        "Always picks the globally lightest edge in the graph.",
+        "Grows a tree by repeatedly adding the cheapest edge from the tree to a new vertex.",
+        "Relaxes edges from a source like Dijkstra’s.",
+        "Uses DFS to explore all edges."
+        ],
+        correctAnswer: "Grows a tree by repeatedly adding the cheapest edge from the tree to a new vertex.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Prim’s gradually extends the MST one vertex at a time."
+        },
+        {
+        questionId: 33,
+        title: "Time complexity of Prim’s with adjacency matrix and linear search for minimum key vertex:",
+        type: "mcq-single",
+        options: [
+        "O(V²)",
+        "O(E log V)",
+        "O((V + E) log V)",
+        "O(VE)"
+        ],
+        correctAnswer: "O(V²)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Each of V iterations scans V vertices to find the minimum key."
+        },
+        {
+        questionId: 34,
+        title: "Time complexity of Prim’s with adjacency list and binary heap:",
+        type: "mcq-single",
+        options: [
+        "O(V²)",
+        "O(E log V)",
+        "O(V log V)",
+        "O(E²)"
+        ],
+        correctAnswer: "O(E log V)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Each edge may cause a decrease-key operation, and there are O(E) such operations."
+        },
+        {
+        questionId: 35,
+        title: "Which data structures are typically used in an efficient implementation of Prim’s algorithm?",
+        type: "mcq-single",
+        options: [
+        "Adjacency list + priority queue (min-heap)",
+        "Stack + array",
+        "Edge list + Union-Find",
+        "Adjacency matrix + BFS queue"
+        ],
+        correctAnswer: "Adjacency list + priority queue (min-heap)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "This combination gives O(E log V) time complexity."
+        },
+        {
+        questionId: 36,
+        title: "Numerical: MST cost with Prim’s",
+        type: "numerical",
+        description: "Graph with vertices {A,B,C,D}. Edges: A–B (1), B–C (2), C–D (3), A–D (10), B–D (4). What is the total weight of the MST?",
+        correctAnswer: 6,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Pick A–B (1), B–C (2), C–D (3). Total = 1+2+3 = 6."
+        },
+        {
+        questionId: 37,
+        title: "Numerical: number of edges in an MST from Prim’s",
+        type: "numerical",
+        description: "Prim’s is run on a connected graph with 7 vertices. How many edges will be in the resulting MST?",
+        correctAnswer: 6,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Any MST has V−1 edges → 7−1 = 6."
+        },
+        {
+        questionId: 38,
+        title: "Effect of starting vertex in Prim’s algorithm",
+        type: "mcq-single",
+        options: [
+        "The total MST weight always changes.",
+        "The total MST weight remains the same, though the structure may differ when multiple MSTs exist.",
+        "Prim’s only works from a fixed root vertex.",
+        "Starting vertex decides whether an MST exists."
+        ],
+        correctAnswer: "The total MST weight remains the same, though the structure may differ when multiple MSTs exist.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "All MSTs have the same total weight, but edges may differ if multiple MSTs exist."
+        },
+        {
+        questionId: 39,
+        title: "On which type of graphs is Prim’s algorithm with adjacency matrix particularly convenient?",
+        type: "mcq-single",
+        options: [
+        "Very sparse graphs (E ≈ V)",
+        "Dense graphs (E ≈ V²)",
+        "Directed acyclic graphs",
+        "Graphs with negative weights"
+        ],
+        correctAnswer: "Dense graphs (E ≈ V²)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "In dense graphs, O(V²) complexity is acceptable and the matrix representation is simple."
+        },
+        {
+        questionId: 40,
+        title: "Which MST property does Prim’s algorithm rely on?",
+        type: "mcq-single",
+        options: [
+        "Cycle property",
+        "Cut property",
+        "Topological property",
+        "Shortest-path optimal substructure"
+        ],
+        correctAnswer: "Cut property",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Prim’s repeatedly chooses the lightest edge crossing the cut between the tree and remaining vertices."
+        },
+
+        // =========================
+        // 41–50: Kruskal’s Algorithm
+        // =========================
+        {
+        questionId: 41,
+        title: "Kruskal’s algorithm is based on what main idea?",
+        type: "mcq-single",
+        options: [
+        "Grow a tree from a single root by always taking the cheapest outgoing edge.",
+        "Sort all edges by weight and repeatedly add the smallest edge that does not form a cycle.",
+        "Relax edges from a single source vertex.",
+        "Perform BFS and then remove some edges."
+        ],
+        correctAnswer: "Sort all edges by weight and repeatedly add the smallest edge that does not form a cycle.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Kruskal’s builds the MST by considering edges in non-decreasing order of weight."
+        },
+        {
+        questionId: 42,
+        title: "Which data structure is commonly used with Kruskal’s algorithm to detect cycles efficiently?",
+        type: "mcq-single",
+        options: [
+        "Stack",
+        "Queue",
+        "Disjoint set (Union-Find)",
+        "Priority queue"
+        ],
+        correctAnswer: "Disjoint set (Union-Find)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Union-Find efficiently tracks which vertices are in which components."
+        },
+        {
+        questionId: 43,
+        title: "Time complexity of Kruskal’s algorithm (with Union-Find using union by rank and path compression):",
+        type: "mcq-single",
+        options: [
+        "O(V²)",
+        "O(E log E)",
+        "O(V log V)",
+        "O(E²)"
+        ],
+        correctAnswer: "O(E log E)",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Sorting the E edges by weight dominates the runtime."
+        },
+        {
+        questionId: 44,
+        title: "What does Kruskal’s algorithm compute on a disconnected undirected graph?",
+        type: "mcq-single",
+        options: [
+        "A single MST",
+        "No result",
+        "A minimum spanning forest",
+        "A shortest path tree"
+        ],
+        correctAnswer: "A minimum spanning forest",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Kruskal works component-wise, giving a minimum spanning tree for each connected component."
+        },
+        {
+        questionId: 45,
+        title: "How does Kruskal’s algorithm handle multiple edges with the same weight?",
+        type: "mcq-single",
+        options: [
+        "It always chooses the lexicographically smallest edge.",
+        "It cannot handle equal weights.",
+        "Any order among equal-weight edges that avoids cycles still leads to a correct MST (possibly different structures).",
+        "It ignores all but one of the equal-weight edges."
+        ],
+        correctAnswer: "Any order among equal-weight edges that avoids cycles still leads to a correct MST (possibly different structures).",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "There may be multiple MSTs, but they all have the same total weight."
+        },
+        {
+        questionId: 46,
+        title: "Numerical: MST cost using Kruskal’s",
+        type: "numerical",
+        description: "Edges: (A,B,1), (A,C,5), (B,C,4), (B,D,2), (C,D,3). Using Kruskal’s algorithm, what is the total weight of the MST?",
+        correctAnswer: 6,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Sorted by weight: 1,2,3,4,5. Pick A–B(1), B–D(2), C–D(3) → total = 1+2+3 = 6."
+        },
+        {
+        questionId: 47,
+        title: "Numerical: number of edges in an MST for Kruskal’s",
+        type: "numerical",
+        description: "Kruskal’s is run on a connected graph with 10 vertices. How many edges will be selected for the MST?",
+        correctAnswer: 9,
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "MST has V−1 edges → 10−1 = 9."
+        },
+        {
+        questionId: 48,
+        title: "When is Kruskal’s algorithm often preferred (compared to Prim’s)?",
+        type: "mcq-single",
+        options: [
+        "On dense graphs represented by adjacency matrix.",
+        "On sparse graphs where edges are stored in a list and we can easily sort them.",
+        "Only on directed graphs.",
+        "Only when there are no cycles."
+        ],
+        correctAnswer: "On sparse graphs where edges are stored in a list and we can easily sort them.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Kruskal is especially good for sparse, edge-list-based representations."
+        },
+        {
+        questionId: 49,
+        title: "When is the MST of a connected graph guaranteed to be unique?",
+        type: "mcq-single",
+        options: [
+        "When the graph is a tree.",
+        "When all edge weights are distinct.",
+        "When the graph is complete.",
+        "It is never unique."
+        ],
+        correctAnswer: "When all edge weights are distinct.",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Distinct weights remove ambiguity in choosing edges."
+        },
+        {
+        questionId: 50,
+        title: "Which MST property justifies that the next smallest non-cycle-forming edge is safe to add in Kruskal’s algorithm?",
+        type: "mcq-single",
+        options: [
+        "Cycle property",
+        "Cut property",
+        "Topological property",
+        "Shortest-path property"
+        ],
+        correctAnswer: "Cut property",
+        maxScore: 1,
+        hasExplanations: true,
+        explanation: "Kruskal’s is a direct application of the cut property."
+        }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let currentUser = {};
+
+        // Initialize Monaco Editor (even if we don't use it directly)
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+        initializeQuiz();
+        });
+
+        async function initializeQuiz() {
+        console.log('🚀 Initializing Graph Algorithms quiz...');
+        
+        // Default test user
+        currentUser = { username: 'TestUser', email: 'test@example.com' };
+        userAnswers = {};
+        
+        // Try to get user session (non-blocking)
+        try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+        credentials: 'include',
+        mode: 'cors'
+        });
+        
+        if (response.ok) {
+        const data = await response.json();
+        if (data.username && data.email) {
+        currentUser = { username: data.username, email: data.email };
+        console.log('✅ User logged in:', currentUser);
+        }
+        }
+        } catch (error) {
+        console.log('ℹ️ Using test user for demo');
+        }
+        
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+        
+        renderCurrentQuestion();
+        updateProgress();
+        }
+
+        function renderCurrentQuestion() {
+        const question = questions[currentQuestionIndex];
+        const container = document.getElementById('questionContainer');
+        
+        let questionHTML = `
+        <div class="question-card">
+        <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
+        `;
+
+        if (question.description) {
+        questionHTML += `<p class="mb-3">${question.description}</p>`;
+        }
+
+        if (question.explanationText) {
+        questionHTML += `<p class="mb-3">${question.explanationText}</p>`;
+        }
+
+        if (question.code) {
+        questionHTML += `
+        <div class="code-block">
+        <pre>${question.code}</pre>
+        </div>
+        `;
+        }
+
+        if (question.type === 'mcq-single') {
+        questionHTML += `<div class="options-container mt-3">`;
+        question.options.forEach((option) => {
+        const isSelected = userAnswers[question.questionId] === option;
+        questionHTML += `
+        <label class="option-label ${isSelected ? 'selected' : ''}">
+        <input type="radio" name="q${question.questionId}" value="${option}" 
+        ${isSelected ? 'checked' : ''} style="display: none;">
+        ${option}
+        </label>
+        `;
+        });
+        questionHTML += `</div>`;
+        } else if (question.type === 'numerical') {
+        const currentAnswer = userAnswers[question.questionId] ?? '';
+        questionHTML += `
+        <div class="mt-3">
+        <input type="number" class="numerical-input" 
+        value="${currentAnswer}" 
+        placeholder="Enter your answer"
+        onchange="saveNumericalAnswer(${question.questionId}, this.value)">
+        </div>
+        `;
+        }
+
+        questionHTML += `</div>`;
+
+        container.innerHTML = questionHTML;
+
+        if (question.type === 'mcq-single') {
+        document.querySelectorAll('.option-label').forEach(label => {
+        label.addEventListener('click', function() {
+        document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+        this.classList.add('selected');
+        const radio = this.querySelector('input[type="radio"]');
+        radio.checked = true;
+        userAnswers[question.questionId] = radio.value;
+        });
+        });
+        }
+        }
+
+        function saveNumericalAnswer(questionId, value) {
+        userAnswers[questionId] = value ? parseInt(value) : '';
+        }
+
+        function nextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        renderCurrentQuestion();
+        updateProgress();
+        }
+        }
+
+        function previousQuestion() {
+        if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderCurrentQuestion();
+        updateProgress();
+        }
+        }
+
+        function updateProgress() {
+        const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+        document.getElementById('progressFill').style.width = `${progress}%`;
+        document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+        document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+        
+        const nextBtn = document.getElementById('nextBtn');
+        nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish →' : 'Next →';
+        
+        const currentScore = calculateCurrentScore();
+        document.getElementById('scoreText').textContent = `Score: ${currentScore}/${questions.length}`;
+        }
+
+        function calculateCurrentScore() {
+        let score = 0;
+        questions.forEach(question => {
+        const userAnswer = userAnswers[question.questionId];
+        if (userAnswer !== undefined && userAnswer !== '') {
+        if (userAnswer === question.correctAnswer) {
+        score += question.maxScore;
+        }
+        }
+        });
+        return score;
+        }
+
+        async function submitQuiz() {
+        const finalScore = calculateCurrentScore();
+        const quizData = {
+        username: currentUser.username,
+        email: currentUser.email,
+        topic: "Graph Algorithms: Dijkstra, Floyd–Warshall, MSTs, Prim, Kruskal",
+        score: finalScore,
+        maxScore: questions.length,
+        percentage: Math.round((finalScore / questions.length) * 100),
+        timestamp: new Date(),
+        questions: questions.map(question => ({
+        questionId: question.questionId,
+        title: question.title,
+        type: question.type,
+        userAnswer: userAnswers[question.questionId] ?? '',
+        correctAnswer: question.correctAnswer,
+        options: question.options || [],
+        score: (userAnswers[question.questionId] === question.correctAnswer) ? question.maxScore : 0,
+        maxScore: question.maxScore,
+        testResults: [{
+        passed: userAnswers[question.questionId] === question.correctAnswer,
+        expectedAnswer: question.correctAnswer,
+        userAnswer: userAnswers[question.questionId] ?? ''
+        }],
+        hasExplanations: question.hasExplanations,
+        explanation: question.explanation
+        }))
+        };
+
+        try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quizData)
+        });
+
+        if (response.ok) {
+        console.log('✅ Quiz results saved successfully');
+        } else {
+        console.log('⚠️ Failed to save results, but continuing...');
+        }
+        } catch (error) {
+        console.log('⚠️ Error saving results, but continuing...');
+        }
+
+        showResults(quizData);
+        }
+
+        function showResults(quizData) {
+        document.getElementById('quizContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'block';
+        
+        document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+        document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+        
+        const detailedResults = document.getElementById('detailedResults');
+        let resultsHTML = `<h4>Detailed Results:</h4>`;
+        
+        quizData.questions.forEach((question, index) => {
+        const isCorrect = question.score > 0;
+        resultsHTML += `
+        <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
+        <h6>Q${index + 1}: ${question.title}</h6>
+        <p><strong>Your Answer:</strong> ${question.userAnswer}</p>
+        <p><strong>Correct Answer:</strong> ${question.correctAnswer}</p>
+        <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
+        ${question.hasExplanations ? `
+        <div class="explanation-section">
+        <strong>Explanation:</strong> ${question.explanation}
+        </div>
+        ` : ''}
+        </div>
+        `;
+        });
+        
+        detailedResults.innerHTML = resultsHTML;
+        }
+
+        function restartQuiz() {
+        currentQuestionIndex = 0;
+        userAnswers = {};
+        document.getElementById('resultsContainer').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+        renderCurrentQuestion();
+        updateProgress();
+        }
+ </script>
+</body>
+</html>
