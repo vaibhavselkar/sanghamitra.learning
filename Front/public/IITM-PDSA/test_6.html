@@ -1,1 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Data Structures Quiz</title>
+    <!-- Include Monaco Editor for code editing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+           
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-container { padding: 30px; }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .code-editor-container {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
+            height: 400px;
+        }
+
+        .test-cases {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        .test-passed {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .test-failed {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .results-container { display: none; padding: 30px; }
+        .loading { display: none; }
+        
+        .explanation-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .option-label {
+            display: block;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-label:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option-label.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .numerical-input {
+            width: 200px;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .numerical-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .code-snippet {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Core DSA Quiz</h1>
+            <p>Test your understanding of Union–Find, Priority Queues, Heaps & Search Trees</p>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <h3>Loading Quiz...</h3>
+            <p>Preparing your test environment</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div class="progress-container mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span id="progressText">Question 1 of 50</span>
+                    <span id="scoreText">Score: 0/50</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressFill" style="width: 2%;"></div>
+                </div>
+            </div>
+            
+            <div id="questionContainer"></div>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
+                <div>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
+                    📊 Submit Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container">
+            <div class="score-display">
+                <h2 id="finalScore">0/50</h2>
+                <h3 id="finalPercentage">0%</h3>
+                <p>Quiz Completed!</p>
+            </div>
+            <div id="detailedResults"></div>
+            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // =========================
+            // 1–10: Union–Find (Disjoint Set Union)
+            // =========================
+            {
+                questionId: 1,
+                title: "What problem is the Union–Find (Disjoint Set Union) data structure designed to solve?",
+                type: "mcq-single",
+                options: [
+                    "Maintaining dynamic connectivity between elements",
+                    "Finding shortest paths in a weighted graph",
+                    "Sorting a collection of elements",
+                    "Balancing a binary search tree"
+                ],
+                correctAnswer: "Maintaining dynamic connectivity between elements",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Union–Find efficiently answers connectivity queries like 'are x and y in the same set?' while supporting merges of sets."
+            },
+            {
+                questionId: 2,
+                title: "Which two main operations does Union–Find support?",
+                type: "mcq-single",
+                options: [
+                    "insert and delete",
+                    "push and pop",
+                    "union and find",
+                    "enqueue and dequeue"
+                ],
+                correctAnswer: "union and find",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Union–Find supports union(x, y) to merge sets and find(x) to get the representative (root) of the set containing x."
+            },
+            {
+                questionId: 3,
+                title: "What is the typical time complexity per operation in Union–Find with both path compression and union by rank/size?",
+                type: "mcq-single",
+                options: [
+                    "O(1)",
+                    "O(log n)",
+                    "Amortized O(α(n)) (inverse Ackermann function)",
+                    "O(n)"
+                ],
+                correctAnswer: "Amortized O(α(n)) (inverse Ackermann function)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "With both optimizations, Union–Find operations run in amortized O(α(n)) time, which is effectively constant for all practical inputs."
+            },
+            {
+                questionId: 4,
+                title: "Numerical: number of sets after unions",
+                type: "numerical",
+                description: "Start with 5 elements {1,2,3,4,5}, each in its own set. Perform unions: union(1,2), union(3,4), union(2,3). How many disjoint sets remain?",
+                correctAnswer: 2,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "After union(1,2): {1,2},{3},{4},{5} → 4 sets; union(3,4): {1,2},{3,4},{5} → 3 sets; union(2,3): {1,2,3,4},{5} → 2 sets."
+            },
+            {
+                questionId: 5,
+                title: "What is the purpose of 'path compression' in Union–Find?",
+                type: "mcq-single",
+                options: [
+                    "To balance the tree by height",
+                    "To reduce the height of trees during find operations",
+                    "To keep track of component sizes",
+                    "To detect cycles in directed graphs"
+                ],
+                correctAnswer: "To reduce the height of trees during find operations",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Path compression flattens the tree structure during find, making future operations faster."
+            },
+            {
+                questionId: 6,
+                title: "What does 'union by rank' (or union by size) do?",
+                type: "mcq-single",
+                options: [
+                    "Always attaches the larger tree under the smaller tree",
+                    "Always attaches the smaller tree under the larger tree",
+                    "Always attaches trees randomly",
+                    "Makes no change to the tree structure"
+                ],
+                correctAnswer: "Always attaches the smaller tree under the larger tree",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Union by rank/size attaches the smaller tree under the larger one to keep the resulting tree shallower."
+            },
+            {
+                questionId: 7,
+                title: "Which of the following is a common application of Union–Find?",
+                type: "mcq-single",
+                options: [
+                    "Implementing priority queues",
+                    "Cycle detection in undirected graphs",
+                    "Implementing binary search trees",
+                    "Computing shortest paths"
+                ],
+                correctAnswer: "Cycle detection in undirected graphs",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Union–Find is used in MST algorithms and for detecting cycles when adding edges to undirected graphs."
+            },
+            {
+                questionId: 8,
+                title: "Numerical: number of sets after k unions with no duplicates",
+                type: "numerical",
+                description: "You start with 10 singleton sets (elements 1 to 10). You perform 4 union operations, each between elements from different sets, and no operation is repeated. How many sets remain?",
+                correctAnswer: 6,
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Each union of two different sets reduces the number of sets by 1. So 10 − 4 = 6 sets remain."
+            },
+            {
+                questionId: 9,
+                title: "In a Union–Find implementation without any optimizations (no path compression, no union by rank), what is the worst-case time complexity of a single find operation?",
+                type: "mcq-single",
+                options: [
+                    "O(1)",
+                    "O(log n)",
+                    "O(√n)",
+                    "O(n)"
+                ],
+                correctAnswer: "O(n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "In the worst case the tree can become a long chain, so find may traverse up to n nodes."
+            },
+            {
+                questionId: 10,
+                title: "What is usually stored at each root node in a Union–Find with union by size?",
+                type: "mcq-single",
+                options: [
+                    "The rank (height) of the tree",
+                    "The number of elements in the set",
+                    "The adjacency list of neighbors",
+                    "The distance from the source"
+                ],
+                correctAnswer: "The number of elements in the set",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "In union by size, each root typically stores the size (number of elements) of its set."
+            },
+
+            // =========================
+            // 11–20: Priority Queues
+            // =========================
+            {
+                questionId: 11,
+                title: "What is the main feature of a priority queue?",
+                type: "mcq-single",
+                options: [
+                    "Elements are accessed in FIFO order",
+                    "Elements are accessed in LIFO order",
+                    "Elements are accessed based on their priority",
+                    "Elements are always unique"
+                ],
+                correctAnswer: "Elements are accessed based on their priority",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "A priority queue always removes (or accesses) the element with the highest or lowest priority first."
+            },
+            {
+                questionId: 12,
+                title: "Which of the following is a typical implementation of a priority queue?",
+                type: "mcq-single",
+                options: [
+                    "Hash table",
+                    "Binary heap",
+                    "Linked list",
+                    "Binary search tree only"
+                ],
+                correctAnswer: "Binary heap",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Binary heaps are the most common backing data structure for priority queues due to their O(log n) operations."
+            },
+            {
+                questionId: 13,
+                title: "What is the time complexity of insert (push) and extract-min operations in a binary-heap-based priority queue?",
+                type: "mcq-single",
+                options: [
+                    "Insert O(1), extract-min O(1)",
+                    "Insert O(1), extract-min O(log n)",
+                    "Insert O(log n), extract-min O(log n)",
+                    "Insert O(n), extract-min O(n)"
+                ],
+                correctAnswer: "Insert O(log n), extract-min O(log n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Both operations may require heapify-up or heapify-down, which take O(log n) in a binary heap."
+            },
+            {
+               questionId: 14,
+               title: "Which operation is NOT typically supported efficiently by a basic binary heap priority queue?",
+               type: "mcq-single",
+               options: [
+               "Insert",
+               "Decrease-key",
+               "Extract-min / extract-max",
+               "Random deletion of an arbitrary element (by value)"
+               ],
+               correctAnswer: "Random deletion of an arbitrary element (by value)",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "A basic heap does not support efficient deletion of arbitrary non-root elements unless additional structures are used."
+               },
+               {
+               questionId: 15,
+               title: "Numerical: final max element in a priority queue",
+               type: "numerical",
+               description: "You have a max-priority queue. You insert the elements: 5, 1, 10, 3, 7. Then you call extract-max once. What value is returned?",
+               correctAnswer: 10,
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "In a max-priority queue, the largest element is removed first. Among {5,1,10,3,7}, the maximum is 10."
+               },
+               {
+               questionId: 16,
+               title: "Priority queues are especially useful in which of the following algorithms?",
+               type: "mcq-single",
+               options: [
+               "Dijkstra’s shortest path algorithm",
+               "Depth-first search",
+               "Kruskal’s algorithm only",
+               "Counting sort"
+               ],
+               correctAnswer: "Dijkstra’s shortest path algorithm",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Dijkstra’s algorithm uses a priority queue to repeatedly pick the vertex with minimum tentative distance."
+               },
+               {
+               questionId: 17,
+               title: "Which data structure yields O(1) amortized decrease-key operations but is complex to implement?",
+               type: "mcq-single",
+               options: [
+               "Binary heap",
+               "Fibonacci heap",
+               "Stack",
+               "Queue"
+               ],
+               correctAnswer: "Fibonacci heap",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Fibonacci heaps support O(1) amortized decrease-key and insert, and O(log n) extract-min."
+               },
+               {
+               questionId: 18,
+               title: "Numerical: size of a priority queue after operations",
+               type: "numerical",
+               description: "A min-priority queue starts empty. You perform: insert(4), insert(2), insert(9), extract-min, insert(1), extract-min. What is the size of the queue now?",
+               correctAnswer: 2,
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Sequence: after 3 inserts → size 3; extract-min removes 2 → size 2; insert(1) → size 3; extract-min removes 1 → size 2."
+               },
+               {
+               questionId: 19,
+               title: "What is the main difference between a regular queue and a priority queue?",
+               type: "mcq-single",
+               options: [
+               "Regular queue uses LIFO, priority queue uses FIFO",
+               "Regular queue uses FIFO, priority queue removes based on priority",
+               "They are identical structures",
+               "Priority queue cannot be implemented using arrays"
+               ],
+               correctAnswer: "Regular queue uses FIFO, priority queue removes based on priority",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "A regular queue is FIFO; a priority queue always removes the highest- or lowest-priority element."
+               },
+               {
+               questionId: 20,
+               title: "In a min-priority queue, which element is removed on extract-min?",
+               type: "mcq-single",
+               options: [
+               "The largest key",
+               "The smallest key",
+               "A random key",
+               "The median key"
+               ],
+               correctAnswer: "The smallest key",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "By definition, a min-priority queue removes the element with the smallest priority value."
+               },
+              
+               // =========================
+               // 21–30: Heaps (Max/Min Heap DS)
+               // =========================
+               {
+               questionId: 21,
+               title: "What is the heap property in a max-heap?",
+               type: "mcq-single",
+               options: [
+               "Each node is smaller than its children",
+               "Each node is greater than or equal to its children",
+               "The tree is balanced and sorted in-order",
+               "All leaves have the same depth"
+               ],
+               correctAnswer: "Each node is greater than or equal to its children",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "In a max-heap, every parent node's key is ≥ the keys of its children."
+               },
+               {
+               questionId: 22,
+               title: "Which of the following is TRUE for a binary heap?",
+               type: "mcq-single",
+               options: [
+               "It is a complete binary tree",
+               "It is a binary search tree",
+               "It is always perfectly balanced",
+               "It is an arbitrary binary tree"
+               ],
+               correctAnswer: "It is a complete binary tree",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "A binary heap is a complete binary tree (all levels full except possibly last, filled left to right)."
+               },
+               {
+               questionId: 23,
+               title: "How is a binary heap typically stored in memory?",
+               type: "mcq-single",
+               options: [
+               "As a linked list",
+               "As an array",
+               "As a hash table",
+               "As a graph adjacency list"
+               ],
+               correctAnswer: "As an array",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Due to its complete tree structure, a heap is naturally and efficiently stored in an array."
+               },
+               {
+               questionId: 24,
+               title: "In an array-based heap (0-indexed), what are the indices of the children of node at index i?",
+               type: "mcq-single",
+               options: [
+               "2*i and 2*i + 1",
+               "2*i + 1 and 2*i + 2",
+               "i/2 and (i/2)+1",
+               "i−1 and i+1"
+               ],
+               correctAnswer: "2*i + 1 and 2*i + 2",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "For 0-based arrays, left child = 2i+1, right child = 2i+2."
+               },
+               {
+               questionId: 25,
+               title: "What is the worst-case time complexity of heapify-down (sift-down) in a binary heap with n elements?",
+               type: "mcq-single",
+               options: [
+               "O(1)",
+               "O(log n)",
+               "O(n)",
+               "O(n log n)"
+               ],
+               correctAnswer: "O(log n)",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Heapify-down may traverse from the root to a leaf, which is at most height log₂n."
+               },
+               {
+               questionId: 26,
+               title: "What is the time complexity of building a heap from an unsorted array of n elements using the bottom-up heapify method?",
+               type: "mcq-single",
+               options: [
+               "O(n)",
+               "O(n log n)",
+               "O(log n)",
+               "O(n²)"
+               ],
+               correctAnswer: "O(n)",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "The bottom-up build-heap algorithm runs in O(n) time, not O(n log n)."
+               },
+               {
+               questionId: 27,
+               title: "Numerical: height of a heap",
+               type: "numerical",
+               description: "A binary heap has 15 nodes. What is its height (with height of a single-node heap = 0)?",
+               correctAnswer: 3,
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "A complete binary tree with 15 nodes is full: levels 0,1,2,3 → height = 3."
+               },
+               {
+               questionId: 28,
+               title: "Numerical: maximum number of nodes in a heap of height 4",
+               type: "numerical",
+               description: "For a binary heap of height 4, what is the maximum possible number of nodes?",
+               correctAnswer: 31,
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "A complete binary tree of height h has at most 2^(h+1) − 1 nodes. For h=4 → 2^5 − 1 = 32−1 = 31."
+               },
+               {
+               questionId: 29,
+               title: "Which of the following arrays represents a valid max-heap?",
+               type: "mcq-single",
+               options: [
+               "[10, 5, 3, 2, 4]",
+               "[10, 15, 3, 2, 4]",
+               "[5, 10, 3, 2, 4]",
+               "[7, 7, 7, 7, 8]"
+               ],
+               correctAnswer: "[10, 5, 3, 2, 4]",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "In [10,5,3,2,4], each parent >= children. In [10,15,...] child 15 > parent 10, so not a max-heap; others violate heap property too."
+               },
+               {
+               questionId: 30,
+               title: "Which operation may violate the heap property and require re-heapifying?",
+               type: "mcq-single",
+               options: [
+               "Reading the root element",
+               "Inserting a new element",
+               "Checking if the heap is empty",
+               "Getting the size of the heap"
+               ],
+               correctAnswer: "Inserting a new element",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Insertions (and deletions like extract-max) may violate the heap property and require heapify-up or heapify-down."
+               },
+              
+               // =========================
+               // 31–40: Using Heaps in Algorithms
+               // =========================
+               {
+               questionId: 31,
+               title: "Which algorithm commonly uses a min-heap to efficiently select the next closest vertex?",
+               type: "mcq-single",
+               options: [
+               "Breadth-first search",
+               "Dijkstra’s shortest path algorithm",
+               "Kruskal’s algorithm",
+               "Depth-first search"
+               ],
+               correctAnswer: "Dijkstra’s shortest path algorithm",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Dijkstra’s algorithm uses a min-heap priority queue to repeatedly extract the vertex with minimum tentative distance."
+               },
+               {
+               questionId: 32,
+               title: "Which MST algorithm can be efficiently implemented with a min-heap?",
+               type: "mcq-single",
+               options: [
+               "Prim’s algorithm",
+               "Kruskal’s algorithm",
+               "Floyd–Warshall algorithm",
+               "Bellman–Ford algorithm"
+               ],
+               correctAnswer: "Prim’s algorithm",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Prim’s algorithm uses a min-heap to pick the next lightest edge that connects a new vertex to the growing MST."
+               },
+               {
+               questionId: 33,
+               title: "Heaps are useful for the 'k largest elements' problem because:",
+               type: "mcq-single",
+               options: [
+               "They sort the entire array",
+               "They support fast random access",
+               "They allow us to maintain the top k elements in O(n log k) time",
+               "They are always faster than sorting"
+               ],
+               correctAnswer: "They allow us to maintain the top k elements in O(n log k) time",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Using a min-heap of size k, we can process n elements in O(n log k) time and keep only the k largest."
+               },
+               {
+               questionId: 34,
+               title: "Which of the following tasks can be efficiently solved using two heaps (one max-heap and one min-heap)?",
+               type: "mcq-single",
+               options: [
+               "Finding the median of a dynamic stream of numbers",
+               "Detecting negative cycles",
+               "Counting connected components",
+               "Performing topological sort"
+               ],
+               correctAnswer: "Finding the median of a dynamic stream of numbers",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Two heaps (max-heap for lower half, min-heap for upper half) can maintain the median in O(log n) per insertion."
+               },
+               {
+               questionId: 35,
+               title: "Numerical: number of extract-min operations",
+               type: "numerical",
+               description: "In Dijkstra’s algorithm using a min-heap on a connected graph with V vertices, how many extract-min operations are performed (in terms of V)?",
+               correctAnswer: 1,
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Each vertex is extracted from the priority queue exactly once. So the number of extract-min operations is V. (Store your answer as the coefficient of V: 1)"
+               },
+               {
+               questionId: 36,
+               title: "Heaps are commonly used in which sorting algorithm?",
+               type: "mcq-single",
+               options: [
+               "Quick Sort",
+               "Heap Sort",
+               "Merge Sort",
+               "Insertion Sort"
+               ],
+               correctAnswer: "Heap Sort",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Heap Sort builds a heap and repeatedly extracts the max (or min) to produce a sorted sequence."
+               },
+               {
+               questionId: 37,
+               title: "Time complexity of Heap Sort for n elements using a binary heap is:",
+               type: "mcq-single",
+               options: [
+               "O(n)",
+               "O(n log n)",
+               "O(log n)",
+               "O(n²)"
+               ],
+               correctAnswer: "O(n log n)",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Building the heap is O(n) and performing n extract-max operations is O(n log n), dominating the total time."
+               },
+               {
+               questionId: 38,
+               title: "Which is an advantage of using a heap-based priority queue in scheduling problems?",
+               type: "mcq-single",
+               options: [
+               "It guarantees optimal scheduling",
+               "It gives constant-time insertion",
+               "It efficiently picks the next job with minimum (or maximum) priority",
+               "It uses no extra memory"
+               ],
+               correctAnswer: "It efficiently picks the next job with minimum (or maximum) priority",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "In scheduling, a heap allows fast selection of the next job according to priority."
+               },
+               {
+               questionId: 39,
+               title: "Numerical: top-k using a heap",
+               type: "numerical",
+               description: "You have an array of 1,000,000 integers and want to find the largest 10 elements using a min-heap of size 10. Asymptotically, how many heap insertions (or push/pop operations) are required (answer in terms of n, where n is the number of elements)?",
+               correctAnswer: 1,
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "We process each of the n elements once, leading to O(n) heap operations. (Store your answer as the coefficient of n: 1)"
+               },
+               {
+               questionId: 40,
+               title: "Why is a heap preferred over sorting when we only need the smallest element repeatedly and do not care about order of the rest?",
+               type: "mcq-single",
+               options: [
+               "Heap uses less memory than sorting",
+               "Heap gives O(log n) per extract-min while full sort costs O(n log n)",
+               "Heap guarantees a stable order",
+               "Heap changes the input array"
+               ],
+               correctAnswer: "Heap gives O(log n) per extract-min while full sort costs O(n log n)",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "If we repeatedly need the minimum element, a heap avoids paying the cost of fully sorting the entire array."
+               },
+              
+               // =========================
+               // 41–50: Search Trees (BST & Balanced BST)
+               // =========================
+               {
+               questionId: 41,
+               title: "What is the Binary Search Tree (BST) property?",
+               type: "mcq-single",
+               options: [
+               "Every node has at most two children",
+               "Left subtree keys < node key and right subtree keys > node key",
+               "Tree is always perfectly balanced",
+               "Root contains the maximum key"
+               ],
+               correctAnswer: "Left subtree keys < node key and right subtree keys > node key",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "BST property ensures ordering: all keys in left subtree are smaller, and all in right subtree are larger than the root key."
+               },
+               {
+               questionId: 42,
+               title: "What is the average-case time complexity of search in a balanced BST (e.g., AVL or Red-Black Tree)?",
+               type: "mcq-single",
+               options: [
+               "O(1)",
+               "O(log n)",
+               "O(n)",
+               "O(n log n)"
+               ],
+               correctAnswer: "O(log n)",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Balanced BSTs maintain height O(log n), so search, insert, and delete are O(log n) in average and worst case."
+               },
+               {
+               questionId: 43,
+               title: "What is the worst-case time complexity of search in an unbalanced (degenerate) BST?",
+               type: "mcq-single",
+               options: [
+               "O(1)",
+               "O(log n)",
+               "O(n)",
+               "O(n log n)"
+               ],
+               correctAnswer: "O(n)",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "In worst case, a BST may become like a linked list, making search take O(n) time."
+               },
+               {
+               questionId: 44,
+               title: "Which traversal of a BST gives the keys in sorted (non-decreasing) order?",
+               type: "mcq-single",
+               options: [
+               "Preorder",
+               "Inorder",
+               "Postorder",
+               "Level-order"
+               ],
+               correctAnswer: "Inorder",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Inorder traversal of a BST visits nodes in sorted order of their keys."
+               },
+               {
+               questionId: 45,
+               title: "Which of the following is TRUE for a balanced search tree like AVL or Red-Black tree?",
+               type: "mcq-single",
+               options: [
+               "They keep the tree perfectly balanced at all times",
+               "They guarantee height O(log n)",
+               "They require O(n) time for rotations",
+               "They cannot support deletions efficiently"
+               ],
+               correctAnswer: "They guarantee height O(log n)",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Balanced search trees ensure the height is O(log n) using rebalancing operations (rotations)."
+               },
+               {
+               questionId: 46,
+               title: "Numerical: height of a perfect BST",
+               type: "numerical",
+               description: "In a perfect binary search tree with 31 nodes, what is its height (height of single-node tree = 0)?",
+               correctAnswer: 4,
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Perfect tree with height h has 2^(h+1) − 1 nodes. Solve 2^(h+1) − 1 = 31 → 2^(h+1) = 32 → h+1 = 5 → h = 4."
+               },
+               {
+               questionId: 47,
+               title: "What is the main benefit of using a balanced BST over an unbalanced one?",
+               type: "mcq-single",
+               options: [
+               "Less memory usage",
+               "Simpler code",
+               "Guaranteed O(log n) operations",
+               "No need for pointers or references"
+               ],
+               correctAnswer: "Guaranteed O(log n) operations",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Balanced BSTs avoid degenerating into a list, so search/insert/delete stay O(log n)."
+               },
+               {
+               questionId: 48,
+               title: "Which operation(s) typically require rotations in an AVL or Red-Black tree?",
+               type: "mcq-single",
+               options: [
+               "Only search",
+               "Search and delete",
+               "Only insert",
+               "Insert and delete"
+               ],
+               correctAnswer: "Insert and delete",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Insertions and deletions may unbalance the tree; rotations are used to restore the balance."
+               },
+               {
+               questionId: 49,
+               title: "Numerical: number of comparisons in successful search of a balanced BST",
+               type: "numerical",
+               description: "Assume a balanced BST with 127 nodes (height 6). In the worst case, how many node comparisons are needed to find a key?",
+               correctAnswer: 7,
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Height is 6, so we may traverse from root (level 0) to leaf (level 6), visiting 7 nodes → 7 comparisons."
+               },
+               {
+               questionId: 50,
+               title: "Which of the following is NOT a binary search tree variant?",
+               type: "mcq-single",
+               options: [
+               "AVL tree",
+               "Red-Black tree",
+               "B-tree",
+               "Heap"
+               ],
+               correctAnswer: "Heap",
+               maxScore: 1,
+               hasExplanations: true,
+               explanation: "Heaps satisfy the heap property, not the BST ordering property."
+               }
+      ];
+              
+           let currentQuestionIndex = 0;
+           let userAnswers = {};
+           let currentUser = {};
+          
+           // Initialize Monaco Editor
+           require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+           require(['vs/editor/editor.main'], function() {
+           initializeQuiz();
+           });
+          
+           async function initializeQuiz() {
+           console.log('🚀 Initializing quiz...');
+           
+           // Initialize with test user first (fallback)
+           currentUser = { username: 'TestUser', email: 'test@example.com' };
+           userAnswers = {};
+           
+           // Try to get user session (non-blocking)
+           try {
+           const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+           credentials: 'include',
+           mode: 'cors'
+           });
+           
+           if (response.ok) {
+           const data = await response.json();
+           if (data.username && data.email) {
+           currentUser = { username: data.username, email: data.email };
+           console.log('✅ User logged in:', currentUser);
+           }
+           }
+           } catch (error) {
+           console.log('ℹ️ Using test user for demo');
+           }
+           
+           document.getElementById('loadingScreen').style.display = 'none';
+           document.getElementById('quizContainer').style.display = 'block';
+           
+           renderCurrentQuestion();
+           updateProgress();
+           }
+          
+           function renderCurrentQuestion() {
+           const question = questions[currentQuestionIndex];
+           const container = document.getElementById('questionContainer');
+           
+           let questionHTML = `
+           <div class="question-card">
+           <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
+           `;
+          
+           // Add description, if any
+           if (question.description) {
+           questionHTML += `<p class="mt-2">${question.description}</p>`;
+           }
+          
+           // Add code snippet if available (not used here, but kept for compatibility)
+           if (question.codeSnippet) {
+           questionHTML += `
+           <div class="code-snippet">
+           <pre>${question.codeSnippet}</pre>
+           </div>
+           `;
+           }
+          
+           if (question.type === 'mcq-single') {
+           questionHTML += `<div class="options-container mt-3">`;
+           question.options.forEach((option) => {
+           const isSelected = userAnswers[question.questionId] === option;
+           questionHTML += `
+           <label class="option-label ${isSelected ? 'selected' : ''}">
+           <input type="radio" name="q${question.questionId}" value="${option}" 
+           ${isSelected ? 'checked' : ''} style="display: none;">
+           ${option}
+           </label>
+           `;
+           });
+           questionHTML += `</div>`;
+           } else if (question.type === 'numerical') {
+           const currentAnswer = userAnswers[question.questionId] || '';
+           questionHTML += `
+           <div class="mt-3">
+           <input type="number" class="numerical-input" 
+           value="${currentAnswer}" 
+           placeholder="Enter your answer"
+           onchange="saveNumericalAnswer(${question.questionId}, this.value)">
+           </div>
+           `;
+           }
+          
+           questionHTML += `</div>`;
+          
+           container.innerHTML = questionHTML;
+          
+           // Add event listeners for MCQ options
+           if (question.type === 'mcq-single') {
+           document.querySelectorAll('.option-label').forEach(label => {
+           label.addEventListener('click', function() {
+           document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+           this.classList.add('selected');
+           const radio = this.querySelector('input[type="radio"]');
+           radio.checked = true;
+           userAnswers[question.questionId] = radio.value;
+           });
+           });
+           }
+           }
+          
+           function saveNumericalAnswer(questionId, value) {
+           userAnswers[questionId] = value ? parseInt(value) : '';
+           }
+          
+           function nextQuestion() {
+           if (currentQuestionIndex < questions.length - 1) {
+           currentQuestionIndex++;
+           renderCurrentQuestion();
+           updateProgress();
+           }
+           }
+          
+           function previousQuestion() {
+           if (currentQuestionIndex > 0) {
+           currentQuestionIndex--;
+           renderCurrentQuestion();
+           updateProgress();
+           }
+           }
+          
+           function updateProgress() {
+           const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+           document.getElementById('progressFill').style.width = `${progress}%`;
+           document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+           document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+           document.getElementById('nextBtn').disabled = currentQuestionIndex === questions.length - 1;
+           
+           // Calculate current score
+           const currentScore = calculateCurrentScore();
+           document.getElementById('scoreText').textContent = `Score: ${currentScore}/${questions.length}`;
+           }
+          
+           function calculateCurrentScore() {
+           let score = 0;
+           questions.forEach(question => {
+           const userAnswer = userAnswers[question.questionId];
+           if (userAnswer !== undefined && userAnswer !== '') {
+           if (userAnswer === question.correctAnswer) {
+           score += question.maxScore;
+           }
+           }
+           });
+           return score;
+           }
+          
+           async function submitQuiz() {
+           const quizData = {
+           username: currentUser.username,
+           email: currentUser.email,
+           topic: "Union–Find, Priority Queues, Heaps & Search Trees",
+           score: calculateCurrentScore(),
+           maxScore: questions.length,
+           percentage: Math.round((calculateCurrentScore() / questions.length) * 100),
+           timestamp: new Date(),
+           questions: questions.map(question => ({
+           questionId: question.questionId,
+           title: question.title,
+           type: question.type,
+           userAnswer: userAnswers[question.questionId] || '',
+           correctAnswer: question.correctAnswer,
+           options: question.options || [],
+           score: (userAnswers[question.questionId] === question.correctAnswer) ? question.maxScore : 0,
+           maxScore: question.maxScore,
+           testResults: [{
+           passed: userAnswers[question.questionId] === question.correctAnswer,
+           expectedAnswer: question.correctAnswer,
+           userAnswer: userAnswers[question.questionId] || ''
+           }],
+           hasExplanations: question.hasExplanations,
+           explanation: question.explanation,
+           codeSnippet: question.codeSnippet || ''
+           }))
+           };
+          
+           // Save to backend api/algorithm-submissions
+           try {
+           const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+           method: 'POST',
+           headers: {
+           'Content-Type': 'application/json',
+           },
+           body: JSON.stringify(quizData)
+           });
+          
+           if (response.ok) {
+           console.log('✅ Quiz results saved successfully');
+           } else {
+           console.log('⚠️ Failed to save results, but continuing...');
+           }
+           } catch (error) {
+           console.log('⚠️ Error saving results, but continuing...');
+           }
+          
+           showResults(quizData);
+           }
+          
+           function showResults(quizData) {
+           document.getElementById('quizContainer').style.display = 'none';
+           document.getElementById('resultsContainer').style.display = 'block';
+           
+           document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+           document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+           
+           const detailedResults = document.getElementById('detailedResults');
+           let resultsHTML = `<h4>Detailed Results:</h4>`;
+           
+           quizData.questions.forEach((question, index) => {
+           const isCorrect = question.score > 0;
+           resultsHTML += `
+           <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
+           <h6>Q${index + 1}: ${question.title}</h6>
+           ${question.codeSnippet ? `
+           <div class="code-snippet">
+           <pre>${question.codeSnippet}</pre>
+           </div>
+           ` : ''}
+           <p><strong>Your Answer:</strong> ${question.userAnswer}</p>
+           <p><strong>Correct Answer:</strong> ${question.correctAnswer}</p>
+           <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
+           ${question.hasExplanations ? `
+           <div class="explanation-section">
+           <strong>Explanation:</strong> ${question.explanation}
+           </div>
+           ` : ''}
+           </div>
+           `;
+           });
+           
+           detailedResults.innerHTML = resultsHTML;
+           }
+          
+           function restartQuiz() {
+           currentQuestionIndex = 0;
+           userAnswers = {};
+           document.getElementById('resultsContainer').style.display = 'none';
+           document.getElementById('quizContainer').style.display = 'block';
+           renderCurrentQuestion();
+           updateProgress();
+           }
+ </script>
+</body>
+</html>
