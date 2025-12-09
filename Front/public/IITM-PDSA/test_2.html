@@ -445,7 +445,338 @@
                 maxScore: 1,
                 hasExplanations: true,
                 explanation: "On average, Quick Sort chooses good pivots that split the array evenly. The recurrence is T(n) = 2T(n/2) + O(n), which solves to O(n log n)."
+            },
+            {
+                questionId: 21,
+                title: "Insertion Sort Shifts Count",
+                type: "numeric",
+                description: "How many shifts does Insertion Sort make when sorting the array [5, 4, 3, 2, 1] in ascending order?",
+                options: [],
+                correctAnswer: "10",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "For a reverse sorted array of size n, Insertion Sort makes n(n-1)/2 shifts. Here n=5, so 5×4/2 = 10 shifts."
+            },
+            {
+                questionId: 22,
+                title: "Selection Sort Comparisons for Sorted Array",
+                type: "numeric",
+                description: "How many element comparisons are made by Selection Sort when sorting the already sorted array [2, 4, 6, 8, 10]?",
+                options: [],
+                correctAnswer: "10",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Selection Sort always makes n(n-1)/2 comparisons regardless of input order. For n=5, that's 5×4/2 = 10 comparisons."
+            },
+            {
+                questionId: 23,
+                title: "Merge Sort Merge Operations",
+                type: "numeric",
+                description: "How many merge operations are performed by Merge Sort on an array of size 8?",
+                options: [],
+                correctAnswer: "7",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Merge Sort performs exactly n-1 merge operations for an array of size n. For n=8, that's 7 merge operations."
+            },
+            {
+                questionId: 24,
+                title: "Quick Sort Worst Case Input",
+                type: "mcq-single",
+                description: "Which input causes the worst-case behavior in Quick Sort when using the first element as pivot?",
+                options: ["Random array", "Already sorted array", "Array with all equal elements", "Alternating high-low values"],
+                correctAnswer: "Already sorted array",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "When the array is already sorted (ascending or descending) and the first element is chosen as pivot, partitions become extremely unbalanced (1 element vs n-1 elements), leading to O(n²) time."
+            },
+            {
+                questionId: 25,
+                title: "Bubble Sort Maximum Passes",
+                type: "numeric",
+                description: "What is the maximum number of passes Bubble Sort needs to sort an array of 6 elements?",
+                options: [],
+                correctAnswer: "5",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Bubble Sort requires at most n-1 passes to guarantee sorting an array of size n. For n=6, maximum passes = 5."
+            },
+            {
+                questionId: 26,
+                title: "Stable Sorting Algorithms",
+                type: "mcq-multiple",
+                description: "Which of these sorting algorithms are inherently stable?",
+                options: ["Insertion Sort", "Selection Sort", "Merge Sort", "Quick Sort", "Heap Sort"],
+                correctAnswer: ["Insertion Sort", "Merge Sort"],
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Insertion Sort and Merge Sort preserve the relative order of equal elements. Selection Sort and Quick Sort are generally unstable in their standard implementations. Heap Sort is also unstable."
+            },
+            {
+                questionId: 27,
+                title: "Insertion Sort Best Case Complexity",
+                type: "mcq-single",
+                description: "What is the best-case time complexity of Insertion Sort?",
+                options: ["O(n)", "O(n log n)", "O(n²)", "O(log n)"],
+                correctAnswer: "O(n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "When the array is already sorted, Insertion Sort only performs n-1 comparisons and 0 shifts, resulting in O(n) time complexity."
+            },
+            {
+                questionId: 28,
+                title: "Heap Sort Build Heap Time",
+                type: "mcq-single",
+                description: "What is the time complexity to build a max-heap from an unsorted array of n elements?",
+                options: ["O(n)", "O(n log n)", "O(log n)", "O(n²)"],
+                correctAnswer: "O(n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Building a heap from an unsorted array can be done in linear time O(n) using the bottom-up heapify procedure, not O(n log n) as one might expect."
+            },
+            {
+                questionId: 29,
+                title: "Counting Sort Complexity Factors",
+                type: "mcq-single",
+                description: "Counting Sort's time complexity depends on which factors?",
+                options: ["Only number of elements (n)", "Only range of input values (k)", "Both n and k", "Neither n nor k"],
+                correctAnswer: "Both n and k",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Counting Sort has time complexity O(n + k), where n is the number of elements and k is the range of input values (max - min + 1)."
+            },
+            {
+                questionId: 30,
+                title: "In-Place Sorting Algorithms",
+                type: "mcq-multiple",
+                description: "Which of these sorting algorithms are in-place (require only O(1) extra space)?",
+                options: ["Insertion Sort", "Merge Sort", "Heap Sort", "Quick Sort", "Counting Sort"],
+                correctAnswer: ["Insertion Sort", "Heap Sort", "Quick Sort"],
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Insertion Sort, Heap Sort, and Quick Sort use only constant extra space. Merge Sort requires O(n) auxiliary space. Counting Sort requires O(k) space where k is the range of values."
+            },
+            {
+                questionId: 31,
+                title: "Merge Sort Recurrence Relation",
+                type: "mcq-single",
+                description: "What is the correct recurrence relation for Merge Sort?",
+                options: ["T(n) = T(n-1) + n", "T(n) = 2T(n/2) + n", "T(n) = T(n/2) + log n", "T(n) = 2T(n/2) + log n"],
+                correctAnswer: "T(n) = 2T(n/2) + n",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Merge Sort divides the array into two halves (2T(n/2)) and then merges them in O(n) time, giving T(n) = 2T(n/2) + O(n)."
+            },
+            {
+                questionId: 32,
+                title: "Selection Sort Minimum Swaps",
+                type: "numeric",
+                description: "What is the minimum number of swaps Selection Sort performs on any array of 7 elements?",
+                options: [],
+                correctAnswer: "6",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Selection Sort performs exactly n-1 swaps regardless of input. For n=7, that's always 6 swaps (each iteration swaps the minimum element to its correct position)."
+            },
+            {
+                questionId: 33,
+                title: "Quick Sort Partition Result",
+                type: "mcq-single",
+                description: "After partitioning [6, 2, 9, 1, 5, 8] using Lomuto partition with first element (6) as pivot, what is the array?",
+                options: ["[2, 1, 5, 6, 9, 8]", "[1, 2, 5, 6, 9, 8]", "[2, 1, 6, 5, 9, 8]", "[5, 2, 1, 6, 9, 8]"],
+                correctAnswer: "[2, 1, 5, 6, 9, 8]",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Lomuto partition moves elements < pivot (6) to the left. Elements 2, 1, 5 are less than 6, so they go before it. Elements 9, 8 are greater, so they go after."
+            },
+            {
+                questionId: 34,
+                title: "Radix Sort Time Complexity",
+                type: "mcq-single",
+                description: "What is the time complexity of Radix Sort for n numbers with d digits each?",
+                options: ["O(nd)", "O(d(n + b))", "O(n log d)", "O(n²)"],
+                correctAnswer: "O(d(n + b))",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Radix Sort processes each digit using a stable sort (like Counting Sort) which takes O(n + b) time, where b is the base. This is repeated d times, giving O(d(n + b))."
+            },
+            {
+                questionId: 35,
+                title: "Optimized Bubble Sort",
+                type: "mcq-single",
+                description: "What optimization reduces Bubble Sort's best-case time to O(n)?",
+                options: ["Using binary search", "Adding a flag to detect no swaps", "Sorting in reverse order", "Using recursion"],
+                correctAnswer: "Adding a flag to detect no swaps",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "By adding a flag that checks if any swaps occurred in a pass, Bubble Sort can terminate early when the array becomes sorted, achieving O(n) best-case time."
+            },
+            {
+                questionId: 36,
+                title: "Shell Sort Gap Sequences",
+                type: "mcq-single",
+                description: "Which gap sequence for Shell Sort has worst-case O(n²) time complexity?",
+                options: ["Shell's original (n/2, n/4, ...)", "Knuth's (3^k-1)/2", "Sedgewick's sequence", "Hibbard's sequence"],
+                correctAnswer: "Shell's original (n/2, n/4, ...)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Shell's original sequence (halving each time) has worst-case O(n²) time. More advanced sequences like Knuth's, Sedgewick's, and Hibbard's have better worst-case bounds, typically O(n^(3/2)) or O(n log² n)."
+            },
+            {
+                questionId: 37,
+                title: "Insertion Sort Nearly Sorted",
+                type: "numeric",
+                description: "How many comparisons does Insertion Sort make on [1, 3, 5, 7, 2, 4, 6] (first 4 elements already sorted)?",
+                options: [],
+                correctAnswer: "9",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "First 4 elements require no comparisons (already in position). Inserting 2: compares with 7,5,3,1 = 4 comparisons. Inserting 4: compares with 7,5,3 = 3 comparisons. Inserting 6: compares with 7,5 = 2 comparisons. Total = 4+3+2 = 9 comparisons."
+            },
+            {
+                questionId: 38,
+                title: "Comparison Sort Lower Bound",
+                type: "mcq-single",
+                description: "What is the lower bound for comparison-based sorting algorithms?",
+                options: ["O(n)", "O(n log n)", "O(n²)", "O(log n)"],
+                correctAnswer: "O(n log n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Any comparison-based sorting algorithm requires at least Ω(n log n) comparisons in the worst case to sort n elements, due to the decision tree model having minimum height log(n!) ≈ n log n."
+            },
+            {
+                questionId: 39,
+                title: "Bucket Sort Assumption",
+                type: "mcq-single",
+                description: "Bucket Sort achieves O(n) average time complexity when:",
+                options: ["Elements are integers", "Elements are uniformly distributed", "Array size is small", "Using Insertion Sort within buckets"],
+                correctAnswer: "Elements are uniformly distributed",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Bucket Sort assumes input is uniformly distributed over a range, so elements are evenly distributed into buckets. This ensures each bucket has O(1) elements on average, leading to O(n) overall time."
+            },
+            {
+                questionId: 40,
+                title: "Quick Sort Tail Recursion Optimization",
+                type: "mcq-single",
+                description: "What is the main benefit of optimizing tail recursion in Quick Sort?",
+                options: ["Reduces comparisons", "Saves stack memory", "Improves pivot selection", "Makes algorithm stable"],
+                correctAnswer: "Saves stack memory",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "By optimizing tail recursion (recursing on the smaller partition first and using iteration for the larger), Quick Sort's worst-case stack depth reduces from O(n) to O(log n), saving significant memory."
+            },
+            {
+                questionId: 41,
+                title: "Timsort Hybrid Composition",
+                type: "mcq-single",
+                description: "Timsort is a hybrid sorting algorithm combining which two algorithms?",
+                options: ["Quick Sort + Insertion Sort", "Merge Sort + Insertion Sort", "Heap Sort + Bubble Sort", "Radix Sort + Counting Sort"],
+                correctAnswer: "Merge Sort + Insertion Sort",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Timsort combines Merge Sort with Insertion Sort. It identifies natural runs (already sorted subsequences) using Insertion Sort for small runs, then merges them using a modified Merge Sort."
+            },
+            {
+                questionId: 42,
+                title: "Selection Sort Instability Example",
+                type: "mcq-multiple",
+                description: "Which arrays demonstrate that Selection Sort is unstable? (Assume identical values are distinguishable)",
+                options: ["[5, 3, 5, 2]", "[2, 2, 1, 3]", "[4, 1, 4, 2]", "[3, 3, 2, 1]", "[7, 5, 7, 3]"],
+                correctAnswer: ["[5, 3, 5, 2]", "[4, 1, 4, 2]", "[7, 5, 7, 3]"],
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Selection Sort swaps the minimum element to the front. When there are duplicate values, this swapping can change their original relative order. For example in [5₁, 3, 5₂, 2], after sorting, 5₂ may come before 5₁."
+            },
+            {
+                questionId: 43,
+                title: "Merge Sort Space Complexity",
+                type: "mcq-single",
+                description: "What is the space complexity of the standard Merge Sort implementation?",
+                options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+                correctAnswer: "O(n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Standard Merge Sort requires an auxiliary array of size n to merge subarrays, resulting in O(n) space complexity. There are in-place variants but they are more complex and less efficient."
+            },
+            {
+                questionId: 44,
+                title: "Randomized Quick Sort Complexity",
+                type: "mcq-single",
+                description: "What is the expected time complexity of Randomized Quick Sort?",
+                options: ["O(n)", "O(n log n)", "O(n²)", "O(log n)"],
+                correctAnswer: "O(n log n)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Randomized Quick Sort chooses a random pivot, making the worst-case scenario extremely unlikely. The expected time complexity is O(n log n) with high probability."
+            },
+            {
+                questionId: 45,
+                title: "Heap Sort Comparison Count",
+                type: "numeric",
+                description: "What is the maximum number of comparisons required to build a max-heap from 10 elements?",
+                options: [],
+                correctAnswer: "20",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Building a heap requires at most 2n comparisons in the worst case. For n=10, that's at most 20 comparisons using the heapify procedure."
+            },
+            {
+                questionId: 46,
+                title: "Adaptive Sorting Algorithms",
+                type: "mcq-multiple",
+                description: "Which sorting algorithms are adaptive (perform better on nearly sorted input)?",
+                options: ["Insertion Sort", "Selection Sort", "Bubble Sort", "Merge Sort", "Heap Sort"],
+                correctAnswer: ["Insertion Sort", "Bubble Sort"],
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Insertion Sort and Bubble Sort are adaptive - they take advantage of existing order in the input. Insertion Sort can be O(n) on sorted input, Bubble Sort with optimization can also be O(n). Selection Sort and Heap Sort are not adaptive."
+            },
+            {
+                questionId: 47,
+                title: "External Sorting Requirement",
+                type: "mcq-single",
+                description: "When is external sorting necessary?",
+                options: ["For small arrays", "When data fits in RAM", "When data is too large for RAM", "For already sorted data"],
+                correctAnswer: "When data is too large for RAM",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "External sorting algorithms (like External Merge Sort) are used when the data to be sorted doesn't fit in the computer's main memory and must reside in external storage like disks."
+            },
+            {
+                questionId: 48,
+                title: "Three-Way Quick Sort Advantage",
+                type: "mcq-single",
+                description: "What problem does Three-Way Quick Sort solve efficiently?",
+                options: ["Small arrays", "Arrays with many duplicate keys", "Reverse sorted arrays", "Floating point numbers"],
+                correctAnswer: "Arrays with many duplicate keys",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Three-Way Quick Sort partitions array into three parts: elements less than pivot, equal to pivot, and greater than pivot. This handles duplicate elements efficiently, preventing O(n²) behavior when many duplicates exist."
+            },
+            {
+                questionId: 49,
+                title: "Binary Insertion Sort Benefit",
+                type: "mcq-single",
+                description: "What does Binary Insertion Sort improve over standard Insertion Sort?",
+                options: ["Reduces swaps", "Reduces comparisons", "Reduces memory usage", "Reduces recursion depth"],
+                correctAnswer: "Reduces comparisons",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Binary Insertion Sort uses binary search to find the insertion point for each element, reducing comparisons from O(n) to O(log n) per element. However, it still requires O(n) shifts."
+            },
+            {
+                questionId: 50,
+                title: "Optimal Sorting Algorithm Selection",
+                type: "mcq-single",
+                description: "You need to sort 1 million 32-bit integers with limited memory. Which algorithm is most efficient?",
+                options: ["Quick Sort", "Merge Sort", "Heap Sort", "Counting Sort"],
+                correctAnswer: "Counting Sort",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "For 32-bit integers with limited range (0 to 4,294,967,295), Counting Sort gives O(n+k) time complexity. With n=1,000,000 and k=4,294,967,296, the k factor is constant for fixed integer size, making it effectively O(n)."
             }
+            
         ];
 
         let currentQuestionIndex = 0;
