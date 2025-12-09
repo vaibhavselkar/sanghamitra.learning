@@ -357,68 +357,9 @@
         let pyodideReady = false;
 
         const questions = [
+            
             {
                 id: 1,
-                title: "Graph Representation - Adjacency List",
-                description: "Implement a graph using adjacency list representation and basic operations.",
-                prompt: `Implement a Graph class using adjacency list representation with the following methods:
-- add_vertex(vertex): Add a vertex to the graph
-- add_edge(vertex1, vertex2): Add an undirected edge between two vertices
-- get_neighbors(vertex): Return all neighbors of a vertex
-- has_vertex(vertex): Check if vertex exists in graph
-
-Use a dictionary where keys are vertices and values are lists of neighbors.`,
-                starterCode: `class Graph:
-    def __init__(self):
-        # Initialize adjacency list
-        pass
-    
-    def add_vertex(self, vertex):
-        # Add a vertex to the graph
-        pass
-    
-    def add_edge(self, vertex1, vertex2):
-        # Add an undirected edge
-        pass
-    
-    def get_neighbors(self, vertex):
-        # Return neighbors of vertex
-        pass
-    
-    def has_vertex(self, vertex):
-        # Check if vertex exists
-        pass
-
-# Test your implementation
-g = Graph()
-g.add_vertex('A')
-g.add_vertex('B')
-g.add_edge('A', 'B')
-print(g.get_neighbors('A'))`,
-                testCases: [
-                    { 
-                        testCode: `g = Graph(); g.add_vertex('A'); g.add_vertex('B'); g.add_edge('A', 'B'); result = g.get_neighbors('A')`,
-                        expected: ['B']
-                    },
-                    { 
-                        testCode: `g = Graph(); g.add_vertex('A'); result = g.has_vertex('A')`,
-                        expected: true
-                    },
-                    { 
-                        testCode: `g = Graph(); result = g.has_vertex('X')`,
-                        expected: false
-                    },
-                    { 
-                        testCode: `g = Graph(); g.add_vertex('A'); g.add_vertex('B'); g.add_vertex('C'); g.add_edge('A', 'B'); g.add_edge('A', 'C'); result = sorted(g.get_neighbors('A'))`,
-                        expected: ['B', 'C']
-                    }
-                ],
-                functionName: 'Graph',
-                points: 10,
-                isClass: true
-            },
-            {
-                id: 2,
                 title: "Breadth-First Search (BFS)",
                 description: "Implement BFS algorithm to traverse a graph and find the shortest path.",
                 prompt: `Write a function bfs(graph, start) that performs BFS traversal.
@@ -485,7 +426,7 @@ print(bfs(graph, 'A'))`,
                 points: 10
             },
             {
-                id: 3,
+                id: 2,
                 title: "Depth-First Search (DFS) - Recursive",
                 description: "Implement recursive DFS algorithm for graph traversal.",
                 prompt: `Write a function dfs_recursive(graph, start) that performs DFS using recursion.
@@ -546,7 +487,7 @@ print(dfs_recursive(graph, 'A'))`,
                 points: 10
             },
             {
-                id: 4,
+                id: 3,
                 title: "Depth-First Search (DFS) - Iterative",
                 description: "Implement iterative DFS algorithm using a stack.",
                 prompt: `Write a function dfs_iterative(graph, start) that performs DFS using a stack.
@@ -590,7 +531,7 @@ print(dfs_iterative(graph, 'A'))`,
                             'E': ['B', 'F'],
                             'F': ['C', 'E']
                         }, 'A')`,
-                        expected: ['A', 'C', 'F', 'E', 'B', 'D']
+                        expected: ['A', 'B', 'D', 'E', 'F', 'C']
                     },
                     { 
                         testCode: `dfs_iterative({
@@ -599,77 +540,333 @@ print(dfs_iterative(graph, 'A'))`,
                             '3': ['1'],
                             '4': ['2']
                         }, '1')`,
-                        expected: ['1', '3', '2', '4']
+                        expected: ['1', '2', '4', '3']
                     }
                 ],
                 functionName: 'dfs_iterative',
                 points: 10
             },
             {
-                id: 5,
+                id: 4,
                 title: "Detect Cycle in Undirected Graph",
                 description: "Implement cycle detection in an undirected graph using DFS.",
                 prompt: `Write a function has_cycle_undirected(graph) that detects cycles in an undirected graph.
+        
+        REQUIREMENTS:
+        - Input: graph (adjacency list dict)
+        - Output: Boolean indicating if cycle exists
+        - Use DFS approach
+        - Handle disconnected graphs`,
+                        starterCode: `def has_cycle_undirected(graph):
+            """
+            Detect cycle in undirected graph using DFS.
+            
+            Args:
+                graph: Dictionary representing adjacency list
+                
+            Returns:
+                True if cycle exists, False otherwise
+            """
+            # Your implementation here
+            pass
+        
+        # Test your function
+        graph_with_cycle = {
+            'A': ['B', 'C'],
+            'B': ['A', 'C'],
+            'C': ['A', 'B']
+        }
+        graph_without_cycle = {
+            'A': ['B'],
+            'B': ['A']
+        }
+        print(has_cycle_undirected(graph_with_cycle))`,
+                        testCases: [
+                            { 
+                                testCode: `has_cycle_undirected({
+                                    'A': ['B', 'C'],
+                                    'B': ['A', 'C'],
+                                    'C': ['A', 'B']
+                                })`,
+                                expected: true
+                            },
+                            { 
+                                testCode: `has_cycle_undirected({
+                                    'A': ['B'],
+                                    'B': ['A']
+                                })`,
+                                expected: false
+                            },
+                            { 
+                                testCode: `has_cycle_undirected({
+                                    'A': ['B', 'C'],
+                                    'B': ['A', 'D'],
+                                    'C': ['A'],
+                                    'D': ['B']
+                                })`,
+                                expected: false
+                            }
+                        ],
+                        functionName: 'has_cycle_undirected',
+                        points: 10
+            },
+            {
+    id: 5,
+    title: "BFS Level Order Traversal",
+    description: "Implement Breadth-First Search (BFS) to find the shortest distance (in levels) from a start node to all other nodes in an undirected graph.",
+    prompt: `Write a function bfs_levels(graph, start) that returns a dictionary mapping each node to its shortest distance from the start node.
 
 REQUIREMENTS:
-- Input: graph (adjacency list dict)
-- Output: Boolean indicating if cycle exists
-- Use DFS approach
-- Handle disconnected graphs`,
-                starterCode: `def has_cycle_undirected(graph):
+- Use BFS algorithm (queue-based)
+- Return dictionary: {node: distance}
+- Graph is undirected (edges go both ways)
+- Handle disconnected nodes (they won't be in result)
+- Distance from start to start = 0`,
+    starterCode: `from collections import deque
+
+def bfs_levels(graph, start):
     """
-    Detect cycle in undirected graph using DFS.
+    Perform BFS to find shortest distances from start node.
     
     Args:
-        graph: Dictionary representing adjacency list
+        graph: Dictionary adjacency list {node: [neighbors]}
+        start: Starting node
         
     Returns:
-        True if cycle exists, False otherwise
+        Dictionary {node: distance from start}
     """
     # Your implementation here
     pass
 
 # Test your function
-graph_with_cycle = {
+graph = {
     'A': ['B', 'C'],
-    'B': ['A', 'C'],
-    'C': ['A', 'B']
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'F'],
+    'D': ['B'],
+    'E': ['B', 'F'],
+    'F': ['C', 'E']
 }
-graph_without_cycle = {
-    'A': ['B'],
-    'B': ['A']
-}
-print(has_cycle_undirected(graph_with_cycle))`,
+print(bfs_levels(graph, 'A'))  # Expected: {'A': 0, 'B': 1, 'C': 1, 'D': 2, 'E': 2, 'F': 2}`,
+    testCases: [
+        { 
+            input: [
+                {'A': ['B', 'C'], 'B': ['A', 'D', 'E'], 'C': ['A', 'F'], 'D': ['B'], 'E': ['B', 'F'], 'F': ['C', 'E']}, 
+                'A'
+            ], 
+            expected: {'A': 0, 'B': 1, 'C': 1, 'D': 2, 'E': 2, 'F': 2} 
+        },
+        { 
+            input: [
+                {'A': ['B'], 'B': ['A', 'C'], 'C': ['B']}, 
+                'A'
+            ], 
+            expected: {'A': 0, 'B': 1, 'C': 2} 
+        },
+        { 
+            input: [
+                {'X': ['Y', 'Z'], 'Y': ['X'], 'Z': ['X']}, 
+                'X'
+            ], 
+            expected: {'X': 0, 'Y': 1, 'Z': 1} 
+        },
+        { 
+            input: [
+                {'P': ['Q', 'R', 'S'], 'Q': ['P'], 'R': ['P'], 'S': ['P']}, 
+                'R'
+            ], 
+            expected: {'P': 1, 'Q': 2, 'R': 0, 'S': 2} 
+        },
+        { 
+            input: [
+                {'1': ['2'], '2': ['1', '3'], '3': ['2']}, 
+                '3'
+            ], 
+            expected: {'1': 2, '2': 1, '3': 0} 
+        }
+    ],
+    functionName: 'bfs_levels',
+    points: 10
+},
+            {
+            id: 6,
+            title: "Recipe Preparation Steps",
+            description: "Given recipe steps and which steps must come before others, find the order to prepare the recipe.",
+            prompt: `Write a function recipe_order(steps, before) that returns preparation order.
+        
+        REQUIREMENTS:
+        - Input: steps (list of step descriptions), before (list of [step, must_come_after])
+        - Output: List of steps in preparation order
+        - All steps must be included
+        - Assume no cycles (valid recipe)`,
+            starterCode: `def recipe_order(steps, before):
+            """
+            Find order to prepare recipe steps.
+            
+            Args:
+                steps: List of step strings
+                before: List of [step, must_come_after_this_step]
+                
+            Returns:
+                List of steps in preparation order
+            """
+            pass
+        
+        # Test
+        steps = ["Chop veggies", "Boil water", "Add pasta", "Drain pasta", "Serve"]
+        before = [["Add pasta","Boil water"],["Drain pasta","Add pasta"],["Serve","Drain pasta"]]
+        print(recipe_order(steps, before))`,
+            testCases: [
+                { input: [["Chop veggies","Boil water","Add pasta","Drain pasta","Serve"], 
+                         [["Add pasta","Boil water"],["Drain pasta","Add pasta"],["Serve","Drain pasta"]]], 
+                  expected: ["Chop veggies","Boil water","Add pasta","Drain pasta","Serve"] },
+                { input: [["Preheat","Mix","Bake","Cool"], [["Mix","Preheat"],["Bake","Mix"],["Cool","Bake"]]], 
+                  expected: ["Preheat","Mix","Bake","Cool"] }
+            ],
+            functionName: 'recipe_order',
+            points: 10
+        },
+            {
+                id: 7,
+                title: "Minimum Height Trees",
+                description: "Given a tree (undirected graph with no cycles), find all roots that minimize the tree height.",
+                prompt: `Write a function find_min_height_trees(n, edges) that returns roots giving minimum height.
+            
+            REQUIREMENTS:
+            - Input: n (nodes labeled 0 to n-1), edges (list of [u,v])
+            - Output: List of root nodes giving minimum height
+            - Tree is undirected with n-1 edges
+            - Multiple roots possible`,
+                starterCode: `def find_min_height_trees(n, edges):
+                """
+                Find roots that minimize tree height.
+                
+                Args:
+                    n: Number of nodes
+                    edges: List of [u,v] connections
+                    
+                Returns:
+                    List of optimal root nodes
+                """
+                pass
+            
+            # Test
+            print(find_min_height_trees(4, [[1,0],[1,2],[1,3]]))  # Expected: [1]`,
                 testCases: [
-                    { 
-                        testCode: `has_cycle_undirected({
-                            'A': ['B', 'C'],
-                            'B': ['A', 'C'],
-                            'C': ['A', 'B']
-                        })`,
-                        expected: true
-                    },
-                    { 
-                        testCode: `has_cycle_undirected({
-                            'A': ['B'],
-                            'B': ['A']
-                        })`,
-                        expected: false
-                    },
-                    { 
-                        testCode: `has_cycle_undirected({
-                            'A': ['B', 'C'],
-                            'B': ['A', 'D'],
-                            'C': ['A'],
-                            'D': ['B']
-                        })`,
-                        expected: false
-                    }
+                    { input: [4, [[1,0],[1,2],[1,3]]], expected: [1] },
+                    { input: [6, [[0,3],[1,3],[2,3],[4,3],[5,4]]], expected: [3,4] },
+                    { input: [1, []], expected: [0] },
+                    { input: [2, [[0,1]]], expected: [0,1] }
                 ],
-                functionName: 'has_cycle_undirected',
+                functionName: 'find_min_height_trees',
                 points: 10
-            }
-            // Remaining questions follow the same pattern...
+            },
+
+            {
+            id: 8,
+            title: "Basic Task Scheduling",
+            description: "Given tasks and their dependencies, find any valid order to complete all tasks.",
+            prompt: `Write a function task_order(tasks, dependencies) that returns a valid order.
+        
+        REQUIREMENTS:
+        - Input: tasks (list of task names), dependencies (list of [task, depends_on])
+        - Output: List of tasks in valid order
+        - Return [] if cycle detected (impossible)
+        - Use topological sort`,
+            starterCode: `def task_order(tasks, dependencies):
+            """
+            Find valid order to complete tasks.
+            
+            Args:
+                tasks: List of task names
+                dependencies: List of [task, prerequisite]
+                
+            Returns:
+                Valid task order, or [] if impossible
+            """
+            pass
+        
+        # Test
+        tasks = ["A","B","C","D"]
+        deps = [["C","A"],["D","B"]]
+        print(task_order(tasks, deps))`,
+            testCases: [
+                { input: [["A","B","C","D"], [["C","A"],["D","B"]]], possibleOutputs: ["A","B","C","D","A","B","D","C","B","A","C","D","B","A","D","C"] },
+                { input: [["A","B","C"], [["A","B"],["B","C"],["C","A"]]], expected: [] },
+                { input: [["X","Y","Z"], []], possibleOutputs: ["X","Y","Z","X","Z","Y","Y","X","Z","Y","Z","X","Z","X","Y","Z","Y","X"] }
+            ],
+            functionName: 'task_order',
+            points: 10
+        },
+            {
+    id: 9,
+    title: "Alien Language Dictionary",
+    description: "Given a sorted dictionary of an alien language, find the order of characters in that language.",
+    prompt: `Write a function alien_order(words) that returns the character order.
+
+REQUIREMENTS:
+- Input: List of words sorted in alien language
+- Output: String of characters in correct order
+- Return empty string if order cannot be determined
+- All characters are lowercase English letters`,
+    starterCode: `def alien_order(words):
+    """
+    Find character order from sorted alien dictionary.
+    
+    Args:
+        words: List of words sorted in alien language
+        
+    Returns:
+        String of characters in order
+    """
+    pass
+
+# Test
+print(alien_order(["wrt","wrf","er","ett","rftt"]))  # Expected: "wertf"`,
+    testCases: [
+        { input: [["wrt","wrf","er","ett","rftt"]], expected: "wertf" },
+        { input: [["z","x"]], expected: "zx" },
+        { input: [["z","x","z"]], expected: "" },
+        { input: [["ab","adc"]], expected: "abcd" }
+    ],
+    functionName: 'alien_order',
+    points: 10
+},
+            {
+    id: 10,
+    title: "Course Schedule II",
+    description: "Given n courses and prerequisites, return the order to finish all courses. If impossible, return empty list.",
+    prompt: `Write a function find_course_order(numCourses, prerequisites) that returns course order.
+
+REQUIREMENTS:
+- Input: numCourses (n), prerequisites (list of [course, prereq])
+- Output: List of course order to finish all
+- Return [] if impossible (cycle detected)
+- Courses labeled 0 to n-1`,
+    starterCode: `def find_course_order(numCourses, prerequisites):
+    """
+    Find order to complete all courses.
+    
+    Args:
+        numCourses: Number of courses
+        prerequisites: List of [course, prerequisite]
+        
+    Returns:
+        Order to take courses, or [] if impossible
+    """
+    pass
+
+# Test
+print(find_course_order(4, [[1,0],[2,0],[3,1],[3,2]]))`,
+    testCases: [
+        { input: [4, [[1,0],[2,0],[3,1],[3,2]]], expected: [0,1,2,3] },
+        { input: [2, [[1,0],[0,1]]], expected: [] },
+        { input: [3, []], possibleOutputs: [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]] },
+        { input: [3, [[0,1],[1,2],[2,0]]], expected: [] }
+    ],
+    functionName: 'find_course_order',
+    points: 10
+}                
         ];
 
         let currentQuestionIndex = 0;
