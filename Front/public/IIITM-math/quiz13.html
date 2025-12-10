@@ -574,26 +574,7 @@ function getImagePath(filename) {
             }
         };
 
-        // Add this function at the top of your script
-function getImagePath(filename) {
-    if (!filename) return '';
-    
-    // Detect environment
-    const isVercel = window.location.hostname.includes('vercel.app');
-    const isLocal = window.location.hostname === 'localhost' || 
-                    window.location.hostname === '127.0.0.1';
-    
-    if (isVercel) {
-        // Vercel deployment - images are served from root
-        return `/Graph-questions/${filename}`;
-    } else if (isLocal) {
-        // Local development - use relative path
-        return `../../../Graph-questions/${filename}`;
-    } else {
-        // Fallback for other deployments
-        return `/Graph-questions/${filename}`;
-    }
-}
+
 
 
         let userAnswers = {};
@@ -920,12 +901,22 @@ function getImagePath(filename) {
             let processedQuestionText = question.question_text || 'Question text not available';
             
             // Add image if available
-           // In quiz13.html, update the image loading code:
+           
+            // FIXED: Use getImagePath() function for correct image paths
             let imageHtml = '';
             if (question.image_file) {
-                // For both local and Vercel deployment
-                const imagePath = `/Graph-questions/${question.image_file}`;
+                const imagePath = getImagePath(question.image_file);
                 imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
+            }
+
+                       // Debug image loading
+            if (question.image_file) {
+                console.log('Image debug:', {
+                    filename: question.image_file,
+                    path: getImagePath(question.image_file),
+                    url: window.location.href,
+                    isVercel: window.location.hostname.includes('vercel.app')
+                });
             }
             
             questionDiv.innerHTML = `
@@ -1623,6 +1614,7 @@ function getImagePath(filename) {
     </script>
 </body>
 </html>
+
 
 
 
