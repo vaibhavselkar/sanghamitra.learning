@@ -438,6 +438,66 @@
     </div>
 
     <script>
+
+        // Image path function - handles both local and Vercel deployments
+function getImagePath(filename) {
+    if (!filename) return '';
+    
+    // Remove any leading slashes or paths from filename
+    const cleanFilename = filename.replace(/^.*[\\\/]/, '');
+    
+    // Detect environment
+    const isVercel = window.location.hostname.includes('vercel.app');
+    const isLocal = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1';
+    
+    if (isVercel) {
+        // Vercel deployment - images are served from public folder
+        return `/Graph-questions/${cleanFilename}`;
+    } else if (isLocal) {
+        // Local development - try multiple paths
+        return `Graph-questions/${cleanFilename}`;
+    } else {
+        // Fallback for other deployments
+        return `/Graph-questions/${cleanFilename}`;
+    }
+}
+
+        // Handle image loading errors with fallback paths
+        let imageErrorAttempts = {};
+        
+        function handleImageError(imgElement, fallbackPaths, filename) {
+            const imgId = imgElement.id;
+            
+            if (!imageErrorAttempts[imgId]) {
+                imageErrorAttempts[imgId] = 0;
+            }
+            
+            console.error(`❌ Image failed to load: ${imgElement.src}`);
+            
+            if (imageErrorAttempts[imgId] < fallbackPaths.length) {
+                const nextPath = fallbackPaths[imageErrorAttempts[imgId]];
+                console.log(`🔄 Trying fallback path #${imageErrorAttempts[imgId] + 1}:`, nextPath);
+                imageErrorAttempts[imgId]++;
+                imgElement.src = nextPath;
+            } else {
+                console.error(`💔 All paths failed for image: ${filename}`);
+                console.log('📁 Please check that the image exists in one of these locations:');
+                console.log('   - /public/Graph-questions/' + filename);
+                console.log('   - /Graph-questions/' + filename);
+                console.log('   - ./Graph-questions/' + filename);
+                
+                // Show error placeholder
+                imgElement.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23f8d7da' width='400' height='300'/%3E%3Ctext x='50%25' y='45%25' text-anchor='middle' fill='%23721c24' font-family='Arial' font-size='16' font-weight='bold'%3E⚠️ Image Not Found%3C/text%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='%23721c24' font-family='Arial' font-size='14'%3E${filename}%3C/text%3E%3C/svg%3E`;
+                imgElement.style.border = '3px solid #dc3545';
+                imgElement.style.background = '#fff';
+                
+                const statusDiv = document.getElementById(`img-status-${imgElement.id.split('-')[1]}`);
+                if (statusDiv) {
+                    statusDiv.innerHTML = `<span style="color: #dc3545; font-weight: bold;">⚠️ Image file not found: ${filename}</span>`;
+                }
+            }
+        }
         // Enhanced Answer validation utility with flexible infinity support
         const answerNormalizer = {
             normalizeInterval: (answer) => {
@@ -1562,6 +1622,7 @@ function getImagePath(filename) {
     </script>
 </body>
 </html>
+
 
 
 
