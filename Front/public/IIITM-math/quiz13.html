@@ -883,7 +883,7 @@ testImageAccess();
             }
         }
 
-        function renderCurrentQuestion() {
+        async function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
             
@@ -1714,7 +1714,6 @@ if (question.image_file) {
     </script>
 </body>
 </html>
-
 
 
 
