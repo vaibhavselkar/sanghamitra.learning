@@ -440,12 +440,43 @@
     <script>
 
         // Image path function - handles both local and Vercel deployments
-// Image path function - SIMPLIFIED VERSION
+// FIXED VERSION: Handles .PNG and .png
 function getImagePath(filename) {
     if (!filename) return '';
     
-    // ALWAYS use this exact path for Vercel
-    return `/Graph-questions/${filename}`;
+    // First try the exact filename as stored
+    let exactPath = `/Graph-questions/${filename}`;
+    console.log(`📁 Image path attempt: ${exactPath}`);
+    
+    return exactPath;
+}
+
+// NEW: Function to test image with multiple extensions
+async function testImageExists(filename) {
+    if (!filename) return null;
+    
+    const extensions = [
+        filename,                     // Original: 8.2.PNG
+        filename.toLowerCase(),       // Lowercase: 8.2.png
+        filename.replace(/\.PNG$/i, '.png'),  // Force .png
+        filename.replace(/\.png$/i, '.PNG')   // Force .PNG
+    ];
+    
+    for (const testFile of extensions) {
+        const testUrl = `/Graph-questions/${testFile}`;
+        try {
+            const response = await fetch(testUrl, { method: 'HEAD' });
+            if (response.ok) {
+                console.log(`✅ Found: ${testFile} (tried ${filename})`);
+                return testFile; // Return the working filename
+            }
+        } catch (error) {
+            // Continue to next extension
+        }
+    }
+    
+    console.log(`❌ No variation found for: ${filename}`);
+    return null;
 }
 
 // Handle image loading errors with fallback paths
@@ -479,6 +510,36 @@ function handleImageError(imgElement, fallbackPaths, filename) {
             statusDiv.innerHTML = `<span style="color: #dc3545; font-weight: bold;">⚠️ Image file not found: ${filename}</span>`;
         }
     }
+}
+
+        // Add this with your other functions (near getImagePath)
+async function findCorrectImageExtension(filename) {
+    const tests = [
+        filename,                    // Original case
+        filename.toLowerCase(),      // All lowercase
+        filename.toUpperCase(),      // All uppercase
+        filename.replace(/(\.png)$/i, '.PNG'), // Force .PNG
+        filename.replace(/(\.PNG)$/i, '.png'), // Force .png
+        filename.replace(/\..*$/, '.png'),     // Replace any extension with .png
+        filename.replace(/\..*$/, '.PNG')      // Replace any extension with .PNG
+    ];
+    
+    // Remove duplicates
+    const uniqueTests = [...new Set(tests)];
+    
+    for (const testFile of uniqueTests) {
+        const testUrl = `/Graph-questions/${testFile}`;
+        try {
+            const response = await fetch(testUrl, { method: 'HEAD' });
+            if (response.ok) {
+                return testFile;
+            }
+        } catch (error) {
+            continue;
+        }
+    }
+    
+    return null;
 }
         // Enhanced Answer validation utility with flexible infinity support
         const answerNormalizer = {
@@ -923,32 +984,29 @@ testImageAccess();
             
             // Add image if available
            
-            // FIXED: Image loading with simple path
+// FIXED: Image loading with case-insensitive handling
 let imageHtml = '';
 if (question.image_file) {
-    const imagePath = getImagePath(question.image_file);
+    // Test which extension works
+    const workingFilename = await testImageExists(question.image_file);
     
-    // Add debugging
-    console.log('🖼️ Loading image:', {
-        filename: question.image_file,
-        path: imagePath,
-        questionNumber: question.question_number || currentQuestionIndex + 1
-    });
-    
-    imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image" 
-                  onload="console.log('✅ Image loaded successfully:', this.src)"
-                  onerror="console.error('❌ Image failed to load:', this.src); 
-                           this.onerror = null;
-                           this.src = 'data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"400\" height=\"300\"><rect width=\"100%\" height=\"100%\" fill=\"%23f0f0f0\"/><text x=\"50%\" y=\"50%\" text-anchor=\"middle\" dy=\".3em\" font-family=\"Arial\" font-size=\"16\" fill=\"%23666\">Missing: ${question.image_file}</text></svg>'">`;
-    
-    // Test the image immediately
-    fetch(imagePath, { method: 'HEAD' })
-        .then(response => {
-            console.log(`📊 Image status: ${response.ok ? '✅ EXISTS' : '❌ MISSING'} (${response.status})`);
-        })
-        .catch(error => {
-            console.log(`📊 Image fetch error: ${error.message}`);
-        });
+    if (workingFilename) {
+        const imagePath = `/Graph-questions/${workingFilename}`;
+        console.log(`🖼️ Loading image: ${question.image_file} → ${workingFilename}`);
+        
+        imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
+    } else {
+        // Show placeholder if image not found
+        console.log(`⚠️ No image found for: ${question.image_file}`);
+        imageHtml = `<div class="image-placeholder" style="width: 100%; height: 300px; background: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 20px 0; border: 2px dashed #ccc;">
+            <div style="text-align: center; color: #666;">
+                <div style="font-size: 24px;">📊</div>
+                <div>Graph Image</div>
+                <div style="font-size: 12px; margin-top: 10px; color: #999;">${question.image_file}</div>
+                <div style="font-size: 10px; color: #dc3545; margin-top: 5px;">(.PNG extension detected)</div>
+            </div>
+        </div>`;
+    }
 }
 
                        // Debug image loading
@@ -1656,6 +1714,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
