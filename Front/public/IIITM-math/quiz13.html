@@ -534,12 +534,6 @@ function getImagePath(filename) {
     }
 }
 
-// Then use it in renderCurrentQuestion:
-let imageHtml = '';
-if (question.image_file) {
-    const imagePath = getImagePath(question.image_file);
-    imageHtml = `<img src="${imagePath}" alt="Question Image" class="question-image">`;
-}
 
         let userAnswers = {};
         let currentUser = {};
@@ -1568,6 +1562,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
