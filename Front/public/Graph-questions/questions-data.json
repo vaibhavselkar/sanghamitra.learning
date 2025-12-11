@@ -341,7 +341,27 @@
   "correct_answer": "Change in value of B₁.",
   "explanation": "To determine what causes changes in B₂, we need to look at the incoming edges to B₂ in the dependency graph from question 19. In a dependency graph, a node's value changes when any of its direct dependencies (nodes with edges pointing to it) change. Looking at the graph: B₂ is produced from its predecessors. Tracing the dependencies backward from B₂, we need to identify which nodes have directed paths leading to B₂. From the graph structure shown earlier: B₁ has a path to B₂ (B₁ is used in producing chemicals that eventually lead to B₂). B₃ comes after B₂ in the sequence, so B₃ cannot cause changes in B₂ (dependency flows forward, not backward). A₂ may or may not have a direct path to B₂ depending on the graph structure. Since B₁ is an upstream dependency of B₂, changes in B₁ will propagate forward and cause changes in B₂.",
   "points": 1
-}
+},
+
+{
+    "_id":  "graph_theory_q21",
+    "topic": "graph_theory",
+    "question_number": 21,
+    "difficulty": "medium",
+    "type": "multiple_choice",
+    "question_text": "What are the resulting graphs after removing the first node during topological sorting?",
+    "image_file": "20.png",
+    "options": [
+      "Graph with nodes F, A, B, C, D, G, H where F connects to B, C, D and other connections remain",
+      "Graph with nodes A, B, C, D, G, H in linear arrangement",
+      "Graph with nodes F at top, then A, C, D in middle row, and G, H at bottom",
+      "Graph with nodes E, F at top connecting to A, B, D, and G, H at bottom"
+    ],
+    "correct_answer": "Graph with nodes F, A, B, C, D, G, H where F connects to B, C, D and other connections remain",
+    "explanation": "In topological sorting, we remove nodes with no incoming edges (in-degree = 0) one at a time. Looking at the original graph, node E appears to be the first node to remove as it has no incoming edges. After removing E and its outgoing edges, the resulting graph will have F at the top level (as E's edge to F is removed), and the rest of the graph structure remains with nodes A, B, C, D, G, H maintaining their relationships. The first option correctly shows the graph structure after removing the first node (E) during topological sorting.",
+    "points": 1
+  }  
+
 
 
 ]
