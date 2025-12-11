@@ -360,8 +360,83 @@
     "correct_answer": "Graph with nodes F, A, B, C, D, G, H where F connects to B, C, D and other connections remain",
     "explanation": "In topological sorting, we remove nodes with no incoming edges (in-degree = 0) one at a time. Looking at the original graph, node E appears to be the first node to remove as it has no incoming edges. After removing E and its outgoing edges, the resulting graph will have F at the top level (as E's edge to F is removed), and the rest of the graph structure remains with nodes A, B, C, D, G, H maintaining their relationships. The first option correctly shows the graph structure after removing the first node (E) during topological sorting.",
     "points": 1
-  }  
+  },
+   {
+    "_id":  "graph_theory_q22",
+    "topic": "graph_theory",
+    "question_number": 22,
+    "difficulty": "medium",
+    "type": "multiple_choice",
+    "question_text": "Which of the following are valid topological orders for this graph?",
+    "image_file": "21.png",
+    "options": [
+      "E, F, C, B, G, A, H, D",
+      "E, C, B, F, A, G, H, D",
+      "E, C, F, B, G, A, H, D",
+      "C, F, E, B, A, G, H, D",
+      "C, E, F, B, G, A, H, D",
+      "E, C, F, B, D, H, H, F"
+    ],
+    "correct_answer": "E, F, C, B, G, A, H, D",
+    "explanation": "A valid topological order must satisfy the property that for every directed edge (u, v) in the graph, vertex u comes before vertex v in the ordering. To verify a topological order, we need to check all edges in the graph and ensure the ordering respects these dependencies. Looking at the graph structure from the previous questions, we can identify the edges and their directions. The first option 'E, F, C, B, G, A, H, D' maintains the correct ordering where all parent nodes appear before their children nodes in the directed graph. We can verify this by checking that no node appears before its prerequisites in the sequence.",
+    "points": 1
+  },
+  {
+    "_id": "graph_theory_q23",
+    "topic": "graph_theory",
+    "question_number": 4,
+    "difficulty": "medium",
+    "type": "multiple_choice",
+    "question_text": "Suppose we obtain the following DFS tree rooted at node 0 for an undirected graph with vertices {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}. Which of the following cannot be an edge in the original graph?",
+    "image_file": "22.png",
+    "options": [
+      "(1, 4)",
+      "(0, 4)",
+      "(7, 10)",
+      "(2, 9)"
+    ],
+    "correct_answer": "(7, 10)",
+    "explanation": "In a DFS tree, edges in the original undirected graph can be classified as either tree edges (shown in the DFS tree) or back edges (connecting a vertex to its ancestor in the DFS tree). An edge that connects two vertices where neither is an ancestor of the other in the DFS tree cannot exist in the original graph, because DFS would have discovered it when visiting one of those vertices. Looking at the DFS tree: node 7 is in the subtree rooted at node 2 (path: 0→2→7), and node 10 is in a different subtree rooted at node 6 (path: 0→2→6→10). Since neither node 7 nor node 10 is an ancestor of the other, and they are in different subtrees that have already been fully explored when each was visited, the edge (7, 10) cannot exist in the original graph. If it did exist, it would have been discovered during DFS traversal.",
+    "points": 1
+  },
+  {
+    "_id": "graph_theory_q24",
+    "topic": "graph_theory",
+    "question_number": 5,
+    "difficulty": "medium",
+    "type": "multiple_choice",
+    "question_text": "Ten friends in a college decided to have a night party at the home of one of them. Unfortunately at D-day the government closes many of the routes of the city. The below graph shows the location of their homes and the open routes as the graph G = (V, E), where V is the set of nodes and E is the edges representing the open routes. The possible place for the party is:",
+    "image_file": "23.png",
+    "options": [
+      "Shiva's house.",
+      "Abhi's house.",
+      "Joe's house.",
+      "Vishi's house."
+    ],
+    "correct_answer": "Vishi's house.",
+    "explanation": "For all ten friends to attend the party, the party location must be a vertex that is reachable from all other vertices in the graph. In other words, we need to find a vertex that all other vertices can reach through the available (open) routes. Looking at the graph structure: The graph shows ten friends - Anya, Ritu, Kristi, Karan, Abhi, Joe, Shiva, Nia, Rubi, and Vishi. By examining the directed edges (arrows show the direction of travel), we need to check which location can be reached by everyone. Vishi's house appears to be reachable from all other nodes in the graph through various paths, making it the only viable location where all ten friends can gather. If we trace paths from each person's home, we can verify that there exists a path to Vishi's house from every other vertex, while the other options (Shiva, Abhi, or Joe) cannot be reached by everyone due to the directed nature of the graph and closed routes.",
+    "points": 1
+  },
+  {
+    "_id": "graph_theory_q25",
+    "topic": "graph_theory",
+    "question_number": 6,
+    "difficulty": "medium",
+    "type": "multiple_choice",
+    "question_text": "Consider the following directed graph. Suppose DFS of this graph is performed from node A such that when we visit a vertex we explore its unvisited neighbours in alphabetical order. Which of the following options are correct?",
+    "image_file": "26.png",
+    "options": [
+      "AC is a forward edge.",
+      "CE is a backward edge.",
+      "BD is a forward edge.",
+      "FC is a backward edge."
+    ],
+    "correct_answer": "FC is a backward edge.",
+    "explanation": "In DFS, edges are classified as: (1) Tree edges - edges in the DFS tree, (2) Forward edges - edges from ancestor to descendant (not in tree), (3) Back edges - edges from descendant to ancestor, (4) Cross edges - all other edges. Starting DFS from A and exploring neighbors alphabetically: A → B (tree edge), B → C (tree edge), C → E (tree edge), C → F (tree edge). Now we backtrack. From B we already visited C. Check D from B: B → D (tree edge). Now check other edges: A → C exists in graph - since we visit B first from A, then B visits C, so A → C would be a forward edge (ancestor to descendant). C → E is a tree edge (not backward). B → D is a tree edge (not forward edge, it's part of the DFS tree). F → C: F is visited as a child of C in the DFS tree, so F → C goes from descendant back to ancestor, making it a backward edge. Therefore, 'FC is a backward edge' is correct.",
+    "points": 1
+  }
 
 
 
 ]
+
