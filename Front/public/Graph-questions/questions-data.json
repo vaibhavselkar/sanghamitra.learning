@@ -603,7 +603,7 @@
   "image_file": "41.png",
   "correct_answer": 4,
   "explanation": "First, let's understand the graph structure from the adjacency matrix. The graph has 7 vertices (v0 to v6). From the adjacency matrix, the edges are: v0-v1, v0-v3, v1-v2, v1-v3, v1-v5, v3-v4, v3-v5, v3-v6. \n\nDegree of each vertex: v0: degree 2 (connected to v1, v3), v1: degree 4 (connected to v0, v2, v3, v5), v2: degree 1 (connected to v1), v3: degree 5 (connected to v0, v1, v4, v5, v6), v4: degree 1 (connected to v3), v5: degree 2 (connected to v1, v3), v6: degree 1 (connected to v3). \n\nAn independent set is a set of vertices with no edges between them. We need to find the maximum such set. \n\nObservation: v3 has the highest degree (5), so it's connected to many vertices. If we exclude v3, we can potentially include v0, v4, v5, v6 (all connected to v3). \n\nChecking independence: {v2, v4, v5, v6}: v2 is only connected to v1 (not in set), v4 is only connected to v3 (not in set), v5 is connected to v1 and v3 (not in set), v6 is only connected to v3 (not in set). But we need to verify v2-v5 connection: Looking at the matrix, v2 (row 2) and v5 (row 5): A[2][5] = 0, so no edge. Also checking all other pairs in this set confirms no edges exist between them. \n\nTherefore, {v2, v4, v5, v6} forms an independent set of size 4. We can verify that no independent set of size 5 exists by checking that any addition of another vertex would create an edge within the set. \n\nThe maximum independent set has cardinality 4.",
-  "points": 2
+  "points": 1
 },
 
 {
@@ -666,5 +666,6 @@
 
 
 ]
+
 
 
