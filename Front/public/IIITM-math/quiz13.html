@@ -389,7 +389,7 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-text" id="progressText">Question 1 of 30</div>
+                <div class="progress-text" id="progressText">Question 1 of 50</div>
             </div>
             
             <div id="questionContainer"></div>
@@ -397,7 +397,7 @@
             <div class="question-navigation">
                 <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
                 <div class="question-status">
-                    <span id="questionStatus">Question 1 of 30</span>
+                    <span id="questionStatus">Question 1 of 50</span>
                     <span id="answeredStatus" class="status-unanswered">Unanswered</span>
                 </div>
                 <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
@@ -421,7 +421,7 @@
         <!-- Results -->
         <div id="resultsContainer" class="results-container">
             <div class="score-display">
-                <h2 id="finalScore">0/30</h2>
+                <h2 id="finalScore">0/50</h2>
                 <p>Quiz Completed Successfully!</p>
             </div>
             <button class="btn" onclick="goback()">Home Page</button>
@@ -1554,7 +1554,7 @@ if (question.image_file) {
                 console.log('📝 Already answered question IDs:', answeredQuestionIds);
                 
                 // Step 2: Fetch ALL questions for this topic
-               const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/graph_theory?email=${encodeURIComponent(email)}&count=1000`, {
+               const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/graph_theory?email=${encodeURIComponent(email)}&count=50`, {
                     credentials: 'include'
                 });
                 
@@ -1714,6 +1714,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
