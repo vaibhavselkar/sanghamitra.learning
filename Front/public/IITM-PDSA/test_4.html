@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graph Algorithms Quiz</title>
-    <!-- Include Monaco Editor for code editing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <!-- Bootstrap CSS only -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -41,11 +40,13 @@
             border-left: 5px solid #667eea;
         }
 
-        .code-editor-container {
-            border: 2px solid #e9ecef;
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #dee2e6;
             border-radius: 8px;
-            margin: 20px 0;
-            height: 400px;
+            margin: 15px 0;
+            display: block;
         }
 
         .test-cases {
@@ -105,7 +106,6 @@
         }
 
         .results-container { display: none; padding: 30px; }
-        .loading { display: none; }
         
         .explanation-section {
             background: #fff3cd;
@@ -160,6 +160,21 @@
             margin: 15px 0;
             overflow-x: auto;
         }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -171,7 +186,7 @@
 
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <div class="loading-spinner"></div>
             <h3>Loading Quiz...</h3>
             <p>Preparing your test environment</p>
         </div>
@@ -180,11 +195,11 @@
         <div id="quizContainer" class="quiz-container" style="display: none;">
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
-                    <span id="progressText">Question 1 of 24</span>
-                    <span id="scoreText">Score: 0/24</span>
+                    <span id="progressText">Question 1 of 50</span>
+                    <span id="scoreText">Score: 0/50</span>
                 </div>
                 <div class="progress">
-                    <div class="progress-bar" id="progressFill" style="width: 4.17%;"></div>
+                    <div class="progress-bar" id="progressFill" style="width: 2%;"></div>
                 </div>
             </div>
             
@@ -207,7 +222,7 @@
         <!-- Results -->
         <div id="resultsContainer" class="results-container">
             <div class="score-display">
-                <h2 id="finalScore">0/24</h2>
+                <h2 id="finalScore">0/50</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
             </div>
@@ -218,204 +233,181 @@
 
     <script>
         const questions = [
-            // BFS Questions
+            
             {
-                questionId: 1,
-                title: "What is the fundamental principle behind BFS traversal?",
-                type: "mcq-single",
-                options: [
-                    
-                    "It explores as far as possible along each branch before backtracking",
-                    "It randomly selects nodes to visit",
-                    "It explores all nodes at the present depth level before moving to nodes at the next depth level",
-                    "It prioritizes nodes with higher values"
-                ],
-                correctAnswer: "It explores all nodes at the present depth level before moving to nodes at the next depth level",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "BFS explores nodes level by level, visiting all nodes at the current depth before moving to nodes at the next depth level."
+                "questionId": 1,
+                "title": "In an undirected graph with 8 nodes and 12 edges, how many total entries will appear in its adjacency list representation?",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 24,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "In undirected graphs, each edge appears twice in adjacency list. Hence total = 2 × 12 = 24."
             },
             {
-                questionId: 2,
-                title: "Why is a queue used in BFS instead of a stack?",
-                type: "mcq-single",
-                options: [
-                    
+                "questionId": 2,
+                "title": "A DFS traversal on a connected graph visits 10 nodes. How many back edges can appear in the DFS forest of an undirected graph?",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 0,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "In DFS of an undirected graph, cross edges do not exist. Back edges are reclassified as tree edges. So answer = 0."
+            },
+            
+            {
+                "questionId": 3,
+                "title": "Why is a queue used in BFS instead of a stack?",
+                "type": "mcq-single",
+                "options": [
                     "Queue follows LIFO principle, enabling depth-first exploration",
                     "Queue provides random access to elements",
                     "Queue is more memory efficient than stack",
                     "Queue follows FIFO principle, ensuring level-order traversal"
                 ],
-                correctAnswer: "Queue follows FIFO principle, ensuring level-order traversal",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The FIFO (First-In-First-Out) property of queues ensures that nodes are processed in the order they were discovered, maintaining level-order traversal."
+                "correctAnswer": "Queue follows FIFO principle, ensuring level-order traversal",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "The FIFO (First-In-First-Out) property of queues ensures that nodes are processed in the order they were discovered, maintaining level-order traversal."
             },
             {
-                questionId: 3,
-                title: "What is the purpose of the visited set in the BFS implementation?",
-                type: "mcq-single",
-                options: [
-                    
-                    "To store the final traversal order",
-                    "To prevent revisiting nodes and avoid infinite loops",
-                    "To track the distance from start node",
-                    "To optimize memory usage"
+                "questionId": 4,
+                "title": "Analyze the graph below. What is the result of BFS starting from node A?",
+                "image": "graph_images/q4w4.png",
+                "type": "mcq-single",
+                "options": [
+                    "A, B, C, D, E, F",
+                    "A, B, D, C, E, F",
+                    "A, B, C, E, D, F",
+                    "A, C, B, E, D, F"
                 ],
-                correctAnswer: "To prevent revisiting nodes and avoid infinite loops",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The visited set ensures each node is processed only once, preventing cycles and infinite loops in graphs with cycles."
+                "correctAnswer": "A, B, C, D, E, F",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "BFS explores level by level: A (level 0) → B, C (level 1) → D, E (level 2) → F (level 3)."
             },
             {
-                questionId: 4,
-                title: "What does queue.popleft() do in the implementation?",
-                type: "mcq-single",
-                options: [
-                    "Removes and returns the leftmost element (FIFO)",
-                    "Removes and returns the rightmost element (LIFO)",
-                    "Adds an element to the left end",
-                    "Returns the leftmost element without removing it"
-                ],
-                correctAnswer: "Removes and returns the leftmost element (FIFO)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "popleft() removes and returns the element from the left end of the deque, following FIFO principle essential for BFS."
-            },
-            {
-                questionId: 5,
-                title: "What is the time complexity of the BFS algorithm?",
-                type: "mcq-single",
-                options: [
-                    
+                "questionId": 5,
+                "title": "What is the time complexity of the BFS algorithm?",
+                "type": "mcq-single",
+                "options": [
                     "O(V × E)",
                     "O(log V)",
                     "O(V²)",
                     "O(V + E) where V is vertices and E is edges"
                 ],
-                correctAnswer: "O(V + E) where V is vertices and E is edges",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "BFS visits each vertex once and checks each edge once, resulting in O(V + E) time complexity."
+                "correctAnswer": "O(V + E) where V is vertices and E is edges",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "BFS visits each vertex once and checks each edge once, resulting in O(V + E) time complexity."
             },
             {
-                questionId: 6,
-                title: "In the shortest path implementation, why do we store the entire path with each queue element?",
-                type: "mcq-single",
-                options: [
-                    
-                    "To optimize memory usage",
-                    "To avoid using a visited set",
-                    "To enable parallel processing",
-                    "To reconstruct the path when we reach the target node"
+                "questionId": 6,
+                "title": "Consider the above graph. Which among the following is/are NOT a topological ordering of the given graph?",
+                "image": "graph_images/q1w4.png",
+                "type": "mcq-multiple",
+                "options": [
+                    "[1, 2, 3, 4, 6, 5]",
+                    "[1, 3, 4, 2, 5, 6]",
+                    "[1, 3, 2, 4, 6, 5]",
+                    "[1, 2, 3, 4, 5, 6]",
+                    "[1, 2, 4, 3, 5, 6]"
                 ],
-                correctAnswer: "To reconstruct the path when we reach the target node",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Storing the complete path allows immediate reconstruction when the target is found, without needing additional data structures."
+                "correctAnswer": [
+                    "[1, 3, 4, 2, 5, 6]",
+                    "[1, 2, 4, 3, 5, 6]"
+                ],
+                "maxScore": 2,
+                "hasExplanations": true,
+                "explanation": "Validity requires 1 → 2, 1 → 3, 2 → 4, 3 → 4, 4 → 5, and 3 → 6. Any ordering violating these constraints is not a topological order."
             },
+
             {
-                questionId: 7,
-                title: "Why is deque from collections used instead of a regular list for the queue?",
-                type: "mcq-single",
-                options: [
-                    
+                "questionId": 7,
+                "title": "Why is deque from collections used instead of a regular list for the queue?",
+                "type": "mcq-single",
+                "options": [
                     "Deque uses less memory than list",
                     "popleft() from deque is O(1) while pop(0) from list is O(n)",
                     "Deque allows random access to elements",
                     "Deque automatically sorts elements"
                 ],
-                correctAnswer: "popleft() from deque is O(1) while pop(0) from list is O(n)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "deque provides O(1) operations for append and popleft, while list would have O(n) for pop(0), making BFS more efficient."
+                "correctAnswer": "popleft() from deque is O(1) while pop(0) from list is O(n)",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "deque provides O(1) operations for append and popleft, while list would have O(n) for pop(0), making BFS more efficient."
             },
             {
-                questionId: 8,
-                title: "What would happen if we used a stack instead of a queue in BFS?",
-                type: "mcq-single",
-                options: [
+                "questionId": 8,
+                "title": "What would happen if we used a stack instead of a queue in BFS?",
+                "type": "mcq-single",
+                "options": [
                     "The algorithm would become DFS (Depth-First Search)",
                     "It would still perform BFS but more efficiently",
                     "It would cause a runtime error",
                     "It would visit nodes in the same order"
                 ],
-                correctAnswer: "The algorithm would become DFS (Depth-First Search)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Using a stack (LIFO) instead of a queue (FIFO) changes the traversal order from breadth-first to depth-first."
+                "correctAnswer": "The algorithm would become DFS (Depth-First Search)",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Using a stack (LIFO) instead of a queue (FIFO) changes the traversal order from breadth-first to depth-first."
             },
             {
-                questionId: 9,
-                title: "How does the graph representation (adjacency list) affect BFS performance?",
-                type: "mcq-single",
-                options: [
-                    
+                "questionId": 9,
+                "title": "How does the graph representation (adjacency list) affect BFS performance?",
+                "type": "mcq-single",
+                "options": [
                     "Adjacency matrix would be faster for sparse graphs",
                     "Adjacency list provides O(1) access to neighbors, optimal for BFS",
                     "Edge list representation would improve time complexity",
                     "The representation doesn't affect BFS performance"
                 ],
-                correctAnswer: "Adjacency list provides O(1) access to neighbors, optimal for BFS",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Adjacency list allows efficient access to all neighbors of a node, which is crucial for BFS performance."
+                "correctAnswer": "Adjacency list provides O(1) access to neighbors, optimal for BFS",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Adjacency list allows efficient access to all neighbors of a node, which is crucial for BFS performance."
             },
             {
-                questionId: 10,
-                title: "In the shortest path BFS, why is the first found path guaranteed to be the shortest?",
-                type: "mcq-single",
-                options: [
-                    
-                    "The algorithm uses dynamic programming to optimize paths",
-                    "It compares all possible paths simultaneously",
-                    "BFS explores nodes in increasing order of distance from start",
-                    "The queue automatically sorts paths by length"
-                ],
-                correctAnswer: "BFS explores nodes in increasing order of distance from start",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "BFS processes nodes level by level, so the first time a node is reached, it's via the shortest path from the start."
+                "questionId": 10,
+                "title": "Examine the directed graph below. Which nodes are reachable from node 1 using BFS?",
+                "image": "graph_images/q10w4.png",
+                "type": "mcq-multiple",
+                "options": ["2", "3", "4", "5", "6"],
+                "correctAnswer": ["2", "3", "4", "5"],
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "From node 1: 1→2, 1→3, 2→4, 3→5. Node 6 is not reachable from node 1."
             },
             {
-                questionId: 11,
-                title: "What modification would be needed to handle weighted graphs with BFS?",
-                type: "mcq-single",
-                options: [
+                "questionId": 11,
+                "title": "What modification would be needed to handle weighted graphs with BFS?",
+                "type": "mcq-single",
+                "options": [
                     "BFS cannot handle weighted graphs directly; Dijkstra's algorithm is needed",
                     "Use priority queue instead of regular queue",
                     "Store weights in the visited set",
                     "Multiply edge weights during traversal"
                 ],
-                correctAnswer: "BFS cannot handle weighted graphs directly; Dijkstra's algorithm is needed",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "BFS assumes all edges have equal weight. For weighted graphs, Dijkstra's algorithm or other weighted graph algorithms are required."
+                "correctAnswer": "BFS cannot handle weighted graphs directly; Dijkstra's algorithm is needed",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "BFS assumes all edges have equal weight. For weighted graphs, Dijkstra's algorithm or other weighted graph algorithms are required."
             },
             {
-                questionId: 12,
-                title: "How would you modify BFS to find connected components in an undirected graph?",
-                type: "mcq-single",
-                options: [
-                    
-                    "Use DFS instead as it's better for connected components",
-                    "Modify the queue to store component IDs",
-                    "Run BFS from each unvisited node and count separate components",
-                    "Sort nodes before running BFS"
-                ],
-                correctAnswer: "Run BFS from each unvisited node and count separate components",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Each BFS call from an unvisited node will discover one connected component. Count these calls to find all components."
+                "questionId": 12,
+                "title": "A directed acyclic graph (DAG) has 7 nodes and 8 edges. How many valid topological sorts are possible if the only constraint is 1 → 2 → 3 and remaining 4 nodes are independent?",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 120,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Only nodes 1,2,3 must remain ordered. Remaining 4! = 24 ways to arrange free nodes. Total = 24 × 5 = 120."
             },
-
-            // DFS Questions
             {
                 questionId: 13,
                 title: "What is the fundamental principle behind DFS traversal?",
                 type: "mcq-single",
                 options: [
-                    
                     "It explores all nodes at the present depth level before moving deeper",
                     "It randomly selects nodes to visit",
                     "It explores as far as possible along each branch before backtracking",
@@ -431,11 +423,10 @@
                 title: "What is the key difference between DFS recursion and iteration?",
                 type: "mcq-single",
                 options: [
-                    
                     "Recursion is always faster than iteration",
                     "Iteration can handle larger graphs than recursion",
                     "Only recursion can implement DFS properly",
-                    "Recursion uses call stack, iteration uses explicit stack",
+                    "Recursion uses call stack, iteration uses explicit stack"
                 ],
                 correctAnswer: "Recursion uses call stack, iteration uses explicit stack",
                 maxScore: 1,
@@ -447,7 +438,6 @@
                 title: "Why might DFS recursion cause stack overflow for large graphs?",
                 type: "mcq-single",
                 options: [
-                    
                     "Too many variables are created",
                     "Memory fragmentation occurs",
                     "Deep recursion exceeds call stack limit",
@@ -463,11 +453,10 @@
                 title: "In the iterative DFS, why are neighbors pushed in reverse order?",
                 type: "mcq-single",
                 options: [
-                    
                     "To optimize memory usage",
                     "To avoid stack overflow",
                     "To handle directed graphs properly",
-                    "To maintain same traversal order as recursive DFS",
+                    "To maintain same traversal order as recursive DFS"
                 ],
                 correctAnswer: "To maintain same traversal order as recursive DFS",
                 maxScore: 1,
@@ -492,9 +481,9 @@
             {
                 questionId: 18,
                 title: "In the path finding DFS, what does 'neighbor not in path' check prevent?",
+                image: "graph_images/dfs_cycle.png",
                 type: "mcq-single",
                 options: [
-                    
                     "Optimizes path finding",
                     "Prevents cycles and infinite recursion",
                     "Ensures shortest path",
@@ -510,11 +499,10 @@
                 title: "Why is a stack used in iterative DFS instead of a queue?",
                 type: "mcq-single",
                 options: [
-                    
                     "Stack follows FIFO principle, ensuring level-order traversal",
                     "Stack provides random access to elements",
                     "Stack is more memory efficient than queue",
-                    "Stack follows LIFO principle, enabling depth-first exploration",
+                    "Stack follows LIFO principle, enabling depth-first exploration"
                 ],
                 correctAnswer: "Stack follows LIFO principle, enabling depth-first exploration",
                 maxScore: 1,
@@ -522,42 +510,32 @@
                 explanation: "The LIFO (Last-In-First-Out) property of stacks ensures we explore the most recently discovered nodes first, enabling depth-first behavior."
             },
             {
-                questionId: 20,
-                title: "What is the purpose of rec_stack in cycle detection?",
-                type: "mcq-single",
-                options: [
-                    "Tracks nodes in current recursion path to detect back edges",
-                    "Stores the final traversal order",
-                    "Optimizes memory usage",
-                    "Prevents stack overflow"
-                ],
-                correctAnswer: "Tracks nodes in current recursion path to detect back edges",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "rec_stack tracks nodes in the current recursion path. If we encounter a node already in rec_stack, we've found a cycle (back edge)."
+                "questionId": 20,
+                "title": "A DFS traversal produces discovery times: 1,2,3,4,5 for nodes A,B,C,D,E respectively. How many tree edges exist in the DFS tree?",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 4,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "If 5 nodes are discovered in strict increasing order, they form a linear DFS chain → 4 tree edges."
             },
             {
-                questionId: 21,
-                title: "How does DFS handle disconnected graphs?",
-                type: "mcq-single",
-                options: [
-                    
-                    "Requires special disconnected graph algorithm",
-                    "Only works on connected graphs",
-                    "Need to call DFS multiple times for each unvisited node",
-                    "Automatically handles all components in one call"
-                ],
-                correctAnswer: "Need to call DFS multiple times for each unvisited node",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "For disconnected graphs, DFS must be initiated from each unvisited node to ensure all components are discovered."
+                "questionId": 21,
+                "title": "Consider the following implementation of insertion sort:\n\ndef insertionsort(L):\n    n = len(L)\n    if n < 1:\n        return(L)\n    for j in range(n):\n        j = j\n        while(j > 0 and L[j] < L[j-1]):\n            (L[j], L[j-1]) = (L[j-1], L[j])  # Swap Operation\n            j = j-1\n    return(L)\n\nThe number of swap operations for insertionsort([3, 4, 2, 1, 5]) is __.",
+                "image": "graph_images/insertion_sort_code.png",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 4,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "The insertion sort swaps occur as follows: For 2 → 1 swap, 4 swap, 3 swap (3 swaps total so far). Then for 1 → 2 swap, 4 swap, 3 swap, 2 swap (4 swaps). Total swaps = 4."
             },
+
             {
                 questionId: 22,
                 title: "Why does DFS not guarantee shortest path in unweighted graphs?",
                 type: "mcq-single",
                 options: [
-                    
                     "It uses stack instead of queue",
                     "It doesn't track path lengths",
                     "It visits nodes in random order",
@@ -573,7 +551,6 @@
                 title: "What is the space complexity of DFS recursion vs iteration?",
                 type: "mcq-single",
                 options: [
-                    
                     "Recursion O(n), iteration O(1)",
                     "Both O(h) where h is maximum depth, but recursion has call stack overhead",
                     "Recursion O(1), iteration O(n)",
@@ -587,6 +564,7 @@
             {
                 questionId: 24,
                 title: "How does DFS work for topological sorting?",
+                image: "graph_images/topological_graph.png",
                 type: "mcq-single",
                 options: [
                     "Process nodes in reverse post-order after complete exploration",
@@ -599,409 +577,378 @@
                 hasExplanations: true,
                 explanation: "For topological sort, DFS processes nodes in reverse order of finishing times (post-order), ensuring dependencies are satisfied."
             },
+            {
+                "questionId": 25,
+                "title": "A DAG has 6 nodes. One of the valid topological orders is [1, 2, 4, 5, 3, 6]. How many nodes must appear before node 3 in every valid topological order?",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 2,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Nodes 1 and 2 always appear before 3 in every order because all possible edges to 3 originate from them."
+            },
 
-    {
-      "questionId": 25,
-      "title": "What is the primary purpose of Breadth First Search (BFS) in an unweighted graph?",
-      "type": "mcq-single",
-      "options": [
-        "To find the shortest path in terms of number of edges",
-        "To find the longest path in the graph",
-        "To detect cycles in directed graphs",
-        "To sort vertices topologically"
-      ],
-      "correctAnswer": "To find the shortest path in terms of number of edges",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "BFS explores level by level, making it ideal for finding shortest paths in unweighted graphs."
-    },
-    {
-      "questionId": 26,
-      "title": "If a connected undirected graph has 9 vertices, what is the minimum number of edges it can have?",
-      "type": "mcq-single",
-      "options": [
-        "8",
-        "9",
-        "10",
-        "7"
-      ],
-      "correctAnswer": "8",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "A connected undirected graph with V vertices must have at least V-1 edges to be connected (a tree)."
-    },
-    {
-      "questionId": 27,
-      "title": "Which of the following adjacency lists represents a DAG?",
-      "type": "mcq-single",
-      "options": [
-        "{0: [1,2], 1: [2], 2: [0]}",
-        "{0: [1], 1: [2], 2: [3], 3: []}",
-        "{0: [1,2], 1: [0], 2: [1]}",
-        "{0: [1], 1: [2], 2: [0,3]}"
-      ],
-      "correctAnswer": "{0: [1], 1: [2], 2: [3], 3: []}",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "A DAG has no cycles. This adjacency list has a linear path with no back edges."
-    },
-    {
-      "questionId": 28,
-      "title": "DFS is performed on a connected undirected graph with V=12 vertices and E=15 edges. How many back edges are found?",
-      "type": "mcq-single",
-      "options": [
-        "3",
-        "4",
-        "5",
-        "6"
-      ],
-      "correctAnswer": "4",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "In an undirected graph, back edges = E - (V-1) = 15 - 11 = 4."
-    },
-    {
-      "questionId": 29,
-      "title": "What is the worst-case time complexity of DFS using adjacency matrix representation?",
-      "type": "mcq-single",
-      "options": [
-        "O(V^2)",
-        "O(V+E)",
-        "O(E log V)",
-        "O(V log E)"
-      ],
-      "correctAnswer": "O(V^2)",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "With adjacency matrix, checking neighbors requires O(V) per vertex, leading to O(V^2) total."
-    },
-    {
-      "questionId": 30,
-      "title": "For a directed graph with 8 vertices, what is the maximum number of edges possible?",
-      "type": "mcq-single",
-      "options": [
-        "56",
-        "64",
-        "28",
-        "32"
-      ],
-      "correctAnswer": "56",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Maximum edges in a directed simple graph = V*(V-1) = 8*7 = 56."
-    },
-    {
-      "questionId": 31,
-      "title": "Which algorithm is best to find the topological ordering of a DAG?",
-      "type": "mcq-single",
-      "options": [
-        "Kahn's algorithm (BFS-based)",
-        "Dijkstra's algorithm",
-        "Bellman-Ford algorithm",
-        "Prim's algorithm"
-      ],
-      "correctAnswer": "Kahn's algorithm (BFS-based)",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Kahn's algorithm uses in-degree and BFS-like approach to find topological order efficiently."
-    },
-    {
-      "questionId": 32,
-      "title": "If the sum of degrees of all vertices in an undirected graph is 50, how many edges does it have?",
-      "type": "mcq-single",
-      "options": [
-        "25",
-        "50",
-        "100",
-        "75"
-      ],
-      "correctAnswer": "25",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Sum of degrees = 2 * E, so E = 50/2 = 25."
-    },
-    {
-      "questionId": 33,
-      "title": "Consider BFS starting from vertex 0 in a directed graph. If vertex 0 is at level 0, which vertices are at level 2? AList = {0:[1,2], 1:[3,4], 2:[5], 3:[6], 4:[], 5:[6], 6:[]}",
-      "type": "mcq-multiple",
-      "options": [
-        "3",
-        "4",
-        "5",
-        "6"
-      ],
-      "correctAnswer": ["3", "4", "5"],
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "From 0 (level 0) → 1,2 (level 1) → 3,4,5 (level 2)."
-    },
-    {
-      "questionId": 34,
-      "title": "An undirected graph has 10 vertices, each of even degree. What is a possible value for the sum of degrees?",
-      "type": "mcq-single",
-      "options": [
-        "45",
-        "50",
-        "55",
-        "60"
-      ],
-      "correctAnswer": "50",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Sum of degrees must be even. 50 is even and plausible for 10 vertices."
-    },
-    {
-      "questionId": 35,
-      "title": "What is the minimum number of edges to add to a connected undirected graph with 7 vertices and 8 edges to make it complete?",
-      "type": "mcq-single",
-      "options": [
-        "14",
-        "15",
-        "13",
-        "12"
-      ],
-      "correctAnswer": "14",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Complete graph K7 has 21 edges. Already have 8, so need 13 more? Wait: 7 vertices → complete edges = 7*6/2 = 21. Need 21-8 = 13. Let's check options: 14 is given, but correct is 13. Let's adjust: correct is 13, but options must include it. I'll adjust: options should include 13. Let’s choose closest: 14 is in options, but correct is 13. I'll revise."
-    },
-    {
-      "questionId": 36,
-      "title": "Which of the following is true about topological sort?",
-      "type": "mcq-single",
-      "options": [
-        "Only works on DAGs",
-        "Works on any directed graph",
-        "Works on undirected graphs",
-        "Requires weighted edges"
-      ],
-      "correctAnswer": "Only works on DAGs",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Topological sort requires a directed acyclic graph; cycles make ordering impossible."
-    },
-    {
-      "questionId": 37,
-      "title": "If an adjacency matrix of a graph uses 400 bytes and each entry is 4 bytes, how many vertices are there?",
-      "type": "mcq-single",
-      "options": [
-        "10",
-        "12",
-        "15",
-        "20"
-      ],
-      "correctAnswer": "10",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Matrix size = V² entries. 400 bytes / 4 bytes per entry = 100 entries. So V²=100 → V=10."
-    },
-    {
-      "questionId": 38,
-      "title": "In a directed graph, if vertex v has in-degree 4 and out-degree 3, how many edges are incident to v?",
-      "type": "mcq-single",
-      "options": [
-        "7",
-        "4",
-        "3",
-        "1"
-      ],
-      "correctAnswer": "7",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Total edges incident = in-degree + out-degree = 4+3 = 7."
-    },
-    {
-      "questionId": 39,
-      "title": "BFS and DFS both:",
-      "type": "mcq-multiple",
-      "options": [
-        "Can detect cycles in undirected graphs",
-        "Can be used for topological sort",
-        "Have O(V+E) time complexity with adjacency list",
-        "Always produce same traversal order"
-      ],
-      "correctAnswer": ["Can detect cycles in undirected graphs", "Have O(V+E) time complexity with adjacency list"],
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Both can detect cycles in undirected graphs and have O(V+E) complexity with adjacency list."
-    },
-    {
-      "questionId": 40,
-      "title": "A graph has 5 vertices with degrees 3,3,3,3,2. Is such a graph possible?",
-      "type": "mcq-single",
-      "options": [
-        "Yes",
-        "No",
-        "Only if directed",
-        "Only if disconnected"
-      ],
-      "correctAnswer": "Yes",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Sum of degrees = 14 (even). Handshaking lemma satisfied. Such a degree sequence is possible."
-    },
-    {
-      "questionId": 41,
-      "title": "What is the maximum number of edges in a DAG with n vertices?",
-      "type": "mcq-single",
-      "options": [
-        "n(n-1)/2",
-        "n(n-1)",
-        "n²",
-        "2ⁿ"
-      ],
-      "correctAnswer": "n(n-1)/2",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "A complete DAG (tournament) has n(n-1)/2 edges, the maximum without cycles."
-    },
-    {
-      "questionId": 42,
-      "title": "DFS forest of a connected undirected graph with V=11 and E=13 has how many back edges?",
-      "type": "mcq-single",
-      "options": [
-        "3",
-        "4",
-        "5",
-        "2"
-      ],
-      "correctAnswer": "3",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Back edges = E - (V-1) = 13 - 10 = 3."
-    },
-    {
-      "questionId": 43,
-      "title": "Which of the following is NOT a property of BFS?",
-      "type": "mcq-single",
-      "options": [
-        "Uses a stack",
-        "Finds shortest path in unweighted graphs",
-        "Can be implemented iteratively",
-        "Explores neighbors first"
-      ],
-      "correctAnswer": "Uses a stack",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "BFS uses a queue, not a stack. DFS uses a stack."
-    },
-    {
-      "questionId": 44,
-      "title": "If a directed graph has 6 vertices and 9 edges, what is the sum of in-degrees of all vertices?",
-      "type": "mcq-single",
-      "options": [
-        "9",
-        "18",
-        "12",
-        "15"
-      ],
-      "correctAnswer": "9",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Sum of in-degrees = number of edges = 9."
-    },
-    {
-      "questionId": 45,
-      "title": "For topological sort using DFS, vertices are added to order:",
-      "type": "mcq-single",
-      "options": [
-        "After finishing exploring all descendants",
-        "When first discovered",
-        "When backtracking",
-        "In level order"
-      ],
-      "correctAnswer": "After finishing exploring all descendants",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "DFS topological sort uses post-order: add vertex after all its dependencies are processed."
-    },
-    {
-      "questionId": 46,
-      "title": "An undirected graph G has 13 vertices, sum of degrees = 40. How many vertices have odd degree?",
-      "type": "mcq-single",
-      "options": [
-        "0",
-        "2",
-        "4",
-        "6"
-      ],
-      "correctAnswer": "0",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Sum of degrees is even, but number of odd-degree vertices must be even. Only even possible is 0 here."
-    },
-    {
-      "questionId": 47,
-      "title": "What is space complexity of BFS on a graph with V vertices?",
-      "type": "mcq-single",
-      "options": [
-        "O(V)",
-        "O(V²)",
-        "O(E)",
-        "O(V+E)"
-      ],
-      "correctAnswer": "O(V)",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "BFS queue and visited array require O(V) space."
-    },
-    {
-      "questionId": 48,
-      "title": "Which algorithm can detect cycles in a directed graph?",
-      "type": "mcq-multiple",
-      "options": [
-        "DFS",
-        "BFS",
-        "Kahn's algorithm",
-        "Dijkstra's algorithm"
-      ],
-      "correctAnswer": ["DFS", "Kahn's algorithm"],
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "DFS can detect back edges; Kahn's algorithm fails if cycle exists (can't reduce all vertices)."
-    },
-    {
-      "questionId": 49,
-      "title": "If adjacency list for a graph has total 30 entries across all lists, how many edges in directed graph?",
-      "type": "mcq-single",
-      "options": [
-        "30",
-        "15",
-        "60",
-        "10"
-      ],
-      "correctAnswer": "30",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "In adjacency list for directed graph, each edge appears once in list → entries = edges = 30."
-    },
-    {
-      "questionId": 50,
-      "title": "A complete undirected graph with n vertices has how many edges?",
-      "type": "mcq-single",
-      "options": [
-        "n(n-1)/2",
-        "n(n-1)",
-        "n²",
-        "2n"
-      ],
-      "correctAnswer": "n(n-1)/2",
-      "maxScore": 1,
-      "hasExplanations": true,
-      "explanation": "Each vertex connects to n-1 others, but each edge counted twice → n(n-1)/2."
-    }
-  
+            {
+                questionId: 26,
+                title: "If a connected undirected graph has 9 vertices, what is the minimum number of edges it can have?",
+                type: "mcq-single",
+                options: [
+                    "8",
+                    "9",
+                    "10",
+                    "7"
+                ],
+                correctAnswer: "8",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "A connected undirected graph with V vertices must have at least V-1 edges to be connected (a tree)."
+            },
+            {
+                questionId: 27,
+                title: "Which of the following adjacency lists represents a DAG?",
+                type: "mcq-single",
+                options: [
+                    "{0: [1,2], 1: [2], 2: [0]}",
+                    "{0: [1], 1: [2], 2: [3], 3: []}",
+                    "{0: [1,2], 1: [0], 2: [1]}",
+                    "{0: [1], 1: [2], 2: [0,3]}"
+                ],
+                correctAnswer: "{0: [1], 1: [2], 2: [3], 3: []}",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "A DAG has no cycles. This adjacency list has a linear path with no back edges."
+            },
+            {
+                questionId: 28,
+                title: "DFS is performed on a connected undirected graph with V=12 vertices and E=15 edges. How many back edges are found?",
+                type: "mcq-single",
+                options: [
+                    "3",
+                    "4",
+                    "5",
+                    "6"
+                ],
+                correctAnswer: "4",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "In an undirected graph, back edges = E - (V-1) = 15 - 11 = 4."
+            },
+            {
+                "questionId": 29,
+                "title": "Given below is the adjacency list of a undirected graph: If x is the degree of the node 5 in the graph and y is the number of components in the graph, then what is the value of x + y?",
+                "image": "graph_images/adjacency_graph.png",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 4,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Node 5 is connected to nodes 3 and 6, so its degree x = 2. The graph has 2 connected components: {1,2,3,4,5,6} and {7,8,9}, so y = 2. Therefore x + y = 2 + 2 = 4."
+            },
+
+            {
+                questionId: 30,
+                title: "For a directed graph with 8 vertices, what is the maximum number of edges possible?",
+                type: "mcq-single",
+                options: [
+                    "56",
+                    "64",
+                    "28",
+                    "32"
+                ],
+                correctAnswer: "56",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Maximum edges in a directed simple graph = V*(V-1) = 8*7 = 56."
+            },
+            {
+                questionId: 31,
+                title: "Which algorithm is best to find the topological ordering of a DAG?",
+                type: "mcq-single",
+                options: [
+                    "Kahn's algorithm (BFS-based)",
+                    "Dijkstra's algorithm",
+                    "Bellman-Ford algorithm",
+                    "Prim's algorithm"
+                ],
+                correctAnswer: "Kahn's algorithm (BFS-based)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Kahn's algorithm uses in-degree and BFS-like approach to find topological order efficiently."
+            },
+            {
+                questionId: 32,
+                title: "If the sum of degrees of all vertices in an undirected graph is 50, how many edges does it have?",
+                type: "mcq-single",
+                options: [
+                    "25",
+                    "50",
+                    "100",
+                    "75"
+                ],
+                correctAnswer: "25",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Sum of degrees = 2 * E, so E = 50/2 = 25."
+            },
+            {
+                questionId: 33,
+                title: "Consider BFS starting from vertex 0 in a directed graph. If vertex 0 is at level 0, which vertices are at level 2? AList = {0:[1,2], 1:[3,4], 2:[5], 3:[6], 4:[], 5:[6], 6:[]}",
+                type: "mcq-multiple",
+                options: ["3", "4", "5", "6"],
+                correctAnswer: ["3", "4", "5"],
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "From 0 (level 0) → 1,2 (level 1) → 3,4,5 (level 2)."
+            },
+            {
+                questionId: 34,
+                title: "An undirected graph has 10 vertices, each of even degree. What is a possible value for the sum of degrees?",
+                type: "mcq-single",
+                options: [
+                    "45",
+                    "50",
+                    "55",
+                    "60"
+                ],
+                correctAnswer: "50",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Sum of degrees must be even. 50 is even and plausible for 10 vertices."
+            },
+            {
+                questionId: 35,
+                title: "What is the minimum number of edges to add to a connected undirected graph with 7 vertices and 8 edges to make it complete?",
+                type: "mcq-single",
+                options: [
+                    "13",
+                    "14",
+                    "15",
+                    "12"
+                ],
+                correctAnswer: "13",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Complete graph K7 has 7×6÷2 = 21 edges. With 8 existing edges, need 21 - 8 = 13 additional edges."
+            },
+            {
+                questionId: 36,
+                title: "Which of the following is true about topological sort?",
+                type: "mcq-single",
+                options: [
+                    "Only works on DAGs",
+                    "Works on any directed graph",
+                    "Works on undirected graphs",
+                    "Requires weighted edges"
+                ],
+                correctAnswer: "Only works on DAGs",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Topological sort requires a directed acyclic graph; cycles make ordering impossible."
+            },
+            {
+                questionId: 37,
+                title: "If an adjacency matrix of a graph uses 400 bytes and each entry is 4 bytes, how many vertices are there?",
+                type: "mcq-single",
+                options: [
+                    "10",
+                    "12",
+                    "15",
+                    "20"
+                ],
+                correctAnswer: "10",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Matrix size = V² entries. 400 bytes / 4 bytes per entry = 100 entries. So V²=100 → V=10."
+            },
+            {
+                questionId: 38,
+                title: "In a directed graph, if vertex v has in-degree 4 and out-degree 3, how many edges are incident to v?",
+                type: "mcq-single",
+                options: [
+                    "7",
+                    "4",
+                    "3",
+                    "1"
+                ],
+                correctAnswer: "7",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Total edges incident = in-degree + out-degree = 4+3 = 7."
+            },
+            {
+                questionId: 39,
+                title: "BFS and DFS both:",
+                type: "mcq-multiple",
+                options: [
+                    "Can detect cycles in undirected graphs",
+                    "Can be used for topological sort",
+                    "Have O(V+E) time complexity with adjacency list",
+                    "Always produce same traversal order"
+                ],
+                correctAnswer: ["Can detect cycles in undirected graphs", "Have O(V+E) time complexity with adjacency list"],
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Both can detect cycles in undirected graphs and have O(V+E) complexity with adjacency list."
+            },
+            {
+                questionId: 40,
+                title: "A graph has 5 vertices with degrees 3,3,3,3,2. Is such a graph possible?",
+                type: "mcq-single",
+                options: [
+                    "Yes",
+                    "No",
+                    "Only if directed",
+                    "Only if disconnected"
+                ],
+                correctAnswer: "Yes",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Sum of degrees = 14 (even). Handshaking lemma satisfied. Such a degree sequence is possible."
+            },
+            {
+                questionId: 41,
+                title: "What is the maximum number of edges in a DAG with n vertices?",
+                type: "mcq-single",
+                options: [
+                    "n(n-1)/2",
+                    "n(n-1)",
+                    "n²",
+                    "2ⁿ"
+                ],
+                correctAnswer: "n(n-1)/2",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "A complete DAG (tournament) has n(n-1)/2 edges, the maximum without cycles."
+            },
+            {
+                questionId: 42,
+                title: "DFS forest of a connected undirected graph with V=11 and E=13 has how many back edges?",
+                type: "mcq-single",
+                options: [
+                    "3",
+                    "4",
+                    "5",
+                    "2"
+                ],
+                correctAnswer: "3",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Back edges = E - (V-1) = 13 - 10 = 3."
+            },
+            {
+                "questionId": 43,
+                "title": "Given a graph with adjacency matrix of size 15×15. How many possible edges can exist in a directed graph with no self-loops?",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 210,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Directed graph without self-loops: n(n−1) = 15×14 = 210."
+            },
+            {
+                questionId: 44,
+                title: "If a directed graph has 6 vertices and 9 edges, what is the sum of in-degrees of all vertices?",
+                type: "mcq-single",
+                options: [
+                    "9",
+                    "18",
+                    "12",
+                    "15"
+                ],
+                correctAnswer: "9",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Sum of in-degrees = number of edges = 9."
+            },
+            {
+                "questionId": 45,
+                "title": "Consider the following weighted graph where all edges have equal weight. Using BFS starting from vertex A, what is the minimum number of edges in the shortest path from vertex A to vertex G?",
+                "image": "graph_images/bfs_shortest_path_graph.png",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 3,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "BFS explores level by level: Level 0: {A}, Level 1: {B, C}, Level 2: {D, E, F}, Level 3: {G}. The shortest path from A to G is A→B→E→G (or A→C→F→G), which contains 3 edges."
+            },
+            {
+                questionId: 46,
+                title: "An undirected graph G has 13 vertices, sum of degrees = 40. How many vertices have odd degree?",
+                type: "mcq-single",
+                options: [
+                    "0",
+                    "2",
+                    "4",
+                    "6"
+                ],
+                correctAnswer: "0",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "Sum of degrees is even, but number of odd-degree vertices must be even. Only even possible is 0 here."
+            },
+            {
+                questionId: 47,
+                title: "What is space complexity of BFS on a graph with V vertices?",
+                type: "mcq-single",
+                options: [
+                    "O(V)",
+                    "O(V²)",
+                    "O(E)",
+                    "O(V+E)"
+                ],
+                correctAnswer: "O(V)",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "BFS queue and visited array require O(V) space."
+            },
+            {
+                "questionId": 48,
+                "title": "Consider the directed acyclic graph above (Graph A). Which of the following is not a valid topological ordering?",
+                "image": "graph_images/q2w4.png",
+                "type": "mcq-single",
+                "options": [
+                    "[1, 2, 3, 4, 5, 6]",
+                    "[1, 3, 2, 4, 6, 5]",
+                    "[1, 2, 4, 3, 5, 6]",
+                    "[1, 2, 3, 6, 4, 5]"
+                ],
+                "correctAnswer": "[1, 2, 4, 3, 5, 6]",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Node 3 must come before node 4. Option C violates 3 → 4."
+            },
+
+            {
+                questionId: 49,
+                title: "If adjacency list for a graph has total 30 entries across all lists, how many edges in directed graph?",
+                type: "mcq-single",
+                options: [
+                    "30",
+                    "15",
+                    "60",
+                    "10"
+                ],
+                correctAnswer: "30",
+                maxScore: 1,
+                hasExplanations: true,
+                explanation: "In adjacency list for directed graph, each edge appears once in list → entries = edges = 30."
+            },
+            {
+                "questionId": 50,
+                "title": "You are given the following directed graph. Let Depth-First Search (DFS) start from vertex 0. How many cross edges will be present in the DFS tree? Note: If more than one adjacent vertex is available, DFS always chooses the vertex with the smaller label value first.",
+                "image": "graph_images/dfs_cross_edges_graph.png",
+                "type": "numerical",
+                "options": [],
+                "correctAnswer": 2,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Starting DFS from vertex 0 with the rule of choosing smallest vertex first, the traversal order is: 0→1→4→5→7→2→3→6. The DFS tree edges are: 0-1, 1-4, 4-5, 5-7, 1-2, 2-3, 2-6. The cross edges in this DFS tree are: 3→6 and 6→7. Therefore, there are 2 cross edges."
+            }
         ];
 
         let currentQuestionIndex = 0;
         let userAnswers = {};
         let currentUser = {};
-
-        // Initialize Monaco Editor
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
-            initializeQuiz();
-        });
 
         async function initializeQuiz() {
             console.log('🚀 Initializing quiz...');
@@ -1044,6 +991,16 @@
                     <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
             `;
 
+            // Add image if available
+            if (question.image) {
+                questionHTML += `
+                    <div class="text-center my-3">
+                        <img src="${question.image}" alt="Question ${currentQuestionIndex + 1} Diagram" 
+                             class="question-image" onerror="this.style.display='none'">
+                    </div>
+                `;
+            }
+
             // Add code snippet if available
             if (question.codeSnippet) {
                 questionHTML += `
@@ -1060,6 +1017,20 @@
                     questionHTML += `
                         <label class="option-label ${isSelected ? 'selected' : ''}">
                             <input type="radio" name="q${question.questionId}" value="${option}" 
+                                   ${isSelected ? 'checked' : ''} style="display: none;">
+                            ${option}
+                        </label>
+                    `;
+                });
+                questionHTML += `</div>`;
+            } else if (question.type === 'mcq-multiple') {
+                questionHTML += `<div class="options-container mt-3">`;
+                const currentAnswers = userAnswers[question.questionId] || [];
+                question.options.forEach((option, index) => {
+                    const isSelected = Array.isArray(currentAnswers) && currentAnswers.includes(option);
+                    questionHTML += `
+                        <label class="option-label ${isSelected ? 'selected' : ''}">
+                            <input type="checkbox" name="q${question.questionId}" value="${option}" 
                                    ${isSelected ? 'checked' : ''} style="display: none;">
                             ${option}
                         </label>
@@ -1091,6 +1062,28 @@
                         const radio = this.querySelector('input[type="radio"]');
                         radio.checked = true;
                         userAnswers[question.questionId] = radio.value;
+                        updateProgress();
+                    });
+                });
+            } else if (question.type === 'mcq-multiple') {
+                document.querySelectorAll('.option-label').forEach(label => {
+                    label.addEventListener('click', function() {
+                        this.classList.toggle('selected');
+                        const checkbox = this.querySelector('input[type="checkbox"]');
+                        checkbox.checked = !checkbox.checked;
+                        
+                        if (!userAnswers[question.questionId]) {
+                            userAnswers[question.questionId] = [];
+                        }
+                        
+                        if (checkbox.checked) {
+                            if (!userAnswers[question.questionId].includes(checkbox.value)) {
+                                userAnswers[question.questionId].push(checkbox.value);
+                            }
+                        } else {
+                            userAnswers[question.questionId] = userAnswers[question.questionId].filter(v => v !== checkbox.value);
+                        }
+                        updateProgress();
                     });
                 });
             }
@@ -1098,6 +1091,7 @@
 
         function saveNumericalAnswer(questionId, value) {
             userAnswers[questionId] = value ? parseInt(value) : '';
+            updateProgress();
         }
 
         function nextQuestion() {
@@ -1129,16 +1123,39 @@
         }
 
         function calculateCurrentScore() {
-            let score = 0;
+            let totalScore = 0;
+            
             questions.forEach(question => {
                 const userAnswer = userAnswers[question.questionId];
-                if (userAnswer !== undefined && userAnswer !== '') {
+                
+                if (question.type === 'mcq-multiple') {
+                    // Handle multiple-correct-answer questions
+                    const userArr = Array.isArray(userAnswer) ? userAnswer : [];
+                    const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [];
+                    
+                    // Check if user selected ANY wrong answers
+                    const hasWrongAnswer = userArr.some(answer => !correctArr.includes(answer));
+                    
+                    if (!hasWrongAnswer && userArr.length > 0) {
+                        // No wrong answers selected, calculate partial score
+                        const correctSelected = userArr.filter(answer => correctArr.includes(answer)).length;
+                        const totalCorrect = correctArr.length;
+                        
+                        // Avoid division by zero
+                        if (totalCorrect > 0) {
+                            totalScore += (correctSelected / totalCorrect) * question.maxScore;
+                        }
+                    }
+                    // If hasWrongAnswer = true or userArr.length = 0, add 0
+                } else {
+                    // For single-answer questions
                     if (userAnswer === question.correctAnswer) {
-                        score += question.maxScore;
+                        totalScore += question.maxScore;
                     }
                 }
             });
-            return score;
+            
+            return Math.round(totalScore * 100) / 100; // Round to 2 decimal places
         }
 
         async function submitQuiz() {
@@ -1147,27 +1164,53 @@
                 email: currentUser.email,
                 topic: "Graph Algorithms - BFS, DFS, DAGs, Topological Sorting",
                 score: calculateCurrentScore(),
-                maxScore: questions.length,
-                percentage: Math.round((calculateCurrentScore() / questions.length) * 100),
+                maxScore: questions.reduce((sum, q) => sum + q.maxScore, 0), // Sum of all question maxScores
+                percentage: Math.round((calculateCurrentScore() / questions.reduce((sum, q) => sum + q.maxScore, 0)) * 100),
                 timestamp: new Date(),
-                questions: questions.map(question => ({
-                    questionId: question.questionId,
-                    title: question.title,
-                    type: question.type,
-                    userAnswer: userAnswers[question.questionId] || '',
-                    correctAnswer: question.correctAnswer,
-                    options: question.options || [],
-                    score: (userAnswers[question.questionId] === question.correctAnswer) ? question.maxScore : 0,
-                    maxScore: question.maxScore,
-                    testResults: [{
-                        passed: userAnswers[question.questionId] === question.correctAnswer,
-                        expectedAnswer: question.correctAnswer,
-                        userAnswer: userAnswers[question.questionId] || ''
-                    }],
-                    hasExplanations: question.hasExplanations,
-                    explanation: question.explanation,
-                    codeSnippet: question.codeSnippet || ''
-                }))
+                questions: questions.map(question => {
+                    const userAnswer = userAnswers[question.questionId];
+                    let score = 0;
+                    
+                    if (question.type === 'mcq-multiple') {
+                        // Handle multiple-correct-answer questions with partial scoring
+                        const userArr = Array.isArray(userAnswer) ? userAnswer : [];
+                        const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [];
+                        
+                        // Check if user selected ANY wrong answers
+                        const hasWrongAnswer = userArr.some(answer => !correctArr.includes(answer));
+                        
+                        if (!hasWrongAnswer && userArr.length > 0) {
+                            // No wrong answers selected, calculate partial score
+                            const correctSelected = userArr.filter(answer => correctArr.includes(answer)).length;
+                            const totalCorrect = correctArr.length;
+                            
+                            // Avoid division by zero
+                            if (totalCorrect > 0) {
+                                score = (correctSelected / totalCorrect) * question.maxScore;
+                            }
+                        }
+                        // If hasWrongAnswer = true or userArr.length = 0, score remains 0
+                    } else {
+                        // For single-answer questions
+                        if (userAnswer === question.correctAnswer) {
+                            score = question.maxScore;
+                        }
+                    }
+                    
+                    return {
+                        questionId: question.questionId,
+                        title: question.title,
+                        type: question.type,
+                        userAnswer: userAnswer || (question.type === 'mcq-multiple' ? [] : ''),
+                        correctAnswer: question.correctAnswer,
+                        options: question.options || [],
+                        score: score,
+                        maxScore: question.maxScore,
+                        hasExplanations: question.hasExplanations,
+                        explanation: question.explanation,
+                        image: question.image || ''
+                    };
+                })
             };
 
             // Save to backend api/algorithm-submissions
@@ -1204,16 +1247,24 @@
             
             quizData.questions.forEach((question, index) => {
                 const isCorrect = question.score > 0;
+                const userAnswer = Array.isArray(question.userAnswer) 
+                    ? question.userAnswer.join(', ') 
+                    : question.userAnswer;
+                const correctAnswer = Array.isArray(question.correctAnswer) 
+                    ? question.correctAnswer.join(', ') 
+                    : question.correctAnswer;
+                
                 resultsHTML += `
                     <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
                         <h6>Q${index + 1}: ${question.title}</h6>
-                        ${question.codeSnippet ? `
-                            <div class="code-snippet">
-                                <pre>${question.codeSnippet}</pre>
+                        ${question.image ? `
+                            <div class="text-center my-2">
+                                <img src="${question.image}" alt="Question ${index + 1} Diagram" 
+                                     class="question-image" style="max-height: 200px;" onerror="this.style.display='none'">
                             </div>
                         ` : ''}
-                        <p><strong>Your Answer:</strong> ${question.userAnswer}</p>
-                        <p><strong>Correct Answer:</strong> ${question.correctAnswer}</p>
+                        <p><strong>Your Answer:</strong> ${userAnswer || 'No answer'}</p>
+                        <p><strong>Correct Answer:</strong> ${correctAnswer}</p>
                         <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
                         ${question.hasExplanations ? `
                             <div class="explanation-section">
@@ -1235,6 +1286,9 @@
             renderCurrentQuestion();
             updateProgress();
         }
+
+        // Initialize quiz when page loads
+        window.addEventListener('DOMContentLoaded', initializeQuiz);
     </script>
 </body>
 </html>
