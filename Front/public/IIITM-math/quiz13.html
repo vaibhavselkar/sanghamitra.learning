@@ -1606,7 +1606,7 @@ if (question.image_file) {
                 }
                 
                 // Step 5: Select random subset (e.g., 30 questions) from unanswered pool
-                const questionsToShow = Math.min(30, unansweredQuestions.length);
+                const questionsToShow = Math.min(38, unansweredQuestions.length);
                 questions = shuffleArray(unansweredQuestions).slice(0, questionsToShow);
                 
                 console.log(`✨ Loaded ${questions.length} NEW (never-seen) questions`);
@@ -1714,6 +1714,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
