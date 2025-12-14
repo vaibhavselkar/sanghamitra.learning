@@ -449,6 +449,9 @@
                 }
                 
                 questions = data.questions || data; // Handle both response formats
+
+                // Limit to exactly 50 questions
+                questions = questions.slice(0, 50);
                 
                 if (!questions || questions.length === 0) {
                     throw new Error('No questions found');
@@ -1367,6 +1370,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
