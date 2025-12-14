@@ -479,10 +479,10 @@
                     alert('Screenshot attempt detected and logged!');
                 }
             });
-        }
+        }*/
         
         // Record cheating attempts
-        function recordCheatingAttempt(type) {
+       /* function recordCheatingAttempt(type) {
             cheatingAttempts++;
             console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
             
@@ -501,7 +501,7 @@
                     })
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
-            
+            */
             // Auto-submit quiz after too many attempts
           /*  if (cheatingAttempts >= 5) {
                 alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
@@ -517,7 +517,7 @@
         });
         
         // Hide questions from view source
-        function obfuscateQuestions() {
+      /*  function obfuscateQuestions() {
             // This would require server-side implementation
             // For now, we'll just make it harder to find in console
             Object.defineProperty(window, 'questions', {
@@ -526,7 +526,7 @@
                     return [];
                 }
             });
-        }
+        }*/
         
         // Initialize quiz timing
         function initializeQuizTiming() {
@@ -1335,6 +1335,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
