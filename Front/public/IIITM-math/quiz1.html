@@ -420,79 +420,53 @@ function forceLimitQuestions() {
     return false;
 }
 
-// Call it
-forceLimitQuestions();
+
+// Initialize quiz directly without user form
 // Initialize quiz directly without user form
 async function initializeQuiz() {
     try {
-        // Initialize anti-cheating first
-       
+        // Wait a moment for questions to load
+        await new Promise(resolve => setTimeout(resolve, 200));
         
         const sessionValid = await fetchSessionInfo();
         if (sessionValid) {
-            console.log("DEBUG: Original questions length:", questions ? questions.length : "undefined");
-            console.log("DEBUG: Questions type:", typeof questions);
+            console.log("Original questions count:", questions ? questions.length : "none");
             
-            // Check if questions is an array or object
-            let allQuestions;
-            
-            if (Array.isArray(questions)) {
-                allQuestions = questions;
-            } else if (questions && typeof questions === 'object') {
-                // If it's an object, check common property names
-                console.log("DEBUG: Object keys:", Object.keys(questions));
-                
-                // Try to find questions in common property names
-                allQuestions = questions.questions || questions.quiz1 || questions.Quiz1 || 
-                              questions.questionArray || Object.values(questions)[0];
+            // SIMPLE SOLUTION: Just slice the array to 50 questions
+            if (Array.isArray(questions) && questions.length > 50) {
+                questions = questions.slice(0, 50);
+                console.log("Limited to 50 questions");
             }
             
-            if (!allQuestions || !Array.isArray(allQuestions)) {
-                console.error("ERROR: Could not find questions array. Found:", questions);
-                alert("Error loading questions. Please refresh the page.");
-                return;
+            // If questions is an object with arrays inside
+            if (questions && typeof questions === 'object' && !Array.isArray(questions)) {
+                const firstKey = Object.keys(questions)[0];
+                if (Array.isArray(questions[firstKey]) && questions[firstKey].length > 50) {
+                    questions = questions[firstKey].slice(0, 50);
+                    console.log("Limited object array to 50 questions");
+                }
             }
             
-            console.log("DEBUG: Found questions array with length:", allQuestions.length);
-            
-            // Create a local copy limited to 50 questions
-            const limitedQuestions = allQuestions.slice(0, 50);
-            console.log("DEBUG: Limited to:", limitedQuestions.length, "questions");
+            console.log("Final questions count:", questions.length);
             
             currentUser = { username, email };
-            
-            // Initialize timing
             initializeQuizTiming();
-          
             
-            // Hide loading screen and show quiz
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
             
-            // IMPORTANT: Replace the global questions variable with limited version
-            window.questions = limitedQuestions;
-            console.log("DEBUG: window.questions now has length:", window.questions.length);
-            
-            // Obfuscate questions (this will protect the 50 questions)
-           
+            // Make sure window.questions is updated
+            window.questions = questions;
             
             renderCurrentQuestion();
             updateProgress();
-            
-            // Full screen request (optional)
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen request failed:', err);
-                });
-            }
-            
-            // Add a test to verify
-            setTimeout(() => {
-                console.log("TEST: After 1 second, questions length is:", window.questions.length);
-                console.log("TEST: First question:", window.questions[0] ? window.questions[0].question_text?.substring(0, 50) + "..." : "none");
-            }, 1000);
         }
     } catch (error) {
+        console.error('Error initializing quiz:', error);
+        alert('Failed to initialize quiz. Please try again.');
+    }
+}
+        catch (error) {
         console.error('Error initializing quiz:', error);
         alert('Failed to initialize quiz. Please try again.');
     }
@@ -1166,6 +1140,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
