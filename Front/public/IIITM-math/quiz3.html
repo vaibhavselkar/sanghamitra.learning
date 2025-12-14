@@ -587,42 +587,69 @@
         }
 
         // Initialize quiz directly without user form
-        // Initialize quiz directly without user form
-        async function initializeQuiz() {
-            try {
-                // Initialize anti-cheating first
-                initializeAntiCheating();
-                
-                const sessionValid = await fetchSessionInfo();
-                if (sessionValid) {
-                    currentUser = { username, email };
-                    
-                    // Initialize timing
-                    initializeQuizTiming();
-                    isQuizActive = true; // Enable anti-cheating monitoring
-                    
-                    // Hide loading screen and show quiz
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    document.getElementById('quizContainer').style.display = 'block';
-                    
-                    // Obfuscate questions
-                    obfuscateQuestions();
-                    
-                    renderCurrentQuestion();
-                    updateProgress();
-                    
-                    // Full screen request (optional)
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen().catch(err => {
-                            console.log('Fullscreen request failed:', err);
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Error initializing quiz:', error);
-                
+       async function initializeQuiz() {
+    try {
+        // Wait a moment for questions to load
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Initialize anti-cheating first
+        initializeAntiCheating();
+        
+        const sessionValid = await fetchSessionInfo();
+        if (sessionValid) {
+            // LIMIT TO 50 QUESTIONS
+            console.log("DEBUG: Type of questions:", typeof questions);
+            console.log("DEBUG: Is array:", Array.isArray(questions));
+            
+            if (Array.isArray(questions) && questions.length > 50) {
+                console.log("DEBUG: Original length:", questions.length);
+                questions = questions.slice(0, 50);
+                console.log("Limited to 50 questions");
             }
+            
+            // Final check
+            if (!questions || !Array.isArray(questions)) {
+                console.error("ERROR: questions is not an array:", questions);
+                alert("Error loading questions. Please refresh.");
+                return;
+            }
+            
+            console.log("Final questions count:", questions.length);
+            
+            currentUser = { username, email };
+            
+            // Initialize timing
+            initializeQuizTiming();
+            isQuizActive = true; // Enable anti-cheating monitoring
+            
+            // Hide loading screen and show quiz
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            // Make sure window.questions is updated
+            window.questions = questions;
+            
+            // Obfuscate questions
+            obfuscateQuestions();
+            
+            renderCurrentQuestion();
+            updateProgress();
+            
+            // Full screen request (optional)
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request failed:', err);
+                });
+            }
+            
+            // Debug verification
+            console.log("VERIFICATION: Total questions =", questions.length);
         }
+    } catch (error) {
+        console.error('Error initializing quiz:', error);
+        alert('Failed to initialize quiz. Please try again.');
+    }
+}
 
         function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
@@ -1290,6 +1317,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
