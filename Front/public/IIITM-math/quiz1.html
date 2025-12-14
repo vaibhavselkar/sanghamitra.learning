@@ -421,21 +421,33 @@ async function initializeQuiz() {
         
         const sessionValid = await fetchSessionInfo();
         if (sessionValid) {
-            console.log("Original questions count:", questions ? questions.length : "none");
+            console.log("DEBUG: Type of questions:", typeof questions);
+            console.log("DEBUG: Is array:", Array.isArray(questions));
             
             // SIMPLE SOLUTION: Just slice the array to 50 questions
             if (Array.isArray(questions) && questions.length > 50) {
+                console.log("DEBUG: Original length:", questions.length);
                 questions = questions.slice(0, 50);
                 console.log("Limited to 50 questions");
-            }
-            
-            // If questions is an object with arrays inside
-            if (questions && typeof questions === 'object' && !Array.isArray(questions)) {
+            } else if (questions && typeof questions === 'object' && !Array.isArray(questions)) {
+                // If questions is an object with arrays inside
+                console.log("DEBUG: Object keys:", Object.keys(questions));
                 const firstKey = Object.keys(questions)[0];
                 if (Array.isArray(questions[firstKey]) && questions[firstKey].length > 50) {
+                    console.log("DEBUG: Object array length:", questions[firstKey].length);
                     questions = questions[firstKey].slice(0, 50);
                     console.log("Limited object array to 50 questions");
+                } else if (Array.isArray(questions[firstKey])) {
+                    // If it's already <= 50, just use it
+                    questions = questions[firstKey];
                 }
+            }
+            
+            // Final check
+            if (!questions || !Array.isArray(questions)) {
+                console.error("ERROR: questions is not an array after processing:", questions);
+                alert("Error loading questions. Please refresh.");
+                return;
             }
             
             console.log("Final questions count:", questions.length);
@@ -451,6 +463,10 @@ async function initializeQuiz() {
             
             renderCurrentQuestion();
             updateProgress();
+            
+            // Debug verification
+            console.log("VERIFICATION: Total questions =", window.questions.length);
+            console.log("VERIFICATION: Last question index =", window.questions.length - 1);
         }
     } catch (error) {
         console.error('Error initializing quiz:', error);
@@ -1127,6 +1143,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
