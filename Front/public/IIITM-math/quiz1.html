@@ -329,6 +329,21 @@
 
     <script>
         // Answer validation utility
+let userAnswers = {};
+let currentUser = {};
+let username = null;
+let email = null;
+let currentQuestionIndex = 0;
+let quizStartTime = null;
+let questionStartTime = null;
+let questionTimes = {}; // Track time per question
+
+// ADD THIS EMPTY FUNCTION TO PREVENT ERRORS
+function initializeAntiCheating() {
+    // Anti-cheating disabled
+    console.log("Anti-cheating disabled");
+}
+        // Answer validation utility
         let userAnswers = {};
         let currentUser = {};
         let username = null;
@@ -818,7 +833,7 @@ async function initializeQuiz() {
 
             // Track final question time
             trackQuestionTime();
-            isQuizActive = false;
+          
             const quizEndTime = new Date();
             const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
 
@@ -1151,6 +1166,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
