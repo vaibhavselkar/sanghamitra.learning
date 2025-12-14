@@ -577,10 +577,10 @@
         
         const sessionValid = await fetchSessionInfo();
         if (sessionValid) {
-           // Create a new variable instead of reassigning
-const limitedQuestions = questions.slice(0, 50);
-            
-            currentUser = { username, email };
+    // Limit questions to 50
+    window.questions = questions.slice(0, 50);
+    
+    currentUser = { username, email };
                     
                     // Initialize timing
                     initializeQuizTiming();
@@ -1277,6 +1277,7 @@ const limitedQuestions = questions.slice(0, 50);
     </script>
 </body>
 </html>
+
 
 
 
