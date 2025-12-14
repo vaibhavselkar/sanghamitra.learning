@@ -523,6 +523,7 @@
         const hasQuestions = item.questions && item.questions.length > 0;
         
         // Main row
+        // Main row
         tbody.innerHTML += `
           <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
             <td>
@@ -531,11 +532,11 @@
             <td><strong>${item.username}</strong></td>
             <td><small class="text-muted">${item.email}</small></td>
             <td><span class="badge bg-light text-dark">${item.topic}</span></td>
-            <td><strong>${item.score}/${item.maxScore}</strong></td>
-            <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
+            <td><strong>${parseFloat(item.score.toFixed(2))}/${item.maxScore}</strong></td>
+            <td><span class="score-badge ${scoreClass}">${parseFloat(item.percentage.toFixed(2))}%</span></td>
             <td>
               ${item.mcqMaxScore > 0 ? 
-                `<span class="score-badge ${mcqScoreClass}">${item.mcqScore}/${item.mcqMaxScore} (${item.mcqPercentage}%)</span>` : 
+                `<span class="score-badge ${mcqScoreClass}">${parseFloat(item.mcqScore.toFixed(2))}/${item.mcqMaxScore} (${parseFloat(item.mcqPercentage.toFixed(2))}%)</span>` : 
                 '<span class="text-muted">N/A</span>'
               }
             </td>
@@ -545,7 +546,7 @@
             </td>
           </tr>
         `;
-        
+                
         // Detail row (initially hidden)
         if (hasQuestions) {
           tbody.innerHTML += `
