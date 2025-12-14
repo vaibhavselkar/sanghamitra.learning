@@ -1,4 +1,4 @@
-const questions = [
+let questions = [
     {
         question_number: 1,
         points: 1,
@@ -1286,4 +1286,5 @@ const questions = [
         explanation: "First term: x-2≥0 → x≥2. Second term: cube root defined for all x. Third term: x≠5. Combined: x≥2 and x≠5."
     }
 ];
+
 
