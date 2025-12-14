@@ -318,7 +318,7 @@
         <!-- Results -->
         <div id="resultsContainer" class="results-container">
             <div class="score-display">
-                <h2 id="finalScore">0/30</h2>
+                <h2 id="finalScore">0/50</h2>
                 <p>Quiz Completed Successfully!</p>
             </div>
             <button class="btn" onclick="goback()">Home Page</button>
@@ -411,7 +411,7 @@ forceLimitQuestions();
 async function initializeQuiz() {
     try {
         // Initialize anti-cheating first
-        initializeAntiCheating();
+       
         
         const sessionValid = await fetchSessionInfo();
         if (sessionValid) {
@@ -448,7 +448,7 @@ async function initializeQuiz() {
             
             // Initialize timing
             initializeQuizTiming();
-            isQuizActive = true;
+          
             
             // Hide loading screen and show quiz
             document.getElementById('loadingScreen').style.display = 'none';
@@ -459,7 +459,7 @@ async function initializeQuiz() {
             console.log("DEBUG: window.questions now has length:", window.questions.length);
             
             // Obfuscate questions (this will protect the 50 questions)
-            obfuscateQuestions();
+           
             
             renderCurrentQuestion();
             updateProgress();
@@ -1151,6 +1151,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
