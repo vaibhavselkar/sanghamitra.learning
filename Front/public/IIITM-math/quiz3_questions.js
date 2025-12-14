@@ -1,4 +1,4 @@
-const questions = [
+let questions = [
     // EASY QUESTIONS (1-15) - Basic Foundations
     {
         question_number: 1,
@@ -1348,3 +1348,4 @@ if (typeof module !== 'undefined' && module.exports) {
         adaptiveQuiz
     };
 }
+
