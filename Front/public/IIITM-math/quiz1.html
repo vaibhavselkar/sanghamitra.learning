@@ -340,8 +340,8 @@
             
             <div class="question-navigation">
                 <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
-                <div class="question-status">
-                    <span id="questionStatus">Question 1 of 30</span>
+               <div class="question-status">
+                    <span id="questionStatus">Question 1 of 50</span> <!-- Changed from 30 to 50 -->
                     <span id="answeredStatus" class="status-unanswered">Unanswered</span>
                 </div>
                 <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
@@ -503,11 +503,11 @@
             }
             
             // Auto-submit quiz after too many attempts
-            if (cheatingAttempts >= 5) {
+          /*  if (cheatingAttempts >= 5) {
                 alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
                 submitQuiz();
             }
-        }
+        }*/
         
         // Disable printing
         window.addEventListener('beforeprint', function(e) {
@@ -569,7 +569,29 @@
             }
         }
 
-        // Initialize quiz directly without user form
+// Force limit to 50 questions - Nuclear option
+function forceLimitQuestions() {
+    if (window.questions && Array.isArray(window.questions)) {
+        // Truncate the array to 50 elements
+        window.questions.length = Math.min(50, window.questions.length);
+        console.log("FORCED: Questions limited to:", window.questions.length);
+        return true;
+    } else if (window.questions && typeof window.questions === 'object') {
+        // Handle object structure
+        for (const key in window.questions) {
+            if (Array.isArray(window.questions[key])) {
+                window.questions[key].length = Math.min(50, window.questions[key].length);
+                console.log("FORCED: Object property", key, "limited to:", window.questions[key].length);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// Call it
+forceLimitQuestions();
+// Initialize quiz directly without user form
 async function initializeQuiz() {
     try {
         // Initialize anti-cheating first
@@ -577,9 +599,34 @@ async function initializeQuiz() {
         
         const sessionValid = await fetchSessionInfo();
         if (sessionValid) {
-            // Create a local copy limited to 50 questions BEFORE obfuscating
-            const allQuestions = questions;
+            console.log("DEBUG: Original questions length:", questions ? questions.length : "undefined");
+            console.log("DEBUG: Questions type:", typeof questions);
+            
+            // Check if questions is an array or object
+            let allQuestions;
+            
+            if (Array.isArray(questions)) {
+                allQuestions = questions;
+            } else if (questions && typeof questions === 'object') {
+                // If it's an object, check common property names
+                console.log("DEBUG: Object keys:", Object.keys(questions));
+                
+                // Try to find questions in common property names
+                allQuestions = questions.questions || questions.quiz1 || questions.Quiz1 || 
+                              questions.questionArray || Object.values(questions)[0];
+            }
+            
+            if (!allQuestions || !Array.isArray(allQuestions)) {
+                console.error("ERROR: Could not find questions array. Found:", questions);
+                alert("Error loading questions. Please refresh the page.");
+                return;
+            }
+            
+            console.log("DEBUG: Found questions array with length:", allQuestions.length);
+            
+            // Create a local copy limited to 50 questions
             const limitedQuestions = allQuestions.slice(0, 50);
+            console.log("DEBUG: Limited to:", limitedQuestions.length, "questions");
             
             currentUser = { username, email };
             
@@ -591,8 +638,9 @@ async function initializeQuiz() {
             document.getElementById('loadingScreen').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
             
-            // NOW reassign questions to the limited set
-            questions = limitedQuestions;
+            // IMPORTANT: Replace the global questions variable with limited version
+            window.questions = limitedQuestions;
+            console.log("DEBUG: window.questions now has length:", window.questions.length);
             
             // Obfuscate questions (this will protect the 50 questions)
             obfuscateQuestions();
@@ -606,6 +654,12 @@ async function initializeQuiz() {
                     console.log('Fullscreen request failed:', err);
                 });
             }
+            
+            // Add a test to verify
+            setTimeout(() => {
+                console.log("TEST: After 1 second, questions length is:", window.questions.length);
+                console.log("TEST: First question:", window.questions[0] ? window.questions[0].question_text?.substring(0, 50) + "..." : "none");
+            }, 1000);
         }
     } catch (error) {
         console.error('Error initializing quiz:', error);
@@ -1281,6 +1335,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
