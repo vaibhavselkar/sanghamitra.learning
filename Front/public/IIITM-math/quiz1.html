@@ -577,21 +577,25 @@
         
         const sessionValid = await fetchSessionInfo();
         if (sessionValid) {
-    // Limit questions to 50
-    window.questions = questions.slice(0, 50);
+    // Create a local copy limited to 50 questions BEFORE obfuscating
+    const allQuestions = questions;
+    const limitedQuestions = allQuestions.slice(0, 50);
     
     currentUser = { username, email };
-                    
-                    // Initialize timing
-                    initializeQuizTiming();
-                    isQuizActive = true; // Enable anti-cheating monitoring
-                    
-                    // Hide loading screen and show quiz
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    document.getElementById('quizContainer').style.display = 'block';
-                    
-                    // Obfuscate questions
-                    obfuscateQuestions();
+    
+    // Initialize timing
+    initializeQuizTiming();
+    isQuizActive = true;
+    
+    // Hide loading screen and show quiz
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('quizContainer').style.display = 'block';
+    
+    // NOW reassign questions to the limited set
+    questions = limitedQuestions;
+    
+    // Obfuscate questions (this will protect the 50 questions)
+    obfuscateQuestions();
                     
                     renderCurrentQuestion();
                     updateProgress();
@@ -1277,6 +1281,7 @@
     </script>
 </body>
 </html>
+
 
 
 
