@@ -333,7 +333,7 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-text" id="progressText">Question 1 of 30</div>
+                <div class="progress-text" id="progressText">Question 1 of 50</div>
             </div>
             
             <div id="questionContainer"></div>
@@ -570,48 +570,48 @@
         }
 
         // Initialize quiz directly without user form
-        async function initializeQuiz() {
+async function initializeQuiz() {
     try {
         // Initialize anti-cheating first
         initializeAntiCheating();
         
         const sessionValid = await fetchSessionInfo();
         if (sessionValid) {
-    // Create a local copy limited to 50 questions BEFORE obfuscating
-    const allQuestions = questions;
-    const limitedQuestions = allQuestions.slice(0, 50);
-    
-    currentUser = { username, email };
-    
-    // Initialize timing
-    initializeQuizTiming();
-    isQuizActive = true;
-    
-    // Hide loading screen and show quiz
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('quizContainer').style.display = 'block';
-    
-    // NOW reassign questions to the limited set
-    questions = limitedQuestions;
-    
-    // Obfuscate questions (this will protect the 50 questions)
-    obfuscateQuestions();
-                    
-                    renderCurrentQuestion();
-                    updateProgress();
-                    
-                    // Full screen request (optional)
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen().catch(err => {
-                            console.log('Fullscreen request failed:', err);
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Error initializing quiz:', error);
-                alert('Failed to initialize quiz. Please try again.');
+            // Create a local copy limited to 50 questions BEFORE obfuscating
+            const allQuestions = questions;
+            const limitedQuestions = allQuestions.slice(0, 50);
+            
+            currentUser = { username, email };
+            
+            // Initialize timing
+            initializeQuizTiming();
+            isQuizActive = true;
+            
+            // Hide loading screen and show quiz
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            // NOW reassign questions to the limited set
+            questions = limitedQuestions;
+            
+            // Obfuscate questions (this will protect the 50 questions)
+            obfuscateQuestions();
+            
+            renderCurrentQuestion();
+            updateProgress();
+            
+            // Full screen request (optional)
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request failed:', err);
+                });
             }
         }
+    } catch (error) {
+        console.error('Error initializing quiz:', error);
+        alert('Failed to initialize quiz. Please try again.');
+    }
+}
 
         function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
@@ -1281,6 +1281,7 @@
     </script>
 </body>
 </html>
+
 
 
 
