@@ -571,13 +571,16 @@
 
         // Initialize quiz directly without user form
         async function initializeQuiz() {
-            try {
-                // Initialize anti-cheating first
-                initializeAntiCheating();
-                
-                const sessionValid = await fetchSessionInfo();
-                if (sessionValid) {
-                    currentUser = { username, email };
+    try {
+        // Initialize anti-cheating first
+        initializeAntiCheating();
+        
+        const sessionValid = await fetchSessionInfo();
+        if (sessionValid) {
+            // Limit to 50 questions
+            questions = questions.slice(0, 50);
+            
+            currentUser = { username, email };
                     
                     // Initialize timing
                     initializeQuizTiming();
@@ -1274,4 +1277,5 @@
     </script>
 </body>
 </html>
+
 
