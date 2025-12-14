@@ -577,8 +577,8 @@
         
         const sessionValid = await fetchSessionInfo();
         if (sessionValid) {
-            // Limit to 50 questions
-            questions = questions.slice(0, 50);
+           // Create a new variable instead of reassigning
+const limitedQuestions = questions.slice(0, 50);
             
             currentUser = { username, email };
                     
@@ -1277,5 +1277,6 @@
     </script>
 </body>
 </html>
+
 
 
