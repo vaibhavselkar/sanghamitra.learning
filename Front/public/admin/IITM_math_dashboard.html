@@ -516,6 +516,8 @@
     let allData = [];
     let filteredData = [];
     let expandedRows = new Set();
+    const dateCache = new Map();
+    const topicCache = new Map();
 
     // Initialize
     async function init() {
@@ -726,50 +728,53 @@ function getLatestAttempts(data) {
       tableContainer.style.display = 'block';
       noDataState.style.display = 'none';
 
-      dataToShow.forEach((item, index) => {
-        const scoreClass = getScoreClass(item.percentage);
-        const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
-        const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
-        const hasAnswers = item.questionResults && item.questionResults.length > 0;
-        
-        // Main row
-        tbody.innerHTML += `
-          <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
-            <td>
-              ${hasAnswers ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
-            </td>
-            <td><strong>${item.username}</strong></td>
-            <td><small class="text-muted">${item.email}</small></td>
-            <td><span class="badge bg-light text-dark">${item.topic}</span></td>
-            <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
-            <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
-            <td>
-              <span class="attempt-badge bg-info text-white">
-                #${item.attemptNumber}
-              </span>
-            </td>
-            <td>
-              <div>${date}</div>
-              ${time ? `<small class="text-muted">${time}</small>` : ''}
-            </td>
-          </tr>
-        `;
-        
-        // Detail row (initially hidden)
-        if (hasAnswers) {
-          tbody.innerHTML += `
-            <tr id="detail-${index}" style="display: none;">
-              <td colspan="8">
-                <div class="student-detail p-3">
-                  <div id="detail-content-${index}" class="detail-content">
-                    ${generateStudentDetail(item)}
-                  </div>
-                </div>
-              </td>
-            </tr>
-          `;
-        }
-      });
+      // Use array to collect HTML instead of innerHTML +=
+const rowsHTML = [];
+
+dataToShow.forEach((item, index) => {
+  const scoreClass = getScoreClass(item.percentage);
+  const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
+  const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
+  const hasAnswers = item.questionResults && item.questionResults.length > 0;
+  
+  // Build HTML in array instead of innerHTML +=
+  rowsHTML.push(`
+    <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
+      <td>
+        ${hasAnswers ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
+      </td>
+      <td><strong>${item.username}</strong></td>
+      <td><small class="text-muted">${item.email}</small></td>
+      <td><span class="badge bg-light text-dark">${item.topic}</span></td>
+      <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
+      <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
+      <td>
+        <span class="attempt-badge bg-info text-white">
+          #${item.attemptNumber}
+        </span>
+      </td>
+      <td>
+        <div>${date}</div>
+        ${time ? `<small class="text-muted">${time}</small>` : ''}
+      </td>
+    </tr>
+    ${hasAnswers ? `
+    <tr id="detail-${index}" style="display: none;">
+      <td colspan="8">
+        <div class="student-detail p-3">
+          <div id="detail-content-${index}" class="detail-content">
+            <!-- Content loaded on demand -->
+          </div>
+        </div>
+      </td>
+    </tr>
+    ` : ''}
+  `);
+});
+
+// Single DOM update - MUCH FASTER
+tbody.innerHTML = rowsHTML.join('');
+      
     }
 
     // Generate detailed student answer breakdown
@@ -1046,6 +1051,10 @@ function generateStudentDetail(item) {
           expandedRows.delete(index);
         }, 300);
       } else {
+        if (!contentDiv.innerHTML.trim()) {
+        const item = filteredData[index];
+        contentDiv.innerHTML = generateStudentDetail(item);
+      }
         detailRow.style.display = 'table-row';
         setTimeout(() => {
           icon.classList.add('rotated');
@@ -1166,78 +1175,71 @@ function populateFilters() {
   console.log('✅ Final available topics in dropdown:', sortedTopics);
 }
 
-// Apply filters - UPDATED VERSION
+// Apply filters - OPTIMIZED VERSION
 function applyFilters() {
   const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
   const topicFilter = document.getElementById('topicFilter').value;
   const scoreFilter = document.getElementById('scoreFilter').value;
   const dateFilter = document.getElementById('dateFilter').value;
 
-  filteredData = [...allData];
+  let result = allData;
 
-  if (searchTerm) {
-    filteredData = filteredData.filter(item => 
-      item.username.toLowerCase().includes(searchTerm) ||
-      item.email.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  if (topicFilter) {
-    filteredData = filteredData.filter(item => {
-      if (!item.topic) return false;
-      
-      // Define which original topics belong to which display names
-      const topicGroups = {
-        'Week 1 and 2 (Quiz 1)': ['Domain_and_Range', 'Quiz1', 'Week 1 and 2'],
-        'Domain and Range (Quiz 2)': ['Domain_and_Range-2', 'Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2'],
-        'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
-        'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
-        'Linear function - 2': ['Quiz5', 'Linear', 'Linear_functions - 2'],
-        'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations', 'Sets And Relations'],
-        'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials', 'Polynomial Function'],
-        'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential', 'Function Concepts'],
-        'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions', 'Logarithmic Functions'],
-        'Sequence and limit week 7': ['Quiz10', 'Function_Limits', 'Function Limits'],
-        'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation'],
-        'Week 9 - Derivatives and Integrals': ['Quiz12', 'Derivatives_Integrals',  'Derivatives and Integrals', // Exact match for your MongoDB data'Derivatives', 
-'Integrals'
-    ]
-      };
-     
-      
-      // If it's a standardized topic, check if the item's topic matches any of the group members
-      if (topicGroups[topicFilter]) {
-        return topicGroups[topicFilter].some(keyword => 
-          item.topic === keyword || item.topic.includes(keyword)
-        );
-      }
-      
-      // If it's a custom topic (like 'Other'), do exact match
-      return item.topic === topicFilter;
-    });
-  }
-
-  if (scoreFilter) {
-    if (scoreFilter === '0') {
-      filteredData = filteredData.filter(item => item.percentage === 0);
-    } else {
-      const [min, max] = scoreFilter.split('-').map(Number);
-      filteredData = filteredData.filter(item => item.percentage >= min && item.percentage <= max);
-    }
-  }
-
+  // Apply most restrictive filters first
   if (dateFilter) {
     const filterDate = new Date(dateFilter);
-    filteredData = filteredData.filter(item => {
+    result = result.filter(item => {
       if (!item.timestamp) return false;
       const itemDate = new Date(item.timestamp);
       return itemDate.toDateString() === filterDate.toDateString();
     });
   }
 
-  expandedRows.clear();
-  calculateStatistics();
-  populateTable(filteredData);
+ if (topicFilter) {
+    const topicGroups = {
+      'Week 1 and 2 (Quiz 1)': ['Domain_and_Range', 'Quiz1', 'Week 1 and 2'],
+      'Domain and Range (Quiz 2)': ['Domain_and_Range-2', 'Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2'],
+      'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
+      'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
+      'Linear function - 2': ['Quiz5', 'Linear', 'Linear_functions - 2'],
+      'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations', 'Sets And Relations'],
+      'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials', 'Polynomial Function'],
+      'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential', 'Function Concepts'],
+      'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions', 'Logarithmic Functions'],
+      'Sequence and limit week 7': ['Quiz10', 'Function_Limits', 'Function Limits'],
+      'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation'],
+      'Week 9 - Derivatives and Integrals': ['Quiz12', 'Derivatives_Integrals', 'Derivatives and Integrals', 'Derivatives', 'Integrals']
+    };
+    
+    result = result.filter(item => {
+      if (!item.topic) return false;
+      if (topicGroups[topicFilter]) {
+        return topicGroups[topicFilter].some(keyword => 
+          item.topic === keyword || item.topic.includes(keyword)
+        );
+      }
+      return item.topic === topicFilter;
+    });
+  }
+  if (scoreFilter) {
+  if (scoreFilter === '0') {
+    result = result.filter(item => item.percentage === 0);
+  } else {
+    const [min, max] = scoreFilter.split('-').map(Number);
+    result = result.filter(item => item.percentage >= min && item.percentage <= max);
+  }
+}
+if (searchTerm) {
+  result = result.filter(item => 
+    item.username.toLowerCase().includes(searchTerm) ||
+    item.email.toLowerCase().includes(searchTerm)
+  );
+}
+
+filteredData = result;
+expandedRows.clear();
+calculateStatistics();
+populateTable(filteredData);
+  
 }
 
 
@@ -1341,10 +1343,14 @@ function generateCSV(data) {
     }
 
     // Real-time search
+    let searchTimeout;
     document.addEventListener('DOMContentLoaded', function() {
       const searchInput = document.getElementById('searchFilter');
-      searchInput.addEventListener('input', applyFilters);
-      
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(applyFilters, 300); // Debounce 300ms
+      });
+  
       init();
     });
   </script>
