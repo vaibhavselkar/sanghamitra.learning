@@ -429,31 +429,68 @@
         submission.email.toLowerCase() !== 'test@example.com'
       );
       
-      // Process all submissions - REMOVED THE FILTERING THAT SHOWS ONLY ONE PER USER
-      allData = rawData.map(submission => {
-        // Calculate MCQ score
-        const mcqScore = calculateMCQScore(submission);
+        // Create a Map to track unique submissions
+        const uniqueSubmissions = new Map();
         
-        return {
-          username: submission.username,
-          email: submission.email,
-          topic: submission.topic,
-          score: submission.score,
-          maxScore: submission.maxScore,
-          percentage: parseFloat(submission.percentage || 0),
-          timestamp: submission.timestamp,
-          questions: submission.questions || [],
-          mcqScore: mcqScore.score,
-          mcqMaxScore: mcqScore.maxScore,
-          mcqPercentage: mcqScore.percentage
-        };
-      });
-      
-      // Sort by timestamp (newest first)
-      allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      
-      filteredData = [...allData];
-    }
+        rawData.forEach(submission => {
+          // Parse timestamp to date string (YYYY-MM-DD) for grouping by day
+          let dateKey = '';
+          if (submission.timestamp) {
+            const dateObj = new Date(submission.timestamp);
+            dateKey = dateObj.toISOString().split('T')[0]; // Gets YYYY-MM-DD
+          }
+          
+          // Create a unique key based on username, email, topic, and date
+          const key = `${submission.username}|${submission.email}|${submission.topic}|${dateKey}`;
+          
+          if (!uniqueSubmissions.has(key)) {
+            uniqueSubmissions.set(key, submission);
+          } else {
+            const existing = uniqueSubmissions.get(key);
+            // Keep the submission with higher score (or latest if scores are equal)
+            if (submission.score > existing.score) {
+              uniqueSubmissions.set(key, submission);
+            } else if (submission.score === existing.score) {
+              // If scores are equal, keep the latest submission
+              const submissionTime = new Date(submission.timestamp);
+              const existingTime = new Date(existing.timestamp);
+              if (submissionTime > existingTime) {
+                uniqueSubmissions.set(key, submission);
+              }
+            }
+          }
+        });
+        
+        // Convert Map values back to array
+        const deduplicatedData = Array.from(uniqueSubmissions.values());
+        
+        // Process all submissions
+        allData = deduplicatedData.map(submission => {
+          // Calculate MCQ score
+          const mcqScore = calculateMCQScore(submission);
+          
+          return {
+            username: submission.username,
+            email: submission.email,
+            topic: submission.topic,
+            score: submission.score,
+            maxScore: submission.maxScore,
+            percentage: parseFloat(submission.percentage || 0),
+            timestamp: submission.timestamp,
+            questions: submission.questions || [],
+            mcqScore: mcqScore.score,
+            mcqMaxScore: mcqScore.maxScore,
+            mcqPercentage: mcqScore.percentage
+          };
+        });
+        
+        // Sort by timestamp (newest first)
+        allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        filteredData = [...allData];
+      }
+
+
     // Calculate MCQ score from submission
     function calculateMCQScore(submission) {
       if (!submission.questions || submission.questions.length === 0) {
