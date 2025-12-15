@@ -426,79 +426,77 @@
       } else {
         throw new Error('Failed to fetch data');
       }
-
+    
       // Filter out by email
-    rawData = rawData.filter(submission => 
-      submission.email.toLowerCase() !== 'test@example.com'
-    );
+      rawData = rawData.filter(submission => 
+        submission.email.toLowerCase() !== 'test@example.com'
+      );
+    
+      // Sort by timestamp to group similar times together
+      rawData.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       
-    
-  
-  // Create a Map to track unique submissions
-  const uniqueSubmissions = new Map();
-  
-  rawData.forEach(submission => {
-    // Parse timestamp to date string (YYYY-MM-DD) for grouping by day
-    let dateKey = '';
-    if (submission.timestamp) {
-      const dateObj = new Date(submission.timestamp);
-      dateKey = dateObj.toISOString().split('T')[0]; // Gets YYYY-MM-DD
-    }
-    
-    // Create a unique key based on username, email, topic, and date
-    const key = `${submission.username}|${submission.email}|${submission.topic}|${dateKey}`;
-    
-    if (!uniqueSubmissions.has(key)) {
-      uniqueSubmissions.set(key, submission);
-    } else {
-      const existing = uniqueSubmissions.get(key);
-      // Keep the submission with higher score (or latest if scores are equal)
-      if (submission.score > existing.score) {
-        uniqueSubmissions.set(key, submission);
-      } else if (submission.score === existing.score) {
-        // If scores are equal, keep the latest submission
-        const submissionTime = new Date(submission.timestamp);
-        const existingTime = new Date(existing.timestamp);
-        if (submissionTime > existingTime) {
-          uniqueSubmissions.set(key, submission);
+      // Group submissions by user and topic with time window
+      const groupedSubmissions = [];
+      
+      rawData.forEach(submission => {
+        const submissionTime = new Date(submission.timestamp).getTime();
+        let addedToGroup = false;
+        
+        // Try to find an existing group for this user+topic within time window
+        for (let i = 0; i < groupedSubmissions.length; i++) {
+          const group = groupedSubmissions[i];
+          const groupTime = new Date(group.timestamp).getTime();
+          const timeDiff = Math.abs(submissionTime - groupTime);
+          
+          // Check if same user, same topic, and within 2 minutes (120000 ms)
+          if (submission.username === group.username && 
+              submission.email === group.email && 
+              submission.topic === group.topic && 
+              timeDiff <= 120000) { // 2 minutes in milliseconds
+            
+            // Keep the submission with higher score
+            if (submission.score > group.score) {
+              groupedSubmissions[i] = submission;
+            }
+            addedToGroup = true;
+            break;
+          }
         }
-      }
+        
+        // If no existing group found, add as new group
+        if (!addedToGroup) {
+          groupedSubmissions.push(submission);
+        }
+      });
+      
+      // Process all submissions
+      allData = groupedSubmissions.map(submission => {
+        // Calculate MCQ score
+        const mcqScore = calculateMCQScore(submission);
+        // Determine quiz type
+        const quizType = determineQuizType(submission);
+        
+        return {
+          username: submission.username,
+          email: submission.email,
+          topic: submission.topic,
+          score: submission.score,
+          maxScore: submission.maxScore,
+          percentage: parseFloat(submission.percentage || 0),
+          timestamp: submission.timestamp,
+          questions: submission.questions || [],
+          mcqScore: mcqScore.score,
+          mcqMaxScore: mcqScore.maxScore,
+          mcqPercentage: mcqScore.percentage,
+          quizType: quizType
+        };
+      });
+      
+      // Sort by timestamp (newest first)
+      allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      filteredData = [...allData];
     }
-  });
-  
-  // Convert Map values back to array
-  const deduplicatedData = Array.from(uniqueSubmissions.values());
-  
-  // Process all submissions
-  // Process all submissions
-allData = deduplicatedData.map(submission => {
-  // Calculate MCQ score
-  const mcqScore = calculateMCQScore(submission);
-  // Determine quiz type
-  const quizType = determineQuizType(submission);
-  
-  return {
-    username: submission.username,
-    email: submission.email, // Keep email in data but don't display it
-    topic: submission.topic,
-    score: submission.score,
-    maxScore: submission.maxScore,
-    percentage: parseFloat(submission.percentage || 0),
-    timestamp: submission.timestamp,
-    questions: submission.questions || [],
-    mcqScore: mcqScore.score,
-    mcqMaxScore: mcqScore.maxScore,
-    mcqPercentage: mcqScore.percentage,
-    quizType: quizType // Add quiz type
-  };
-});
-  
-  // Sort by timestamp (newest first)
-  allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  
-  filteredData = [...allData];
-}
-
 
     // Calculate MCQ score from submission
     function calculateMCQScore(submission) {
