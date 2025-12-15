@@ -709,68 +709,60 @@ function getLatestAttempts(data) {
       document.getElementById('lowestScore').textContent = lowestScore + '%';
     }
 
-    // Populate table
-    function populateTable(dataToShow = filteredData) {
-      const tbody = document.getElementById('tableBody');
-      const noDataState = document.getElementById('noDataState');
-      const tableContainer = document.getElementById('tableContainer');
-      
-      tbody.innerHTML = '';
+    // Populate table - OPTIMIZED VERSION
+function populateTable(dataToShow = filteredData) {
+    const tbody = document.getElementById('tableBody');
+    const noDataState = document.getElementById('noDataState');
+    const tableContainer = document.getElementById('tableContainer');
 
-      if (dataToShow.length === 0) {
+    if (dataToShow.length === 0) {
         tableContainer.style.display = 'none';
         noDataState.style.display = 'block';
+        tbody.innerHTML = '';
         return;
-      }
+    }
 
-      tableContainer.style.display = 'block';
-      noDataState.style.display = 'none';
+    tableContainer.style.display = 'block';
+    noDataState.style.display = 'none';
 
-      dataToShow.forEach((item, index) => {
+    // Build HTML string first
+    let rowsHTML = '';
+    dataToShow.forEach((item, index) => {
         const scoreClass = getScoreClass(item.percentage);
         const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
         const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
         const hasAnswers = item.questionResults && item.questionResults.length > 0;
-        
-        // Main row
-        tbody.innerHTML += `
-          <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
-            <td>
-              ${hasAnswers ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
-            </td>
-            <td><strong>${item.username}</strong></td>
-            <td><small class="text-muted">${item.email}</small></td>
-            <td><span class="badge bg-light text-dark">${item.topic}</span></td>
-            <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
-            <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
-            <td>
-              <span class="attempt-badge bg-info text-white">
-                #${item.attemptNumber}
-              </span>
-            </td>
-            <td>
-              <div>${date}</div>
-              ${time ? `<small class="text-muted">${time}</small>` : ''}
-            </td>
-          </tr>
-        `;
-        
-        // Detail row (initially hidden)
-        if (hasAnswers) {
-          tbody.innerHTML += `
-            <tr id="detail-${index}" style="display: none;">
-              <td colspan="8">
-                <div class="student-detail p-3">
-                  <div id="detail-content-${index}" class="detail-content">
-                    ${generateStudentDetail(item)}
-                  </div>
-                </div>
-              </td>
+
+        rowsHTML += `
+            <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
+                <td>${hasAnswers ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}</td>
+                <td><strong>${item.username}</strong></td>
+                <td><small class="text-muted">${item.email}</small></td>
+                <td><span class="badge bg-light text-dark">${item.topic}</span></td>
+                <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
+                <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
+                <td><span class="attempt-badge bg-info text-white">#${item.attemptNumber}</span></td>
+                <td><div>${date}</div>${time ? `<small class="text-muted">${time}</small>` : ''}</td>
             </tr>
-          `;
+        `;
+
+        // Only prepare detail row HTML if it has answers
+        if (hasAnswers) {
+            rowsHTML += `
+                <tr id="detail-${index}" style="display: none;">
+                    <td colspan="8">
+                        <div class="student-detail p-3">
+                            <div id="detail-content-${index}" class="detail-content"></div>
+                        </div>
+                    </td>
+                </tr>
+            `;
         }
-      });
-    }
+    });
+
+    // Single DOM update - MUCH FASTER
+    tbody.innerHTML = rowsHTML;
+}
 
     // Generate detailed student answer breakdown
 function generateStudentDetail(item) {
@@ -1028,33 +1020,56 @@ function generateStudentDetail(item) {
       return answer;
     }
 
-    // Toggle student detail view
-    function toggleStudentDetail(index) {
-      const detailRow = document.getElementById(`detail-${index}`);
-      const icon = document.getElementById(`icon-${index}`);
-      const contentDiv = document.getElementById(`detail-content-${index}`);
-      
-      if (!detailRow) return;
-      
-      if (expandedRows.has(index)) {
+ // Toggle student detail view - WITH LAZY LOADING (CORRECTED VERSION)
+function toggleStudentDetail(index) {
+    const detailRow = document.getElementById(`detail-${index}`);
+    const icon = document.getElementById(`icon-${index}`);
+    const contentDiv = document.getElementById(`detail-content-${index}`);
+
+    if (!detailRow || !icon) return;
+
+    if (expandedRows.has(index)) {
+        // Collapse
         contentDiv.style.maxHeight = '0';
         contentDiv.style.opacity = '0';
+        contentDiv.style.padding = '0';
         
         setTimeout(() => {
-          detailRow.style.display = 'none';
-          icon.classList.remove('rotated');
-          expandedRows.delete(index);
+            detailRow.style.display = 'none';
+            icon.classList.remove('rotated');
+            expandedRows.delete(index);
         }, 300);
-      } else {
+    } else {
+        // Expand
+        const item = filteredData[index];
+        
         detailRow.style.display = 'table-row';
+        icon.classList.add('rotated');
+        expandedRows.add(index);
+        
+        // Generate content on-demand
+        contentDiv.innerHTML = `
+            <div class="p-3">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                    <span>Loading detailed answers...</span>
+                </div>
+            </div>
+        `;
+        
+        // Force a reflow, then generate content
         setTimeout(() => {
-          icon.classList.add('rotated');
-          contentDiv.style.maxHeight = '500px';
-          contentDiv.style.opacity = '1';
-          expandedRows.add(index);
+            contentDiv.style.maxHeight = '500px';
+            contentDiv.style.opacity = '1';
+            contentDiv.style.padding = '1rem';
+            
+            // Now generate and insert the content
+            setTimeout(() => {
+                contentDiv.innerHTML = generateStudentDetail(item);
+            }, 50);
         }, 10);
-      }
     }
+}
 
     // Get score class
     function getScoreClass(percentage) {
