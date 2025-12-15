@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>  
   <meta charset="utf-8">  
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -359,11 +360,13 @@
             <tr>
               <th width="30px"></th>
               <th><i class="bi bi-person me-1"></i>Username</th>
-              <th><i class="bi bi-envelope me-1"></i>Email</th>
+              <!-- REMOVED EMAIL COLUMN -->
               <th><i class="bi bi-book me-1"></i>Topic</th>
               <th><i class="bi bi-award me-1"></i>Total Score</th>
               <th><i class="bi bi-percent me-1"></i>Percentage</th>
-              <th><i class="bi bi-check-square me-1"></i>MCQ Score</th>
+              <!-- ADDED QUIZ TYPE COLUMN -->
+              <th><i class="bi bi-question-square me-1"></i>Quiz Type</th>
+              <!-- REMOVED MCQ SCORE COLUMN -->
               <th><i class="bi bi-calendar me-1"></i>Date</th>
             </tr>
           </thead>
@@ -424,71 +427,77 @@
         throw new Error('Failed to fetch data');
       }
 
-         // Filter out by email
-      rawData = rawData.filter(submission => 
-        submission.email.toLowerCase() !== 'test@example.com'
-      );
+      // Filter out by email
+    rawData = rawData.filter(submission => 
+      submission.email.toLowerCase() !== 'test@example.com'
+    );
       
-        // Create a Map to track unique submissions
-        const uniqueSubmissions = new Map();
-        
-        rawData.forEach(submission => {
-          // Parse timestamp to date string (YYYY-MM-DD) for grouping by day
-          let dateKey = '';
-          if (submission.timestamp) {
-            const dateObj = new Date(submission.timestamp);
-            dateKey = dateObj.toISOString().split('T')[0]; // Gets YYYY-MM-DD
-          }
-          
-          // Create a unique key based on username, email, topic, and date
-          const key = `${submission.username}|${submission.email}|${submission.topic}|${dateKey}`;
-          
-          if (!uniqueSubmissions.has(key)) {
-            uniqueSubmissions.set(key, submission);
-          } else {
-            const existing = uniqueSubmissions.get(key);
-            // Keep the submission with higher score (or latest if scores are equal)
-            if (submission.score > existing.score) {
-              uniqueSubmissions.set(key, submission);
-            } else if (submission.score === existing.score) {
-              // If scores are equal, keep the latest submission
-              const submissionTime = new Date(submission.timestamp);
-              const existingTime = new Date(existing.timestamp);
-              if (submissionTime > existingTime) {
-                uniqueSubmissions.set(key, submission);
-              }
-            }
-          }
-        });
-        
-        // Convert Map values back to array
-        const deduplicatedData = Array.from(uniqueSubmissions.values());
-        
-        // Process all submissions
-        allData = deduplicatedData.map(submission => {
-          // Calculate MCQ score
-          const mcqScore = calculateMCQScore(submission);
-          
-          return {
-            username: submission.username,
-            email: submission.email,
-            topic: submission.topic,
-            score: submission.score,
-            maxScore: submission.maxScore,
-            percentage: parseFloat(submission.percentage || 0),
-            timestamp: submission.timestamp,
-            questions: submission.questions || [],
-            mcqScore: mcqScore.score,
-            mcqMaxScore: mcqScore.maxScore,
-            mcqPercentage: mcqScore.percentage
-          };
-        });
-        
-        // Sort by timestamp (newest first)
-        allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        
-        filteredData = [...allData];
+    
+  
+  // Create a Map to track unique submissions
+  const uniqueSubmissions = new Map();
+  
+  rawData.forEach(submission => {
+    // Parse timestamp to date string (YYYY-MM-DD) for grouping by day
+    let dateKey = '';
+    if (submission.timestamp) {
+      const dateObj = new Date(submission.timestamp);
+      dateKey = dateObj.toISOString().split('T')[0]; // Gets YYYY-MM-DD
+    }
+    
+    // Create a unique key based on username, email, topic, and date
+    const key = `${submission.username}|${submission.email}|${submission.topic}|${dateKey}`;
+    
+    if (!uniqueSubmissions.has(key)) {
+      uniqueSubmissions.set(key, submission);
+    } else {
+      const existing = uniqueSubmissions.get(key);
+      // Keep the submission with higher score (or latest if scores are equal)
+      if (submission.score > existing.score) {
+        uniqueSubmissions.set(key, submission);
+      } else if (submission.score === existing.score) {
+        // If scores are equal, keep the latest submission
+        const submissionTime = new Date(submission.timestamp);
+        const existingTime = new Date(existing.timestamp);
+        if (submissionTime > existingTime) {
+          uniqueSubmissions.set(key, submission);
+        }
       }
+    }
+  });
+  
+  // Convert Map values back to array
+  const deduplicatedData = Array.from(uniqueSubmissions.values());
+  
+  // Process all submissions
+  // Process all submissions
+allData = deduplicatedData.map(submission => {
+  // Calculate MCQ score
+  const mcqScore = calculateMCQScore(submission);
+  // Determine quiz type
+  const quizType = determineQuizType(submission);
+  
+  return {
+    username: submission.username,
+    email: submission.email, // Keep email in data but don't display it
+    topic: submission.topic,
+    score: submission.score,
+    maxScore: submission.maxScore,
+    percentage: parseFloat(submission.percentage || 0),
+    timestamp: submission.timestamp,
+    questions: submission.questions || [],
+    mcqScore: mcqScore.score,
+    mcqMaxScore: mcqScore.maxScore,
+    mcqPercentage: mcqScore.percentage,
+    quizType: quizType // Add quiz type
+  };
+});
+  
+  // Sort by timestamp (newest first)
+  allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  
+  filteredData = [...allData];
+}
 
 
     // Calculate MCQ score from submission
@@ -516,7 +525,29 @@
       };
     }
 
-    // Calculate statistics
+    // Determine quiz type from submission
+// Determine quiz type from submission (simplified - no mixed quizzes)
+// Determine quiz type from submission
+// Determine quiz type from submission
+function determineQuizType(submission) {
+  if (!submission.questions || submission.questions.length === 0) {
+    return 'Unknown';
+  }
+  
+  // Check if any question is MCQ type
+  const hasMCQ = submission.questions.some(q => 
+    q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical'
+  );
+  
+  // If it has MCQ questions, it's MCQ quiz, otherwise it's Coding quiz
+  if (hasMCQ) {
+    return 'MCQ';
+  } else {
+    return 'Coding';
+  }
+}
+
+// Calculate statistics
     function calculateStatistics() {
       if (filteredData.length === 0) {
         document.getElementById('totalStudents').textContent = '0';
@@ -561,34 +592,38 @@
         const scoreClass = getScoreClass(item.percentage);
         const mcqScoreClass = getScoreClass(item.mcqPercentage);
         const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
+        
         const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
         const hasQuestions = item.questions && item.questions.length > 0;
         
         // Main row
         // Main row
-        tbody.innerHTML += `
-          <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
-            <td>
-              ${hasQuestions ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
-            </td>
-            <td><strong>${item.username}</strong></td>
-            <td><small class="text-muted">${item.email}</small></td>
-            <td><span class="badge bg-light text-dark">${item.topic}</span></td>
-            <td><strong>${parseFloat(item.score.toFixed(2))}/${item.maxScore}</strong></td>
-            <td><span class="score-badge ${scoreClass}">${parseFloat(item.percentage.toFixed(2))}%</span></td>
-            <td>
-              ${item.mcqMaxScore > 0 ? 
-                `<span class="score-badge ${mcqScoreClass}">${parseFloat(item.mcqScore.toFixed(2))}/${item.mcqMaxScore} (${parseFloat(item.mcqPercentage.toFixed(2))}%)</span>` : 
-                '<span class="text-muted">N/A</span>'
-              }
-            </td>
-            <td>
-              <div>${date}</div>
-              ${time ? `<small class="text-muted">${time}</small>` : ''}
-            </td>
-          </tr>
-        `;
-                
+  // Main row
+// Main row
+tbody.innerHTML += `
+  <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
+    <td>
+      ${hasQuestions ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
+    </td>
+    <td><strong>${item.username}</strong></td>
+    <!-- REMOVED EMAIL COLUMN -->
+    <td><span class="badge bg-light text-dark">${item.topic}</span></td>
+    <td><strong>${parseFloat(item.score.toFixed(2))}/${item.maxScore}</strong></td>
+    <td><span class="score-badge ${scoreClass}">${parseFloat(item.percentage.toFixed(2))}%</span></td>
+    <!-- ADDED QUIZ TYPE COLUMN -->
+    <td>
+      <span class="badge ${getQuizTypeBadgeClass(item.quizType)}">
+        ${item.quizType}
+      </span>
+    </td>
+    <!-- REMOVED MCQ SCORE COLUMN -->
+    <td>
+      <div>${formatDate(item.timestamp)}</div>
+      ${time ? `<small class="text-muted">${time}</small>` : ''}
+    </td>
+  </tr>
+`;
+        
         // Detail row (initially hidden)
         if (hasQuestions) {
           tbody.innerHTML += `
@@ -867,6 +902,30 @@
       return 'score-poor';
     }
 
+    // Format date as DD/MM/YYYY
+function formatDate(timestamp) {
+  if (!timestamp) return 'N/A';
+  
+  const date = new Date(timestamp);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = date.getFullYear();
+  
+  return `${day}/${month}/${year}`;
+}
+
+// Get badge class for quiz type
+// Get badge class for quiz type
+function getQuizTypeBadgeClass(quizType) {
+  switch (quizType) {
+    case 'Coding':
+      return 'bg-primary'; // Blue for coding
+    case 'MCQ':
+      return 'bg-success'; // Green for MCQ
+    default:
+      return 'bg-secondary'; // Gray for unknown
+  }
+}
     // Populate filter options
     function populateFilters() {
       const topics = [...new Set(allData.map(item => item.topic))];
