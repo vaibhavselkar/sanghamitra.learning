@@ -423,6 +423,11 @@
       } else {
         throw new Error('Failed to fetch data');
       }
+
+         // Filter out by email
+      rawData = rawData.filter(submission => 
+        submission.email.toLowerCase() !== 'test@example.com'
+      );
       
       // Process all submissions - REMOVED THE FILTERING THAT SHOWS ONLY ONE PER USER
       allData = rawData.map(submission => {
