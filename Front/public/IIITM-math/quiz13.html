@@ -541,7 +541,7 @@ async function findCorrectImageExtension(filename) {
     
     return null;
 }
-        // Enhanced Answer validation utility with flexible infinity support
+       // Enhanced Answer validation utility with flexible infinity support
         const answerNormalizer = {
             normalizeInterval: (answer) => {
                 return (answer || '').toString().trim()
@@ -578,24 +578,29 @@ async function findCorrectImageExtension(filename) {
             normalizeNumeric: (num) => {
                 const str = (num || '').toString().trim().toLowerCase();
                 
-                // Handle positive infinity variations
                 if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
                     return Infinity;
                 }
                 
-                // Handle negative infinity variations
-                if (str === '-inf' || str === '-infinity' || str === '-∞' || str === '-inf' || str === '-infinity') {
+                if (str === '-inf' || str === '-infinity' || str === '-∞') {
                     return -Infinity;
                 }
                 
-                // Handle regular numbers
                 const cleaned = str.replace(/[^\d.-]/g, '');
                 return cleaned ? parseFloat(cleaned) : NaN;
             },
             
-            // New method to normalize any answer type generically
+            // ADD THIS NEW METHOD
+            normalizeText: (text) => {
+                return (text || '').toString()
+                    .trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, ' ')
+                    .replace(/[^\w\s-]/g, '');
+            },
+            
             normalizeAnswer: (answer, questionType) => {
-                if (!answer) return '';
+                if (answer === null || answer === undefined) return '';
                 
                 const str = answer.toString().trim();
                 
@@ -605,13 +610,13 @@ async function findCorrectImageExtension(filename) {
                     const normalized = answerNormalizer.normalizeNumeric(str);
                     return isFinite(normalized) ? normalized.toString() :
                            normalized === Infinity ? 'inf' :
-                           normalized === -Infinity ? '-inf' : str;
+                           normalized === -Infinity ? '-inf' : str.toLowerCase();
                 } else if (questionType === 'coordinate_input') {
                     return answerNormalizer.normalizeCoordinate(str);
                 } else if (questionType === 'equation_input') {
                     return answerNormalizer.normalizeEquation(str);
                 } else {
-                    return str.toLowerCase();
+                    return answerNormalizer.normalizeText(str);
                 }
             }
         };
@@ -1276,75 +1281,107 @@ if (question.image_file) {
                 
                 let isCorrect = false;
                 
-                if (userAnswer !== undefined && userAnswer !== null) {
-                    const normalizedUser = answerNormalizer.normalizeAnswer(userAnswer, question.type);
-                    const normalizedCorrect = answerNormalizer.normalizeAnswer(question.correct_answer, question.type);
-                    
-                    if (question.type === 'interval_input') {
-                        // For intervals, compare normalized strings
+                if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
+                    if (question.type === 'multiple_choice') {
+                        const normalizedUser = answerNormalizer.normalizeText(userAnswer);
+                        const normalizedCorrect = answerNormalizer.normalizeText(question.correct_answer);
                         isCorrect = normalizedUser === normalizedCorrect;
                         
-                        // Check alternative answers
-                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                            isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
-                                return normalizedAlt === normalizedUser;
-                            });
-                        }
-                    } else if (question.type === 'multiple_choice') {
-                        isCorrect = normalizedUser === normalizedCorrect;
+                        console.log(`Q${index + 1} MC:`, { user: normalizedUser, correct: normalizedCorrect, match: isCorrect });
+                        
                     } else if (question.type === 'multiple_select') {
-                        if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                            const normalizeArray = (arr) => arr.map(item =>
-                                answerNormalizer.normalizeAnswer(item, question.type)).sort();
-                            const userNorm = normalizeArray(userAnswer);
-                            const correctNorm = normalizeArray(question.correct_answer);
+                        if (Array.isArray(userAnswer)) {
+                            let correctAnswers = Array.isArray(question.correct_answer) 
+                                ? question.correct_answer 
+                                : [question.correct_answer];
+                            
+                            const userNorm = userAnswer.map(a => answerNormalizer.normalizeText(a)).sort();
+                            const correctNorm = correctAnswers.map(a => answerNormalizer.normalizeText(a)).sort();
+                            
                             isCorrect = userNorm.length === correctNorm.length &&
-                                    userNorm.every((ans, idx) => ans === correctNorm[idx]);
+                                       userNorm.every((ans, idx) => ans === correctNorm[idx]);
+                            
+                            console.log(`Q${index + 1} MS:`, { user: userNorm, correct: correctNorm, match: isCorrect });
                         }
+                        
                     } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                        // Handle numeric comparisons with tolerance for floating point
                         const userNum = answerNormalizer.normalizeNumeric(userAnswer);
                         const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
                         
                         if (userNum === correctNum) {
-                            // Exact match (including Infinity/-Infinity)
                             isCorrect = true;
                         } else if (isFinite(userNum) && isFinite(correctNum)) {
-                            // Both are finite numbers - use tolerance
-                            const tolerance = Math.max(Math.abs(correctNum) * 0.01, 0.01);
+                            const tolerance = Math.max(Math.abs(correctNum) * 0.02, 0.01);
                             isCorrect = Math.abs(userNum - correctNum) <= tolerance;
-                        } else {
-                            // One is infinite, one is not
-                            isCorrect = false;
                         }
                         
-                        // Check alternative numeric answers
-                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                            isCorrect = question.alternative_answers.some(alt => {
+                        console.log(`Q${index + 1} Num:`, { user: userNum, correct: correctNum, match: isCorrect });
+                        
+                        if (!isCorrect && question.alternative_answers) {
+                            const alternatives = Array.isArray(question.alternative_answers) 
+                                ? question.alternative_answers 
+                                : [question.alternative_answers];
+                            
+                            isCorrect = alternatives.some(alt => {
                                 const altNum = answerNormalizer.normalizeNumeric(alt);
                                 if (userNum === altNum) return true;
                                 if (isFinite(userNum) && isFinite(altNum)) {
-                                    const tolerance = Math.max(Math.abs(altNum) * 0.01, 0.01);
+                                    const tolerance = Math.max(Math.abs(altNum) * 0.02, 0.01);
                                     return Math.abs(userNum - altNum) <= tolerance;
                                 }
                                 return false;
                             });
                         }
-                    } else if (question.type === 'coordinate_input') {
-                        isCorrect = normalizedUser === normalizedCorrect;
-                    } else if (question.type === 'equation_input') {
+                        
+                    } else if (question.type === 'interval_input') {
+                        const normalizedUser = answerNormalizer.normalizeInterval(userAnswer);
+                        const normalizedCorrect = answerNormalizer.normalizeInterval(question.correct_answer);
                         isCorrect = normalizedUser === normalizedCorrect;
                         
-                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                            isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                        console.log(`Q${index + 1} Interval:`, { user: normalizedUser, correct: normalizedCorrect, match: isCorrect });
+                        
+                        if (!isCorrect && question.alternative_answers) {
+                            const alternatives = Array.isArray(question.alternative_answers) 
+                                ? question.alternative_answers 
+                                : [question.alternative_answers];
+                            
+                            isCorrect = alternatives.some(alt => {
+                                const normalizedAlt = answerNormalizer.normalizeInterval(alt);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
-                    } else {
-                        // For text input and other types
+                        
+                    } else if (question.type === 'coordinate_input') {
+                        const normalizedUser = answerNormalizer.normalizeCoordinate(userAnswer);
+                        const normalizedCorrect = answerNormalizer.normalizeCoordinate(question.correct_answer);
                         isCorrect = normalizedUser === normalizedCorrect;
+                        
+                        console.log(`Q${index + 1} Coord:`, { user: normalizedUser, correct: normalizedCorrect, match: isCorrect });
+                        
+                    } else if (question.type === 'equation_input') {
+                        const normalizedUser = answerNormalizer.normalizeEquation(userAnswer);
+                        const normalizedCorrect = answerNormalizer.normalizeEquation(question.correct_answer);
+                        isCorrect = normalizedUser === normalizedCorrect;
+                        
+                        console.log(`Q${index + 1} Eq:`, { user: normalizedUser, correct: normalizedCorrect, match: isCorrect });
+                        
+                        if (!isCorrect && question.alternative_answers) {
+                            const alternatives = Array.isArray(question.alternative_answers) 
+                                ? question.alternative_answers 
+                                : [question.alternative_answers];
+                            
+                            isCorrect = alternatives.some(alt => {
+                                const normalizedAlt = answerNormalizer.normalizeEquation(alt);
+                                return normalizedAlt === normalizedUser;
+                            });
+                        }
+                        
+                    } else {
+                        const normalizedUser = answerNormalizer.normalizeText(userAnswer);
+                        const normalizedCorrect = answerNormalizer.normalizeText(question.correct_answer);
+                        isCorrect = normalizedUser === normalizedCorrect;
+                        
+                        console.log(`Q${index + 1} Text:`, { user: normalizedUser, correct: normalizedCorrect, match: isCorrect });
                     }
                 }
                 
@@ -1714,6 +1751,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
