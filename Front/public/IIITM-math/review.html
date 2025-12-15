@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Review - IITM Mathematics I</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .correct-answer {
+            background-color: #d1fae5;
+            border-left: 4px solid #10b981; 
+        }
+        .incorrect-answer {
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
+        }
+        .answer-chip {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 16px;
+            margin: 4px;
+            font-size: 14px;
+        }
+        .correct-chip {
+            background-color: #10b981;
+            color: white;
+        }
+        .incorrect-chip {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-3xl font-bold text-gray-800">📊 Exam Performance Review</h1>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">Welcome back,</p>
+                    <p class="text-lg font-semibold text-gray-800" id="userName">Loading...</p>
+                </div>
+            </div>
+            
+            <!-- User Input -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" id="emailInput" placeholder="Loading..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Week (Optional)</label>
+                    <select id="weekSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Loading weeks...</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button onclick="loadResults()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                Load Results
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="mt-4 text-gray-600">Loading your results...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+            <strong>Error:</strong> <span id="errorText"></span>
+        </div>
+
+        <!-- Results Container -->
+        <div id="resultsContainer" class="hidden">
+            <!-- Summary Cards -->
+            <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"></div>
+
+            <!-- Week Selector for Multiple Weeks -->
+            <div id="weekTabs" class="bg-white rounded-lg shadow-md p-4 mb-6 hidden">
+                <h3 class="text-lg font-semibold mb-3">Select Week to Review:</h3>
+                <div id="weekTabsContainer" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div id="detailedReview" class="bg-white rounded-lg shadow-md p-6"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+        let username = '';
+        let email = '';
+
+        // Fetch session info on page load
+        async function fetchSessionInfo() {
+            try {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info');
+                if (response.ok) {
+                    const data = await response.json();
+                    username = data.username;
+                    email = data.email;
+                    console.log('Logged in as:', username, email);
+                    
+                    // Auto-fill email and load results
+                    document.getElementById('emailInput').value = email;
+                    document.getElementById('emailInput').disabled = true;
+                    
+                    // Update header with username
+                    document.getElementById('userName').textContent = username;
+                    
+                    // Auto-load results
+                    await loadAvailableWeeks();
+                } else {
+                    window.location.href = 'user_login.html';
+                }
+            } catch (error) {
+                console.error('Error fetching session info:', error);
+                window.location.href = 'user_login.html';
+            }
+        }
+
+        // Load available weeks for the user
+        async function loadAvailableWeeks() {
+            try {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm_math_scores?email=${encodeURIComponent(email)}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.scores && data.scores.length > 0) {
+                        const weekSelect = document.getElementById('weekSelect');
+                        weekSelect.innerHTML = '<option value="">All Weeks</option>';
+                        
+                        // Populate dropdown with only available weeks
+                        data.scores.forEach(score => {
+                            const option = document.createElement('option');
+                            option.value = score.week;
+                            option.textContent = `Week ${score.week}`;
+                            weekSelect.appendChild(option);
+                        });
+                        
+                        // Auto-load results
+                        loadResults();
+                    } else {
+                        showError('No exam results found for your account');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading available weeks:', error);
+                showError('Failed to load your exam history');
+            }
+        }
+
+        async function loadResults() {
+            const emailValue = document.getElementById('emailInput').value.trim();
+            const week = document.getElementById('weekSelect').value;
+
+            if (!emailValue) {
+                showError('Please enter your email address');
+                return;
+            }
+
+            showLoading(true);
+            hideError();
+            hideResults();
+
+            try {
+                let url = `https://sanghamitra-learnworld.vercel.app/api/iitm_math_scores?email=${encodeURIComponent(emailValue)}`;
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('No results found for this email');
+                }
+
+                const data = await response.json();
+                currentData = data;
+
+                // Filter by week if specified
+                if (week) {
+                    const weekNum = parseInt(week);
+                    const filteredScores = data.scores.filter(s => s.week === weekNum);
+                    
+                    if (filteredScores.length === 0) {
+                        throw new Error(`No results found for Week ${week}`);
+                    }
+                    
+                    displayResults(data, filteredScores[0]);
+                } else {
+                    // Show all weeks
+                    displayResults(data);
+                }
+
+                showLoading(false);
+                showResults();
+
+            } catch (error) {
+                showLoading(false);
+                showError(error.message);
+            }
+        }
+
+        function displayResults(userData, specificWeek = null) {
+            const summaryCards = document.getElementById('summaryCards');
+            const weekTabs = document.getElementById('weekTabs');
+            const weekTabsContainer = document.getElementById('weekTabsContainer');
+
+            if (specificWeek) {
+                // Display single week
+                displaySummaryCards(userData, specificWeek);
+                weekTabs.classList.add('hidden');
+                displayDetailedReview(specificWeek);
+            } else {
+                // Display overview of all weeks
+                displayOverallSummary(userData);
+                
+                // Show week tabs
+                weekTabs.classList.remove('hidden');
+                weekTabsContainer.innerHTML = '';
+                
+                userData.scores.forEach((score, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'px-4 py-2 rounded-lg font-medium transition duration-200 ' + 
+                                   (index === 0 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300');
+                    btn.textContent = `Week ${score.week}`;
+                    btn.onclick = () => selectWeek(score, btn);
+                    weekTabsContainer.appendChild(btn);
+                });
+
+                // Show first week by default
+                if (userData.scores.length > 0) {
+                    displayDetailedReview(userData.scores[0]);
+                }
+            }
+        }
+
+        function selectWeek(weekData, btnElement) {
+            // Update button styles
+            document.querySelectorAll('#weekTabsContainer button').forEach(btn => {
+                btn.className = 'px-4 py-2 rounded-lg font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300';
+            });
+            btnElement.className = 'px-4 py-2 rounded-lg font-medium transition duration-200 bg-blue-600 text-white';
+
+            displaySummaryCards(currentData, weekData);
+            displayDetailedReview(weekData);
+        }
+
+        function displayOverallSummary(userData) {
+            const summaryCards = document.getElementById('summaryCards');
+            
+            const totalTests = userData.scores.length;
+            const totalQuestions = userData.scores.reduce((sum, s) => sum + s.totalQuestions, 0);
+            const totalCorrect = userData.scores.reduce((sum, s) => sum + s.correctAnswers, 0);
+            const avgScore = totalQuestions > 0 ? ((totalCorrect / totalQuestions) * 100).toFixed(1) : 0;
+
+            summaryCards.innerHTML = `
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">Total Tests Taken</h3>
+                    <p class="text-4xl font-bold">${totalTests}</p>
+                </div>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">Overall Average</h3>
+                    <p class="text-4xl font-bold">${avgScore}%</p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">Total Questions</h3>
+                    <p class="text-4xl font-bold">${totalCorrect}/${totalQuestions}</p>
+                </div>
+            `;
+        }
+
+        function displaySummaryCards(userData, weekData) {
+            const summaryCards = document.getElementById('summaryCards');
+            const percentage = ((weekData.correctAnswers / weekData.totalQuestions) * 100).toFixed(1);
+            const incorrectAnswers = weekData.totalQuestions - weekData.correctAnswers;
+
+            summaryCards.innerHTML = `
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">Week ${weekData.week}</h3>
+                    <p class="text-2xl font-bold">${weekData.subtopic}</p>
+                </div>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">Score</h3>
+                    <p class="text-4xl font-bold">${percentage}%</p>
+                    <p class="text-sm mt-2">${weekData.correctAnswers} / ${weekData.totalQuestions} correct</p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">Performance</h3>
+                    <div class="flex justify-between items-center mt-2">
+                        <div>
+                            <p class="text-sm">Correct</p>
+                            <p class="text-2xl font-bold">${weekData.correctAnswers}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm">Incorrect</p>
+                            <p class="text-2xl font-bold">${incorrectAnswers}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayDetailedReview(weekData) {
+            const detailedReview = document.getElementById('detailedReview');
+            
+            let html = `
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Question-by-Question Review</h2>
+            `;
+
+            weekData.responses.forEach((response, index) => {
+                const isCorrect = response.isCorrect;
+                const cardClass = isCorrect ? 'correct-answer' : 'incorrect-answer';
+                
+                html += `
+                    <div class="${cardClass} rounded-lg p-6 mb-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Question ${index + 1}</h3>
+                            <span class="answer-chip ${isCorrect ? 'correct-chip' : 'incorrect-chip'}">
+                                ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                            </span>
+                        </div>
+                        
+                        <p class="text-gray-700 mb-4">${response.questionText}</p>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <p class="font-semibold text-gray-700 mb-2">Your Answer:</p>
+                                <div class="flex flex-wrap">
+                                    ${response.userResponse.map(ans => 
+                                        `<span class="answer-chip ${isCorrect ? 'correct-chip' : 'incorrect-chip'}">${ans}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                            
+                            ${!isCorrect ? `
+                                <div>
+                                    <p class="font-semibold text-green-700 mb-2">Correct Answer:</p>
+                                    <div class="flex flex-wrap">
+                                        ${response.correctAnswers.map(ans => 
+                                            `<span class="answer-chip correct-chip">${ans}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="text-sm text-gray-600">
+                                Marks Awarded: <span class="font-semibold">${response.marksAwarded}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            detailedReview.innerHTML = html;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('hidden', !show);
+        }
+
+        function showError(message) {
+            document.getElementById('errorText').textContent = message;
+            document.getElementById('errorMessage').classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        function showResults() {
+            document.getElementById('resultsContainer').classList.remove('hidden');
+        }
+
+        function hideResults() {
+            document.getElementById('resultsContainer').classList.add('hidden');
+        }
+
+        // Allow Enter key to trigger search
+        document.getElementById('emailInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loadResults();
+        });
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', fetchSessionInfo);
+    </script>
+</body>
+</html>
