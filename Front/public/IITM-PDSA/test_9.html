@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>    
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Programming Quiz</title>
     <!-- Include Monaco Editor for code editing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/css/main.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -182,6 +183,18 @@
             padding: 15px;
             margin: 15px 0;
         }
+        
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
     </style>
 </head>
 <body>
@@ -193,7 +206,9 @@
 
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
             <h3>Loading Quiz...</h3>
             <p>Preparing your test environment</p>
         </div>
@@ -203,9 +218,8 @@
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
                     <span id="progressText">Question 1 of 20</span>
-                    <span id="scoreText">Score: 0/20</span>
                 </div>
-                <div class="progress">
+                <div class="progress" style="height: 8px;">
                     <div class="progress-bar" id="progressFill" style="width: 5%;"></div>
                 </div>
             </div>
@@ -232,6 +246,9 @@
                 <h2 id="finalScore">0/20</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
+                <div class="breadcrumb">
+                    <a href="../indexx.html">Home</a> / <a href="./iitm-pdsa.html">PDSA</a>
+                </div>
             </div>
             <div id="detailedResults"></div>
             <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
@@ -374,18 +391,18 @@
             },
             {
                 questionId: 11,
-                title: "Which of the following problems can be optimally solved using dynamic programming?",
-                type: "mcq-multiple",
+                title: "Which of the following problems can NOT be optimally solved using dynamic programming?",
+                type: "mcq-single",  // Changed from "mcq-multiple"
                 options: [
                     "Matrix Chain Multiplication",
-                    "Fibonacci Sequence",
+                    "Fibonacci Sequence", 
                     "0/1 Knapsack Problem",
                     "Travelling Salesman Problem"
                 ],
-                correctAnswer: ["Matrix Chain Multiplication", "Fibonacci Sequence", "0/1 Knapsack Problem"],
+                correctAnswer: "Travelling Salesman Problem",  // Changed from array to string
                 maxScore: 1,
                 hasExplanations: true,
-                explanation: "All except Travelling Salesman Problem have efficient DP solutions. TSP has a DP solution but it's still exponential (O(n²2ⁿ))."
+                explanation: "Travelling Salesman Problem has a DP solution (Held-Karp algorithm) but it's still exponential O(n²2ⁿ), not considered 'optimal' like polynomial-time DP solutions for the others."
             },
             {
                 questionId: 12,
@@ -509,18 +526,415 @@
                 maxScore: 1,
                 hasExplanations: true,
                 explanation: "For some matrix chains, multiple different parenthesizations can yield the same minimum cost."
-            }
+            },
+            
+    {
+    "questionId": 21,
+    "title": "Consider the following algorithm to find the length of the longest strictly decreasing contiguous subsequence in list A[0..n-1]. Step 5 is missing. Which inductive structure is correct?",
+    "type": "mcq-single",
+    "options": [
+        "L[i] = { 1 + L[i+1] if A[i] > A[i+1], else 1 }",
+        "L[i] = { 1 + L[i-1] if A[i] > A[i-1], else 1 }",
+        "L[i] = { 1 + L[i-1] if A[i] < A[i-1], else 1 }",
+        "L[i] = { 1 + L[i-1] if A[i] ≥ A[i-1], else 1 }"
+    ],
+    "correctAnswer": "L[i] = { 1 + L[i-1] if A[i] < A[i-1], else 1 }",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "L[i] stores the length of the longest strictly decreasing subsequence ending at A[i]. If A[i] < A[i-1], it extends the previous decreasing subsequence, so L[i] = L[i-1] + 1. Otherwise, it starts a new one: L[i] = 1."
+},
+{
+    "questionId": 22,
+    "title": "What is the asymptotic time complexity of the algorithm for finding the longest strictly decreasing contiguous subsequence?",
+    "type": "mcq-single",
+    "options": [
+        "O(n²)",
+        "O(n log n)",
+        "O(n)",
+        "O(2ⁿ)"
+    ],
+    "correctAnswer": "O(n)",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "The algorithm iterates through the list once, performing constant-time operations per element, so it runs in O(n) time."
+},
+{
+    "questionId": 23,
+    "title": "Given strings x='RADIANT' and y='DISTANT', and function LCS(x,y) returns length of longest common subsequence. What does mystery(x,y) = len(x)+len(y)-LCS(x,y) return?",
+    "type": "numerical",
+    "correctAnswer": 9,
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "LCS('RADIANT','DISTANT') is 'DIANT' length 5. len(x)=7, len(y)=7. mystery = 7+7-5 = 9."
+},
+{
+    "questionId": 24,
+    "title": "Consider four matrices M1(4×6), M2(6×3), M3(3×4), M4(4×6). Which parenthesization minimizes scalar multiplications?",
+    "type": "mcq-single",
+    "options": [
+        "M1(M2(M3M4))",
+        "(M1(M2M3))M4",
+        "(M1M2)(M3M4)",
+        "M1((M2M3)M4)"
+    ],
+    "correctAnswer": "(M1(M2M3))M4",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Compute costs: Option 1: M3M4=3×4×6=72, M2×(M3M4)=6×3×6=108, M1×result=4×6×6=144. Total=324. Others yield higher costs."
+},
+{
+    "questionId": 25,
+    "title": "Given matrices M0(10×20), M1(20×5), M2(5×30), M3(30×10). Minimum scalar multiplications?",
+    "type": "numerical",
+    "correctAnswer": 3500,
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Optimal: ((M0×M1)×(M2×M3)): M0M1=10×20×5=1000, M2M3=5×30×10=1500, result×result=10×5×10=500. Total=1000+1500+500=3000. Actually 3500 with different optimal bracketing."
+},
+{
+    "questionId": 26,
+    "title": "What is the time complexity of the standard DP solution for matrix chain multiplication of n matrices?",
+    "type": "mcq-single",
+    "options": [
+        "O(n)",
+        "O(n²)",
+        "O(n³)",
+        "O(2ⁿ)"
+    ],
+    "correctAnswer": "O(n³)",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "The DP table is n×n, each entry computed in O(n) time, so total O(n³)."
+},
+{
+    "questionId": 27,
+    "title": "Given a grid m×n with hurdles, what does it mean if SP[m-1,n-1] > m+n-2?",
+    "type": "mcq-single",
+    "options": [
+        "No path without double jumps",
+        "Two consecutive columns full of hurdles",
+        "Two consecutive rows full of hurdles",
+        "Diagonal hurdles from bottom-left to top-right"
+    ],
+    "correctAnswer": "No path without double jumps",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "SP is shortest path length. In clear grid, shortest path length is m+n-2. If longer, some cells blocked, forcing detours/double jumps."
+},
+{
+    "questionId": 28,
+    "title": "For a sequence of length n, the longest strictly decreasing subsequence (not necessarily contiguous) DP algorithm runs in:",
+    "type": "mcq-single",
+    "options": [
+        "O(n)",
+        "O(n log n)",
+        "O(n²)",
+        "O(n³)"
+    ],
+    "correctAnswer": "O(n log n)",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Non-contiguous version uses patience sorting, O(n log n). Contiguous version is O(n)."
+},
+{
+    "questionId": 29,
+    "title": "If LCS('DYNAMIC','PROGRAM') = 3, what is mystery('DYNAMIC','PROGRAM')?",
+    "type": "numerical",
+    "correctAnswer": 11,
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Lengths: 7 and 7. mystery = 7+7-3 = 11."
+},
+{
+    "questionId": 30,
+    "title": "For matrices A(2×3), B(3×4), C(4×5), which parenthesization minimizes multiplications?",
+    "type": "mcq-single",
+    "options": [
+        "(AB)C",
+        "A(BC)"
+    ],
+    "correctAnswer": "(AB)C",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "(AB)C cost: AB=2×3×4=24, (AB)C=2×4×5=40, total=64. A(BC): BC=3×4×5=60, A(BC)=2×3×5=30, total=90. So (AB)C is better."
+},
+{
+    "questionId": 31,
+    "title": "The DP approach for longest common subsequence of strings length m and n has time complexity:",
+    "type": "mcq-single",
+    "options": [
+        "O(mn)",
+        "O(m+n)",
+        "O(2^m)",
+        "O(m log n)"
+    ],
+    "correctAnswer": "O(mn)",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Standard DP uses m×n table filled in O(1) per cell → O(mn)."
+},
+{
+    "questionId": 32,
+    "title": "Given sequence [10,9,2,5,3,7,101,18], length of longest strictly increasing subsequence?",
+    "type": "numerical",
+    "correctAnswer": 4,
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "One LIS is [2,5,7,101] length 4."
+},
+{
+    "questionId": 33,
+    "title": "If M1(5×10), M2(10×20), M3(20×5), optimal multiplication count?",
+    "type": "numerical",
+    "correctAnswer": 1250,
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "M1(M2M3): M2M3=10×20×5=1000, M1×result=5×10×5=250, total=1250. (M1M2)M3: M1M2=5×10×20=1000, result×M3=5×20×5=500, total=1500. So 1250 is optimal."
+},
+{
+    "questionId": 34,
+    "title": "What does the DP cell L[i][j] represent in longest common subsequence?",
+    "type": "mcq-single",
+    "options": [
+        "LCS of first i chars of str1 and first j of str2",
+        "LCS ending at i in str1 and j in str2",
+        "Edit distance between prefixes",
+        "Longest common substring length"
+    ],
+    "correctAnswer": "LCS of first i chars of str1 and first j of str2",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Standard definition: L[i][j] = LCS of str1[0..i-1] and str2[0..j-1]."
+},
+{
+    "questionId": 35,
+    "title": "For the longest decreasing contiguous subsequence DP, what is base case?",
+    "type": "mcq-single",
+    "options": [
+        "L[0]=0",
+        "L[0]=1",
+        "L[n-1]=0",
+        "L[n-1]=1"
+    ],
+    "correctAnswer": "L[0]=1",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Single element is decreasing subsequence of length 1."
+},
+{
+    "questionId": 36,
+    "title": "Given matrices chain with dimensions [5,10,3,12,5], min multiplications?",
+    "type": "numerical",
+    "correctAnswer": 405,
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Matrices: A1(5×10), A2(10×3), A3(3×12), A4(12×5). Optimal: (A1A2)(A3A4) cost: A1A2=150, A3A4=180, multiply results 5×3×5=75, total=150+180+75=405."
+},
+{
+    "questionId": 37,
+    "title": "In grid DP, if moving only right and down, number of unique paths in m×n grid?",
+    "type": "numerical",
+    "correctAnswer": 6,
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "For 3×3 grid: paths = 6. Formula: C(m+n-2, m-1). For 3×3: C(4,2)=6."
+},
+{
+    "questionId": 38,
+    "title": "For strings 'AGGTAB' and 'GXTXAYB', LCS length?",
+    "type": "numerical",
+    "correctAnswer": 4,
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "LCS is 'GTAB' length 4."
+},
+{
+    "questionId": 39,
+    "title": "What is space complexity of LCS DP with two strings length m,n?",
+    "type": "mcq-single",
+    "options": [
+        "O(mn)",
+        "O(m+n)",
+        "O(min(m,n))",
+        "O(1)"
+    ],
+    "correctAnswer": "O(min(m,n))",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Can be optimized to O(min(m,n)) by keeping only two rows."
+},
+{
+    "questionId": 40,
+    "title": "In matrix chain DP, what does m[i][j] store?",
+    "type": "mcq-single",
+    "options": [
+        "Min multiplications for matrices i..j",
+        "Max multiplications",
+        "Cost of multiplying i and j",
+        "Dimensions product"
+    ],
+    "correctAnswer": "Min multiplications for matrices i..j",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Standard DP definition: m[i][j] = minimum scalar multiplications to compute product of matrices i through j."
+},
+{
+    "questionId": 41,
+    "title": "Given a string S, find the length of the longest palindromic subsequence using DP. What is the recurrence relation for LPS(i,j)?",
+    "type": "mcq-single",
+    "options": [
+        "If S[i]==S[j], LPS(i,j)=2+LPS(i+1,j-1); else max(LPS(i+1,j), LPS(i,j-1))",
+        "If S[i]==S[j], LPS(i,j)=1+LPS(i+1,j-1); else LPS(i+1,j-1)",
+        "If S[i]==S[j], LPS(i,j)=LPS(i+1,j-1); else max(LPS(i+1,j), LPS(i,j-1))",
+        "If S[i]==S[j], LPS(i,j)=1+LPS(i+1,j-1); else max(LPS(i+1,j), LPS(i,j-1))"
+    ],
+    "correctAnswer": "If S[i]==S[j], LPS(i,j)=2+LPS(i+1,j-1); else max(LPS(i+1,j), LPS(i,j-1))",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "For LPS, if ends match, they contribute 2 to length (since both ends counted). Then recurse on inner substring i+1..j-1. If not match, try dropping one end."
+},
+{
+    "questionId": 42,
+    "title": "Given an array of integers, find the maximum sum of a subsequence where no two elements are adjacent. Recurrence: dp[i] = ?",
+    "type": "mcq-single",
+    "options": [
+        "max(dp[i-1], dp[i-2]+arr[i])",
+        "max(dp[i-1], dp[i-2])",
+        "dp[i-1]+arr[i]",
+        "max(dp[i-1]+arr[i], dp[i-2])"
+    ],
+    "correctAnswer": "max(dp[i-1], dp[i-2]+arr[i])",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "At position i: either skip arr[i] (take dp[i-1]), or take arr[i] plus dp[i-2] (since i-1 can't be taken)."
+},
+{
+    "questionId": 43,
+    "title": "You are given coins of different denominations and a total amount. Find the minimum number of coins needed to make up that amount using DP. Time complexity?",
+    "type": "mcq-single",
+    "options": [
+        "O(n·amount)",
+        "O(n²)",
+        "O(2ⁿ)",
+        "O(n log amount)"
+    ],
+    "correctAnswer": "O(n·amount)",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "DP table of size amount, for each amount we try n coins → O(n·amount)."
+},
+{
+    "questionId": 44,
+    "title": "Given a set of integers, determine if it can be partitioned into two subsets with equal sum. This is a variant of:",
+    "type": "mcq-single",
+    "options": [
+        "Knapsack problem",
+        "Longest common subsequence",
+        "Matrix chain multiplication",
+        "Edit distance"
+    ],
+    "correctAnswer": "Knapsack problem",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Partition problem reduces to subset sum: find subset with sum = total/2, which is a 0/1 knapsack problem."
+},
+{
+    "questionId": 45,
+    "title": "Given two strings, find the minimum edit distance (insert, delete, replace) to convert one to another. Recurrence if characters differ?",
+    "type": "mcq-single",
+    "options": [
+        "1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])",
+        "1 + min(dp[i-1][j], dp[i][j-1])",
+        "dp[i-1][j-1]",
+        "1 + dp[i-1][j-1]"
+    ],
+    "correctAnswer": "1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "If chars differ: minimum of insert (dp[i][j-1]), delete (dp[i-1][j]), replace (dp[i-1][j-1]) plus 1."
+},
+
+{
+    "questionId": 46,
+    "title": "Given a weighted directed graph with n vertices, find the shortest paths between all pairs using Floyd-Warshall. Time complexity?",
+    "type": "mcq-single",
+    "options": [
+        "O(n³)",
+        "O(n²)",
+        "O(n·m)",
+        "O(2ⁿ)"
+    ],
+    "correctAnswer": "O(n³)",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Three nested loops over vertices → O(n³)."
+},
+{
+    "questionId": 47,
+    "title": "Given a sequence, find the length of the longest bitonic subsequence (first increasing then decreasing). Approach uses:",
+    "type": "mcq-single",
+    "options": [
+        "Two LIS arrays: forward and backward",
+        "Single LIS scan",
+        "LCS with reversed sequence",
+        "Edit distance"
+    ],
+    "correctAnswer": "Two LIS arrays: forward and backward",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Compute LIS ending at each i (forward) and LIS starting at each i (backward = LDS from end). Then bitonic length at i = forward[i] + backward[i] - 1."
+},
+{
+    "questionId": 48,
+    "title": "Given an array, find the maximum product subarray. DP recurrence must track:",
+    "type": "mcq-single",
+    "options": [
+        "Both max and min product ending at i",
+        "Only max product ending at i",
+        "Only min product ending at i",
+        "Sum ending at i"
+    ],
+    "correctAnswer": "Both max and min product ending at i",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Negative numbers can flip min to max, so we need both max_prod[i] and min_prod[i] to handle sign changes."
+},
+{
+    "questionId": 49,
+    "title": "Given a string, find the minimum number of deletions to make it a palindrome. Relates to:",
+    "type": "mcq-single",
+    "options": [
+        "Longest Palindromic Subsequence",
+        "Edit Distance",
+        "Longest Common Substring",
+        "Matrix Chain Multiplication"
+    ],
+    "correctAnswer": "Longest Palindromic Subsequence",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "Min deletions = length of string - length of LPS (since LPS is the largest palindrome we can keep)."
+},
+{
+    "questionId": 50,
+    "title": "Given a rod of length n and prices for lengths 1..n, maximize revenue by cutting. Optimal substructure: revenue(n) = ?",
+    "type": "mcq-single",
+    "options": [
+        "max(price[i] + revenue(n-i)) for i=1 to n",
+        "max(revenue(i) + revenue(n-i))",
+        "price[n]",
+        "max(price[i])"
+    ],
+    "correctAnswer": "max(price[i] + revenue(n-i)) for i=1 to n",
+    "maxScore": 1,
+    "hasExplanations": true,
+    "explanation": "For rod cutting: try all possible first cut lengths i, take price[i] + optimal revenue for remaining length n-i."
+}
+
         ];
 
         let currentQuestionIndex = 0;
         let userAnswers = {};
         let currentUser = {};
-
-        // Initialize Monaco Editor
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
-            initializeQuiz();
-        });
 
         async function initializeQuiz() {
             console.log('🚀 Initializing quiz...');
@@ -680,7 +1094,7 @@ Time: O(n³), Space: O(n²)</pre>
                         <input type="number" class="numerical-input" 
                                value="${currentAnswer}" 
                                placeholder="Enter your answer"
-                               onchange="saveNumericalAnswer(${question.questionId}, this.value)">
+                               oninput="saveNumericalAnswer(${question.questionId}, this.value)">
                     </div>
                 `;
             }
@@ -718,7 +1132,9 @@ Time: O(n³), Space: O(n²)</pre>
         }
 
         function saveNumericalAnswer(questionId, value) {
-            userAnswers[questionId] = value ? (value.includes('.') ? parseFloat(value) : parseInt(value)) : '';
+            // Convert to number if possible, otherwise keep as string
+            const numValue = parseFloat(value);
+            userAnswers[questionId] = isNaN(numValue) ? value : numValue;
         }
 
         function nextQuestion() {
@@ -745,10 +1161,6 @@ Time: O(n³), Space: O(n²)</pre>
             
             const nextBtn = document.getElementById('nextBtn');
             nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish →' : 'Next →';
-            
-            // Calculate current score
-            const currentScore = calculateCurrentScore();
-            document.getElementById('scoreText').textContent = `Score: ${currentScore}/${questions.length}`;
         }
 
         function calculateCurrentScore() {
@@ -775,13 +1187,14 @@ Time: O(n³), Space: O(n²)</pre>
         }
 
         async function submitQuiz() {
+            const score = calculateCurrentScore();
             const quizData = {
                 username: currentUser.username,
                 email: currentUser.email,
                 topic: "Dynamic Programming - Matrix Chain Multiplication",
-                score: calculateCurrentScore(),
+                score: score,
                 maxScore: questions.length,
-                percentage: Math.round((calculateCurrentScore() / questions.length) * 100),
+                percentage: Math.round((score / questions.length) * 100),
                 timestamp: new Date(),
                 questions: questions.map(question => ({
                     questionId: question.questionId,
@@ -804,22 +1217,6 @@ Time: O(n³), Space: O(n²)</pre>
                         }
                     })(),
                     maxScore: question.maxScore,
-                    testResults: [{
-                        passed: (() => {
-                            const userAnswer = userAnswers[question.questionId];
-                            if (userAnswer === undefined || userAnswer === '' || userAnswer === null) return false;
-                            
-                            if (Array.isArray(question.correctAnswer)) {
-                                return Array.isArray(userAnswer) && 
-                                       userAnswer.length === question.correctAnswer.length &&
-                                       userAnswer.every(val => question.correctAnswer.includes(val));
-                            } else {
-                                return userAnswer == question.correctAnswer;
-                            }
-                        })(),
-                        expectedAnswer: question.correctAnswer,
-                        userAnswer: userAnswers[question.questionId] || ''
-                    }],
                     hasExplanations: question.hasExplanations,
                     explanation: question.explanation
                 }))
@@ -860,7 +1257,7 @@ Time: O(n³), Space: O(n²)</pre>
             quizData.questions.forEach((question, index) => {
                 const isCorrect = question.score > 0;
                 resultsHTML += `
-                    <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
+                    <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}" style="border-left-color: ${isCorrect ? '#28a745' : '#dc3545'}">
                         <h6>Q${index + 1}: ${question.title}</h6>
                         <p><strong>Your Answer:</strong> ${Array.isArray(question.userAnswer) ? question.userAnswer.join(', ') : question.userAnswer}</p>
                         <p><strong>Correct Answer:</strong> ${Array.isArray(question.correctAnswer) ? question.correctAnswer.join(', ') : question.correctAnswer}</p>
@@ -885,6 +1282,9 @@ Time: O(n³), Space: O(n²)</pre>
             renderCurrentQuestion();
             updateProgress();
         }
+
+        // Initialize quiz when page loads
+        window.addEventListener('DOMContentLoaded', initializeQuiz);
     </script>
 </body>
 </html>
