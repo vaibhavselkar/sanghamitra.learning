@@ -924,6 +924,20 @@
             const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
             let processedQuestionText = question.question_text || 'Question text not available';
+
+// Remove duplicate question patterns
+// This regex looks for "A² (as discussed in lecture)" pattern that appears twice
+if (processedQuestionText.includes('A² (as discussed in lecture)')) {
+    // Split by the question pattern
+    const parts = processedQuestionText.split('A² (as discussed in lecture)');
+    if (parts.length > 2) {
+        // Keep only the first occurrence
+        processedQuestionText = 'A² (as discussed in lecture)' + parts[1] + 'A² (as discussed in lecture)' + parts[2];
+    }
+}
+
+// Also remove the "2 MEDIUM" line if it appears
+processedQuestionText = processedQuestionText.replace(/2 MEDIUM\s*A²/g, 'A²');
             
             // Add image if available
             let imageHtml = '';
@@ -1602,5 +1616,6 @@
 </body>
 
 </html>
+
 
 
