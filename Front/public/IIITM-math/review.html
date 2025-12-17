@@ -256,6 +256,7 @@
                         return {
                             week: weekNumber,
                             subtopic: quiz.topic || `Week ${weekNumber}`,
+                            originalTopic: quiz.topic, // Keep original for reference
                             totalQuestions: totalQuestions || 0,
                             correctAnswers: correctAnswers || 0,
                             responses: (quiz.questionResults || []).map(q => ({
@@ -382,15 +383,132 @@
             `;
         }
 
+        function getQuizDisplayName(weekData) {
+            // First try the subtopic field
+            if (weekData.subtopic && !weekData.subtopic.toLowerCase().includes('week')) {
+                return formatTopicName(weekData.subtopic, weekData.week);
+            }
+            
+            // Try the originalTopic if available
+            if (weekData.originalTopic) {
+                // Map specific topic names to your naming conventions
+                const topicToName = {
+                    // Based on your specifications
+                    'logarithmic_functions': 'Week 6 - Logarithmic Functions Quiz',
+                    'quadratic_functions': 'Week 3 - Quadratic Functions Quiz',
+                    'linear_functions': 'Week 2 - Linear Functions Quiz',
+                    'sets_and_relations': 'Week 4 - Sets and Relations Quiz',
+                    'Polynomials': 'Week 3 - Polynomials Quiz',
+                    'Function Concepts': 'Week 5 - Exponential Functions',
+                    'function_limits': 'Week 7 - Sequences, Limits, and Continuity',
+                    'Limit Concepts': 'Week 8 - Limits, Continuity and Differentiation',
+                    'derivatives_integrals': 'Week 9 - Derivatives and Integrals',
+                    'graph_theory': 'Week 10 - Graph Theory Quiz',
+                    'graph_properties': 'Week 11 - Graph Properties'
+                };
+                
+                if (topicToName[weekData.originalTopic]) {
+                    return topicToName[weekData.originalTopic];
+                }
+            }
+            
+            // Fallback to week-based naming based on your specifications
+            const weekToName = {
+                1: 'Week 1 - Domain and Range Quiz',
+                2: 'Week 1 - Domain and Range - 2 Quiz',
+                3: 'Week 2 - Linear Functions Quiz',
+                4: 'Week 3 - Quadratic Functions Quiz',
+                5: 'Week 3 - Linear Functions - 1 Quiz',
+                6: 'Week 4 - Sets and Relations Quiz',
+                7: 'Week 3 - Polynomials Quiz',
+                8: 'Week 7 - Sequences, Limits, and Continuity Quiz',
+                9: 'Week 6 - Logarithmic Functions Quiz',
+                10: 'Week 8 - Limits, Continuity and Differentiation Quiz',
+                11: 'Week 9 - Derivatives and Integrals Quiz',
+                12: 'Week 10 - Graph Theory Quiz',
+                13: 'Week 11 - Graph Properties Quiz',
+                14: 'Week 5 - Exponential Functions Quiz'
+            };
+            
+            return weekToName[weekData.week] || `Week ${weekData.week} - Mathematics Quiz`;
+        }
+
+        function formatTopicName(topic, week) {
+            if (!topic) return '';
+            
+            // If it's already in a good format, return as is
+            if (topic.includes('Week') || topic.includes('Quiz')) {
+                // Just clean up formatting
+                return topic
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, char => char.toUpperCase())
+                    .trim();
+            }
+            
+            // Map common topic names
+            const commonMappings = {
+                'domain_range': 'Domain and Range',
+                'linear_functions': 'Linear Functions',
+                'quadratic_functions': 'Quadratic Functions',
+                'exponential_functions': 'Exponential Functions',
+                'logarithmic_functions': 'Logarithmic Functions',
+                'polynomials': 'Polynomials',
+                'function_concepts': 'Function Concepts',
+                'limits': 'Limits',
+                'derivatives': 'Derivatives',
+                'integrals': 'Integrals',
+                'graph_theory': 'Graph Theory',
+                'sets': 'Sets and Relations'
+            };
+            
+            // Check if we have a mapping
+            for (const [key, value] of Object.entries(commonMappings)) {
+                if (topic.toLowerCase().includes(key.toLowerCase())) {
+                    return `Week ${week} - ${value} Quiz`;
+                }
+            }
+            
+            // Default formatting
+            let formatted = topic
+                .replace(/_/g, ' ')
+                .replace(/\b\w/g, char => char.toUpperCase())
+                .trim();
+            
+            // Add "Quiz" if not present
+            if (!formatted.toLowerCase().includes('quiz')) {
+                formatted += ' Quiz';
+            }
+            
+            return `Week ${week} - ${formatted}`;
+        }
+
         function displaySummaryCards(userData, weekData) {
             const summaryCards = document.getElementById('summaryCards');
             const percentage = weekData.totalQuestions > 0 ? ((weekData.correctAnswers / weekData.totalQuestions) * 100).toFixed(1) : 0;
             const incorrectAnswers = weekData.totalQuestions - weekData.correctAnswers;
 
+            // Get the display name
+            const displayName = getQuizDisplayName(weekData);
+            
+            // Extract just the topic name without "Week X - " prefix for the main heading
+            let mainHeading = displayName;
+            if (displayName.includes(' - ')) {
+                mainHeading = displayName.split(' - ')[1];
+            }
+            
+            // Extract week number for the subheading
+            let weekText = '';
+            const weekMatch = displayName.match(/Week\s*(\d+)/i);
+            if (weekMatch) {
+                weekText = `Week ${weekMatch[1]}`;
+            } else {
+                weekText = `Week ${weekData.week}`;
+            }
+            
             summaryCards.innerHTML = `
                 <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white">
-                    <h3 class="text-lg font-semibold mb-2">Week ${weekData.week}</h3>
-                    <p class="text-2xl font-bold">${weekData.subtopic || 'Mathematics I'}</p>
+                    <h3 class="text-lg font-semibold mb-2">${mainHeading}</h3>
+                    <p class="text-sm opacity-90">${weekText}</p>
                 </div>
                 <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white">
                     <h3 class="text-lg font-semibold mb-2">Score</h3>
