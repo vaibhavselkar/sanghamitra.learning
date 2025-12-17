@@ -423,7 +423,6 @@
         </div>
     </div>
 
-    
   <script>
     // Answer validation utility
     let userAnswers = {};
@@ -436,6 +435,7 @@
     let questionTimes = {};
     let questions = [];
     let questionPoolSize = 0;
+    let isInitialized = false; // Add flag to track initialization
 
     // Helper to normalize answers for better matching
     const answerNormalizer = {
@@ -476,6 +476,8 @@
 
     // Enhanced Fisher-Yates shuffle with better randomness
     function enhancedShuffle(array) {
+        if (!array || !Array.isArray(array)) return [];
+        
         const shuffled = [...array];
         
         // Use crypto.getRandomValues if available for better randomness
@@ -734,10 +736,13 @@
         }
     }
 
-    // Update question pool info display
+    // Update question pool info display - SAFE VERSION
     function updatePoolInfo() {
         const poolInfo = document.getElementById('poolInfo');
-        if (!poolInfo) return;
+        if (!poolInfo) {
+            console.warn('poolInfo element not found');
+            return;
+        }
         
         if (questionPoolSize > 0) {
             poolInfo.innerHTML = `
@@ -759,19 +764,37 @@
         }
     }
 
+    // SAFE DOM element access function
+    function getElementSafely(id) {
+        const element = document.getElementById(id);
+        if (!element) {
+            console.warn(`Element with id "${id}" not found`);
+        }
+        return element;
+    }
+
     async function initializeQuiz() {
         try {
+            // Check if already initialized
+            if (isInitialized) {
+                console.log('Quiz already initialized');
+                return;
+            }
+            
             // Initialize anti-cheating first
             initializeAntiCheating();
             
             const sessionValid = await fetchSessionInfo();
             if (!sessionValid) return;
             
-            // Show loading message
-            document.getElementById('loadingText').innerHTML = `
-                Loading fresh random questions...<br>
-                <small style="opacity: 0.8;">Each attempt gets 50 new random questions</small>
-            `;
+            // Show loading message - SAFE ACCESS
+            const loadingText = getElementSafely('loadingText');
+            if (loadingText) {
+                loadingText.innerHTML = `
+                    Loading fresh random questions...<br>
+                    <small style="opacity: 0.8;">Each attempt gets 50 new random questions</small>
+                `;
+            }
             
             // Load fresh random questions
             const questionsLoaded = await loadQuestions();
@@ -783,9 +806,12 @@
             initializeQuizTiming();
             isQuizActive = true;
             
-            // Hide loading screen and show quiz
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
+            // Hide loading screen and show quiz - SAFE ACCESS
+            const loadingScreen = getElementSafely('loadingScreen');
+            const quizContainer = getElementSafely('quizContainer');
+            
+            if (loadingScreen) loadingScreen.style.display = 'none';
+            if (quizContainer) quizContainer.style.display = 'block';
             
             // Obfuscate questions
             obfuscateQuestions();
@@ -793,15 +819,9 @@
             renderCurrentQuestion();
             updateProgress();
             
-            // Full screen request (optional)
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen request failed:', err);
-                });
-            }
-            
-            // Add retake button if not exists
-            if (!document.getElementById('retakeBtn')) {
+            // Add retake button if not exists - SAFE ACCESS
+            const quizHeader = document.querySelector('.quiz-header');
+            if (quizHeader && !document.getElementById('retakeBtn')) {
                 const retakeBtn = document.createElement('button');
                 retakeBtn.id = 'retakeBtn';
                 retakeBtn.innerHTML = '🔄 Retake Quiz';
@@ -821,8 +841,10 @@
                 retakeBtn.onmouseover = () => retakeBtn.style.transform = 'translateY(-2px)';
                 retakeBtn.onmouseout = () => retakeBtn.style.transform = 'translateY(0)';
                 
-                document.querySelector('.quiz-header').appendChild(retakeBtn);
+                quizHeader.appendChild(retakeBtn);
             }
+            
+            isInitialized = true;
             
         } catch (error) {
             console.error('Error initializing quiz:', error);
@@ -850,15 +872,23 @@
             questionTimes = {};
             cheatingAttempts = 0;
             isQuizActive = false;
+            isInitialized = false;
             
-            // Show loading screen
-            document.getElementById('quizContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'none';
-            document.getElementById('loadingScreen').style.display = 'flex';
-            document.getElementById('loadingText').innerHTML = `
-                Loading new random questions...<br>
-                <small style="opacity: 0.8;">Shuffling question pool...</small>
-            `;
+            // Show loading screen - SAFE ACCESS
+            const quizContainer = getElementSafely('quizContainer');
+            const resultsContainer = getElementSafely('resultsContainer');
+            const loadingScreen = getElementSafely('loadingScreen');
+            const loadingText = getElementSafely('loadingText');
+            
+            if (quizContainer) quizContainer.style.display = 'none';
+            if (resultsContainer) resultsContainer.style.display = 'none';
+            if (loadingScreen) loadingScreen.style.display = 'flex';
+            if (loadingText) {
+                loadingText.innerHTML = `
+                    Loading new random questions...<br>
+                    <small style="opacity: 0.8;">Shuffling question pool...</small>
+                `;
+            }
             
             // Clear any cached data
             if (window.localStorage) {
@@ -878,15 +908,17 @@
             initializeQuizTiming();
             isQuizActive = true;
             
-            // Hide loading and show quiz
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
+            // Hide loading and show quiz - SAFE ACCESS
+            if (loadingScreen) loadingScreen.style.display = 'none';
+            if (quizContainer) quizContainer.style.display = 'block';
             
             renderCurrentQuestion();
             updateProgress();
             
             // Show success message
             showNotification('🎲 New quiz started with 50 random questions!');
+            
+            isInitialized = true;
             
         } catch (error) {
             console.error('Error starting new attempt:', error);
@@ -940,8 +972,12 @@
     // Render current question
     function renderCurrentQuestion() {
         const container = document.getElementById('questionContainer');
-        const question = questions[currentQuestionIndex];
+        if (!container || !questions || !questions[currentQuestionIndex]) {
+            console.error('Cannot render question: container or questions not available');
+            return;
+        }
         
+        const question = questions[currentQuestionIndex];
         container.innerHTML = '';
 
         const questionDiv = document.createElement('div');
@@ -1081,6 +1117,8 @@
     }
 
     function restoreAnswer() {
+        if (!questions || !questions[currentQuestionIndex]) return;
+        
         const question = questions[currentQuestionIndex];
         const savedAnswer = userAnswers[currentQuestionIndex];
         
@@ -1109,31 +1147,46 @@
     }
 
     function updateProgress() {
+        if (!questions || questions.length === 0) return;
+        
         const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-        document.getElementById('progressFill').style.width = `${progress}%`;
-        document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-        document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+        
+        const progressFill = getElementSafely('progressFill');
+        const progressText = getElementSafely('progressText');
+        const questionStatus = getElementSafely('questionStatus');
+        const prevBtn = getElementSafely('prevBtn');
+        const nextBtn = getElementSafely('nextBtn');
+        
+        if (progressFill) progressFill.style.width = `${progress}%`;
+        if (progressText) progressText.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+        if (questionStatus) questionStatus.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
         
         // Update navigation buttons
-        document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+        if (prevBtn) prevBtn.disabled = currentQuestionIndex === 0;
         
-        const nextBtn = document.getElementById('nextBtn');
-        if (currentQuestionIndex === questions.length - 1) {
-            nextBtn.textContent = 'Finish';
-            nextBtn.onclick = () => {
-                document.getElementById('quizContainer').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'end' 
-                });
-            };
-        } else {
-            nextBtn.textContent = 'Next';
-            nextBtn.onclick = nextQuestion;
+        if (nextBtn) {
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Finish';
+                nextBtn.onclick = () => {
+                    const quizContainer = getElementSafely('quizContainer');
+                    if (quizContainer) {
+                        quizContainer.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'end' 
+                        });
+                    }
+                };
+            } else {
+                nextBtn.textContent = 'Next';
+                nextBtn.onclick = nextQuestion;
+            }
         }
     }
 
     function updateAnswerStatus() {
         const statusSpan = document.getElementById('answeredStatus');
+        if (!statusSpan) return;
+        
         const hasAnswer = userAnswers[currentQuestionIndex] !== undefined;
         
         if (hasAnswer) {
@@ -1191,6 +1244,8 @@
     }
 
     function handleNumericInput(questionIndex, value) {
+        if (!questions || !questions[questionIndex]) return;
+        
         const question = questions[questionIndex];
         
         if (question.type === 'coordinate_input') {
@@ -1231,6 +1286,10 @@
     }
 
     function validateAnswerFormat(questionIndex, userAnswer) {
+        if (!questions || !questions[currentQuestionIndex]) {
+            return { isValidFormat: false, feedback: 'Question not available', suggestion: '' };
+        }
+        
         const question = questions[currentQuestionIndex];
         let feedback = '';
         let isValidFormat = true;
@@ -1348,6 +1407,11 @@
             hard: { attempted: 0, correct: 0, points: 0 }
         };
         
+        if (!questions || questions.length === 0) {
+            alert('No questions data available');
+            return;
+        }
+        
         questions.forEach((question, index) => {
             const userAnswer = userAnswers[index];
             totalPossiblePoints += question.points;
@@ -1451,9 +1515,13 @@
         };
 
         try {
-            document.getElementById('submitText').style.display = 'none';
-            document.getElementById('submitLoading').style.display = 'inline-block';
-            document.getElementById('submitBtn').disabled = true;
+            const submitText = getElementSafely('submitText');
+            const submitLoading = getElementSafely('submitLoading');
+            const submitBtn = getElementSafely('submitBtn');
+            
+            if (submitText) submitText.style.display = 'none';
+            if (submitLoading) submitLoading.style.display = 'inline-block';
+            if (submitBtn) submitBtn.disabled = true;
 
             console.log('Submitting quiz data:', {
                 email: email,
@@ -1477,135 +1545,147 @@
                 displayDetailedResults(quizData);
                 
                 // Add retake button to results
-                const retakeSection = document.createElement('div');
-                retakeSection.style.cssText = `
-                    text-align: center;
-                    margin: 30px 0;
-                    padding: 20px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    border-radius: 15px;
-                    color: white;
-                `;
-                retakeSection.innerHTML = `
-                    <h3 style="margin-bottom: 15px;">🎲 Want to try another random set?</h3>
-                    <p style="margin-bottom: 20px; opacity: 0.9;">
-                        Each retake gives you 50 NEW random questions from the pool of ${questionPoolSize || 'many'} questions
-                    </p>
-                    <button onclick="startNewAttempt()" style="
-                        background: white;
-                        color: #667eea;
-                        border: none;
-                        padding: 12px 30px;
-                        border-radius: 25px;
-                        font-weight: bold;
-                        cursor: pointer;
-                        font-size: 16px;
-                        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                        transition: transform 0.2s;
-                    " onmouseover="this.style.transform='translateY(-2px)'" 
-                       onmouseout="this.style.transform='translateY(0)'">
-                        🔄 Retake with New Random Questions
-                    </button>
-                `;
-                
-                document.getElementById('resultsContainer').appendChild(retakeSection);
+                const resultsContainer = getElementSafely('resultsContainer');
+                if (resultsContainer) {
+                    const retakeSection = document.createElement('div');
+                    retakeSection.style.cssText = `
+                        text-align: center;
+                        margin: 30px 0;
+                        padding: 20px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-radius: 15px;
+                        color: white;
+                    `;
+                    retakeSection.innerHTML = `
+                        <h3 style="margin-bottom: 15px;">🎲 Want to try another random set?</h3>
+                        <p style="margin-bottom: 20px; opacity: 0.9;">
+                            Each retake gives you 50 NEW random questions from the pool of ${questionPoolSize || 'many'} questions
+                        </p>
+                        <button onclick="startNewAttempt()" style="
+                            background: white;
+                            color: #667eea;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 25px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            font-size: 16px;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            transition: transform 0.2s;
+                        " onmouseover="this.style.transform='translateY(-2px)'" 
+                           onmouseout="this.style.transform='translateY(0)'">
+                            🔄 Retake with New Random Questions
+                        </button>
+                    `;
+                    
+                    resultsContainer.appendChild(retakeSection);
+                }
                 
             } else {
                 const errorText = await response.text();
                 console.error('Failed to submit quiz:', errorText);
                 alert('Failed to submit quiz. Please try again.');
                 
-                document.getElementById('submitText').style.display = 'inline';
-                document.getElementById('submitLoading').style.display = 'none';
-                document.getElementById('submitBtn').disabled = false;
+                if (submitText) submitText.style.display = 'inline';
+                if (submitLoading) submitLoading.style.display = 'none';
+                if (submitBtn) submitBtn.disabled = false;
                 return;
             }
         } catch (error) {
             console.error('Error submitting quiz:', error);
             alert('Error submitting quiz. Please check your connection and try again.');
-            document.getElementById('submitText').style.display = 'inline';
-            document.getElementById('submitLoading').style.display = 'none';
-            document.getElementById('submitBtn').disabled = false;
+            
+            const submitText = getElementSafely('submitText');
+            const submitLoading = getElementSafely('submitLoading');
+            const submitBtn = getElementSafely('submitBtn');
+            
+            if (submitText) submitText.style.display = 'inline';
+            if (submitLoading) submitLoading.style.display = 'none';
+            if (submitBtn) submitBtn.disabled = false;
             return;
         }
     }
 
     function displayDetailedResults(quizData) {
-        document.getElementById('quizContainer').style.display = 'none';
+        const quizContainer = getElementSafely('quizContainer');
+        const resultsContainer = getElementSafely('resultsContainer');
         
-        const resultsContainer = document.getElementById('resultsContainer');
-        resultsContainer.style.display = 'block';
+        if (quizContainer) quizContainer.style.display = 'none';
+        if (resultsContainer) resultsContainer.style.display = 'block';
         
         const scoreDisplay = document.querySelector('.score-display');
-        scoreDisplay.innerHTML = `
-            <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
-            <p>Quiz Completed Successfully!</p>
-            <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
-                <div>
-                    <strong>Easy Questions</strong><br>
-                    ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
+        if (scoreDisplay) {
+            scoreDisplay.innerHTML = `
+                <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
+                <p>Quiz Completed Successfully!</p>
+                <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
+                    <div>
+                        <strong>Easy Questions</strong><br>
+                        ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
+                    </div>
+                    <div>
+                        <strong>Medium Questions</strong><br>
+                        ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
+                    </div>
+                    <div>
+                        <strong>Hard Questions</strong><br>
+                        ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
+                    </div>
                 </div>
-                <div>
-                    <strong>Medium Questions</strong><br>
-                    ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
-                </div>
-                <div>
-                    <strong>Hard Questions</strong><br>
-                    ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
-                </div>
-            </div>
-            <p style="margin-top: 15px; font-size: 0.9em;">
-                Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
-            </p>
-            ${questionPoolSize > 0 ? `
-                <p style="margin-top: 10px; font-size: 0.9em; color: #667eea;">
-                    📊 Questions selected randomly from pool of ${questionPoolSize} questions
+                <p style="margin-top: 15px; font-size: 0.9em;">
+                    Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
                 </p>
-            ` : ''}
-        `;
+                ${questionPoolSize > 0 ? `
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #667eea;">
+                        📊 Questions selected randomly from pool of ${questionPoolSize} questions
+                    </p>
+                ` : ''}
+            `;
+        }
         
-        const reviewDiv = document.createElement('div');
-        reviewDiv.style.cssText = `
-            margin-top: 30px;
-            text-align: left;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        `;
-        
-        reviewDiv.innerHTML = `
-            <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question Review</h3>
-            ${quizData.questionResults.map(result => `
-                <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                            border-radius: 8px; 
-                            padding: 15px; 
-                            margin-bottom: 15px; 
-                            background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
-                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                        <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                    color: white; 
-                                    padding: 4px 8px; 
-                                    border-radius: 50%; 
-                                    margin-right: 10px; 
-                                    font-weight: bold;">
-                            ${result.questionNumber}
-                        </span>
-                        <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
-                            ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                        </span>
-                        <span style="margin-left: auto; font-size: 12px; color: #666;">
-                            ${result.difficulty.toUpperCase()}
-                        </span>
-                    </div>
-                    <div style="margin-bottom: 10px; line-height: 1.4;">
-                        <strong>Question:</strong> ${result.questionText}
-                    </div>
-                    <div style="margin-bottom: 8px;">
-                        <strong>Your Answer:</strong> 
-                        <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
-                            ${result.userAnswer || 'No answer provided'}
-                        </span>
+        if (resultsContainer) {
+            const reviewDiv = document.createElement('div');
+            reviewDiv.style.cssText = `
+                margin-top: 30px;
+                text-align: left;
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            `;
+            
+            reviewDiv.innerHTML = `
+                <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question Review</h3>
+                ${quizData.questionResults.map(result => `
+                    <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
+                                border-radius: 8px; 
+                                padding: 15px; 
+                                margin-bottom: 15px; 
+                                background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
+                                        color: white; 
+                                        padding: 4px 8px; 
+                                        border-radius: 50%; 
+                                        margin-right: 10px; 
+                                        font-weight: bold;">
+                                ${result.questionNumber}
+                            </span>
+                            <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
+                                ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                            </span>
+                            <span style="margin-left: auto; font-size: 12px; color: #666;">
+                                ${result.difficulty.toUpperCase()}
+                            </span>
+                        </div>
+                        <div style="margin-bottom: 10px; line-height: 1.4;">
+                            <strong>Question:</strong> ${result.questionText}
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <strong>Your Answer:</strong> 
+                            <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                                ${result.userAnswer || 'No answer provided'}
+                            </span>
                     </div>
                     <div style="margin-bottom: 8px;">
                         <strong>Correct Answer:</strong> 
@@ -1627,46 +1707,57 @@
         `;
         
         resultsContainer.appendChild(reviewDiv);
+        }
     }
 
     // Add CSS for pool info section
     function addPoolInfoStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            #poolInfo {
-                animation: fadeIn 0.5s ease;
-            }
-            
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-        `;
-        document.head.appendChild(style);
+        if (!document.getElementById('pool-styles')) {
+            const style = document.createElement('style');
+            style.id = 'pool-styles';
+            style.textContent = `
+                #poolInfo {
+                    animation: fadeIn 0.5s ease;
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
     // Initialize when DOM is ready
-    document.addEventListener('DOMContentLoaded', function() {
+    function setupQuiz() {
         addPoolInfoStyles();
         
-        // Add pool info container if not exists
+        // Create pool info container if not exists
         if (!document.getElementById('poolInfo')) {
             const poolContainer = document.createElement('div');
             poolContainer.id = 'poolInfo';
-            document.querySelector('.quiz-header').insertBefore(
-                poolContainer, 
-                document.querySelector('.quiz-header').firstChild
-            );
+            
+            // Try to find a safe place to insert it
+            const quizHeader = document.querySelector('.quiz-header');
+            if (quizHeader) {
+                quizHeader.insertBefore(poolContainer, quizHeader.firstChild);
+            } else {
+                // If .quiz-header doesn't exist, append to body
+                document.body.insertBefore(poolContainer, document.body.firstChild);
+            }
         }
         
+        // Initialize quiz
         initializeQuiz();
-    });
+    }
 
-    // Fallback initialization
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeQuiz);
-    } else {
-        initializeQuiz();
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', setupQuiz);
+
+    // Fallback initialization for pages already loaded
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        setTimeout(setupQuiz, 100); // Small delay to ensure everything is ready
     }
 
     function goback() {
