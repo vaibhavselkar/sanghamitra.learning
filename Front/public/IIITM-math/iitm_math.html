@@ -226,141 +226,128 @@
   <script>
     let currentUser = null;
 
-    // Available topics configuration
-    const availableTopics = [
-     {
-        id: 'Review Page',
-        name: 'Review Page',  // This should match the topic field in your database
-        displayName: 'Review Page',
-        description: 'Review your submitted answers',
-        icon: 'bi-cpu',
-        url: 'review.html'
-    },
-    {
-        id: 'Domain_and_Range',
-        name: 'Domain and Range',  // This should match the topic field in your database
-        displayName: 'Week 1 and 2',
-        description: 'Assessment on IITM Math 1 - Week 1 and 2',
-        icon: 'bi-cpu',
-        url: 'quiz1.html'
-    },
-    {
-        id: 'Domain_and_Range-2',
-        name: 'Domain and Range-2',  // This should match the topic field in your database
-        displayName: 'Domain and Range',
-        description: 'Assessment on IITM Math 1 - Domain and Range.',
-        icon: 'bi-cpu',
-        url: 'quiz2.html'
-    },
-
-    {
-        id: 'Linear_functions',
-        name: 'Linear_functions',  // This should match the topic field in your database
-        displayName: 'Linear_functions ',
-        description: 'Assessment on IITM Math 1 - Linear Functions.',
-        icon: 'bi-cpu',
-        url: 'quiz3.html'
-    },
-
-    {
-        id: 'Linear_functions',
-        name: 'Linear_functions - 2',  // This should match the topic field in your database
-        displayName: 'Week 2 -Linear_functions -2 ',
-        description: 'Assessment on IITM Math 1 - Linear Functions.',
-        icon: 'bi-cpu',
-        url: 'quiz5.html'
-    },
-
-    {
-        id: 'Quadratic_functions',
-        name: 'Week 3 - Quadratic_functions',  // This should match the topic field in your database
-        displayName: 'Quadratic_functions ',
-        description: 'Assessment on IITM Math 1 - Quadratic Functions.',
-        icon: 'bi-cpu',
-        url: 'quiz4.html'
-    },
-    {
-        id: 'Sets And Relations',
-        name: 'Sets And Relations',  // This should match the topic field in your database
-        displayName: 'Sets And Relations ',
-        description: 'Assessment on IITM Math 1 - Sets And Relations.',
-        icon: 'bi-cpu',
-        url: 'quiz6.html'
-    },
-
-    {
-        id: 'Polynomial Function',
-        name: 'Polynomial Function',  // This should match the topic field in your database
-        displayName: 'Week 4 - Polynomial Function ',
-        description: 'Assessment on IITM Math 1 - Sets And Relations.',
-        icon: 'bi-cpu',
-        url: 'quiz7.html'
-    },
-
-    {
-    id: 'Function Concepts',
-    name: 'Function Concepts',  // This should match the topic field in your database
+   const availableTopics = [
+ {
+    id: 'Review Page',
+    name: 'Review Page',
+    displayName: 'Review Page',
+    description: 'Review your submitted answers',
+    icon: 'bi-cpu',
+    url: 'review.html'
+},
+{
+    id: 'Domain_and_Range',
+    name: 'Domain_and_Range',  // ← CHANGED: Added underscores
+    displayName: 'Week 1 and 2',
+    description: 'Assessment on IITM Math 1 - Week 1 and 2',
+    icon: 'bi-cpu',
+    url: 'quiz1.html'
+},
+{
+    id: 'Domain_and_Range-2',
+    name: 'Domain_and_Range-2',  // ← CHANGED: Added underscores and dash
+    displayName: 'Domain and Range',
+    description: 'Assessment on IITM Math 1 - Domain and Range.',
+    icon: 'bi-cpu',
+    url: 'quiz2.html'
+},
+{
+    id: 'Linear_functions',
+    name: 'Linear_functions',  // ← Already correct
+    displayName: 'Week 2 - Linear_functions ',
+    description: 'Assessment on IITM Math 1 - Linear Functions.',
+    icon: 'bi-cpu',
+    url: 'quiz3.html'
+},
+{
+    id: 'Linear_functions-2',
+    name: 'Linear_functions-2',  // ← CHANGED: Added dash
+    displayName: 'Week 2 - Linear_functions -2 ',
+    description: 'Assessment on IITM Math 1 - Linear Functions.',
+    icon: 'bi-cpu',
+    url: 'quiz5.html'
+},
+{
+    id: 'Quadratic_functions',
+    name: 'Quadratic_functions',  // ← CHANGED: Added underscores
+    displayName: 'Week3 - Quadratic_functions ',
+    description: 'Assessment on IITM Math 1 - Quadratic Functions.',
+    icon: 'bi-cpu',
+    url: 'quiz4.html'
+},
+{
+    id: 'Sets_And_Relations',
+    name: 'Sets_And_Relations',  // ← CHANGED: Added underscores
+    displayName: 'Sets And Relations ',
+    description: 'Assessment on IITM Math 1 - Sets And Relations.',
+    icon: 'bi-cpu',
+    url: 'quiz6.html'
+},
+{
+    id: 'Polynomial_Function',
+    name: 'Polynomial_Function',  // ← CHANGED: Added underscores
+    displayName: 'Week 4 - Polynomial Function ',
+    description: 'Assessment on IITM Math 1 - Polynomial Functions.',
+    icon: 'bi-cpu',
+    url: 'quiz7.html'
+},
+{
+    id: 'Function_Concepts',
+    name: 'Function_Concepts',  // ← CHANGED: Added underscores
     displayName: 'Week 5 - Exponential Functions',
     description: 'Assessment on Function Concepts - Domain, Range, and Function Properties.',
     icon: 'bi-graph-up',
     url: 'quiz8.html'
-    },
-     
-    {
-    id: 'Logarithmic Functions',
-    name: 'Logarithmic Functions',
+},
+{
+    id: 'Logarithmic_Functions',
+    name: 'Logarithmic_Functions',  // ← CHANGED: Added underscores
     displayName: 'Week 6 - Logarithmic Functions',
     description: 'Assessment on Logarithmic Functions - Properties, Graphs, and Equations.',
     icon: 'bi-graph-up',
     url: 'quiz9.html'
-    },  
-
-    {
-    id: 'Function Limits',
-    name: 'Function Limits',
+},  
+{
+    id: 'Function_Limits',
+    name: 'Function_Limits',  // ← CHANGED: Added underscores
     displayName: ' Week 7 - Sequence, Limits, and Continuity',
     description: 'Assessment on Function Limits - Evaluating Limits, Continuity, and Limit Theorems.',
     icon: 'bi-graph-up',
     url: 'quiz10.html'
-    },
-
-    {
-    id: 'Limit Concepts',
-    name: 'Limit Concepts',
+},
+{
+    id: 'Limit_Concepts',
+    name: 'Limit_Concepts',  // ← Already correct
     displayName: ' Week 8 - Limits, Continuity and Differentiation',
     description: 'Assessment on Function Limits - Evaluating Limits, Continuity, and Limit Theorems.',
     icon: 'bi-graph-up',
     url: 'quiz11.html'
-    },
-
-    {
-  id: 'Derivatives and Integrals',
-  name: 'Derivatives and Integrals',
-  displayName: 'Week 9 - Derivatives and Integrals',
-  description: 'Assessment on Derivatives and Integrals - Differentiation Rules, Integration Techniques, and Applications.',
-  icon: 'bi-graph-up',
-  url: 'quiz12.html'
-  },
-     {
-    id: 'Graph Theory',
-    name: 'Graph Theory',
+},
+{
+    id: 'Derivatives_and_Integrals',
+    name: 'Derivatives_Integrals',  // ← CHANGED: Match database exactly
+    displayName: 'Week 9 - Derivatives and Integrals',
+    description: 'Assessment on Derivatives and Integrals - Differentiation Rules, Integration Techniques, and Applications.',
+    icon: 'bi-graph-up',
+    url: 'quiz12.html'
+},
+{
+    id: 'Graph_Theory',
+    name: 'graph_theory',  // ← CHANGED: lowercase to match database
     displayName: 'Week 10 - Graph Theory',
     description: 'Assessment on Graph Theory - Graph Traversal, DFS, BFS, DAG, and Planar Graphs.',
     icon: 'bi-graph-up',
     url: 'quiz13.html'
 },
-     {
-    id: 'Graph Properties',
-    name: 'Graph Properties',
+{
+    id: 'Graph_Properties',
+    name: 'graph_properties',  // ← CHANGED: lowercase to match database
     displayName: ' Week 11 - Graph Properties',
-    description: 'Assessment on Function Limits - Evaluating Limits, Continuity, and Limit Theorems.',
+    description: 'Assessment on Graph Properties - Evaluating graph characteristics.',
     icon: 'bi-graph-up',
     url: 'quiz14.html'
-    } 
-      
-    // Add more topics here as needed
-    ];
-
+} 
+];
     // Initialize the application
     async function initializeApp() {
     try {
@@ -622,6 +609,7 @@ function findTopicAssessment(userScoreData, topicName) {
 </script>
 </body>
 </html>
+
 
 
 
