@@ -475,138 +475,58 @@ const answerNormalizer = {
 };
 
  async function loadQuestions() {
-            try {
-                if (!email) {
-                    alert('Please login to take the assessment');
-                    return false;
-                }
-                
-                // Step 1: Get user's answered question IDs from their quiz history
-                const answeredQuestionIds = await getAnsweredQuestionIds();
-                console.log('📝 Already answered question IDs:', answeredQuestionIds);
-                
-                // Step 2: Fetch ALL questions for this topic
-               const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Function_Limits?email=${encodeURIComponent(email)}&count=50&excludeAnswered=true`, {
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                let allQuestions = data.questions || data;
-                
-                if (!allQuestions || allQuestions.length === 0) {
-                    throw new Error('No questions found in database');
-                }
-                
-                console.log('📚 Total questions in database:', allQuestions.length);
-                console.log('✅ Already answered:', answeredQuestionIds.length);
-                
-                // Step 3: Filter out already answered questions (FRONTEND FILTERING)
-                const unansweredQuestions = allQuestions.filter(q => {
-                    const questionId = q._id || q.id || q.question_number;
-                    return !answeredQuestionIds.includes(questionId?.toString());
-                });
-                
-                console.log('🆕 Unanswered questions available:', unansweredQuestions.length);
-                
-                // Step 4: Handle case where all questions are completed
-                if (unansweredQuestions.length === 0) {
-                    const resetConfirm = confirm(
-                        `🎉 Congratulations! You have completed all ${allQuestions.length} questions!\n\n` +
-                        `Questions completed: ${answeredQuestionIds.length}\n` +
-                        `Total questions in pool: ${allQuestions.length}\n\n` +
-                        `Would you like to reset your progress and start over?`
-                    );
-                    
-                    if (resetConfirm) {
-                        const resetSuccess = await resetUserProgress();
-                        if (resetSuccess) {
-                            return loadQuestions(); // Retry after reset
-                        } else {
-                            alert('Failed to reset progress. Please try again or contact support.');
-                            window.location.href = 'iitm_math.html';
-                            return false;
-                        }
-                    } else {
-                        alert('No new questions available. Returning to home page.');
-                        window.location.href = 'iitm_math.html';
-                        return false;
-                    }
-                }
-                
-                // Step 5: Select random subset (e.g., 30 questions) from unanswered pool
-                const questionsToShow = Math.min(50, unansweredQuestions.length);
-                questions = shuffleArray(unansweredQuestions).slice(0, questionsToShow);
-                
-                console.log(`✨ Loaded ${questions.length} NEW (never-seen) questions`);
-                
-                // Step 6: Show progress to user
-                const progressInfo = document.createElement('div');
-                progressInfo.style.cssText = `
-                    background: #e3f2fd;
-                    padding: 10px;
-                    border-radius: 8px;
-                    margin-bottom: 15px;
-                    text-align: center;
-                    color: #1976d2;
-                    font-size: 14px;
-                `;
-                progressInfo.innerHTML = `
-                    📊 Your Progress: ${answeredQuestionIds.length} completed | 
-                    ${unansweredQuestions.length} remaining | 
-                    ${allQuestions.length} total questions
-                `;
-                document.getElementById('quizContainer').prepend(progressInfo);
-                
-                return true;
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                alert('Failed to load quiz questions. Please refresh and try again.');
-                return false;
-            }
+    try {
+        if (!email) {
+            alert('Please login to take the assessment');
+            return false;
         }
         
-        // NEW FUNCTION: Get all question IDs user has already answered
-        async function getAnsweredQuestionIds() {
-            try {
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Function_Limits?email=${encodeURIComponent(email)}&count=50&excludeAnswered=true`, {
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    console.log('No previous quiz history found');
-                    return [];
-                }
-                
-                const scores = await response.json();
-                const answeredIds = new Set();
-                
-                // Extract all question IDs from quiz history
-                if (Array.isArray(scores)) {
-                    scores.forEach(score => {
-                        if (score.quizData && score.quizData.questionResults) {
-                            score.quizData.questionResults.forEach(result => {
-                                if (result.questionId) {
-                                    answeredIds.add(result.questionId.toString());
-                                }
-                                // Also track by question number as fallback
-                                if (result.questionNumber) {
-                                    answeredIds.add(result.questionNumber.toString());
-                                }
-                            });
-                        }
-                    });
-                }
-                
-                return Array.from(answeredIds);
-            } catch (error) {
-                console.error('Error fetching answered questions:', error);
-                return []; // Return empty array if error (will show all questions)
-            }
+        console.log(`🔄 Loading questions for user: ${email}`);
+        
+        // Always fetch 50 questions, regardless of previous attempts
+        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Function_Limits?email=${encodeURIComponent(email)}&count=50`, {
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
+        const data = await response.json();
+        
+        // Get questions from response (handle different response formats)
+        let allQuestions = data.questions || data;
+        
+        if (!allQuestions || allQuestions.length === 0) {
+            throw new Error('No questions found in database');
+        }
+        
+        console.log(`📚 Total questions received: ${allQuestions.length}`);
+        
+        // Always take 50 questions (or all available if less than 50)
+        const questionsToShow = Math.min(50, allQuestions.length);
+        
+        // If we have exactly 50 or more, take them all
+        if (allQuestions.length >= 50) {
+            // Take first 50 questions (or shuffle if you want random each time)
+            questions = allQuestions.slice(0, questionsToShow);
+        } else {
+            // If less than 50, use all available
+            questions = allQuestions;
+        }
+        
+        console.log(`✨ Loaded ${questions.length} questions for the test`);
+        
+        return true;
+        
+    } catch (error) {
+        console.error('Error loading questions:', error);
+        alert('Failed to load quiz questions. Please refresh and try again.');
+        return false;
+    }
+}
+        
+        
         
         // NEW FUNCTION: Shuffle array for random question selection
         function shuffleArray(array) {
@@ -1554,5 +1474,6 @@ async function resetUserProgress() {
 </body>
 
 </html>
+
 
 
