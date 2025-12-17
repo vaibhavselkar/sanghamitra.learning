@@ -603,32 +603,12 @@
         let isQuizActive = false;
         let devToolsWarned = false;
         
-        // IMPROVED RESPONSIVE ANSWER SELECTION FUNCTION
-        function createRippleEffect(element) {
-            const ripple = element.querySelector('.ripple');
-            if (ripple) {
-                ripple.remove();
-            }
-            
-            const circle = document.createElement('span');
-            const diameter = Math.max(element.clientWidth, element.clientHeight);
-            const radius = diameter / 2;
-            
-            circle.style.width = circle.style.height = `${diameter}px`;
-            circle.style.left = `${0}px`;
-            circle.style.top = `${0}px`;
-            circle.classList.add('ripple');
-            element.appendChild(circle);
-            
-            setTimeout(() => {
-                if (circle) circle.remove();
-            }, 600);
-        }
+    
 
         // ENHANCED SELECT OPTION FUNCTION
         function selectOption(questionIndex, value, type, element) {
             // Add visual feedback immediately
-            createRippleEffect(element);
+           
             
             if (type === 'radio') {
                 // Remove selection from all options
@@ -1622,4 +1602,5 @@
 </body>
 
 </html>
+
 
