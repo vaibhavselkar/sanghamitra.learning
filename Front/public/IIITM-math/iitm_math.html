@@ -451,31 +451,37 @@
     });
     }
 
-    // Find assessment data for a specific topic
-    function findTopicAssessment(userScoreData, topicName) {
+    // Find assessment data for a specific topic (FIXED: Shows latest attempt)
+function findTopicAssessment(userScoreData, topicName) {
     if (!userScoreData || !userScoreData.scores || !Array.isArray(userScoreData.scores)) {
         console.log(`No scores found for user`);
         return null;
     }
 
-    // Find the score for the specific topic
-    const topicScore = userScoreData.scores.find(score => score.topic === topicName);
+    // FIXED: Find ALL scores for this topic and get the latest one
+    const topicScores = userScoreData.scores.filter(score => score.topic === topicName);
     
-    if (topicScore) {
-        console.log(`Found assessment for ${topicName}:`, topicScore);
-        return {
-        score: topicScore.percentage, // Use percentage as the score
-        timeTaken: null, // You don't have timeTaken in your current data structure
-        timestamp: topicScore.timestamp,
-        totalQuestions: topicScore.totalQuestions,
-        actualScore: topicScore.score, // Actual number of correct answers
-        answers: topicScore.answers
-        };
+    if (topicScores.length === 0) {
+        console.log(`No assessment found for topic: ${topicName}`);
+        return null;
     }
+
+    // Sort by timestamp (most recent first) and take the latest
+    const latestScore = topicScores.sort((a, b) => {
+        return new Date(b.timestamp) - new Date(a.timestamp);
+    })[0];
     
-    console.log(`No assessment found for topic: ${topicName}`);
-    return null;
-    }
+    console.log(`Found latest assessment for ${topicName}:`, latestScore);
+    return {
+        score: latestScore.percentage, // Use percentage as the score
+        timeTaken: null,
+        timestamp: latestScore.timestamp,
+        totalQuestions: latestScore.totalQuestions,
+        actualScore: latestScore.score, // Actual number of correct answers
+        answers: latestScore.answers,
+        attemptCount: topicScores.length // Optional: track how many attempts
+    };
+}
 
     // Create HTML for a course item
     function createCourseHTML(topic, assessment) {
@@ -540,14 +546,14 @@
                     </div>
                 </div>
                 ${lastAttempted ? 
-                    `<small class="text-muted">Completed on: ${new Date(lastAttempted).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                    })}</small>` 
-                    : '<small class="text-muted">Not attempted yet</small>'}
+                 `<small class="text-muted">Last attempt: ${new Date(lastAttempted).toLocaleDateString('en-US', { 
+                 year: 'numeric', 
+                 month: 'short', 
+                 day: 'numeric',
+                 hour: '2-digit',
+                 minute: '2-digit'
+                 })}${assessment.attemptCount > 1 ? ` (${assessment.attemptCount} attempts)` : ''}</small>` 
+                 : '<small class="text-muted">Not attempted yet</small>'}
                 </div>
                 <div class="col-lg-2 col-md-2 text-center">
                 <span class="percentage-badge" style="${badgeStyle}">${score}%</span>
@@ -616,6 +622,7 @@
 </script>
 </body>
 </html>
+
 
 
 
