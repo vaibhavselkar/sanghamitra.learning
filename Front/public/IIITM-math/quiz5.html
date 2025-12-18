@@ -703,14 +703,14 @@
             let optionsHtml = '';
             if (question.type === 'multiple_choice') {
                 optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio',event)">
+                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', event)">
                         <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
                 `).join('');
             } else if (question.type === 'multiple_select') {
                 optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox',event)">
+                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', event)">
                         <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
@@ -852,45 +852,65 @@
             }
         }
 
-      function selectOption(questionIndex, value, type, event) {
-    event.stopPropagation(); // Prevent multiple triggers
+     function selectOption(questionIndex, value, type, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const question = questions[questionIndex];
     
     if (type === 'radio') {
-        userAnswers[questionIndex] = value.trim();
-        // Remove 'selected' class from all options AND uncheck all radio buttons
-        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        options.forEach(opt => {
-            opt.closest('.option').classList.remove('selected');
-            opt.checked = false;
-        });
-        // Find the clicked option
-        const clickedOption = event.target.closest('.option');
-        const clickedInput = clickedOption.querySelector('input');
-        clickedInput.checked = true;
-        clickedOption.classList.add('selected');
-    } else if (type === 'checkbox') {
-        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+        // For radio buttons: single selection
+        userAnswers[questionIndex] = value;
         
-        const clickedOption = event.target.closest('.option');
-        const checkbox = clickedOption.querySelector('input');
+        // Remove 'selected' class from all options in this question
+        const allOptions = document.querySelectorAll(`.question-card .option`);
+        allOptions.forEach(opt => opt.classList.remove('selected'));
         
-        // Toggle the checkbox state
-        checkbox.checked = !checkbox.checked;
-        
-        if (checkbox.checked) {
-            if (!userAnswers[questionIndex].includes(value.trim())) {
-                userAnswers[questionIndex].push(value.trim());
-            }
+        // Find and select the clicked option
+        const clickedOption = event.currentTarget.closest('.option');
+        if (clickedOption) {
             clickedOption.classList.add('selected');
-        } else {
-            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-            clickedOption.classList.remove('selected');
+            // Also check the radio input
+            const radioInput = clickedOption.querySelector('input[type="radio"]');
+            if (radioInput) {
+                radioInput.checked = true;
+            }
+        }
+        
+    } else if (type === 'checkbox') {
+        // For checkboxes: multiple selection
+        if (!Array.isArray(userAnswers[questionIndex])) {
+            userAnswers[questionIndex] = [];
+        }
+        
+        const clickedOption = event.currentTarget.closest('.option');
+        const checkbox = clickedOption.querySelector('input[type="checkbox"]');
+        
+        if (checkbox) {
+            // Toggle the checkbox state
+            checkbox.checked = !checkbox.checked;
             
-            if (userAnswers[questionIndex].length === 0) {
-                delete userAnswers[questionIndex];
+            if (checkbox.checked) {
+                // Add to answers if not already present
+                if (!userAnswers[questionIndex].includes(value)) {
+                    userAnswers[questionIndex].push(value);
+                }
+                clickedOption.classList.add('selected');
+            } else {
+                // Remove from answers
+                userAnswers[questionIndex] = userAnswers[questionIndex].filter(
+                    ans => ans !== value
+                );
+                clickedOption.classList.remove('selected');
+                
+                // If no answers left, delete the entry
+                if (userAnswers[questionIndex].length === 0) {
+                    delete userAnswers[questionIndex];
+                }
             }
         }
     }
+    
     updateAnswerStatus();
 }
 
@@ -1382,6 +1402,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
