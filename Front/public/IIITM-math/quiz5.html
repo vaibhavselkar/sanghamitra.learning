@@ -704,18 +704,18 @@
             if (question.type === 'multiple_choice') {
                 optionsHtml = question.options.map((option, optIndex) => `
                     <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', event)">
-                        <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none;">
+                        <label for="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none; cursor: pointer;">${option}</label>
                     </div>
                 `).join('');
             } else if (question.type === 'multiple_select') {
                 optionsHtml = question.options.map((option, optIndex) => `
                     <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', event)">
-                        <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none;">
+                        <label for="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none; cursor: pointer;">${option}</label>
                     </div>
                 `).join('');
-          } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+            }else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
     const placeholder = question.format_hint || "Enter your answer";
     
     // Add specific placeholders based on type
@@ -1421,6 +1421,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
