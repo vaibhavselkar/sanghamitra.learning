@@ -663,14 +663,14 @@
             let optionsHtml = '';
             if (question.type === 'multiple_choice') {
                 optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
+                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', event)">
                         <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
                 `).join('');
             } else if (question.type === 'multiple_select') {
                 optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
+                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', event)">
                         <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
@@ -813,35 +813,20 @@
             }
         }
 
-       function selectOption(questionIndex, value, type) {
+       function selectOption(questionIndex, value, type, event) {
     if (type === 'radio') {
-        // Store the exact value without modification
         userAnswers[questionIndex] = value.trim();
-        // Update UI
+        // Remove 'selected' class from all options AND uncheck all radio buttons
         const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        options.forEach(opt => opt.closest('.option').classList.remove('selected'));
-        event.target.closest('.option').classList.add('selected');
-    } else if (type === 'checkbox') {
-        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
-        
-        const checkbox = event.target.closest('.option').querySelector('input');
-        if (checkbox.checked) {
-            if (!userAnswers[questionIndex].includes(value.trim())) {
-                userAnswers[questionIndex].push(value.trim());
-            }
-            event.target.closest('.option').classList.add('selected');
-        } else {
-            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-            event.target.closest('.option').classList.remove('selected');
-            
-            // Clean up empty array
-            if (userAnswers[questionIndex].length === 0) {
-                delete userAnswers[questionIndex];
-            }
-        }
-    }
-    updateAnswerStatus();
-}
+        options.forEach(opt => {
+            opt.closest('.option').classList.remove('selected');
+            opt.checked = false;
+        });
+        // Find the clicked option - handle clicks on div, input, or label
+        const clickedOption = event.target.closest('.option');
+        const clickedInput = clickedOption.querySelector('input');
+        clickedInput.checked = true;
+        clickedOption.classList.add('selected');
 
         function handleNumericInput(questionIndex, value) {
     // Store trimmed value, but preserve original format for equations/intervals
@@ -1317,6 +1302,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
