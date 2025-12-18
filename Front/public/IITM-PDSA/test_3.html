@@ -195,7 +195,7 @@
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
                     <span id="progressText">Question 1 of 50</span>
-                    <span id="scoreText">Score: 0/50</span>
+                    
                 </div>
                 <div class="progress">
                     <div class="progress-bar" id="progressFill" style="width: 2%;"></div>
@@ -226,7 +226,22 @@
                 <p>Quiz Completed!</p>
             </div>
             <div id="detailedResults"></div>
-            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <!-- Left: Take Quiz Again -->
+                 <button class="btn btn-outline-secondary" onclick="goToHome()">
+                    <span class="d-flex align-items-center">
+                        <span class="me-2">←</span>
+                        <span> Go to Home</span>
+                    </span>
+                </button>
+                <!-- Right: Go to Home -->
+                <button class="btn btn-primary" onclick="restartQuiz()">
+                    <span class="d-flex align-items-center">
+                        <span class="me-2">🔄</span>
+                        <span>Retake Quiz</span>
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1081,9 +1096,7 @@
             const nextBtn = document.getElementById('nextBtn');
             nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish →' : 'Next →';
             
-            // Calculate current score
-            const currentScore = calculateCurrentScore();
-            document.getElementById('scoreText').textContent = `Score: ${currentScore}/${questions.length}`;
+            
         }
 
         function calculateCurrentScore() {
@@ -1232,6 +1245,9 @@
             document.getElementById('quizContainer').style.display = 'block';
             renderCurrentQuestion();
             updateProgress();
+        }
+        function goToHome() {
+            window.location.href = './iitm-pdsa.html';
         }
     </script>
 </body>
