@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Function Concepts Quiz</title>
+    <title>Exponential Functions Quiz</title>
    
      <style>
     * { 
@@ -537,7 +537,7 @@ const answerNormalizer = {
         }
        
 
-       function renderCurrentQuestion() {
+     function renderCurrentQuestion() {
     const container = document.getElementById('questionContainer');
     const question = questions[currentQuestionIndex];
     
@@ -552,10 +552,10 @@ const answerNormalizer = {
     
     if (question.type === 'multiple_choice') {
         optionsHtml = question.options.map((option, optIndex) => {
-            const cleanOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+            const safeOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
             return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${cleanOption}', 'radio')">
-                    <input type="radio" name="q${currentQuestionIndex}" value="${cleanOption}" id="q${currentQuestionIndex}_${optIndex}">
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                     <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
             `;
@@ -563,10 +563,10 @@ const answerNormalizer = {
         
     } else if (question.type === 'multiple_select') {
         optionsHtml = question.options.map((option, optIndex) => {
-            const cleanOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+            const safeOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
             return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${cleanOption}', 'checkbox')">
-                    <input type="checkbox" name="q${currentQuestionIndex}" value="${cleanOption}" id="q${currentQuestionIndex}_${optIndex}">
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                     <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
             `;
@@ -625,7 +625,11 @@ const answerNormalizer = {
         'hard': '#dc3545'
     };
 
-   questionDiv.innerHTML = `
+    // Get difficulty from question object, with fallback
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+    
+    questionDiv.innerHTML = `
         <div class="question-header">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
@@ -733,19 +737,19 @@ const answerNormalizer = {
         }
 
      function selectOption(questionIndex, value, type, event) {
-        if (type === 'radio') {
-            userAnswers[questionIndex] = value.trim();
-            // Remove 'selected' class from all options AND uncheck all radio buttons
-            const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-            options.forEach(opt => {
-                opt.closest('.option').classList.remove('selected');
-                opt.checked = false;
-            });
-            // Find the clicked option - handle clicks on div, input, or label
-            const clickedOption = event.target.closest('.option');
-            const clickedInput = clickedOption.querySelector('input');
-            clickedInput.checked = true;
-            clickedOption.classList.add('selected');
+    if (type === 'radio') {
+        userAnswers[questionIndex] = value.trim();
+        // Remove 'selected' class from all options AND uncheck all radio buttons
+        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+        options.forEach(opt => {
+            opt.closest('.option').classList.remove('selected');
+            opt.checked = false;
+        });
+        // Find the clicked option - handle clicks on div, input, or label
+        const clickedOption = event.target.closest('.option');
+        const clickedInput = clickedOption.querySelector('input');
+        clickedInput.checked = true;
+        clickedOption.classList.add('selected');
     } else if (type === 'checkbox') {
         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
@@ -1326,6 +1330,7 @@ async function submitQuiz() {
 </body>
 
 </html>
+
 
 
 
