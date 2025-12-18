@@ -414,6 +414,140 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+
+
+    
+    function getQuizDisplayName(originalTopic, weekNumber = null) {
+      // Map database topic fields to display names
+      const topicToDisplayName = {
+          'Quiz1': 'Week 1 - Domain and Range Quiz',
+          'Quiz2_Domain_Range': 'Week 1 - Domain and Range - 2 Quiz',
+          'Quiz3_Linear_functions': 'Week 2 - Linear Functions Quiz',
+          'Quiz4_Quadratic_functions': 'Week 3 - Quadratic Functions Quiz',
+          'Quiz5_Linear_functions': 'Week 2 - Linear Functions - 1 Quiz',
+          'Quiz6_Sets_and_Relations': 'Week 4 - Sets and Relations Quiz',
+          'function_concepts': 'Week 4 - Polynomials Quiz',
+          'Function_Limits': 'Week 7 - Sequences, Limits, and Continuity Quiz',
+          'logarithmic_functions': 'Week 6 - Logarithmic Functions Quiz',
+          'Limit_Concepts': 'Week 8 - Limits, Continuity and Differentiation Quiz',
+          'Derivatives_Integrals': 'Week 9 - Derivatives and Integrals Quiz',
+          'graph_theory': 'Week 10 - Graph Theory Quiz',
+          'graph_properties': 'Week 11 - Graph Properties Quiz'
+      };
+      
+      if (originalTopic && topicToDisplayName[originalTopic]) {
+          return topicToDisplayName[originalTopic];
+      }
+      
+      // Fallback: if no mapping found, use the original topic with week prefix
+      if (weekNumber) {
+          return `Week ${weekNumber} - ${originalTopic || 'Quiz'}`;
+      }
+      
+      return originalTopic || 'Unknown Quiz';
+  }
+
+  // Function to extract week number from topic
+  function extractWeekNumber(topic) {
+      if (!topic) return null;
+      
+      // Try to extract week from topic name
+      const weekMatch = topic.match(/\bweek\s*(\d+)\b/i);
+      if (weekMatch) {
+          return parseInt(weekMatch[1]);
+      }
+      
+      // Check known topics for week patterns
+      const topicToWeek = {
+          'Quiz1': 1,
+          'Quiz2_Domain_Range': 1,
+          'Quiz3_Linear_functions': 2,
+          'Quiz5_Linear_functions': 2,
+          'Quiz4_Quadratic_functions': 3,
+          'Quiz6_Sets_and_Relations': 4,
+          'function_concepts': 4,
+          'logarithmic_functions': 6,
+          'Function_Limits': 7,
+          'Limit_Concepts': 8,
+          'Derivatives_Integrals': 9,
+          'graph_theory': 10,
+          'graph_properties': 11
+      };
+      
+      return topicToWeek[topic] || null;
+  }
+
+    // Add these functions AFTER the mapping functions but BEFORE your main dashboard code
+
+// Helper function to process quiz data with proper display names
+function processQuizData(quizData) {
+    if (!quizData) return null;
+    
+    // Extract week number from topic or use provided week
+    const weekNumber = extractWeekNumber(quizData.topic) || quizData.week || 1;
+    const displayName = getQuizDisplayName(quizData.topic, weekNumber);
+    
+    // Return enhanced quiz data
+    return {
+        ...quizData,
+        displayName: displayName,
+        weekNumber: weekNumber,
+        // Keep original topic for reference if needed
+        originalTopic: quizData.topic
+    };
+}
+
+// Process an array of quizzes
+function processQuizArray(quizzes) {
+    if (!Array.isArray(quizzes)) return [];
+    return quizzes.map(quiz => processQuizData(quiz));
+}
+
+// Example: When you fetch quiz data from API
+async function loadQuizData() {
+    try {
+        const response = await fetch('your-api-endpoint');
+        const data = await response.json();
+        
+        // Process the quiz data to add display names
+        const processedQuizzes = processQuizArray(data.quizzes || []);
+        
+        // Now use processedQuizzes in your UI
+        renderQuizTable(processedQuizzes);
+        updateStats(processedQuizzes);
+        
+    } catch (error) {
+        console.error('Error loading quiz data:', error);
+    }
+}
+
+// Function to render quiz table with display names
+function renderQuizTable(quizzes) {
+    const tableBody = document.getElementById('quizTableBody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    quizzes.forEach((quiz, index) => {
+        // quiz already has displayName from processQuizData
+        const row = `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${quiz.displayName}</td>
+                <td>Week ${quiz.weekNumber}</td>
+                <td>${quiz.correctAnswers || 0}/${quiz.totalQuestions || 0}</td>
+                <td>${quiz.totalQuestions ? ((quiz.correctAnswers/quiz.totalQuestions)*100).toFixed(1) : 0}%</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="viewQuizDetails('${quiz.id || quiz.originalTopic}')">
+                        View Details
+                    </button>
+                </td>
+            </tr>
+        `;
+        tableBody.innerHTML += row;
+    });
+}
+    
     // Function to show specific dashboard section
     function showSection(sectionId) {
       // Hide all sections
