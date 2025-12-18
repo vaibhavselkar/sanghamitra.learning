@@ -637,14 +637,20 @@ async function initializeQuiz() {
             }
         }
 
-        function selectOption(questionIndex, value, type) {
+        function selectOption(questionIndex, value, type, event) {
             if (type === 'radio') {
-                // Store the exact value without modification
                 userAnswers[questionIndex] = value.trim();
-                // Update UI
+                // Remove 'selected' class from all options AND uncheck all radio buttons
                 const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-                options.forEach(opt => opt.closest('.option').classList.remove('selected'));
-                event.target.closest('.option').classList.add('selected');
+                options.forEach(opt => {
+                    opt.closest('.option').classList.remove('selected');
+                    opt.checked = false;
+                });
+                // Find the clicked option - handle clicks on div, input, or label
+                const clickedOption = event.target.closest('.option');
+                const clickedInput = clickedOption.querySelector('input');
+                clickedInput.checked = true;
+                clickedOption.classList.add('selected');
             } else if (type === 'checkbox') {
                 if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
                 
@@ -1143,6 +1149,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
