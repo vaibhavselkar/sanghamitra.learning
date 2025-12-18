@@ -625,12 +625,11 @@ const answerNormalizer = {
         'hard': '#dc3545'
     };
 
-    questionDiv.innerHTML = `
+   questionDiv.innerHTML = `
         <div class="question-header">
-            <div class="question-number">${currentQuestionIndex + 1}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                    ${question.difficulty}
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
                 </span>
             </div>
         </div>
@@ -733,14 +732,20 @@ const answerNormalizer = {
             }
         }
 
-      function selectOption(questionIndex, value, type) {
-    if (type === 'radio') {
-        // Store the exact value without modification
-        userAnswers[questionIndex] = value.trim();
-        // Update UI
-        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        options.forEach(opt => opt.closest('.option').classList.remove('selected'));
-        event.target.closest('.option').classList.add('selected');
+     function selectOption(questionIndex, value, type, event) {
+        if (type === 'radio') {
+            userAnswers[questionIndex] = value.trim();
+            // Remove 'selected' class from all options AND uncheck all radio buttons
+            const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+            options.forEach(opt => {
+                opt.closest('.option').classList.remove('selected');
+                opt.checked = false;
+            });
+            // Find the clicked option - handle clicks on div, input, or label
+            const clickedOption = event.target.closest('.option');
+            const clickedInput = clickedOption.querySelector('input');
+            clickedInput.checked = true;
+            clickedOption.classList.add('selected');
     } else if (type === 'checkbox') {
         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
@@ -1321,6 +1326,7 @@ async function submitQuiz() {
 </body>
 
 </html>
+
 
 
 
