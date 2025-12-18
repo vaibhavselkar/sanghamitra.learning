@@ -443,7 +443,7 @@
         <div class="col-md-3 mb-2">
           <div class="search-box">
             <i class="bi bi-search"></i>
-            <input type="text" class="form-control" id="searchFilter" placeholder="Search by name or email...">
+            <input type="text" class="form-control" id="searchFilter" placeholder="Search by username...">
           </div>
         </div>
         <div class="col-md-2 mb-2">
@@ -487,7 +487,7 @@
             <tr>
               <th width="30px"></th>
               <th><i class="bi bi-person me-1"></i>Username</th>
-              <th><i class="bi bi-envelope me-1"></i>Email</th>
+              
               <th><i class="bi bi-book me-1"></i>Topic</th>
               <th><i class="bi bi-award me-1"></i>Score</th>
               <th><i class="bi bi-percent me-1"></i>Percentage</th>
@@ -737,7 +737,7 @@ function populateTable(dataToShow = filteredData) {
             <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
                 <td>${hasAnswers ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}</td>
                 <td><strong>${item.username}</strong></td>
-                <td><small class="text-muted">${item.email}</small></td>
+                
                 <td><span class="badge bg-light text-dark">${item.topic}</span></td>
                 <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
                 <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
@@ -749,14 +749,14 @@ function populateTable(dataToShow = filteredData) {
         // Only prepare detail row HTML if it has answers
         if (hasAnswers) {
             rowsHTML += `
-                <tr id="detail-${index}" style="display: none;">
-                    <td colspan="8">
-                        <div class="student-detail p-3">
-                            <div id="detail-content-${index}" class="detail-content"></div>
-                        </div>
-                    </td>
-                </tr>
-            `;
+              <tr id="detail-${index}" style="display: none;">
+                  <td colspan="7">
+                      <div class="student-detail p-3">
+                          <div id="detail-content-${index}" class="detail-content"></div>
+                      </div>
+                  </td>
+              </tr>
+          `;
         }
     });
 
@@ -1193,7 +1193,7 @@ function applyFilters() {
   if (searchTerm) {
     filteredData = filteredData.filter(item => 
       item.username.toLowerCase().includes(searchTerm) ||
-      item.email.toLowerCase().includes(searchTerm)
+      
     );
   }
 
@@ -1290,7 +1290,7 @@ function applyFilters() {
 
 // Generate CSV - UPDATED VERSION
 function generateCSV(data) {
-  const headers = ['Username', 'Email', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Attempt Number', 'Date'];
+  const headers = ['Username', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Attempt Number', 'Date'];
   let csv = headers.join(',') + '\n';
   
   // Topic mapping for CSV - UPDATED WITH YOUR NAMES
