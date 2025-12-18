@@ -487,14 +487,14 @@ async function initializeQuiz() {
             let optionsHtml = '';
             if (question.type === 'multiple_choice') {
                 optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio')">
+                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', event)">
                         <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
                 `).join('');
             } else if (question.type === 'multiple_select') {
                 optionsHtml = question.options.map((option, optIndex) => `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox')">
+                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', event)">
                         <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}">
                         <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                     </div>
@@ -1149,6 +1149,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
