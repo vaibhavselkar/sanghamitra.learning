@@ -712,7 +712,7 @@
         optionsHtml = question.options.map((option, optIndex) => {
             const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio')">
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
                     <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                     <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
@@ -722,7 +722,7 @@
         optionsHtml = question.options.map((option, optIndex) => {
             const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox')">
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
                     <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                     <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
@@ -1511,6 +1511,7 @@
     </script>
 </body>
 </html>
+
 
 
 
