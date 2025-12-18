@@ -1190,10 +1190,9 @@ function applyFilters() {
 
   filteredData = [...allData];
 
-  if (searchTerm) {
+   if (searchTerm) {
     filteredData = filteredData.filter(item => 
-      item.username.toLowerCase().includes(searchTerm) ||
-      
+      item.username.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -1318,7 +1317,7 @@ function generateCSV(data) {
     
     csv += [
       `"${item.username}"`,
-      `"${item.email}"`,
+      
       `"${topicDisplay}"`,
       `${item.correctAnswers}`,
       `${item.totalQuestions}`,
