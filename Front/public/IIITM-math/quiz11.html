@@ -794,15 +794,14 @@
     // Use question text exactly as stored in database - NO MATH PROCESSING
     let processedQuestionText = question.question_text || 'Question text not available';
 
-    questionDiv.innerHTML = `
-        <div class="question-header">
-            <div class="question-number">${currentQuestionIndex + 1}</div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                    ${difficultyText}
-                </span>
-            </div>
+   questionDiv.innerHTML = `
+    <div class="question-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                ${difficultyText}
+            </span>
         </div>
+    </div>
         <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
         <div class="options">${optionsHtml}</div>
     `;
@@ -900,8 +899,15 @@
         function selectOption(questionIndex, value, type) {
             if (type === 'radio') {
                 userAnswers[questionIndex] = value.trim();
+                // Remove 'selected' class from all options AND uncheck all radio buttons
                 const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-                options.forEach(opt => opt.closest('.option').classList.remove('selected'));
+                options.forEach(opt => {
+                    opt.closest('.option').classList.remove('selected');
+                    opt.checked = false; // ADDED: Uncheck all radio buttons
+                });
+                // Add 'selected' class and check the clicked option
+                const clickedInput = event.target.closest('.option').querySelector('input');
+                clickedInput.checked = true; // ADDED: Check the selected radio button
                 event.target.closest('.option').classList.add('selected');
             } else if (type === 'checkbox') {
                 if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
@@ -1504,5 +1510,6 @@
     </script>
 </body>
 </html>
+
 
 
