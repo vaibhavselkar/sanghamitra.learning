@@ -601,27 +601,30 @@
         // Anti-cheating variables
         let cheatingAttempts = 0;
         let isQuizActive = false;
-        let devToolsWarned = false;
-        
-    
+        let devToolsWarned = false;            
 
         // ENHANCED SELECT OPTION FUNCTION
-        function selectOption(questionIndex, value, type, element) {
-            // Add visual feedback immediately
-           
-            
-            if (type === 'radio') {
-                // Remove selection from all options
-                const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-                options.forEach(opt => {
-                    opt.checked = false;
-                    opt.closest('.option').classList.remove('selected');
-                });
-                
-                // Set current selection
-                element.querySelector('input').checked = true;
-                element.classList.add('selected');
-                userAnswers[questionIndex] = value.trim();
+
+function selectOption(questionIndex, value, type, element) {
+    if (type === 'radio') {
+        // Remove selection from all options in this question
+       // Remove selection from all options in this question
+        const allOptions = document.querySelectorAll(`.question-card .option`);
+        allOptions.forEach(opt => {
+            const input = opt.querySelector('input[type="radio"]');
+            if (input && input.name === `q${questionIndex}`) {
+                input.checked = false;
+                opt.classList.remove('selected');
+            }
+        });
+        
+        // Set current selection
+        const radioInput = element.querySelector('input[type="radio"]');
+        if (radioInput) {
+            radioInput.checked = true;
+        }
+        element.classList.add('selected');
+        userAnswers[questionIndex] = value.trim();
                 
             } else if (type === 'checkbox') {
                 const checkbox = element.querySelector('input');
@@ -936,9 +939,17 @@ if (processedQuestionText.includes('A² (as discussed in lecture)')) {
     }
 }
 
-// Also remove the "2 MEDIUM" line if it appears
-processedQuestionText = processedQuestionText.replace(/2 MEDIUM\s*A²/g, 'A²');
-            
+        // Also remove the "2 MEDIUM" line if it appears
+        processedQuestionText = processedQuestionText.replace(/2 MEDIUM\s*A²/g, 'A²');
+        // Also remove the "2 MEDIUM" line if it appears
+        processedQuestionText = processedQuestionText.replace(/2 MEDIUM\s*A²/g, 'A²');
+
+        // Remove any leading numbers with difficulty levels (like "45 HARD", "2 MEDIUM", etc.)
+        processedQuestionText = processedQuestionText.replace(/^\d+\s+(EASY|MEDIUM|HARD)\s*/i, '');
+
+        // Remove MongoDB ObjectId patterns that might appear
+        processedQuestionText = processedQuestionText.replace(/^[a-f0-9]{24}\s*/i, '');
+                    
             // Add image if available
             let imageHtml = '';
             if (question.image_file) {
@@ -960,7 +971,7 @@ processedQuestionText = processedQuestionText.replace(/2 MEDIUM\s*A²/g, 'A²');
                         </div>
                     </div>`;
                 }
-            }
+           }
             
             questionDiv.innerHTML = `
                 <div class="question-section">
@@ -1616,6 +1627,7 @@ processedQuestionText = processedQuestionText.replace(/2 MEDIUM\s*A²/g, 'A²');
 </body>
 
 </html>
+
 
 
 
