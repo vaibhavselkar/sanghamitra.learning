@@ -1132,48 +1132,85 @@ if (question.image_file) {
             }
         }
 
-        function selectOption(questionIndex, value, type, element) {
-            if (type === 'radio') {
-                // Remove selection from all options in this question
-                const allOptions = document.querySelectorAll(`.question-card .option`);
-                allOptions.forEach(opt => {
-                    const input = opt.querySelector('input[type="radio"]');
-                    if (input && input.name === `q${questionIndex}`) {
-                        input.checked = false;
-                        opt.classList.remove('selected');
-                    }
-                });
-                
-                // Set current selection
-                const radioInput = element.querySelector('input[type="radio"]');
-                if (radioInput) {
-                    radioInput.checked = true;
-                }
-                element.classList.add('selected');
-                userAnswers[questionIndex] = value.trim();
-                
-            } else if (type === 'checkbox') {
-                const checkbox = element.querySelector('input');
-                checkbox.checked = !checkbox.checked;
-                
-                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+       function selectOption(questionIndex, value, type, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Prevent default browser behavior
+    if (event.target.type === 'radio' || event.target.type === 'checkbox') {
+        event.target.checked = !event.target.checked;
+    }
+    
+    if (type === 'radio') {
+        userAnswers[questionIndex] = value.trim();
+        
+        // Get all radio inputs for this question
+        const allRadios = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+        
+        // Uncheck all radios and remove selected class from all options
+        allRadios.forEach(radio => {
+            radio.checked = false;
+            if (radio.closest('.option')) {
+                radio.closest('.option').classList.remove('selected');
+            }
+        });
+        
+        // Find and select the clicked option
+        let clickedOption;
+        if (event.target.classList.contains('option')) {
+            clickedOption = event.target;
+        } else {
+            clickedOption = event.target.closest('.option');
+        }
+        
+        if (clickedOption) {
+            const radioInput = clickedOption.querySelector(`input[type="radio"][value="${value.replace(/"/g, '\\"')}"]`);
+            if (radioInput) {
+                radioInput.checked = true;
+                clickedOption.classList.add('selected');
+            }
+        }
+        
+    } else if (type === 'checkbox') {
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+        
+        let clickedOption;
+        if (event.target.classList.contains('option')) {
+            clickedOption = event.target;
+        } else {
+            clickedOption = event.target.closest('.option');
+        }
+        
+        if (clickedOption) {
+            const checkbox = clickedOption.querySelector(`input[type="checkbox"][value="${value.replace(/"/g, '\\"')}"]`);
+            
+            if (checkbox) {
+                // Toggle checkbox state
+                const wasChecked = checkbox.checked;
+                checkbox.checked = !wasChecked;
                 
                 if (checkbox.checked) {
+                    // Add to answers if not already present
                     if (!userAnswers[questionIndex].includes(value.trim())) {
                         userAnswers[questionIndex].push(value.trim());
                     }
-                    element.classList.add('selected');
+                    clickedOption.classList.add('selected');
                 } else {
+                    // Remove from answers
                     userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-                    element.classList.remove('selected');
+                    clickedOption.classList.remove('selected');
                     
+                    // If no answers left, delete the entry
                     if (userAnswers[questionIndex].length === 0) {
                         delete userAnswers[questionIndex];
                     }
                 }
             }
-            updateAnswerStatus();
         }
+    }
+    
+    updateAnswerStatus();
+}
 
         function handleNumericInput(questionIndex, value) {
             const question = questions[questionIndex];
@@ -1764,6 +1801,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
