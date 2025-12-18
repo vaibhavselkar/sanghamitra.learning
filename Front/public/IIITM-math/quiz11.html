@@ -896,19 +896,20 @@
             }
         }
 
-        function selectOption(questionIndex, value, type) {
+        function selectOption(questionIndex, value, type, event) {
             if (type === 'radio') {
                 userAnswers[questionIndex] = value.trim();
                 // Remove 'selected' class from all options AND uncheck all radio buttons
                 const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
                 options.forEach(opt => {
                     opt.closest('.option').classList.remove('selected');
-                    opt.checked = false; // ADDED: Uncheck all radio buttons
+                    opt.checked = false;
                 });
-                // Add 'selected' class and check the clicked option
-                const clickedInput = event.target.closest('.option').querySelector('input');
-                clickedInput.checked = true; // ADDED: Check the selected radio button
-                event.target.closest('.option').classList.add('selected');
+                // Find the clicked option - handle clicks on div, input, or label
+                const clickedOption = event.target.closest('.option');
+                const clickedInput = clickedOption.querySelector('input');
+                clickedInput.checked = true;
+                clickedOption.classList.add('selected');
             } else if (type === 'checkbox') {
                 if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
                 
@@ -1510,6 +1511,7 @@
     </script>
 </body>
 </html>
+
 
 
 
