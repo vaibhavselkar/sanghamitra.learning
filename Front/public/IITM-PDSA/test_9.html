@@ -249,7 +249,22 @@
                 
             </div>
             <div id="detailedResults"></div>
-            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <!-- Left: Take Quiz Again -->
+                 <button class="btn btn-outline-secondary" onclick="goToHome()">
+                    <span class="d-flex align-items-center">
+                        <span class="me-2">←</span>
+                        <span> Go to Home</span>
+                    </span>
+                </button>
+                <!-- Right: Go to Home -->
+                <button class="btn btn-primary" onclick="restartQuiz()">
+                    <span class="d-flex align-items-center">
+                        <span class="me-2">🔄</span>
+                        <span>Retake Quiz</span>
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1279,6 +1294,10 @@ Time: O(n³), Space: O(n²)</pre>
             document.getElementById('quizContainer').style.display = 'block';
             renderCurrentQuestion();
             updateProgress();
+        }
+
+        function goToHome() {
+            window.location.href = './iitm-pdsa.html';
         }
 
         // Initialize quiz when page loads
