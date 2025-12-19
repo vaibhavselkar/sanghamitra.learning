@@ -405,25 +405,40 @@
         }
     }
 
-    // Find the display topic name for a given topic name from database
-    function getDisplayTopic(topicName) {
-        if (!topicName) return null;
-        
-        const searchName = topicName.toLowerCase().trim();
-        
-        for (const [displayTopic, variations] of Object.entries(topicGroups)) {
-            for (const variation of variations) {
-                if (variation.toLowerCase().trim() === searchName ||
-                    searchName.includes(variation.toLowerCase()) ||
-                    variation.toLowerCase().includes(searchName)) {
-                    return displayTopic;
-                }
+    // Update your getDisplayTopic() function to be more flexible
+function getDisplayTopic(topicName) {
+    if (!topicName) return null;
+    
+    // Convert to lowercase for case-insensitive matching
+    const searchName = topicName.toLowerCase().trim();
+    
+    console.log(`🔍 Searching for display topic for: "${topicName}" (normalized: "${searchName}")`);
+    
+    // Special handling for specific patterns
+    if (searchName === 'graph_properties') {
+        return 'Graph Properties (Quiz 14)';
+    }
+    
+    // General matching logic
+    for (const [displayTopic, variations] of Object.entries(topicGroups)) {
+        for (const variation of variations) {
+            const variationLower = variation.toLowerCase();
+            
+            // Check multiple matching strategies
+            if (variationLower === searchName ||
+                searchName.includes(variationLower) ||
+                variationLower.includes(searchName) ||
+                searchName.replace(/_/g, ' ') === variationLower.replace(/_/g, ' ')) {
+                
+                console.log(`✅ Matched "${topicName}" to display topic: "${displayTopic}" via variation: "${variation}"`);
+                return displayTopic;
             }
         }
-        
-        // If no match found, return the original topic name
-        return topicName;
     }
+    
+    console.log(`❌ No match found for: "${topicName}"`);
+    return topicName; // Return original if no match
+}
 
 async function loadCourseData() {
     try {
@@ -433,66 +448,49 @@ async function loadCourseData() {
             return;
         }
 
-        // ✅ CHANGE THIS LINE - Use the EXISTING endpoint WITHOUT underscore
         const apiUrl = `https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(currentUser.email)}`;
-        console.log('📡 Fetching from EXISTING endpoint:', apiUrl);
+        console.log('📡 Fetching from:', apiUrl);
         
         const response = await fetch(apiUrl, { credentials: 'include' });
         
         console.log('📡 Response Status:', response.status, response.statusText);
-        
-        if (response.status === 404) {
-            console.error('❌ Endpoint not found (404). Your backend has these IITM math routes:');
-            console.log('1. /api/iitmmath_scores (GET & POST) - This is the CORRECT one');
-            console.log('2. /api/iitm-math-questions/quiz1, quiz2, etc.');
-            console.log('3. Collection name: iitm_math_scores');
-            showError('API endpoint not found. Contact admin to check backend routes.');
-            renderCourses(null);
-            return;
-        }
         
         if (!response.ok) {
             throw new Error(`API returned ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
-        console.log('📦 API Response Structure:', {
-            success: data.success,
-            hasData: !!data.data,
-            hasScores: data.data?.scores?.length || 0,
-            keys: Object.keys(data)
-        });
+        console.log('📦 API Response keys:', Object.keys(data));
         
-        // 🔄 CORRECTED: Extract scores from the ACTUAL structure
+        // CORRECTED: Extract quizScores from the correct location
         let scores = [];
         
         if (data.success && data.data) {
-            // Your backend returns: { success: true, data: { scores: [...] } }
-            if (data.data.scores && Array.isArray(data.data.scores)) {
-                scores = data.data.scores;
-                console.log('✅ Found scores in: data.data.scores');
-            } else if (Array.isArray(data.data)) {
-                scores = data.data;
-                console.log('✅ Found scores in: data.data (array)');
-            }
-        } else if (Array.isArray(data)) {
-            scores = data;
-            console.log('✅ Found scores directly as array');
-        }
-        
-        console.log(`📊 Found ${scores.length} assessment records`);
-        
-        if (scores.length > 0) {
-            console.log('📝 First 2 assessments:', scores.slice(0, 2));
+            console.log('📊 User data structure:', {
+                hasQuizScores: 'quizScores' in data.data,
+                quizScoresLength: data.data.quizScores?.length || 0,
+                allKeys: Object.keys(data.data)
+            });
             
-            // Debug: Show all topics in the data
-            const topics = [...new Set(scores.map(s => s.topic))];
-            console.log('📚 Topics found in data:', topics);
+            if (data.data.quizScores && Array.isArray(data.data.quizScores)) {
+                scores = data.data.quizScores;
+                console.log(`✅ Found ${scores.length} quiz scores`);
+                
+                // Log each score for debugging
+                scores.forEach((score, i) => {
+                    console.log(`Score ${i + 1}: topic="${score.topic}", percentage=${score.percentage}%`);
+                });
+            } else {
+                console.log('⚠️ No quizScores array found in data.data');
+                console.log('Available in data.data:', Object.keys(data.data));
+            }
         } else {
-            console.log('ℹ️ No assessments found for this user.');
-            console.log('To see data, take a quiz first at: quiz1.html, quiz2.html, etc.');
+            console.log('⚠️ Unexpected response structure:', data);
         }
         
+        console.log(`📊 Total scores to render: ${scores.length}`);
+        
+        // Pass the scores to render function
         renderCourses({ scores: scores });
         
     } catch (error) {
@@ -768,6 +766,7 @@ async function loadCourseData() {
 </script>
 </body>
 </html>
+
 
 
 
