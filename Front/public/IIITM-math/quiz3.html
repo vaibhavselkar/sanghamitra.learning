@@ -827,45 +827,25 @@
         const clickedInput = clickedOption.querySelector('input');
         clickedInput.checked = true;
         clickedOption.classList.add('selected');
-
-        function handleNumericInput(questionIndex, value) {
-    // Store trimmed value, but preserve original format for equations/intervals
-    const question = questions[questionIndex];
-    
-    if (question.type === 'coordinate_input') {
-        // For coordinates, ensure proper format but allow flexible input
-        const trimmedValue = value.trim();
-        if (trimmedValue) {
-            // If user didn't include parentheses, add them
-            if (trimmedValue.includes(',') && !trimmedValue.includes('(')) {
-                userAnswers[questionIndex] = `(${trimmedValue})`;
-            } else {
-                userAnswers[questionIndex] = trimmedValue;
-            }
+    } else if (type === 'checkbox') {
+        // Handle multiple select (checkboxes)
+        const clickedOption = event.target.closest('.option');
+        const clickedInput = clickedOption.querySelector('input');
+        clickedInput.checked = !clickedInput.checked;
+        
+        // Update selected state
+        if (clickedInput.checked) {
+            clickedOption.classList.add('selected');
         } else {
-            delete userAnswers[questionIndex];
+            clickedOption.classList.remove('selected');
         }
-    } else if (question.type === 'equation_input') {
-        // For equations, preserve the format but trim whitespace
-        const trimmedValue = value.trim();
-        if (trimmedValue) {
-            userAnswers[questionIndex] = trimmedValue;
-        } else {
-            delete userAnswers[questionIndex];
-        }
-    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-        // For pure numeric, clean up the input
-        const cleanValue = value.replace(/[^\d.-]/g, '').trim();
-        if (cleanValue && !isNaN(parseFloat(cleanValue))) {
-            userAnswers[questionIndex] = cleanValue;
-        } else if (value.trim() === '') {
-            delete userAnswers[questionIndex];
-        }
-    } else {
-        // For other types, store trimmed value
-        const trimmedValue = value.trim();
-        if (trimmedValue) {
-            userAnswers[questionIndex] = trimmedValue;
+        
+        // Collect all selected values
+        const selectedOptions = document.querySelectorAll(`input[name="q${questionIndex}"]:checked`);
+        const selectedValues = Array.from(selectedOptions).map(opt => opt.value.trim());
+        
+        if (selectedValues.length > 0) {
+            userAnswers[questionIndex] = selectedValues;
         } else {
             delete userAnswers[questionIndex];
         }
@@ -1302,6 +1282,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
