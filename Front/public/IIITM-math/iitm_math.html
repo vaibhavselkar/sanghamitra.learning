@@ -1,772 +1,605 @@
 <!DOCTYPE html>
 <html lang="en">
- 
-<head> 
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>IITM math</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
-  <link href="../assets/img/favicon.png" rel="icon">
-  <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect">
-  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
-
-  <!-- Vendor CSS Files -->
-  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-
-  <!-- Main CSS File -->
-  <link href="../assets/css/main.css" rel="stylesheet">
-
-  <style>
-    .course-list {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0 15px;
-    }
-
-    .course-item {
-      margin-bottom: 2rem !important;
-    }
-
-    .course-card {
-      max-width: 100%;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-    }
-
-    .course-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-
-    .icon-box {
-      width: 40px !important;
-      height: 40px !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .progress {
-      height: 6px !important;
-      background-color: #f0f0f0;
-    }
-
-    .fs-7 {
-      font-size: 0.85rem !important;
-    }
-
-    .course-card .btn {
-      min-width: 120px;
-      padding: 0.4rem 1rem;
-      border-radius: 8px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .percentage-badge {
-      background: linear-gradient(45deg, #007bff, #0056b3);
-      color: white;
-      font-weight: 600;
-      font-size: 0.9rem;
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      box-shadow: 0 2px 4px rgba(0,123,255,0.3);
-    }
-
-    .completed-badge {
-      background: linear-gradient(45deg, #28a745, #20c997);
-      color: white;
-      font-weight: 600;
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(40,167,69,0.3);
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .loading {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .error-message {
-      color: #dc3545;
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-    }
-  </style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment - Linear Functions</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .assessment-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #e1e5eb;
+        }
+        
+        .assessment-header {
+            padding: 25px 30px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e1e5eb;
+        }
+        
+        .assessment-header h2 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .assessment-header p {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .assessment-status {
+            padding: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .status-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .last-attempt {
+            font-size: 15px;
+            color: #5a6268;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #e1e5eb;
+        }
+        
+        .last-attempt strong {
+            color: #495057;
+        }
+        
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .percentage-circle-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+        
+        .percentage-circle-bg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .percentage-circle-bg circle {
+            fill: none;
+            stroke-width: 12;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .percentage-circle-bg .circle-bg {
+            stroke: #f0f0f0;
+        }
+        
+        .percentage-circle-bg .circle-progress {
+            stroke: #4CAF50;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s ease, stroke 0.8s ease;
+        }
+        
+        .percentage-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .percentage-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1;
+        }
+        
+        .percentage-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .score-details {
+            flex: 1;
+        }
+        
+        .score-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
+        }
+        
+        .attempts-text {
+            font-size: 17px;
+            color: #5a6268;
+            margin-bottom: 15px;
+        }
+        
+        .progress-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .progress-info p {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .progress-info strong {
+            color: #495057;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 180px;
+        }
+        
+        .btn-completed, .btn-retest {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-completed {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+            cursor: default;
+        }
+        
+        .btn-retest {
+            background-color: #2196F3;
+            color: white;
+            box-shadow: 0 3px 5px rgba(33, 150, 243, 0.2);
+        }
+        
+        .btn-retest:hover {
+            background-color: #0b7dda;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(33, 150, 243, 0.3);
+        }
+        
+        .btn-retest:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(33, 150, 243, 0.2);
+        }
+        
+        .btn-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .attempt-history {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #e1e5eb;
+            width: 100%;
+        }
+        
+        .attempt-history h3 {
+            font-size: 18px;
+            color: #495057;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .history-list {
+            list-style-type: none;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 4px solid #4CAF50;
+            transition: background-color 0.2s;
+        }
+        
+        .history-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .history-score {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .history-date {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .assessment-status {
+                flex-direction: column;
+            }
+            
+            .score-display {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                flex-direction: row;
+            }
+            
+            .btn-completed, .btn-retest {
+                flex: 1;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .assessment-header, .assessment-status {
+                padding: 20px;
+            }
+            
+            .assessment-header h2 {
+                font-size: 24px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        /* Animation for new attempt */
+        @keyframes highlight {
+            0% { background-color: rgba(33, 150, 243, 0.1); }
+            100% { background-color: transparent; }
+        }
+        
+        .new-attempt {
+            animation: highlight 1.5s ease;
+        }
+    </style>
 </head>
-
 <body>
-  <header id="header" class="header d-flex align-items-center sticky-top">
-    <div class="container-fluid container-xl position-relative d-flex align-items-center">
-      <a href="index.html" class="logo d-flex align-items-center me-auto">
-        <img src="../img/sbi.logo.png" alt="Logo" width="80" height="80">
-        <h1 class="">Sanghamitra Learning</h1>
-      </a>
-      <nav id="navmenu" class="navmenu">
-        <div id="navbar-placeholder"></div>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-      </nav>
-    </div>
-  </header>
-
-  <main class="main">
-    <!-- Page Title -->
-    <div class="page-title" data-aos="fade" style="margin-bottom: 2rem;">
-      <div class="heading">
-        <div class="container">
-          <div class="row d-flex justify-content-center text-center">
-            <div class="col-lg-8">
-              <h1>IITM math</h1>
-              <p class="mb-0">rom basic concepts to advanced IITM math 1 techniques, we guide you every step of the way.</p>
-            </div>
-          </div>
+    <div class="assessment-container">
+        <div class="assessment-header">
+            <h2>Linear function - 2</h2>
+            <p>Assessment on IITM Math 1 - Linear Functions</p>
         </div>
-      </div>
-      <nav class="breadcrumbs">
-        <div class="container">
-          <ol>
-            <li><a href="../index.html">Home</a></li>
-            <li class="../current">IITM math</li>
-          </ol>
-        </div>
-      </nav>
-    </div><!-- End Page Title -->
-
-    <main id="main" class="main">
-      <div class="container">
-        <div class="course-list" id="courseList">
-          <!-- Loading message -->
-          <div id="loadingMessage" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Loading course data...</p>
-          </div>
-          
-          <!-- Error message -->
-          <div id="errorMessage" class="alert alert-danger d-none">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            <span id="errorText">Failed to load course data. Please try refreshing the page.</span>
-          </div>
-
-          <!-- Course items will be dynamically generated here -->
-        </div>
-      </div>
-    </main>
-  </main>
-
-  <footer id="footer" class="footer position-relative">
-    <div class="container footer-top">
-      <div class="row gy-4">
-        <div class="col-lg-4 col-md-6 footer-about">
-          <a href="../index.html" class="logo d-flex align-items-center">
-            <span class="">Sanghamitra Learning</span>
-          </a>
-          <div class="footer-contact pt-3">
-            <p>GacchiBowli</p>
-            <p>Hyderabad, TS 500032</p>
-            <p class="mt-3"><strong>Phone:</strong> <span>+91 7020102729</span></p>
-            <p><strong>Email:</strong> <span>sanghamitra.learnworlds@gmail.com</span></p>
-          </div>
-          <div class="social-links d-flex mt-4">
-            <a href=""><i class="bi bi-twitter"></i></a>
-            <a href=""><i class="bi bi-facebook"></i></a>
-            <a href=""><i class="bi bi-instagram"></i></a>
-            <a href=""><i class="bi bi-linkedin"></i></a>
-          </div>
-        </div>
-
-        <div class="col-lg-4 col-md-12 footer-newsletter">
-        </div>
-      </div>
-    </div>
-
-    <div class="container copyright text-center mt-4">
-      <p>© <span>Copyright</span> <strong class="px-1">Sanghamitra Learning</strong> <span>All Rights Reserved</span></p>
-      <div class="credits">
-        Designed by <a href="../index.html">Sanghamitra</a>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-  <!-- Preloader -->
-  <div id="preloader"></div>
-
-  <!-- Vendor JS Files -->
-  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="../assets/vendor/php-email-form/validate.js"></script>
-  <script src="../assets/vendor/aos/aos.js"></script>
-  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
-  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
-
-  <!-- Main JS File -->
-  <script src="../assets/js/main.js"></script>
-  <script src="../navbar.js"></script>
-  
-  <!-- Script to fetch and display course data from API -->
-  <script>
-    let currentUser = null;
-
-    // Define topic groups to map all variations to a single display topic
-    const topicGroups = {
-        'Week 1 and 2 (Quiz 1)': ['Domain_and_Range', 'Quiz1', 'Week 1 and 2', 'Week1_and_Week2'],
-        'Domain and Range (Quiz 2)': ['Domain_and_Range-2', 'Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2', 'Domain_and_Range_2'],
-        'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions', 'Linear_Functions'],
-        'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions', 'Quadratic_Functions'],
-        'Linear function - 2': ['Quiz5', 'Linear', 'Linear_functions - 2', 'Linear_functions-2'],
-        'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations', 'Sets And Relations', 'Sets_and_Relations'],
-        'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials', 'Polynomial Function', 'Polynomial_Function'],
-        'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential', 'Function Concepts', 'Function_Concepts'],
-        'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions', 'Logarithmic Functions', 'Logarithmic_Functions'],
-        'Sequence and limit week 7': ['Quiz10', 'Function_Limits', 'Function Limits'],
-        'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation'],
-        'Week 9 - Derivatives and Integrals': ['Quiz12', 'Derivatives_Integrals', 'Derivatives and Integrals', 'Derivatives', 'Integrals'],
-        'Graph Theory (Quiz 13)': ['Quiz13', 'graph_theory', 'Graph Theory', 'Graph_Theory'],
-        'Graph Properties (Quiz 14)': ['Quiz14', 'graph_properties', 'Graph Properties', 'Graph_Properties']
-    };
-
-    const availableTopics = [
-        {
-            id: 'review_page',
-            name: 'Review Page',
-            displayName: 'Review Page',
-            description: 'Review your submitted answers',
-            icon: 'bi-cpu',
-            url: 'review.html'
-        },
-        {
-            id: 'week1_week2',
-            name: 'Week 1 and 2 (Quiz 1)',
-            displayName: 'Week 1 and 2',
-            description: 'Assessment on IITM Math 1 - Week 1 and 2',
-            icon: 'bi-cpu',
-            url: 'quiz1.html'
-        },
-        {
-            id: 'domain_range_quiz2',
-            name: 'Domain and Range (Quiz 2)',
-            displayName: 'Domain and Range',
-            description: 'Assessment on IITM Math 1 - Domain and Range',
-            icon: 'bi-cpu',
-            url: 'quiz2.html'
-        },
-        {
-            id: 'linear_functions',
-            name: 'Linear Functions (Quiz 3)',
-            displayName: 'Linear Functions',
-            description: 'Assessment on IITM Math 1 - Linear Functions',
-            icon: 'bi-cpu',
-            url: 'quiz3.html'
-        },
-        {
-            id: 'quadratic_functions',
-            name: 'Quadratic Functions (Quiz 4)',
-            displayName: 'Quadratic Functions',
-            description: 'Assessment on IITM Math 1 - Quadratic Functions',
-            icon: 'bi-cpu',
-            url: 'quiz4.html'
-        },
-        {
-            id: 'linear_functions_2',
-            name: 'Linear function - 2',
-            displayName: 'Linear Functions - 2',
-            description: 'Assessment on IITM Math 1 - Linear Functions',
-            icon: 'bi-cpu',
-            url: 'quiz5.html'
-        },
-        {
-            id: 'sets_relations',
-            name: 'Sets and Relations (Quiz 6)',
-            displayName: 'Sets and Relations',
-            description: 'Assessment on IITM Math 1 - Sets and Relations',
-            icon: 'bi-cpu',
-            url: 'quiz6.html'
-        },
-        {
-            id: 'polynomials',
-            name: 'Polynomials (Quiz 7)',
-            displayName: 'Polynomial Functions',
-            description: 'Assessment on IITM Math 1 - Polynomial Functions',
-            icon: 'bi-cpu',
-            url: 'quiz7.html'
-        },
-        {
-            id: 'exponential_functions',
-            name: 'Exponential Functions (Week-5)',
-            displayName: 'Exponential Functions',
-            description: 'Assessment on IITM Math 1 - Exponential Functions',
-            icon: 'bi-cpu',
-            url: 'quiz8.html'
-        },
-        {
-            id: 'logarithmic_functions',
-            name: 'Logarithmic Functions (Quiz 9)',
-            displayName: 'Logarithmic Functions',
-            description: 'Assessment on IITM Math 1 - Logarithmic Functions',
-            icon: 'bi-cpu',
-            url: 'quiz9.html'
-        },
-        {
-            id: 'sequence_limits',
-            name: 'Sequence and limit week 7',
-            displayName: 'Sequence, Limits and Continuity',
-            description: 'Assessment on Sequence, Limits and Continuity',
-            icon: 'bi-cpu',
-            url: 'quiz10.html'
-        },
-        {
-            id: 'limits_continuity',
-            name: 'Limits, Continuity and Differentiation (Quiz 11)',
-            displayName: 'Limits, Continuity and Differentiation',
-            description: 'Assessment on Limits, Continuity and Differentiation',
-            icon: 'bi-cpu',
-            url: 'quiz11.html'
-        },
-        {
-            id: 'derivatives_integrals',
-            name: 'Week 9 - Derivatives and Integrals',
-            displayName: 'Derivatives and Integrals',
-            description: 'Assessment on Derivatives and Integrals',
-            icon: 'bi-cpu',
-            url: 'quiz12.html'
-        },
-        {
-            id: 'graph_theory',
-            name: 'Graph Theory (Quiz 13)',
-            displayName: 'Graph Theory',
-            description: 'Assessment on Graph Theory',
-            icon: 'bi-cpu',
-            url: 'quiz13.html'
-        },
-        {
-            id: 'graph_properties',
-            name: 'Graph Properties (Quiz 14)',
-            displayName: 'Graph Properties',
-            description: 'Assessment on Graph Properties',
-            icon: 'bi-cpu',
-            url: 'quiz14.html'
-        }
-    ];
-
-    // Initialize the application
-    async function initializeApp() {
-        try {
-            showLoading(true);
-            await fetchSessionInfo();
-            await loadCourseData();
-        } catch (error) {
-            console.error('Initialization error:', error);
-            showError('Failed to initialize the application. Please try refreshing the page.');
-        } finally {
-            showLoading(false);
-        }
-    }
-
-    // Fetch user session information
-    async function fetchSessionInfo() {
-        try {
-            const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-                credentials: 'include'
-            });
-
-            if (!response.ok) {
-                throw new Error('Session expired or invalid');
-            }
-            
-            const data = await response.json();
-            currentUser = {
-                email: data.email,
-                username: data.username
-            };
-            
-            console.log('Session info fetched:', currentUser);
-        } catch (error) {
-            console.error('Session error:', error);
-            currentUser = { email: 'test@example.com', username: 'Test User' };
-        }
-    }
-
-    // Update your getDisplayTopic() function to be more flexible
-function getDisplayTopic(topicName) {
-    if (!topicName) return null;
-    
-    // Convert to lowercase for case-insensitive matching
-    const searchName = topicName.toLowerCase().trim();
-    
-    console.log(`🔍 Searching for display topic for: "${topicName}" (normalized: "${searchName}")`);
-    
-    // Special handling for specific patterns
-    if (searchName === 'graph_properties') {
-        return 'Graph Properties (Quiz 14)';
-    }
-    
-    // General matching logic
-    for (const [displayTopic, variations] of Object.entries(topicGroups)) {
-        for (const variation of variations) {
-            const variationLower = variation.toLowerCase();
-            
-            // Check multiple matching strategies
-            if (variationLower === searchName ||
-                searchName.includes(variationLower) ||
-                variationLower.includes(searchName) ||
-                searchName.replace(/_/g, ' ') === variationLower.replace(/_/g, ' ')) {
+        
+        <div class="assessment-status">
+            <div class="status-info">
+                <div class="last-attempt">
+                    <strong>Last attempt:</strong> <span id="lastAttemptDate">Dec 17, 2025, 08:26 PM</span>
+                </div>
                 
-                console.log(`✅ Matched "${topicName}" to display topic: "${displayTopic}" via variation: "${variation}"`);
-                return displayTopic;
-            }
-        }
-    }
-    
-    console.log(`❌ No match found for: "${topicName}"`);
-    return topicName; // Return original if no match
-}
-
-async function loadCourseData() {
-    try {
-        if (!currentUser) {
-            console.warn('No user session found');
-            renderCourses(null);
-            return;
-        }
-
-        const apiUrl = `https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(currentUser.email)}`;
-        console.log('📡 Fetching from:', apiUrl);
-        
-        const response = await fetch(apiUrl, { credentials: 'include' });
-        
-        console.log('📡 Response Status:', response.status, response.statusText);
-        
-        if (!response.ok) {
-            throw new Error(`API returned ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('📦 API Response keys:', Object.keys(data));
-        
-        // CORRECTED: Extract quizScores from the correct location
-        let scores = [];
-        
-        if (data.success && data.data) {
-            console.log('📊 User data structure:', {
-                hasQuizScores: 'quizScores' in data.data,
-                quizScoresLength: data.data.quizScores?.length || 0,
-                allKeys: Object.keys(data.data)
-            });
-            
-            if (data.data.quizScores && Array.isArray(data.data.quizScores)) {
-                scores = data.data.quizScores;
-                console.log(`✅ Found ${scores.length} quiz scores`);
-                
-                // Log each score for debugging
-                scores.forEach((score, i) => {
-                    console.log(`Score ${i + 1}: topic="${score.topic}", percentage=${score.percentage}%`);
-                });
-            } else {
-                console.log('⚠️ No quizScores array found in data.data');
-                console.log('Available in data.data:', Object.keys(data.data));
-            }
-        } else {
-            console.log('⚠️ Unexpected response structure:', data);
-        }
-        
-        console.log(`📊 Total scores to render: ${scores.length}`);
-        
-        // Pass the scores to render function
-        renderCourses({ scores: scores });
-        
-    } catch (error) {
-        console.error('❌ Failed to load course data:', error);
-        showError(`Failed to load assessment data: ${error.message}`);
-        renderCourses(null);
-    }
-}
-
-    // Debug topic grouping
-    function debugTopicGrouping(userScoreData) {
-        console.log('=== TOPIC GROUPING DEBUG ===');
-        
-        if (!userScoreData?.scores) return;
-        
-        // Group scores by display topic
-        const groupedScores = {};
-        
-        userScoreData.scores.forEach(score => {
-            const displayTopic = getDisplayTopic(score.topic);
-            
-            if (!groupedScores[displayTopic]) {
-                groupedScores[displayTopic] = [];
-            }
-            
-            groupedScores[displayTopic].push({
-                topic: score.topic,
-                percentage: score.percentage,
-                score: score.score,
-                totalQuestions: score.totalQuestions,
-                timestamp: score.timestamp
-            });
-        });
-        
-        // Log the grouped results
-        Object.entries(groupedScores).forEach(([displayTopic, scores]) => {
-            console.log(`\n📊 ${displayTopic}: ${scores.length} attempt(s)`);
-            scores.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            scores.forEach((score, i) => {
-                const date = new Date(score.timestamp).toLocaleString();
-                console.log(`  ${i+1}. ${score.topic} - ${score.percentage}% (${score.score}/${score.totalQuestions}) - ${date}`);
-            });
-            
-            const latest = scores[0];
-            console.log(`  ✅ Latest percentage: ${latest.percentage}%`);
-        });
-    }
-
-    // Find assessment data for a specific topic - Groups all variations and shows latest percentage
-    function findTopicAssessment(userScoreData, topicName) {
-        if (!userScoreData || !userScoreData.scores || !Array.isArray(userScoreData.scores)) {
-            console.log(`No scores found for user`);
-            return null;
-        }
-
-        // Get the display topic name for this topic
-        const displayTopic = getDisplayTopic(topicName);
-        console.log(`Looking for display topic: "${displayTopic}" for topic name: "${topicName}"`);
-
-        // Find all variations for this display topic
-        const variations = topicGroups[displayTopic] || [topicName];
-        
-        // Collect all scores that match any variation of this topic
-        let allTopicScores = [];
-        
-        userScoreData.scores.forEach(score => {
-            if (!score.topic) return;
-            
-            const scoreTopic = score.topic.trim();
-            const scoreTopicLower = scoreTopic.toLowerCase();
-            
-            // Check if this score belongs to any variation of our display topic
-            for (const variation of variations) {
-                const variationLower = variation.toLowerCase();
-                
-                if (scoreTopicLower === variationLower ||
-                    scoreTopicLower.includes(variationLower) ||
-                    variationLower.includes(scoreTopicLower)) {
+                <div class="score-display">
+                    <div class="percentage-circle-container">
+                        <svg class="percentage-circle-bg" viewBox="0 0 100 100">
+                            <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="circle-progress" cx="50" cy="50" r="45" 
+                                    stroke-dasharray="283" stroke-dashoffset="85"></circle>
+                        </svg>
+                        <div class="percentage-text">
+                            <div class="percentage-value" id="percentageValue">70%</div>
+                            <div class="percentage-label">Completed</div>
+                        </div>
+                    </div>
                     
-                    // Validate we have a percentage value
-                    if (score.percentage !== undefined && score.percentage !== null) {
-                        allTopicScores.push({
-                            ...score,
-                            displayTopic: displayTopic,
-                            matchedVariation: variation
-                        });
-                    }
-                    break; // Found a match, no need to check other variations
-                }
-            }
-        });
-
-        if (allTopicScores.length === 0) {
-            console.log(`No assessment found for topic group: ${displayTopic} (variations: ${variations.join(', ')})`);
-            return null;
-        }
-
-        console.log(`Found ${allTopicScores.length} scores for ${displayTopic}:`, 
-            allTopicScores.map(s => ({ topic: s.topic, percentage: s.percentage, timestamp: s.timestamp })));
-
-        // Sort by timestamp (most recent first) and take the latest
-        const latestScore = allTopicScores.sort((a, b) => {
-            const dateA = new Date(a.timestamp || 0);
-            const dateB = new Date(b.timestamp || 0);
-            return dateB - dateA; // Most recent first
-        })[0];
-        
-        // Calculate percentage (use stored percentage or calculate from score)
-        let percentage = 0;
-        if (latestScore.percentage !== undefined && latestScore.percentage !== null) {
-            percentage = Math.round(parseFloat(latestScore.percentage));
-        } else if (latestScore.score !== undefined && latestScore.totalQuestions) {
-            percentage = Math.round((latestScore.score / latestScore.totalQuestions) * 100);
-        }
-        
-        console.log(`Latest assessment for ${displayTopic}: ${percentage}% from ${latestScore.topic}`);
-        
-        return {
-            displayName: displayTopic,
-            score: percentage,
-            percentage: percentage,
-            timeTaken: null,
-            timestamp: latestScore.timestamp,
-            totalQuestions: latestScore.totalQuestions || 15,
-            actualScore: latestScore.score || 0,
-            answers: latestScore.answers,
-            attemptCount: allTopicScores.length,
-            originalTopic: latestScore.topic
-        };
-    }
-
-    // Render courses based on available topics and assessment data
-    function renderCourses(userScoreData) {
-        const courseList = document.getElementById('courseList');
-        courseList.innerHTML = '';
-
-        availableTopics.forEach(topic => {
-            const topicAssessment = findTopicAssessment(userScoreData, topic.name);
-            const courseHTML = createCourseHTML(topic, topicAssessment);
-            courseList.insertAdjacentHTML('beforeend', courseHTML);
-        });
-    }
-
-    // Create HTML for a course item
-    function createCourseHTML(topic, assessment) {
-        const isCompleted = assessment && assessment.score !== undefined && assessment.score !== null;
-        const score = assessment ? Math.round(assessment.score || 0) : 0;
-        const actualScore = assessment ? assessment.actualScore : 0;
-        const totalQuestions = assessment ? assessment.totalQuestions : 15;
-        const lastAttempted = assessment ? assessment.timestamp : null;
-        const attemptCount = assessment ? assessment.attemptCount : 0;
-        
-        // Use display name from assessment if available, otherwise from topic
-        const displayName = assessment?.displayName || topic.displayName;
-        
-        // Determine progress bar color based on score 
-        let progressBarClass = 'bg-primary';
-        let badgeStyle = 'background: linear-gradient(45deg, #007bff, #0056b3);';
-        
-        if (score >= 80) {
-            progressBarClass = 'bg-success';
-            badgeStyle = 'background: linear-gradient(45deg, #28a745, #20c997);';
-        } else if (score >= 60) {
-            progressBarClass = 'bg-info';
-            badgeStyle = 'background: linear-gradient(45deg, #17a2b8, #138496);';
-        } else if (score >= 40) {
-            progressBarClass = 'bg-warning';
-            badgeStyle = 'background: linear-gradient(45deg, #ffc107, #fd7e14);';
-        } else if (score > 0) {
-            progressBarClass = 'bg-danger';
-            badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
-        }
-
-        // Update the action button logic
-        const actionButton = isCompleted 
-            ? `<div class="completed-badge">
-                <i class="bi bi-check-circle me-2"></i>
-                Completed
-            </div>
-            <div class="mt-2">
-                <small class="text-muted d-block">Score: ${actualScore}/${totalQuestions}</small>
-                ${attemptCount > 1 ? `<small class="text-muted d-block">${attemptCount} attempts</small>` : ''}
-            </div>`
-            : `<a href="${topic.url}" class="btn btn-primary btn-sm">
-                <span>Start Assessment</span>
-                <i class="bi bi-arrow-right ms-2"></i>
-            </a>`;
-
-        // Set progress bar width
-        const progressWidth = isCompleted ? score : 0;
-
-        return `
-            <div class="course-item mb-3" data-topic="${topic.id}">
-                <div class="card course-card h-100 border-0 shadow-sm hover-shadow">
-                    <div class="card-body p-3">
-                        <div class="row align-items-center">
-                            <div class="col-lg-1 col-md-2 text-center">
-                                <div class="icon-box ${isCompleted ? 'bg-success' : 'bg-primary'} text-white rounded-circle p-2" style="width: 40px; height: 40px;">
-                                    <i class="bi ${isCompleted ? 'bi-check-circle' : topic.icon} fs-5"></i>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-5">
-                                <h4 class="mb-1 fs-5">${displayName}</h4>
-                                <p class="text-muted mb-2 fs-6">${topic.description}</p>
-                                <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar ${progressBarClass}" role="progressbar" 
-                                        style="width: ${progressWidth}%"
-                                        aria-valuenow="${score}" aria-valuemin="0" aria-valuemax="100">
-                                    </div>
-                                </div>
-                                ${lastAttempted ? 
-                                    `<small class="text-muted">Last attempt: ${new Date(lastAttempted).toLocaleDateString('en-US', { 
-                                        year: 'numeric', 
-                                        month: 'short', 
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}</small>` 
-                                    : '<small class="text-muted">Not attempted yet</small>'}
-                            </div>
-                            <div class="col-lg-2 col-md-2 text-center">
-                                <span class="percentage-badge" style="${badgeStyle}">${score}%</span>
-                            </div>
-                            <div class="col-lg-3 col-md-3 text-end">
-                                ${actionButton}
-                            </div>
+                    <div class="score-details">
+                        <div class="score-text">Score: <span id="currentScore">35</span>/50</div>
+                        <div class="attempts-text">Attempts: <span id="attemptCount">4</span></div>
+                        
+                        <div class="progress-info">
+                            <p>Passing score: <strong>25/50 (50%)</strong></p>
+                            <p>Best attempt: <strong id="bestScore">35/50 (70%)</strong></p>
                         </div>
                     </div>
                 </div>
+                
+                <div class="attempt-history">
+                    <h3>Recent Attempts</h3>
+                    <ul class="history-list" id="historyList">
+                        <li class="history-item">
+                            <span class="history-score">35/50 (70%)</span>
+                            <span class="history-date">Dec 17, 2025, 08:26 PM</span>
+                        </li>
+                        <li class="history-item">
+                            <span class="history-score">28/50 (56%)</span>
+                            <span class="history-date">Dec 15, 2025, 10:15 AM</span>
+                        </li>
+                        <li class="history-item">
+                            <span class="history-score">32/50 (64%)</span>
+                            <span class="history-date">Dec 10, 2025, 03:42 PM</span>
+                        </li>
+                        <li class="history-item">
+                            <span class="history-score">25/50 (50%)</span>
+                            <span class="history-date">Dec 5, 2025, 11:30 AM</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        `;
-    }
+            
+            <div class="action-buttons">
+                <button class="btn-completed">
+                    <span class="btn-icon">✓</span> Completed
+                </button>
+                <button class="btn-retest" id="retestBtn">
+                    <span class="btn-icon">↻</span> Retest
+                </button>
+            </div>
+        </div>
+    </div>
 
-    // Show/hide loading indicator
-    function showLoading(show) {
-        const loadingMessage = document.getElementById('loadingMessage');
-        if (loadingMessage) {
-            loadingMessage.style.display = show ? 'block' : 'none';
-        }
-    }
-
-    // Show error message
-    function showError(message) {
-        const errorMessage = document.getElementById('errorMessage');
-        const errorText = document.getElementById('errorText');
+    <script>
+        // Initial data
+        let attemptCount = 4;
+        let currentScore = 35;
+        let bestScore = 35;
+        let lastAttemptDate = "Dec 17, 2025, 08:26 PM";
+        let history = [
+            { score: 35, date: "Dec 17, 2025, 08:26 PM" },
+            { score: 28, date: "Dec 15, 2025, 10:15 AM" },
+            { score: 32, date: "Dec 10, 2025, 03:42 PM" },
+            { score: 25, date: "Dec 5, 2025, 11:30 AM" }
+        ];
         
-        if (errorMessage && errorText) {
-            errorText.textContent = message;
-            errorMessage.classList.remove('d-none');
+        // DOM elements
+        const retestBtn = document.getElementById('retestBtn');
+        const attemptCountEl = document.getElementById('attemptCount');
+        const currentScoreEl = document.getElementById('currentScore');
+        const lastAttemptDateEl = document.getElementById('lastAttemptDate');
+        const percentageValueEl = document.getElementById('percentageValue');
+        const bestScoreEl = document.getElementById('bestScore');
+        const historyListEl = document.getElementById('historyList');
+        const circleProgress = document.querySelector('.circle-progress');
+        
+        // Initialize the circle progress
+        updateCircleProgress(70);
+        
+        // Retest button event listener
+        retestBtn.addEventListener('click', function() {
+            // Increase attempt count
+            attemptCount++;
+            
+            // Generate a new random score (simulating test result)
+            const newScore = generateNewScore();
+            currentScore = newScore;
+            
+            // Update best score if needed
+            if (newScore > bestScore) {
+                bestScore = newScore;
+            }
+            
+            // Calculate percentage
+            const newPercentage = Math.round((newScore / 50) * 100);
+            
+            // Update date and time
+            const now = new Date();
+            lastAttemptDate = formatDate(now);
+            
+            // Add to history (newest first)
+            history.unshift({
+                score: newScore,
+                date: lastAttemptDate
+            });
+            
+            // Keep only last 5 attempts in history
+            if (history.length > 5) {
+                history = history.slice(0, 5);
+            }
+            
+            // Update UI
+            updateUI(newScore, newPercentage);
+            
+            // Show visual feedback
+            showRetestFeedback(newScore, newPercentage);
+        });
+        
+        // Function to generate a new score
+        function generateNewScore() {
+            // Generate a score between 15 and 50, but with higher probability for moderate scores
+            const random = Math.random();
+            let score;
+            
+            if (random < 0.1) {
+                // 10% chance of a low score (15-24)
+                score = Math.floor(Math.random() * 10) + 15;
+            } else if (random < 0.7) {
+                // 60% chance of a moderate score (25-40)
+                score = Math.floor(Math.random() * 16) + 25;
+            } else {
+                // 30% chance of a high score (41-50)
+                score = Math.floor(Math.random() * 10) + 41;
+            }
+            
+            // Ensure score doesn't exceed 50
+            return Math.min(score, 50);
         }
-    }
-
-    // Hide error message
-    function hideError() {
-        const errorMessage = document.getElementById('errorMessage');
-        if (errorMessage) {
-            errorMessage.classList.add('d-none');
+        
+        // Function to format date
+        function formatDate(date) {
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            
+            const month = monthNames[date.getMonth()];
+            const day = date.getDate();
+            const year = date.getFullYear();
+            
+            let hours = date.getHours();
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            
+            return `${month} ${day}, ${year}, ${hours}:${minutes} ${ampm}`;
         }
-    }
-
-    // Initialize when DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOM loaded, initializing application...');
-        initializeApp();
-    });
-
-    // Add refresh functionality
-    function refreshCourseData() {
-        hideError();
-        initializeApp();
-    }
-</script>
+        
+        // Function to update the circular progress
+        function updateCircleProgress(percentage) {
+            const circumference = 283; // 2 * π * 45
+            const offset = circumference - (percentage / 100) * circumference;
+            
+            circleProgress.style.strokeDashoffset = offset;
+            
+            // Change color based on percentage
+            if (percentage >= 70) {
+                circleProgress.style.stroke = "#4CAF50"; // Green
+            } else if (percentage >= 50) {
+                circleProgress.style.stroke = "#FF9800"; // Orange
+            } else {
+                circleProgress.style.stroke = "#F44336"; // Red
+            }
+        }
+        
+        // Function to update the history list
+        function updateHistoryList() {
+            historyListEl.innerHTML = '';
+            
+            history.forEach(item => {
+                const percentage = Math.round((item.score / 50) * 100);
+                const listItem = document.createElement('li');
+                listItem.className = 'history-item';
+                
+                // Color code based on score
+                let borderColor = "#F44336"; // Red for <50%
+                if (percentage >= 50) borderColor = "#FF9800"; // Orange for 50-69%
+                if (percentage >= 70) borderColor = "#4CAF50"; // Green for >=70%
+                
+                listItem.style.borderLeftColor = borderColor;
+                
+                listItem.innerHTML = `
+                    <span class="history-score">${item.score}/50 (${percentage}%)</span>
+                    <span class="history-date">${item.date}</span>
+                `;
+                
+                historyListEl.appendChild(listItem);
+            });
+        }
+        
+        // Function to update the entire UI
+        function updateUI(newScore, newPercentage) {
+            // Update text elements
+            attemptCountEl.textContent = attemptCount;
+            currentScoreEl.textContent = newScore;
+            lastAttemptDateEl.textContent = lastAttemptDate;
+            percentageValueEl.textContent = `${newPercentage}%`;
+            
+            // Update best score display
+            const bestPercentage = Math.round((bestScore / 50) * 100);
+            bestScoreEl.textContent = `${bestScore}/50 (${bestPercentage}%)`;
+            
+            // Update progress circle
+            updateCircleProgress(newPercentage);
+            
+            // Update history list
+            updateHistoryList();
+        }
+        
+        // Function to show retest feedback
+        function showRetestFeedback(newScore, newPercentage) {
+            // Add animation class to the container
+            const container = document.querySelector('.assessment-status');
+            container.classList.add('new-attempt');
+            
+            // Remove animation class after it completes
+            setTimeout(() => {
+                container.classList.remove('new-attempt');
+            }, 1500);
+            
+            // Show a notification message
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: ${newPercentage >= 50 ? '#4CAF50' : '#FF9800'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                font-weight: 600;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            // Add keyframe animation for slide-in
+            const styleSheet = document.createElement('style');
+            styleSheet.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(styleSheet);
+            
+            message.textContent = `New attempt recorded: ${newScore}/50 (${newPercentage}%)`;
+            document.body.appendChild(message);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                message.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(message);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Initialize history list
+        updateHistoryList();
+    </script>
 </body>
 </html>
-
-
-
-
