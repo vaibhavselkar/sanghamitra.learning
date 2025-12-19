@@ -433,20 +433,20 @@ async function loadCourseData() {
             return;
         }
 
-        // SINGLE CORRECT ENDPOINT - matches your collection name
-        const apiUrl = `https://sanghamitra-learnworld.vercel.app/api/iitm_math_scores?email=${encodeURIComponent(currentUser.email)}`;
-        console.log('📡 Fetching from:', apiUrl);
+        // ✅ CHANGE THIS LINE - Use the EXISTING endpoint WITHOUT underscore
+        const apiUrl = `https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(currentUser.email)}`;
+        console.log('📡 Fetching from EXISTING endpoint:', apiUrl);
         
         const response = await fetch(apiUrl, { credentials: 'include' });
         
         console.log('📡 Response Status:', response.status, response.statusText);
         
         if (response.status === 404) {
-            console.error('❌ Endpoint not found (404). Please check:');
-            console.log('1. Backend has route: /api/iitm_math_scores');
-            console.log('2. Collection name is: iitm_math_scores');
-            console.log('3. Backend is running and deployed');
-            showError('API endpoint not found. Please check backend configuration.');
+            console.error('❌ Endpoint not found (404). Your backend has these IITM math routes:');
+            console.log('1. /api/iitmmath_scores (GET & POST) - This is the CORRECT one');
+            console.log('2. /api/iitm-math-questions/quiz1, quiz2, etc.');
+            console.log('3. Collection name: iitm_math_scores');
+            showError('API endpoint not found. Contact admin to check backend routes.');
             renderCourses(null);
             return;
         }
@@ -456,35 +456,41 @@ async function loadCourseData() {
         }
         
         const data = await response.json();
-        console.log('📦 API Response:', data);
+        console.log('📦 API Response Structure:', {
+            success: data.success,
+            hasData: !!data.data,
+            hasScores: data.data?.scores?.length || 0,
+            keys: Object.keys(data)
+        });
         
-        // Extract scores - handle different response structures
+        // 🔄 CORRECTED: Extract scores from the ACTUAL structure
         let scores = [];
         
-        if (Array.isArray(data)) {
+        if (data.success && data.data) {
+            // Your backend returns: { success: true, data: { scores: [...] } }
+            if (data.data.scores && Array.isArray(data.data.scores)) {
+                scores = data.data.scores;
+                console.log('✅ Found scores in: data.data.scores');
+            } else if (Array.isArray(data.data)) {
+                scores = data.data;
+                console.log('✅ Found scores in: data.data (array)');
+            }
+        } else if (Array.isArray(data)) {
             scores = data;
-            console.log('✅ Found scores array directly');
-        } else if (data.scores && Array.isArray(data.scores)) {
-            scores = data.scores;
-            console.log('✅ Found scores in data.scores');
-        } else if (data.data && Array.isArray(data.data)) {
-            scores = data.data;
-            console.log('✅ Found scores in data.data');
-        } else if (data.data && data.data.scores && Array.isArray(data.data.scores)) {
-            scores = data.data.scores;
-            console.log('✅ Found scores in data.data.scores');
-        } else {
-            console.warn('⚠️ Unknown response structure:', Object.keys(data));
-            scores = [];
+            console.log('✅ Found scores directly as array');
         }
         
         console.log(`📊 Found ${scores.length} assessment records`);
         
         if (scores.length > 0) {
-            console.log('📝 First assessment:', scores[0]);
+            console.log('📝 First 2 assessments:', scores.slice(0, 2));
+            
+            // Debug: Show all topics in the data
+            const topics = [...new Set(scores.map(s => s.topic))];
+            console.log('📚 Topics found in data:', topics);
         } else {
             console.log('ℹ️ No assessments found for this user.');
-            console.log('To test, please take at least one quiz.');
+            console.log('To see data, take a quiz first at: quiz1.html, quiz2.html, etc.');
         }
         
         renderCourses({ scores: scores });
@@ -762,5 +768,6 @@ async function loadCourseData() {
 </script>
 </body>
 </html>
+
 
 
