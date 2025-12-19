@@ -902,27 +902,25 @@ testImageAccess();
             let optionsHtml = '';
             
             if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-                // For multiple choice questions
-optionsHtml = question.options.map((option, optIndex) => {
-    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    return `
-        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
-            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-        </div>
-    `;
-}).join('');
-
-// For multiple select questions
-optionsHtml = question.options.map((option, optIndex) => {
-    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    return `
-        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
-            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-        </div>
-    `;
-}).join('');
+                optionsHtml = question.options.map((option, optIndex) => {
+                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    return `
+                       <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
+                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        </div>
+                    `;
+                }).join('');
+            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+                optionsHtml = question.options.map((option, optIndex) => {
+                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    return `
+                       <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
+                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        </div>
+                    `;
+                }).join('');
             } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
                 let placeholder, formatExample, formatHint;
                 
@@ -1134,103 +1132,40 @@ if (question.image_file) {
             }
         }
 
-      function selectOption(questionIndex, value, type, event) {
-    console.log(`🔘 Option clicked: Q${questionIndex + 1}, Value: "${value}", Type: ${type}`);
-    
-    const question = questions[questionIndex];
-    if (!question) {
-        console.error('Question not found at index:', questionIndex);
-        return;
-    }
-    
-    // Prevent default behavior only for specific cases
-    if (event && event.preventDefault) {
-        event.preventDefault();
-    }
-    
-    // Get the clicked element
-    let clickedElement;
-    if (event && event.target) {
-        clickedElement = event.target;
-    } else if (event && event.currentTarget) {
-        clickedElement = event.currentTarget;
-    } else {
-        console.error('No event or element provided');
-        return;
-    }
-    
-    // Get the clicked option element
-    let clickedOption;
-    if (clickedElement.classList.contains('option')) {
-        clickedOption = clickedElement;
-    } else {
-        clickedOption = clickedElement.closest('.option');
-    }
-    
-    if (!clickedOption) {
-        console.error('Could not find option element');
-        return;
-    }
-    
-    if (type === 'radio') {
-        // For single choice questions
-        userAnswers[questionIndex] = value.trim();
-        
-        // Update UI: Unselect all options, select clicked one
-        const allOptions = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        allOptions.forEach(option => {
-            option.checked = false;
-            const parentOption = option.closest('.option');
-            if (parentOption) {
-                parentOption.classList.remove('selected');
-            }
-        });
-        
-        // Check the clicked radio and mark as selected
-        const radioInput = clickedOption.querySelector(`input[type="radio"]`);
-        if (radioInput) {
-            radioInput.checked = true;
-            clickedOption.classList.add('selected');
-        }
-        
-    } else if (type === 'checkbox') {
-        // For multiple select questions
-        if (!userAnswers[questionIndex]) {
-            userAnswers[questionIndex] = [];
-        }
-        
-        // Find the checkbox in the clicked option
-        const checkbox = clickedOption.querySelector(`input[type="checkbox"]`);
-        
-        if (checkbox) {
-            // Toggle the checkbox state
-            checkbox.checked = !checkbox.checked;
-            
-            if (checkbox.checked) {
-                // Add to answers array if not already present
-                if (!userAnswers[questionIndex].includes(value.trim())) {
-                    userAnswers[questionIndex].push(value.trim());
-                }
+        function selectOption(questionIndex, value, type, event) {
+            if (type === 'radio') {
+                userAnswers[questionIndex] = value.trim();
+                // Remove 'selected' class from all options AND uncheck all radio buttons
+                const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
+                options.forEach(opt => {
+                    opt.closest('.option').classList.remove('selected');
+                    opt.checked = false;
+                });
+                // Find the clicked option - handle clicks on div, input, or label
+                const clickedOption = event.target.closest('.option');
+                const clickedInput = clickedOption.querySelector('input');
+                clickedInput.checked = true;
                 clickedOption.classList.add('selected');
-            } else {
-                // Remove from answers array
-                const index = userAnswers[questionIndex].indexOf(value.trim());
-                if (index > -1) {
-                    userAnswers[questionIndex].splice(index, 1);
-                }
-                clickedOption.classList.remove('selected');
+            } else if (type === 'checkbox') {
+                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
                 
-                // Clean up empty arrays
-                if (userAnswers[questionIndex].length === 0) {
-                    delete userAnswers[questionIndex];
+                const checkbox = event.target.closest('.option').querySelector('input');
+                if (checkbox.checked) {
+                    if (!userAnswers[questionIndex].includes(value.trim())) {
+                        userAnswers[questionIndex].push(value.trim());
+                    }
+                    event.target.closest('.option').classList.add('selected');
+                } else {
+                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+                    event.target.closest('.option').classList.remove('selected');
+                    
+                    if (userAnswers[questionIndex].length === 0) {
+                        delete userAnswers[questionIndex];
+                    }
                 }
             }
+            updateAnswerStatus();
         }
-    }
-    
-    console.log(`💾 Saved answer for Q${questionIndex + 1}:`, userAnswers[questionIndex]);
-    updateAnswerStatus();
-}
 
         function handleNumericInput(questionIndex, value) {
             const question = questions[questionIndex];
@@ -1821,10 +1756,6 @@ if (question.image_file) {
     </script>
 </body>
 </html>
-
-
-
-
 
 
 
