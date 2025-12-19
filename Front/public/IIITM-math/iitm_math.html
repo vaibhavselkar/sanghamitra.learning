@@ -426,53 +426,69 @@
     }
 
     // Load course data from API
-    async function loadCourseData() {
-        try {
-            if (!currentUser) {
-                console.warn('No user session found');
-                renderCourses(null);
-                return;
-            }
+    // Load course data from API
+async function loadCourseData() {
+    try {
+        if (!currentUser) {
+            console.warn('No user session found');
+            renderCourses(null);
+            return;
+        }
 
-            const response = await fetch(
-                `https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(currentUser.email)}`,
-                { credentials: 'include' }
-            );
+        const response = await fetch(
+            `https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(currentUser.email)}`,
+            { credentials: 'include' }
+        );
 
-            let userScoreData = null;
-            if (response.ok) {
-                const apiResponse = await response.json();
-                console.log('📦 API Response received');
-                
-                if (apiResponse.success && apiResponse.data && apiResponse.data.scores) {
-                    userScoreData = apiResponse.data;
-                    console.log(`Found ${userScoreData.scores.length} total scores`);
-                    
-                    // Debug topic grouping
-                    debugTopicGrouping(userScoreData);
+        console.log('API Response status:', response.status);
+        
+        let userScoreData = null;
+        if (response.ok) {
+            const apiResponse = await response.json();
+            console.log('📦 Full API Response:', JSON.stringify(apiResponse, null, 2));
+            
+            // Try different response formats
+            if (apiResponse.success) {
+                if (apiResponse.data && apiResponse.data.scores) {
+                    userScoreData = { scores: apiResponse.data.scores };
+                    console.log('✅ Found scores in: apiResponse.data.scores');
+                } else if (apiResponse.scores) {
+                    userScoreData = { scores: apiResponse.scores };
+                    console.log('✅ Found scores in: apiResponse.scores');
                 } else if (apiResponse.data && Array.isArray(apiResponse.data)) {
                     userScoreData = { scores: apiResponse.data };
-                    console.log(`Found ${userScoreData.scores.length} total scores (array format)`);
-                    
-                    // Debug topic grouping
-                    debugTopicGrouping(userScoreData);
+                    console.log('✅ Found scores in: apiResponse.data (array)');
+                } else if (Array.isArray(apiResponse)) {
+                    userScoreData = { scores: apiResponse };
+                    console.log('✅ API response is array itself');
                 } else {
-                    console.log('No score data found');
+                    console.log('❌ No scores found in response');
                     userScoreData = { scores: [] };
                 }
             } else {
-                console.warn('No assessment data found or API error');
+                console.log('❌ API response not successful:', apiResponse.message);
                 userScoreData = { scores: [] };
             }
-
-            renderCourses(userScoreData);
             
-        } catch (error) {
-            console.error('Failed to load course data:', error);
-            showError('Failed to load course data. Please try again.');
-            renderCourses(null);
+            if (userScoreData.scores && userScoreData.scores.length > 0) {
+                console.log(`✅ Found ${userScoreData.scores.length} scores for user`);
+                console.log('Sample score:', userScoreData.scores[0]);
+            } else {
+                console.log('⚠️ No scores found for user');
+            }
+        } else {
+            console.warn('❌ API returned error status:', response.status);
+            userScoreData = { scores: [] };
         }
+
+        renderCourses(userScoreData);
+        
+    } catch (error) {
+        console.error('Failed to load course data:', error);
+        showError('Failed to load course data. Please try again.');
+        renderCourses(null);
     }
+}
 
     // Debug topic grouping
     function debugTopicGrouping(userScoreData) {
@@ -740,3 +756,4 @@
 </script>
 </body>
 </html>
+
