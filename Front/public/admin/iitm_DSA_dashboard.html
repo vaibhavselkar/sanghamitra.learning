@@ -523,15 +523,27 @@
       filteredData = [...allData];
     }
 
-    // Calculate MCQ score from submission
+    // Calculate MCQ score from submission - handles both formats
     function calculateMCQScore(submission) {
       if (!submission.questions || submission.questions.length === 0) {
         return { score: 0, maxScore: 0, percentage: 0 };
       }
       
-      const mcqQuestions = submission.questions.filter(q => 
-        q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical'
-      );
+      // Detect MCQ questions in both formats
+      const mcqQuestions = submission.questions.filter(q => {
+        // Format 2: Has explicit MCQ type
+        if (q.type && (q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical')) {
+          return true;
+        }
+        // Format 1: Not a coding question (has options with content or userAnswer)
+        if (Array.isArray(q.options) && q.options.length > 0) {
+          return true;
+        }
+        if (q.userAnswer !== undefined || q.correctAnswer !== undefined) {
+          return true;
+        }
+        return false;
+      });
       
       if (mcqQuestions.length === 0) {
         return { score: 0, maxScore: 0, percentage: 0 };
@@ -548,29 +560,44 @@
       };
     }
 
-    // Determine quiz type from submission
-// Determine quiz type from submission (simplified - no mixed quizzes)
-// Determine quiz type from submission
-// Determine quiz type from submission
-function determineQuizType(submission) {
-  if (!submission.questions || submission.questions.length === 0) {
-    return 'Unknown';
-  }
-  
-  // Check if any question is MCQ type
-  const hasMCQ = submission.questions.some(q => 
-    q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical'
-  );
-  
-  // If it has MCQ questions, it's MCQ quiz, otherwise it's Coding quiz
-  if (hasMCQ) {
-    return 'MCQ';
-  } else {
-    return 'Coding';
-  }
-}
+    // Determine quiz type from submission - handles both JSON formats
+    function determineQuizType(submission) {
+      if (!submission.questions || submission.questions.length === 0) {
+        return 'Unknown';
+      }
+      
+      const firstQuestion = submission.questions[0];
+      
+      // Format 2: Has explicit type field (mcq-single, numerical, etc.)
+      if (firstQuestion.type && 
+          (firstQuestion.type === 'mcq-single' || 
+          firstQuestion.type === 'mcq-multiple' || 
+          firstQuestion.type === 'numerical')) {
+        return 'MCQ';
+      }
+      
+      // Format 1: Coding questions - detected by code property or empty options array
+      if ((firstQuestion.code !== undefined) || 
+          (Array.isArray(firstQuestion.options) && firstQuestion.options.length === 0)) {
+        return 'Coding';
+      }
+      
+      // Check all questions to be sure
+      const hasExplicitMCQType = submission.questions.some(q => 
+        q.type && (q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical')
+      );
+      
+      const hasCodingIndicators = submission.questions.some(q => 
+        q.code !== undefined || (Array.isArray(q.options) && q.options.length === 0)
+      );
+      
+      if (hasExplicitMCQType) return 'MCQ';
+      if (hasCodingIndicators) return 'Coding';
+      
+      return 'Unknown';
+    }
 
-// Calculate statistics
+    // Calculate statistics
     function calculateStatistics() {
       if (filteredData.length === 0) {
         document.getElementById('totalStudents').textContent = '0';
@@ -619,33 +646,30 @@ function determineQuizType(submission) {
         const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
         const hasQuestions = item.questions && item.questions.length > 0;
         
-        // Main row
-        // Main row
-  // Main row
-// Main row
-tbody.innerHTML += `
-  <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
-    <td>
-      ${hasQuestions ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
-    </td>
-    <td><strong>${item.username}</strong></td>
-    <!-- REMOVED EMAIL COLUMN -->
-    <td><span class="badge bg-light text-dark">${item.topic}</span></td>
-    <td><strong>${parseFloat(item.score.toFixed(2))}/${item.maxScore}</strong></td>
-    <td><span class="score-badge ${scoreClass}">${parseFloat(item.percentage.toFixed(2))}%</span></td>
-    <!-- ADDED QUIZ TYPE COLUMN -->
-    <td>
-      <span class="badge ${getQuizTypeBadgeClass(item.quizType)}">
-        ${item.quizType}
-      </span>
-    </td>
-    <!-- REMOVED MCQ SCORE COLUMN -->
-    <td>
-      <div>${formatDate(item.timestamp)}</div>
-      ${time ? `<small class="text-muted">${time}</small>` : ''}
-    </td>
-  </tr>
-`;
+       
+        tbody.innerHTML += `
+          <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
+            <td>
+              ${hasQuestions ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
+            </td>
+            <td><strong>${item.username}</strong></td>
+            <!-- REMOVED EMAIL COLUMN -->
+            <td><span class="badge bg-light text-dark">${item.topic}</span></td>
+            <td><strong>${parseFloat(item.score.toFixed(2))}/${item.maxScore}</strong></td>
+            <td><span class="score-badge ${scoreClass}">${parseFloat(item.percentage.toFixed(2))}%</span></td>
+            <!-- ADDED QUIZ TYPE COLUMN -->
+            <td>
+              <span class="badge ${getQuizTypeBadgeClass(item.quizType)}">
+                ${item.quizType}
+              </span>
+            </td>
+            <!-- REMOVED MCQ SCORE COLUMN -->
+            <td>
+              <div>${formatDate(item.timestamp)}</div>
+              ${time ? `<small class="text-muted">${time}</small>` : ''}
+            </td>
+          </tr>
+        `;
         
         // Detail row (initially hidden)
         if (hasQuestions) {
@@ -665,209 +689,240 @@ tbody.innerHTML += `
     }
 
     // Generate detailed student submission breakdown
-    // Generate detailed student submission breakdown
-function generateStudentDetail(item, submissionIndex) {
-  const questions = item.questions || [];
-  
-  if (questions.length === 0) {
-    return '<p class="text-muted">No question data available.</p>';
-  }
-
-  let detailHtml = `
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h6 class="mb-0">
-        <i class="bi bi-person-badge me-2"></i>${item.username} - Submission Details
-      </h6>
-      <div>
-        <span class="badge bg-primary me-2">Total: ${item.score}/${item.maxScore} (${item.percentage}%)</span>
-        ${item.mcqMaxScore > 0 ? 
-          `<span class="badge bg-info">MCQ: ${item.mcqScore}/${item.mcqMaxScore} (${item.mcqPercentage}%)</span>` : 
-          ''
-        }
-      </div>
-    </div>
-    
-    <div class="alert alert-info mb-3">
-      <i class="bi bi-info-circle me-2"></i>
-      <strong>${item.topic}</strong> - Submitted on ${new Date(item.timestamp).toLocaleString()}
-    </div>
-  `;
-
-  // Separate coding and MCQ questions
-  const codingQuestions = questions.filter(q => q.type === 'coding');
-  const mcqQuestions = questions.filter(q => 
-    q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical'
-  );
-
-  // Show coding questions first
-  if (codingQuestions.length > 0) {
-    detailHtml += `<h5 class="mb-3"><i class="bi bi-code-slash me-2"></i>Coding Questions (${codingQuestions.length})</h5>`;
-    
-    codingQuestions.forEach((question, qIndex) => {
-      const testsPassed = question.testResults ? question.testResults.filter(t => t.passed).length : 0;
-      const totalTests = question.testResults ? question.testResults.length : 0;
-      const allPassed = testsPassed === totalTests && totalTests > 0;
+    function generateStudentDetail(item, submissionIndex) {
+      const questions = item.questions || [];
       
-      detailHtml += `
-        <div class="question-detail mb-4">
-          <div class="question-header">
-            <div class="d-flex justify-content-between align-items-center">
-              <h6 class="mb-0">
-                <i class="bi bi-code-square me-1"></i>Question ${question.questionId || qIndex + 1}: ${question.title || 'Untitled'}
-              </h6>
-              <div>
-                <span class="badge ${allPassed ? 'bg-success' : 'bg-danger'}">
-                  ${testsPassed}/${totalTests} Tests Passed
-                </span>
-                <span class="badge bg-light text-dark ms-2">
-                  ${question.score}/${question.maxScore} Points
-                </span>
-              </div>
-            </div>
+      if (questions.length === 0) {
+        return '<p class="text-muted">No question data available.</p>';
+      }
+
+      let detailHtml = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0">
+            <i class="bi bi-person-badge me-2"></i>${item.username} - Submission Details
+          </h6>
+          <div>
+            <span class="badge bg-primary me-2">Total: ${item.score}/${item.maxScore} (${item.percentage}%)</span>
+            ${item.mcqMaxScore > 0 ? 
+              `<span class="badge bg-info">MCQ: ${item.mcqScore}/${item.mcqMaxScore} (${item.mcqPercentage}%)</span>` : 
+              ''
+            }
           </div>
+        </div>
+        
+        <div class="alert alert-info mb-3">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>${item.topic}</strong> - Submitted on ${new Date(item.timestamp).toLocaleString()}
+        </div>
+      `;
+
+      // ========== UPDATED CODE STARTS HERE ==========
+      // Separate coding and MCQ questions - HANDLES BOTH FORMATS
+      
+      // Format 1: Coding questions (no type field, but has code property or empty options array)
+      const codingQuestions = questions.filter(q => {
+        // If it has explicit type: 'coding'
+        if (q.type === 'coding') return true;
+        // If it has a code property (even empty string)
+        if (q.code !== undefined) return true;
+        // If it has empty options array and no explicit MCQ type
+        if (Array.isArray(q.options) && q.options.length === 0 && 
+            !(q.type && (q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical'))) {
+          return true;
+        }
+        return false;
+      });
+      
+      // Format 2: MCQ questions (has explicit type field or options with content)
+      const mcqQuestions = questions.filter(q => {
+        // If it has explicit MCQ type
+        if (q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical') {
+          return true;
+        }
+        // If it has options array with content
+        if (Array.isArray(q.options) && q.options.length > 0) {
+          return true;
+        }
+        // If it has userAnswer or correctAnswer (MCQ indicators)
+        if (q.userAnswer !== undefined || q.correctAnswer !== undefined) {
+          return true;
+        }
+        return false;
+      });
+      
+      console.log(`DEBUG for ${item.username}: Coding questions: ${codingQuestions.length}, MCQ questions: ${mcqQuestions.length}`);
+      // ========== UPDATED CODE ENDS HERE ==========
+
+      // Show coding questions first
+      if (codingQuestions.length > 0) {
+        detailHtml += `<h5 class="mb-3"><i class="bi bi-code-slash me-2"></i>Coding Questions (${codingQuestions.length})</h5>`;
+        
+        codingQuestions.forEach((question, qIndex) => {
+          const testsPassed = question.testResults ? question.testResults.filter(t => t.passed).length : 0;
+          const totalTests = question.testResults ? question.testResults.length : 0;
+          const allPassed = testsPassed === totalTests && totalTests > 0;
           
-          ${question.description ? `
-            <div class="mb-3">
-              <strong>Question:</strong>
-              <div class="p-2 bg-light rounded mt-1">
-                ${escapeHtml(question.description)}
-              </div>
-            </div>
-          ` : ''}
-          
-          ${question.code ? `
-            <div class="mt-3">
-              <div class="code-header">
-                <span><i class="bi bi-file-code me-1"></i>Submitted Code</span>
-                <button class="copy-btn" onclick="copyCode(${submissionIndex}, ${qIndex})">
-                  <i class="bi bi-clipboard me-1"></i>Copy
-                </button>
-              </div>
-              <div class="code-container">
-                <pre><code class="language-python" id="code-${submissionIndex}-${qIndex}">${escapeHtml(question.code)}</code></pre>
-              </div>
-            </div>
-          ` : '<p class="text-muted mt-3">No code submitted</p>'}
-          
-          ${question.testResults && question.testResults.length > 0 ? `
-            <div class="test-results-container mt-3">
-              <h6><i class="bi bi-check-circle me-1"></i>Test Results:</h6>
-              ${question.testResults.map((test, tIndex) => `
-                <div class="test-result ${test.passed ? 'test-passed' : 'test-failed'}">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                      <strong>${test.passed ? '✓' : '✗'} Test ${tIndex + 1}</strong>
-                      ${test.error ? `<div class="text-danger mt-1"><small>${escapeHtml(test.error)}</small></div>` : ''}
-                      ${test.output ? `
-                        <div class="mt-1">
-                          <small class="text-muted">Output:</small>
-                          <pre class="mb-0" style="font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-top: 0.25rem;">${escapeHtml(JSON.stringify(test.output, null, 2))}</pre>
-                        </div>
-                      ` : ''}
-                    </div>
-                    <span class="badge ${test.passed ? 'bg-success' : 'bg-danger'}">
-                      ${test.passed ? 'PASSED' : 'FAILED'}
+          detailHtml += `
+            <div class="question-detail mb-4">
+              <div class="question-header">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">
+                    <i class="bi bi-code-square me-1"></i>Question ${question.questionId || qIndex + 1}: ${question.title || 'Untitled'}
+                  </h6>
+                  <div>
+                    ${totalTests > 0 ? `
+                      <span class="badge ${allPassed ? 'bg-success' : 'bg-danger'}">
+                        ${testsPassed}/${totalTests} Tests Passed
+                      </span>
+                    ` : ''}
+                    <span class="badge bg-light text-dark ms-2">
+                      ${question.score}/${question.maxScore} Points
                     </span>
                   </div>
                 </div>
-              `).join('')}
+              </div>
+              
+              ${question.description ? `
+                <div class="mb-3">
+                  <strong>Question:</strong>
+                  <div class="p-2 bg-light rounded mt-1">
+                    ${escapeHtml(question.description)}
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${question.code !== undefined ? `
+                <div class="mt-3">
+                  <div class="code-header">
+                    <span><i class="bi bi-file-code me-1"></i>Submitted Code</span>
+                    <button class="copy-btn" onclick="copyCode(${submissionIndex}, ${qIndex})">
+                      <i class="bi bi-clipboard me-1"></i>Copy
+                    </button>
+                  </div>
+                  <div class="code-container">
+                    <pre><code class="language-python" id="code-${submissionIndex}-${qIndex}">${escapeHtml(question.code || '')}</code></pre>
+                  </div>
+                </div>
+              ` : '<p class="text-muted mt-3">No code submitted</p>'}
+              
+              ${question.testResults && question.testResults.length > 0 ? `
+                <div class="test-results-container mt-3">
+                  <h6><i class="bi bi-check-circle me-1"></i>Test Results:</h6>
+                  ${question.testResults.map((test, tIndex) => `
+                    <div class="test-result ${test.passed ? 'test-passed' : 'test-failed'}">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                          <strong>${test.passed ? '✓' : '✗'} Test ${tIndex + 1}</strong>
+                          ${test.error ? `<div class="text-danger mt-1"><small>${escapeHtml(test.error)}</small></div>` : ''}
+                          ${test.output ? `
+                            <div class="mt-1">
+                              <small class="text-muted">Output:</small>
+                              <pre class="mb-0" style="font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-top: 0.25rem;">${escapeHtml(JSON.stringify(test.output, null, 2))}</pre>
+                            </div>
+                          ` : ''}
+                        </div>
+                        <span class="badge ${test.passed ? 'bg-success' : 'bg-danger'}">
+                          ${test.passed ? 'PASSED' : 'FAILED'}
+                        </span>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
             </div>
-          ` : ''}
-        </div>
-      `;
-    });
-  }
+          `;
+        });
+      }
 
-  // Show MCQ questions with scrollable container
-  if (mcqQuestions.length > 0) {
-    detailHtml += `
-      <div class="mb-3">
-        <h5><i class="bi bi-check-square me-2"></i>MCQ Questions (${mcqQuestions.length})</h5>
-        <div class="mcq-questions-container" style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
-    `;
-    
-    mcqQuestions.forEach((question, qIndex) => {
-      const isCorrect = question.score === question.maxScore;
-      
-      detailHtml += `
-        <div class="mcq-detail mb-3">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="mb-0">
-              <i class="bi bi-question-circle me-1"></i>Question ${question.questionId || qIndex + 1}: ${question.title || 'Untitled'}
-            </h6>
-            <div>
-              <span class="badge ${isCorrect ? 'bg-success' : 'bg-danger'}">
-                ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
-              </span>
-              <span class="badge bg-light text-dark ms-2">
-                ${question.score}/${question.maxScore} Points
-              </span>
-            </div>
-          </div>
+      // Show MCQ questions with scrollable container
+      if (mcqQuestions.length > 0) {
+        detailHtml += `
+          <div class="mb-3">
+            <h5><i class="bi bi-check-square me-2"></i>MCQ Questions (${mcqQuestions.length})</h5>
+            <div class="mcq-questions-container" style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
+        `;
+        
+        mcqQuestions.forEach((question, qIndex) => {
+          const isCorrect = question.score === question.maxScore;
           
-          ${question.description ? `
-            <div class="mb-3">
-              <strong>Question:</strong>
-              <div class="p-2 bg-light rounded mt-1">
-                ${escapeHtml(question.description)}
+          detailHtml += `
+            <div class="mcq-detail mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">
+                  <i class="bi bi-question-circle me-1"></i>Question ${question.questionId || qIndex + 1}: ${question.title || 'Untitled'}
+                </h6>
+                <div>
+                  <span class="badge ${isCorrect ? 'bg-success' : 'bg-danger'}">
+                    ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                  </span>
+                  <span class="badge bg-light text-dark ms-2">
+                    ${question.score}/${question.maxScore} Points
+                  </span>
+                </div>
               </div>
-            </div>
-          ` : ''}
-          
-          ${question.options && question.options.length > 0 ? `
-            <div class="mb-3">
-              <strong>Options:</strong>
-              ${question.options.map((option, oIndex) => {
-                const isCorrectOption = Array.isArray(question.correctAnswer) 
-                  ? question.correctAnswer.includes(oIndex)
-                  : question.correctAnswer === oIndex;
-                
-                const isUserAnswer = Array.isArray(question.userAnswer)
-                  ? question.userAnswer.includes(oIndex)
-                  : question.userAnswer === oIndex;
-                
-                let optionClass = 'mcq-option';
-                if (isCorrectOption) optionClass += ' mcq-correct';
-                if (isUserAnswer) optionClass += ' mcq-user-answer';
-                
-                return `<div class="${optionClass}">${String.fromCharCode(65 + oIndex)}. ${escapeHtml(option)}</div>`;
-              }).join('')}
-            </div>
-          ` : ''}
-          
-          <div class="row">
-            <div class="col-md-6">
-              <strong>User Answer:</strong>
-              <div class="mt-1">
-                ${formatMCQAnswer(question.userAnswer, question.options)}
+              
+              ${question.description ? `
+                <div class="mb-3">
+                  <strong>Question:</strong>
+                  <div class="p-2 bg-light rounded mt-1">
+                    ${escapeHtml(question.description)}
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${question.options && question.options.length > 0 ? `
+                <div class="mb-3">
+                  <strong>Options:</strong>
+                  ${question.options.map((option, oIndex) => {
+                    const isCorrectOption = Array.isArray(question.correctAnswer) 
+                      ? question.correctAnswer.includes(oIndex)
+                      : question.correctAnswer === oIndex;
+                    
+                    const isUserAnswer = Array.isArray(question.userAnswer)
+                      ? question.userAnswer.includes(oIndex)
+                      : question.userAnswer === oIndex;
+                    
+                    let optionClass = 'mcq-option';
+                    if (isCorrectOption) optionClass += ' mcq-correct';
+                    if (isUserAnswer) optionClass += ' mcq-user-answer';
+                    
+                    return `<div class="${optionClass}">${String.fromCharCode(65 + oIndex)}. ${escapeHtml(option)}</div>`;
+                  }).join('')}
+                </div>
+              ` : ''}
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <strong>User Answer:</strong>
+                  <div class="mt-1">
+                    ${formatMCQAnswer(question.userAnswer, question.options)}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <strong>Correct Answer:</strong>
+                  <div class="mt-1">
+                    ${formatMCQAnswer(question.correctAnswer, question.options)}
+                  </div>
+                </div>
               </div>
+              
+              ${question.explanation ? `
+                <div class="mt-3">
+                  <strong>Explanation:</strong>
+                  <div class="mt-1 p-2 bg-light rounded">
+                    ${escapeHtml(question.explanation)}
+                  </div>
+                </div>
+              ` : ''}
             </div>
-            <div class="col-md-6">
-              <strong>Correct Answer:</strong>
-              <div class="mt-1">
-                ${formatMCQAnswer(question.correctAnswer, question.options)}
-              </div>
-            </div>
-          </div>
-          
-          ${question.explanation ? `
-            <div class="mt-3">
-              <strong>Explanation:</strong>
-              <div class="mt-1 p-2 bg-light rounded">
-                ${escapeHtml(question.explanation)}
-              </div>
-            </div>
-          ` : ''}
-        </div>
-      `;
-    });
-    
-    detailHtml += `</div></div>`;
-  }
+          `;
+        });
+        
+        detailHtml += `</div></div>`;
+      }
 
-  return detailHtml;
-}
-
+      return detailHtml;
+    }
     // Format MCQ answer for display
     function formatMCQAnswer(answer, options) {
       if (answer === null || answer === undefined) {
