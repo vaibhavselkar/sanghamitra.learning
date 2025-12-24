@@ -286,7 +286,7 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-text" id="progressText">Question 1 of 50</div>
+                
             </div>
             
             <div id="questionContainer"></div>
@@ -533,19 +533,18 @@ async function initializeQuiz() {
                 'hard': '#dc3545'
             };
 
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${question.question_number || (currentQuestionIndex + 1)}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${question.difficulty}
-                        </span>
-                    </div>
-                </div>
-                <div class="question-text">${question.question_text}</div>
-                ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
-                <div class="options">${optionsHtml}</div>
-            `;
+           questionDiv.innerHTML = `
+    <div class="question-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                ${question.difficulty}
+            </span>
+        </div>
+    </div>
+    <div class="question-text">${question.question_text}</div>
+    ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
+    <div class="options">${optionsHtml}</div>
+`;
 
             container.appendChild(questionDiv);
             
@@ -585,7 +584,6 @@ async function initializeQuiz() {
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             // Update navigation buttons
@@ -1149,6 +1147,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
