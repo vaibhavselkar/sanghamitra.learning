@@ -485,13 +485,11 @@ async function initializeQuiz() {
     questionDiv.className = 'question-card';
 
     // Clean the question text - remove "UNDEFINED" from the beginning
-    let cleanQuestionText = question.question_text;
-    // Remove "UNDEFINED" if it appears at the start of the question
-    cleanQuestionText = cleanQuestionText.replace(/^UNDEFINED\s*\n?\s*/, '');
-    cleanQuestionText = cleanQuestionText.replace(/^\d+\s+UNDEFINED\s*\n?\s*/, '');
-    // Also remove any leading numbers followed by spaces
-    cleanQuestionText = cleanQuestionText.replace(/^\d+\.?\s*/, '');
-    cleanQuestionText = cleanQuestionText.trim();
+    // NEW CODE - USE THIS INSTEAD:
+let cleanQuestionText = question.question_text;
+cleanQuestionText = cleanQuestionText.replace(/UNDEFINED/gi, '');
+cleanQuestionText = cleanQuestionText.replace(/^\d+\.?\s*/, '');
+cleanQuestionText = cleanQuestionText.replace(/\s+/g, ' ').trim();
 
     let optionsHtml = '';
     if (question.type === 'multiple_choice') {
@@ -1157,6 +1155,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
