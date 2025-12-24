@@ -281,7 +281,7 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-text" id="progressText">Question 1 of 50</div>
+               
             </div>
             
             <div id="questionContainer"></div>
@@ -787,7 +787,6 @@
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
@@ -1218,7 +1217,7 @@
                                         border-radius: 50%; 
                                         margin-right: 10px; 
                                         font-weight: bold;">
-                                ${result.questionNumber}
+                                ${result.questionNumber || (index + 1)}
                             </span>
                             <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
                                 ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
@@ -1301,6 +1300,7 @@
     </script>
 </body>
 </html>
+
 
 
 
