@@ -131,11 +131,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        .progress-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-        }
+        
 
         .progress-bar {
             width: 100%;
@@ -343,13 +339,7 @@
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText">Question 1 of 50</div>
-
-            </div>
+            
             
             <div id="questionContainer"></div>
             
@@ -751,7 +741,7 @@
 
     questionDiv.innerHTML = `
         <div class="question-header">
-            <div class="question-number">Question ${currentQuestionIndex + 1}</div>
+            <div class="question-number">${currentQuestionIndex + 1}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                     ${question.difficulty}
@@ -823,9 +813,7 @@
 }
 
         function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             // Update navigation buttons
@@ -1337,7 +1325,8 @@ if (question.type === 'interval_input') {
                                         border-radius: 50%; 
                                         margin-right: 10px; 
                                         font-weight: bold;">
-                                ${index + 1}
+                                ${result.questionNumber || index + 1}
+
                             </span>
                             <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
                                 ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
@@ -1432,6 +1421,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
