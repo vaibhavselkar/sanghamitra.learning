@@ -570,16 +570,14 @@
       const programmingButton = `<a href="${topic.url}" class="btn ${hasProgramming ? 'btn-primary' : 'btn-outline-primary'} btn-sm mb-2" style="min-width: 200px;">
         <span>${hasProgramming ? `Coding: ${programmingPercentage}%` : 'Start Coding Assignment'}</span>
         <i class="bi ${hasProgramming ? 'bi-arrow-repeat ms-2' : 'bi-arrow-right ms-2'}"></i>
-      </a>
-      ${hasProgramming ? `<small class="text-muted d-block mt-1">Latest: ${programming.score}/${programming.maxScore}</small>` : ''}`;
-
+      </a>`;
+      
       // Quiz-Test button - ALWAYS CLICKABLE
       const quizButton = topic.testUrl 
         ? `<a href="${topic.testUrl}" class="btn ${hasQuiz ? 'test-paper-btn' : 'btn-outline-success'} btn-sm mb-2" style="min-width: 200px;">
             <span>${hasQuiz ? `Quiz-Test: ${quizPercentage}%` : 'Take Quiz-Test'}</span>
             <i class="bi ${hasQuiz ? 'bi-arrow-repeat ms-2' : 'bi-file-text ms-2'}"></i>
-          </a>
-          ${hasQuiz ? `<small class="text-muted d-block mt-1">Latest: ${quiz.score}/${quiz.maxScore}</small>` : ''}`
+          </a>`
         : '';
 
       // Set progress bar width
@@ -717,6 +715,7 @@
 </script>
 </body>
 </html>
+
 
 
 
