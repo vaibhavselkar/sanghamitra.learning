@@ -937,41 +937,46 @@
 
     // Render current question
     function renderCurrentQuestion() {
-        const container = document.getElementById('questionContainer');
-        if (!container || !questions || !questions[currentQuestionIndex]) {
-            console.error('Cannot render question: container or questions not available');
-            return;
-        }
-        
-        const question = questions[currentQuestionIndex];
-        container.innerHTML = '';
+    const container = document.getElementById('questionContainer');
+    if (!container || !questions || questions.length === 0 || currentQuestionIndex >= questions.length) {
+        console.error('Cannot render question: container or questions not available');
+        return;
+    }
+    
+    const question = questions[currentQuestionIndex];
+    if (!question) {
+        console.error('Question not found at index:', currentQuestionIndex);
+        return;
+    }
+    
+    container.innerHTML = '';
 
-        const questionDiv = document.createElement('div');
-        questionDiv.className = 'question-card';
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
 
-        let optionsHtml = '';
-        
-        if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-            optionsHtml = question.options.map((option, optIndex) => {
-                const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                return `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
-                        <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `;
-            }).join('');
-        } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-            optionsHtml = question.options.map((option, optIndex) => {
-                const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                return `
-                    <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
-                        <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                        <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                    </div>
-                `;
-            }).join('');
-        } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+    let optionsHtml = '';
+    
+    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
             let placeholder, formatExample, formatHint;
             
             if (question.type === 'coordinate_input') {
@@ -1734,6 +1739,7 @@
 </body>
 
 </html>
+
 
 
 
