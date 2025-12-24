@@ -601,14 +601,31 @@
             year: 'numeric', 
             month: 'short', 
             day: 'numeric',
-    
+            hour: '2-digit',
+            minute: '2-digit'
           });
         } catch (e) {
           dateDisplay = 'Recently';
         }
       }
 
-      
+      // Status indicator
+      let statusText = 'Not attempted';
+      let statusClass = 'text-muted';
+      let statusIcon = 'bi-circle';
+      if (hasProgramming && hasQuiz) {
+        statusText = 'Can retake both';
+        statusClass = 'text-info';
+        statusIcon = 'bi-arrow-repeat';
+      } else if (hasProgramming) {
+        statusText = 'can retake';
+        statusClass = 'text-info';
+        statusIcon = 'bi-arrow-repeat';
+      } else if (hasQuiz) {
+        statusText = 'can retake';
+        statusClass = 'text-info';
+        statusIcon = 'bi-arrow-repeat';
+      }
 
       return `
         <div class="course-item mb-3" data-topic="${topic.id}">
@@ -633,7 +650,12 @@
                     <small class="${statusClass} fw-bold"><i class="bi ${statusIcon} me-1"></i>${statusText}</small>
                     ${dateDisplay ? `<small class="text-muted">Last: ${dateDisplay}</small>` : ''}
                   </div>
-                 
+                  ${hasProgramming || hasQuiz ? `
+                    <div class="d-flex gap-3 mt-2">
+                      ${hasProgramming ? `<small class="text-primary"><i class="bi bi-code me-1"></i>Coding: ${programmingPercentage}%</small>` : ''}
+                      ${hasQuiz ? `<small class="text-success"><i class="bi bi-file-text me-1"></i>Quiz: ${quizPercentage}%</small>` : ''}
+                    </div>
+                  ` : ''}
                 </div>
                 <div class="col-lg-2 col-md-2 text-center">
                   <span class="percentage-badge" style="${badgeStyle}">${overallPercentage}%</span>
@@ -693,8 +715,6 @@
 </script>
 </body>
 </html>
-
-
 
 
 
