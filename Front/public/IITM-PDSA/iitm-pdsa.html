@@ -565,7 +565,7 @@
         progressBarClass = 'bg-danger';
         badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
       }
-
+    
       // Programming assessment button - ALWAYS CLICKABLE
       const programmingButton = `<a href="${topic.url}" class="btn ${hasProgramming ? 'btn-primary' : 'btn-outline-primary'} btn-sm mb-2" style="min-width: 200px;">
         <span>${hasProgramming ? `Coding: ${programmingPercentage}%` : 'Start Coding Assignment'}</span>
@@ -579,11 +579,11 @@
             <i class="bi ${hasQuiz ? 'bi-arrow-repeat ms-2' : 'bi-file-text ms-2'}"></i>
           </a>`
         : '';
-
+    
       // Set progress bar width
       const progressWidth = (hasProgramming || hasQuiz) ? overallPercentage : 0;
-
-      // Format last attempted date (use the most recent timestamp)
+    
+      // Format last attempted date (DATE ONLY, NO TIME)
       let lastAttempted = null;
       if (programming && programming.timestamp) {
         lastAttempted = programming.timestamp;
@@ -593,40 +593,22 @@
           lastAttempted = quiz.timestamp;
         }
       }
-
+    
       let dateDisplay = '';
       if (lastAttempted) {
         try {
+          // DATE ONLY - NO TIME
           dateDisplay = new Date(lastAttempted).toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'short', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            day: 'numeric'
+            // REMOVED: hour, minute options
           });
         } catch (e) {
           dateDisplay = 'Recently';
         }
       }
-
-      // Status indicator
-      let statusText = 'Not attempted';
-      let statusClass = 'text-muted';
-      let statusIcon = 'bi-circle';
-      if (hasProgramming && hasQuiz) {
-        statusText = 'Can retake both';
-        statusClass = 'text-info';
-        statusIcon = 'bi-arrow-repeat';
-      } else if (hasProgramming) {
-        statusText = 'can retake';
-        statusClass = 'text-info';
-        statusIcon = 'bi-arrow-repeat';
-      } else if (hasQuiz) {
-        statusText = 'can retake';
-        statusClass = 'text-info';
-        statusIcon = 'bi-arrow-repeat';
-      }
-
+    
       return `
         <div class="course-item mb-3" data-topic="${topic.id}">
           <div class="card course-card h-100 border-0 shadow-sm hover-shadow">
@@ -634,7 +616,7 @@
               <div class="row align-items-center">
                 <div class="col-lg-1 col-md-2 text-center">
                   <div class="icon-box ${(hasProgramming || hasQuiz) ? 'bg-info' : 'bg-primary'} text-white rounded-circle p-2" style="width: 40px; height: 40px;">
-                    <i class="bi ${(hasProgramming || hasQuiz) ? statusIcon : topic.icon} fs-5"></i>
+                    <i class="bi ${(hasProgramming || hasQuiz) ? 'bi-arrow-repeat' : topic.icon} fs-5"></i>
                   </div>
                 </div>
                 <div class="col-lg-6 col-md-5">
@@ -646,16 +628,7 @@
                          aria-valuenow="${overallPercentage}" aria-valuemin="0" aria-valuemax="100">
                     </div>
                   </div>
-                  <div class="d-flex justify-content-between mt-2">
-                    <small class="${statusClass} fw-bold"><i class="bi ${statusIcon} me-1"></i>${statusText}</small>
-                    ${dateDisplay ? `<small class="text-muted">Last: ${dateDisplay}</small>` : ''}
-                  </div>
-                  ${hasProgramming || hasQuiz ? `
-                    <div class="d-flex gap-3 mt-2">
-                      ${hasProgramming ? `<small class="text-primary"><i class="bi bi-code me-1"></i>Coding: ${programmingPercentage}%</small>` : ''}
-                      ${hasQuiz ? `<small class="text-success"><i class="bi bi-file-text me-1"></i>Quiz: ${quizPercentage}%</small>` : ''}
-                    </div>
-                  ` : ''}
+                  ${dateDisplay ? `<small class="text-muted d-block mt-2">Last: ${dateDisplay}</small>` : ''}
                 </div>
                 <div class="col-lg-2 col-md-2 text-center">
                   <span class="percentage-badge" style="${badgeStyle}">${overallPercentage}%</span>
@@ -715,6 +688,7 @@
 </script>
 </body>
 </html>
+
 
 
 
