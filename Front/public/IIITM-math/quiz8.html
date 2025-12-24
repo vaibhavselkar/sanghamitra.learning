@@ -421,8 +421,8 @@ const answerNormalizer = {
             return false;
         }
         
-        // Fetch questions with personalization - backend should exclude already answered questions
-        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/quiz8?email=${encodeURIComponent(email)}&count=50&excludeAnswered=true`, {
+        // NEW CODE (CORRECT):
+        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/function_concepts?email=${encodeURIComponent(email)}&count=50&random=true`, {
             credentials: 'include'
         });
         
@@ -1330,6 +1330,7 @@ async function submitQuiz() {
 </body>
 
 </html>
+
 
 
 
