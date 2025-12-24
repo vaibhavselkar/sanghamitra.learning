@@ -177,6 +177,18 @@
             margin-bottom: 20px;
         }
 
+        .question-number {
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 15px;
+        }
 
         .question-text {
             font-size: 1.1rem;
@@ -274,11 +286,19 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                
+                <div class="progress-text" id="progressText">Question 1 of 50</div>
             </div>
             
             <div id="questionContainer"></div>
             
+            <div class="question-navigation">
+                <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+               <div class="question-status">
+                    <span id="questionStatus">Question 1 of 50</span> <!-- Changed from 30 to 50 -->
+                    <span id="answeredStatus" class="status-unanswered">Unanswered</span>
+                </div>
+                <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
+            </div>
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
                 <button class="btn" onclick="submitQuiz()" id="submitBtn">
@@ -565,7 +585,9 @@ async function initializeQuiz() {
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
-           
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
             // Update navigation buttons
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
             
@@ -1127,8 +1149,6 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
-
-
 
 
 
