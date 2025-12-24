@@ -485,11 +485,13 @@ async function initializeQuiz() {
     questionDiv.className = 'question-card';
 
     // Clean the question text - remove "UNDEFINED" from the beginning
-    // NEW CODE - USE THIS INSTEAD:
-let cleanQuestionText = question.question_text;
-cleanQuestionText = cleanQuestionText.replace(/UNDEFINED/gi, '');
-cleanQuestionText = cleanQuestionText.replace(/^\d+\.?\s*/, '');
-cleanQuestionText = cleanQuestionText.replace(/\s+/g, ' ').trim();
+    let cleanQuestionText = question.question_text;
+    // Remove "UNDEFINED" if it appears at the start of the question
+    cleanQuestionText = cleanQuestionText.replace(/^UNDEFINED\s*\n?\s*/, '');
+    cleanQuestionText = cleanQuestionText.replace(/^\d+\s+UNDEFINED\s*\n?\s*/, '');
+    // Also remove any leading numbers followed by spaces
+    cleanQuestionText = cleanQuestionText.replace(/^\d+\.?\s*/, '');
+    cleanQuestionText = cleanQuestionText.trim();
 
     let optionsHtml = '';
     if (question.type === 'multiple_choice') {
@@ -533,20 +535,25 @@ cleanQuestionText = cleanQuestionText.replace(/\s+/g, ' ').trim();
         `;
     }
 
-    // Add difficulty badge
+    // Add difficulty badge - FIXED to handle missing difficulty
     const difficultyColor = {
         'easy': '#28a745',
         'medium': '#ffc107', 
         'hard': '#dc3545'
     };
 
+    // Only show difficulty badge if it exists
+    const difficultyBadge = question.difficulty ? `
+        <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+            ${question.difficulty}
+        </span>
+    ` : '';
+
     questionDiv.innerHTML = `
         <div class="question-header">
             <div class="question-number">${currentQuestionIndex + 1}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                    ${question.difficulty}
-                </span>
+                ${difficultyBadge}
             </div>
         </div>
         <div class="question-text">${cleanQuestionText}</div>
@@ -1155,6 +1162,7 @@ cleanQuestionText = cleanQuestionText.replace(/\s+/g, ' ').trim();
     </script>
 </body>
 </html>
+
 
 
 
