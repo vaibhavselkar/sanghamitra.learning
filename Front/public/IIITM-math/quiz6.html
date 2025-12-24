@@ -455,7 +455,7 @@
                 return true;
             } catch (error) {
                 console.error('Error loading questions:', error);
-                alert('Failed to load quiz questions. Please refresh and try again.');
+                
                 return false;
             }
         }
@@ -633,7 +633,7 @@
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
-                alert('Error connecting to server. Please try again.');
+                
                 return false;
             }
         }
@@ -674,7 +674,7 @@
                 }
             } catch (error) {
                 console.error('Error initializing quiz:', error);
-                alert('Error starting quiz. Please try again.');
+                
             }
         }
        
@@ -1284,7 +1284,7 @@ const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm
                 } else {
                     const errorText = await response.text();
                     console.error('Failed to submit quiz:', errorText);
-                    alert('Failed to submit quiz. Please try again.');
+                    
                     
                     // Reset button state
                     document.getElementById('submitText').style.display = 'inline';
@@ -1454,6 +1454,7 @@ const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm
     </script>
 </body>
 </html>
+
 
 
 
