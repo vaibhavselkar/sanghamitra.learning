@@ -343,12 +343,7 @@
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText">Question 1 of 50</div>
-            </div>
+           
             
             <div id="questionContainer"></div>
             
@@ -661,8 +656,7 @@
                     console.log("User:", username, "Email:", email);
                     return true;
                 } else {
-                    console.error('Failed to fetch session info');
-                    alert('Please login to take the assessment');
+                    console.log('Session invalid, redirecting to login');
                     window.location.href = '/login.html';
                     return false;
                 }
@@ -812,14 +806,15 @@
     // Use question text exactly as stored in database - NO MATH PROCESSING
     let processedQuestionText = question.question_text || 'Question text not available';
 
-    questionDiv.innerHTML = `
-    <div class="question-header">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                ${difficultyText}
-            </span>
-        </div>
-    </div>
+        questionDiv.innerHTML = `
+            <div class="question-header">
+                <div class="question-number">${currentQuestionIndex + 1}</div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                        ${difficultyText}
+                    </span>
+                </div>
+            </div>
         <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
         <div class="options">${optionsHtml}</div>
     `;
@@ -860,9 +855,7 @@
         }
 
         function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+           
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             // Update navigation buttons
@@ -1316,7 +1309,7 @@
                                         border-radius: 50%; 
                                         margin-right: 10px; 
                                         font-weight: bold;">
-                                ${result.questionNumber}
+                                ${result.questionNumber || (index + 1)}
                             </span>
                             <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
                                 ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
@@ -1455,23 +1448,7 @@
                 
                 console.log(`✨ Loaded ${questions.length} NEW (never-seen) questions`);
                 
-                // Step 7: Show progress to user
-                const progressInfo = document.createElement('div');
-                progressInfo.style.cssText = `
-                    background: #e3f2fd;
-                    padding: 10px;
-                    border-radius: 8px;
-                    margin-bottom: 15px;
-                    text-align: center;
-                    color: #1976d2;
-                    font-size: 14px;
-                `;
-                progressInfo.innerHTML = `
-                    📊 Your Progress: ${answeredQuestionIds.length} completed | 
-                    ${unansweredQuestions.length} remaining | 
-                    ${allQuestions.length} total questions
-                `;
-                document.getElementById('quizContainer').prepend(progressInfo);
+              
                 
                 return true;
             } catch (error) {
@@ -1556,5 +1533,6 @@
     </script>
 </body>
 </html>
+
 
 
