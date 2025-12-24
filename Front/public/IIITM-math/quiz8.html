@@ -321,12 +321,7 @@
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText">Question 1 of 50</div>
-            </div>
+           
             
             <div id="questionContainer"></div>
             
@@ -467,22 +462,7 @@ const answerNormalizer = {
         if (data.metadata) {
             console.log(`Progress: ${data.metadata.totalCompleted} completed, ${data.metadata.totalAvailable} available, ${data.metadata.remainingQuestions} remaining`);
             
-            // Optional: Show progress to user
-            const progressInfo = document.createElement('div');
-            progressInfo.style.cssText = `
-                background: #e3f2fd;
-                padding: 10px;
-                border-radius: 8px;
-                margin-bottom: 15px;
-                text-align: center;
-                color: #1976d2;
-                font-size: 14px;
-            `;
-            progressInfo.innerHTML = `
-                📊 Your Progress: ${data.metadata.totalCompleted} questions completed | 
-                ${data.metadata.remainingQuestions} remaining in pool
-            `;
-            document.getElementById('quizContainer').prepend(progressInfo);
+            
         }
         
         console.log(`Loaded ${questions.length} new questions successfully`);
@@ -630,16 +610,17 @@ const answerNormalizer = {
     const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
     
     questionDiv.innerHTML = `
-        <div class="question-header">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                    ${difficultyText}
-                </span>
-            </div>
+    <div class="question-header">
+        <div class="question-number">${currentQuestionIndex + 1}</div> <!-- ADD THIS -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                ${difficultyText}
+            </span>
         </div>
-        <div class="question-text">${question.question_text}</div>
-        <div class="options">${optionsHtml}</div>
-    `;
+    </div>
+    <div class="question-text">${question.question_text}</div>
+    <div class="options">${optionsHtml}</div>
+`;
 
     container.appendChild(questionDiv);
     
@@ -682,9 +663,7 @@ const answerNormalizer = {
      
 
         function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             // Update navigation buttons
@@ -910,48 +889,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     }
 }
 
-// Add real-time validation display
-function showValidationFeedback(questionIndex, feedback) {
-    // Remove existing feedback
-    const existingFeedback = document.querySelector(`#feedback-${questionIndex}`);
-    if (existingFeedback) {
-        existingFeedback.remove();
-    }
-    
-    if (feedback) {
-        // Add new feedback
-        const questionContainer = document.querySelector('.question-card');
-        const feedbackDiv = document.createElement('div');
-        feedbackDiv.id = `feedback-${questionIndex}`;
-        feedbackDiv.style.cssText = `
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            padding: 8px;
-            margin-top: 10px;
-            color: #856404;
-            font-size: 14px;
-        `;
-        feedbackDiv.textContent = `Format tip: ${feedback}`;
-        questionContainer.appendChild(feedbackDiv);
-    }
-}
 
-// Enhanced numeric input with validation
-function handleNumericInputWithValidation(questionIndex, value) {
-    // Call the original function
-    handleNumericInput(questionIndex, value);
-    
-    // Add validation feedback
-    if (value.trim()) {
-        const validation = validateAnswerFormat(questionIndex, value.trim());
-        if (!validation.isValidFormat) {
-            showValidationFeedback(questionIndex, validation.feedback);
-        } else {
-            showValidationFeedback(questionIndex, ''); // Clear feedback
-        }
-    }
-}
         // Get question difficulty (mock function - in real app this would come from question data)
         function getQuestionDifficulty(questionNumber) {
             if (questionNumber <= 15) return 'easy';
@@ -1217,7 +1155,8 @@ async function submitQuiz() {
             
             reviewDiv.innerHTML = `
                 <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question Review</h3>
-                ${quizData.questionResults.map(result => `
+                ${quizData.questionResults.map((result, index) => `
+
                     <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
                                 border-radius: 8px; 
                                 padding: 15px; 
@@ -1230,7 +1169,8 @@ async function submitQuiz() {
                                         border-radius: 50%; 
                                         margin-right: 10px; 
                                         font-weight: bold;">
-                                ${result.questionNumber}
+                                ${result.questionNumber || index + 1}
+
                             </span>
                             <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
                                 ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
@@ -1330,6 +1270,7 @@ async function submitQuiz() {
 </body>
 
 </html>
+
 
 
 
