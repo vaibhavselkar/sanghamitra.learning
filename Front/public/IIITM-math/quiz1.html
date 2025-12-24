@@ -533,8 +533,9 @@ async function initializeQuiz() {
                 'hard': '#dc3545'
             };
 
-           questionDiv.innerHTML = `
+         questionDiv.innerHTML = `
     <div class="question-header">
+        <div class="question-number">${currentQuestionIndex + 1}</div>
         <div style="display: flex; align-items: center; gap: 10px;">
             <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                 ${question.difficulty}
@@ -1147,6 +1148,7 @@ async function initializeQuiz() {
     </script>
 </body>
 </html>
+
 
 
 
