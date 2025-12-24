@@ -1049,13 +1049,7 @@
             .replace(/\\to/g, '\\\\(\\\\to\\\\)')
             .replace(/\\infty/g, '\\\\(\\\\infty\\\\)');
 
-        // Add randomization indicator
-        const randomIndicator = `
-            <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px; font-size: 12px; color: #667eea;">
-                <span>🎲</span>
-                <span>Random Question #${currentQuestionIndex + 1}</span>
-            </div>
-        `;
+        
 
         questionDiv.innerHTML = `
         <div class="question-header">
@@ -1066,7 +1060,7 @@
                 </span>
             </div>
         </div>
-        ${randomIndicator}
+        
         <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
         <div class="options">${optionsHtml}</div>
 `;
@@ -1739,6 +1733,7 @@
 </body>
 
 </html>
+
 
 
 
