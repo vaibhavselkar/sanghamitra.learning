@@ -425,12 +425,7 @@
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText">Question 1 of 50</div>
-            </div>
+            
             
             <div id="questionContainer"></div>
             
@@ -1027,9 +1022,7 @@ if (processedQuestionText.includes('A² (as discussed in lecture)')) {
         }
 
         function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
@@ -1627,6 +1620,7 @@ if (processedQuestionText.includes('A² (as discussed in lecture)')) {
 </body>
 
 </html>
+
 
 
 
