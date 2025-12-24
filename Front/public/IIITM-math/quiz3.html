@@ -347,7 +347,7 @@
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-text" id="progressText">Question 1 of 15</div>
+                
             </div>
             
             <div id="questionContainer"></div>
@@ -363,7 +363,8 @@
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
                 <button class="btn" onclick="submitQuiz()" id="submitBtn">
-                    <span id="submitText">Submit Domain and Range Quiz</span>
+                    <span id="submitText">Submit Linear Functions Quiz</span>
+
                     <span id="submitLoading" class="loading" style="display: none;"></span>
                 </button>
             </div>
@@ -711,7 +712,7 @@
 
             questionDiv.innerHTML = `
                 <div class="question-header">
-                    <div class="question-number">${question.question_number}</div>
+                   <div class="question-number">${currentQuestionIndex + 1}</div>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                             ${question.difficulty}
@@ -761,7 +762,6 @@
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             // Update navigation buttons
@@ -1208,7 +1208,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
                                 border-radius: 50%; 
                                 margin-right: 10px; 
                                 font-weight: bold;">
-                        ${result.questionNumber}
+                       ${result.questionNumber || (index + 1)}
                     </span>
                     <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
                         ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
@@ -1282,6 +1282,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
