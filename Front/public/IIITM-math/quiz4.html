@@ -277,12 +277,7 @@
         </div>
 
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-               
-            </div>
+            
             
             <div id="questionContainer"></div>
             
@@ -531,7 +526,7 @@
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
-                alert('Error connecting to server. Please try again.');
+               
                 return false;
             }
         }
@@ -564,7 +559,7 @@
                         await resetUserProgress();
                         return loadQuestions();
                     } else {
-                        alert('No new questions available. Please contact admin or try again later.');
+                        
                         window.location.href = 'iitm_math.html';
                         return false;
                     }
@@ -603,7 +598,7 @@
                 return true;
             } catch (error) {
                 console.error('Error loading questions:', error);
-                alert('Failed to load quiz questions. Please refresh and try again.');
+                
                 return false;
             }
         }
@@ -636,7 +631,7 @@
                 }
             } catch (error) {
                 console.error('Error initializing quiz:', error);
-                alert('Error starting quiz. Please try again.');
+                
             }
         }
 
@@ -786,7 +781,7 @@
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
+            
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
@@ -1300,6 +1295,7 @@
     </script>
 </body>
 </html>
+
 
 
 
