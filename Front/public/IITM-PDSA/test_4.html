@@ -1269,7 +1269,7 @@
             const quizData = {
                 username: currentUser.username,
                 email: currentUser.email,
-                topic: "Graph Algorithms - BFS, DFS, DAGs, Topological Sorting",
+                topic: "Introduction to Graphs- BFS, DFS, DAG's",
                 score: calculateCurrentScore(),
                 maxScore: questions.reduce((sum, q) => sum + q.maxScore, 0), // Sum of all question maxScores
                 percentage: Math.round((calculateCurrentScore() / questions.reduce((sum, q) => sum + q.maxScore, 0)) * 100),
