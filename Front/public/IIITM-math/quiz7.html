@@ -812,15 +812,15 @@
     // Use question text exactly as stored in database - NO MATH PROCESSING
     let processedQuestionText = question.question_text || 'Question text not available';
 
-    questionDiv.innerHTML = `
-            <div class="question-header">
-                <div class="question-number">${currentQuestionIndex + 1}</div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                        ${difficultyText}
-                    </span>
-                </div>
+       questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
+                </span>
             </div>
+        </div>
         <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
         <div class="options">${optionsHtml}</div>
     `;
@@ -1456,22 +1456,7 @@
                 console.log(`✨ Loaded ${questions.length} NEW (never-seen) questions`);
                 
                 // Step 7: Show progress to user
-                const progressInfo = document.createElement('div');
-                progressInfo.style.cssText = `
-                    background: #e3f2fd;
-                    padding: 10px;
-                    border-radius: 8px;
-                    margin-bottom: 15px;
-                    text-align: center;
-                    color: #1976d2;
-                    font-size: 14px;
-                `;
-                progressInfo.innerHTML = `
-                    📊 Your Progress: ${answeredQuestionIds.length} completed | 
-                    ${unansweredQuestions.length} remaining | 
-                    ${allQuestions.length} total questions
-                `;
-                document.getElementById('quizContainer').prepend(progressInfo);
+                
                 
                 return true;
             } catch (error) {
