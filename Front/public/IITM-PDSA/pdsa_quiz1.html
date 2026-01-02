@@ -307,6 +307,7 @@
                 <p>Quiz Completed!</p>
             </div>
             <div id="detailedResults"></div>
+            <button class="btn" onclick="goToHome()">←Go Back</button>
             <button class="btn btn-info me-3" onclick="showMyAnswers()">📋 View My Answers</button>
             <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
         </div>
@@ -1058,9 +1059,14 @@ for name in list(globals().keys()):
 
         // Start loading Pyodide immediately
         window.addEventListener('DOMContentLoaded', initPyodide);
+
+        function goToHome() {
+            window.location.href = './iitm-pdsa.html';
+        }
     </script>
 </body>
 </html>
+
 
 
 
