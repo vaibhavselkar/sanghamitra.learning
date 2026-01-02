@@ -823,8 +823,11 @@
                 // Find the clicked option - handle clicks on div, input, or label
                 const clickedOption = event.target.closest('.option');
                 const clickedInput = clickedOption.querySelector('input');
+                if (clickedInput) {
                 clickedInput.checked = true;
                 clickedOption.classList.add('selected');
+                }
+                
                     } else if (type === 'checkbox') {
                         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
                 
@@ -1033,9 +1036,14 @@
                         isCorrect = normalizeInterval(userAnswer) === normalizeInterval(question.correct_answer);
                     }
                 } else if (question.type === 'multiple_choice') {
-                    // Normalize string comparison
-                    const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
-                    isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
+                    // More robust selector - escape special characters and use name attribute
+                    const options = document.querySelectorAll(`input[name="q${currentQuestionIndex}"]`);
+                    options.forEach(opt => {
+                        if (opt.value.trim() === savedAnswer.trim()) {
+                            opt.checked = true;
+                            opt.closest('.option').classList.add('selected');
+                        }
+                    });
                 } else if (question.type === 'multiple_select') {
                     if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
                         // Sort and compare arrays
@@ -1316,6 +1324,7 @@
     </script>
 </body>
 </html>
+
 
 
 
