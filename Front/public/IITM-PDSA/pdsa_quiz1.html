@@ -228,6 +228,65 @@
             border-radius: 50%;
             background: white;
         }
+        
+        /* Answers Modal Styles */
+        .answers-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+        
+        .answers-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80%;
+            width: 800px;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        /* Button container for results */
+        .results-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .results-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .results-buttons .btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -253,6 +312,8 @@
         <div class="loading-text">Loading Python Environment...</div>
         <small style="margin-top: 10px; opacity: 0.8;">This may take 10-15 seconds</small>
     </div>
+    
+    <!-- Answers Modal -->
     <div id="answersModal" class="answers-modal">
         <div class="answers-content">
             <h3>📝 Your Submitted Answers</h3>
@@ -307,9 +368,13 @@
                 <p>Quiz Completed!</p>
             </div>
             <div id="detailedResults"></div>
-            <button class="btn" onclick="goToHome()">←Go Back</button>
-            <button class="btn btn-info me-3" onclick="showMyAnswers()">📋 View My Answers</button>
-            <button class="btn" onclick="restartQuiz()">Take Quiz Again</button>
+            
+            <!-- Fixed Button Layout -->
+            <div class="results-buttons">
+                <button class="btn btn-secondary" onclick="goToHome()">← Go Back</button>
+                <button class="btn btn-info" onclick="showMyAnswers()">📋 View My Answers</button>
+                <button class="btn btn-success" onclick="restartQuiz()">Retake Quiz</button>
+            </div>
         </div>
     </div>
 
@@ -324,6 +389,9 @@
         // Global Pyodide instance
         let pyodide = null;
         let pyodideReady = false;
+        
+        // Store submitted quiz data for viewing answers
+        let submittedQuizData = null;
 
         const questions = [
             {
@@ -970,6 +1038,9 @@ for name in list(globals().keys()):
                 tabSwitches: tabSwitchCount
             };
             
+            // Store the quiz data for viewing answers
+            submittedQuizData = quizData;
+            
             try {
                 const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
                     method: 'POST',
@@ -1025,11 +1096,13 @@ for name in list(globals().keys()):
             cheatingAttempts = 0;
             tabSwitchCount = 0;
             isQuizActive = true;
+            submittedQuizData = null;
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
             renderCurrentQuestion();
             updateProgress();
         }
+        
         function showMyAnswers() {
             if (!submittedQuizData) {
                 alert('No quiz data found. Please submit the quiz first.');
@@ -1057,16 +1130,12 @@ for name in list(globals().keys()):
             return div.innerHTML;
         }
 
-        // Start loading Pyodide immediately
-        window.addEventListener('DOMContentLoaded', initPyodide);
-
         function goToHome() {
             window.location.href = './iitm-pdsa.html';
         }
+
+        // Start loading Pyodide immediately
+        window.addEventListener('DOMContentLoaded', initPyodide);
     </script>
 </body>
 </html>
-
-
-
-
