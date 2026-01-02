@@ -861,7 +861,8 @@
         }
 
         function updateProgress() {
-            
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             // Update navigation buttons
@@ -880,7 +881,7 @@
                 nextBtn.textContent = 'Next';
                 nextBtn.onclick = nextQuestion;
             }
-        }
+}
 
         function updateAnswerStatus() {
             const statusSpan = document.getElementById('answeredStatus');
