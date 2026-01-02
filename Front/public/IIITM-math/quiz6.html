@@ -343,6 +343,12 @@
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
+             <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+               
+             </div>
             
             
             <div id="questionContainer"></div>
@@ -787,7 +793,8 @@
         }
 
         function updateProgress() {
-           
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             // Update navigation buttons
@@ -806,7 +813,7 @@
                 nextBtn.textContent = 'Next';
                 nextBtn.onclick = nextQuestion;
             }
-        }
+}
 
         function updateAnswerStatus() {
             const statusSpan = document.getElementById('answeredStatus');
@@ -1454,6 +1461,7 @@ const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm
     </script>
 </body>
 </html>
+
 
 
 
