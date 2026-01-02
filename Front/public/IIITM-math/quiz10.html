@@ -372,6 +372,12 @@
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
+             <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+               
+            </div>
             
             
             <div id="questionContainer"></div>
@@ -1112,32 +1118,27 @@
     }
 
     function updateProgress() {
-        if (!questions || questions.length === 0) return;
-        
-        
-        if (questionStatus) questionStatus.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+        const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+        document.getElementById('progressFill').style.width = `${progress}%`;
+        document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
         
         // Update navigation buttons
-        if (prevBtn) prevBtn.disabled = currentQuestionIndex === 0;
+        document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
         
-        if (nextBtn) {
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.textContent = 'Finish';
-                nextBtn.onclick = () => {
-                    const quizContainer = getElementSafely('quizContainer');
-                    if (quizContainer) {
-                        quizContainer.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'end' 
-                        });
-                    }
-                };
-            } else {
-                nextBtn.textContent = 'Next';
-                nextBtn.onclick = nextQuestion;
-            }
+        const nextBtn = document.getElementById('nextBtn');
+        if (currentQuestionIndex === questions.length - 1) {
+            nextBtn.textContent = 'Finish';
+            nextBtn.onclick = () => {
+                document.getElementById('quizContainer').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'end' 
+                });
+            };
+        } else {
+            nextBtn.textContent = 'Next';
+            nextBtn.onclick = nextQuestion;
         }
-    }
+}
 
     function updateAnswerStatus() {
         const statusSpan = document.getElementById('answeredStatus');
@@ -1733,6 +1734,7 @@
 </body>
 
 </html>
+
 
 
 
