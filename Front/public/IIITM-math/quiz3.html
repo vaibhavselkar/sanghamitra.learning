@@ -582,7 +582,7 @@
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
-                alert('Error connecting to server. Please try again.');
+               
                 return false;
             }
         }
@@ -611,7 +611,7 @@
             // Final check
             if (!questions || !Array.isArray(questions)) {
                 console.error("ERROR: questions is not an array:", questions);
-                alert("Error loading questions. Please refresh.");
+                
                 return;
             }
             
@@ -648,7 +648,7 @@
         }
     } catch (error) {
         console.error('Error initializing quiz:', error);
-        alert('Failed to initialize quiz. Please try again.');
+        
     }
 }
 
@@ -1282,6 +1282,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
