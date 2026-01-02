@@ -261,7 +261,7 @@
         description: 'Assessment on basic data structures: Lists and Tuples',
         icon: 'bi-list-ul',
         url: 'pdsa_quiz1.html',
-        testUrl: 'test_1.html' // CHANGES: Added test URL for test paper
+        testUrl: 'test_1.html'
       },
       {
         id: 'Sorting-Algorithms',
@@ -270,7 +270,7 @@
         description: 'Assessment on Quick Sort, Merge Sort, Selection Sort, Insertion Sort, and Bubble Sort',
         icon: 'bi-diagram-3',
         url: 'pdsa_quiz2.html',
-        testUrl: 'test_2.html' // CHANGES: Added test URL for test paper
+        testUrl: 'test_2.html'
       },
       {
         id: 'Linear-Data-Structures',
@@ -312,7 +312,7 @@
         id: 'Advanced-Algorithms',
         name: 'Advanced Algorithms',
         displayName: 'WEEK 7: Advanced Algorithms',
-        description: 'Assessment on Balanced serach tree, Scheduling algorithms, Huffman algorithms. ',
+        description: 'Assessment on Balanced search tree, Scheduling algorithms, Huffman algorithms.',
         icon: 'bi-database',
         url: 'pdsa_quiz7.html',
         testUrl: 'test_7.html'
@@ -330,7 +330,7 @@
         id: 'Dynamic-programming',
         name: 'Dynamic programming',
         displayName: 'WEEK 9: Dynamic programming',
-        description: 'Assessment on ',
+        description: '',
         icon: 'bi-database',
         url: 'pdsa_quiz9.html',
         testUrl: 'test_9.html'
@@ -442,41 +442,98 @@
       }
     }
 
-    // Find submissions for a specific topic
+        // Find submissions for a specific topic WITH DEBUGGING
     function findSubmissionsForTopic(submissions, topicName) {
       if (!submissions || !Array.isArray(submissions) || submissions.length === 0) {
+        console.log(`No submissions available to search for ${topicName}`);
         return [];
       }
 
-      // Find all submissions for this topic (case-insensitive)
-      return submissions.filter(submission => {
+      console.log(`\n=== Searching for topic: "${topicName}" ===`);
+      
+      const filteredSubmissions = submissions.filter(submission => {
         const submissionTopic = (submission.topic || '').trim().toLowerCase();
         const targetTopic = topicName.toLowerCase();
         
-        // Exact match or contains match
-        return submissionTopic === targetTopic || 
-               submissionTopic.includes(targetTopic) ||
-               targetTopic.includes(submissionTopic);
+        console.log(`Comparing: Target="${targetTopic}" vs Submission="${submissionTopic}"`);
+        
+        // SIMPLE EXACT OR CONTAINS MATCH
+        if (submissionTopic === targetTopic) {
+          console.log(`✓ Exact match found for ${topicName}`);
+          return true;
+        }
+        
+        // Check if submission topic contains the exact topic name
+        if (submissionTopic.includes(targetTopic)) {
+          console.log(`✓ Submission contains target: ${submissionTopic} contains ${targetTopic}`);
+          return true;
+        }
+        
+        // Check if target contains submission (for partial matches)
+        if (targetTopic.includes(submissionTopic)) {
+          console.log(`✓ Target contains submission: ${targetTopic} contains ${submissionTopic}`);
+          return true;
+        }
+        
+        return false;
       });
+      
+      console.log(`Found ${filteredSubmissions.length} submissions for ${topicName}`);
+      if (filteredSubmissions.length > 0) {
+        console.log('Submission topics found:', filteredSubmissions.map(s => s.topic));
+      }
+      
+      return filteredSubmissions;
+    }
+    // NEW: Check if a submission is a coding submission (Format 1)
+    function isCodingSubmission(submission) {
+      if (!submission.questions || !Array.isArray(submission.questions)) {
+        return false;
+      }
+      
+      // Check if any question has code property (even if empty string)
+      // OR if all questions have empty options array (Format 1)
+      const hasCodingQuestions = submission.questions.some(q => 
+        q.hasOwnProperty('code') || // Has code property
+        (q.options && Array.isArray(q.options) && q.options.length === 0) // Empty options array
+      );
+      
+      // Check if it's NOT an MCQ submission (Format 2)
+      const hasMCQQuestions = submission.questions.some(q => 
+        q.hasOwnProperty('type') && // Has type field
+        (q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical')
+      );
+      
+      return hasCodingQuestions && !hasMCQQuestions;
     }
 
+    // NEW: Check if a submission is an MCQ submission (Format 2)
+    function isMCQSubmission(submission) {
+      if (!submission.questions || !Array.isArray(submission.questions)) {
+        return false;
+      }
+      
+      // Check if any question has MCQ type or has options with content
+      return submission.questions.some(q => 
+        (q.hasOwnProperty('type') && 
+         (q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical')) ||
+        (q.options && Array.isArray(q.options) && q.options.length > 0 && 
+         q.options.some(opt => typeof opt === 'string' && opt.trim().length > 0))
+      );
+    }
 
     // Get the MOST RECENT submission of each type for a topic
     function getMostRecentSubmissionsForTopic(submissions, topicName) {
       const topicSubmissions = findSubmissionsForTopic(submissions, topicName);
       
       if (topicSubmissions.length === 0) {
-        return { programming: null, quiz: null };
+        return { coding: null, mcq: null };
       }
 
-      let mostRecentProgramming = null;
-      let mostRecentQuiz = null;
+      let mostRecentCoding = null;
+      let mostRecentMCQ = null;
 
       topicSubmissions.forEach(submission => {
-        // Check if it's a programming submission (has code in questions)
-        const isProgramming = submission.questions && 
-          submission.questions.some(q => q.code || (q.options && q.options.length === 0));
-        
         const submissionData = {
           percentage: submission.percentage || 0,
           score: submission.score || 0,
@@ -485,21 +542,25 @@
           questions: submission.questions || []
         };
 
-        // Get the most recent submission by timestamp
-        if (isProgramming) {
-          if (!mostRecentProgramming || 
-              new Date(submissionData.timestamp) > new Date(mostRecentProgramming.timestamp)) {
-            mostRecentProgramming = submissionData;
+        // Check submission type
+        if (isCodingSubmission(submission)) {
+          console.log(`Found coding submission for ${topicName}:`, submissionData.percentage);
+          if (!mostRecentCoding || 
+              new Date(submissionData.timestamp) > new Date(mostRecentCoding.timestamp)) {
+            mostRecentCoding = submissionData;
           }
-        } else {
-          if (!mostRecentQuiz || 
-              new Date(submissionData.timestamp) > new Date(mostRecentQuiz.timestamp)) {
-            mostRecentQuiz = submissionData;
+        }
+        
+        if (isMCQSubmission(submission)) {
+          console.log(`Found MCQ submission for ${topicName}:`, submissionData.percentage);
+          if (!mostRecentMCQ || 
+              new Date(submissionData.timestamp) > new Date(mostRecentMCQ.timestamp)) {
+            mostRecentMCQ = submissionData;
           }
         }
       });
 
-      return { programming: mostRecentProgramming, quiz: mostRecentQuiz };
+      return { coding: mostRecentCoding, mcq: mostRecentMCQ };
     }
 
     // Render courses based on available topics and assessment data
@@ -514,9 +575,10 @@
       courseList.innerHTML = '';
 
       availableTopics.forEach(topic => {
-        // Get most recent submissions instead of best
-        const { programming, quiz } = getMostRecentSubmissionsForTopic(submissions, topic.name);
-        const courseHTML = createCourseHTML(topic, programming, quiz);
+        // Get most recent submissions for both types
+        const { coding, mcq } = getMostRecentSubmissionsForTopic(submissions, topic.name);
+        console.log(`Topic: ${topic.name}`, { coding, mcq });
+        const courseHTML = createCourseHTML(topic, coding, mcq);
         courseList.insertAdjacentHTML('beforeend', courseHTML);
       });
 
@@ -530,23 +592,28 @@
       }
     }
 
-    // Create HTML for a course item with both programming and quiz scores
-    function createCourseHTML(topic, programming, quiz) {
-      const programmingPercentage = programming ? Math.round(programming.percentage) : 0;
-      const quizPercentage = quiz ? Math.round(quiz.percentage) : 0;
+    // Create HTML for a course item with both coding and MCQ scores
+    function createCourseHTML(topic, coding, mcq) {
+      const codingPercentage = coding ? Math.round(coding.percentage) : 0;
+      const mcqPercentage = mcq ? Math.round(mcq.percentage) : 0;
       
-      const hasProgramming = programming !== null;
-      const hasQuiz = quiz !== null;
+      const hasCoding = coding !== null;
+      const hasMCQ = mcq !== null;
       
-      // Overall score (average of both if both exist, or whichever exists)
+      // Calculate overall percentage (average of both if both exist, or whichever exists)
       let overallPercentage = 0;
-      if (hasProgramming && hasQuiz) {
-        overallPercentage = Math.round((programmingPercentage + quizPercentage) / 2);
-      } else if (hasProgramming) {
-        overallPercentage = programmingPercentage;
-      } else if (hasQuiz) {
-        overallPercentage = quizPercentage;
+      let count = 0;
+      
+      if (hasCoding) {
+        overallPercentage += codingPercentage;
+        count++;
       }
+      if (hasMCQ) {
+        overallPercentage += mcqPercentage;
+        count++;
+      }
+      
+      overallPercentage = count > 0 ? Math.round(overallPercentage / count) : 0;
       
       // Determine progress bar color based on overall score
       let progressBarClass = 'bg-primary';
@@ -566,43 +633,41 @@
         badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
       }
     
-      // Programming assessment button - ALWAYS CLICKABLE
-      const programmingButton = `<a href="${topic.url}" class="btn ${hasProgramming ? 'btn-primary' : 'btn-outline-primary'} btn-sm mb-2" style="min-width: 200px;">
-        <span>${hasProgramming ? `Coding: ${programmingPercentage}%` : 'Start Coding Assignment'}</span>
-        <i class="bi ${hasProgramming ? 'bi-arrow-repeat ms-2' : 'bi-arrow-right ms-2'}"></i>
+      // Coding assessment button
+      const codingButton = `<a href="${topic.url}" class="btn ${hasCoding ? 'btn-primary' : 'btn-outline-primary'} btn-sm mb-2" style="min-width: 200px;">
+        <span>${hasCoding ? `Coding: ${codingPercentage}%` : 'Start Coding'}</span>
+        <i class="bi ${hasCoding ? 'bi-code-square ms-2' : 'bi-arrow-right ms-2'}"></i>
       </a>`;
       
-      // Quiz-Test button - ALWAYS CLICKABLE
-      const quizButton = topic.testUrl 
-        ? `<a href="${topic.testUrl}" class="btn ${hasQuiz ? 'test-paper-btn' : 'btn-outline-success'} btn-sm mb-2" style="min-width: 200px;">
-            <span>${hasQuiz ? `Quiz-Test: ${quizPercentage}%` : 'Take Quiz-Test'}</span>
-            <i class="bi ${hasQuiz ? 'bi-arrow-repeat ms-2' : 'bi-file-text ms-2'}"></i>
+      // MCQ/Quiz-Test button
+      const mcqButton = topic.testUrl 
+        ? `<a href="${topic.testUrl}" class="btn ${hasMCQ ? 'test-paper-btn' : 'btn-outline-success'} btn-sm mb-2" style="min-width: 200px;">
+            <span>${hasMCQ ? `Quiz-Test: ${mcqPercentage}%` : 'Take Quiz-Test'}</span>
+            <i class="bi ${hasMCQ ? 'bi-card-checklist ms-2' : 'bi-file-text ms-2'}"></i>
           </a>`
         : '';
     
       // Set progress bar width
-      const progressWidth = (hasProgramming || hasQuiz) ? overallPercentage : 0;
+      const progressWidth = (hasCoding || hasMCQ) ? overallPercentage : 0;
     
-      // Format last attempted date (DATE ONLY, NO TIME)
+      // Format last attempted date
       let lastAttempted = null;
-      if (programming && programming.timestamp) {
-        lastAttempted = programming.timestamp;
+      if (coding && coding.timestamp) {
+        lastAttempted = coding.timestamp;
       }
-      if (quiz && quiz.timestamp) {
-        if (!lastAttempted || new Date(quiz.timestamp) > new Date(lastAttempted)) {
-          lastAttempted = quiz.timestamp;
+      if (mcq && mcq.timestamp) {
+        if (!lastAttempted || new Date(mcq.timestamp) > new Date(lastAttempted)) {
+          lastAttempted = mcq.timestamp;
         }
       }
     
       let dateDisplay = '';
       if (lastAttempted) {
         try {
-          // DATE ONLY - NO TIME
           dateDisplay = new Date(lastAttempted).toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'short', 
             day: 'numeric'
-            // REMOVED: hour, minute options
           });
         } catch (e) {
           dateDisplay = 'Recently';
@@ -615,8 +680,8 @@
             <div class="card-body p-3">
               <div class="row align-items-center">
                 <div class="col-lg-1 col-md-2 text-center">
-                  <div class="icon-box ${(hasProgramming || hasQuiz) ? 'bg-info' : 'bg-primary'} text-white rounded-circle p-2" style="width: 40px; height: 40px;">
-                    <i class="bi ${(hasProgramming || hasQuiz) ? 'bi-arrow-repeat' : topic.icon} fs-5"></i>
+                  <div class="icon-box ${(hasCoding || hasMCQ) ? 'bg-info' : 'bg-primary'} text-white rounded-circle p-2" style="width: 40px; height: 40px;">
+                    <i class="bi ${(hasCoding || hasMCQ) ? 'bi-arrow-repeat' : topic.icon} fs-5"></i>
                   </div>
                 </div>
                 <div class="col-lg-6 col-md-5">
@@ -628,15 +693,16 @@
                          aria-valuenow="${overallPercentage}" aria-valuemin="0" aria-valuemax="100">
                     </div>
                   </div>
-                  ${dateDisplay ? `<small class="text-muted d-block mt-2">Last: ${dateDisplay}</small>` : ''}
+              
+                  ${dateDisplay ? `<small class="text-muted d-block mt-1">Last: ${dateDisplay}</small>` : ''}
                 </div>
                 <div class="col-lg-2 col-md-2 text-center">
                   <span class="percentage-badge" style="${badgeStyle}">${overallPercentage}%</span>
                 </div>
                 <div class="col-lg-3 col-md-3">
                   <div class="button-container">
-                    ${programmingButton}
-                    ${quizButton}
+                    ${codingButton}
+                    ${mcqButton}
                   </div>
                 </div>
               </div>
@@ -688,6 +754,7 @@
 </script>
 </body>
 </html>
+
 
 
 
