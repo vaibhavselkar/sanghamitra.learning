@@ -358,6 +358,12 @@
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
+             <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Question 1 of 50</div>
+            </div>
             
             
             <div id="questionContainer"></div>
@@ -1045,7 +1051,8 @@ if (question.image_file) {
         }
 
         function updateProgress() {
-           
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             // Update navigation buttons
@@ -1055,16 +1062,16 @@ if (question.image_file) {
             if (currentQuestionIndex === questions.length - 1) {
                 nextBtn.textContent = 'Finish';
                 nextBtn.onclick = () => {
-                    document.getElementById('quizContainer').scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'end'
+                    document.getElementById('quizContainer').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'end' 
                     });
                 };
             } else {
                 nextBtn.textContent = 'Next';
                 nextBtn.onclick = nextQuestion;
             }
-        }
+}
 
         function updateAnswerStatus() {
             const statusSpan = document.getElementById('answeredStatus');
@@ -1722,6 +1729,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
