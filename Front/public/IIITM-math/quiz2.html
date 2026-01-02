@@ -767,16 +767,17 @@
             if (currentQuestionIndex === questions.length - 1) {
                 nextBtn.textContent = 'Finish';
                 nextBtn.onclick = () => {
+                    // Optionally keep the scroll or change to submit
                     document.getElementById('quizContainer').scrollIntoView({ 
                         behavior: 'smooth', 
                         block: 'end' 
                     });
+                   
                 };
             } else {
                 nextBtn.textContent = 'Next';
                 nextBtn.onclick = nextQuestion;
             }
-        }
 
         function updateAnswerStatus() {
             const statusSpan = document.getElementById('answeredStatus');
@@ -1314,6 +1315,7 @@
     </script>
 </body>
 </html>
+
 
 
 
