@@ -766,9 +766,10 @@
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            
+            document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
+            // Update navigation buttons
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
             
             const nextBtn = document.getElementById('nextBtn');
@@ -1280,6 +1281,7 @@
     </script>
 </body>
 </html>
+
 
 
 
