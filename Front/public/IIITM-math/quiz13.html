@@ -1051,7 +1051,7 @@ if (question.image_file) {
             }
         }
 
-        function updateProgress() {
+         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
@@ -1739,6 +1739,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
