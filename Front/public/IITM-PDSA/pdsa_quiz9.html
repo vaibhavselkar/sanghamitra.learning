@@ -277,6 +277,16 @@
             border-radius: 50%;
             background: white;
         }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -336,16 +346,15 @@
             
             <div class="d-flex justify-content-between mt-4">
                 <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
-                <div>
+                <div class="text-center">
                     <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
-                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
                 </div>
-            </div>
-            
-            <div class="text-center mt-4">
-                <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
-                    📊 Submit Quiz
-                </button>
+                <div>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                    <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn" style="display: none;">
+                        📊 Submit Quiz
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -977,7 +986,16 @@ for name in list(globals().keys()):
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
             
             const nextBtn = document.getElementById('nextBtn');
-            nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Finish →' : 'Next →';
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Hide/show appropriate buttons
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.style.display = 'none';  // Hide Next/Finish button
+                submitBtn.style.display = 'inline-block';  // Show Submit button
+            } else {
+                nextBtn.style.display = 'inline-block';  // Show Next button
+                submitBtn.style.display = 'none';  // Hide Submit button
+            }
         }
 
         async function submitQuiz() {
@@ -1108,6 +1126,10 @@ for name in list(globals().keys()):
             isQuizActive = true;
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
+            // Reset button visibility
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('submitBtn').style.display = 'none';
+            
             renderCurrentQuestion();
             updateProgress();
         }
