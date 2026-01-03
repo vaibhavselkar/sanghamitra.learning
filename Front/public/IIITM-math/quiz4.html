@@ -638,7 +638,7 @@
                 optionsHtml = question.options.map((option, optIndex) => {
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
                             <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                             <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                         </div>
@@ -648,7 +648,7 @@
                 optionsHtml = question.options.map((option, optIndex) => {
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
                             <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                             <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                         </div>
@@ -819,38 +819,47 @@
             }
         }
 
-        function selectOption(questionIndex, value, type, event) {
+        function selectOption(questionIndex, value, type, element) {
             if (type === 'radio') {
-                userAnswers[questionIndex] = value.trim();
-                // Remove 'selected' class from all options AND uncheck all radio buttons
-                const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-                options.forEach(opt => {
-                    opt.closest('.option').classList.remove('selected');
-                    opt.checked = false;
+                // Remove selection from all options in this question
+                const allOptions = document.querySelectorAll(`.question-card .option`);
+                allOptions.forEach(opt => {
+                    const input = opt.querySelector('input[type="radio"]');
+                    if (input && input.name === `q${questionIndex}`) {
+                        input.checked = false;
+                        opt.classList.remove('selected');
+                    }
                 });
-                // Find the clicked option - handle clicks on div, input, or label
-                const clickedOption = event.target.closest('.option');
-                const clickedInput = clickedOption.querySelector('input');
-                clickedInput.checked = true;
-                clickedOption.classList.add('selected');
+                
+                // Set current selection
+                const radioInput = element.querySelector('input[type="radio"]');
+                if (radioInput) {
+                    radioInput.checked = true;
+                }
+                element.classList.add('selected');
+                userAnswers[questionIndex] = value.trim();
+                        
             } else if (type === 'checkbox') {
+                const checkbox = element.querySelector('input');
+                checkbox.checked = !checkbox.checked;
+                
                 if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
                 
-                const checkbox = event.target.closest('.option').querySelector('input');
                 if (checkbox.checked) {
                     if (!userAnswers[questionIndex].includes(value.trim())) {
                         userAnswers[questionIndex].push(value.trim());
                     }
-                    event.target.closest('.option').classList.add('selected');
+                    element.classList.add('selected');
                 } else {
                     userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-                    event.target.closest('.option').classList.remove('selected');
+                    element.classList.remove('selected');
                     
                     if (userAnswers[questionIndex].length === 0) {
                         delete userAnswers[questionIndex];
                     }
                 }
             }
+            
             updateAnswerStatus();
         }
 
@@ -1282,6 +1291,7 @@
     </script>
 </body>
 </html>
+
 
 
 
