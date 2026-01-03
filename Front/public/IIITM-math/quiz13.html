@@ -82,6 +82,34 @@
             font-size: 2rem;
             text-align: center;
         }
+            .progress-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-weight: 600;
+        }
 
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1739,6 +1767,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
