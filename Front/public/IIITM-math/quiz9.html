@@ -479,12 +479,12 @@ const answerNormalizer = {
                 if (resetSuccess) {
                     return loadQuestions(); // Retry after reset
                 } else {
-                    alert('Failed to reset progress. Please try again or contact support.');
+                    
                     window.location.href = 'iitm_math.html';
                     return false;
                 }
             } else {
-                alert('No new questions available. Returning to home page.');
+                
                 window.location.href = 'iitm_math.html';
                 return false;
             }
@@ -507,7 +507,7 @@ const answerNormalizer = {
         return true;
     } catch (error) {
         console.error('Error loading questions:', error);
-        alert('Failed to load quiz questions. Please refresh and try again.');
+        
         return false;
     }
 }
@@ -685,7 +685,7 @@ const answerNormalizer = {
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
-                alert('Error connecting to server. Please try again.');
+                
                 window.location.href = '/login.html';
                 return false;
             }
@@ -744,7 +744,7 @@ const answerNormalizer = {
             }
         } catch (error) {
             console.error('Error initializing quiz:', error);
-            alert('Error starting quiz. Please refresh and try again.');
+            
         }
     }
        
@@ -1480,7 +1480,7 @@ async function resetUserProgress() {
         }
     } catch (error) {
         console.error('Error resetting progress:', error);
-        alert('❌ Failed to reset progress. Please try again or contact support.');
+        
         return false;
     }
 }
