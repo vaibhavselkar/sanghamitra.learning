@@ -160,6 +160,20 @@
             margin: 15px 0;
             overflow-x: auto;
         }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+            color: white !important;
+            border: none !important;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            padding: 12px 30px !important;
+            border-radius: 8px !important;
+            font-size: 16px !important;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -194,14 +208,13 @@
                 <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
                 <div>
                     <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                    <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn" style="display: none;">
+                        📊 Submit Quiz
+                    </button>
                 </div>
             </div>
             
-            <div class="text-center mt-4">
-                <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">
-                    📊 Submit Quiz
-                </button>
-            </div>
+            
         </div>
 
         <!-- Results -->
@@ -1087,7 +1100,19 @@
            document.getElementById('progressFill').style.width = `${progress}%`;
            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
-           document.getElementById('nextBtn').disabled = currentQuestionIndex === questions.length - 1;
+           const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Show/hide appropriate buttons
+            if (currentQuestionIndex === questions.length - 1) {
+                // Last question: Hide Next, Show Submit button
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                // Not last question: Show Next, Hide Submit button
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
            
            
            }
@@ -1192,12 +1217,19 @@
            }
           
            function restartQuiz() {
-           currentQuestionIndex = 0;
-           userAnswers = {};
-           document.getElementById('resultsContainer').style.display = 'none';
-           document.getElementById('quizContainer').style.display = 'block';
-           renderCurrentQuestion();
-           updateProgress();
+               currentQuestionIndex = 0;
+               userAnswers = {};
+               document.getElementById('resultsContainer').style.display = 'none';
+               document.getElementById('quizContainer').style.display = 'block';
+               // Reset button visibility
+                const nextBtn = document.getElementById('nextBtn');
+                const submitBtn = document.getElementById('submitBtn');
+                
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            
+               renderCurrentQuestion();
+               updateProgress();
            }
         function goToHome() {
             window.location.href = './iitm-pdsa.html';
