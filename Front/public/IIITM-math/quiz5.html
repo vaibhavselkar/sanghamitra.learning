@@ -700,14 +700,14 @@
     let optionsHtml = '';
     if (question.type === 'multiple_choice') {
         optionsHtml = question.options.map((option, optIndex) => `
-            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', event)">
+            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
                 <input type="radio" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none;">
                 <label for="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none; cursor: pointer;">${option}</label>
             </div>
         `).join('');
     } else if (question.type === 'multiple_select') {
         optionsHtml = question.options.map((option, optIndex) => `
-            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', event)">
+            <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
                 <input type="checkbox" name="q${currentQuestionIndex}" value="${option}" id="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none;">
                 <label for="q${currentQuestionIndex}_${optIndex}" style="pointer-events: none; cursor: pointer;">${option}</label>
             </div>
@@ -873,63 +873,40 @@
             }
         }
 
- function selectOption(questionIndex, value, type, event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
+ function selectOption(questionIndex, value, type, element) {
     if (type === 'radio') {
-        userAnswers[questionIndex] = value.trim();
-        
-        // Get ALL radio inputs for this question
-        const allRadios = document.querySelectorAll(`input[name="q${questionIndex}"][type="radio"]`);
-        
-        // Uncheck all radio buttons and remove selected class
-        allRadios.forEach(radio => {
-            radio.checked = false;
-            if (radio.closest('.option')) {
-                radio.closest('.option').classList.remove('selected');
+        // Remove selection from all options in this question
+        const allOptions = document.querySelectorAll(`.question-card .option`);
+        allOptions.forEach(opt => {
+            const input = opt.querySelector('input[type="radio"]');
+            if (input && input.name === `q${questionIndex}`) {
+                input.checked = false;
+                opt.classList.remove('selected');
             }
         });
         
-        // Now find and check the clicked radio button
-        let clickedOption;
-        if (event.target.classList.contains('option')) {
-            clickedOption = event.target;
-        } else {
-            clickedOption = event.target.closest('.option');
+        // Set current selection
+        const radioInput = element.querySelector('input[type="radio"]');
+        if (radioInput) {
+            radioInput.checked = true;
         }
-        
-        if (clickedOption) {
-            const clickedRadio = clickedOption.querySelector('input[type="radio"]');
-            if (clickedRadio) {
-                clickedRadio.checked = true;
-            }
-            clickedOption.classList.add('selected');
-        }
-        
+        element.classList.add('selected');
+        userAnswers[questionIndex] = value.trim();
+                
     } else if (type === 'checkbox') {
-        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
-        
-        let clickedOption;
-        if (event.target.classList.contains('option')) {
-            clickedOption = event.target;
-        } else {
-            clickedOption = event.target.closest('.option');
-        }
-        
-        const checkbox = clickedOption.querySelector('input[type="checkbox"]');
-        
-        // Toggle checkbox state
+        const checkbox = element.querySelector('input');
         checkbox.checked = !checkbox.checked;
+        
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
         
         if (checkbox.checked) {
             if (!userAnswers[questionIndex].includes(value.trim())) {
                 userAnswers[questionIndex].push(value.trim());
             }
-            clickedOption.classList.add('selected');
+            element.classList.add('selected');
         } else {
             userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-            clickedOption.classList.remove('selected');
+            element.classList.remove('selected');
             
             if (userAnswers[questionIndex].length === 0) {
                 delete userAnswers[questionIndex];
@@ -1429,6 +1406,7 @@ if (question.type === 'interval_input') {
     </script>
 </body>
 </html>
+
 
 
 
