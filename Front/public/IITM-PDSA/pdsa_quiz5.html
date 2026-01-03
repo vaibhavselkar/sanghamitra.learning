@@ -349,9 +349,16 @@
                 <p>Quiz Completed!</p>
             </div>
             <div id="detailedResults"></div>
-            <div class="text-center mt-4">
-                <button class="btn btn-info me-3" onclick="showMyAnswers()">📋 View My Answers</button>
-                <button class="btn" onclick="restartQuiz()">🔄 Take Quiz Again</button>
+            <div class="row mt-4">
+                <div class="col-12 col-md-4 text-center text-md-start mb-2 mb-md-0">
+                    <button class="btn btn-secondary" onclick="window.history.back()">← Go Back</button>
+                </div>
+                <div class="col-12 col-md-4 text-center mb-2 mb-md-0">
+                    <button class="btn btn-info" onclick="showMyAnswers()">📋 View</button>
+                </div>
+                <div class="col-12 col-md-4 text-center text-md-end">
+                    <button class="btn" onclick="restartQuiz()">🔄 Retake</button>
+                </div>
             </div>
         </div>
     </div>
