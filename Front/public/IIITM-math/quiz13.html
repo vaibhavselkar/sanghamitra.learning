@@ -879,7 +879,7 @@ testImageAccess();
                 optionsHtml = question.options.map((option, optIndex) => {
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
-                       <div class="option" onclick="(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
+                       <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', this)">
                             <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                             <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                         </div>
@@ -889,7 +889,7 @@ testImageAccess();
                 optionsHtml = question.options.map((option, optIndex) => {
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
-                       <div class="option" onclick="(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
+                       <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', this)">
                             <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                             <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                         </div>
@@ -1105,42 +1105,28 @@ if (question.image_file) {
             }
         }
 
-        function selectOption(questionIndex, value, type, event) {
+       function selectOption(questionIndex, value, type, element) {
     if (type === 'radio') {
-        userAnswers[questionIndex] = value.trim();
-        
-        // Get all radio buttons for this question using the CORRECT selector
-        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        
-        // Uncheck all and remove selected class
-        options.forEach(opt => {
-            if (opt.closest('.option')) {
-                opt.closest('.option').classList.remove('selected');
+        // Remove selection from all options in this question
+        const allOptions = document.querySelectorAll(`.question-card .option`);
+        allOptions.forEach(opt => {
+            const input = opt.querySelector('input[type="radio"]');
+            if (input && input.name === `q${questionIndex}`) {
+                input.checked = false;
+                opt.classList.remove('selected');
             }
-            opt.checked = false;
         });
         
-        // Find the clicked element (works whether clicking on div, input, or label)
-        const clickedElement = event.target.closest ? 
-            event.target.closest('.option') : event.currentTarget;
-        
-        if (clickedElement) {
-            const clickedInput = clickedElement.querySelector('input');
-            if (clickedInput) {
-                clickedInput.checked = true;
-            }
-            clickedElement.classList.add('selected');
+        // Set current selection
+        const radioInput = element.querySelector('input[type="radio"]');
+        if (radioInput) {
+            radioInput.checked = true;
         }
+        element.classList.add('selected');
+        userAnswers[questionIndex] = value.trim();
                 
     } else if (type === 'checkbox') {
-        const clickedElement = event.target.closest ? 
-            event.target.closest('.option') : event.currentTarget;
-        
-        if (!clickedElement) return;
-        
-        const checkbox = clickedElement.querySelector('input');
-        if (!checkbox) return;
-        
+        const checkbox = element.querySelector('input');
         checkbox.checked = !checkbox.checked;
         
         if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
@@ -1149,12 +1135,11 @@ if (question.image_file) {
             if (!userAnswers[questionIndex].includes(value.trim())) {
                 userAnswers[questionIndex].push(value.trim());
             }
-            clickedElement.classList.add('selected');
+            element.classList.add('selected');
         } else {
             userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-            clickedElement.classList.remove('selected');
+            element.classList.remove('selected');
             
-            // Clean up empty array
             if (userAnswers[questionIndex].length === 0) {
                 delete userAnswers[questionIndex];
             }
@@ -1754,6 +1739,7 @@ if (question.image_file) {
     </script>
 </body>
 </html>
+
 
 
 
