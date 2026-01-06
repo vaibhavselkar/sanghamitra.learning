@@ -304,11 +304,13 @@
         .option.selected { border-color: #667eea; background: #e3f2fd; }
 
         .numeric-input {
-            width: 200px;
+            width: 100%;
+            max-width: 400px;
             padding: 12px 16px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             font-size: 16px;
+            font-family: 'Courier New', monospace;
         }
 
         .results-container {
@@ -503,6 +505,32 @@
         return shuffled;
     }
 
+      function shouldShowFormatHint(question) {
+    if (!question.format_hint) return false;
+    
+    const hint = question.format_hint.toLowerCase().trim();
+    const correctAnswer = (question.correct_answer || '').toString().toLowerCase().trim();
+    
+    // Don't show if hint contains the exact answer
+    if (hint.includes(correctAnswer)) return false;
+    
+    // Don't show if answer contains significant part of hint
+    if (correctAnswer.length > 3 && hint.includes(correctAnswer)) return false;
+    
+    // Check for numeric answers in hint
+    if (question.type === 'numeric' || question.type === 'numeric_input') {
+        const answerNum = parseFloat(correctAnswer.replace(/[^\d.-]/g, ''));
+        if (!isNaN(answerNum)) {
+            const hintNums = hint.match(/-?\d+\.?\d*/g);
+            if (hintNums && hintNums.some(hn => Math.abs(parseFloat(hn) - answerNum) < 0.01)) {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+}
+
     async function loadQuestions() {
         try {
             if (!email) {
@@ -563,6 +591,8 @@
             return false;
         }
     }
+
+      
 
     // Anti-cheating variables
     let cheatingAttempts = 0;
@@ -984,48 +1014,27 @@
             `;
         }).join('');
     } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-            let placeholder, formatExample, formatHint;
-            
+            // Use generic placeholders that don't reveal answers
+            let specificPlaceholder = "Enter your answer";
             if (question.type === 'coordinate_input') {
-                placeholder = "e.g., (3, 4) or (3,4)";
-                formatExample = "(x, y)";
-                formatHint = "✓ Accepted: (3,4) or (3, 4) | ✗ Avoid: 3,4 or [3,4]";
+                specificPlaceholder = "Enter coordinates as (x, y)";
             } else if (question.type === 'equation_input') {
-                placeholder = "e.g., y = log(x) + 2";
-                formatExample = "equation with =";
-                formatHint = "✓ Accepted: y=log(x)+2 or y = log(x) + 2 | Use log for logarithms";
+                specificPlaceholder = "Enter equation (e.g., y = mx + b)";
             } else if (question.type === 'interval_input') {
-                placeholder = "e.g., (0, ∞) or [1, 10]";
-                formatExample = "[a,b] or (a,b)";
-                formatHint = "✓ Use [ ] for inclusive, ( ) for exclusive | Use 'inf' or ∞ for infinity";
+                specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
             } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                placeholder = "e.g., 42 or -3.14 or 2.718";
-                formatExample = "number";
-                formatHint = "✓ Accepted: 42, -3.14, 0.5 | Decimals are fine";
-            } else {
-                placeholder = question.format_hint || "Enter your answer";
-                formatExample = "text";
-                formatHint = question.format_hint || "";
+                specificPlaceholder = "Enter a number";
             }
             
             optionsHtml = `
-                <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        <span style="font-size: 18px;">📝</span>
-                        <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
-                    </div>
-                    <div style="font-size: 13px; color: #666; line-height: 1.5;">
-                        ${formatHint}
-                    </div>
-                </div>
                 <input type="text" 
                        class="numeric-input" 
-                       placeholder="${placeholder}" 
+                       placeholder="${specificPlaceholder}" 
                        onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
                        oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
                        autocomplete="off"
                        spellcheck="false"
-                       style="width: 100%; max-width: 300px; font-size: 16px; font-family: 'Courier New', monospace;">
+                       style="width: 100%; max-width: 400px; font-size: 16px; font-family: 'Courier New', monospace;">
                 <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
             `;
         } else {
@@ -1716,6 +1725,7 @@ if (question.type === 'multiple_select') {
 </body>
 
 </html>
+
 
 
 
