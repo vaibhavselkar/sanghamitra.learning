@@ -409,6 +409,7 @@
         let questionStartTime = null;
         let questionTimes = {}; // Track time per question
         let questions = []; // Add this line to declare the questions array globally
+        let quizInitialized = false;
 
         // Helper to normalize answers for better matching
 // ============================================
@@ -802,61 +803,73 @@ const AnswerNormalizer = {
         }
 
        async function initializeQuiz() {
-        try {
-            // Initialize anti-cheating first
-            initializeAntiCheating();
-            
-            // CRITICAL: Wait for session validation BEFORE loading questions
-            const sessionValid = await fetchSessionInfo();
-            if (!sessionValid) {
-                console.log('Session validation failed, stopping quiz initialization');
-                return;
-            }
-            
-            // Double-check email is set
-            if (!email || !username) {
-                console.error('Email or username not set after session fetch');
-                alert('Session error. Please log in again.');
-                window.location.href = '/login.html';
-                return;
-            }
-            
-            console.log('✅ Session validated. Email:', email, 'Username:', username);
-            
-            // NOW load questions (email is guaranteed to be set)
-            const questionsLoaded = await loadQuestions();
-            if (!questionsLoaded) {
-                console.log('Failed to load questions');
-                return;
-            }
-            
-            currentUser = { username, email };
-            
-            // Initialize timing
-            initializeQuizTiming();
-            isQuizActive = true;
-            
-            // Hide loading screen and show quiz
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            
-            // Obfuscate questions
-            obfuscateQuestions();
-            
-            renderCurrentQuestion();
-            updateProgress();
-            
-            // Full screen request (optional)
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen request failed:', err);
-                });
-            }
-        } catch (error) {
-            console.error('Error initializing quiz:', error);
-            
-        }
+    // Prevent multiple initializations
+    if (quizInitialized) {
+        console.log('Quiz already initialized, skipping...');
+        return;
     }
+    
+    quizInitialized = true;
+    
+    try {
+        // Initialize anti-cheating first
+        initializeAntiCheating();
+        
+        // CRITICAL: Wait for session validation BEFORE loading questions
+        const sessionValid = await fetchSessionInfo();
+        if (!sessionValid) {
+            console.log('Session validation failed, stopping quiz initialization');
+            quizInitialized = false; // Reset flag on failure
+            return;
+        }
+        
+        // Double-check email is set
+        if (!email || !username) {
+            console.error('Email or username not set after session fetch');
+            alert('Session error. Please log in again.');
+            window.location.href = '/login.html';
+            quizInitialized = false;
+            return;
+        }
+        
+        console.log('✅ Session validated. Email:', email, 'Username:', username);
+        
+        // NOW load questions (email is guaranteed to be set)
+        const questionsLoaded = await loadQuestions();
+        if (!questionsLoaded) {
+            console.log('Failed to load questions');
+            quizInitialized = false;
+            return;
+        }
+        
+        currentUser = { username, email };
+        
+        // Initialize timing
+        initializeQuizTiming();
+        isQuizActive = true;
+        
+        // Hide loading screen and show quiz
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+        
+        // Obfuscate questions
+        obfuscateQuestions();
+        
+        renderCurrentQuestion();
+        updateProgress();
+        
+        // Full screen request (optional)
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Fullscreen request failed:', err);
+            });
+        }
+    } catch (error) {
+        console.error('Error initializing quiz:', error);
+        quizInitialized = false; // Reset flag on error
+        alert('Failed to initialize quiz. Please refresh the page.');
+    }
+}
        
 
         function renderCurrentQuestion() {
@@ -1452,13 +1465,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
             initializeQuiz();
         });
 
-        // Fallback for browsers that don't support DOMContentLoaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeQuiz);
-        } else {
-            // DOM is already loaded
-            initializeQuiz();
-        }
+        
 
       
         // Add function to reset user progress
