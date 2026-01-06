@@ -876,22 +876,58 @@
                 explanation: "All four: Deterministic (same input → same output), Uniform (even distribution), Fast (low computation), Non-invertible (cryptographic)."
             },
             {
-                questionId: 45,
-                title: "Double Hashing",
-                type: "mcq-single",
-                description: "What is the purpose of double hashing in open addressing?",
-                topic: "Hashing",
-                options: [
-                    "Reduce clustering",
-                    "Increase hash table size",
-                    "Handle duplicate keys",
-                    "Improve memory usage"
+                "questionId": 45,
+                "title": "A hash table of size 10 uses open addressing with hash function h(k) = k mod 10, and linear probing. After inserting 6 keys into an empty hash table, the table is as shown below. Which of the following can be a possible order in which the keys could have been inserted?",
+                "type": "mcq-multiple",
+                "options": [
+                    "23, 36, 72, 12, 54, 83",
+                    "36, 72, 23, 12, 54, 83", 
+                    "36, 23, 72, 12, 83, 54",
+                    "36, 23, 72, 12, 54, 83"
                 ],
-                correctAnswer: "Reduce clustering",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Double hashing uses a second hash function to determine probe sequence, reducing primary and secondary clustering."
-            },
+                "correctAnswer": ["36, 72, 23, 12, 54, 83", "36, 23, 72, 12, 54, 83"],
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "Let's analyze each insertion sequence:<br><br><strong>1) 23, 36, 72, 12, 54, 83</strong> - NOT POSSIBLE<br>- 23→index 3 ✓<br>- 36→index 6 ✓<br>- 72→index 2 ✓<br>- 12→index 2 (collision)→index 3 (collision)→index 4 ✓<br>- 54→index 4 (collision)→index 5 ✓<br>- 83→index 3 (collision)→index 4 (collision)→index 5 (collision)→index 6 (collision)→index 7 ✓<br>But 54 would be displaced by 83 from index 5, contradiction.<br><br><strong>2) 36, 72, 23, 12, 54, 83</strong> - POSSIBLE ✓<br>- 36→index 6<br>- 72→index 2<br>- 23→index 3<br>- 12→index 2→3→4<br>- 54→index 4→5<br>- 83→index 3→4→5→6→7<br><br><strong>3) 36, 23, 72, 12, 83, 54</strong> - NOT POSSIBLE ✗<br>- 36→index 6<br>- 23→index 3<br>- 72→index 2<br>- 12→index 2→3→4<br>- 83→index 3→4→5<br>- 54→index 4→5→6→7 (would be at index 7, but index 7 should have 83)<br><br><strong>4) 36, 23, 72, 12, 54, 83</strong> - POSSIBLE ✓<br>- 36→index 6<br>- 23→index 3<br>- 72→index 2<br>- 12→index 2→3→4<br>- 54→index 4→5<br>- 83→index 3→4→5→6→7",
+                "visualization": `
+                    <div class="hash-table-diagram mt-3">
+                        <p><strong>Final Hash Table State:</strong></p>
+                        <table class="table table-bordered text-center" style="max-width: 300px; margin: 0 auto;">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Index</th>
+                                    <th>Key(k)</th>
+                                    <th>Hash</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>0</td><td class="text-muted">Empty</td><td>h(0)=0</td></tr>
+                                <tr><td>1</td><td class="text-muted">Empty</td><td>h(1)=1</td></tr>
+                                <tr><td>2</td><td><strong>72</strong></td><td>h(72)=2</td></tr>
+                                <tr><td>3</td><td><strong>23</strong></td><td>h(23)=3</td></tr>
+                                <tr><td>4</td><td><strong>12</strong></td><td>h(12)=2→4</td></tr>
+                                <tr><td>5</td><td><strong>54</strong></td><td>h(54)=4→5</td></tr>
+                                <tr><td>6</td><td><strong>36</strong></td><td>h(36)=6</td></tr>
+                                <tr><td>7</td><td><strong>83</strong></td><td>h(83)=3→7</td></tr>
+                                <tr><td>8</td><td class="text-muted">Empty</td><td>h(8)=8</td></tr>
+                                <tr><td>9</td><td class="text-muted">Empty</td><td>h(9)=9</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="mt-3">
+                            <p><strong>Key hashes:</strong></p>
+                            <ul class="list-unstyled">
+                                <li>23 mod 10 = <strong>3</strong></li>
+                                <li>36 mod 10 = <strong>6</strong></li>
+                                <li>72 mod 10 = <strong>2</strong></li>
+                                <li>12 mod 10 = <strong>2</strong> (collision with 72)</li>
+                                <li>54 mod 10 = <strong>4</strong> (collision with 12)</li>
+                                <li>83 mod 10 = <strong>3</strong> (collision with 23)</li>
+                            </ul>
+                        </div>
+                        <p class="mt-2"><small>Hash function: h(k) = k mod 10<br>Collision resolution: Linear probing (check next available slot)</small></p>
+                    </div>
+                `
+            }
             {
                 questionId: 46,
                 title: "Bloom Filter False Positive",
