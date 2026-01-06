@@ -397,80 +397,7 @@
     </div>
 
     <script>
-        // Enhanced Answer validation utility with flexible infinity support
-        const answerNormalizer = {
-            normalizeInterval: (answer) => {
-                return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf') // Convert all infinity variations to 'inf'
-                    .replace(/\+inf/gi, 'inf') // Convert +inf to inf
-                    .replace(/-\s*inf/gi, '-inf') // Ensure -inf format
-                    .replace(/\[/g, '[')
-                    .replace(/\]/g, ']')
-                    .replace(/\(/g, '(')
-                    .replace(/\)/g, ')')
-                    .toLowerCase();
-            },
-            
-            normalizeCoordinate: (coord) => {
-                return (coord || '').toString().trim()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/[()]/g, '')  // Remove parentheses for comparison
-                    .toLowerCase();
-            },
-            
-            normalizeEquation: (eq) => {
-                return (eq || '').toString()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/\*\*/g, '^')  // Convert ** to ^
-                    .replace(/\^/g, '^')
-                    .replace(/\+\-/g, '-')
-                    .replace(/\-\+/g, '-')
-                    .replace(/log/gi, 'log')  // Normalize log functions
-                    .replace(/ln/gi, 'ln')    // Normalize natural log
-                    .toLowerCase();
-            },
-            
-            normalizeNumeric: (num) => {
-                const str = (num || '').toString().trim().toLowerCase();
-                
-                // Handle positive infinity variations
-                if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
-                    return Infinity;
-                }
-                
-                // Handle negative infinity variations  
-                if (str === '-inf' || str === '-infinity' || str === '-∞' || str === '-inf' || str === '-infinity') {
-                    return -Infinity;
-                }
-                
-                // Handle regular numbers
-                const cleaned = str.replace(/[^\d.-]/g, '');
-                return cleaned ? parseFloat(cleaned) : NaN;
-            },
-            
-            // New method to normalize any answer type generically
-            normalizeAnswer: (answer, questionType) => {
-                if (!answer) return '';
-                
-                const str = answer.toString().trim();
-                
-                if (questionType === 'interval_input') {
-                    return answerNormalizer.normalizeInterval(str);
-                } else if (questionType === 'numeric' || questionType === 'numeric_input') {
-                    const normalized = answerNormalizer.normalizeNumeric(str);
-                    return isFinite(normalized) ? normalized.toString() : 
-                           normalized === Infinity ? 'inf' : 
-                           normalized === -Infinity ? '-inf' : str;
-                } else if (questionType === 'coordinate_input') {
-                    return answerNormalizer.normalizeCoordinate(str);
-                } else if (questionType === 'equation_input') {
-                    return answerNormalizer.normalizeEquation(str);
-                } else {
-                    return str.toLowerCase();
-                }
-            }
-        };
+        
 
         let userAnswers = {};
         let currentUser = {};
@@ -486,6 +413,120 @@
         let cheatingAttempts = 0;
         let isQuizActive = false;
         let devToolsWarned = false;
+
+        // ============================================
+// COMPREHENSIVE ANSWER NORMALIZER
+// ============================================
+const AnswerNormalizer = {
+    // Main normalization function
+    normalize(answer, type) {
+        if (!answer) return '';
+        
+        let normalized = answer.toString().trim();
+        
+        // Apply type-specific normalization
+        switch(type) {
+            case 'interval_input':
+                return this.normalizeInterval(normalized);
+            case 'coordinate_input':
+                return this.normalizeCoordinate(normalized);
+            case 'equation_input':
+                return this.normalizeEquation(normalized);
+            case 'numeric':
+            case 'numeric_input':
+                return this.normalizeNumeric(normalized);
+            case 'multiple_choice':
+            case 'text_input':
+                return this.normalizeText(normalized);
+            default:
+                return this.normalizeText(normalized);
+        }
+    },
+    
+    // Interval notation normalization
+    normalizeInterval(answer) {
+        return answer
+            .toLowerCase()
+            .replace(/\s+/g, '')  // Remove all spaces
+            .replace(/infinity|inf/g, '∞')  // Standardize infinity
+            .replace(/−/g, '-')  // Standardize minus sign
+            .replace(/\bunion\b|∪|U/gi, '∪')  // Standardize union symbol
+            .replace(/\{|\}/g, '')  // Remove set braces if present
+            .replace(/,∪/g, '∪')  // Clean up union formatting
+            .replace(/∪,/g, '∪');
+    },
+    
+    // Coordinate normalization
+    normalizeCoordinate(answer) {
+        return answer
+            .toLowerCase()
+            .replace(/\s+/g, '')  // Remove all spaces
+            .replace(/[()]/g, '')  // Remove parentheses
+            .replace(/−/g, '-');  // Standardize minus
+    },
+    
+    // Equation normalization
+    normalizeEquation(answer) {
+        return answer
+            .toLowerCase()
+            .replace(/\s+/g, '')  // Remove all spaces
+            .replace(/\+\-/g, '-')  // Fix +- to -
+            .replace(/\-\+/g, '-')  // Fix -+ to -
+            .replace(/−/g, '-')  // Standardize minus
+            .replace(/\*\*/g, '^')  // Standardize exponents
+            .replace(/\^/g, '**');  // Allow both formats
+    },
+    
+    // Numeric normalization
+    normalizeNumeric(answer) {
+        const cleaned = answer.replace(/[^\d.-]/g, '').trim();
+        const num = parseFloat(cleaned);
+        return isNaN(num) ? '' : num.toString();
+    },
+    
+    // Text normalization
+    normalizeText(answer) {
+        return answer
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, ' ')  // Normalize whitespace
+            .replace(/all real numbers/i, 'allrealnumbers')
+            .replace(/no solution/i, 'nosolution')
+            .replace(/does not exist|dne/i, 'dne');
+    },
+    
+    // Enhanced comparison with alternatives
+    compareAnswers(userAnswer, correctAnswer, alternatives, type) {
+        const normalizedUser = this.normalize(userAnswer, type);
+        const normalizedCorrect = this.normalize(correctAnswer, type);
+        
+        // Check main answer
+        if (this.isMatch(normalizedUser, normalizedCorrect, type)) {
+            return true;
+        }
+        
+        // Check alternatives
+        if (alternatives && Array.isArray(alternatives)) {
+            return alternatives.some(alt => 
+                this.isMatch(normalizedUser, this.normalize(alt, type), type)
+            );
+        }
+        
+        return false;
+    },
+    
+    // Type-specific matching
+    isMatch(user, correct, type) {
+        if (type === 'numeric' || type === 'numeric_input') {
+            const userNum = parseFloat(user);
+            const correctNum = parseFloat(correct);
+            if (isNaN(userNum) || isNaN(correctNum)) return false;
+            const tolerance = Math.abs(correctNum) * 0.01 || 0.01;
+            return Math.abs(userNum - correctNum) <= tolerance;
+        }
+        return user === correct;
+    }
+};
         
         // Function to validate and prepare questions with default values
         function validateAndPrepareQuestions(questionsArray) {
@@ -747,40 +788,29 @@
                 </div>
             `;
         }).join('');
-    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-        let placeholder, formatExample, formatHint;
+        } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+        let placeholder, hintText;
         
         if (question.type === 'coordinate_input') {
-            placeholder = "e.g., (3, 4) or (3,4) or any format";
-            formatExample = "(x, y) - any format accepted";
-            formatHint = "✓ All formats accepted: (3,4), (3, 4), x=3,y=4";
+            placeholder = "Enter coordinate";
+            hintText = "e.g., (3, 4), (2.5, -1.3)";
         } else if (question.type === 'equation_input') {
-            placeholder = "e.g., y = log(x) + 2 or any equation";
-            formatExample = "equation with = - any format accepted";
-            formatHint = "✓ All formats accepted: y=log(x)+2, y = log(x) + 2, f(x)=x^2";
+            placeholder = "Enter equation";
+            hintText = "e.g., y = log(x) + 2";
         } else if (question.type === 'interval_input') {
-            placeholder = "e.g., (0, inf), [1, ∞), (-infinity, 5], or any interval";
-            formatExample = "[a,b] or (a,b) with any infinity format";
-            formatHint = "✓ All infinity formats: inf, infinity, Inf, ∞, -inf, -∞";
+            placeholder = "Enter interval";
+            hintText = "e.g., (0, ∞), [1, 10], (-∞, 5]";
         } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-            placeholder = "e.g., 42, -3.14, inf, -infinity, ∞, or any number";
-            formatExample = "number or infinity - any format accepted";
-            formatHint = "✓ All formats accepted: 42, -3.14, 0.5, inf, -infinity, ∞, +∞";
+            placeholder = "Enter number";
+            hintText = "e.g., 42, -3.14, inf, ∞";
         } else {
-            placeholder = "Enter your answer - any format accepted";
-            formatExample = "text - any format accepted";
-            formatHint = "✓ All text formats accepted";
+            placeholder = "Enter answer";
+            hintText = "Any format accepted";
         }
         
         optionsHtml = `
-            <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                    <span style="font-size: 18px;">📝</span>
-                    <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
-                </div>
-                <div style="font-size: 13px; color: #666; line-height: 1.5;">
-                    ${formatHint}
-                </div>
+            <div style="margin-bottom: 15px; font-size: 14px; color: #666; font-style: italic;">
+                Hint: ${hintText}
             </div>
             <input type="text" 
                    class="numeric-input" 
@@ -817,12 +847,12 @@
         <div class="question-header">
             <div class="question-number">${currentQuestionIndex + 1}</div>
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                    ${difficultyText}
+                <span style="background: ${difficultyColor[question.difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${question.difficulty}
                 </span>
             </div>
         </div>
-        <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
+        <div class="question-text">${question.question_text}</div>
         <div class="options">${optionsHtml}</div>
     `;
 
@@ -1004,34 +1034,16 @@
             return { isValidFormat, feedback, suggestion };
         }
 
-        function showValidationFeedback(questionIndex, feedback, suggestion) {
-            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
-            if (!feedbackDiv) return;
+        function showValidationFeedback(questionIndex, validation.feedback, validation.suggestion);
             
-            if (!feedback) {
-                feedbackDiv.innerHTML = '';
-                return;
+            // To this simpler version (or just remove it entirely):
+            if (validation.feedback) {
+                const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+                if (feedbackDiv) {
+                    feedbackDiv.innerHTML = `<span style="color: #28a745;">✓ ${validation.suggestion || 'Valid format'}</span>`;
+                }
             }
-            
-            const isValid = feedback.includes('✓');
-            feedbackDiv.style.cssText = `
-                background: ${isValid ? '#d4edda' : '#fff3cd'};
-                border: 1px solid ${isValid ? '#c3e6cb' : '#ffeaa7'};
-                border-radius: 6px;
-                padding: 10px;
-                margin-top: 10px;
-                font-size: 14px;
-                line-height: 1.5;
-            `;
-            
-            feedbackDiv.innerHTML = `
-                <div style="color: ${isValid ? '#155724' : '#856404'}; font-weight: 600; margin-bottom: 4px;">
-                    ${feedback}
-                </div>
-                ${suggestion ? `<div style="color: #666; font-size: 13px;">${suggestion}</div>` : ''}
-            `;
-        }
-
+        
         function handleNumericInputWithValidation(questionIndex, value) {
             handleNumericInput(questionIndex, value);
             
