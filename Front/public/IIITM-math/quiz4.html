@@ -407,6 +407,8 @@
             }
         };
 
+        
+
         let userAnswers = {};
         let currentUser = {};
         let username = null;
@@ -536,6 +538,32 @@
                
                 return false;
             }
+        }
+
+        function shouldShowFormatHint(question) {
+            if (!question.format_hint) return false;
+            
+            const hint = question.format_hint.toLowerCase().trim();
+            const correctAnswer = (question.correct_answer || '').toString().toLowerCase().trim();
+            
+            // Don't show if hint contains the exact answer
+            if (hint.includes(correctAnswer)) return false;
+            
+            // Don't show if answer contains significant part of hint
+            if (correctAnswer.length > 3 && hint.includes(correctAnswer)) return false;
+            
+            // Check for numeric answers in hint
+            if (question.type === 'numeric' || question.type === 'numeric_input') {
+                const answerNum = parseFloat(correctAnswer.replace(/[^\d.-]/g, ''));
+                if (!isNaN(answerNum)) {
+                    const hintNums = hint.match(/-?\d+\.?\d*/g);
+                    if (hintNums && hintNums.some(hn => Math.abs(parseFloat(hn) - answerNum) < 0.01)) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
         }
 
         async function loadQuestions() {
@@ -992,7 +1020,7 @@
                         // Check alternative answers
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
@@ -1001,7 +1029,7 @@
                     } else if (question.type === 'multiple_select') {
                         if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
                             const normalizeArray = (arr) => arr.map(item => 
-                                answerNormalizer.normalizeAnswer(item, question.type)).sort();
+                                    AnswerNormalizer.normalize(item, question.type)).sort();
                             const userNorm = normalizeArray(userAnswer);
                             const correctNorm = normalizeArray(question.correct_answer);
                             isCorrect = userNorm.length === correctNorm.length &&
@@ -1009,8 +1037,8 @@
                         }
                     } else if (question.type === 'numeric' || question.type === 'numeric_input') {
                         // Handle numeric comparisons with tolerance
-                        const userNum = answerNormalizer.normalizeNumeric(userAnswer);
-                        const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
+                        const userNum = AnswerNormalizer.normalizeNumeric(userAnswer);
+                        const correctNum = AnswerNormalizer.normalizeNumeric(question.correct_answer);
                         
                         if (userNum === correctNum) {
                             // Exact match (including Infinity/-Infinity)
@@ -1026,7 +1054,7 @@
                         // Check alternative numeric answers
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const altNum = answerNormalizer.normalizeNumeric(alt);
+                                const altNum = AnswerNormalizer.normalizeNumeric(alt);
                                 if (userNum === altNum) return true;
                                 if (isFinite(userNum) && isFinite(altNum)) {
                                     const tolerance = Math.max(Math.abs(altNum) * 0.01, 0.01);
@@ -1041,7 +1069,7 @@
                         // Check alternative answers
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
@@ -1050,7 +1078,7 @@
                         
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
@@ -1291,6 +1319,7 @@
     </script>
 </body>
 </html>
+
 
 
 
