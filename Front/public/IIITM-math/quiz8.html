@@ -381,40 +381,149 @@
         let questionTimes = {}; // Track time per question
         let questions = []; // Add this line to declare the questions array globally
 
-       // Helper to normalize answers for better matching
-const answerNormalizer = {
-    normalizeInterval: (answer) => {
-        return (answer || '').toString().trim()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/\[/g, '[')
-            .replace(/\]/g, ']')
-            .replace(/\(/g, '(')
-            .replace(/\)/g, ')')
-            .toLowerCase();
+// ============================================
+// COMPREHENSIVE ANSWER NORMALIZER
+// ============================================
+const AnswerNormalizer = {
+    // Main normalization function
+    normalize(answer, type) {
+        if (!answer) return '';
+        
+        let normalized = answer.toString().trim();
+        
+        // Apply type-specific normalization
+        switch(type) {
+            case 'interval_input':
+                return this.normalizeInterval(normalized);
+            case 'coordinate_input':
+                return this.normalizeCoordinate(normalized);
+            case 'equation_input':
+                return this.normalizeEquation(normalized);
+            case 'numeric':
+            case 'numeric_input':
+                return this.normalizeNumeric(normalized);
+            case 'multiple_choice':
+            case 'text_input':
+                return this.normalizeText(normalized);
+            default:
+                return this.normalizeText(normalized);
+        }
     },
     
-    normalizeCoordinate: (coord) => {
-        return (coord || '').toString().trim()
+    // Interval notation normalization
+    normalizeInterval(answer) {
+        return answer
+            .toLowerCase()
             .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/[()]/g, '')  // Remove parentheses for comparison
-            .toLowerCase();
+            .replace(/infinity|inf/g, '∞')  // Standardize infinity
+            .replace(/−/g, '-')  // Standardize minus sign
+            .replace(/\bunion\b|∪|U/gi, '∪')  // Standardize union symbol
+            .replace(/\{|\}/g, '')  // Remove set braces if present
+            .replace(/,∪/g, '∪')  // Clean up union formatting
+            .replace(/∪,/g, '∪');
     },
     
-    normalizeEquation: (eq) => {
-        return (eq || '').toString()
+    // Coordinate normalization
+    normalizeCoordinate(answer) {
+        return answer
+            .toLowerCase()
             .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/\*\*/g, '^')  // Convert ** to ^
-            .replace(/\^/g, '^')
-            .replace(/\+\-/g, '-')
-            .replace(/\-\+/g, '-')
-            .toLowerCase();
+            .replace(/[()]/g, '')  // Remove parentheses
+            .replace(/−/g, '-');  // Standardize minus
     },
     
-    normalizeNumeric: (num) => {
-        const cleaned = (num || '').toString().replace(/[^\d.-]/g, '').trim();
-        return cleaned ? parseFloat(cleaned) : NaN;
+    // Equation normalization - ENHANCED FOR QUADRATIC ROOTS
+    normalizeEquation(answer) {
+        let normalized = answer
+            .toLowerCase()
+            .replace(/\s+/g, '')  // Remove all spaces
+            .replace(/\+\-/g, '-')  // Fix +- to -
+            .replace(/\-\+/g, '-')  // Fix -+ to -
+            .replace(/−/g, '-')  // Standardize minus
+            .replace(/\*\*/g, '^')  // Standardize exponents
+            .replace(/\^/g, '**');  // Allow both formats
+        
+        // SPECIAL HANDLING FOR QUADRATIC ROOTS: x=2, x=3 vs x=3, x=2
+        const rootMatches = normalized.match(/x=[-+]?\d+\.?\d*/g);
+        if (rootMatches && rootMatches.length > 1) {
+            // Extract just the numbers
+            const roots = rootMatches.map(r => {
+                const num = parseFloat(r.replace('x=', ''));
+                return num;
+            }).sort((a, b) => a - b); // Sort numerically
+            
+            // Reconstruct in sorted order
+            normalized = roots.map(r => `x=${r}`).join(',');
+        }
+        
+        return normalized;
+    },
+    
+    // Numeric normalization
+    normalizeNumeric(answer) {
+        const cleaned = answer.replace(/[^\d.-]/g, '').trim();
+        const num = parseFloat(cleaned);
+        return isNaN(num) ? '' : num.toString();
+    },
+    
+    // Text normalization - ENHANCED FOR MULTIPLE ROOTS
+    normalizeText(answer) {
+        let normalized = answer
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, ' ')  // Normalize whitespace
+            .replace(/all real numbers/i, 'allrealnumbers')
+            .replace(/no solution/i, 'nosolution')
+            .replace(/does not exist|dne/i, 'dne');
+        
+        // SPECIAL: Handle comma-separated roots (x=2, x=3 or x=3, x=2)
+        if (normalized.includes('x=') && normalized.includes(',')) {
+            const parts = normalized.split(',').map(p => p.trim());
+            const roots = parts.map(p => {
+                const match = p.match(/x=([-+]?\d+\.?\d*)/);
+                return match ? parseFloat(match[1]) : null;
+            }).filter(r => r !== null).sort((a, b) => a - b);
+            
+            if (roots.length > 0) {
+                normalized = roots.map(r => `x=${r}`).join(',');
+            }
+        }
+        
+        return normalized;
+    },
+    
+    // Enhanced comparison with alternatives
+    compareAnswers(userAnswer, correctAnswer, alternatives, type) {
+        const normalizedUser = this.normalize(userAnswer, type);
+        const normalizedCorrect = this.normalize(correctAnswer, type);
+        
+        // Check main answer
+        if (this.isMatch(normalizedUser, normalizedCorrect, type)) {
+            return true;
+        }
+        
+        // Check alternatives
+        if (alternatives && Array.isArray(alternatives)) {
+            return alternatives.some(alt => 
+                this.isMatch(normalizedUser, this.normalize(alt, type), type)
+            );
+        }
+        
+        return false;
+    },
+    
+    // Type-specific matching
+    isMatch(user, correct, type) {
+        if (type === 'numeric' || type === 'numeric_input') {
+            const userNum = parseFloat(user);
+            const correctNum = parseFloat(correct);
+            if (isNaN(userNum) || isNaN(correctNum)) return false;
+            const tolerance = Math.abs(correctNum) * 0.01 || 0.01;
+            return Math.abs(userNum - correctNum) <= tolerance;
+        }
+        return user === correct;
     }
-}; 
+};
 
       async function loadQuestions() {
     try {
@@ -585,25 +694,15 @@ const answerNormalizer = {
         }
         
         optionsHtml = `
-            <div style="background: #f0f8ff; border: 2px dashed #667eea; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                    <span style="font-size: 18px;">📝</span>
-                    <strong style="color: #667eea;">Format Required: ${formatExample}</strong>
-                </div>
-                <div style="font-size: 13px; color: #666; line-height: 1.5;">
-                    ${formatHint}
-                </div>
-            </div>
-            <input type="text" 
-                   class="numeric-input" 
-                   placeholder="${placeholder}" 
-                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                   autocomplete="off"
-                   spellcheck="false"
-                   style="font-size: 16px; font-family: 'Courier New', monospace;">
-            <div id="feedback-${currentQuestionIndex}" style="margin-top: 10px; min-height: 24px;"></div>
-        `;
+        <input type="text" 
+               class="numeric-input" 
+               placeholder="${placeholder}" 
+               onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+               oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+               autocomplete="off"
+               spellcheck="false"
+               style="font-size: 16px; font-family: 'Courier New', monospace;">
+    `;
     }
 
     const difficultyColor = {
@@ -768,100 +867,40 @@ const answerNormalizer = {
     }
 
         function handleNumericInput(questionIndex, value) {
-    // Store trimmed value, but preserve original format for equations/intervals
-    const question = questions[questionIndex];
-    
-    if (question.type === 'coordinate_input') {
-        // For coordinates, ensure proper format but allow flexible input
-        const trimmedValue = value.trim();
-        if (trimmedValue) {
-            // If user didn't include parentheses, add them
-            if (trimmedValue.includes(',') && !trimmedValue.includes('(')) {
-                userAnswers[questionIndex] = `(${trimmedValue})`;
-            } else {
-                userAnswers[questionIndex] = trimmedValue;
+            const question = questions[questionIndex];
+            const trimmedValue = value.trim();
+            
+            if (!trimmedValue) {
+                delete userAnswers[questionIndex];
+                updateAnswerStatus();
+                return;
             }
-        } else {
-            delete userAnswers[questionIndex];
-        }
-    } else if (question.type === 'equation_input') {
-        // For equations, preserve the format but trim whitespace
-        const trimmedValue = value.trim();
-        if (trimmedValue) {
+            
+            // Store original user input (normalization happens during comparison)
             userAnswers[questionIndex] = trimmedValue;
-        } else {
-            delete userAnswers[questionIndex];
+            
+            updateAnswerStatus();
         }
-    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-        // For pure numeric, clean up the input
-        const cleanValue = value.replace(/[^\d.-]/g, '').trim();
-        if (cleanValue && !isNaN(parseFloat(cleanValue))) {
-            userAnswers[questionIndex] = cleanValue;
-        } else if (value.trim() === '') {
-            delete userAnswers[questionIndex];
-        }
-    } else {
-        // For other types, store trimmed value
-        const trimmedValue = value.trim();
-        if (trimmedValue) {
-            userAnswers[questionIndex] = trimmedValue;
-        } else {
-            delete userAnswers[questionIndex];
-        }
-    }
-    
-    updateAnswerStatus();
-}
 // Answer validation helper functions
-// Enhanced answer validation helper functions
+
 function validateAnswerFormat(questionIndex, userAnswer) {
     const question = questions[questionIndex];
     let feedback = '';
     let isValidFormat = true;
-    let suggestion = '';
     
-    if (question.type === 'coordinate_input') {
-        const coordPattern = /^\s*\(\s*-?[\d.]+\s*,\s*-?[\d.]+\s*\)\s*$/;
-        if (!coordPattern.test(userAnswer)) {
-            feedback = 'Invalid format';
-            suggestion = 'Use format: (x, y) with numbers. Example: (3, 4) or (-2.5, 1.3)';
-            isValidFormat = false;
-        } else {
-            feedback = '✓ Format correct';
-            suggestion = '';
-        }
-    } else if (question.type === 'equation_input') {
+    if (!userAnswer || !userAnswer.trim()) {
+        return { isValidFormat: false, feedback: 'Please enter an answer' };
+    }
+    
+    // Basic format checks (lenient)
+    if (question.type === 'equation_input') {
         if (!userAnswer.includes('=')) {
-            feedback = 'Missing equals sign';
-            suggestion = 'Equation must contain =. Example: y = 2x + 3';
+            feedback = 'Equation must contain = sign';
             isValidFormat = false;
-        } else {
-            feedback = '✓ Format correct';
-            suggestion = '';
-        }
-    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-        const numValue = parseFloat(userAnswer.replace(/[^\d.-]/g, ''));
-        if (isNaN(numValue)) {
-            feedback = 'Invalid number';
-            suggestion = 'Enter a valid number. Examples: 42, -3.14, 0.5';
-            isValidFormat = false;
-        } else {
-            feedback = '✓ Valid number';
-            suggestion = '';
-        }
-    } else if (question.type === 'interval_input') {
-        const intervalPattern = /^[\[\(]\s*-?[\d.]+\s*,\s*-?[\d.]+\s*[\]\)]$/;
-        if (!intervalPattern.test(userAnswer)) {
-            feedback = 'Invalid interval format';
-            suggestion = 'Use: [a,b] for inclusive or (a,b) for exclusive. Example: [0, 5) or (-2, 3]';
-            isValidFormat = false;
-        } else {
-            feedback = '✓ Format correct';
-            suggestion = '';
         }
     }
     
-    return { isValidFormat, feedback, suggestion };
+    return { isValidFormat, feedback };
 }
 
 // Real-time validation feedback display
@@ -977,30 +1016,39 @@ async function submitQuiz() {
     let isCorrect = false;
     
     // Enhanced answer checking with normalization
-    if (question.type === 'interval_input') {
-        const normalizeInterval = answerNormalizer.normalizeInterval;
-        const normalizedUser = normalizeInterval(userAnswer);
-        const normalizedCorrect = normalizeInterval(question.correct_answer);
-        isCorrect = normalizedUser === normalizedCorrect;
-        
-        // Check alternative answers if available
-        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-            isCorrect = question.alternative_answers.some(alt => 
-                normalizeInterval(alt) === normalizedUser
+    // Use comprehensive normalizer for ALL answer types
+        if (question.type === 'multiple_select') {
+            // Special handling for multiple_select
+            if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+                const userNorm = userAnswer.map(ans => 
+                    AnswerNormalizer.normalize(ans, 'text_input')
+                ).sort();
+                const correctNorm = question.correct_answer.map(ans => 
+                    AnswerNormalizer.normalize(ans, 'text_input')
+                ).sort();
+                isCorrect = userNorm.length === correctNorm.length &&
+                           userNorm.every((ans, idx) => ans === correctNorm[idx]);
+            }
+        } else {
+            // Use normalizer for all other types
+            isCorrect = AnswerNormalizer.compareAnswers(
+                userAnswer,
+                question.correct_answer,
+                question.alternative_answers,
+                question.type
             );
-        }
-    } else if (question.type === 'multiple_choice') {
-        const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
-        isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
-    } else if (question.type === 'multiple_select') {
-        if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-            const normalizeArray = (arr) => arr.map(item => item.toString().trim().toLowerCase()).sort();
-            const userNorm = normalizeArray(userAnswer);
-            const correctNorm = normalizeArray(question.correct_answer);
-            isCorrect = userNorm.length === correctNorm.length &&
-                       userNorm.every((ans, idx) => ans === correctNorm[idx]);
-        }
-    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+        } else if (question.type === 'multiple_choice') {
+                const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
+                isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
+            } else if (question.type === 'multiple_select') {
+                if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+                    const normalizeArray = (arr) => arr.map(item => item.toString().trim().toLowerCase()).sort();
+                    const userNorm = normalizeArray(userAnswer);
+                    const correctNorm = normalizeArray(question.correct_answer);
+                    isCorrect = userNorm.length === correctNorm.length &&
+                               userNorm.every((ans, idx) => ans === correctNorm[idx]);
+                }
+            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
         const userNum = answerNormalizer.normalizeNumeric(userAnswer);
         const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
         if (!isNaN(userNum) && !isNaN(correctNum)) {
@@ -1286,6 +1334,7 @@ async function submitQuiz() {
 </body>
 
 </html>
+
 
 
 
