@@ -645,21 +645,35 @@
                 explanation: "Naive recursion has call depth equal to n. For Fibonacci(10), maximum recursion depth is 10."
             },
             {
-                questionId: 29,
-                title: "Next Greater Element",
-                type: "mcq-single",
-                description: "What is the optimal approach to find next greater element for each array element?",
-                topic: "Stacks",
-                options: [
-                    "Nested loops O(n²)",
-                    "Sort array first",
-                    "Monotonic decreasing stack",
-                    "Use hash table"
+                "questionId": 29,
+                "title": "Stack and Queue Operations",
+                "type": "mcq-single",
+                "description": "Assume s is a stack and q is a queue with usual operations. What is the output of the given code snippet?",
+                "code": `s = Stack()
+            q = Queue()
+            
+            for i in range(7):
+                s.Push(i)
+                q.Enqueue(i)
+            
+            while not q.isEmpty():
+                s.Push(q.Dequeue())
+            
+            while not s.isEmpty():
+                q.Enqueue(s.Pop())
+            
+            while not q.isEmpty():
+                print(q.Dequeue(), end=" ")`,
+                "options": [
+                    "0 1 2 3 4 5 6 6 5 4 3 2 1 0",
+                    "6 5 4 3 2 1 0 0 1 2 3 4 5 6", 
+                    "6 5 4 3 2 1 0 6 5 4 3 2 1 0",
+                    "0 1 2 3 4 5 6 0 1 2 3 4 5 6"
                 ],
-                correctAnswer: "Monotonic decreasing stack",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Monotonic decreasing stack allows O(n) solution by maintaining elements in decreasing order."
+                "correctAnswer": "6 5 4 3 2 1 0 6 5 4 3 2 1 0",
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "1. First loop: s=[0,1,2,3,4,5,6] (top=6), q=[0,1,2,3,4,5,6] (front=0)\n2. Move q to s: s becomes [0,1,2,3,4,5,6,0,1,2,3,4,5,6]\n3. Move s to q: Pop from s (LIFO) gives 6,5,4,3,2,1,0,6,5,4,3,2,1,0 to q\n4. Print q (FIFO) gives: 6 5 4 3 2 1 0 6 5 4 3 2 1 0"
             },
             {
                 questionId: 30,
@@ -927,7 +941,7 @@
                         <p class="mt-2"><small>Hash function: h(k) = k mod 10<br>Collision resolution: Linear probing (check next available slot)</small></p>
                     </div>
                 `
-            }
+            },
             {
                 questionId: 46,
                 title: "Bloom Filter False Positive",
