@@ -852,16 +852,16 @@
                     </div>
                 `).join('');
           } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
-    const placeholder = question.format_hint || "Enter your answer";
-    
-    // Add specific placeholders based on type
-    let specificPlaceholder = placeholder;
+    // Use generic placeholders that don't reveal answers
+    let specificPlaceholder = "Enter your answer";
     if (question.type === 'coordinate_input') {
         specificPlaceholder = "Enter coordinates as (x, y)";
     } else if (question.type === 'equation_input') {
         specificPlaceholder = "Enter equation (e.g., y = mx + b)";
     } else if (question.type === 'interval_input') {
         specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
+    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+        specificPlaceholder = "Enter a number";
     }
     
     optionsHtml = `
@@ -872,9 +872,6 @@
                oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
                autocomplete="off"
                spellcheck="false">
-        <div class="format-help" style="font-size: 12px; color: #666; margin-top: 5px;">
-            ${question.format_hint || ''}
-        </div>
     `;
 }
 
@@ -1446,6 +1443,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
