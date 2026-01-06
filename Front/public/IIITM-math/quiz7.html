@@ -468,16 +468,32 @@ const AnswerNormalizer = {
     },
     
     // Equation normalization
-    normalizeEquation(answer) {
-        return answer
-            .toLowerCase()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/\+\-/g, '-')  // Fix +- to -
-            .replace(/\-\+/g, '-')  // Fix -+ to -
-            .replace(/−/g, '-')  // Standardize minus
-            .replace(/\*\*/g, '^')  // Standardize exponents
-            .replace(/\^/g, '**');  // Allow both formats
-    },
+    
+        normalizeEquation(answer) {
+            let normalized = answer
+                .toLowerCase()
+                .replace(/\s+/g, '')  // Remove all spaces
+                .replace(/\+\-/g, '-')  // Fix +- to -
+                .replace(/\-\+/g, '-')  // Fix -+ to -
+                .replace(/−/g, '-')  // Standardize minus
+                .replace(/\*\*/g, '^')  // Standardize exponents
+                .replace(/\^/g, '**');  // Allow both formats
+            
+            // SPECIAL HANDLING FOR QUADRATIC ROOTS: x=2, x=3 vs x=3, x=2
+            const rootMatches = normalized.match(/x=[-+]?\d+\.?\d*/g);
+            if (rootMatches && rootMatches.length > 1) {
+                // Extract just the numbers
+                const roots = rootMatches.map(r => {
+                    const num = parseFloat(r.replace('x=', ''));
+                    return num;
+                }).sort((a, b) => a - b); // Sort numerically
+                
+                // Reconstruct in sorted order
+                normalized = roots.map(r => `x=${r}`).join(',');
+            }
+            
+            return normalized;
+        },
     
     // Numeric normalization
     normalizeNumeric(answer) {
@@ -486,15 +502,31 @@ const AnswerNormalizer = {
         return isNaN(num) ? '' : num.toString();
     },
     
-    // Text normalization
+   
+    // Text normalization - ENHANCED FOR MULTIPLE ROOTS
     normalizeText(answer) {
-        return answer
+        let normalized = answer
             .toLowerCase()
             .trim()
             .replace(/\s+/g, ' ')  // Normalize whitespace
             .replace(/all real numbers/i, 'allrealnumbers')
             .replace(/no solution/i, 'nosolution')
             .replace(/does not exist|dne/i, 'dne');
+        
+        // SPECIAL: Handle comma-separated roots (x=2, x=3 or x=3, x=2)
+        if (normalized.includes('x=') && normalized.includes(',')) {
+            const parts = normalized.split(',').map(p => p.trim());
+            const roots = parts.map(p => {
+                const match = p.match(/x=([-+]?\d+\.?\d*)/);
+                return match ? parseFloat(match[1]) : null;
+            }).filter(r => r !== null).sort((a, b) => a - b);
+            
+            if (roots.length > 0) {
+                normalized = roots.map(r => `x=${r}`).join(',');
+            }
+        }
+        
+        return normalized;
     },
     
     // Enhanced comparison with alternatives
@@ -1021,15 +1053,25 @@ const AnswerNormalizer = {
             return { isValidFormat, feedback, suggestion };
         }
 
-        function showValidationFeedback(questionIndex, validation.feedback, validation.suggestion);
+        function showValidationFeedback(questionIndex, feedback, suggestion) {
+            const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
             
-            // To this simpler version (or just remove it entirely):
-            if (validation.feedback) {
-                const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
-                if (feedbackDiv) {
-                    feedbackDiv.innerHTML = `<span style="color: #28a745;">✓ ${validation.suggestion || 'Valid format'}</span>`;
-                }
+            // Create feedback div if it doesn't exist
+            if (!feedbackDiv) {
+                const container = document.querySelector('.question-card');
+                const newFeedbackDiv = document.createElement('div');
+                newFeedbackDiv.id = `feedback-${questionIndex}`;
+                newFeedbackDiv.style.marginTop = '10px';
+                container.appendChild(newFeedbackDiv);
             }
+            
+            const targetDiv = document.getElementById(`feedback-${questionIndex}`);
+            if (targetDiv && feedback) {
+                targetDiv.innerHTML = `<span style="color: #28a745;">✓ ${suggestion || 'Valid format'}</span>`;
+            } else if (targetDiv) {
+                targetDiv.innerHTML = '';
+            }
+        }
         
         function handleNumericInputWithValidation(questionIndex, value) {
             handleNumericInput(questionIndex, value);
@@ -1115,7 +1157,7 @@ const AnswerNormalizer = {
                         // Check alternative answers
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
@@ -1124,7 +1166,7 @@ const AnswerNormalizer = {
                     } else if (question.type === 'multiple_select') {
                         if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
                             const normalizeArray = (arr) => arr.map(item => 
-                                answerNormalizer.normalizeAnswer(item, question.type)).sort();
+                                AnswerNormalizer.normalize(item, question.type)).sort();
                             const userNorm = normalizeArray(userAnswer);
                             const correctNorm = normalizeArray(question.correct_answer);
                             isCorrect = userNorm.length === correctNorm.length &&
@@ -1132,8 +1174,8 @@ const AnswerNormalizer = {
                         }
                     } else if (question.type === 'numeric' || question.type === 'numeric_input') {
                         // Handle numeric comparisons with tolerance for floating point
-                        const userNum = answerNormalizer.normalizeNumeric(userAnswer);
-                        const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
+                        const userNum = AnswerNormalizer.normalizeNumeric(userAnswer);
+                        const correctNum = AnswerNormalizer.normalizeNumeric(question.correct_answer);
                         
                         if (userNum === correctNum) {
                             // Exact match (including Infinity/-Infinity)
@@ -1150,7 +1192,7 @@ const AnswerNormalizer = {
                         // Check alternative numeric answers
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const altNum = answerNormalizer.normalizeNumeric(alt);
+                                const altNum = AnswerNormalizer.normalizeNumeric(alt);
                                 if (userNum === altNum) return true;
                                 if (isFinite(userNum) && isFinite(altNum)) {
                                     const tolerance = Math.max(Math.abs(altNum) * 0.01, 0.01);
@@ -1166,7 +1208,7 @@ const AnswerNormalizer = {
                         
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
