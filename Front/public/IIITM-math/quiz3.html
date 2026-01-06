@@ -834,7 +834,7 @@
                     </div>
                 </div>
                 <div class="question-text">${question.question_text}</div>
-                ${question.format_hint ? `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
+                ${question.format_hint && !question.format_hint.includes(question.correct_answer) ?      `<div style="font-style: italic; color: #666; margin-bottom: 15px;">${question.format_hint}</div>` : ''}
                 <div class="options">${optionsHtml}</div>
             `;
 
@@ -1382,6 +1382,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
