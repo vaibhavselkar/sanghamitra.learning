@@ -173,7 +173,6 @@
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
                     <span id="progressText">Question 1 of 50</span>
-                    <span id="scoreText">Score: 0/50</span>
                 </div>
                 <div class="progress">
                     <div class="progress-bar" id="progressFill" style="width: 2%;"></div>
@@ -860,7 +859,7 @@
                 questionHTML += `<div class="options-container mt-3">`;
                 const currentAnswers = userAnswers[question.questionId] || [];
                 question.options.forEach((option, index) => {
-                    const isSelected = currentAnswers.includes(option);
+                    const isSelected = Array.isArray(currentAnswers) && currentAnswers.includes(option);
                     questionHTML += `
                         <label class="option-label ${isSelected ? 'selected' : ''}">
                             <input type="checkbox" name="q${question.questionId}" value="${option}" 
@@ -883,61 +882,62 @@
             }
 
             questionHTML += `</div>`;
+
             container.innerHTML = questionHTML;
 
-            // Attach event listeners
-            if (question.type === 'mcq-single' || question.type === 'mcq-multiple') {
-                attachOptionListeners(question);
-            }
-        }
-
-        function attachOptionListeners(question) {
-            const optionLabels = document.querySelectorAll('.option-label');
-            
-            optionLabels.forEach(label => {
-                label.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    
-                    if (question.type === 'mcq-single') {
-                        // Clear all selections
-                        document.querySelectorAll('.option-label').forEach(l => {
-                            l.classList.remove('selected');
-                            const radio = l.querySelector('input[type="radio"]');
-                            if (radio) radio.checked = false;
-                        });
+            // Use event delegation for option selection (MOST RELIABLE APPROACH)
+            setTimeout(() => {
+                const optionsContainer = container.querySelector('.options-container');
+                if (optionsContainer) {
+                    optionsContainer.addEventListener('click', function(e) {
+                        const label = e.target.closest('.option-label');
+                        if (!label) return;
                         
-                        // Select clicked option
-                        this.classList.add('selected');
-                        const radio = this.querySelector('input[type="radio"]');
-                        if (radio) {
-                            radio.checked = true;
-                            userAnswers[question.questionId] = radio.value;
-                        }
-                    } else if (question.type === 'mcq-multiple') {
-                        // Toggle selection
-                        this.classList.toggle('selected');
-                        const checkbox = this.querySelector('input[type="checkbox"]');
-                        if (checkbox) {
-                            checkbox.checked = !checkbox.checked;
+                        const input = label.querySelector('input');
+                        if (!input) return;
+                        
+                        if (question.type === 'mcq-single') {
+                            // Deselect all other options
+                            optionsContainer.querySelectorAll('.option-label').forEach(l => {
+                                l.classList.remove('selected');
+                                const inp = l.querySelector('input');
+                                if (inp && inp.type === 'radio') inp.checked = false;
+                            });
                             
-                            // Initialize array if not exists
+                            // Select clicked option
+                            label.classList.add('selected');
+                            input.checked = true;
+                            userAnswers[question.questionId] = input.value;
+                        } 
+                        else if (question.type === 'mcq-multiple') {
+                            // Toggle selection for multiple choice
+                            const wasChecked = input.checked;
+                            input.checked = !wasChecked;
+                            
+                            if (input.checked) {
+                                label.classList.add('selected');
+                            } else {
+                                label.classList.remove('selected');
+                            }
+                            
+                            // Update user answers array
                             if (!userAnswers[question.questionId]) {
                                 userAnswers[question.questionId] = [];
                             }
                             
-                            if (checkbox.checked) {
-                                if (!userAnswers[question.questionId].includes(checkbox.value)) {
-                                    userAnswers[question.questionId].push(checkbox.value);
+                            if (input.checked) {
+                                if (!userAnswers[question.questionId].includes(input.value)) {
+                                    userAnswers[question.questionId].push(input.value);
                                 }
                             } else {
-                                userAnswers[question.questionId] = userAnswers[question.questionId].filter(v => v !== checkbox.value);
+                                userAnswers[question.questionId] = userAnswers[question.questionId].filter(v => v !== input.value);
                             }
                         }
-                    }
-                    
-                    updateProgress();
-                });
-            });
+                        
+                        updateProgress();
+                    });
+                }
+            }, 10);
         }
 
         function saveNumericalAnswer(questionId, value) {
@@ -981,9 +981,7 @@
                 submitBtn.style.display = 'none';
             }
             
-            // Calculate current score
-            const currentScore = calculateCurrentScore();
-            document.getElementById('scoreText').textContent = `Score: ${currentScore}/${questions.length}`;
+    
         }
 
         function calculateCurrentScore() {
@@ -992,10 +990,11 @@
                 const userAnswer = userAnswers[question.questionId];
                 if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
                     if (question.type === 'mcq-multiple') {
+                        // For multiple-choice questions
                         const userArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
                         const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer];
                         
-                        // Sort arrays for comparison
+                        // Check if arrays contain exactly the same elements (order doesn't matter)
                         const userSorted = [...userArr].sort();
                         const correctSorted = [...correctArr].sort();
                         
@@ -1003,10 +1002,12 @@
                             score += question.maxScore;
                         }
                     } else if (question.type === 'numerical') {
+                        // For numerical questions
                         if (String(userAnswer).trim() === String(question.correctAnswer).trim()) {
                             score += question.maxScore;
                         }
                     } else {
+                        // For single-choice questions
                         if (userAnswer === question.correctAnswer) {
                             score += question.maxScore;
                         }
@@ -1050,7 +1051,7 @@
                         questionId: question.questionId,
                         title: question.title,
                         type: question.type,
-                        userAnswer: userAnswer || '',
+                        userAnswer: userAnswer || (question.type === 'mcq-multiple' ? [] : ''),
                         correctAnswer: question.correctAnswer,
                         score: isCorrect ? question.maxScore : 0,
                         maxScore: question.maxScore,
@@ -1060,7 +1061,7 @@
                 })
             };
 
-            // Try to save results (ignore errors for now)
+            // Try to save results
             try {
                 const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
                     method: 'POST',
@@ -1096,11 +1097,18 @@
             
             quizData.questions.forEach((question, index) => {
                 const isCorrect = question.score > 0;
+                const userAnswer = Array.isArray(question.userAnswer) 
+                    ? question.userAnswer.join(', ') 
+                    : question.userAnswer;
+                const correctAnswer = Array.isArray(question.correctAnswer) 
+                    ? question.correctAnswer.join(', ') 
+                    : question.correctAnswer;
+                
                 resultsHTML += `
                     <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
                         <h6>Q${index + 1}: ${question.title}</h6>
-                        <p><strong>Your Answer:</strong> ${Array.isArray(question.userAnswer) ? question.userAnswer.join(', ') : question.userAnswer || 'No answer'}</p>
-                        <p><strong>Correct Answer:</strong> ${Array.isArray(question.correctAnswer) ? question.correctAnswer.join(', ') : question.correctAnswer}</p>
+                        <p><strong>Your Answer:</strong> ${userAnswer || 'No answer'}</p>
+                        <p><strong>Correct Answer:</strong> ${correctAnswer}</p>
                         <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
                         ${question.hasExplanations ? `
                             <div class="explanation-section">
