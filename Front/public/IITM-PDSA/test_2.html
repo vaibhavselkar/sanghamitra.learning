@@ -270,14 +270,14 @@
                 explanation: "A stable sorting algorithm maintains the relative order of records with equal keys. Merge Sort and Insertion Sort are examples of stable sorts."
             },
             {
-                questionId: 6,
-                title: "What is the best-case time complexity of Insertion Sort?",
-                type: "mcq-single",
-                options: ["O(n²)", "O(n log n)", "O(n)", "O(log n)"],
-                correctAnswer: "O(n)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Insertion Sort has best-case time complexity O(n) when the array is already sorted, as it only needs to make n-1 comparisons."
+                "questionId": 6,
+                "title": "Quicksort Pivot Candidates (Modified List)",
+                "type": "numerical",
+                "description": "Consider the given list L = [5, 12, 18, 25, 34, 47, 56, 67, 73]. After applying the Quick-sort partition algorithm once, the list is modified to: [12, 5, 18, 47, 34, 25, 56, 73, 67]. The number of elements that could have been chosen as a pivot in the first round is ___?",
+                "correctAnswer": 2,
+                "maxScore": 1,
+                "hasExplanations": true,
+                "explanation": "In Quicksort, after partitioning, the pivot ends up in its final sorted position, with smaller or equal elements to its left and larger or equal elements to its right.\nComparing initial and final lists:\n- Elements 18 and 56 remain at the same indices (2 and 6 respectively).\n- These two could have been pivots:\n  * If pivot = 18: Left [12, 5] (≤18), Right [47, 34, 25, 56, 73, 67] (≥18). Final list matches.\n  * If pivot = 56: Left [12, 5, 18, 47, 34, 25] (≤56), Right [73, 67] (≥56). Final list matches.\n- Other elements changed relative positions, so they could not have been the pivot.\nThus, 2 possible pivots."
             },
             {
                 questionId: 7,
