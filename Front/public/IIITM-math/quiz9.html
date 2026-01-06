@@ -1460,12 +1460,9 @@ function handleNumericInputWithValidation(questionIndex, value) {
             }
         }
 
-        // Initialize the quiz when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeQuiz();
-        });
-
         
+
+        document.addEventListener('DOMContentLoaded', initializeQuiz);
 
       
         // Add function to reset user progress
