@@ -967,7 +967,7 @@
         optionsHtml = question.options.map((option, optIndex) => {
             const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', event)">
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', this)">
                     <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                     <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
@@ -977,7 +977,7 @@
         optionsHtml = question.options.map((option, optIndex) => {
             const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
             return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', event)">
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', this)">
                     <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
                     <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
@@ -1174,40 +1174,49 @@
         }
     }
 
-   function selectOption(questionIndex, value, type, event) {
+   function selectOption(questionIndex, value, type, element) {
     if (type === 'radio') {
-        userAnswers[questionIndex] = value.trim();
-        // Remove 'selected' class from all options AND uncheck all radio buttons
-        const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-        options.forEach(opt => {
-            opt.closest('.option').classList.remove('selected');
-            opt.checked = false;
+        // Remove selection from all options in this question
+        const allOptions = document.querySelectorAll(`.question-card .option`);
+        allOptions.forEach(opt => {
+            const input = opt.querySelector('input[type="radio"]');
+            if (input && input.name === `q${questionIndex}`) {
+                input.checked = false;
+                opt.classList.remove('selected');
+            }
         });
-        // Find the clicked option - handle clicks on div, input, or label
-        const clickedOption = event.target.closest('.option');
-        const clickedInput = clickedOption.querySelector('input');
-        clickedInput.checked = true;
-        clickedOption.classList.add('selected');
-        } else if (type === 'checkbox') {
-            if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
-            
-            const checkbox = event.target.closest('.option').querySelector('input');
-            if (checkbox.checked) {
-                if (!userAnswers[questionIndex].includes(value.trim())) {
-                    userAnswers[questionIndex].push(value.trim());
-                }
-                event.target.closest('.option').classList.add('selected');
-            } else {
-                userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-                event.target.closest('.option').classList.remove('selected');
+        
+        // Set current selection
+        const radioInput = element.querySelector('input[type="radio"]');
+        if (radioInput) {
+            radioInput.checked = true;
+        }
+        element.classList.add('selected');
+        userAnswers[questionIndex] = value.trim();
                 
-                if (userAnswers[questionIndex].length === 0) {
-                    delete userAnswers[questionIndex];
-                }
+    } else if (type === 'checkbox') {
+        const checkbox = element.querySelector('input');
+        checkbox.checked = !checkbox.checked;
+        
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+        
+        if (checkbox.checked) {
+            if (!userAnswers[questionIndex].includes(value.trim())) {
+                userAnswers[questionIndex].push(value.trim());
+            }
+            element.classList.add('selected');
+        } else {
+            userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+            element.classList.remove('selected');
+            
+            if (userAnswers[questionIndex].length === 0) {
+                delete userAnswers[questionIndex];
             }
         }
-        updateAnswerStatus();
     }
+    
+    updateAnswerStatus();
+}
 
     function handleNumericInput(questionIndex, value) {
         if (!questions || !questions[questionIndex]) return;
@@ -1384,56 +1393,28 @@
             
             let isCorrect = false;
             
-            if (question.type === 'interval_input') {
-                const normalizeInterval = answerNormalizer.normalizeInterval;
-                let normalizedUser = normalizeInterval(userAnswer);
-                let normalizedCorrect = normalizeInterval(question.correct_answer);
-                
-                normalizedUser = normalizedUser.replace(/inf|∞|infinity/gi, 'inf');
-                normalizedCorrect = normalizedCorrect.replace(/inf|∞|infinity/gi, 'inf');
-                
-                isCorrect = normalizedUser === normalizedCorrect;
-                
-                if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                    isCorrect = question.alternative_answers.some(alt => {
-                        let normalizedAlt = normalizeInterval(alt).replace(/inf|∞|infinity/gi, 'inf');
-                        return normalizedAlt === normalizedUser;
-                    });
-                }
-            } else if (question.type === 'multiple_choice') {
-                const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
-                isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
-            } else if (question.type === 'multiple_select') {
-                if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                    const normalizeArray = (arr) => arr.map(item => item.toString().trim().toLowerCase()).sort();
-                    const userNorm = normalizeArray(userAnswer);
-                    const correctNorm = normalizeArray(question.correct_answer);
-                    isCorrect = userNorm.length === correctNorm.length &&
-                               userNorm.every((ans, idx) => ans === correctNorm[idx]);
-                }
-            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                const userNum = answerNormalizer.normalizeNumeric(userAnswer);
-                const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
-                if (!isNaN(userNum) && !isNaN(correctNum)) {
-                    const tolerance = Math.max(Math.abs(correctNum) * 0.01, 0.01);
-                    isCorrect = Math.abs(userNum - correctNum) <= tolerance;
-                }
-            } else if (question.type === 'coordinate_input') {
-                const normalizeCoord = answerNormalizer.normalizeCoordinate;
-                isCorrect = normalizeCoord(userAnswer) === normalizeCoord(question.correct_answer);
-            } else if (question.type === 'equation_input') {
-                const normalizeEq = answerNormalizer.normalizeEquation;
-                isCorrect = normalizeEq(userAnswer) === normalizeEq(question.correct_answer);
-                
-                if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                    isCorrect = question.alternative_answers.some(alt => 
-                        normalizeEq(alt) === normalizeEq(userAnswer)
-                    );
-                }
-            } else {
-                const normalizeText = (text) => (text || '').toString().trim().toLowerCase();
-                isCorrect = normalizeText(userAnswer) === normalizeText(question.correct_answer);
-            }
+            // Use comprehensive normalizer for ALL answer types
+if (question.type === 'multiple_select') {
+    // Special handling for multiple_select
+    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+        const userNorm = userAnswer.map(ans => 
+            AnswerNormalizer.normalize(ans, 'text_input')
+        ).sort();
+        const correctNorm = question.correct_answer.map(ans => 
+            AnswerNormalizer.normalize(ans, 'text_input')
+        ).sort();
+        isCorrect = userNorm.length === correctNorm.length &&
+                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
+    }
+} else {
+    // Use normalizer for all other types
+    isCorrect = AnswerNormalizer.compareAnswers(
+        userAnswer,
+        question.correct_answer,
+        question.alternative_answers,
+        question.type
+    );
+}
             
             if (isCorrect) {
                 score += question.points;
@@ -1735,6 +1716,7 @@
 </body>
 
 </html>
+
 
 
 
