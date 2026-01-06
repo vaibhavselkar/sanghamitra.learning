@@ -766,6 +766,67 @@
     }
 }
 
+                // Smart hint validator - prevents hints from revealing answers
+        function shouldShowFormatHint(question) {
+            if (!question.format_hint) return false;
+            
+            const hint = question.format_hint.toLowerCase().trim();
+            const correctAnswer = (question.correct_answer || '').toString().toLowerCase().trim();
+            
+            // Don't show if hint contains the exact answer
+            if (hint.includes(correctAnswer)) return false;
+            
+            // Don't show if answer contains significant part of hint (reverse check)
+            if (correctAnswer.length > 3 && hint.includes(correctAnswer)) return false;
+            
+            // Check for normalized versions
+            if (question.type === 'interval_input') {
+                const normalizedAnswer = correctAnswer
+                    .replace(/\s+/g, '')
+                    .replace(/infinity|inf/g, '∞')
+                    .replace(/−/g, '-');
+                if (hint.includes(normalizedAnswer)) return false;
+            }
+            
+            // Check for coordinate answers like (3,4)
+            if (question.type === 'coordinate_input') {
+                const coordPattern = /\(?\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*\)?/g;
+                const answerCoords = correctAnswer.match(coordPattern);
+                const hintCoords = hint.match(coordPattern);
+                
+                if (answerCoords && hintCoords) {
+                    const normalizeCoord = (c) => c.replace(/\s+/g, '').replace(/[()]/g, '');
+                    if (answerCoords.some(ac => hintCoords.some(hc => normalizeCoord(ac) === normalizeCoord(hc)))) {
+                        return false;
+                    }
+                }
+            }
+            
+            // Check for equation answers like y=2x+3
+            if (question.type === 'equation_input') {
+                const normalizedAnswer = correctAnswer.replace(/\s+/g, '').replace(/\*/g, '');
+                const normalizedHint = hint.replace(/\s+/g, '').replace(/\*/g, '');
+                if (normalizedHint.includes(normalizedAnswer) || normalizedAnswer.includes(normalizedHint)) {
+                    return false;
+                }
+            }
+            
+            // Check for numeric answers
+            if (question.type === 'numeric' || question.type === 'numeric_input') {
+                const answerNum = parseFloat(correctAnswer.replace(/[^\d.-]/g, ''));
+                if (!isNaN(answerNum)) {
+                    // Check if hint contains the number
+                    const hintNums = hint.match(/-?\d+\.?\d*/g);
+                    if (hintNums && hintNums.some(hn => Math.abs(parseFloat(hn) - answerNum) < 0.01)) {
+                        return false;
+                    }
+                }
+            }
+            
+            // Safe to show hint
+            return true;
+        }
+
         function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
@@ -1382,6 +1443,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
     </script>
 </body>
 </html>
+
 
 
 
