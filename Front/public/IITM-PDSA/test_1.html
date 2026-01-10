@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Programming Quiz</title>
-    
+    <!-- In your quiz HTML file -->
+    <script src="anti-cheating.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -166,6 +167,7 @@
             transform: translateY(-2px) scale(1.05);
             box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         }
+
     </style>
 </head>
 <body>
@@ -173,6 +175,9 @@
         <div class="header">
             <h1>🐍 Python Programming Quiz</h1>
             <p>Test your knowledge of Python programming concepts, functions, and logic</p>
+            <small style="opacity: 0.8; display: block; margin-top: 10px;">
+                ⚠️ Anti-cheating measures are active. Do not switch tabs or windows.
+            </small>
         </div>
 
         <!-- Loading Screen -->
@@ -238,6 +243,47 @@
     </div>
 
     <script>
+
+        // At the beginning of your quiz initialization
+        let antiCheating;
+        let isQuizActive = false; // Track if quiz is active
+
+        // Initialize everything when DOM is ready
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🔒 Initializing quiz with anti-cheating...');
+            
+            try {
+                // First, get user session if available
+                currentUser = { username: 'TestUser', email: 'test@example.com' };
+                
+                try {
+                    const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                        credentials: 'include',
+                        mode: 'cors'
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.username && data.email) {
+                            currentUser = { username: data.username, email: data.email };
+                            console.log('✅ User logged in:', currentUser);
+                        }
+                    }
+                } catch (error) {
+                    console.log('ℹ️ Using test user for demo');
+                }
+                
+                // Start your quiz initialization
+                initializeQuiz();
+                
+            } catch (error) {
+                console.error('Failed to initialize quiz:', error);
+                document.getElementById('loadingScreen').innerHTML = 
+                    '<h3>Error loading quiz</h3><p>Please refresh the page</p>';
+            }
+        });
+
+        
 
         const questions = [
             {
@@ -1235,6 +1281,7 @@ print(result)`,
         "explanation": "List slicing [1:4] includes elements from index 1 up to, but not including, index 4. So elements at indices 1, 2, and 3: 2, 3, 4."
     }
     
+    
         ];
 
         let currentQuestionIndex = 0;
@@ -1265,6 +1312,55 @@ print(result)`,
                 }
             } catch (error) {
                 console.log('ℹ️ Using test user for demo');
+            }
+            
+            // Initialize anti-cheating AFTER getting user info
+            if (window.AntiCheating) {
+                antiCheating = AntiCheating.initialize({
+                    quizName: "Python Basics Quiz",
+                    requestFullscreen: true,
+                    user: currentUser,
+                    autoSubmitThreshold: 10, // Auto-submit after 10 violations
+                    allowTextSelection: true // Allow text selection for reading questions
+                });
+
+                // Allow text selection for specific elements
+                AntiCheating.allowSelection('.code-block pre, .option-label, .numerical-input, .explanation-section');
+                
+                // Mark quiz as active
+                isQuizActive = true;
+                
+                // Listen for auto-submission due to cheating
+                // Listen for auto-submission due to cheating
+            document.addEventListener('cheatingAutoSubmit', function(e) {
+                console.log('Auto-submitting due to cheating:', e.detail);
+                
+                // Deactivate anti-cheating BEFORE submitting
+                if (antiCheating && AntiCheating.deactivate) {
+                    AntiCheating.deactivate();
+                    console.log('🔒 Anti-cheating deactivated for auto-submission');
+                }
+                
+                // Set quiz as inactive
+                isQuizActive = false;
+                
+                // Remove blur if present
+                document.body.classList.remove('blurred');
+                
+                // Hide warning overlay if showing
+                const warningOverlay = document.getElementById('warningOverlay');
+                if (warningOverlay) {
+                    warningOverlay.style.display = 'none';
+                }
+                
+                // Now submit the quiz
+                submitQuiz();
+            });
+                
+            } else {
+                console.error('❌ AntiCheating library not loaded!');
+                // If anti-cheating not available, still run quiz
+                isQuizActive = true;
             }
             
             document.getElementById('loadingScreen').style.display = 'none';
@@ -1312,24 +1408,27 @@ print(result)`,
                     `;
                 });
                 questionHTML += `</div>`;
+                                
             } else if (question.type === 'mcq-multiple') {
                                 
-                    questionHTML += `<div class="options-container mt-3">`;
-                    const currentAnswers = userAnswers[question.questionId] || [];
-                    question.options.forEach((option, index) => {
-                        const isSelected = Array.isArray(currentAnswers) && currentAnswers.includes(option);
-                        // FIX: Convert \n to <br> for proper line breaks
-                        const formattedOption = option.replace(/\n/g, '<br>');
-                        
-                        questionHTML += `
-                            <label class="option-label ${isSelected ? 'selected' : ''}">
-                                <input type="checkbox" name="q${question.questionId}" value="${option}" 
-                                    ${isSelected ? 'checked' : ''} style="display: none;">
-                                <div style="font-family: 'Courier New', monospace; white-space: pre-wrap; padding: 5px;">${formattedOption}</div>
-                            </label>
-                        `;
-                    });
-                    questionHTML += `</div>`;
+                questionHTML += `<div class="options-container mt-3">`;
+                const currentAnswers = userAnswers[question.questionId] || [];
+                question.options.forEach((option, index) => {
+                    const isSelected = Array.isArray(currentAnswers) && currentAnswers.includes(option);
+                    // FIX: Convert \n to <br> for proper line breaks
+                    const formattedOption = option.replace(/\n/g, '<br>');
+                    
+                    questionHTML += `
+                        <label class="option-label ${isSelected ? 'selected' : ''}">
+                            <input type="checkbox" name="q${question.questionId}" value="${option}" 
+                                ${isSelected ? 'checked' : ''} style="display: none;">
+                            <div style="font-family: 'Courier New', monospace; white-space: pre-wrap; padding: 5px;">${formattedOption}</div>
+                        </label>
+                    `;
+                });
+                questionHTML += `</div>`;
+    
+
                 
             } else if (question.type === 'numerical') {
                 const currentAnswer = userAnswers[question.questionId] || '';
@@ -1476,6 +1575,19 @@ print(result)`,
         }
 
         async function submitQuiz() {
+            // Deactivate anti-cheating FIRST
+            if (antiCheating && AntiCheating.deactivate) {
+                AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated after submission');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            // Disable the submit button to prevent multiple submissions
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.disabled = true;
+            
             const quizData = {
                 username: currentUser.username,
                 email: currentUser.email,
@@ -1542,7 +1654,7 @@ print(result)`,
 
             showResults(quizData);
         }
-
+        
         function showResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
@@ -1581,25 +1693,73 @@ print(result)`,
         }
 
         function restartQuiz() {
+            // Reset all quiz variables
             currentQuestionIndex = 0;
             userAnswers = {};
+            window.quizSubmitted = false;
+            window.quizAutoSubmitted = false;
+            
+            // Hide results, show quiz
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('quizContainer').style.display = 'block';
+            
             // Reset button visibility
             const nextBtn = document.getElementById('nextBtn');
             const submitBtn = document.getElementById('submitBtn');
             
             nextBtn.style.display = 'inline-block';
             submitBtn.style.display = 'none';
+            submitBtn.disabled = false; // Re-enable submit button
+            
+            // RE-ACTIVATE anti-cheating for retake
+            if (window.AntiCheating) {
+                // First clean up any existing instance
+                if (antiCheating && AntiCheating.deactivate) {
+                    AntiCheating.deactivate();
+                }
+                
+                // Re-initialize anti-cheating
+                antiCheating = AntiCheating.initialize({
+                    quizName: "Python Basics",
+                    requestFullscreen: true,
+                    user: currentUser,
+                    autoSubmitThreshold: 10,
+                    allowTextSelection: true
+                });
+
+                // Allow text selection for specific elements
+                AntiCheating.allowSelection('.code-block pre, .option-label, .numerical-input, .explanation-section');
+                
+                // Mark quiz as active again
+                isQuizActive = true;
+                
+                console.log('🔒 Anti-cheating reactivated for retake');
+            }
+            
+            // Render first question and update progress
             renderCurrentQuestion();
             updateProgress();
         }
+
         function goToHome() {
-            window.location.href = './iitm-pdsa.html';
+            // Deactivate anti-cheating before leaving
+            if (antiCheating && AntiCheating.deactivate) {
+                AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for home navigation');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            // Exit fullscreen if active
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            
+            // Redirect to home page
+            window.location.href = './iitm-pdsa.html'; // Adjust path if needed
         }
 
-        // REPLACE the Monaco initialization with this:
-        document.addEventListener('DOMContentLoaded', initializeQuiz);
     </script>
 </body>
 </html>
