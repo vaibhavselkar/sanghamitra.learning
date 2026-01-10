@@ -762,14 +762,7 @@
             questionDiv.innerHTML = `
                 <div class="question-header">
                     <div class="question-number">${currentQuestionIndex + 1}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${difficultyText}
-                        </span>
-                        
-                            ${topicName}
-                        </span>
-                    </div>
+                    
                 </div>
                 <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
                 <div class="options">${optionsHtml}</div>
@@ -1299,4 +1292,5 @@
     </script>
 </body>
 </html>
+
 
