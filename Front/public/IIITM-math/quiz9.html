@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Logarithmic Functions Quiz</title>
    
-     <style>
+      <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -34,54 +34,13 @@
         .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
         .header p { font-size: 1.1rem; opacity: 0.9; }
 
-        .user-form {
-            padding: 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        /* Anti-cheating CSS */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
         }
-        
-        body {
-            -webkit-print-color-adjust: exact;
-            pointer-events: auto;
-        }
-        
-        /* Disable context menu */
-        .no-context {
-            pointer-events: none;
-        }
-        
-        /* Hide scrollbars to prevent inspection */
-        ::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-        }
-        
-        /* Blur content when window loses focus */
-        body.blurred {
-            filter: blur(5px);
-            pointer-events: none;
-        }
-        
-        /* Warning overlay */
+
         .warning-overlay {
             position: fixed;
             top: 0;
@@ -275,11 +234,13 @@
         .option.selected { border-color: #667eea; background: #e3f2fd; }
 
         .numeric-input {
-            width: 200px;
+            width: 100%;
+            max-width: 400px;
             padding: 12px 16px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             font-size: 16px;
+            font-family: 'Courier New', monospace;
         }
 
         .results-container {
@@ -300,38 +261,213 @@
 
         .score-display h2 { font-size: 2.5rem; margin-bottom: 10px; }
         .hidden { display: none; }
-        
-        /* Difficulty badges */
-        .difficulty-badge {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            text-transform: uppercase;
+
+        /* Calculator Styles */
+        .calculator-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 9999;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
         }
 
-        .difficulty-easy { background: #d4edda; color: #155724; }
-        .difficulty-medium { background: #fff3cd; color: #856404; }
-        .difficulty-hard { background: #f8d7da; color: #721c24; }
-        /* Results review styling */
-.results-container h3 {
-    color: #333;
-    border-bottom: 2px solid #667eea;
-    padding-bottom: 10px;
-}
+        .calculator-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
 
-@media (max-width: 768px) {
-    .results-container {
-        padding: 15px;
-    }
-    
-    .score-display {
-        padding: 20px;
-    }
-    
-    .score-display h2 {
-        font-size: 2rem;
-    }
-}
+        .calculator-modal {
+            position: fixed;
+            width: 590px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            cursor: move;
+            user-select: none;
+        }
+
+        .calculator-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .calculator-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .calculator-header .help-btn {
+            background: #4fc3f7;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: auto;
+            margin-right: 10px;
+        }
+
+        .calculator-header .minimize-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+
+        .mode-selector {
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .mode-selector label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        #resultDisplay {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 1.8rem;
+            text-align: right;
+            border: none;
+            background: transparent;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .calc-btn.operator {
+            background: #ff6b6b;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calc-btn.equals {
+            background: #51cf66;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calc-btn.memory {
+            background: #e3e8ff;
+            color: #667eea;
+            font-size: 0.85rem;
+        }
+
+        .calculator-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .calculator-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .calculator-display {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        #calcDisplay {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.5rem;
+            text-align: right;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .calculator-buttons {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #f8f9fa;
+        }
+
+        .calc-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calc-btn {
+            flex: 1;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: white;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .calc-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        .calc-btn.func {
+            background: #e3e8ff;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .calc-btn.sci {
+            font-size: 0.9rem;
+            padding: 10px 0;
+            background: #f0f0f0;
+        }
+
+        @media (max-width: 768px) {
+            .results-container { padding: 15px; }
+            .score-display { padding: 20px; }
+            .score-display h2 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
@@ -1500,6 +1636,300 @@ async function resetUserProgress() {
             // go to iitm_math.html
             window.location.href = 'iitm_math.html';
         }
+                // SCIENTIFIC CALCULATOR FUNCTIONS
+        // ============================================
+        let calculatorOpen = false;
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let angleMode = 'Deg';
+        let memory = 0;
+
+        function calcFunction(func) {
+            const display = document.getElementById('calcDisplay');
+            const value = parseFloat(display.value) || 0;
+            let result;
+            
+            switch(func) {
+                case 'sin':
+                case 'cos':
+                case 'tan':
+                    result = angleMode === 'Deg' ? 
+                        Math[func](value * Math.PI / 180) : 
+                        Math[func](value);
+                    break;
+                case 'sin⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.asin(value) * 180 / Math.PI : 
+                        Math.asin(value);
+                    break;
+                case 'cos⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.acos(value) * 180 / Math.PI : 
+                        Math.acos(value);
+                    break;
+                case 'tan⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.atan(value) * 180 / Math.PI : 
+                        Math.atan(value);
+                    break;
+                case 'sinh':
+                    result = Math.sinh(value);
+                    break;
+                case 'cosh':
+                    result = Math.cosh(value);
+                    break;
+                case 'tanh':
+                    result = Math.tanh(value);
+                    break;
+                case 'ln':
+                    result = Math.log(value);
+                    break;
+                case 'log':
+                    result = Math.log10(value);
+                    break;
+                case 'eˣ':
+                    result = Math.exp(value);
+                    break;
+                case '10ˣ':
+                    result = Math.pow(10, value);
+                    break;
+                case 'x²':
+                    result = value * value;
+                    break;
+                case 'x³':
+                    result = value * value * value;
+                    break;
+                case '1/x':
+                    result = 1 / value;
+                    break;
+                case 'n!':
+                    result = factorial(value);
+                    break;
+                case '|x|':
+                    result = Math.abs(value);
+                    break;
+                default:
+                    return;
+            }
+            
+            document.getElementById('resultDisplay').value = result;
+            document.getElementById('calcDisplay').value = result;
+        }
+
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function memoryFunction(func) {
+            const value = parseFloat(document.getElementById('resultDisplay').value) || 0;
+            
+            switch(func) {
+                case 'MC':
+                    memory = 0;
+                    break;
+                case 'MR':
+                    document.getElementById('calcDisplay').value = memory;
+                    break;
+                case 'MS':
+                    memory = value;
+                    break;
+                case 'M+':
+                    memory += value;
+                    break;
+                case 'M-':
+                    memory -= value;
+                    break;
+            }
+        }
+
+        function toggleCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            calculatorOpen = !calculatorOpen;
+            
+            if (calculatorOpen) {
+                modal.style.display = 'flex';
+                btn.style.display = 'none';
+                
+                if (!modal.style.left && !modal.style.top) {
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    const modalWidth = modal.offsetWidth;
+                    const modalHeight = modal.offsetHeight;
+                    
+                    modal.style.left = (viewportWidth - modalWidth - 20) + 'px';
+                    modal.style.top = (viewportHeight - modalHeight - 100) + 'px';
+                }
+                
+                setTimeout(() => {
+                    document.getElementById('calcDisplay').focus();
+                }, 100);
+            } else {
+                modal.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+        }
+
+        function initializeDrag() {
+            const modal = document.getElementById('calculatorModal');
+            const header = modal.querySelector('.calculator-header');
+            
+            header.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function startDrag(e) {
+            if (e.target.closest('.calculator-close') || e.target.closest('.calc-btn')) {
+                return;
+            }
+            
+            const modal = document.getElementById('calculatorModal');
+            isDragging = true;
+            
+            const rect = modal.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            
+            modal.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const modal = document.getElementById('calculatorModal');
+            const x = e.clientX - dragOffsetX;
+            const y = e.clientY - dragOffsetY;
+            
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const modalWidth = modal.offsetWidth;
+            const modalHeight = modal.offsetHeight;
+            
+            let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
+            let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
+            
+            modal.style.left = finalX + 'px';
+            modal.style.top = finalY + 'px';
+            
+            e.preventDefault();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            const modal = document.getElementById('calculatorModal');
+            modal.style.cursor = 'move';
+        }
+
+        function addToDisplay(value) {
+            const display = document.getElementById('calcDisplay');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            if (resultDisplay.value !== '0' && display.value === '') {
+                resultDisplay.value = '0';
+            }
+            
+            display.value += value;
+            display.focus();
+        }
+
+        function clearCalculator() {
+            document.getElementById('calcDisplay').value = '';
+            document.getElementById('resultDisplay').value = '0';
+        }
+
+        function backspace() {
+            const display = document.getElementById('calcDisplay');
+            display.value = display.value.slice(0, -1);
+        }
+
+        function calculateResult() {
+            const display = document.getElementById('calcDisplay');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            try {
+                let expression = display.value
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/\^/g, '**')
+                    .replace(/√/g, 'Math.sqrt')
+                    .replace(/π/g, 'Math.PI')
+                    .replace(/e(?![a-zA-Z])/g, 'Math.E');
+                
+                const allowedChars = /^[0-9+\-*/().^MathsincostanasinacosatanlogexpsqrtPIElE, ]+$/;
+                
+                if (!allowedChars.test(expression)) {
+                    throw new Error('Invalid characters');
+                }
+                
+                const safeEval = new Function('return ' + expression);
+                let result = safeEval();
+                
+                if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+                    result = Math.round(result * 100000000) / 100000000;
+                }
+                
+                resultDisplay.value = result;
+                
+            } catch (error) {
+                resultDisplay.value = 'Error';
+                setTimeout(() => {
+                    resultDisplay.value = '0';
+                }, 1500);
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (!calculatorOpen) return;
+            
+            const display = document.getElementById('calcDisplay');
+            if (!display) return;
+            
+            if (/[\d\+\-\*\/\(\)\.=%]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                
+                if (e.key === 'Enter' || e.key === '=') {
+                    calculateResult();
+                } else if (e.key === 'Escape') {
+                    clearCalculator();
+                } else if (e.key === 'Backspace') {
+                    backspace();
+                } else {
+                    addToDisplay(e.key);
+                }
+            }
+        });
+
+        setTimeout(() => {
+            if (document.getElementById('calculatorModal')) {
+                initializeDrag();
+            }
+            
+            const degMode = document.getElementById('degMode');
+            const radMode = document.getElementById('radMode');
+            
+            if (degMode) degMode.addEventListener('change', () => angleMode = 'Deg');
+            if (radMode) radMode.addEventListener('change', () => angleMode = 'Rad');
+        }, 1000);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeQuiz();
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeQuiz);
+        } else {
+            initializeQuiz();
+        
     </script>
 </body>
 </html>
