@@ -4,8 +4,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorting Algorithms Quiz</title>
+    <!-- Load Anti-Cheating Library -->
+    <script src="anti-cheating.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* ANTI-CHEATING CSS */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Allow text selection only for specific elements */
+        .code-block pre,
+        .option-label,
+        .numerical-input,
+        .explanation-section,
+        .question-card h4,
+        .question-card p {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        
+        /* Warning overlay */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 2rem;
+            text-align: center;
+            flex-direction: column;
+        }
+        
+        .warning-overlay h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+        
+        /* Blur effect when tab switching */
+        body.blurred {
+            filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        /* Security indicator */
+        .security-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .security-indicator.warning {
+            background: rgba(220, 53, 69, 0.9);
+            animation: pulse 1s infinite;
+        }
+        
+        .security-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Original styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -246,12 +335,29 @@
     </style>
 </head>
 <body>
+    <!-- Security Indicator -->
+    <div id="securityIndicator" class="security-indicator">
+        <div class="security-dot"></div>
+        <span id="securityText">Monitoring Active</span>
+    </div>
+
+    <!-- Warning overlay -->
+    <div id="warningOverlay" class="warning-overlay">
+        <div>
+            <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
+            <p style="font-size: 1.5rem;">Please return to the quiz window</p>
+            <p style="font-size: 1.2rem;">Your activity is being monitored and logged</p>
+            <p style="font-size: 1rem; margin-top: 20px;">Attempts logged: <span id="attemptCount">0</span></p>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading-spinner"></div>
             <h3>Loading Sorting Algorithms Quiz...</h3>
             <p>Preparing your test environment</p>
+            <small style="opacity: 0.8;">Anti-cheating measures will be activated</small>
         </div>
 
         <!-- Quiz Container -->
@@ -260,6 +366,9 @@
                 <h3>🔬 Sorting Algorithms Quiz</h3>
                 <p>Test your knowledge of Quick Sort, Merge Sort, and algorithm time complexity</p>
                 <p id="questionCount">50 Questions</p>
+                <small style="opacity: 0.8; display: block; margin-top: 10px;">
+                    ⚠️ Anti-cheating measures are active. Do not switch tabs or windows.
+                </small>
             </div>
             
             <div class="progress-container mb-4">
@@ -291,6 +400,7 @@
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
                 <p class="mt-2"><strong>Topic:</strong> Sorting Algorithms</p>
+                <p id="cheatingLog" style="font-size: 0.9rem; opacity: 0.8;"></p>
             </div>
             <div id="detailedResults"></div>
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -311,47 +421,133 @@
     </div>
 
     <script>
+        // Anti-cheating variables
+        let antiCheating;
+        let isQuizActive = false;
+        let cheatingAttempts = 0;
+        let tabSwitchCount = 0;
+        
         let questions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
         let currentUser = {};
         
-        // API Configuration - UPDATE THESE URLs to match your backend
-        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app'; // Change this to your actual backend URL
+        // API Configuration
+        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
         const QUESTIONS_API = `${API_BASE_URL}/questions/Sorting%20Algorithms?limit=50`;
         const SESSION_API = `${API_BASE_URL}/session-info`;
         const SUBMISSION_API = `${API_BASE_URL}/algorithm-submissions`;
+        const CHEATING_LOG_API = `${API_BASE_URL}/log-cheating`;
+
+        // Initialize quiz when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🔒 Initializing Sorting Algorithms Quiz with anti-cheating...');
+            
+            try {
+                // First, get user session if available
+                currentUser = { username: 'TestUser', email: 'test@example.com' };
+                
+                try {
+                    const response = await fetch(SESSION_API, {
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.username && data.email) {
+                            currentUser = { username: data.username, email: data.email };
+                            console.log('✅ User logged in:', currentUser);
+                        }
+                    }
+                } catch (error) {
+                    console.log('ℹ️ Using test user for demo');
+                }
+                
+                // Start quiz initialization
+                initializeQuiz();
+                
+            } catch (error) {
+                console.error('Failed to initialize quiz:', error);
+                document.getElementById('loadingScreen').innerHTML = 
+                    '<div class="error-message"><h3>Error Loading Quiz</h3><p>Please refresh the page</p><button class="btn mt-3" onclick="location.reload()">Retry</button></div>';
+            }
+        });
+
+        // Listen for auto-submission due to cheating
+        document.addEventListener('cheatingAutoSubmit', function(e) {
+            console.log('Auto-submitting due to cheating:', e.detail);
+            
+            // Mark as auto-submitted
+            window.quizAutoSubmitted = true;
+            
+            // Deactivate anti-cheating immediately
+            if (antiCheating && AntiCheating.deactivate) {
+                AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for auto-submission');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            // Remove blur and show results clearly
+            document.body.classList.remove('blurred');
+            
+            // Hide warning overlay immediately
+            const warningOverlay = document.getElementById('warningOverlay');
+            if (warningOverlay) {
+                warningOverlay.style.display = 'none';
+            }
+            
+            // Exit fullscreen for better viewing
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            
+            // Enable text selection for results
+            document.querySelectorAll('*').forEach(el => {
+                el.style.userSelect = 'auto';
+                el.style.webkitUserSelect = 'auto';
+            });
+            
+            // Now submit the quiz
+            submitQuiz();
+        });
 
         async function initializeQuiz() {
             console.log('🚀 Initializing Sorting Algorithms Quiz...');
             
             // Set default user
-            currentUser = { username: 'TestUser', email: 'test@example.com' };
             userAnswers = {};
-            
-            // Try to get user session
-            try {
-                const response = await fetch(SESSION_API, {
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.username && data.email) {
-                        currentUser = { username: data.username, email: data.email };
-                        console.log('✅ User logged in:', currentUser);
-                    }
-                }
-            } catch (error) {
-                console.log('ℹ️ Using test user for demo');
-            }
             
             // Fetch random questions for Sorting Algorithms
             await fetchRandomQuestions();
+            
+            // Initialize anti-cheating AFTER getting questions
+            if (window.AntiCheating && questions.length > 0) {
+                antiCheating = AntiCheating.initialize({
+                    quizName: "Sorting Algorithms Quiz",
+                    requestFullscreen: true,
+                    user: currentUser,
+                    autoSubmitThreshold: 10, // Auto-submit after 10 violations
+                    allowTextSelection: true // Allow text selection for reading questions
+                });
+
+                // Allow text selection for specific elements
+                AntiCheating.allowSelection('.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p');
+                
+                // Mark quiz as active
+                isQuizActive = true;
+                
+                console.log('🔒 Anti-cheating initialized');
+            } else {
+                console.error('❌ AntiCheating library not loaded or no questions!');
+                // If anti-cheating not available, still run quiz
+                isQuizActive = true;
+            }
         }
 
         async function fetchRandomQuestions() {
@@ -613,15 +809,34 @@
         }
 
         async function submitQuiz() {
+            // Deactivate anti-cheating FIRST
+            if (antiCheating && AntiCheating.deactivate) {
+                AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated after submission');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
             if (!questions || questions.length === 0) {
                 alert('No questions to submit');
                 return;
             }
             
+            // Disable the submit button to prevent multiple submissions
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.disabled = true;
+            
             const result = calculateCurrentScore();
             const score = result.score;
             const totalPossible = result.totalPossible;
             const percentage = Math.round((score / totalPossible) * 100);
+            
+            // Get cheating data if available
+            let cheatingData = {};
+            if (antiCheating && antiCheating.getStats) {
+                cheatingData = antiCheating.getStats();
+            }
             
             const quizData = {
                 username: currentUser.username,
@@ -631,6 +846,8 @@
                 maxScore: totalPossible,
                 percentage: percentage,
                 timestamp: new Date().toISOString(),
+                cheatingData: cheatingData,
+                isAutoSubmitted: window.quizAutoSubmitted || false,
                 questions: questions.map(question => {
                     const userAnswer = userAnswers[question.questionId];
                     let isCorrect = false;
@@ -697,6 +914,16 @@
             document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
             document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
             
+            // Show cheating info if applicable
+            const cheatingLogElement = document.getElementById('cheatingLog');
+            if (quizData.isAutoSubmitted) {
+                cheatingLogElement.textContent = "⚠️ This quiz was auto-submitted due to multiple cheating attempts.";
+                cheatingLogElement.style.color = "#dc3545";
+            } else if (quizData.cheatingData && quizData.cheatingData.attempts > 0) {
+                cheatingLogElement.textContent = `⚠️ ${quizData.cheatingData.attempts} suspicious activities were detected during this quiz.`;
+                cheatingLogElement.style.color = "#ffc107";
+            }
+            
             const detailedResults = document.getElementById('detailedResults');
             let resultsHTML = `
                 <h4>Detailed Results:</h4>
@@ -758,26 +985,69 @@
         }
 
         function restartQuiz() {
+            // Deactivate current anti-cheating
+            if (antiCheating && AntiCheating.deactivate) {
+                AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for restart');
+            }
+            
             // Reset all variables
             currentQuestionIndex = 0;
             userAnswers = {};
             questions = [];
+            isQuizActive = false;
+            window.quizAutoSubmitted = false;
             
             // Hide results, show loading
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('loadingScreen').style.display = 'block';
             document.getElementById('quizContainer').style.display = 'none';
             
-            // Fetch new random questions
-            fetchRandomQuestions();
+            // Clear cheating log
+            const cheatingLogElement = document.getElementById('cheatingLog');
+            cheatingLogElement.textContent = '';
+            
+            // Re-enable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.disabled = false;
+            
+            // Fetch new random questions and re-initialize anti-cheating
+            fetchRandomQuestions().then(() => {
+                if (window.AntiCheating && questions.length > 0) {
+                    antiCheating = AntiCheating.initialize({
+                        quizName: "Sorting Algorithms Quiz - Retake",
+                        requestFullscreen: true,
+                        user: currentUser,
+                        autoSubmitThreshold: 10,
+                        allowTextSelection: true
+                    });
+
+                    AntiCheating.allowSelection('.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p');
+                    
+                    isQuizActive = true;
+                    console.log('🔒 Anti-cheating reactivated for retake');
+                }
+            });
         }
 
         function goToHome() {
+            // Deactivate anti-cheating before leaving
+            if (antiCheating && AntiCheating.deactivate) {
+                AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for home navigation');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            // Exit fullscreen if active
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            
+            // Redirect to home page
             window.location.href = './iitm-pdsa.html';
         }
-
-        // Initialize quiz when page loads
-        document.addEventListener('DOMContentLoaded', initializeQuiz);
     </script>
 </body>
 </html>
