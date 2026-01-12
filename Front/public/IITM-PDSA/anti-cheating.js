@@ -43,6 +43,13 @@
     function initializeAntiCheating(options = {}) {
         console.log('🔒 Initializing anti-cheating system...');
         
+        // RESET COUNTERS on initialization
+        cheatingAttempts = 0;
+        tabSwitchCount = 0;
+        devToolsWarned = false;
+        lastActivityTime = Date.now();
+        devtoolsOpen = false;
+        
         // Set user if provided
         if (options.user) {
             currentUser = options.user;
@@ -66,6 +73,12 @@
         isQuizActive = true;
         lastActivityTime = Date.now();
         
+        // Update UI
+        if (attemptCountElement) {
+            attemptCountElement.textContent = cheatingAttempts;
+        }
+        updateSecurityIndicator(false);
+        
         console.log('✅ Anti-cheating system activated');
         return {
             recordAttempt: recordCheatingAttempt,
@@ -73,7 +86,6 @@
             getStats: getCheatingStats
         };
     }
-    
     /**
      * Create security DOM elements
      */
