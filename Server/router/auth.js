@@ -44,6 +44,7 @@ const IITM_Maths_2_Question = require('../model/iitm_math2_questions')
 const IITM_Maths_2_Score = require('../model/iitm_math2_scores')
 const IITM_Stats_2_Question = require('../model/iitm_stats2_questions')
 const IITM_Stats_2_Score = require('../model/iitm_stats2_scores')
+const Question = require('../model/pdsa_Questions');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -3083,6 +3084,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
