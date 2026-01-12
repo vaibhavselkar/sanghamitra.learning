@@ -983,7 +983,114 @@ router.get('/algorithm-submissions', async (req, res) => {
       }
   });
 
+//pdsa questions fetching route
+
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+router.get('/questions/:topic', async (req, res) => {
+    try {
+        const { topic } = req.params;
+        const limit = parseInt(req.query.limit) || 50;
         
+        console.log(`📊 Fetching ${limit} random questions for topic: ${topic}`);
+        
+        // Define the distribution
+        const distribution = [
+            { maxScore: 1, count: 10 },  // 10 questions with maxScore 1
+            { maxScore: 3, count: 10 },  // 10 questions with maxScore 3
+            { maxScore: 2, count: 30 }   // 30 questions with maxScore 2
+        ];
+
+        let allQuestions = [];
+        
+        // Fetch questions for each maxScore category
+        for (const category of distribution) {
+            try {
+                const questions = await Question.aggregate([
+                    { 
+                        $match: { 
+                            topic: topic,
+                            maxScore: category.maxScore
+                        } 
+                    },
+                    { $sample: { size: category.count } }
+                ]);
+
+                console.log(`✅ Found ${questions.length} questions with maxScore ${category.maxScore}`);
+                
+                if (questions.length < category.count) {
+                    console.warn(`⚠️ Only found ${questions.length} questions with maxScore ${category.maxScore}, requested ${category.count}`);
+                }
+                
+                allQuestions = [...allQuestions, ...questions];
+            } catch (error) {
+                console.error(`Error fetching questions with maxScore ${category.maxScore}:`, error);
+            }
+        }
+
+        // If we don't have enough questions, fill with whatever is available
+        if (allQuestions.length < limit) {
+            console.log(`⚠️ Only found ${allQuestions.length} questions, fetching more to reach ${limit}`);
+            
+            const remainingCount = limit - allQuestions.length;
+            const existingIds = allQuestions.map(q => q._id);
+            
+            const additionalQuestions = await Question.aggregate([
+                { 
+                    $match: { 
+                        topic: topic,
+                        _id: { $nin: existingIds }
+                    } 
+                },
+                { $sample: { size: remainingCount } }
+            ]);
+            
+            allQuestions = [...allQuestions, ...additionalQuestions];
+        }
+        
+        // Shuffle the combined questions
+        const shuffledQuestions = shuffleArray(allQuestions).slice(0, limit);
+        
+        // Calculate distribution for logging
+        const scoreDistribution = shuffledQuestions.reduce((acc, q) => {
+            acc[q.maxScore] = (acc[q.maxScore] || 0) + 1;
+            return acc;
+        }, {});
+
+        console.log('📈 Final question distribution:', scoreDistribution);
+        
+        if (shuffledQuestions.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: `No questions found for topic: ${topic}`
+            });
+        }
+        
+        res.json({
+            success: true,
+            topic: topic,
+            count: shuffledQuestions.length,
+            distribution: scoreDistribution,
+            questions: shuffledQuestions
+        });
+
+           
+    } catch (error) {
+        console.error('❌ Error fetching random questions:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch questions',
+            error: error.message
+        });
+    }
+});     
 
   router.post('/programming/submit', async (req, res) => {
     try {
@@ -2976,6 +3083,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
