@@ -1202,6 +1202,9 @@ const AnswerNormalizer = {
         // Hide loading screen and show quiz
         document.getElementById('loadingScreen').style.display = 'none';
         document.getElementById('quizContainer').style.display = 'block';
+        // Initialize calculator
+        initializeCalculator();
+       
         
         // Obfuscate questions
         obfuscateQuestions();
@@ -1811,10 +1814,16 @@ function handleNumericInputWithValidation(questionIndex, value) {
             }
         }
 
+            document.addEventListener('DOMContentLoaded', function() {
+        // Initialize calculator first
+        initializeCalculator();
         
-
-        document.addEventListener('DOMContentLoaded', initializeQuiz);
-
+        // Then initialize quiz
+        setTimeout(() => {
+            initializeQuiz();
+        }, 100);
+    });
+            
       
         // Add function to reset user progress
 async function resetUserProgress() {
