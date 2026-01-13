@@ -273,6 +273,197 @@
             margin-left: 10px;
         }
 
+        /* Question Navigator Styles */
+        .quiz-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .main-quiz-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .question-navigator {
+            position: sticky;
+            top: 20px;
+            width: 280px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid #e9ecef;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .question-navigator h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
+            color: #333;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .question-grid-item {
+            aspect-ratio: 1;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .question-grid-item:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .question-grid-item.current {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            border-width: 3px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .question-grid-item.answered {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .question-grid-item.answered::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 0.7rem;
+        }
+
+        .navigator-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .legend-box.current {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .legend-box.answered {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .legend-box.unanswered {
+            background: white;
+            color: #333;
+            border-color: #e9ecef;
+        }
+
+        .navigator-progress {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .navigator-submit {
+            margin-top: 15px;
+        }
+
+        .navigator-submit .btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .quiz-layout {
+                flex-direction: column;
+            }
+
+            .question-navigator {
+                position: relative;
+                top: 0;
+                width: 100%;
+                order: -1;
+                max-height: none;
+            }
+
+            .question-grid {
+                grid-template-columns: repeat(10, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .question-navigator {
+                padding: 15px;
+            }
+
+            .question-grid {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 4px;
+            }
+
+            .question-grid-item {
+                font-size: 0.75rem;
+            }
+
+            .navigator-legend {
+                font-size: 0.8rem;
+            }
+        }
+
+        
+
         /* Calculator Styles */
         .calculator-btn {
             position: fixed;
@@ -558,28 +749,67 @@
      </div>
 
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
+            <div class="quiz-layout">
+                <!-- Main Quiz Content (Left Side) -->
+                <div class="main-quiz-content">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="questionContainer"></div>
+                    
+                    <div class="question-navigation">
+                        <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+                        <div class="question-status">
+                            <span id="questionStatus">Question 1 of 50</span>
+                            <span id="answeredStatus" class="status-unanswered">Unanswered</span>
+                        </div>
+                        <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
+                        <button class="btn" onclick="submitQuiz()" id="submitBtn">
+                            <span id="submitText">Submit Quiz 1 Midterm</span>
+                            <span id="submitLoading" class="loading" style="display: none;"></span>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            
-            <div id="questionContainer"></div>
-            
-            <div class="question-navigation">
-                <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
-                <div class="question-status">
-                    <span id="questionStatus">Question 1 of 50</span>
-                    <span id="answeredStatus" class="status-unanswered">Unanswered</span>
+
+                <!-- Question Navigator (Right Side) -->
+                <div class="question-navigator" id="questionNavigator">
+                    <h3>Question Navigator</h3>
+                    
+                    <div class="navigator-progress" id="navigatorProgress">
+                        0/50 Answered
+                    </div>
+                    
+                    <div class="question-grid" id="questionGrid">
+                        <!-- Grid items will be generated by JavaScript -->
+                    </div>
+                    
+                    <div class="navigator-legend">
+                        <div class="legend-item">
+                            <div class="legend-box current">◉</div>
+                            <span>Current</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box answered">✓</div>
+                            <span>Answered</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box unanswered"></div>
+                            <span>Unanswered</span>
+                        </div>
+                    </div>
+                    
+                    <div class="navigator-submit">
+                        <button class="btn" onclick="submitQuiz()">
+                            Submit Quiz
+                        </button>
+                    </div>
                 </div>
-                <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
-                <button class="btn" onclick="submitQuiz()" id="submitBtn">
-                    <span id="submitText">Submit Quiz 1 Midterm</span>
-                    <span id="submitLoading" class="loading" style="display: none;"></span>
-                </button>
             </div>
         </div>
 
@@ -1057,6 +1287,7 @@
                 document.getElementById('quizContainer').style.display = 'block';
                 
                 renderCurrentQuestion();
+                initializeQuestionNavigator();
                 updateProgress();
                 
                 if (document.documentElement.requestFullscreen) {
@@ -1225,6 +1456,56 @@
             }
         }
 
+        function initializeQuestionNavigator() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'question-grid-item';
+                gridItem.textContent = index + 1;
+                gridItem.onclick = () => jumpToQuestion(index);
+                grid.appendChild(gridItem);
+            });
+            
+            updateQuestionNavigator();
+        }
+
+        function updateQuestionNavigator() {
+            const gridItems = document.querySelectorAll('.question-grid-item');
+            const answeredCount = Object.keys(userAnswers).length;
+            
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered');
+                
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[index] !== undefined) {
+                    item.classList.add('answered');
+                }
+            });
+            
+            // Update progress text
+            document.getElementById('navigatorProgress').textContent = 
+                `${answeredCount}/50 Answered`;
+        }
+
+        function jumpToQuestion(index) {
+            if (index >= 0 && index < questions.length) {
+                trackQuestionTime();
+                currentQuestionIndex = index;
+                renderCurrentQuestion();
+                updateProgress();
+                updateQuestionNavigator();
+                
+                // Scroll to top of quiz
+                document.getElementById('quizContainer').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }
+
         function updateAnswerStatus() {
             const statusSpan = document.getElementById('answeredStatus');
             const hasAnswer = userAnswers[currentQuestionIndex] !== undefined;
@@ -1236,6 +1517,7 @@
                 statusSpan.textContent = 'Unanswered';
                 statusSpan.className = 'status-unanswered';
             }
+            updateQuestionNavigator();
         }
 
         function nextQuestion() {
@@ -2080,3 +2362,4 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
