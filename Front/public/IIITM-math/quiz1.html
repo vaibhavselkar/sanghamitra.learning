@@ -188,6 +188,7 @@
             padding: 30px; 
             display: none;
             min-height: 70vh;
+            width: 100%;
         }
 
         .question-card {
@@ -293,9 +294,13 @@
         }
 
         .main-quiz-content {
-            flex: 1;
+            flex: 3; /* Increased from 1 to 3 for more weight */
             min-width: 0;
-            max-width: calc(100% - 320px);
+            width: 70%; /* Force 70% width */
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
         .question-navigator {
@@ -2372,5 +2377,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
