@@ -1085,63 +1085,75 @@ function populateFilters() {
   
   // Define standardized topic names - UPDATED WITH YOUR EXACT NAMES
   const topicDisplayNames = {
-    // Quiz 1 - Week 1 and 2
-    'Domain_and_Range': 'Week 1 and 2 (Quiz 1)',
-    'Quiz1': 'Week 1 and 2 (Quiz 1)',
-    'Week 1 and 2': 'Week 1 and 2 (Quiz 1)',
     
-    // Quiz 2 - Domain and Range
-    'Domain_and_Range-2': 'Domain and Range (Quiz 2)',
-    'Quiz2': 'Domain and Range (Quiz 2)',
-    'Quiz2_Domain_Range': 'Domain and Range (Quiz 2)',
-    'Domain and Range-2': 'Domain and Range (Quiz 2)',
+    // Quiz 1 Midterm
+    'Quiz 1 Midterm': 'Quiz 1 Midterm',
+    'Quiz1': 'Quiz 1 Midterm',
     
-    // Other quizzes
-    'Quiz3': 'Linear Functions (Quiz 3)',
-    'Quiz3_Linear_functions': 'Linear Functions (Quiz 3)',
-    'Linear_functions': 'Linear Functions (Quiz 3)',
+    // Week 1 - Sets and Relations (Quiz 6)
+    'sets_relations': 'Week 1 - Sets and Relations',
+    'Quiz6': 'Week 1 - Sets and Relations',
+    'Sets': 'Week 1 - Sets and Relations',
+    'Relations': 'Week 1 - Sets and Relations',
+    'Sets And Relations': 'Week 1 - Sets and Relations',
     
-    'Quiz4': 'Quadratic Functions (Quiz 4)',
-    'quadratic': 'Quadratic Functions (Quiz 4)',
-    'Quadratic_functions': 'Quadratic Functions (Quiz 4)',
+    // Week 1 - Domain and Range
+    'domain_range_quiz2': 'Week 1 - Domain and Range (Week 1)',
+    'Quiz2': 'Week 1 - Domain and Range (Week 1)',
+    'Domain_and_Range': 'Week 1 - Domain and Range (Week 1)',
+    'Domain and Range': 'Week 1 - Domain and Range (Week 1)',
     
-    'Quiz5': 'Linear function - 2',
-    'Linear': 'Linear function - 2',
-    'Linear_functions - 2': 'Linear function - 2',
+    // Week 2 - Linear Functions
+    'linear_functions_2': 'Week 2 - Linear Functions (Week 2)',
+    'Quiz5': 'Week 2 - Linear Functions (Week 2)',
+    'Linear': 'Week 2 - Linear Functions (Week 2)',
+    'Linear_functions': 'Week 2 - Linear Functions (Week 2)',
     
-    'Quiz6': 'Sets and Relations (Quiz 6)',
-    'Sets': 'Sets and Relations (Quiz 6)',
-    'Relations': 'Sets and Relations (Quiz 6)',
-    'sets_and_relations': 'Sets and Relations (Quiz 6)',
-    'Sets And Relations': 'Sets and Relations (Quiz 6)',
+    // Week 3 - Quadratic Functions
+    'quadratic_functions': 'Week 3 - Quadratic Functions',
+    'Quiz4': 'Week 3 - Quadratic Functions',
+    'quadratic': 'Week 3 - Quadratic Functions',
     
-    'Quiz7': 'Polynomials (Quiz 7)',
-    'Polynomials': 'Polynomials (Quiz 7)',
-    'Polynomial Function': 'Polynomials (Quiz 7)',
+    // Week 4 - Polynomial Functions
+    'polynomials': 'Week 4 - Polynomial Functions',
+    'Quiz7': 'Week 4 - Polynomial Functions',
+    'Polynomials': 'Week 4 - Polynomial Functions',
+    'Polynomial Function': 'Week 4 - Polynomial Functions',
     
-    'Quiz8': 'Exponential Functions (Week-5)',
-    'function_concepts': 'Exponential Functions (Week-5)',
-    'Exponential': 'Exponential Functions (Week-5)',
-    'Function Concepts': 'Exponential Functions (Week-5)',
+    // Week 5 - Exponential Functions
+    'exponential_functions': 'Week 5 - Exponential Functions',
+    'Quiz8': 'Week 5 - Exponential Functions',
+    'function_concepts': 'Week 5 - Exponential Functions',
+    'Exponential': 'Week 5 - Exponential Functions',
     
-    'Quiz9': 'Logarithmic Functions (Quiz 9)',
-    'Logarithmic': 'Logarithmic Functions (Quiz 9)',
-    'logarithmic_functions': 'Logarithmic Functions (Quiz 9)',
-    'Logarithmic Functions': 'Logarithmic Functions (Quiz 9)',
+    // Week 6 - Logarithmic Functions
+    'logarithmic_functions': 'Week 6 - Logarithmic Functions',
+    'Quiz9': 'Week 6 - Logarithmic Functions',
+    'Logarithmic': 'Week 6 - Logarithmic Functions',
     
-    'Quiz10': 'Sequence and limit week 7',
-    'Function_Limits': 'Sequence and limit week 7',
-    'Function Limits': 'Sequence and limit week 7',
+    // Week 7 - Sequence, Limits and Continuity
+    'sequence_limits': 'Week 7 - Sequence, Limits and Continuity',
+    'Quiz10': 'Week 7 - Sequence, Limits and Continuity',
+    'Function_Limits': 'Week 7 - Sequence, Limits and Continuity',
     
-    'Quiz11': 'Limits, Continuity and Differentiation (Quiz 11)',
-    'Limit_Concepts': 'Limits, Continuity and Differentiation (Quiz 11)',
-    'Differentiation': 'Limits, Continuity and Differentiation (Quiz 11)',
-
+    // Week 8 - Limits, Continuity and Differentiation
+    'limits_continuity': 'Week 8 - Limits, Continuity and Differentiation',
+    'Quiz11': 'Week 8 - Limits, Continuity and Differentiation',
+    'Differentiation': 'Week 8 - Limits, Continuity and Differentiation',
+    
+    // Week 9 - Derivatives and Integrals
+    'derivatives_integrals': 'Week 9 - Derivatives and Integrals',
     'Quiz12': 'Week 9 - Derivatives and Integrals',
-    'Derivatives_Integrals': 'Week 9 - Derivatives and Integrals',
-    'Derivatives and Integrals': 'Week 9 - Derivatives and Integrals', // This is your exact MongoDB topic name
+    'Derivatives and Integrals': 'Week 9 - Derivatives and Integrals',
     'Derivatives': 'Week 9 - Derivatives and Integrals',
-    'Integrals': 'Week 9 - Derivatives and Integrals'
+    
+    // Week 10 - Graph Theory
+    'graph_theory': 'Week 10 - Graph Theory',
+    'Quiz13': 'Week 10 - Graph Theory',
+    
+    // Week 11 - Graph Properties
+    'graph_properties': 'Week 11 - Graph Properties',
+    'Quiz14': 'Week 11 - Graph Properties'
   };
 
   // Get unique standardized topics
@@ -1202,20 +1214,20 @@ function applyFilters() {
       
       // Define which original topics belong to which display names
       const topicGroups = {
-        'Week 1 and 2 (Quiz 1)': ['Domain_and_Range', 'Quiz1', 'Week 1 and 2'],
-        'Domain and Range (Quiz 2)': ['Domain_and_Range-2', 'Quiz2', 'Quiz2_Domain_Range', 'Domain and Range-2'],
-        'Linear Functions (Quiz 3)': ['Quiz3', 'Quiz3_Linear_functions', 'Linear_functions'],
-        'Quadratic Functions (Quiz 4)': ['Quiz4', 'quadratic', 'Quadratic_functions'],
-        'Linear function - 2': ['Quiz5', 'Linear', 'Linear_functions - 2'],
-        'Sets and Relations (Quiz 6)': ['Quiz6', 'Sets', 'Relations', 'sets_and_relations', 'Sets And Relations'],
-        'Polynomials (Quiz 7)': ['Quiz7', 'Polynomials', 'Polynomial Function'],
-        'Exponential Functions (Week-5)': ['Quiz8', 'function_concepts', 'Exponential', 'Function Concepts'],
-        'Logarithmic Functions (Quiz 9)': ['Quiz9', 'Logarithmic', 'logarithmic_functions', 'Logarithmic Functions'],
-        'Sequence and limit week 7': ['Quiz10', 'Function_Limits', 'Function Limits'],
-        'Limits, Continuity and Differentiation (Quiz 11)': ['Quiz11', 'Limit_Concepts', 'Differentiation'],
-        'Week 9 - Derivatives and Integrals': ['Quiz12', 'Derivatives_Integrals',  'Derivatives and Integrals', // Exact match for your MongoDB data'Derivatives', 
-'Integrals'
-    ]
+        
+        'Quiz 1 Midterm': ['Quiz 1 Midterm', 'Quiz1'],
+        'Week 1 - Sets and Relations': ['sets_relations', 'Quiz6', 'Sets', 'Relations', 'Sets And Relations'],
+        'Week 1 - Domain and Range (Week 1)': ['domain_range_quiz2', 'Quiz2', 'Domain_and_Range', 'Domain and Range'],
+        'Week 2 - Linear Functions (Week 2)': ['linear_functions_2', 'Quiz5', 'Linear', 'Linear_functions'],
+        'Week 3 - Quadratic Functions': ['quadratic_functions', 'Quiz4', 'quadratic'],
+        'Week 4 - Polynomial Functions': ['polynomials', 'Quiz7', 'Polynomials', 'Polynomial Function'],
+        'Week 5 - Exponential Functions': ['exponential_functions', 'Quiz8', 'function_concepts', 'Exponential'],
+        'Week 6 - Logarithmic Functions': ['logarithmic_functions', 'Quiz9', 'Logarithmic'],
+        'Week 7 - Sequence, Limits and Continuity': ['sequence_limits', 'Quiz10', 'Function_Limits'],
+        'Week 8 - Limits, Continuity and Differentiation': ['limits_continuity', 'Quiz11', 'Differentiation'],
+        'Week 9 - Derivatives and Integrals': ['derivatives_integrals', 'Quiz12', 'Derivatives and Integrals', 'Derivatives'],
+        'Week 10 - Graph Theory': ['graph_theory', 'Quiz13'],
+        'Week 11 - Graph Properties': ['graph_properties', 'Quiz14']
       };
      
       
@@ -1294,20 +1306,21 @@ function generateCSV(data) {
   
   // Topic mapping for CSV - UPDATED WITH YOUR NAMES
   const topicMapping = {
-    'Domain_and_Range': 'Week 1 and 2 (Quiz 1)',
-    'Domain_and_Range-2': 'Domain and Range (Quiz 2)',
-    'Quiz3': 'Linear Functions (Quiz 3)',
-    'Quiz4': 'Quadratic Functions (Quiz 4)',
-    'Quiz5': 'Linear function - 2',
-    'Quiz6': 'Sets and Relations (Quiz 6)',
-    'Quiz7': 'Polynomials (Quiz 7)',
-    'Quiz8': 'Exponential Functions (Week-5)',
-    'Quiz9': 'Logarithmic Functions (Quiz 9)',
-    'Quiz10': 'Sequence and limit week 7',
-    'Quiz11': 'Limits, Continuity and Differentiation (Quiz 11)',
-    'Quiz12': 'Week 9 - Derivatives and Integrals',
-    'Derivatives_Integrals': 'Week 9 - Derivatives and Integrals',
-    'Derivatives and Integrals': 'Week 9 - Derivatives and Integrals'
+    
+    'Quiz 1 Midterm': 'Quiz 1 Midterm',
+    'sets_relations': 'Week 1 - Sets and Relations',
+    'domain_range_quiz2': 'Week 1 - Domain and Range (Week 1)',
+    'linear_functions_2': 'Week 2 - Linear Functions (Week 2)',
+    'quadratic_functions': 'Week 3 - Quadratic Functions',
+    'polynomials': 'Week 4 - Polynomial Functions',
+    'exponential_functions': 'Week 5 - Exponential Functions',
+    'logarithmic_functions': 'Week 6 - Logarithmic Functions',
+    'sequence_limits': 'Week 7 - Sequence, Limits and Continuity',
+    'limits_continuity': 'Week 8 - Limits, Continuity and Differentiation',
+    'derivatives_integrals': 'Week 9 - Derivatives and Integrals',
+    'Derivatives and Integrals': 'Week 9 - Derivatives and Integrals',
+    'graph_theory': 'Week 10 - Graph Theory',
+    'graph_properties': 'Week 11 - Graph Properties'
   };
   
   data.forEach(item => {
