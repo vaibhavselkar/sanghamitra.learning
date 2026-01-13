@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Exponential Functions Quiz</title>
    
-     <style>
+    <style>
     * { 
         margin: 0; 
         padding: 0; 
@@ -285,206 +285,212 @@
         display: none; 
     }
 
-    /* Calculator Styles */
-        .calculator-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 50px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 9999;
-            transition: all 0.3s ease;
-            border: none;
-            font-weight: 600;
-        }
+    /* Calculator Styles - FIXED */
+    .calculator-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 50px;
+        display: flex; /* CHANGED FROM none to flex */
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transition: all 0.3s ease;
+        border: none;
+        font-weight: 600;
+    }
 
-        .calculator-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
+    .calculator-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
 
-        .calculator-modal {
-            position: fixed;
-            width: 590px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid #e0e0e0;
-            cursor: move;
-            user-select: none;
-        }
+    .calculator-btn svg {
+        width: 20px;
+        height: 20px;
+    }
 
-        .calculator-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: move;
-        }
+    .calculator-modal {
+        position: fixed;
+        width: 590px;
+        min-height: 400px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        z-index: 10000;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+        cursor: move;
+        user-select: none;
+    }
 
-        .calculator-header h3 {
-            margin: 0;
-            font-size: 1.1rem;
-        }
+    .calculator-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: move;
+    }
 
-        .calculator-header .help-btn {
-            background: #4fc3f7;
-            color: white;
-            border: none;
-            padding: 6px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-left: auto;
-            margin-right: 10px;
-        }
+    .calculator-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
 
-        .calculator-header .minimize-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 0 8px;
-        }
+    .calculator-header .help-btn {
+        background: #4fc3f7;
+        color: white;
+        border: none;
+        padding: 6px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-left: auto;
+        margin-right: 10px;
+    }
 
-        .mode-selector {
-            padding: 10px 15px;
-            background: #f0f0f0;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
+    .calculator-header .minimize-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 0 8px;
+    }
 
-        .mode-selector label {
-            font-size: 14px;
-            font-weight: 600;
-        }
+    .calculator-header .calculator-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.2s;
+    }
 
-        #resultDisplay {
-            width: 100%;
-            padding: 8px 12px;
-            font-size: 1.8rem;
-            text-align: right;
-            border: none;
-            background: transparent;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-        }
+    .calculator-header .calculator-close:hover {
+        background: rgba(255,255,255,0.2);
+    }
 
-        .calc-btn.operator {
-            background: #ff6b6b;
-            color: white;
-            font-weight: 600;
-        }
+    .mode-selector {
+        padding: 10px 15px;
+        background: #f0f0f0;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
 
-        .calc-btn.equals {
-            background: #51cf66;
-            color: white;
-            font-weight: 600;
-        }
+    .mode-selector label {
+        font-size: 14px;
+        font-weight: 600;
+    }
 
-        .calc-btn.memory {
-            background: #e3e8ff;
-            color: #667eea;
-            font-size: 0.85rem;
-        }
+    .calculator-display {
+        padding: 15px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+    }
 
-        .calculator-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            line-height: 1;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
+    #calcDisplay {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.5rem;
+        text-align: right;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        background: white;
+        font-family: 'Courier New', monospace;
+        margin-bottom: 5px;
+    }
 
-        .calculator-close:hover {
-            background: rgba(255,255,255,0.2);
-        }
+    #resultDisplay {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 1.8rem;
+        text-align: right;
+        border: none;
+        background: transparent;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+    }
 
-        .calculator-display {
-            padding: 15px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
+    .calculator-buttons {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: #f8f9fa;
+    }
 
-        #calcDisplay {
-            width: 100%;
-            padding: 12px;
-            font-size: 1.5rem;
-            text-align: right;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 5px;
-        }
+    .calc-row {
+        display: flex;
+        gap: 8px;
+    }
 
-        .calculator-buttons {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: #f8f9fa;
-        }
+    .calc-btn {
+        flex: 1;
+        padding: 12px 0;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: white;
+        border: 1px solid #e0e0e0;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
 
-        .calc-row {
-            display: flex;
-            gap: 8px;
-        }
+    .calc-btn:hover {
+        background: #f0f0f0;
+        transform: translateY(-1px);
+    }
 
-        .calc-btn {
-            flex: 1;
-            padding: 12px 0;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            background: white;
-            border: 1px solid #e0e0e0;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
+    .calc-btn.func {
+        background: #e3e8ff;
+        color: #667eea;
+        font-weight: 600;
+    }
 
-        .calc-btn:hover {
-            background: #f0f0f0;
-            transform: translateY(-1px);
-        }
+    .calc-btn.sci {
+        font-size: 0.9rem;
+        padding: 10px 0;
+        background: #f0f0f0;
+    }
 
-        .calc-btn.func {
-            background: #e3e8ff;
-            color: #667eea;
-            font-weight: 600;
-        }
+    .calc-btn.operator {
+        background: #ff6b6b;
+        color: white;
+        font-weight: 600;
+    }
 
-        .calc-btn.sci {
-            font-size: 0.9rem;
-            padding: 10px 0;
-            background: #f0f0f0;
-        }
+    .calc-btn.equals {
+        background: #51cf66;
+        color: white;
+        font-weight: 600;
+    }
+
+    .calc-btn.memory {
+        background: #e3e8ff;
+        color: #667eea;
+        font-size: 0.85rem;
+    }
 
     @media (max-width: 768px) {
         .results-container {
@@ -508,13 +514,34 @@
         .numeric-input {
             width: 100%;
         }
+        
+        .calculator-modal {
+            width: 320px;
+            min-height: 500px;
+        }
+        
+        .calc-btn {
+            padding: 10px 0;
+            font-size: 1rem;
+        }
+        
+        .calc-btn.sci {
+            font-size: 0.85rem;
+        }
+        
+        .calculator-btn {
+            bottom: 15px;
+            right: 15px;
+            padding: 10px 15px;
+            font-size: 14px;
+        }
     }
 </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1> Exponential Function Quiz</h1>
+            <h1>Exponential Functions Quiz</h1>
             <p>Test your knowledge of function concepts with 50 comprehensive questions</p>
         </div>
 
@@ -563,10 +590,9 @@
             </div>
             <button class="btn" onclick="goback()">Home Page</button>
         </div>
-                </div> <!-- Closing of resultsContainer -->
         
-        <!-- ========== CALCULATOR CODE STARTS HERE ========== -->
-        <div id="calculatorBtn" class="calculator-btn" onclick="toggleCalculator()">
+        <!-- ========== CALCULATOR ========== -->
+        <div id="calculatorBtn" class="calculator-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
                 <line x1="8" y1="6" x2="16" y2="6"></line>
@@ -584,7 +610,7 @@
                 <h3>Scientific Calculator</h3>
                 <button class="help-btn">Help</button>
                 <button class="minimize-btn">―</button>
-                <button class="calculator-close" onclick="toggleCalculator()">×</button>
+                <button class="calculator-close">×</button>
             </div>
             <div class="mode-selector">
                 <label>mod</label>
@@ -680,15 +706,109 @@
                 </div>
             </div>
         </div>
-        <!-- ========== CALCULATOR CODE ENDS HERE ========== -->
+        <!-- ========== CALCULATOR ENDS ========== -->
         
-    </div> <!-- Closing of main container -->
     </div>
   
-     
-    
     <script>
         // Answer validation utility
+        const answerNormalizer = {
+            normalizeAnswer(answer, type) {
+                if (!answer) return '';
+                
+                let normalized = answer.toString().trim();
+                
+                switch(type) {
+                    case 'interval_input':
+                        return this.normalizeInterval(normalized);
+                    case 'coordinate_input':
+                        return this.normalizeCoordinate(normalized);
+                    case 'equation_input':
+                        return this.normalizeEquation(normalized);
+                    case 'numeric':
+                    case 'numeric_input':
+                        return this.normalizeNumeric(normalized);
+                    case 'multiple_choice':
+                    case 'text_input':
+                        return this.normalizeText(normalized);
+                    default:
+                        return this.normalizeText(normalized);
+                }
+            },
+            
+            normalizeInterval(answer) {
+                return answer
+                    .toLowerCase()
+                    .replace(/\s+/g, '')
+                    .replace(/infinity|inf/g, '∞')
+                    .replace(/−/g, '-')
+                    .replace(/\bunion\b|∪|U/gi, '∪')
+                    .replace(/\{|\}/g, '')
+                    .replace(/,∪/g, '∪')
+                    .replace(/∪,/g, '∪');
+            },
+            
+            normalizeCoordinate(answer) {
+                return answer
+                    .toLowerCase()
+                    .replace(/\s+/g, '')
+                    .replace(/[()]/g, '')
+                    .replace(/−/g, '-');
+            },
+            
+            normalizeEquation(answer) {
+                let normalized = answer
+                    .toLowerCase()
+                    .replace(/\s+/g, '')
+                    .replace(/\+\-/g, '-')
+                    .replace(/\-\+/g, '-')
+                    .replace(/−/g, '-')
+                    .replace(/\*\*/g, '^')
+                    .replace(/\^/g, '**');
+                
+                const rootMatches = normalized.match(/x=[-+]?\d+\.?\d*/g);
+                if (rootMatches && rootMatches.length > 1) {
+                    const roots = rootMatches.map(r => {
+                        const num = parseFloat(r.replace('x=', ''));
+                        return num;
+                    }).sort((a, b) => a - b);
+                    
+                    normalized = roots.map(r => `x=${r}`).join(',');
+                }
+                
+                return normalized;
+            },
+            
+            normalizeNumeric(answer) {
+                const cleaned = answer.replace(/[^\d.-]/g, '').trim();
+                const num = parseFloat(cleaned);
+                return isNaN(num) ? '' : num.toString();
+            },
+            
+            normalizeText(answer) {
+                let normalized = answer
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, ' ')
+                    .replace(/all real numbers/i, 'allrealnumbers')
+                    .replace(/no solution/i, 'nosolution')
+                    .replace(/does not exist|dne/i, 'dne');
+                
+                if (normalized.includes('x=') && normalized.includes(',')) {
+                    const parts = normalized.split(',').map(p => p.trim());
+                    const roots = parts.map(p => {
+                        const match = p.match(/x=([-+]?\d+\.?\d*)/);
+                        return match ? parseFloat(match[1]) : null;
+                    }).filter(r => r !== null).sort((a, b) => a - b);
+                    
+                    if (roots.length > 0) {
+                        normalized = roots.map(r => `x=${r}`).join(',');
+                    }
+                }
+                
+                return normalized;
+            }
+        };
        
         let userAnswers = {};
         let currentUser = {};
@@ -697,218 +817,69 @@
         let currentQuestionIndex = 0;
         let quizStartTime = null;
         let questionStartTime = null;
-        let questionTimes = {}; // Track time per question
-        let questions = []; // Add this line to declare the questions array globally
+        let questionTimes = {};
+        let questions = [];
 
-// ============================================
-// COMPREHENSIVE ANSWER NORMALIZER
-// ============================================
-const AnswerNormalizer = {
-    // Main normalization function
-    normalize(answer, type) {
-        if (!answer) return '';
-        
-        let normalized = answer.toString().trim();
-        
-        // Apply type-specific normalization
-        switch(type) {
-            case 'interval_input':
-                return this.normalizeInterval(normalized);
-            case 'coordinate_input':
-                return this.normalizeCoordinate(normalized);
-            case 'equation_input':
-                return this.normalizeEquation(normalized);
-            case 'numeric':
-            case 'numeric_input':
-                return this.normalizeNumeric(normalized);
-            case 'multiple_choice':
-            case 'text_input':
-                return this.normalizeText(normalized);
-            default:
-                return this.normalizeText(normalized);
-        }
-    },
-    
-    // Interval notation normalization
-    normalizeInterval(answer) {
-        return answer
-            .toLowerCase()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/infinity|inf/g, '∞')  // Standardize infinity
-            .replace(/−/g, '-')  // Standardize minus sign
-            .replace(/\bunion\b|∪|U/gi, '∪')  // Standardize union symbol
-            .replace(/\{|\}/g, '')  // Remove set braces if present
-            .replace(/,∪/g, '∪')  // Clean up union formatting
-            .replace(/∪,/g, '∪');
-    },
-    
-    // Coordinate normalization
-    normalizeCoordinate(answer) {
-        return answer
-            .toLowerCase()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/[()]/g, '')  // Remove parentheses
-            .replace(/−/g, '-');  // Standardize minus
-    },
-    
-    // Equation normalization - ENHANCED FOR QUADRATIC ROOTS
-    normalizeEquation(answer) {
-        let normalized = answer
-            .toLowerCase()
-            .replace(/\s+/g, '')  // Remove all spaces
-            .replace(/\+\-/g, '-')  // Fix +- to -
-            .replace(/\-\+/g, '-')  // Fix -+ to -
-            .replace(/−/g, '-')  // Standardize minus
-            .replace(/\*\*/g, '^')  // Standardize exponents
-            .replace(/\^/g, '**');  // Allow both formats
-        
-        // SPECIAL HANDLING FOR QUADRATIC ROOTS: x=2, x=3 vs x=3, x=2
-        const rootMatches = normalized.match(/x=[-+]?\d+\.?\d*/g);
-        if (rootMatches && rootMatches.length > 1) {
-            // Extract just the numbers
-            const roots = rootMatches.map(r => {
-                const num = parseFloat(r.replace('x=', ''));
-                return num;
-            }).sort((a, b) => a - b); // Sort numerically
-            
-            // Reconstruct in sorted order
-            normalized = roots.map(r => `x=${r}`).join(',');
-        }
-        
-        return normalized;
-    },
-    
-    // Numeric normalization
-    normalizeNumeric(answer) {
-        const cleaned = answer.replace(/[^\d.-]/g, '').trim();
-        const num = parseFloat(cleaned);
-        return isNaN(num) ? '' : num.toString();
-    },
-    
-    // Text normalization - ENHANCED FOR MULTIPLE ROOTS
-    normalizeText(answer) {
-        let normalized = answer
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, ' ')  // Normalize whitespace
-            .replace(/all real numbers/i, 'allrealnumbers')
-            .replace(/no solution/i, 'nosolution')
-            .replace(/does not exist|dne/i, 'dne');
-        
-        // SPECIAL: Handle comma-separated roots (x=2, x=3 or x=3, x=2)
-        if (normalized.includes('x=') && normalized.includes(',')) {
-            const parts = normalized.split(',').map(p => p.trim());
-            const roots = parts.map(p => {
-                const match = p.match(/x=([-+]?\d+\.?\d*)/);
-                return match ? parseFloat(match[1]) : null;
-            }).filter(r => r !== null).sort((a, b) => a - b);
-            
-            if (roots.length > 0) {
-                normalized = roots.map(r => `x=${r}`).join(',');
-            }
-        }
-        
-        return normalized;
-    },
-    
-    // Enhanced comparison with alternatives
-    compareAnswers(userAnswer, correctAnswer, alternatives, type) {
-        const normalizedUser = this.normalize(userAnswer, type);
-        const normalizedCorrect = this.normalize(correctAnswer, type);
-        
-        // Check main answer
-        if (this.isMatch(normalizedUser, normalizedCorrect, type)) {
-            return true;
-        }
-        
-        // Check alternatives
-        if (alternatives && Array.isArray(alternatives)) {
-            return alternatives.some(alt => 
-                this.isMatch(normalizedUser, this.normalize(alt, type), type)
-            );
-        }
-        
-        return false;
-    },
-    
-    // Type-specific matching
-    isMatch(user, correct, type) {
-        if (type === 'numeric' || type === 'numeric_input') {
-            const userNum = parseFloat(user);
-            const correctNum = parseFloat(correct);
-            if (isNaN(userNum) || isNaN(correctNum)) return false;
-            const tolerance = Math.abs(correctNum) * 0.01 || 0.01;
-            return Math.abs(userNum - correctNum) <= tolerance;
-        }
-        return user === correct;
-    }
-};
+        // Calculator variables
+        let calculatorOpen = false;
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let angleMode = 'Deg';
+        let memory = 0;
 
-      async function loadQuestions() {
-    try {
-        if (!email) {
-            alert('Please login to take the assessment');
-            return false;
-        }
-        
-        // NEW CODE (CORRECT):
-        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Function%20Concepts?email=${encodeURIComponent(email)}&count=50&random=true`, {
-        credentials: 'include'
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Handle case where user has completed all questions
-        if (data.allQuestionsCompleted || (data.questions && data.questions.length === 0)) {
-            const resetConfirm = confirm(
-                `🎉 Congratulations! You have completed all available questions!\n\n` +
-                `Total questions in pool: ${data.totalQuestionsInPool || 'All'}\n` +
-                `Questions completed: ${data.totalCompleted || data.totalQuestionsInPool}\n\n` +
-                `Would you like to reset your progress and start over?`
-            );
-            
-            if (resetConfirm) {
-                const resetSuccess = await resetUserProgress();
-                if (resetSuccess) {
-                    return loadQuestions(); // Retry after reset
-                } else {
-                    
-                    window.location.href = 'iitm_math.html';
+        async function loadQuestions() {
+            try {
+                if (!email) {
+                    alert('Please login to take the assessment');
                     return false;
                 }
-            } else {
                 
-                window.location.href = 'iitm_math.html';
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Function%20Concepts?email=${encodeURIComponent(email)}&count=50&random=true`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.allQuestionsCompleted || (data.questions && data.questions.length === 0)) {
+                    const resetConfirm = confirm(
+                        `🎉 Congratulations! You have completed all available questions!\n\n` +
+                        `Total questions in pool: ${data.totalQuestionsInPool || 'All'}\n` +
+                        `Questions completed: ${data.totalCompleted || data.totalQuestionsInPool}\n\n` +
+                        `Would you like to reset your progress and start over?`
+                    );
+                    
+                    if (resetConfirm) {
+                        const resetSuccess = await resetUserProgress();
+                        if (resetSuccess) {
+                            return loadQuestions();
+                        } else {
+                            window.location.href = 'iitm_math.html';
+                            return false;
+                        }
+                    } else {
+                        window.location.href = 'iitm_math.html';
+                        return false;
+                    }
+                }
+                
+                questions = data.questions || data;
+                
+                if (!questions || questions.length === 0) {
+                    throw new Error('No questions found');
+                }
+                
+                console.log(`Loaded ${questions.length} new questions successfully`);
+                return true;
+            } catch (error) {
+                console.error('Error loading questions:', error);
                 return false;
             }
         }
-        
-        questions = data.questions || data;
-        
-        if (!questions || questions.length === 0) {
-            throw new Error('No questions found');
-        }
-        
-        // Show user their progress if available
-        if (data.metadata) {
-            console.log(`Progress: ${data.metadata.totalCompleted} completed, ${data.metadata.totalAvailable} available, ${data.metadata.remainingQuestions} remaining`);
-            
-            
-        }
-        
-        console.log(`Loaded ${questions.length} new questions successfully`);
-        return true;
-    } catch (error) {
-        console.error('Error loading questions:', error);
-        
-        return false;
-    }
-}
-
         
         // Initialize quiz timing
         function initializeQuizTiming() {
@@ -916,16 +887,16 @@ const AnswerNormalizer = {
             questionStartTime = new Date();
         }
 
-        // Track question timing
+        // Track question time
         function trackQuestionTime() {
             if (questionStartTime) {
                 const timeSpent = Math.floor((new Date() - questionStartTime) / 1000);
                 questionTimes[currentQuestionIndex] = timeSpent;
             }
-            questionStartTime = new Date(); // Reset for next question
+            questionStartTime = new Date();
         }
 
-        // Fetch user session info and start quiz immediately
+        // Fetch user session
         async function fetchSessionInfo() {
             try {
                 const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
@@ -946,153 +917,146 @@ const AnswerNormalizer = {
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
-                
                 return false;
             }
         }
-       
 
-     function renderCurrentQuestion() {
-    const container = document.getElementById('questionContainer');
-    const question = questions[currentQuestionIndex];
-    
-    console.log('Rendering question:', question);
-    
-    container.innerHTML = '';
+        // Render current question
+        function renderCurrentQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            
+            console.log('Rendering question:', question);
+            
+            container.innerHTML = '';
 
-    const questionDiv = document.createElement('div');
-    questionDiv.className = 'question-card';
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-card';
 
-    let optionsHtml = '';
-    
-    if (question.type === 'multiple_choice') {
-        optionsHtml = question.options.map((option, optIndex) => {
-            const safeOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-            return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', this)">
-                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                </div>
+            let optionsHtml = '';
+            
+            if (question.type === 'multiple_choice') {
+                optionsHtml = question.options.map((option, optIndex) => {
+                    const safeOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                    return `
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'radio', this)">
+                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        </div>
+                    `;
+                }).join('');
+                
+            } else if (question.type === 'multiple_select') {
+                optionsHtml = question.options.map((option, optIndex) => {
+                    const safeOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                    return `
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', this)">
+                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                let placeholder, formatExample, formatHint;
+                
+                if (question.type === 'coordinate_input') {
+                    placeholder = "e.g., (3, 4) or (3,4)";
+                    formatExample = "(x, y)";
+                    formatHint = "✓ Accepted: (3,4) or (3, 4) | ✗ Avoid: 3,4 or [3,4]";
+                } else if (question.type === 'equation_input') {
+                    placeholder = "e.g., y = 2x + 3";
+                    formatExample = "equation with =";
+                    formatHint = "✓ Accepted: y=2x+3 or y = 2x + 3 | Use ^ for powers: x^2";
+                } else if (question.type === 'interval_input') {
+                    placeholder = "e.g., [0, 5] or (-2, 3]";
+                    formatExample = "[a,b] or (a,b)";
+                    formatHint = "✓ Use [ ] for inclusive, ( ) for exclusive | e.g., [0,5) means 0 ≤ x < 5";
+                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+                    placeholder = "e.g., 42 or -3.14";
+                    formatExample = "number";
+                    formatHint = "✓ Accepted: 42, -3.14, 0.5 | Decimals are fine";
+                } else {
+                    placeholder = question.format_hint || "Enter your answer";
+                    formatExample = "text";
+                    formatHint = question.format_hint || "";
+                }
+                
+                optionsHtml = `
+                <input type="text" 
+                       class="numeric-input" 
+                       placeholder="${placeholder}" 
+                       onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                       oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                       autocomplete="off"
+                       spellcheck="false"
+                       style="font-size: 16px; font-family: 'Courier New', monospace;">
             `;
-        }).join('');
-        
-    } else if (question.type === 'multiple_select') {
-        optionsHtml = question.options.map((option, optIndex) => {
-            const safeOption = option.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
-            return `
-                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${safeOption}', 'checkbox', this)">
-                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+            }
+
+            const difficultyColor = {
+                'easy': '#28a745',
+                'medium': '#ffc107', 
+                'hard': '#dc3545'
+            };
+
+            const difficulty = question.difficulty || 'medium';
+            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            
+            questionDiv.innerHTML = `
+            <div class="question-header">
+                <div class="question-number">${currentQuestionIndex + 1}</div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                        ${difficultyText}
+                    </span>
                 </div>
-            `;
-        }).join('');
-    } else {
-        // Enhanced input fields with better format hints
-        let placeholder, formatExample, formatHint;
-        
-        if (question.type === 'coordinate_input') {
-            placeholder = "e.g., (3, 4) or (3,4)";
-            formatExample = "(x, y)";
-            formatHint = "✓ Accepted: (3,4) or (3, 4) | ✗ Avoid: 3,4 or [3,4]";
-        } else if (question.type === 'equation_input') {
-            placeholder = "e.g., y = 2x + 3";
-            formatExample = "equation with =";
-            formatHint = "✓ Accepted: y=2x+3 or y = 2x + 3 | Use ^ for powers: x^2";
-        } else if (question.type === 'interval_input') {
-            placeholder = "e.g., [0, 5] or (-2, 3]";
-            formatExample = "[a,b] or (a,b)";
-            formatHint = "✓ Use [ ] for inclusive, ( ) for exclusive | e.g., [0,5) means 0 ≤ x < 5";
-        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-            placeholder = "e.g., 42 or -3.14";
-            formatExample = "number";
-            formatHint = "✓ Accepted: 42, -3.14, 0.5 | Decimals are fine";
-        } else {
-            placeholder = question.format_hint || "Enter your answer";
-            formatExample = "text";
-            formatHint = question.format_hint || "";
+            </div>
+            <div class="question-text">${question.question_text}</div>
+            <div class="options">${optionsHtml}</div>
+        `;
+
+            container.appendChild(questionDiv);
+            
+            // Restore previous answer if exists
+            restoreAnswer();
+            updateAnswerStatus();
         }
-        
-        optionsHtml = `
-        <input type="text" 
-               class="numeric-input" 
-               placeholder="${placeholder}" 
-               onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-               oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-               autocomplete="off"
-               spellcheck="false"
-               style="font-size: 16px; font-family: 'Courier New', monospace;">
-    `;
-    }
-
-    const difficultyColor = {
-        'easy': '#28a745',
-        'medium': '#ffc107', 
-        'hard': '#dc3545'
-    };
-
-    // Get difficulty from question object, with fallback
-    const difficulty = question.difficulty || 'medium';
-    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-    
-    questionDiv.innerHTML = `
-    <div class="question-header">
-        <div class="question-number">${currentQuestionIndex + 1}</div> <!-- ADD THIS -->
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                ${difficultyText}
-            </span>
-        </div>
-    </div>
-    <div class="question-text">${question.question_text}</div>
-    <div class="options">${optionsHtml}</div>
-`;
-
-    container.appendChild(questionDiv);
-    
-    // Restore previous answer if exists
-    restoreAnswer();
-    updateAnswerStatus();
-}
 
         function restoreAnswer() {
-    const question = questions[currentQuestionIndex];
-    const savedAnswer = userAnswers[currentQuestionIndex];
-    
-    if (!savedAnswer) return;
+            const question = questions[currentQuestionIndex];
+            const savedAnswer = userAnswers[currentQuestionIndex];
+            
+            if (!savedAnswer) return;
 
-    if (question.type === 'multiple_choice') {
-        // Find and select the option that matches the saved answer
-        const options = document.querySelectorAll(`.option input[name="q${currentQuestionIndex}"]`);
-        options.forEach(option => {
-            if (option.value === savedAnswer) {
-                option.checked = true;
-                option.closest('.option').classList.add('selected');
+            if (question.type === 'multiple_choice') {
+                const options = document.querySelectorAll(`.option input[name="q${currentQuestionIndex}"]`);
+                options.forEach(option => {
+                    if (option.value === savedAnswer) {
+                        option.checked = true;
+                        option.closest('.option').classList.add('selected');
+                    }
+                });
+            } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+                savedAnswer.forEach(answer => {
+                    const option = document.querySelector(`input[value="${answer}"]`);
+                    if (option) {
+                        option.checked = true;
+                        option.closest('.option').classList.add('selected');
+                    }
+                });
+            } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
+                const input = document.querySelector('.numeric-input');
+                if (input) {
+                    input.value = savedAnswer;
+                }
             }
-        });
-    } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-        savedAnswer.forEach(answer => {
-            const option = document.querySelector(`input[value="${answer}"]`);
-            if (option) {
-                option.checked = true;
-                option.closest('.option').classList.add('selected');
-            }
-        });
-    } else if (question.type === 'numeric' || question.type === 'interval_input' || question.type === 'numeric_input' || question.type === 'coordinate_input' || question.type === 'equation_input' || question.type === 'text_input') {
-        const input = document.querySelector('.numeric-input');
-        if (input) {
-            input.value = savedAnswer;
         }
-    }
-}
-
-     
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
-            // Update navigation buttons
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
             
             const nextBtn = document.getElementById('nextBtn');
@@ -1108,7 +1072,7 @@ const AnswerNormalizer = {
                 nextBtn.textContent = 'Next';
                 nextBtn.onclick = nextQuestion;
             }
-}
+        }
 
         function updateAnswerStatus() {
             const statusSpan = document.getElementById('answeredStatus');
@@ -1125,7 +1089,7 @@ const AnswerNormalizer = {
 
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
-                trackQuestionTime(); // Track time spent on current question
+                trackQuestionTime();
                 currentQuestionIndex++;
                 renderCurrentQuestion();
                 updateProgress();
@@ -1134,56 +1098,54 @@ const AnswerNormalizer = {
 
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
-                trackQuestionTime(); // Track time spent on current question
+                trackQuestionTime();
                 currentQuestionIndex--;
                 renderCurrentQuestion();
                 updateProgress();
             }
         }
 
-     function selectOption(questionIndex, value, type, element) {
-        if (type === 'radio') {
-            // Remove selection from all options in this question
-            const allOptions = document.querySelectorAll(`.question-card .option`);
-            allOptions.forEach(opt => {
-                const input = opt.querySelector('input[type="radio"]');
-                if (input && input.name === `q${questionIndex}`) {
-                    input.checked = false;
-                    opt.classList.remove('selected');
-                }
-            });
-            
-            // Set current selection
-            const radioInput = element.querySelector('input[type="radio"]');
-            if (radioInput) {
-                radioInput.checked = true;
-            }
-            element.classList.add('selected');
-            userAnswers[questionIndex] = value.trim();
-                    
-        } else if (type === 'checkbox') {
-            const checkbox = element.querySelector('input');
-            checkbox.checked = !checkbox.checked;
-            
-            if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
-            
-            if (checkbox.checked) {
-                if (!userAnswers[questionIndex].includes(value.trim())) {
-                    userAnswers[questionIndex].push(value.trim());
+        function selectOption(questionIndex, value, type, element) {
+            if (type === 'radio') {
+                const allOptions = document.querySelectorAll(`.question-card .option`);
+                allOptions.forEach(opt => {
+                    const input = opt.querySelector('input[type="radio"]');
+                    if (input && input.name === `q${questionIndex}`) {
+                        input.checked = false;
+                        opt.classList.remove('selected');
+                    }
+                });
+                
+                const radioInput = element.querySelector('input[type="radio"]');
+                if (radioInput) {
+                    radioInput.checked = true;
                 }
                 element.classList.add('selected');
-            } else {
-                userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-                element.classList.remove('selected');
+                userAnswers[questionIndex] = value.trim();
+                        
+            } else if (type === 'checkbox') {
+                const checkbox = element.querySelector('input');
+                checkbox.checked = !checkbox.checked;
                 
-                if (userAnswers[questionIndex].length === 0) {
-                    delete userAnswers[questionIndex];
+                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+                
+                if (checkbox.checked) {
+                    if (!userAnswers[questionIndex].includes(value.trim())) {
+                        userAnswers[questionIndex].push(value.trim());
+                    }
+                    element.classList.add('selected');
+                } else {
+                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+                    element.classList.remove('selected');
+                    
+                    if (userAnswers[questionIndex].length === 0) {
+                        delete userAnswers[questionIndex];
+                    }
                 }
             }
+            
+            updateAnswerStatus();
         }
-        
-        updateAnswerStatus();
-    }
 
         function handleNumericInput(questionIndex, value) {
             const question = questions[questionIndex];
@@ -1195,338 +1157,575 @@ const AnswerNormalizer = {
                 return;
             }
             
-            // Store original user input (normalization happens during comparison)
             userAnswers[questionIndex] = trimmedValue;
-            
             updateAnswerStatus();
         }
-// Answer validation helper functions
 
-function validateAnswerFormat(questionIndex, userAnswer) {
-    const question = questions[questionIndex];
-    let feedback = '';
-    let isValidFormat = true;
-    
-    if (!userAnswer || !userAnswer.trim()) {
-        return { isValidFormat: false, feedback: 'Please enter an answer' };
-    }
-    
-    // Basic format checks (lenient)
-    if (question.type === 'equation_input') {
-        if (!userAnswer.includes('=')) {
-            feedback = 'Equation must contain = sign';
-            isValidFormat = false;
-        }
-    }
-    
-    return { isValidFormat, feedback };
-}
-
-// Real-time validation feedback display
-function showValidationFeedback(questionIndex, feedback, suggestion) {
-    const feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
-    if (!feedbackDiv) return;
-    
-    if (!feedback) {
-        feedbackDiv.innerHTML = '';
-        return;
-    }
-    
-    const isValid = feedback.includes('✓');
-    feedbackDiv.style.cssText = `
-        background: ${isValid ? '#d4edda' : '#fff3cd'};
-        border: 1px solid ${isValid ? '#c3e6cb' : '#ffeaa7'};
-        border-radius: 6px;
-        padding: 10px;
-        margin-top: 10px;
-        font-size: 14px;
-        line-height: 1.5;
-    `;
-    
-    feedbackDiv.innerHTML = `
-        <div style="color: ${isValid ? '#155724' : '#856404'}; font-weight: 600; margin-bottom: 4px;">
-            ${feedback}
-        </div>
-        ${suggestion ? `<div style="color: #666; font-size: 13px;">${suggestion}</div>` : ''}
-    `;
-}
-
-// Enhanced numeric input with real-time validation
-function handleNumericInputWithValidation(questionIndex, value) {
-    handleNumericInput(questionIndex, value);
-    
-    if (value.trim()) {
-        const validation = validateAnswerFormat(questionIndex, value.trim());
-        showValidationFeedback(questionIndex, validation.feedback, validation.suggestion);
-    } else {
-        showValidationFeedback(questionIndex, '', '');
-    }
-}
-
-
-        // Get question difficulty (mock function - in real app this would come from question data)
-        function getQuestionDifficulty(questionNumber) {
-            if (questionNumber <= 15) return 'easy';
-            if (questionNumber <= 30) return 'medium';
-            return 'hard';
+        function handleNumericInputWithValidation(questionIndex, value) {
+            handleNumericInput(questionIndex, value);
         }
 
-       // Add this function - it's missing from your code
-async function initializeQuiz() {
-    try {
-        const sessionValid = await fetchSessionInfo();
-        if (!sessionValid) return;
-        
-        // Load questions from API
-        const questionsLoaded = await loadQuestions();
-        if (!questionsLoaded) return;
-        
-        currentUser = { username, email };
-        
-        // Initialize timing
-        initializeQuizTiming();
-        
-        // Hide loading screen and show quiz
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('quizContainer').style.display = 'block';
-        
-        renderCurrentQuestion();
-        updateProgress();
-        
-    } catch (error) {
-        console.error('Error initializing quiz:', error);
-        
-    }
-}
-
-// Add this function - it's also missing
-async function submitQuiz() {
-    // Show polite confirmation popup
-    const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Function Concepts Quiz?`);
-    
-    if (!confirmSubmit) {
-        return; // User clicked Cancel, don't submit
-    }
-
-    if (!username || !email) {
-        alert("Error: User session data not found. Please log in.");
-        return;
-    }
-
-    // Track final question time
-    trackQuestionTime();
-    const quizEndTime = new Date();
-    const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
-
-    // Calculate scores and build detailed results
-    let score = 0;
-    let totalPossiblePoints = 0;
-    const questionResults = [];
-    const difficultyBreakdown = {
-        easy: { attempted: 0, correct: 0, points: 0 },
-        medium: { attempted: 0, correct: 0, points: 0 },
-        hard: { attempted: 0, correct: 0, points: 0 }
-    };
-    
-   questions.forEach((question, index) => {
-    const userAnswer = userAnswers[index];
-    totalPossiblePoints += question.points;
-    
-    let isCorrect = false;
-    
-    // Enhanced answer checking with normalization
-    // Use comprehensive normalizer for ALL answer types
-        // Your code with syntax errors fixed:
-if (question.type === 'multiple_select') {
-    // Special handling for multiple_select
-    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-        const userNorm = userAnswer.map(ans => 
-            answerNormalizer.normalizeAnswer(ans, 'text_input')
-        ).sort();
-        const correctNorm = question.correct_answer.map(ans => 
-            answerNormalizer.normalizeAnswer(ans, 'text_input')
-        ).sort();
-        isCorrect = userNorm.length === correctNorm.length &&
-                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
-    }
-} else if (question.type === 'multiple_choice') {
-    const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
-    isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
-} else if (question.type === 'numeric' || question.type === 'numeric_input') {
-    const userNum = answerNormalizer.normalizeNumeric(userAnswer);
-    const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
-    
-    if (userNum === correctNum) {
-        isCorrect = true;
-    } else if (!isNaN(userNum) && !isNaN(correctNum) && isFinite(userNum) && isFinite(correctNum)) {
-        const tolerance = Math.max(Math.abs(correctNum) * 0.01, 0.01); // 1% tolerance or min 0.01
-        isCorrect = Math.abs(userNum - correctNum) <= tolerance;
-    }
-    
-    // Check alternative answers if available
-    if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-        isCorrect = question.alternative_answers.some(alt => {
-            const altNum = answerNormalizer.normalizeNumeric(alt);
-            if (userNum === altNum) return true;
-            if (!isNaN(userNum) && !isNaN(altNum) && isFinite(userNum) && isFinite(altNum)) {
-                const tolerance = Math.max(Math.abs(altNum) * 0.01, 0.01);
-                return Math.abs(userNum - altNum) <= tolerance;
+        // Initialize quiz
+        async function initializeQuiz() {
+            try {
+                const sessionValid = await fetchSessionInfo();
+                if (!sessionValid) return;
+                
+                const questionsLoaded = await loadQuestions();
+                if (!questionsLoaded) return;
+                
+                currentUser = { username, email };
+                
+                initializeQuizTiming();
+                
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('quizContainer').style.display = 'block';
+                
+                renderCurrentQuestion();
+                updateProgress();
+                
+            } catch (error) {
+                console.error('Error initializing quiz:', error);
             }
-            return false;
-        });
-    }
-} else if (question.type === 'coordinate_input') {
-    const normalizeCoord = answerNormalizer.normalizeCoordinate;
-    isCorrect = normalizeCoord(userAnswer) === normalizeCoord(question.correct_answer);
-    
-    // Check alternative answers if available
-    if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-        isCorrect = question.alternative_answers.some(alt => 
-            normalizeCoord(alt) === normalizeCoord(userAnswer)
-        );
-    }
-} else if (question.type === 'equation_input') {
-    const normalizeEq = answerNormalizer.normalizeEquation;
-    isCorrect = normalizeEq(userAnswer) === normalizeEq(question.correct_answer);
-    
-    // Check alternative forms if available
-    if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-        isCorrect = question.alternative_answers.some(alt => 
-            normalizeEq(alt) === normalizeEq(userAnswer)
-        );
-    }
-} else if (question.type === 'interval_input') {
-    const normalizeInterval = answerNormalizer.normalizeInterval;
-    isCorrect = normalizeInterval(userAnswer) === normalizeInterval(question.correct_answer);
-    
-    // Check alternative answers if available
-    if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-        isCorrect = question.alternative_answers.some(alt => 
-            normalizeInterval(alt) === normalizeInterval(userAnswer)
-        );
-    }
-} else {
-    // General text comparison for text_input or unknown types
-    const normalizeText = (text) => (text || '').toString().trim().toLowerCase();
-    isCorrect = normalizeText(userAnswer) === normalizeText(question.correct_answer);
-    
-    // Check alternative answers if available
-    if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-        isCorrect = question.alternative_answers.some(alt => 
-            normalizeText(alt) === normalizeText(userAnswer)
-        );
-    }
-}
-
-if (isCorrect) {
-    score += question.points || 1;
-}
-
-// Update difficulty breakdown
-difficultyBreakdown[question.difficulty].attempted++;
-if (isCorrect) {
-    difficultyBreakdown[question.difficulty].correct++;
-    difficultyBreakdown[question.difficulty].points += question.points || 1;
-}
-    
-    // Build question result with question ID for tracking
-    questionResults.push({
-        questionId: question._id, // MongoDB _id for backend tracking
-        questionNumber: question.question_number,
-        questionText: question.question_text,
-        difficulty: question.difficulty,
-        points: question.points,
-        userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-        correctAnswer: question.correct_answer.toString(),
-        explanation: question.explanation || '',
-        isCorrect: isCorrect,
-        timeTaken: questionTimes[index] || 0
-    });
-});
-
-    // Build complete quiz data matching new schema
-    const quizData = {
-        topic: 'function_concepts',
-        quizType: 'practice',
-        score: score,
-        maxPossibleScore: totalPossiblePoints,
-        totalQuestions: questions.length,
-        correctAnswers: questionResults.filter(q => q.isCorrect).length,
-        percentage: Math.round((score / totalPossiblePoints) * 100),
-        difficultyBreakdown: difficultyBreakdown,
-        questionResults: questionResults,
-        startTime: quizStartTime,
-        endTime: quizEndTime,
-        totalTimeTaken: totalTimeTaken,
-        isCompleted: true,
-        adaptiveData: {
-            startingDifficulty: 'easy',
-            finalDifficulty: questions[questions.length - 1]?.difficulty || 'easy',
-            difficultyProgression: questionResults.map((q, index) => ({
-                questionNumber: q.questionNumber,
-                difficulty: q.difficulty,
-                wasCorrect: q.isCorrect
-            }))
         }
-    };
 
-    try {
-        // Show loading state
-        document.getElementById('submitText').style.display = 'none';
-        document.getElementById('submitLoading').style.display = 'inline-block';
-        document.getElementById('submitBtn').disabled = true;
+        // ============================================
+        // CALCULATOR FUNCTIONS - FIXED
+        // ============================================
 
-        console.log('Submitting quiz data:', {
-            email: email,
-            username: username,
-            quizData: quizData
-        });
-        
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-                email: email,
-                username: username,
-                quizData: quizData
-            })
-        });
-
-        if (response.ok) {
-            console.log('Quiz submitted successfully');
-            // Show detailed results
-            displayDetailedResults(quizData);
-        } else {
-            const errorText = await response.text();
-            console.error('Failed to submit quiz:', errorText);
-            alert('Failed to submit quiz. Please try again.');
+        // Initialize calculator
+        function initializeCalculator() {
+            const calculatorBtn = document.getElementById('calculatorBtn');
+            const calculatorModal = document.getElementById('calculatorModal');
+            const closeBtn = calculatorModal.querySelector('.calculator-close');
+            const minimizeBtn = calculatorModal.querySelector('.minimize-btn');
+            const helpBtn = calculatorModal.querySelector('.help-btn');
             
-            // Reset button state
-            document.getElementById('submitText').style.display = 'inline';
-            document.getElementById('submitLoading').style.display = 'none';
-            document.getElementById('submitBtn').disabled = false;
-            return;
+            // Set up calculator button click
+            calculatorBtn.addEventListener('click', toggleCalculator);
+            
+            // Set up close button
+            closeBtn.addEventListener('click', toggleCalculator);
+            
+            // Set up minimize button
+            if (minimizeBtn) {
+                minimizeBtn.addEventListener('click', function() {
+                    calculatorModal.style.display = 'none';
+                    calculatorBtn.style.display = 'flex';
+                    calculatorOpen = false;
+                });
+            }
+            
+            // Set up help button
+            if (helpBtn) {
+                helpBtn.addEventListener('click', function() {
+                    alert('Scientific Calculator Help:\n\n• Use Deg/Rad for angle modes\n• Click buttons or type directly\n• Drag the header to move calculator\n• Close with × or minimize with ―');
+                });
+            }
+            
+            // Initialize drag functionality
+            initializeDrag();
+            
+            // Initialize angle mode listeners
+            const degMode = document.getElementById('degMode');
+            const radMode = document.getElementById('radMode');
+            
+            degMode.addEventListener('change', () => {
+                angleMode = 'Deg';
+                console.log('Angle mode changed to:', angleMode);
+            });
+            
+            radMode.addEventListener('change', () => {
+                angleMode = 'Rad';
+                console.log('Angle mode changed to:', angleMode);
+            });
+            
+            console.log('Calculator initialized');
         }
-    } catch (error) {
-        console.error('Error submitting quiz:', error);
-        alert('Error submitting quiz. Please check your connection and try again.');
-        // Reset button state
-        document.getElementById('submitText').style.display = 'inline';
-        document.getElementById('submitLoading').style.display = 'none';
-        document.getElementById('submitBtn').disabled = false;
-        return;
-    }
-}
 
-        // Enhanced results display
+        // Toggle calculator visibility
+        function toggleCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            calculatorOpen = !calculatorOpen;
+            
+            if (calculatorOpen) {
+                modal.style.display = 'flex';
+                btn.style.display = 'none';
+                
+                // Set initial position
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const modalWidth = modal.offsetWidth || 590;
+                const modalHeight = modal.offsetHeight || 400;
+                
+                modal.style.position = 'fixed';
+                modal.style.left = (viewportWidth - modalWidth - 20) + 'px';
+                modal.style.top = (viewportHeight - modalHeight - 100) + 'px';
+                
+                // Focus on display
+                setTimeout(() => {
+                    document.getElementById('calcDisplay').focus();
+                }, 100);
+            } else {
+                modal.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+            
+            console.log('Calculator toggled. Open:', calculatorOpen);
+        }
+
+        // Initialize drag functionality
+        function initializeDrag() {
+            const modal = document.getElementById('calculatorModal');
+            const header = modal.querySelector('.calculator-header');
+            
+            header.addEventListener('mousedown', startDrag);
+            header.addEventListener('touchstart', startDragTouch);
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', dragTouch);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+            
+            // Prevent button drag
+            const buttons = modal.querySelectorAll('.calc-btn, .calculator-close, .help-btn, .minimize-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                });
+                btn.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                });
+            });
+        }
+
+        function startDrag(e) {
+            if (e.target.closest('.calculator-close') || 
+                e.target.closest('.calc-btn') || 
+                e.target.closest('.help-btn') || 
+                e.target.closest('.minimize-btn')) {
+                return;
+            }
+            
+            const modal = document.getElementById('calculatorModal');
+            isDragging = true;
+            
+            const rect = modal.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            
+            modal.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+
+        function startDragTouch(e) {
+            if (e.target.closest('.calculator-close') || 
+                e.target.closest('.calc-btn') || 
+                e.target.closest('.help-btn') || 
+                e.target.closest('.minimize-btn')) {
+                return;
+            }
+            
+            const modal = document.getElementById('calculatorModal');
+            isDragging = true;
+            
+            const touch = e.touches[0];
+            const rect = modal.getBoundingClientRect();
+            dragOffsetX = touch.clientX - rect.left;
+            dragOffsetY = touch.clientY - rect.top;
+            
+            modal.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const modal = document.getElementById('calculatorModal');
+            const x = e.clientX - dragOffsetX;
+            const y = e.clientY - dragOffsetY;
+            
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const modalWidth = modal.offsetWidth;
+            const modalHeight = modal.offsetHeight;
+            
+            let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
+            let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
+            
+            modal.style.left = finalX + 'px';
+            modal.style.top = finalY + 'px';
+            
+            e.preventDefault();
+        }
+
+        function dragTouch(e) {
+            if (!isDragging) return;
+            
+            const modal = document.getElementById('calculatorModal');
+            const touch = e.touches[0];
+            const x = touch.clientX - dragOffsetX;
+            const y = touch.clientY - dragOffsetY;
+            
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const modalWidth = modal.offsetWidth;
+            const modalHeight = modal.offsetHeight;
+            
+            let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
+            let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
+            
+            modal.style.left = finalX + 'px';
+            modal.style.top = finalY + 'px';
+            
+            e.preventDefault();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            const modal = document.getElementById('calculatorModal');
+            modal.style.cursor = 'move';
+        }
+
+        // Calculator functions
+        function addToDisplay(value) {
+            const display = document.getElementById('calcDisplay');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            if (resultDisplay.value !== '0' && display.value === '') {
+                resultDisplay.value = '0';
+            }
+            
+            display.value += value;
+            display.focus();
+        }
+
+        function clearCalculator() {
+            document.getElementById('calcDisplay').value = '';
+            document.getElementById('resultDisplay').value = '0';
+        }
+
+        function backspace() {
+            const display = document.getElementById('calcDisplay');
+            display.value = display.value.slice(0, -1);
+        }
+
+        function calculateResult() {
+            const display = document.getElementById('calcDisplay');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            try {
+                let expression = display.value
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/\^/g, '**')
+                    .replace(/√/g, 'Math.sqrt')
+                    .replace(/π/g, 'Math.PI')
+                    .replace(/e(?![a-zA-Z])/g, 'Math.E');
+                
+                const allowedChars = /^[0-9+\-*/().^MathsincostanasinacosatanlogexpsqrtPIElE, ]+$/;
+                
+                if (!allowedChars.test(expression)) {
+                    throw new Error('Invalid characters');
+                }
+                
+                const safeEval = new Function('return ' + expression);
+                let result = safeEval();
+                
+                if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+                    result = Math.round(result * 100000000) / 100000000;
+                }
+                
+                resultDisplay.value = result;
+                
+            } catch (error) {
+                resultDisplay.value = 'Error';
+                setTimeout(() => {
+                    resultDisplay.value = '0';
+                }, 1500);
+            }
+        }
+
+        function calcFunction(func) {
+            const display = document.getElementById('calcDisplay');
+            const value = parseFloat(display.value) || 0;
+            let result;
+            
+            switch(func) {
+                case 'sin':
+                case 'cos':
+                case 'tan':
+                    result = angleMode === 'Deg' ? 
+                        Math[func](value * Math.PI / 180) : 
+                        Math[func](value);
+                    break;
+                case 'sin⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.asin(value) * 180 / Math.PI : 
+                        Math.asin(value);
+                    break;
+                case 'cos⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.acos(value) * 180 / Math.PI : 
+                        Math.acos(value);
+                    break;
+                case 'tan⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.atan(value) * 180 / Math.PI : 
+                        Math.atan(value);
+                    break;
+                case 'sinh':
+                    result = Math.sinh(value);
+                    break;
+                case 'cosh':
+                    result = Math.cosh(value);
+                    break;
+                case 'tanh':
+                    result = Math.tanh(value);
+                    break;
+                case 'ln':
+                    result = Math.log(value);
+                    break;
+                case 'log':
+                    result = Math.log10(value);
+                    break;
+                case 'eˣ':
+                    result = Math.exp(value);
+                    break;
+                case '10ˣ':
+                    result = Math.pow(10, value);
+                    break;
+                case 'x²':
+                    result = value * value;
+                    break;
+                case 'x³':
+                    result = value * value * value;
+                    break;
+                case '1/x':
+                    result = 1 / value;
+                    break;
+                case 'n!':
+                    result = factorial(value);
+                    break;
+                case '|x|':
+                    result = Math.abs(value);
+                    break;
+                default:
+                    return;
+            }
+            
+            document.getElementById('resultDisplay').value = result;
+            document.getElementById('calcDisplay').value = result;
+        }
+
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function memoryFunction(func) {
+            const value = parseFloat(document.getElementById('resultDisplay').value) || 0;
+            
+            switch(func) {
+                case 'MC':
+                    memory = 0;
+                    break;
+                case 'MR':
+                    document.getElementById('calcDisplay').value = memory;
+                    break;
+                case 'MS':
+                    memory = value;
+                    break;
+                case 'M+':
+                    memory += value;
+                    break;
+                case 'M-':
+                    memory -= value;
+                    break;
+            }
+        }
+
+        // Keyboard support for calculator
+        document.addEventListener('keydown', function(e) {
+            if (!calculatorOpen) return;
+            
+            const display = document.getElementById('calcDisplay');
+            if (!display) return;
+            
+            if (/[\d\+\-\*\/\(\)\.=%]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                
+                if (e.key === 'Enter' || e.key === '=') {
+                    calculateResult();
+                } else if (e.key === 'Escape') {
+                    clearCalculator();
+                } else if (e.key === 'Backspace') {
+                    backspace();
+                } else {
+                    addToDisplay(e.key);
+                }
+            }
+        });
+
+        // Close calculator when clicking outside (optional)
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            if (calculatorOpen && 
+                !modal.contains(e.target) && 
+                !btn.contains(e.target) &&
+                !e.target.closest('.calculator-btn')) {
+                // Optional: Uncomment to close when clicking outside
+                // toggleCalculator();
+            }
+        });
+
+        // Submit quiz function (simplified for demo)
+        async function submitQuiz() {
+            const confirmSubmit = confirm(`Ready to Submit?\n\nAre you ready to submit your Function Concepts Quiz?`);
+            
+            if (!confirmSubmit) {
+                return;
+            }
+
+            if (!username || !email) {
+                alert("Error: User session data not found. Please log in.");
+                return;
+            }
+
+            trackQuestionTime();
+            const quizEndTime = new Date();
+            const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
+
+            let score = 0;
+            let totalPossiblePoints = 0;
+            const questionResults = [];
+            const difficultyBreakdown = {
+                easy: { attempted: 0, correct: 0, points: 0 },
+                medium: { attempted: 0, correct: 0, points: 0 },
+                hard: { attempted: 0, correct: 0, points: 0 }
+            };
+            
+            questions.forEach((question, index) => {
+                const userAnswer = userAnswers[index];
+                totalPossiblePoints += question.points || 1;
+                
+                let isCorrect = false;
+                
+                if (question.type === 'multiple_select') {
+                    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+                        const userNorm = userAnswer.map(ans => 
+                            answerNormalizer.normalizeAnswer(ans, 'text_input')
+                        ).sort();
+                        const correctNorm = question.correct_answer.map(ans => 
+                            answerNormalizer.normalizeAnswer(ans, 'text_input')
+                        ).sort();
+                        isCorrect = userNorm.length === correctNorm.length &&
+                                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
+                    }
+                } else if (question.type === 'multiple_choice') {
+                    const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
+                    isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
+                } else {
+                    const userNorm = answerNormalizer.normalizeAnswer(userAnswer, question.type);
+                    const correctNorm = answerNormalizer.normalizeAnswer(question.correct_answer, question.type);
+                    isCorrect = userNorm === correctNorm;
+                }
+
+                if (isCorrect) {
+                    score += question.points || 1;
+                }
+
+                difficultyBreakdown[question.difficulty].attempted++;
+                if (isCorrect) {
+                    difficultyBreakdown[question.difficulty].correct++;
+                    difficultyBreakdown[question.difficulty].points += question.points || 1;
+                }
+                
+                questionResults.push({
+                    questionNumber: index + 1,
+                    questionText: question.question_text,
+                    difficulty: question.difficulty,
+                    points: question.points || 1,
+                    userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
+                    correctAnswer: question.correct_answer.toString(),
+                    explanation: question.explanation || '',
+                    isCorrect: isCorrect,
+                    timeTaken: questionTimes[index] || 0
+                });
+            });
+
+            const quizData = {
+                topic: 'function_concepts',
+                quizType: 'practice',
+                score: score,
+                maxPossibleScore: totalPossiblePoints,
+                totalQuestions: questions.length,
+                correctAnswers: questionResults.filter(q => q.isCorrect).length,
+                percentage: Math.round((score / totalPossiblePoints) * 100),
+                difficultyBreakdown: difficultyBreakdown,
+                questionResults: questionResults,
+                startTime: quizStartTime,
+                endTime: quizEndTime,
+                totalTimeTaken: totalTimeTaken,
+                isCompleted: true
+            };
+
+            try {
+                document.getElementById('submitText').style.display = 'none';
+                document.getElementById('submitLoading').style.display = 'inline-block';
+                document.getElementById('submitBtn').disabled = true;
+
+                console.log('Submitting quiz data...');
+                
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: email,
+                        username: username,
+                        quizData: quizData
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('Quiz submitted successfully');
+                    displayDetailedResults(quizData);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Failed to submit quiz:', errorText);
+                    alert('Failed to submit quiz. Please try again.');
+                    
+                    document.getElementById('submitText').style.display = 'inline';
+                    document.getElementById('submitLoading').style.display = 'none';
+                    document.getElementById('submitBtn').disabled = false;
+                    return;
+                }
+            } catch (error) {
+                console.error('Error submitting quiz:', error);
+                alert('Error submitting quiz. Please check your connection and try again.');
+                document.getElementById('submitText').style.display = 'inline';
+                document.getElementById('submitLoading').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                return;
+            }
+        }
+
         function displayDetailedResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             
             const resultsContainer = document.getElementById('resultsContainer');
             resultsContainer.style.display = 'block';
             
-            // Update the results display with detailed information
             const scoreDisplay = document.querySelector('.score-display');
             scoreDisplay.innerHTML = `
                 <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
@@ -1549,524 +1748,25 @@ if (isCorrect) {
                     Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
                 </p>
             `;
-            
-            // Add detailed question review
-            const reviewDiv = document.createElement('div');
-            reviewDiv.style.cssText = `
-                margin-top: 30px;
-                text-align: left;
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            `;
-            
-            reviewDiv.innerHTML = `
-                <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question Review</h3>
-                ${quizData.questionResults.map((result, index) => `
-
-                    <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                border-radius: 8px; 
-                                padding: 15px; 
-                                margin-bottom: 15px; 
-                                background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
-                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                        color: white; 
-                                        padding: 4px 8px; 
-                                        border-radius: 50%; 
-                                        margin-right: 10px; 
-                                        font-weight: bold;">
-                                ${result.questionNumber || index + 1}
-
-                            </span>
-                            <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
-                                ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                            </span>
-                        </div>
-                        <div style="margin-bottom: 10px; line-height: 1.4;">
-                            <strong>Question:</strong> ${result.questionText}
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <strong>Your Answer:</strong> 
-                            <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
-                                ${result.userAnswer || 'No answer provided'}
-                            </span>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <strong>Correct Answer:</strong> 
-                            <span style="color: #28a745; font-weight: bold;">
-                                ${result.correctAnswer}
-                            </span>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <strong>Explanation:</strong> 
-                            <span style="color: #28a745; font-weight: bold;">
-                                ${result.explanation}
-                            </span>
-                        </div>
-                        <div style="font-size: 0.9em; color: #666;">
-                            Time taken: ${result.timeTaken}s
-                        </div>
-                    </div>
-                `).join('')}
-            `;
-            
-            resultsContainer.appendChild(reviewDiv);
-        }
-
-        // Helper function for difficulty colors
-        function getDifficultyColor(difficulty) {
-            switch(difficulty) {
-                case 'easy': return '#28a745';
-                case 'medium': return '#ffc107';
-                case 'hard': return '#dc3545';
-                default: return '#6c757d';
-            }
-        }
-
-        // Initialize the quiz when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeQuiz();
-        });
-
-        // Fallback for browsers that don't support DOMContentLoaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeQuiz);
-        } else {
-            // DOM is already loaded
-            initializeQuiz();
-        }
-
-        // Add function to reset user progress
-        
-        async function resetUserProgress() {
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ 
-                        email: email,
-                        topic: 'function_concepts' // Specify topic for targeted reset
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    console.log('Progress reset successfully:', data);
-                    alert(`✅ Progress reset successfully!\n\nYou can now retake all ${data.questionsAvailable || 'available'} questions.`);
-                    return true;
-                } else {
-                    throw new Error(data.message || 'Failed to reset progress');
-                }
-            } catch (error) {
-                console.error('Error resetting progress:', error);
-                alert('❌ Failed to reset progress. Please try again or contact support.');
-                return false;
-            }
         }
 
         function goback() {
-            userAnswers = {};
-            questionTimes = {};
-            // go to iitm_math.html
             window.location.href = 'iitm_math.html';
         }
-        // ============================================
-// DRAGGABLE SCIENTIFIC CALCULATOR FUNCTIONS
-// ============================================
-let calculatorOpen = false;
-let isDragging = false;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-let angleMode = 'Deg';
-let memory = 0;
 
-function toggleCalculator() {
-    const modal = document.getElementById('calculatorModal');
-    const btn = document.getElementById('calculatorBtn');
-    
-    calculatorOpen = !calculatorOpen;
-    
-    if (calculatorOpen) {
-        modal.style.display = 'flex';
-        btn.style.display = 'none';
-        
-        // Set initial position if not already positioned
-        if (!modal.style.left && !modal.style.top) {
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            const modalWidth = modal.offsetWidth;
-            const modalHeight = modal.offsetHeight;
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
             
-            // Position in bottom-right corner
-            modal.style.left = (viewportWidth - modalWidth - 20) + 'px';
-            modal.style.top = (viewportHeight - modalHeight - 100) + 'px';
-        }
-        
-        // Focus on display when opening
-        setTimeout(() => {
-            document.getElementById('calcDisplay').focus();
-        }, 100);
-    } else {
-        modal.style.display = 'none';
-        btn.style.display = 'flex';
-    }
-}
-
-function initializeDrag() {
-    const modal = document.getElementById('calculatorModal');
-    const header = modal.querySelector('.calculator-header');
-    
-    header.addEventListener('mousedown', startDrag);
-    header.addEventListener('touchstart', startDragTouch);
-    
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('touchmove', dragTouch);
-    document.addEventListener('mouseup', stopDrag);
-    document.addEventListener('touchend', stopDrag);
-    
-    // Make calculator buttons not draggable
-    const buttons = modal.querySelectorAll('.calc-btn, .calculator-close');
-    buttons.forEach(btn => {
-        btn.addEventListener('mousedown', (e) => {
-            e.stopPropagation();
+            // Initialize calculator first (so it's always available)
+            initializeCalculator();
+            
+            // Then initialize quiz
+            setTimeout(() => {
+                initializeQuiz();
+            }, 100);
         });
-        btn.addEventListener('touchstart', (e) => {
-            e.stopPropagation();
-        });
-    });
-}
 
-function startDrag(e) {
-    if (e.target.closest('.calculator-close') || e.target.closest('.calc-btn')) {
-        return; // Don't drag when clicking buttons
-    }
-    
-    const modal = document.getElementById('calculatorModal');
-    isDragging = true;
-    
-    const rect = modal.getBoundingClientRect();
-    dragOffsetX = e.clientX - rect.left;
-    dragOffsetY = e.clientY - rect.top;
-    
-    modal.style.cursor = 'grabbing';
-    e.preventDefault();
-}
-
-function startDragTouch(e) {
-    if (e.target.closest('.calculator-close') || e.target.closest('.calc-btn')) {
-        return;
-    }
-    
-    const modal = document.getElementById('calculatorModal');
-    isDragging = true;
-    
-    const touch = e.touches[0];
-    const rect = modal.getBoundingClientRect();
-    dragOffsetX = touch.clientX - rect.left;
-    dragOffsetY = touch.clientY - rect.top;
-    
-    modal.style.cursor = 'grabbing';
-    e.preventDefault();
-}
-
-function drag(e) {
-    if (!isDragging) return;
-    
-    const modal = document.getElementById('calculatorModal');
-    const x = e.clientX - dragOffsetX;
-    const y = e.clientY - dragOffsetY;
-    
-    // Keep calculator within viewport bounds
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const modalWidth = modal.offsetWidth;
-    const modalHeight = modal.offsetHeight;
-    
-    let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
-    let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
-    
-    modal.style.left = finalX + 'px';
-    modal.style.top = finalY + 'px';
-    
-    e.preventDefault();
-}
-
-function dragTouch(e) {
-    if (!isDragging) return;
-    
-    const modal = document.getElementById('calculatorModal');
-    const touch = e.touches[0];
-    const x = touch.clientX - dragOffsetX;
-    const y = touch.clientY - dragOffsetY;
-    
-    // Keep calculator within viewport bounds
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const modalWidth = modal.offsetWidth;
-    const modalHeight = modal.offsetHeight;
-    
-    let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
-    let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
-    
-    modal.style.left = finalX + 'px';
-    modal.style.top = finalY + 'px';
-    
-    e.preventDefault();
-}
-
-function stopDrag() {
-    isDragging = false;
-    const modal = document.getElementById('calculatorModal');
-    modal.style.cursor = 'move';
-}
-
-function addToDisplay(value) {
-    const display = document.getElementById('calcDisplay');
-    const resultDisplay = document.getElementById('resultDisplay');
-    
-    // Clear result display when starting new input
-    if (resultDisplay.value !== '0' && display.value === '') {
-        resultDisplay.value = '0';
-    }
-    
-    display.value += value;
-    display.focus();
-}
-
-function clearCalculator() {
-    document.getElementById('calcDisplay').value = '';
-    document.getElementById('resultDisplay').value = '0';
-}
-
-function backspace() {
-    const display = document.getElementById('calcDisplay');
-    display.value = display.value.slice(0, -1);
-}
-
-function calculateResult() {
-    const display = document.getElementById('calcDisplay');
-    const resultDisplay = document.getElementById('resultDisplay');
-    
-    try {
-        // Replace display symbols with JavaScript equivalents
-        let expression = display.value
-            .replace(/×/g, '*')
-            .replace(/÷/g, '/')
-            .replace(/\^/g, '**')
-            .replace(/√/g, 'Math.sqrt')
-            .replace(/π/g, 'Math.PI')
-            .replace(/e(?![a-zA-Z])/g, 'Math.E');
-        
-        // Safer evaluation
-        const allowedChars = /^[0-9+\-*/().^MathsincostanasinacosatanlogexpsqrtPIElE, ]+$/;
-        
-        if (!allowedChars.test(expression)) {
-            throw new Error('Invalid characters in expression');
-        }
-        
-        // Evaluate safely
-        const safeEval = new Function('return ' + expression);
-        let result = safeEval();
-        
-        // Round to avoid floating point precision issues
-        if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
-            result = Math.round(result * 100000000) / 100000000;
-        }
-        
-        // Update result display
-        resultDisplay.value = result;
-        
-    } catch (error) {
-        resultDisplay.value = 'Error';
-        setTimeout(() => {
-            resultDisplay.value = '0';
-        }, 1500);
-    }
-}
-
-function calcFunction(func) {
-    const display = document.getElementById('calcDisplay');
-    const value = parseFloat(display.value) || 0;
-    let result;
-    
-    switch(func) {
-        case 'sin':
-        case 'cos':
-        case 'tan':
-            result = angleMode === 'Deg' ? 
-                Math[func](value * Math.PI / 180) : 
-                Math[func](value);
-            break;
-        case 'sin⁻¹':
-            result = angleMode === 'Deg' ? 
-                Math.asin(value) * 180 / Math.PI : 
-                Math.asin(value);
-            break;
-        case 'cos⁻¹':
-            result = angleMode === 'Deg' ? 
-                Math.acos(value) * 180 / Math.PI : 
-                Math.acos(value);
-            break;
-        case 'tan⁻¹':
-            result = angleMode === 'Deg' ? 
-                Math.atan(value) * 180 / Math.PI : 
-                Math.atan(value);
-            break;
-        case 'sinh':
-            result = Math.sinh(value);
-            break;
-        case 'cosh':
-            result = Math.cosh(value);
-            break;
-        case 'tanh':
-            result = Math.tanh(value);
-            break;
-        case 'ln':
-            result = Math.log(value);
-            break;
-        case 'log':
-            result = Math.log10(value);
-            break;
-        case 'eˣ':
-            result = Math.exp(value);
-            break;
-        case '10ˣ':
-            result = Math.pow(10, value);
-            break;
-        case 'x²':
-            result = value * value;
-            break;
-        case 'x³':
-            result = value * value * value;
-            break;
-        case '1/x':
-            result = 1 / value;
-            break;
-        case 'n!':
-            result = factorial(value);
-            break;
-        case '|x|':
-            result = Math.abs(value);
-            break;
-        default:
-            return;
-    }
-    
-    document.getElementById('resultDisplay').value = result;
-    document.getElementById('calcDisplay').value = result;
-}
-
-function factorial(n) {
-    if (n < 0) return NaN;
-    if (n === 0 || n === 1) return 1;
-    let result = 1;
-    for (let i = 2; i <= n; i++) {
-        result *= i;
-    }
-    return result;
-}
-
-function memoryFunction(func) {
-    const value = parseFloat(document.getElementById('resultDisplay').value) || 0;
-    
-    switch(func) {
-        case 'MC':
-            memory = 0;
-            break;
-        case 'MR':
-            document.getElementById('calcDisplay').value = memory;
-            break;
-        case 'MS':
-            memory = value;
-            break;
-        case 'M+':
-            memory += value;
-            break;
-        case 'M-':
-            memory -= value;
-            break;
-    }
-}
-
-// Initialize calculator drag when questions load
-function showCalculator() {
-    const calculatorBtn = document.getElementById('calculatorBtn');
-    if (calculatorBtn) {
-        calculatorBtn.style.display = 'flex';
-        // Initialize drag after a short delay
-        setTimeout(() => {
-            if (document.getElementById('calculatorModal')) {
-                initializeDrag();
-            }
-        }, 500);
-    }
-}
-
-// Add event listeners for angle mode
-document.addEventListener('DOMContentLoaded', function() {
-    const degMode = document.getElementById('degMode');
-    const radMode = document.getElementById('radMode');
-    
-    if (degMode) degMode.addEventListener('change', () => angleMode = 'Deg');
-    if (radMode) radMode.addEventListener('change', () => angleMode = 'Rad');
-});
-
-// Keyboard support for calculator
-document.addEventListener('keydown', function(e) {
-    // Only process calculator keys if calculator is open
-    if (!calculatorOpen) return;
-    
-    const display = document.getElementById('calcDisplay');
-    if (!display) return;
-    
-    // Prevent default for calculator keys
-    if (/[\d\+\-\*\/\(\)\.=%]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
-        e.preventDefault();
-        
-        if (e.key === 'Enter' || e.key === '=') {
-            calculateResult();
-        } else if (e.key === 'Escape') {
-            clearCalculator();
-        } else if (e.key === 'Backspace') {
-            backspace();
-        } else {
-            addToDisplay(e.key);
-        }
-    }
-});
-
-// Close calculator when clicking outside
-document.addEventListener('click', function(e) {
-    const modal = document.getElementById('calculatorModal');
-    const btn = document.getElementById('calculatorBtn');
-    
-    if (calculatorOpen && 
-        !modal.contains(e.target) && 
-        !btn.contains(e.target)) {
-        toggleCalculator();
-    }
-});
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
