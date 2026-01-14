@@ -1777,9 +1777,7 @@
             };
 
             try {
-                document.getElementById('submitText').style.display = 'none';
-                document.getElementById('submitLoading').style.display = 'inline-block';
-                document.getElementById('submitBtn').disabled = true;
+                
 
                 console.log('Submitting midterm quiz data:', quizData);
                 
@@ -1810,9 +1808,7 @@
             } catch (error) {
                 console.error('Error submitting quiz:', error);
                 alert('Error submitting quiz. Please check your connection and try again.');
-                document.getElementById('submitText').style.display = 'inline';
-                document.getElementById('submitLoading').style.display = 'none';
-                document.getElementById('submitBtn').disabled = false;
+              
                 return;
             }
         }
@@ -2377,6 +2373,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
 
