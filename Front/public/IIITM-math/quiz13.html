@@ -331,6 +331,235 @@
 
         .score-display h2 { font-size: 2.5rem; margin-bottom: 10px; }
         .hidden { display: none; }
+                /* ========== CALCULATOR STYLES ========== */
+        .calculator-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 9999;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+        }
+
+        .calculator-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .calculator-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .calculator-modal {
+            position: fixed;
+            width: 590px;
+            min-height: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            cursor: move;
+            user-select: none;
+        }
+
+        .calculator-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .calculator-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .calculator-header .help-btn {
+            background: #4fc3f7;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: auto;
+            margin-right: 10px;
+        }
+
+        .calculator-header .minimize-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+
+        .calculator-header .calculator-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .calculator-header .calculator-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .mode-selector {
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .mode-selector label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .calculator-display {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        #calcDisplay {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.5rem;
+            text-align: right;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        #resultDisplay {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 1.8rem;
+            text-align: right;
+            border: none;
+            background: transparent;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .calculator-buttons {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #f8f9fa;
+        }
+
+        .calc-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calc-btn {
+            flex: 1;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: white;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .calc-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        .calc-btn.func {
+            background: #e3e8ff;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .calc-btn.sci {
+            font-size: 0.9rem;
+            padding: 10px 0;
+            background: #f0f0f0;
+        }
+
+        .calc-btn.operator {
+            background: #ff6b6b;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calc-btn.equals {
+            background: #51cf66;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calc-btn.memory {
+            background: #e3e8ff;
+            color: #667eea;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-modal {
+                width: 320px;
+                min-height: 500px;
+            }
+            
+            .calc-btn {
+                padding: 10px 0;
+                font-size: 1rem;
+            }
+            
+            .calc-btn.sci {
+                font-size: 0.85rem;
+            }
+            
+            .calculator-btn {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
         
         /* Difficulty badges */
         .difficulty-badge {
@@ -429,6 +658,122 @@
             </div>
             <button class="btn" onclick="goback()">Home Page</button>
         </div>
+                <!-- ========== CALCULATOR ========== -->
+        <div id="calculatorBtn" class="calculator-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
+                <line x1="8" y1="6" x2="16" y2="6"></line>
+                <line x1="8" y1="10" x2="16" y2="10"></line>
+                <line x1="8" y1="14" x2="10" y2="14"></line>
+                <line x1="14" y1="14" x2="16" y2="14"></line>
+                <line x1="8" y1="18" x2="10" y2="18"></line>
+                <line x1="14" y1="18" x2="16" y2="18"></line>
+            </svg>
+            <span>Calculator</span>
+        </div>
+
+        <div id="calculatorModal" class="calculator-modal">
+            <div class="calculator-header">
+                <h3>Scientific Calculator</h3>
+                <button class="help-btn">Help</button>
+                <button class="minimize-btn">―</button>
+                <button class="calculator-close">×</button>
+            </div>
+            <div class="mode-selector">
+                <label>mod</label>
+                <input type="radio" name="angleMode" value="Deg" id="degMode" checked>
+                <label for="degMode">Deg</label>
+                <input type="radio" name="angleMode" value="Rad" id="radMode">
+                <label for="radMode">Rad</label>
+            </div>
+            <div class="calculator-display">
+                <input type="text" id="calcDisplay" readonly>
+                <input type="text" id="resultDisplay" readonly value="0">
+            </div>
+            <div class="calculator-buttons">
+                <!-- Row 1 - Hyperbolic and Advanced Functions -->
+                <div class="calc-row">
+                    <button class="calc-btn sci" onclick="calcFunction('sinh')">sinh</button>
+                    <button class="calc-btn sci" onclick="calcFunction('cosh')">cosh</button>
+                    <button class="calc-btn sci" onclick="calcFunction('tanh')">tanh</button>
+                    <button class="calc-btn sci" onclick="calcFunction('Exp')">Exp</button>
+                    <button class="calc-btn" onclick="addToDisplay('(')">(</button>
+                    <button class="calc-btn" onclick="addToDisplay(')')">)</button>
+                    <button class="calc-btn operator" onclick="backspace()">⌫</button>
+                    <button class="calc-btn operator" onclick="clearCalculator()">C</button>
+                    <button class="calc-btn operator" onclick="addToDisplay('+/-')">+/-</button>
+                    <button class="calc-btn sci" onclick="addToDisplay('Math.sqrt(')">√</button>
+                </div>
+                
+                <!-- Row 2 - Inverse Hyperbolic -->
+                <div class="calc-row">
+                    <button class="calc-btn sci" onclick="calcFunction('sinh⁻¹')">sinh⁻¹</button>
+                    <button class="calc-btn sci" onclick="calcFunction('cosh⁻¹')">cosh⁻¹</button>
+                    <button class="calc-btn sci" onclick="calcFunction('tanh⁻¹')">tanh⁻¹</button>
+                    <button class="calc-btn sci" onclick="calcFunction('logₓ')">log_x</button>
+                    <button class="calc-btn sci" onclick="calcFunction('ln')">ln</button>
+                    <button class="calc-btn sci" onclick="calcFunction('log')">log</button>
+                    <button class="calc-btn" onclick="addToDisplay('7')">7</button>
+                    <button class="calc-btn" onclick="addToDisplay('8')">8</button>
+                    <button class="calc-btn" onclick="addToDisplay('9')">9</button>
+                    <button class="calc-btn operator" onclick="addToDisplay('/')">/</button>
+                    <button class="calc-btn operator" onclick="addToDisplay('%')">%</button>
+                </div>
+                
+                <!-- Row 3 - Constants and Trig -->
+                <div class="calc-row">
+                    <button class="calc-btn sci" onclick="addToDisplay('Math.PI')">π</button>
+                    <button class="calc-btn sci" onclick="addToDisplay('Math.E')">e</button>
+                    <button class="calc-btn sci" onclick="calcFunction('n!')">n!</button>
+                    <button class="calc-btn sci" onclick="calcFunction('logₓ')">log_x</button>
+                    <button class="calc-btn sci" onclick="calcFunction('eˣ')">eˣ</button>
+                    <button class="calc-btn sci" onclick="calcFunction('10ˣ')">10ˣ</button>
+                    <button class="calc-btn" onclick="addToDisplay('4')">4</button>
+                    <button class="calc-btn" onclick="addToDisplay('5')">5</button>
+                    <button class="calc-btn" onclick="addToDisplay('6')">6</button>
+                    <button class="calc-btn operator" onclick="addToDisplay('*')">*</button>
+                    <button class="calc-btn operator" onclick="calcFunction('1/x')">1/x</button>
+                </div>
+                
+                <!-- Row 4 - Trig Functions -->
+                <div class="calc-row">
+                    <button class="calc-btn sci" onclick="calcFunction('sin')">sin</button>
+                    <button class="calc-btn sci" onclick="calcFunction('cos')">cos</button>
+                    <button class="calc-btn sci" onclick="calcFunction('tan')">tan</button>
+                    <button class="calc-btn sci" onclick="calcFunction('xʸ')">xʸ</button>
+                    <button class="calc-btn sci" onclick="calcFunction('x³')">x³</button>
+                    <button class="calc-btn sci" onclick="calcFunction('x²')">x²</button>
+                    <button class="calc-btn" onclick="addToDisplay('1')">1</button>
+                    <button class="calc-btn" onclick="addToDisplay('2')">2</button>
+                    <button class="calc-btn" onclick="addToDisplay('3')">3</button>
+                    <button class="calc-btn operator" onclick="addToDisplay('-')">-</button>
+                </div>
+                
+                <!-- Row 5 - Inverse Trig and Numbers -->
+                <div class="calc-row">
+                    <button class="calc-btn sci" onclick="calcFunction('sin⁻¹')">sin⁻¹</button>
+                    <button class="calc-btn sci" onclick="calcFunction('cos⁻¹')">cos⁻¹</button>
+                    <button class="calc-btn sci" onclick="calcFunction('tan⁻¹')">tan⁻¹</button>
+                    <button class="calc-btn sci" onclick="calcFunction('ⁿ√x')">ⁿ√x</button>
+                    <button class="calc-btn sci" onclick="calcFunction('³√')">³√</button>
+                    <button class="calc-btn sci" onclick="calcFunction('|x|')">|x|</button>
+                    <button class="calc-btn" onclick="addToDisplay('0')">0</button>
+                    <button class="calc-btn" onclick="addToDisplay('.')">.</button>
+                    <button class="calc-btn equals" onclick="calculateResult()">=</button>
+                    <button class="calc-btn operator" onclick="addToDisplay('+')">+</button>
+                </div>
+                
+                <!-- Row 6 - Memory Functions -->
+                <div class="calc-row">
+                    <button class="calc-btn memory" onclick="memoryFunction('MC')">MC</button>
+                    <button class="calc-btn memory" onclick="memoryFunction('MR')">MR</button>
+                    <button class="calc-btn memory" onclick="memoryFunction('MS')">MS</button>
+                    <button class="calc-btn memory" onclick="memoryFunction('M+')">M+</button>
+                    <button class="calc-btn memory" onclick="memoryFunction('M-')">M-</button>
+                </div>
+            </div>
+        </div>
+        <!-- ========== CALCULATOR ENDS ========== -->
     </div>
    
     <!-- Anti-cheating warning overlay -->
@@ -641,7 +986,14 @@ async function findCorrectImageExtension(filename) {
         let cheatingAttempts = 0;
         let isQuizActive = false;
         let devToolsWarned = false;
-        
+            // Calculator variables
+        let calculatorOpen = false;
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let angleMode = 'Deg';
+        let memory = 0;
+            
         // Anti-cheating initialization
         function initializeAntiCheating() {
             // Disable right-click
@@ -1764,10 +2116,392 @@ if (question.image_file) {
         } else {
             initializeQuiz();
         }
+            // ============================================
+    // CALCULATOR FUNCTIONS
+    // ============================================
+
+    // Initialize calculator
+    function initializeCalculator() {
+        const calculatorBtn = document.getElementById('calculatorBtn');
+        const calculatorModal = document.getElementById('calculatorModal');
+        const closeBtn = calculatorModal.querySelector('.calculator-close');
+        const minimizeBtn = calculatorModal.querySelector('.minimize-btn');
+        const helpBtn = calculatorModal.querySelector('.help-btn');
+        
+        // Set up calculator button click
+        calculatorBtn.addEventListener('click', toggleCalculator);
+        
+        // Set up close button
+        closeBtn.addEventListener('click', toggleCalculator);
+        
+        // Set up minimize button
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', function() {
+                calculatorModal.style.display = 'none';
+                calculatorBtn.style.display = 'flex';
+                calculatorOpen = false;
+            });
+        }
+        
+        // Set up help button
+        if (helpBtn) {
+            helpBtn.addEventListener('click', function() {
+                alert('Scientific Calculator Help:\n\n• Use Deg/Rad for angle modes\n• Click buttons or type directly\n• Drag the header to move calculator\n• Close with × or minimize with ―\n• Use log() for logarithms, ln() for natural log\n• Use sqrt() for square roots\n• Use ^ for exponents (e.g., 2^3 = 8)');
+            });
+        }
+        
+        // Initialize drag functionality
+        initializeDrag();
+        
+        // Initialize angle mode listeners
+        const degMode = document.getElementById('degMode');
+        const radMode = document.getElementById('radMode');
+        
+        degMode.addEventListener('change', () => {
+            angleMode = 'Deg';
+            console.log('Angle mode changed to:', angleMode);
+        });
+        
+        radMode.addEventListener('change', () => {
+            angleMode = 'Rad';
+            console.log('Angle mode changed to:', angleMode);
+        });
+        
+        console.log('Calculator initialized');
+    }
+
+    // Toggle calculator visibility
+    function toggleCalculator() {
+        const modal = document.getElementById('calculatorModal');
+        const btn = document.getElementById('calculatorBtn');
+        
+        calculatorOpen = !calculatorOpen;
+        
+        if (calculatorOpen) {
+            modal.style.display = 'flex';
+            btn.style.display = 'none';
+            
+            // Set initial position
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const modalWidth = modal.offsetWidth || 590;
+            const modalHeight = modal.offsetHeight || 400;
+            
+            modal.style.position = 'fixed';
+            modal.style.left = (viewportWidth - modalWidth - 20) + 'px';
+            modal.style.top = (viewportHeight - modalHeight - 100) + 'px';
+            
+            // Focus on display
+            setTimeout(() => {
+                document.getElementById('calcDisplay').focus();
+            }, 100);
+        } else {
+            modal.style.display = 'none';
+            btn.style.display = 'flex';
+        }
+    }
+
+    // Initialize drag functionality
+    function initializeDrag() {
+        const modal = document.getElementById('calculatorModal');
+        const header = modal.querySelector('.calculator-header');
+        
+        header.addEventListener('mousedown', startDrag);
+        header.addEventListener('touchstart', startDragTouch);
+        
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', dragTouch);
+        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('touchend', stopDrag);
+        
+        // Prevent button drag
+        const buttons = modal.querySelectorAll('.calc-btn, .calculator-close, .help-btn, .minimize-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+            });
+            btn.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+            });
+        });
+    }
+
+    function startDrag(e) {
+        if (e.target.closest('.calculator-close') || 
+            e.target.closest('.calc-btn') || 
+            e.target.closest('.help-btn') || 
+            e.target.closest('.minimize-btn')) {
+            return;
+        }
+        
+        const modal = document.getElementById('calculatorModal');
+        isDragging = true;
+        
+        const rect = modal.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        
+        modal.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+
+    function startDragTouch(e) {
+        if (e.target.closest('.calculator-close') || 
+            e.target.closest('.calc-btn') || 
+            e.target.closest('.help-btn') || 
+            e.target.closest('.minimize-btn')) {
+            return;
+        }
+        
+        const modal = document.getElementById('calculatorModal');
+        isDragging = true;
+        
+        const touch = e.touches[0];
+        const rect = modal.getBoundingClientRect();
+        dragOffsetX = touch.clientX - rect.left;
+        dragOffsetY = touch.clientY - rect.top;
+        
+        modal.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+
+    function drag(e) {
+        if (!isDragging) return;
+        
+        const modal = document.getElementById('calculatorModal');
+        const x = e.clientX - dragOffsetX;
+        const y = e.clientY - dragOffsetY;
+        
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const modalWidth = modal.offsetWidth;
+        const modalHeight = modal.offsetHeight;
+        
+        let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
+        let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
+        
+        modal.style.left = finalX + 'px';
+        modal.style.top = finalY + 'px';
+        
+        e.preventDefault();
+    }
+
+    function dragTouch(e) {
+        if (!isDragging) return;
+        
+        const modal = document.getElementById('calculatorModal');
+        const touch = e.touches[0];
+        const x = touch.clientX - dragOffsetX;
+        const y = touch.clientY - dragOffsetY;
+        
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const modalWidth = modal.offsetWidth;
+        const modalHeight = modal.offsetHeight;
+        
+        let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
+        let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
+        
+        modal.style.left = finalX + 'px';
+        modal.style.top = finalY + 'px';
+        
+        e.preventDefault();
+    }
+
+    function stopDrag() {
+        isDragging = false;
+        const modal = document.getElementById('calculatorModal');
+        modal.style.cursor = 'move';
+    }
+
+    // Calculator functions
+    function addToDisplay(value) {
+        const display = document.getElementById('calcDisplay');
+        const resultDisplay = document.getElementById('resultDisplay');
+        
+        if (resultDisplay.value !== '0' && display.value === '') {
+            resultDisplay.value = '0';
+        }
+        
+        display.value += value;
+        display.focus();
+    }
+
+    function clearCalculator() {
+        document.getElementById('calcDisplay').value = '';
+        document.getElementById('resultDisplay').value = '0';
+    }
+
+    function backspace() {
+        const display = document.getElementById('calcDisplay');
+        display.value = display.value.slice(0, -1);
+    }
+
+    function calculateResult() {
+        const display = document.getElementById('calcDisplay');
+        const resultDisplay = document.getElementById('resultDisplay');
+        
+        try {
+            let expression = display.value
+                .replace(/×/g, '*')
+                .replace(/÷/g, '/')
+                .replace(/\^/g, '**')
+                .replace(/√/g, 'Math.sqrt')
+                .replace(/π/g, 'Math.PI')
+                .replace(/e(?![a-zA-Z])/g, 'Math.E');
+            
+            const allowedChars = /^[0-9+\-*/().^MathsincostanasinacosatanlogexpsqrtPIElE, ]+$/;
+            
+            if (!allowedChars.test(expression)) {
+                throw new Error('Invalid characters');
+            }
+            
+            const safeEval = new Function('return ' + expression);
+            let result = safeEval();
+            
+            if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+                result = Math.round(result * 100000000) / 100000000;
+            }
+            
+            resultDisplay.value = result;
+            
+        } catch (error) {
+            resultDisplay.value = 'Error';
+            setTimeout(() => {
+                resultDisplay.value = '0';
+            }, 1500);
+        }
+    }
+
+    function calcFunction(func) {
+        const display = document.getElementById('calcDisplay');
+        const value = parseFloat(display.value) || 0;
+        let result;
+        
+        switch(func) {
+            case 'sin':
+            case 'cos':
+            case 'tan':
+                result = angleMode === 'Deg' ? 
+                    Math[func](value * Math.PI / 180) : 
+                    Math[func](value);
+                break;
+            case 'sin⁻¹':
+                result = angleMode === 'Deg' ? 
+                    Math.asin(value) * 180 / Math.PI : 
+                    Math.asin(value);
+                break;
+            case 'cos⁻¹':
+                result = angleMode === 'Deg' ? 
+                    Math.acos(value) * 180 / Math.PI : 
+                    Math.acos(value);
+                break;
+            case 'tan⁻¹':
+                result = angleMode === 'Deg' ? 
+                    Math.atan(value) * 180 / Math.PI : 
+                    Math.atan(value);
+                break;
+            case 'sinh':
+                result = Math.sinh(value);
+                break;
+            case 'cosh':
+                result = Math.cosh(value);
+                break;
+            case 'tanh':
+                result = Math.tanh(value);
+                break;
+            case 'ln':
+                result = Math.log(value);
+                break;
+            case 'log':
+                result = Math.log10(value);
+                break;
+            case 'eˣ':
+                result = Math.exp(value);
+                break;
+            case '10ˣ':
+                result = Math.pow(10, value);
+                break;
+            case 'x²':
+                result = value * value;
+                break;
+            case 'x³':
+                result = value * value * value;
+                break;
+            case '1/x':
+                result = 1 / value;
+                break;
+            case 'n!':
+                result = factorial(value);
+                break;
+            case '|x|':
+                result = Math.abs(value);
+                break;
+            default:
+                return;
+        }
+        
+        document.getElementById('resultDisplay').value = result;
+        document.getElementById('calcDisplay').value = result;
+    }
+
+    function factorial(n) {
+        if (n < 0) return NaN;
+        if (n === 0 || n === 1) return 1;
+        let result = 1;
+        for (let i = 2; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
+    function memoryFunction(func) {
+        const value = parseFloat(document.getElementById('resultDisplay').value) || 0;
+        
+        switch(func) {
+            case 'MC':
+                memory = 0;
+                break;
+            case 'MR':
+                document.getElementById('calcDisplay').value = memory;
+                break;
+            case 'MS':
+                memory = value;
+                break;
+            case 'M+':
+                memory += value;
+                break;
+            case 'M-':
+                memory -= value;
+                break;
+        }
+    }
+
+    // Keyboard support for calculator
+    document.addEventListener('keydown', function(e) {
+        if (!calculatorOpen) return;
+        
+        const display = document.getElementById('calcDisplay');
+        if (!display) return;
+        
+        if (/[\d\+\-\*\/\(\)\.=%]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            
+            if (e.key === 'Enter' || e.key === '=') {
+                calculateResult();
+            } else if (e.key === 'Escape') {
+                clearCalculator();
+            } else if (e.key === 'Backspace') {
+                backspace();
+            } else {
+                addToDisplay(e.key);
+            }
+        }
+    });
+    initializeCalculator();
     </script>
 </body>
 </html>
-
 
 
 
