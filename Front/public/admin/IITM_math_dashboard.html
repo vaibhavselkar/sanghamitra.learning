@@ -711,6 +711,7 @@ function getLatestAttempts(data) {
 
 
 // Helper function to get display-friendly topic names
+// Helper function to get display-friendly topic names
 function getDisplayTopicName(topic) {
   const topicDisplayNames = {
     // Quiz 1 Midterm
@@ -719,86 +720,90 @@ function getDisplayTopicName(topic) {
     'Quiz1': 'Quiz 1 Midterm',
     
     // Domain and Range
+    'Quiz2_Domain_Range': 'Week 1 - Domain and Range',
     'domain_range_quiz2': 'Week 1 - Domain and Range',
     'Domain_and_Range': 'Week 1 - Domain and Range',
     'Domain and Range': 'Week 1 - Domain and Range',
     'Quiz2': 'Week 1 - Domain and Range',
     
     // Linear Functions
+    'Quiz3_Linear_function': 'Week 2 - Linear Functions',
+    'Quiz5_Linear_functions': 'Week 2 - Linear Functions',
     'linear_functions_2': 'Week 2 - Linear Functions',
     'Linear_functions': 'Week 2 - Linear Functions',
-    'Quiz5_Linear_functions': 'Week 2 - Linear Functions',
     'Quiz5': 'Week 2 - Linear Functions',
+    'Quiz3': 'Week 2 - Linear Functions',
     'Linear': 'Week 2 - Linear Functions',
     
-    // Quadratic Functions - ADD THESE
+    // Quadratic Functions
+    'Quiz4_Quadratic_functions': 'Week 3 - Quadratic Functions',
     'quadratic_functions': 'Week 3 - Quadratic Functions',
     'Quadratic': 'Week 3 - Quadratic Functions',
     'quadratic': 'Week 3 - Quadratic Functions',
-    'Quiz4_quadratic_functions': 'Week 3 - Quadratic Functions',
     'Quiz4': 'Week 3 - Quadratic Functions',
     
-    // Sets and Relations - ADD THESE
+    // Sets and Relations
+    'Quiz6_Sets_and_Relations': 'Week 1 - Sets and Relations',
     'sets_relations': 'Week 1 - Sets and Relations',
     'Sets_and_Relations': 'Week 1 - Sets and Relations',
-    'Quiz6_Sets_and_Relations': 'Week 1 - Sets and Relations',
     'Quiz6': 'Week 1 - Sets and Relations',
     'Sets': 'Week 1 - Sets and Relations',
     'Relations': 'Week 1 - Sets and Relations',
     'Sets And Relations': 'Week 1 - Sets and Relations',
     
-    // Polynomials - ADD THESE
+    // Polynomials
+    'Quiz7_Polynomials': 'Week 4 - Polynomial Functions',
     'polynomials': 'Week 4 - Polynomial Functions',
     'Polynomials': 'Week 4 - Polynomial Functions',
     'Polynomial': 'Week 4 - Polynomial Functions',
     'Polynomial Function': 'Week 4 - Polynomial Functions',
-    'Quiz7_Polynomials': 'Week 4 - Polynomial Functions',
     'Quiz7': 'Week 4 - Polynomial Functions',
     
-    // Exponential Functions - ADD THESE
+    // Exponential Functions
+    'Quiz8_Exponential_functions': 'Week 5 - Exponential Functions',
+    'Quiz8_function_concepts': 'Week 5 - Exponential Functions',
     'exponential_functions': 'Week 5 - Exponential Functions',
     'Exponential': 'Week 5 - Exponential Functions',
     'function_concepts': 'Week 5 - Exponential Functions',
-    'Quiz8_function_concepts': 'Week 5 - Exponential Functions',
     'Quiz8': 'Week 5 - Exponential Functions',
     
-    // Logarithmic Functions - ADD THESE
+    // Logarithmic Functions
+    'Quiz9_Logarithmic_functions': 'Week 6 - Logarithmic Functions',
     'logarithmic_functions': 'Week 6 - Logarithmic Functions',
     'Logarithmic': 'Week 6 - Logarithmic Functions',
-    'Quiz9_Logarithmic': 'Week 6 - Logarithmic Functions',
     'Quiz9': 'Week 6 - Logarithmic Functions',
     
-    // Sequence, Limits and Continuity - ADD THESE
+    // Sequence, Limits and Continuity
+    'Quiz10_Function_Limits': 'Week 7 - Sequence, Limits and Continuity',
     'sequence_limits': 'Week 7 - Sequence, Limits and Continuity',
     'Function_Limits': 'Week 7 - Sequence, Limits and Continuity',
-    'Quiz10_Function_Limits': 'Week 7 - Sequence, Limits and Continuity',
     'Quiz10': 'Week 7 - Sequence, Limits and Continuity',
     
-    // Limits, Continuity and Differentiation - ADD THESE
+    // Limits, Continuity and Differentiation
+    'Quiz11_Differentiation': 'Week 8 - Limits, Continuity and Differentiation',
     'limits_continuity': 'Week 8 - Limits, Continuity and Differentiation',
     'Differentiation': 'Week 8 - Limits, Continuity and Differentiation',
     'Limit_Concepts': 'Week 8 - Limits, Continuity and Differentiation',
-    'Quiz11_Differentiation': 'Week 8 - Limits, Continuity and Differentiation',
     'Quiz11': 'Week 8 - Limits, Continuity and Differentiation',
     
-    // Derivatives and Integrals - ADD THESE
+    // Derivatives and Integrals
+    'Quiz12_Derivatives_and_Integrals': 'Week 9 - Derivatives and Integrals',
     'derivatives_integrals': 'Week 9 - Derivatives and Integrals',
     'Derivatives_Integrals': 'Week 9 - Derivatives and Integrals',
     'Derivatives and Integrals': 'Week 9 - Derivatives and Integrals',
     'Derivatives': 'Week 9 - Derivatives and Integrals',
-    'Quiz12_Derivatives': 'Week 9 - Derivatives and Integrals',
     'Quiz12': 'Week 9 - Derivatives and Integrals',
     
-    // Graph Theory - ADD THESE
+    // Graph Theory
+    'Quiz13_Graph_Theory': 'Week 10 - Graph Theory',
     'graph_theory': 'Week 10 - Graph Theory',
     'Graph_Theory': 'Week 10 - Graph Theory',
-    'Quiz13_Graph_Theory': 'Week 10 - Graph Theory',
     'Quiz13': 'Week 10 - Graph Theory',
     
-    // Graph Properties - ADD THESE
+    // Graph Properties
+    'Quiz14_Graph_Properties': 'Week 11 - Graph Properties',
     'graph_properties': 'Week 11 - Graph Properties',
     'Graph_Properties': 'Week 11 - Graph Properties',
-    'Quiz14_Graph_Properties': 'Week 11 - Graph Properties',
     'Quiz14': 'Week 11 - Graph Properties'
   };
   
