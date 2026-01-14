@@ -45,6 +45,7 @@ const IITM_Maths_2_Score = require('../model/iitm_math2_scores')
 const IITM_Stats_2_Question = require('../model/iitm_stats2_questions')
 const IITM_Stats_2_Score = require('../model/iitm_stats2_scores')
 const Question = require('../model/pdsa_Questions');
+const PDSA_Submission = require('../model/pdsa_Submission');
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -983,6 +984,42 @@ router.get('/algorithm-submissions', async (req, res) => {
         res.status(500).json({ message: 'Server Error', error });
       }
   });
+// Submit quiz results route
+router.post('/pdsa-submission', async (req, res) => {
+    try {
+        const submissionData = req.body;
+        
+        console.log('📝 Received PDSA submission:', {
+            username: submissionData.username,
+            topic: submissionData.topic,
+            score: submissionData.score,
+            maxScore: submissionData.maxScore
+        });
+
+        // Create submission document
+        const submission = new PDSA_Submission(submissionData);
+        
+        // Save to database
+        await submission.save();
+        
+        console.log('✅ PDSA submission saved successfully');
+        
+        res.status(201).json({
+            success: true,
+            message: 'Quiz results saved successfully',
+            submissionId: submission._id
+        });
+        
+    } catch (error) {
+        console.error('❌ Error saving PDSA submission:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to save quiz results',
+            error: error.message
+        });
+    }
+});
+
 
 //pdsa questions fetching route
 
@@ -3084,6 +3121,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
