@@ -884,9 +884,9 @@
                     return false;
                 }
                 
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/week4?email=${encodeURIComponent(email)}&count=50`, {
-                    credentials: 'include'
-                });
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/Variable%20Association?email=${encodeURIComponent(email)}&count=50`, {
+                credentials: 'include'
+            });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -1896,3 +1896,4 @@
     </script>
 </body>
 </html>
+
