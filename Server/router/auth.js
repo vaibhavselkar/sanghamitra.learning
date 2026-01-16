@@ -1557,210 +1557,7 @@ router.post('/save-arithmetic-response', async (req, res) => {
 // STATISTICS ROUTES (Following Math Pattern)
 // ===========================================
 
-// GET Statistics Questions - Week 1
-router.get('/iitm-stats-questions/week1', async (req, res) => {
-  try {
-    const { email, count = 50 } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
-      });
-    }
 
-    console.log(`Fetching Week 1 statistics questions for: ${email}`);
-    
-    // Find user's completed questions
-    let userScore = await Statistics_scores.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
-
-    // Find all available Week 1 questions excluding completed ones
-    let availableQuestions = await Statistics_questions.find({
-      topic: "Basics of Data",
-      _id: { $nin: completedQuestionIds }
-    });
-
-    console.log(`Found ${availableQuestions.length} new statistics Week 1 questions available`);
-
-    // Handle case where user has completed all questions
-    if (availableQuestions.length === 0) {
-      const totalInPool = await Statistics_questions.countDocuments({ topic: "Basics of Data" });
-      return res.status(200).json({
-        message: "All Week 1 questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: totalInPool
-      });
-    }
-
-    // Select requested number of questions
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    
-    // Sort selected questions by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 1`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching statistics Week 1 questions:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch Week 1 statistics questions',
-      details: error.message 
-    });
-  }
-});
-
-router.get('/iitm-stats-questions/week2', async (req, res) => {
-  try {
-    const { email, count = 50 } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
-      });
-    }
-
-    console.log(`Fetching Week 2 statistics questions for: ${email}`);
-    
-    // Find user's completed questions
-    let userScore = await Statistics_scores.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
-
-    // Find all available Week 2 questions excluding completed ones
-    let availableQuestions = await Statistics_questions.find({
-      topic: "Categorical Analysis",
-      _id: { $nin: completedQuestionIds }
-    });
-
-    console.log(`Found ${availableQuestions.length} new statistics Week 2 questions available`);
-
-    // Handle case where user has completed all questions
-    if (availableQuestions.length === 0) {
-      const totalInPool = await Statistics_questions.countDocuments({ topic: "Categorical Analysis" });
-      return res.status(200).json({
-        message: "All Week 2 questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: totalInPool
-      });
-    }
-
-    // Select requested number of questions
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    
-    // Sort selected questions by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 2`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching statistics Week 2 questions:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch Week 2 statistics questions',
-      details: error.message 
-    });
-  }
-});
-
-router.get('/iitm-stats-questions/week3', async (req, res) => {
-  try {
-    const { email, count = 50 } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
-      });
-    }
-
-    console.log(`Fetching Week 3 statistics questions for: ${email}`);
-    
-    // Find user's completed questions
-    let userScore = await Statistics_scores.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
-
-    // Find all available Week 3 questions excluding completed ones
-    let availableQuestions = await Statistics_questions.find({
-      topic: "Descriptive Statistics",
-      _id: { $nin: completedQuestionIds }
-    });
-
-    console.log(`Found ${availableQuestions.length} new statistics Week 3 questions available`);
-
-    // Handle case where user has completed all questions
-    if (availableQuestions.length === 0) {
-      const totalInPool = await Statistics_questions.countDocuments({ topic: "Descriptive Statistics" });
-      return res.status(200).json({
-        message: "All Week 3 questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: totalInPool
-      });
-    }
-
-    // Select requested number of questions
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    
-    // Sort selected questions by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 3`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching statistics Week 3 questions:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch Week 3 statistics questions',
-      details: error.message 
-    });
-  }
-});
 
 router.get('/iitm-ct-questions', async (req, res) => {
   try {
@@ -1964,137 +1761,71 @@ router.post('/reset-ct-progress', async (req, res) => {
 
 
 
-router.get('/iitm-stats-questions/week4', async (req, res) => {
+// GET Statistics Questions by Topic - Single route like math
+router.get('/iitm-stats-questions/:topic', async (req, res) => {
   try {
+    const { topic } = req.params;
     const { email, count = 50 } = req.query;
     
     if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
+      return res.status(400).json({
+        error: 'Email is required'
       });
     }
 
-    console.log(`Fetching Week 4 statistics questions for: ${email}`);
-    
-    // Find user's completed questions
-    let userScore = await Statistics_scores.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
+    if (!topic) {
+      return res.status(400).json({
+        error: 'Topic is required'
+      });
+    }
 
-    // Find all available Week 4 questions excluding completed ones
-    let availableQuestions = await Statistics_questions.find({
-      topic: "Variable Association",
-      _id: { $nin: completedQuestionIds }
+    // Get all questions for the topic (NO FILTERING by completed questions)
+    let allQuestions = await Statistics_questions.find({
+      topic: topic
     });
 
-    console.log(`Found ${availableQuestions.length} new statistics Week 4 questions available`);
-
-    // Handle case where user has completed all questions
-    if (availableQuestions.length === 0) {
-      const totalInPool = await Statistics_questions.countDocuments({ topic: "Variable Association" });
-      return res.status(200).json({
-        message: "All Week 4 questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: totalInPool
-      });
+    console.log(`📊 Found ${allQuestions.length} total questions for topic: ${topic}`);
+    
+    // Check if we have enough questions in the pool
+    const totalQuestionsInPool = allQuestions.length;
+    
+    if (totalQuestionsInPool < 50) {
+      console.warn(`⚠️ WARNING: Only ${totalQuestionsInPool} questions in pool for ${topic}, requested ${count}`);
     }
 
-    // Select requested number of questions
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
+    // Enhanced shuffle for better randomness
+    const shuffledQuestions = [...allQuestions];
     
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
+    // Fisher-Yates shuffle
+    for (let i = shuffledQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
+    }
+
+    // Take exactly the requested count
+    const selectedQuestions = shuffledQuestions.slice(0, parseInt(count));
     
-    // Sort selected questions by question_number for consistent display
+    // Optional: Sort by question_number for consistent display
     selectedQuestions.sort((a, b) => a.question_number - b.question_number);
 
-    console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 4`);
+    console.log(`✅ Returning ${selectedQuestions.length} random questions for ${topic} to ${email}`);
 
     res.json({
       questions: selectedQuestions,
       metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
+        totalQuestionsInPool: totalQuestionsInPool,
         selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
+        requestedCount: parseInt(count),
+        topic: topic,
+        isRandom: true, // Indicate this is pure random selection
+        timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
-    console.error('Error fetching statistics Week 4 questions:', error);
+    console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
     res.status(500).json({ 
-      error: 'Failed to fetch Week 4 statistics questions',
-      details: error.message 
-    });
-  }
-});
-
-router.get('/iitm-stats-questions/week6', async (req, res) => {
-  try {
-    const { email, count = 50 } = req.query;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        error: 'Email is required to track question history' 
-      });
-    }
-
-    console.log(`Fetching Week 6 statistics questions for: ${email}`);
-    
-    // Find user's completed questions
-    let userScore = await Statistics_scores.findOne({ email });
-    const completedQuestionIds = userScore?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedQuestionIds.length} statistics questions`);
-
-    // Find all available Week 6 questions excluding completed ones
-    let availableQuestions = await Statistics_questions.find({
-      topic: "Permutations and Combinations",
-      _id: { $nin: completedQuestionIds }
-    });
-
-    console.log(`Found ${availableQuestions.length} new statistics Week 6 questions available`);
-
-    // Handle case where user has completed all questions
-    if (availableQuestions.length === 0) {
-      const totalInPool = await Statistics_questions.countDocuments({ topic: "Permutations and Combinations" });
-      return res.status(200).json({
-        message: "All Week 6 questions completed",
-        questions: [],
-        resetAvailable: true,
-        totalQuestionsInPool: totalInPool
-      });
-    }
-
-    // Select requested number of questions
-    const questionsToReturn = Math.min(parseInt(count), availableQuestions.length);
-    
-    // Randomly shuffle and select questions
-    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
-    const selectedQuestions = shuffled.slice(0, questionsToReturn);
-    
-    // Sort selected questions by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(`Returning ${selectedQuestions.length} random statistics questions for Week 6`);
-
-    res.json({
-      questions: selectedQuestions,
-      metadata: {
-        totalAvailable: availableQuestions.length,
-        totalCompleted: completedQuestionIds.length,
-        selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count)
-      }
-    });
-
-  } catch (error) {
-    console.error('Error fetching statistics Week 6 questions:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch Week 6 statistics questions',
+      error: `Failed to fetch ${req.params.topic} questions`,
       details: error.message 
     });
   }
@@ -2201,64 +1932,6 @@ router.get('/statistics-topics', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch statistics topics' });
   }
 });
-
-// GET User Statistics Progress
-router.get('/user-statistics-progress/:email', async (req, res) => {
-  try {
-    const { email } = req.params;
-    const { topic } = req.query;
-    
-    const user = await Statistics_scores.findOne({ email });
-    const filter = topic ? { topic } : {};
-    const totalQuestions = await Statistics_questions.countDocuments(filter);
-    
-    const completedCount = user?.completedQuestionIds?.length || 0;
-    const remainingCount = totalQuestions - completedCount;
-    
-    res.json({
-      email,
-      totalQuestions,
-      completedCount,
-      remainingCount,
-      completionPercentage: Math.round((completedCount / totalQuestions) * 100),
-      canTakeQuiz: remainingCount > 0
-    });
-    
-  } catch (error) {
-    console.error('Error fetching user statistics progress:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// POST Reset Statistics Progress
-router.post('/reset-stats-progress', async (req, res) => {
-  try {
-    const { email } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
-    }
-    
-    const user = await Statistics_scores.findOne({ email });
-    
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    user.completedQuestionIds = [];
-    await user.save();
-    
-    res.status(200).json({ 
-      message: 'Statistics progress reset successfully',
-      email: email
-    });
-    
-  } catch (error) {
-    console.error('Error resetting statistics progress:', error);
-    res.status(500).json({ error: 'Internal server error: ' + error.message });
-  }
-});
-
 
 // NEW: Missing cheating log endpoint
 router.post('/log-cheating', async (req, res) => {
@@ -3121,6 +2794,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
