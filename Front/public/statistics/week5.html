@@ -884,9 +884,9 @@
                     return false;
                 }
                 
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/week5?email=${encodeURIComponent(email)}&count=50`, {
-                    credentials: 'include'
-                });
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/week-5%20-%20Counting_and_Factorial?email=${encodeURIComponent(email)}&count=50`, {
+                credentials: 'include'
+            });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -1395,7 +1395,7 @@
             });
 
             const quizData = {
-                topic: 'Basic Principles of Counting',
+                topic: 'week-5 - Counting_and_Factorial',
                 quizType: 'practice',
                 score: score,
                 maxPossibleScore: totalPossiblePoints,
@@ -1896,3 +1896,4 @@
     </script>
 </body>
 </html>
+
