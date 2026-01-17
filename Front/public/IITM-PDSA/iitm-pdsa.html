@@ -133,6 +133,44 @@
       align-items: flex-end;
       gap: 0.5rem;
     }
+
+   /* Add these styles to your existing CSS */
+
+    /* Interview button style */
+    .interview-btn {
+      background: linear-gradient(45deg, #6f42c1, #8a63d2);
+      color: white;
+      border: none;
+      min-width: 120px;
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+    
+    .interview-btn:hover {
+      background: linear-gradient(45deg, #5a32a3, #7b52c9);
+      color: white;
+      transform: translateY(-1px);
+    }
+    
+    /* Update button container to handle three buttons */
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    
+    .button-container .btn {
+      min-width: 200px;
+      width: 100%;
+      justify-content: space-between;
+    }
   </style>
 </head>
 
@@ -261,7 +299,8 @@
         description: 'Assessment on basic data structures: Lists and Tuples',
         icon: 'bi-list-ul',
         url: 'pdsa_quiz1.html',
-        testUrl: 'test_1.html'
+        testUrl: 'test_1.html',
+        interviewUrl: 'interview_1.html' // Add this line
       },
       {
         id: 'Sorting-Algorithms',
@@ -270,7 +309,8 @@
         description: 'Assessment on Quick Sort, Merge Sort, Selection Sort, Insertion Sort, and Bubble Sort',
         icon: 'bi-diagram-3',
         url: 'pdsa_quiz2.html',
-        testUrl: 'test_2.html'
+        testUrl: 'test_2.html',
+        interviewUrl: 'interview_2.html' // Add this line
       },
       {
         id: 'Linear-Data-Structures',
@@ -279,7 +319,8 @@
         description: 'Assessment on Linked Lists, Arrays, Stacks, Queues, and Hashing',
         icon: 'bi-arrow-repeat',
         url: 'pdsa_quiz3.html',
-        testUrl: 'test_3.html'
+        testUrl: 'test_3.html',
+        interviewUrl: 'interview_3.html' // Add this line
       },
       {
         id: 'Introduction-to-Graphs',
@@ -288,7 +329,8 @@
         description: 'Assessment on BFS (Breadth-First Search), DFS (Depth-First Search), Directed Acyclic Graphs (DAGs), and Topological Sorting',
         icon: 'bi-diagram-2',
         url: 'pdsa_quiz4.html',
-        testUrl: 'test_4.html'
+        testUrl: 'test_4.html',
+        interviewUrl: 'interview_4.html' // Add this line
       },
       {
         id: 'Graph-Algorithms',
@@ -297,7 +339,8 @@
         description: 'Assessment on Dijkstra\'s Algorithm, Bellman-Ford Algorithm, Floyd-Warshall Algorithm, Prim\'s Algorithm, and Kruskal\'s Algorithm',
         icon: 'bi-graph-up',
         url: 'pdsa_quiz5.html',
-        testUrl: 'test_5.html'
+        testUrl: 'test_5.html',
+        interviewUrl: 'interview_5.html' // Add this line
       },
       {
         id: 'Advanced-Data-Structures',
@@ -306,7 +349,8 @@
         description: 'Assessment on Union-Find Data Structure, Priority Queues, Heaps, and Binary Search Trees',
         icon: 'bi-database',
         url: 'pdsa_quiz6.html',
-        testUrl: 'test_6.html'
+        testUrl: 'test_6.html',
+        interviewUrl: 'interview_6.html' // Add this line
       },
      {
         id: 'Advanced-Algorithms',
@@ -315,7 +359,8 @@
         description: 'Assessment on Balanced search tree, Scheduling algorithms, Huffman algorithms.',
         icon: 'bi-database',
         url: 'pdsa_quiz7.html',
-        testUrl: 'test_7.html'
+        testUrl: 'test_7.html',
+        interviewUrl: 'interview_7.html' // Add this line
       },
      {
         id: 'Divide-and-Conquer-Algorithms',
@@ -324,7 +369,8 @@
         description: 'Assessment on Closest Pair of Points, Integer Multiplication, Recursion Trees, Quick Select/Fast Select Algorithms',
         icon: 'bi-database',
         url: 'pdsa_quiz8.html',
-        testUrl: 'test_8.html'
+        testUrl: 'test_8.html',
+        interviewUrl: 'interview_8.html' // Add this line
       },
      {
         id: 'Dynamic-programming',
@@ -333,7 +379,8 @@
         description: '',
         icon: 'bi-database',
         url: 'pdsa_quiz9.html',
-        testUrl: 'test_9.html'
+        testUrl: 'test_9.html',
+        interviewUrl: 'interview_9.html' // Add this line
       },
      {
         id: 'Linear-Programming',
@@ -342,7 +389,8 @@
         description: '',
         icon: 'bi-database',
         url: 'pdsa_quiz10.html',
-        testUrl: 'test_10.html'
+        testUrl: 'test_10.html',
+        interviewUrl: 'interview_10.html' // Add this line
       },
      {
         id: 'End-Term',
@@ -754,6 +802,7 @@
 </script>
 </body>
 </html>
+
 
 
 
