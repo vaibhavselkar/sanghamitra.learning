@@ -12,6 +12,7 @@
         INACTIVITY_CHECK_INTERVAL: 30000, // Check inactivity every 30 seconds
         WARNING_DISPLAY_TIME: 3000  // Warning display time in ms
     };
+
     
     // ===== STATE VARIABLES =====
     let cheatingAttempts = 0;
@@ -41,51 +42,52 @@
      * @param {Object} options.user - User information
      */
     function initializeAntiCheating(options = {}) {
-        console.log('🔒 Initializing anti-cheating system...');
-        
-        // RESET COUNTERS on initialization
-        cheatingAttempts = 0;
-        tabSwitchCount = 0;
-        devToolsWarned = false;
-        lastActivityTime = Date.now();
-        devtoolsOpen = false;
-        
-        // Set user if provided
-        if (options.user) {
-            currentUser = options.user;
-        }
-        
-        // Create DOM elements if they don't exist
-        createSecurityElements();
-        
-        // Initialize event listeners
-        setupEventListeners();
-        
-        // Start monitoring intervals
-        startMonitoring();
-        
-        // Request fullscreen if enabled
-        if (options.requestFullscreen !== false) {
-            requestFullscreen();
-        }
-        
-        // Set quiz as active
-        isQuizActive = true;
-        lastActivityTime = Date.now();
-        
-        // Update UI
-        if (attemptCountElement) {
-            attemptCountElement.textContent = cheatingAttempts;
-        }
-        updateSecurityIndicator(false);
-        
-        console.log('✅ Anti-cheating system activated');
-        return {
-            recordAttempt: recordCheatingAttempt,
-            deactivate: deactivate,
-            getStats: getCheatingStats
-        };
+    console.log('🔒 Initializing anti-cheating system...');
+    
+    // RESET COUNTERS on initialization
+    cheatingAttempts = 0;
+    tabSwitchCount = 0;
+    devToolsWarned = false;
+    lastActivityTime = Date.now();
+    devtoolsOpen = false;
+    
+    // Set user if provided
+    if (options.user) {
+        currentUser = options.user;
     }
+    
+    // Create DOM elements if they don't exist
+    createSecurityElements();
+    
+    // Initialize event listeners
+    setupEventListeners();
+    
+    // Start monitoring intervals
+    startMonitoring();
+    
+    // Request fullscreen if enabled
+    if (options.requestFullscreen !== false) {
+        requestFullscreen();
+    }
+    
+    // Set quiz as active
+    isQuizActive = true;
+    lastActivityTime = Date.now();
+    
+    // Update UI
+    if (attemptCountElement) {
+        attemptCountElement.textContent = cheatingAttempts;
+    }
+    updateSecurityIndicator(false);
+    
+    console.log('✅ Anti-cheating system activated');
+    return {
+        recordAttempt: recordCheatingAttempt,
+        deactivate: deactivate,
+        getStats: getCheatingStats
+    };
+}
+    
     /**
      * Create security DOM elements
      */
@@ -488,7 +490,7 @@
         // Try to log to multiple endpoints for reliability
         const endpoints = [
             'https://sanghamitra-learnworld.vercel.app/api/log-cheating',
-            '/api/log-cheating'
+
         ];
         
         endpoints.forEach(endpoint => {
