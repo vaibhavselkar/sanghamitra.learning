@@ -12,7 +12,7 @@ const questionSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['mcq-single', 'mcq-multiple', 'numerical', 'coding'],
+        enum: ['mcq-single', 'mcq-multiple', 'numerical', 'interview'],
         required: true
     },
     topic: {
