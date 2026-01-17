@@ -374,53 +374,96 @@ function getDisplayTopicName(topic) {
 
     // Load data from API
     async function loadData() {
-      try {
-        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/statistics_scores');
-        const result = await response.json();
+  try {
+    const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/statistics_scores');
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error('Failed to fetch statistics data');
+    }
+    
+    allData = [];
+    
+    if (result.data) {
+      // Track attempts per student per topic
+      const studentTopicAttempts = {};
+      
+      result.data.forEach(student => {
+        // Collect all scores (both old and new format) with timestamps
+        const allScores = [];
         
-        if (!result.success) {
-          throw new Error('Failed to fetch statistics data');
-        }
-        
-        allData = [];
-        
-        if (result.data) {
-          result.data.forEach(student => {
-            // Handle quizScores array (new schema)
-            if (student.quizScores && student.quizScores.length > 0) {
-              student.quizScores.forEach(quizScore => {
-                let percentage = quizScore.percentage;
-                if (!percentage && quizScore.correctAnswers !== undefined && quizScore.totalQuestions > 0) {
-                  percentage = ((quizScore.correctAnswers / quizScore.totalQuestions) * 100).toFixed(2);
-                }
-                
-                allData.push({
-                  username: student.username,
-                  email: student.email,
-                  topic: quizScore.topic,
-                  score: quizScore.score || quizScore.correctAnswers || 0,
-                  totalQuestions: quizScore.totalQuestions,
-                  correctAnswers: quizScore.correctAnswers || quizScore.score || 0,
-                  percentage: parseFloat(percentage || 0),
-                  attemptNumber: quizScore.attemptNumber || 1,
-                  timestamp: quizScore.timestamp,
-                  questionResults: quizScore.questionResults || []
-                });
-              });
+        // Handle new quizScores array
+        if (student.quizScores && student.quizScores.length > 0) {
+          student.quizScores.forEach((quizScore) => {
+            let percentage = quizScore.percentage;
+            if (!percentage && quizScore.correctAnswers !== undefined && quizScore.totalQuestions > 0) {
+              percentage = ((quizScore.correctAnswers / quizScore.totalQuestions) * 100).toFixed(2);
             }
+            
+            allScores.push({
+              username: student.username,
+              email: student.email,
+              topic: quizScore.topic,
+              score: quizScore.score || quizScore.correctAnswers || 0,
+              totalQuestions: quizScore.totalQuestions,
+              correctAnswers: quizScore.correctAnswers || quizScore.score || 0,
+              percentage: parseFloat(percentage || 0),
+              timestamp: quizScore.timestamp,
+              questionResults: quizScore.questionResults || []
+            });
           });
         }
         
-        // Sort by timestamp (newest first)
-        allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        // Handle old scores array (for backwards compatibility)
+        if (student.scores && student.scores.length > 0) {
+          student.scores.forEach((score) => {
+            allScores.push({
+              username: student.username,
+              email: student.email,
+              topic: score.topic,
+              score: score.correctAnswers || score.score || 0,
+              totalQuestions: score.totalQuestions,
+              correctAnswers: score.correctAnswers || score.score || 0,
+              percentage: parseFloat(score.percentage || 0),
+              timestamp: score.timestamp,
+              questionResults: score.questionResults || []
+            });
+          });
+        }
         
-        filteredData = [...allData];
+        // Sort all scores by timestamp (oldest first) for correct attempt numbering
+        allScores.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
         
-      } catch (error) {
-        console.error('Error loading data:', error);
-        throw error;
-      }
+        // Now assign attempt numbers based on chronological order
+        allScores.forEach((scoreData) => {
+          // Create unique key for student-topic combination
+          const attemptKey = `${scoreData.email}_${scoreData.topic}`;
+          
+          // Initialize or increment attempt counter
+          if (!studentTopicAttempts[attemptKey]) {
+            studentTopicAttempts[attemptKey] = 0;
+          }
+          studentTopicAttempts[attemptKey]++;
+          
+          // Add to allData with correct attempt number
+          allData.push({
+            ...scoreData,
+            attemptNumber: studentTopicAttempts[attemptKey]
+          });
+        });
+      });
     }
+    
+    // Sort by timestamp (newest first) for display
+    allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    filteredData = [...allData];
+    
+  } catch (error) {
+    console.error('Error loading data:', error);
+    throw error;
+  }
+}
 
     // Calculate statistics
     function calculateStatistics() {
