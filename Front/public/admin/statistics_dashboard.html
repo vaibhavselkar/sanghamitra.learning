@@ -283,7 +283,7 @@
             <tr>
               <th width="30px"></th>
               <th><i class="bi bi-person me-1"></i>Username</th>
-              <th><i class="bi bi-envelope me-1"></i>Email</th>
+              
               <th><i class="bi bi-book me-1"></i>Topic</th>
               <th><i class="bi bi-award me-1"></i>Score</th>
               <th><i class="bi bi-percent me-1"></i>Percentage</th>
@@ -327,6 +327,50 @@
           '<div class="text-center py-5"><i class="bi bi-exclamation-triangle display-1 text-danger"></i><p class="mt-3 text-danger">Error loading data. Please check your connection and try again.</p></div>';
       }
     }
+
+    // Helper function to get display-friendly topic names
+function getDisplayTopicName(topic) {
+  const topicDisplayNames = {
+    // Week 1 - Basics of Data
+    'Week 1 - Basics of Data': 'Week 1 - Basics of Data',
+    'Week1_Basics_of_Data': 'Week 1 - Basics of Data',
+    'basics_of_data': 'Week 1 - Basics of Data',
+    'Basics of Data': 'Week 1 - Basics of Data',
+    
+    // Week 2 - Categorical Analysis
+    'Week 2 - Categorical Analysis': 'Week 2 - Categorical Analysis',
+    'Week2_Categorical_Analysis': 'Week 2 - Categorical Analysis',
+    'categorical_analysis': 'Week 2 - Categorical Analysis',
+    'Categorical Analysis': 'Week 2 - Categorical Analysis',
+    
+    // Week 3 - Descriptive Statistics
+    'Week 3 - Descriptive Statistics': 'Week 3 - Descriptive Statistics',
+    'Week3_Descriptive_Statistics': 'Week 3 - Descriptive Statistics',
+    'descriptive_statistics': 'Week 3 - Descriptive Statistics',
+    'Descriptive Statistics': 'Week 3 - Descriptive Statistics',
+    
+    // Week 4 - Variable Association
+    'Week 4 - Variable Association': 'Week 4 - Variable Association',
+    'Week4_Variable_Association': 'Week 4 - Variable Association',
+    'variable_association': 'Week 4 - Variable Association',
+    'Variable Association': 'Week 4 - Variable Association',
+    
+    // Week 5 - Basic Principles of Counting
+    'Week 5 - Basic Principles of Counting': 'Week 5 - Basic Principles of Counting',
+    'Week5_Basic_Principles_of_Counting': 'Week 5 - Basic Principles of Counting',
+    'basic_principles_of_counting': 'Week 5 - Basic Principles of Counting',
+    'Basic Principles of Counting': 'Week 5 - Basic Principles of Counting',
+    
+    // Week 6 - Permutations and Combinations
+    'Week 6 - Permutations and Combinations': 'Week 6 - Permutations and Combinations',
+    'Week6_Permutations_and_Combinations': 'Week 6 - Permutations and Combinations',
+    'permutations_and_combinations': 'Week 6 - Permutations and Combinations',
+    'Permutations and Combinations': 'Week 6 - Permutations and Combinations'
+  };
+  
+  return topicDisplayNames[topic] || topic;
+}
+    
 
     // Load data from API
     async function loadData() {
@@ -430,8 +474,8 @@
               ${hasAnswers ? `<i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i>` : ''}
             </td>
             <td><strong>${item.username}</strong></td>
-            <td><small class="text-muted">${item.email}</small></td>
-            <td><span class="badge bg-light text-dark">${item.topic}</span></td>
+            
+            <td><span class="badge bg-light text-dark">${getDisplayTopicName(item.topic)}</span></td>
             <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
             <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
             <td>
@@ -450,7 +494,7 @@
         if (hasAnswers) {
           tbody.innerHTML += `
             <tr id="detail-${index}" style="display: none;">
-              <td colspan="8">
+              <td colspan="7">
                 <div class="student-detail p-3">
                   <div id="detail-content-${index}" class="detail-content">
                     ${generateStudentDetail(item)}
@@ -482,7 +526,7 @@
         
         <div class="alert alert-info mb-3">
           <i class="bi bi-info-circle me-2"></i>
-          <strong>${item.topic}:</strong> This assessment covers fundamental statistical concepts including population, sample, data types, scales of measurement, and time series analysis.
+          <strong>${getDisplayTopicName(item.topic)}:</strong> This assessment covers statistical concepts and data analysis principles.
         </div>
         
         <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px;">
@@ -595,20 +639,76 @@
 
     // Populate filter options
    
-    function populateFilters() {
-      const topics = [...new Set(allData.map(item => item.topic))].sort((a, b) => {
-        // Extract week number if format is "Week X: ..."
-        const weekA = a.match(/Week (\d+)/)?.[1] || 999;
-        const weekB = b.match(/Week (\d+)/)?.[1] || 999;
-        return weekA - weekB;
-      });
-      const topicFilter = document.getElementById('topicFilter');
-      
-      topicFilter.innerHTML = '<option value="">All Topics</option>';
-      topics.forEach(topic => {
-        topicFilter.innerHTML += `<option value="${topic}">${topic}</option>`;
-      });
+   function populateFilters() {
+  const topicFilter = document.getElementById('topicFilter');
+  
+  // Define standardized topic names
+  const topicDisplayNames = {
+    'Week 1 - Basics of Data': 'Week 1 - Basics of Data',
+    'Week1_Basics_of_Data': 'Week 1 - Basics of Data',
+    'basics_of_data': 'Week 1 - Basics of Data',
+    'Basics of Data': 'Week 1 - Basics of Data',
+    
+    'Week 2 - Categorical Analysis': 'Week 2 - Categorical Analysis',
+    'Week2_Categorical_Analysis': 'Week 2 - Categorical Analysis',
+    'categorical_analysis': 'Week 2 - Categorical Analysis',
+    'Categorical Analysis': 'Week 2 - Categorical Analysis',
+    
+    'Week 3 - Descriptive Statistics': 'Week 3 - Descriptive Statistics',
+    'Week3_Descriptive_Statistics': 'Week 3 - Descriptive Statistics',
+    'descriptive_statistics': 'Week 3 - Descriptive Statistics',
+    'Descriptive Statistics': 'Week 3 - Descriptive Statistics',
+    
+    'Week 4 - Variable Association': 'Week 4 - Variable Association',
+    'Week4_Variable_Association': 'Week 4 - Variable Association',
+    'variable_association': 'Week 4 - Variable Association',
+    'Variable Association': 'Week 4 - Variable Association',
+    
+    'Week 5 - Basic Principles of Counting': 'Week 5 - Basic Principles of Counting',
+    'Week5_Basic_Principles_of_Counting': 'Week 5 - Basic Principles of Counting',
+    'basic_principles_of_counting': 'Week 5 - Basic Principles of Counting',
+    'Basic Principles of Counting': 'Week 5 - Basic Principles of Counting',
+    
+    'Week 6 - Permutations and Combinations': 'Week 6 - Permutations and Combinations',
+    'Week6_Permutations_and_Combinations': 'Week 6 - Permutations and Combinations',
+    'permutations_and_combinations': 'Week 6 - Permutations and Combinations',
+    'Permutations and Combinations': 'Week 6 - Permutations and Combinations'
+  };
+
+  // Get unique standardized topics
+  const uniqueTopics = new Set();
+  
+  allData.forEach(item => {
+    if (!item.topic) {
+      uniqueTopics.add('Other');
+      return;
     }
+    
+    let foundMatch = false;
+    
+    // Try to find a match in the display names
+    for (const [key, displayName] of Object.entries(topicDisplayNames)) {
+      if (item.topic === key || item.topic.includes(key)) {
+        uniqueTopics.add(displayName);
+        foundMatch = true;
+        break;
+      }
+    }
+    
+    // If no match found, use the original topic name
+    if (!foundMatch) {
+      uniqueTopics.add(item.topic);
+    }
+  });
+
+  topicFilter.innerHTML = '<option value="">All Topics</option>';
+  
+  const sortedTopics = Array.from(uniqueTopics).sort();
+  
+  sortedTopics.forEach(topic => {
+    topicFilter.innerHTML += `<option value="${topic}">${topic}</option>`;
+  });
+}
 
     // Apply filters
     function applyFilters() {
@@ -627,8 +727,30 @@
       }
 
       if (topicFilter) {
-        filteredData = filteredData.filter(item => item.topic === topicFilter);
-      }
+  filteredData = filteredData.filter(item => {
+    if (!item.topic) return false;
+    
+    // Define which original topics belong to which display names
+    const topicGroups = {
+      'Week 1 - Basics of Data': ['Week1_Basics_of_Data', 'basics_of_data', 'Basics of Data', 'Week 1 - Basics of Data'],
+      'Week 2 - Categorical Analysis': ['Week2_Categorical_Analysis', 'categorical_analysis', 'Categorical Analysis', 'Week 2 - Categorical Analysis'],
+      'Week 3 - Descriptive Statistics': ['Week3_Descriptive_Statistics', 'descriptive_statistics', 'Descriptive Statistics', 'Week 3 - Descriptive Statistics'],
+      'Week 4 - Variable Association': ['Week4_Variable_Association', 'variable_association', 'Variable Association', 'Week 4 - Variable Association'],
+      'Week 5 - Basic Principles of Counting': ['Week5_Basic_Principles_of_Counting', 'basic_principles_of_counting', 'Basic Principles of Counting', 'Week 5 - Basic Principles of Counting'],
+      'Week 6 - Permutations and Combinations': ['Week6_Permutations_and_Combinations', 'permutations_and_combinations', 'Permutations and Combinations', 'Week 6 - Permutations and Combinations']
+    };
+    
+    // If it's a standardized topic, check if the item's topic matches any of the group members
+    if (topicGroups[topicFilter]) {
+      return topicGroups[topicFilter].some(keyword => 
+        item.topic === keyword || item.topic.includes(keyword)
+      );
+    }
+    
+    // If it's a custom topic, do exact match
+    return item.topic === topicFilter;
+  });
+}
 
       if (scoreFilter) {
         if (scoreFilter === '0') {
@@ -684,7 +806,7 @@
 
     // Generate CSV content
     function generateCSV(data) {
-      const headers = ['Username', 'Email', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Attempt Number', 'Date'];
+      const headers = ['Username','Topic', 'Score', 'Total Questions', 'Percentage', 'Attempt Number', 'Date'];
       let csv = headers.join(',') + '\n';
       
       data.forEach(item => {
@@ -692,8 +814,7 @@
         
         csv += [
           `"${item.username}"`,
-          `"${item.email}"`,
-          `"${item.topic}"`,
+          `"${getDisplayTopicName(item.topic)}"`,
           `${item.correctAnswers}`,
           `${item.totalQuestions}`,
           `${item.percentage}%`,
