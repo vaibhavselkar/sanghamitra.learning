@@ -44,8 +44,12 @@ const IITM_Maths_2_Question = require('../model/iitm_math2_questions')
 const IITM_Maths_2_Score = require('../model/iitm_math2_scores')
 const IITM_Stats_2_Question = require('../model/iitm_stats2_questions')
 const IITM_Stats_2_Score = require('../model/iitm_stats2_scores')
+
 const Question = require('../model/pdsa_Questions');
 const PDSA_Submission = require('../model/pdsa_Submission');
+const CodingQuestion = require('../model/coding_Questions'); 
+const CodingSubmission = require('../model/coding_submission'); 
+
 
 require('../db/conn');
 const User = require('../model/userSchema');
@@ -984,6 +988,201 @@ router.get('/algorithm-submissions', async (req, res) => {
         res.status(500).json({ message: 'Server Error', error });
       }
   });
+
+//This are PDSA routes:
+
+router.get('/interview', async (req, res) => {
+    try {
+        const { topic, type, codingCount = 3, pdsaCount = 2 } = req.query;
+
+        // Validate required parameters
+        if (!topic || !type) {
+            return res.status(400).json({
+                success: false,
+                message: 'Topic and type are required parameters'
+            });
+        }
+
+        // Fetch questions from both collections in parallel
+        const [codingQuestions, pdsaQuestions] = await Promise.all([
+            // Fetch from coding_Question collection
+            CodingQuestion.aggregate([
+                { $match: { topic: topic, type: type } },
+                { $sample: { size: parseInt(codingCount) } }
+            ]),
+            
+            // Fetch from pdsa_questions collection
+            Question.aggregate([
+                { $match: { topic: topic, type: type } },
+                { $sample: { size: parseInt(pdsaCount) } }
+            ])
+        ]);
+
+        res.json({
+            success: true,
+            topic,
+            type,
+            codingQuestions: {
+                count: codingQuestions.length,
+                questions: codingQuestions
+            },
+            pdsaQuestions: {
+                count: pdsaQuestions.length,
+                questions: pdsaQuestions
+            },
+            totalQuestions: codingQuestions.length + pdsaQuestions.length
+        });
+
+    } catch (error) {
+        console.error('Error fetching interview questions:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while fetching questions',
+            error: error.message
+        });
+    }
+});
+
+// POST submit coding quiz results
+router.post('/coding-submission', async (req, res) => {
+    try {
+        const submissionData = req.body;
+        
+        console.log('📝 Received coding quiz submission:', {
+            username: submissionData.username,
+            topic: submissionData.topic,
+            level: submissionData.level || 'N/A',
+            score: submissionData.score,
+            maxScore: submissionData.maxScore,
+            percentage: submissionData.percentage
+        });
+
+        // Validate required fields
+        if (!submissionData.username || !submissionData.email || !submissionData.topic) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: username, email, topic'
+            });
+        }
+
+        if (!submissionData.questions || !Array.isArray(submissionData.questions)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Questions array is required'
+            });
+        }
+
+        // Calculate percentage if not provided
+        if (!submissionData.percentage && submissionData.score !== undefined && submissionData.maxScore !== undefined) {
+            submissionData.percentage = Math.round((submissionData.score / submissionData.maxScore) * 100);
+        }
+
+        // Add timestamp if not provided
+        if (!submissionData.timestamp) {
+            submissionData.timestamp = new Date();
+        }
+
+        // Create submission document
+        const submission = new CodingSubmission(submissionData);
+        
+        // Save to database
+        await submission.save();
+        
+        console.log('✅ Coding quiz submission saved successfully:', {
+            submissionId: submission._id,
+            percentage: submissionData.percentage + '%'
+        });
+        
+        res.status(201).json({
+            success: true,
+            message: 'Coding quiz results saved successfully',
+            submissionId: submission._id,
+            data: {
+                score: submission.score,
+                maxScore: submission.maxScore,
+                percentage: submission.percentage,
+                timestamp: submission.timestamp
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error saving coding submission:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to save coding quiz results',
+            error: error.message
+        });
+    }
+});
+
+
+
+// GET random coding questions by difficulty and topic
+router.get('/coding-questions', async (req, res) => {
+    try {
+        const { difficulty, topic, limit = 5 } = req.query;
+        
+        console.log(`📊 Fetching ${limit} ${difficulty} coding questions for topic: ${topic}`);
+        
+        // Build match query
+        const matchQuery = { type: 'coding' };
+        
+        if (difficulty && difficulty !== 'all') {
+            matchQuery.difficulty = difficulty;
+        }
+        
+        if (topic && topic !== 'all') {
+            matchQuery.topic = decodeURIComponent(topic);
+        }
+        
+        // Fetch random questions
+        const questions = await CodingQuestion.aggregate([
+            { $match: matchQuery },
+            { $sample: { size: parseInt(limit) } },
+            { $project: { 
+                questionId: 1,
+                title: 1,
+                type: 1,
+                topic: 1,
+                description: 1,
+                prompt: 1,
+                starterCode: 1,
+                functionName: 1,
+                testCases: 1,
+                maxScore: 1,
+                difficulty: 1,
+                timeLimit: 1
+            }}
+        ]);
+        
+        console.log(`✅ Found ${questions.length} coding questions`);
+        
+        if (questions.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: `No coding questions found for difficulty: ${difficulty}, topic: ${topic}`
+            });
+        }
+        
+        res.json({
+            success: true,
+            difficulty,
+            topic,
+            count: questions.length,
+            requested: parseInt(limit),
+            questions
+        });
+        
+    } catch (error) {
+        console.error('❌ Error fetching coding questions:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch coding questions',
+            error: error.message
+        });
+    }
+});
+
 // Submit quiz results route
 router.post('/pdsa-submission', async (req, res) => {
     try {
@@ -1019,8 +1218,6 @@ router.post('/pdsa-submission', async (req, res) => {
         });
     }
 });
-
-
 //pdsa questions fetching route
 
 function shuffleArray(array) {
@@ -1128,7 +1325,7 @@ router.get('/questions/:topic', async (req, res) => {
             error: error.message
         });
     }
-});     
+});
 
   router.post('/programming/submit', async (req, res) => {
     try {
@@ -2794,31 +2991,4 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
