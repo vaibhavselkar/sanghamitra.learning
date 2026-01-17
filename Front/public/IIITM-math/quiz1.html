@@ -12,11 +12,11 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px 20px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1600px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -294,9 +294,8 @@
         }
 
         .main-quiz-content {
-            flex: 3; /* Increased from 1 to 3 for more weight */
+            flex: 1;
             min-width: 0;
-            width: 70%; /* Force 70% width */
             background: white;
             border-radius: 12px;
             padding: 30px;
@@ -306,7 +305,8 @@
         .question-navigator {
             position: sticky;
             top: 20px;
-            width: 300px;
+            flex-shrink: 0;
+            width: 350px;
             background: white;
             border-radius: 12px;
             padding: 20px;
@@ -2373,6 +2373,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
 
