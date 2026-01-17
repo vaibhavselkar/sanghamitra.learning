@@ -640,126 +640,140 @@
       }
     }
 
-    // Create HTML for a course item with both coding and MCQ scores
-    function createCourseHTML(topic, coding, mcq) {
-      const codingPercentage = coding ? Math.round(coding.percentage) : 0;
-      const mcqPercentage = mcq ? Math.round(mcq.percentage) : 0;
-      
-      const hasCoding = coding !== null;
-      const hasMCQ = mcq !== null;
-      
-      // Calculate overall percentage (average of both if both exist, or whichever exists)
-      let overallPercentage = 0;
-      let count = 0;
-      
-      if (hasCoding) {
-        overallPercentage += codingPercentage;
-        count++;
-      }
-      if (hasMCQ) {
-        overallPercentage += mcqPercentage;
-        count++;
-      }
-      
-      overallPercentage = count > 0 ? Math.round(overallPercentage / count) : 0;
-      
-      // Determine progress bar color based on overall score
-      let progressBarClass = 'bg-primary';
-      let badgeStyle = 'background: linear-gradient(45deg, #007bff, #0056b3);';
-      
-      if (overallPercentage >= 80) {
-        progressBarClass = 'bg-success';
-        badgeStyle = 'background: linear-gradient(45deg, #28a745, #20c997);';
-      } else if (overallPercentage >= 60) {
-        progressBarClass = 'bg-info';
-        badgeStyle = 'background: linear-gradient(45deg, #17a2b8, #138496);';
-      } else if (overallPercentage >= 40) {
-        progressBarClass = 'bg-warning';
-        badgeStyle = 'background: linear-gradient(45deg, #ffc107, #fd7e14);';
-      } else if (overallPercentage > 0) {
-        progressBarClass = 'bg-danger';
-        badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
-      }
-    
-      // Coding assessment button
-      const codingButton = `<a href="${topic.url}" class="btn ${hasCoding ? 'btn-primary' : 'btn-outline-primary'} btn-sm mb-2" style="min-width: 200px;">
-        <span>${hasCoding ? `Coding: ${codingPercentage}%` : 'Start Coding'}</span>
-        <i class="bi ${hasCoding ? 'bi-code-square ms-2' : 'bi-arrow-right ms-2'}"></i>
-      </a>`;
-      
-      // MCQ/Quiz-Test button
-      const mcqButton = topic.testUrl 
-        ? `<a href="${topic.testUrl}" class="btn ${hasMCQ ? 'test-paper-btn' : 'btn-outline-success'} btn-sm mb-2" style="min-width: 200px;">
-            <span>${hasMCQ ? `Quiz-Test: ${mcqPercentage}%` : 'Take Quiz-Test'}</span>
-            <i class="bi ${hasMCQ ? 'bi-card-checklist ms-2' : 'bi-file-text ms-2'}"></i>
-          </a>`
-        : '';
-    
-      // Set progress bar width
-      const progressWidth = (hasCoding || hasMCQ) ? overallPercentage : 0;
-    
-      // Format last attempted date
-      let lastAttempted = null;
-      if (coding && coding.timestamp) {
-        lastAttempted = coding.timestamp;
-      }
-      if (mcq && mcq.timestamp) {
-        if (!lastAttempted || new Date(mcq.timestamp) > new Date(lastAttempted)) {
-          lastAttempted = mcq.timestamp;
-        }
-      }
-    
-      let dateDisplay = '';
-      if (lastAttempted) {
-        try {
-          dateDisplay = new Date(lastAttempted).toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric'
-          });
-        } catch (e) {
-          dateDisplay = 'Recently';
-        }
-      }
-    
-      return `
-        <div class="course-item mb-3" data-topic="${topic.id}">
-          <div class="card course-card h-100 border-0 shadow-sm hover-shadow">
-            <div class="card-body p-3">
-              <div class="row align-items-center">
-                <div class="col-lg-1 col-md-2 text-center">
-                  <div class="icon-box ${(hasCoding || hasMCQ) ? 'bg-info' : 'bg-primary'} text-white rounded-circle p-2" style="width: 40px; height: 40px;">
-                    <i class="bi ${(hasCoding || hasMCQ) ? 'bi-arrow-repeat' : topic.icon} fs-5"></i>
-                  </div>
-                </div>
-                <div class="col-lg-6 col-md-5">
-                  <h4 class="mb-1 fs-5">${topic.displayName}</h4>
-                  <p class="text-muted mb-2 fs-6">${topic.description}</p>
-                  <div class="progress" style="height: 8px; background-color: #e9ecef;">
-                    <div class="progress-bar ${progressBarClass}" role="progressbar" 
-                         style="width: ${progressWidth}%"
-                         aria-valuenow="${overallPercentage}" aria-valuemin="0" aria-valuemax="100">
-                    </div>
-                  </div>
-              
-                  ${dateDisplay ? `<small class="text-muted d-block mt-1">Last: ${dateDisplay}</small>` : ''}
-                </div>
-                <div class="col-lg-2 col-md-2 text-center">
-                  <span class="percentage-badge" style="${badgeStyle}">${overallPercentage}%</span>
-                </div>
-                <div class="col-lg-3 col-md-3">
-                  <div class="button-container">
-                    ${codingButton}
-                    ${mcqButton}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
+    function createCourseHTML(topic, coding, mcq, interview) {
+       const codingPercentage = coding ? Math.round(coding.percentage) : 0;
+       const mcqPercentage = mcq ? Math.round(mcq.percentage) : 0;
+       const interviewPercentage = interview ? Math.round(interview.percentage) : 0;
+       
+       const hasCoding = coding !== null;
+       const hasMCQ = mcq !== null;
+       const hasInterview = interview !== null;
+       
+       // Calculate overall percentage (average of all three if they exist)
+       let overallPercentage = 0;
+       let count = 0;
+       
+       if (hasCoding) {
+         overallPercentage += codingPercentage;
+         count++;
+       }
+       if (hasMCQ) {
+         overallPercentage += mcqPercentage;
+         count++;
+       }
+       if (hasInterview) {
+         overallPercentage += interviewPercentage;
+         count++;
+       }
+       
+       overallPercentage = count > 0 ? Math.round(overallPercentage / count) : 0;
+       
+       // Determine progress bar color based on overall score
+       let progressBarClass = 'bg-primary';
+       let badgeStyle = 'background: linear-gradient(45deg, #007bff, #0056b3);';
+       
+       if (overallPercentage >= 80) {
+         progressBarClass = 'bg-success';
+         badgeStyle = 'background: linear-gradient(45deg, #28a745, #20c997);';
+       } else if (overallPercentage >= 60) {
+         progressBarClass = 'bg-info';
+         badgeStyle = 'background: linear-gradient(45deg, #17a2b8, #138496);';
+       } else if (overallPercentage >= 40) {
+         progressBarClass = 'bg-warning';
+         badgeStyle = 'background: linear-gradient(45deg, #ffc107, #fd7e14);';
+       } else if (overallPercentage > 0) {
+         progressBarClass = 'bg-danger';
+         badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
+       }
+       
+       // Coding assessment button
+       const codingButton = `<a href="${topic.url}" class="btn ${hasCoding ? 'btn-primary' : 'btn-outline-primary'} btn-sm" style="min-width: 200px;">
+         <span>${hasCoding ? `Coding: ${codingPercentage}%` : 'Start Coding'}</span>
+         <i class="bi ${hasCoding ? 'bi-code-square ms-2' : 'bi-arrow-right ms-2'}"></i>
+       </a>`;
+       
+       // MCQ/Quiz-Test button
+       const mcqButton = topic.testUrl 
+         ? `<a href="${topic.testUrl}" class="btn ${hasMCQ ? 'test-paper-btn' : 'btn-outline-success'} btn-sm" style="min-width: 200px;">
+             <span>${hasMCQ ? `Quiz-Test: ${mcqPercentage}%` : 'Take Quiz-Test'}</span>
+             <i class="bi ${hasMCQ ? 'bi-card-checklist ms-2' : 'bi-file-text ms-2'}"></i>
+           </a>`
+         : '';
+       
+       // Interview button
+       const interviewButton = topic.interviewUrl 
+         ? `<a href="${topic.interviewUrl}" class="btn ${hasInterview ? 'interview-btn' : 'btn-outline-purple'} btn-sm" style="min-width: 200px; ${!hasInterview ? 'border-color: #6f42c1; color: #6f42c1;' : ''}">
+             <span>${hasInterview ? `Interview: ${interviewPercentage}%` : 'Take Interview'}</span>
+             <i class="bi ${hasInterview ? 'bi-mic-fill ms-2' : 'bi-mic ms-2'}"></i>
+           </a>`
+         : '';
+       
+       // Set progress bar width
+       const progressWidth = (hasCoding || hasMCQ || hasInterview) ? overallPercentage : 0;
+       
+       // Format last attempted date
+       let lastAttempted = null;
+       const timestamps = [];
+       
+       if (coding && coding.timestamp) timestamps.push(new Date(coding.timestamp));
+       if (mcq && mcq.timestamp) timestamps.push(new Date(mcq.timestamp));
+       if (interview && interview.timestamp) timestamps.push(new Date(interview.timestamp));
+       
+       if (timestamps.length > 0) {
+         lastAttempted = new Date(Math.max(...timestamps)).toISOString();
+       }
+       
+       let dateDisplay = '';
+       if (lastAttempted) {
+         try {
+           dateDisplay = new Date(lastAttempted).toLocaleDateString('en-US', { 
+             year: 'numeric', 
+             month: 'short', 
+             day: 'numeric'
+           });
+         } catch (e) {
+           dateDisplay = 'Recently';
+         }
+       }
+       
+       return `
+         <div class="course-item mb-3" data-topic="${topic.id}">
+           <div class="card course-card h-100 border-0 shadow-sm hover-shadow">
+             <div class="card-body p-3">
+               <div class="row align-items-center">
+                 <div class="col-lg-1 col-md-2 text-center">
+                   <div class="icon-box ${(hasCoding || hasMCQ || hasInterview) ? 'bg-info' : 'bg-primary'} text-white rounded-circle p-2" style="width: 40px; height: 40px;">
+                     <i class="bi ${(hasCoding || hasMCQ || hasInterview) ? 'bi-arrow-repeat' : topic.icon} fs-5"></i>
+                   </div>
+                 </div>
+                 <div class="col-lg-6 col-md-5">
+                   <h4 class="mb-1 fs-5">${topic.displayName}</h4>
+                   <p class="text-muted mb-2 fs-6">${topic.description}</p>
+                   <div class="progress" style="height: 8px; background-color: #e9ecef;">
+                     <div class="progress-bar ${progressBarClass}" role="progressbar" 
+                          style="width: ${progressWidth}%"
+                          aria-valuenow="${overallPercentage}" aria-valuemin="0" aria-valuemax="100">
+                     </div>
+                   </div>
+               
+                   ${dateDisplay ? `<small class="text-muted d-block mt-1">Last: ${dateDisplay}</small>` : ''}
+                 </div>
+                 <div class="col-lg-2 col-md-2 text-center">
+                   <span class="percentage-badge" style="${badgeStyle}">${overallPercentage}%</span>
+                 </div>
+                 <div class="col-lg-3 col-md-3">
+                   <div class="button-container">
+                     ${codingButton}
+                     ${mcqButton}
+                     ${interviewButton}
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+       `;
+     }
     // Show/hide loading indicator
     function showLoading(show) {
       const loadingMessage = document.getElementById('loadingMessage');
@@ -802,6 +816,7 @@
 </script>
 </body>
 </html>
+
 
 
 
