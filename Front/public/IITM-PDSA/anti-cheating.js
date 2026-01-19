@@ -6,7 +6,7 @@
     
     // ===== CONFIGURATION =====
     const CONFIG = {
-        MAX_CHEATING_ATTEMPTS: 3,
+        MAX_CHEATING_ATTEMPTS: 5,
         INACTIVITY_TIMEOUT: 120000, // 2 minutes in milliseconds
         DEVMONITOR_INTERVAL: 500,   // Check for dev tools every 500ms
         INACTIVITY_CHECK_INTERVAL: 30000, // Check inactivity every 30 seconds
