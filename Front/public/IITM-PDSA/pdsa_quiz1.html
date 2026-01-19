@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> 🐍 Python Programming Quiz</title>
+    <title>Python Basics Quiz</title>
     <!-- Pyodide for Python execution -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <!-- Monaco Editor -->
@@ -390,6 +390,43 @@
             padding: 12px 40px;
             font-size: 18px;
         }
+
+        /* Question navigation buttons container */
+        .question-navigation {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        /* Progress container without text */
+        .progress-container {
+            margin-bottom: 25px;
+        }
+        
+        /* Question number indicator in question card */
+        .question-number {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        /* Level progress text */
+        .level-progress-text {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        /* Remove the overall progress bar from level selection */
+        .level-container .progress {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -429,7 +466,7 @@
 
     <div class="container">
         <div class="header">
-            <h1>🐍 Python Programming Quiz</h1>
+            <h1>🐍 Python Basics Quiz</h1>
             <p>Solve algorithmic problems by writing complete Python functions</p>
             <small style="opacity: 0.8;">⚠️ Anti-cheating measures active</small>
         </div>
@@ -486,40 +523,18 @@
                 </div>
             </div>
             
-            <div class="mt-4">
+            <!-- Removed the progress bar from level selection -->
+            <div class="mt-4 level-progress-text">
                 <p><strong>Progress:</strong> <span id="overallProgress">0/3 levels completed</span></p>
-                <div class="progress" style="height: 10px;">
-                    <div class="progress-bar" id="overallProgressBar" style="width: 0%"></div>
-                </div>
             </div>
         </div>
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container mb-4">
-                <div class="d-flex justify-content-between mb-2">
-                    <span id="progressText">Question 1 of 5</span>
-                    <span id="currentLevelBadge" class="badge bg-primary">Level 1</span>
-                </div>
-                <div class="progress">
-                    <div class="progress-bar" id="progressFill" style="width: 20%;"></div>
-                </div>
-            </div>
-            
+            <!-- Removed the progress bar from quiz container too -->
             <div id="questionContainer"></div>
             
-            <div class="d-flex justify-content-between mt-4">
-                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
-                <div class="text-center">
-                    <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
-                </div>
-                <div>
-                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
-                    <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn" style="display: none;">
-                        📊 Submit Quiz
-                    </button>
-                </div>
-            </div>
+            <!-- Removed the button container that was here -->
         </div>
 
         <!-- Results -->
@@ -727,9 +742,15 @@
             const level2Btn = level2Card.querySelector('button');
             const level3Btn = level3Card.querySelector('button');
             
+            // Clear any existing completion badges
+            document.querySelectorAll('.completion-badge').forEach(badge => badge.remove());
+            
             // Level 1 always accessible
             if (completedLevels[1]) {
-                level1Card.innerHTML += `<div class="completion-badge">✓ Completed: ${levelScores[1]}%</div>`;
+                const completionBadge = document.createElement('div');
+                completionBadge.className = 'completion-badge';
+                completionBadge.textContent = `✓ Completed: ${levelScores[1]}%`;
+                level1Card.querySelector('.level-progress').appendChild(completionBadge);
             }
             
             // Level 2 unlock logic
@@ -741,11 +762,16 @@
                 level2Btn.onclick = () => startLevel(2);
                 
                 if (completedLevels[2]) {
-                    level2Card.innerHTML += `<div class="completion-badge">✓ Completed: ${levelScores[2]}%</div>`;
+                    const completionBadge = document.createElement('div');
+                    completionBadge.className = 'completion-badge';
+                    completionBadge.textContent = `✓ Completed: ${levelScores[2]}%`;
+                    level2Card.querySelector('.level-progress').appendChild(completionBadge);
                 }
             } else {
                 level2Card.classList.add('locked');
                 level2Btn.disabled = true;
+                level2Btn.className = 'btn btn-secondary btn-level';
+                level2Btn.textContent = 'Locked';
             }
             
             // Level 3 unlock logic
@@ -757,17 +783,21 @@
                 level3Btn.onclick = () => startLevel(3);
                 
                 if (completedLevels[3]) {
-                    level3Card.innerHTML += `<div class="completion-badge">✓ Completed: ${levelScores[3]}%</div>`;
+                    const completionBadge = document.createElement('div');
+                    completionBadge.className = 'completion-badge';
+                    completionBadge.textContent = `✓ Completed: ${levelScores[3]}%`;
+                    level3Card.querySelector('.level-progress').appendChild(completionBadge);
                 }
             } else {
                 level3Card.classList.add('locked');
                 level3Btn.disabled = true;
+                level3Btn.className = 'btn btn-secondary btn-level';
+                level3Btn.textContent = 'Locked';
             }
             
-            // Update overall progress
+            // Update overall progress text
             const completedCount = Object.keys(completedLevels).length;
             document.getElementById('overallProgress').textContent = `${completedCount}/3 levels completed`;
-            document.getElementById('overallProgressBar').style.width = `${(completedCount/3)*100}%`;
         }
         
         function selectLevel(level) {
@@ -915,7 +945,6 @@
                         document.getElementById('loadingOverlay').style.display = 'none';
                         document.getElementById('quizContainer').style.display = 'block';
                         renderCurrentQuestion();
-                        updateProgress();
                     }, 500);
                 });
             } catch (error) {
@@ -954,22 +983,10 @@
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('quizContainer').style.display = 'block';
                 renderCurrentQuestion();
-                updateProgress();
             }
             
             // Enable quiz monitoring
             isQuizActive = true;
-            
-            // Update level badge
-            document.getElementById('currentLevelBadge').textContent = `Level ${currentLevel}`;
-            document.getElementById('currentLevelBadge').className = `badge bg-${currentLevel === 1 ? 'success' : currentLevel === 2 ? 'warning' : 'danger'}`;
-            
-            // Request fullscreen
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen request declined');
-                });
-            }
         }
         
         function renderCurrentQuestion() {
@@ -980,6 +997,11 @@
             
             container.innerHTML = `
                 <div class="question-card">
+                    <!-- Question progress indicator -->
+                    <div class="question-number">
+                        Question ${currentQuestionIndex + 1} of ${questions.length} • Level ${currentLevel}
+                    </div>
+                    
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3>${question.title}</h3>
                         <span class="badge bg-primary">${question.points} points</span>
@@ -1001,6 +1023,20 @@
                         `).join('')}
                     </div>
                     <div id="testResults-${question.id}"></div>
+                    
+                    <!-- Question Navigation Buttons -->
+                    <div class="question-navigation d-flex justify-content-between mt-4">
+                        <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        <div class="text-center">
+                            <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
+                        </div>
+                        <div>
+                            ${currentQuestionIndex === questions.length - 1 ? 
+                                `<button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">📊 Submit Quiz</button>` :
+                                `<button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>`
+                            }
+                        </div>
+                    </div>
                 </div>
             `;
             
@@ -1152,7 +1188,6 @@
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 renderCurrentQuestion();
-                updateProgress();
             }
         }
         
@@ -1160,25 +1195,6 @@
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
                 renderCurrentQuestion();
-                updateProgress();
-            }
-        }
-        
-        function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
-            
-            const nextBtn = document.getElementById('nextBtn');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.style.display = 'none';
-                submitBtn.style.display = 'inline-block';
-            } else {
-                nextBtn.style.display = 'inline-block';
-                submitBtn.style.display = 'none';
             }
         }
         
@@ -1358,4 +1374,3 @@
     </script>
 </body>
 </html>
-
