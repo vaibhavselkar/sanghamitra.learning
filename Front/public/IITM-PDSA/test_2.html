@@ -24,7 +24,8 @@
         .numerical-input,
         .explanation-section,
         .question-card h4,
-        .question-card p {
+        .question-card p,
+        .btn {
             -webkit-user-select: text !important;
             -moz-user-select: text !important;
             -ms-user-select: text !important;
@@ -364,7 +365,7 @@
         <div id="quizContainer" class="quiz-container" style="display: none;">
             <div class="topic-header">
                 <h3>🔬 Sorting Algorithms Quiz</h3>
-                <p>Test your knowledge of Quick Sort, Merge Sort, and algorithm time complexity</p>
+                <p>Test your knowledge of Sorting Algorithms concepts, functions, and logic</p>
                 <p id="questionCount">50 Questions</p>
                 <small style="opacity: 0.8; display: block; margin-top: 10px;">
                     ⚠️ Anti-cheating measures are active. Do not switch tabs or windows.
@@ -399,7 +400,7 @@
                 <h2 id="finalScore">0/50</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
-                <p class="mt-2"><strong>Topic:</strong> Sorting Algorithms</p>
+                <p class="mt-2"><strong>Topic:</strong> Sorting Algorithms </p>
                 <p id="cheatingLog" style="font-size: 0.9rem; opacity: 0.8;"></p>
             </div>
             <div id="detailedResults"></div>
@@ -436,7 +437,7 @@
         const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
         const QUESTIONS_API = `${API_BASE_URL}/questions/Sorting%20Algorithms?limit=50`;
         const SESSION_API = `${API_BASE_URL}/session-info`;
-        const SUBMISSION_API = `${API_BASE_URL}/pdsa-submission`;
+        const SUBMISSION_API = `${API_BASE_URL}/algorithm-submissions`;
         const CHEATING_LOG_API = `${API_BASE_URL}/log-cheating`;
 
         // Initialize quiz when page loads
@@ -485,8 +486,8 @@
             window.quizAutoSubmitted = true;
             
             // Deactivate anti-cheating immediately
-            if (antiCheating && AntiCheating.deactivate) {
-                AntiCheating.deactivate();
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
                 console.log('🔒 Anti-cheating deactivated for auto-submission');
             }
             
@@ -528,21 +529,29 @@
             
             // Initialize anti-cheating AFTER getting questions
             if (window.AntiCheating && questions.length > 0) {
-                antiCheating = AntiCheating.initialize({
+                antiCheating = window.AntiCheating.initialize({
                     quizName: "Sorting Algorithms Quiz",
-                    requestFullscreen: true,
-                    user: currentUser,
-                    autoSubmitThreshold: 10, // Auto-submit after 10 violations
-                    allowTextSelection: true // Allow text selection for reading questions
+                    requestFullscreen: false, // CHANGED: Disable fullscreen to avoid errors
+                    user: currentUser
                 });
 
-                // Allow text selection for specific elements
-                AntiCheating.allowSelection('.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p');
+                // Allow text selection for ALL quiz elements BEFORE initializing
+                // This is the CRITICAL FIX - allow selection before any events are bound
+                const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
+                
+                if (window.AntiCheating.allowSelection) {
+                    window.AntiCheating.allowSelection(allQuizElements);
+                }
+                
+                // Also add allow-select class directly to prevent text_selection violations
+                document.querySelectorAll(allQuizElements).forEach(el => {
+                    el.classList.add('allow-select');
+                });
                 
                 // Mark quiz as active
                 isQuizActive = true;
                 
-                console.log('🔒 Anti-cheating initialized');
+                console.log('🔒 Anti-cheating initialized with text selection allowed');
             } else {
                 console.error('❌ AntiCheating library not loaded or no questions!');
                 // If anti-cheating not available, still run quiz
@@ -599,10 +608,10 @@
             const container = document.getElementById('questionContainer');
             
             let questionHTML = `
-                <div class="question-card">
+                <div class="question-card allow-select">
                     <div class="question-header">
                         <div class="question-title">
-                            <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
+                            <h4 class="allow-select">Question ${currentQuestionIndex + 1}: ${question.title}</h4>
                         </div>
                         <div class="score-indicator">
                             ${question.maxScore || 1} Point${question.maxScore > 1 ? 's' : ''}
@@ -611,13 +620,13 @@
             `;
 
             if (question.description) {
-                questionHTML += `<p class="mb-3">${question.description}</p>`;
+                questionHTML += `<p class="mb-3 allow-select">${question.description}</p>`;
             }
 
             if (question.code) {
                 questionHTML += `
                     <div class="code-block">
-                        <pre>${question.code}</pre>
+                        <pre class="allow-select">${question.code}</pre>
                     </div>
                 `;
             }
@@ -627,10 +636,11 @@
                 question.options.forEach((option, index) => {
                     const isSelected = userAnswers[question.questionId] === option;
                     questionHTML += `
-                        <label class="option-label ${isSelected ? 'selected' : ''}">
-                            <input type="radio" name="q${question.questionId}" value="${option}" 
-                                   ${isSelected ? 'checked' : ''} style="display: none;">
-                            ${option}
+                        <label class="option-label allow-select ${isSelected ? 'selected' : ''}" 
+                               data-value="${option}" 
+                               data-question-id="${question.questionId}"
+                               data-type="mcq-single">
+                            <span class="allow-select">${option}</span>
                         </label>
                     `;
                 });
@@ -641,10 +651,11 @@
                 question.options.forEach((option, index) => {
                     const isSelected = Array.isArray(currentAnswers) && currentAnswers.includes(option);
                     questionHTML += `
-                        <label class="option-label ${isSelected ? 'selected' : ''}">
-                            <input type="checkbox" name="q${question.questionId}" value="${option}" 
-                                   ${isSelected ? 'checked' : ''} style="display: none;">
-                            ${option}
+                        <label class="option-label allow-select ${isSelected ? 'selected' : ''}" 
+                               data-value="${option}" 
+                               data-question-id="${question.questionId}"
+                               data-type="mcq-multiple">
+                            <span class="allow-select">${option}</span>
                         </label>
                     `;
                 });
@@ -653,10 +664,10 @@
                 const currentAnswer = userAnswers[question.questionId] || '';
                 questionHTML += `
                     <div class="mt-3">
-                        <input type="number" class="numerical-input" 
+                        <input type="number" class="numerical-input allow-select" 
                                value="${currentAnswer}" 
                                placeholder="Enter your answer"
-                               oninput="saveNumericalAnswer(${question.questionId}, this.value)">
+                               oninput="saveNumericalAnswer('${question.questionId}', this.value)">
                     </div>
                 `;
             }
@@ -665,54 +676,48 @@
 
             container.innerHTML = questionHTML;
 
-            // Event delegation for option selection
+            // Add click handlers for MCQ options
             setTimeout(() => {
-                const optionsContainer = container.querySelector('.options-container');
-                if (optionsContainer) {
-                    optionsContainer.addEventListener('click', function(e) {
-                        const label = e.target.closest('.option-label');
-                        if (!label) return;
+                const optionLabels = container.querySelectorAll('.option-label');
+                optionLabels.forEach(label => {
+                    label.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation(); // Prevent event bubbling
                         
-                        const input = label.querySelector('input');
-                        if (!input) return;
+                        const questionId = this.getAttribute('data-question-id');
+                        const value = this.getAttribute('data-value');
+                        const type = this.getAttribute('data-type');
                         
-                        if (question.type === 'mcq-single') {
-                            optionsContainer.querySelectorAll('.option-label').forEach(l => {
-                                l.classList.remove('selected');
-                                const inp = l.querySelector('input');
-                                if (inp && inp.type === 'radio') inp.checked = false;
+                        if (type === 'mcq-single') {
+                            // Deselect all other options
+                            document.querySelectorAll(`[data-question-id="${questionId}"]`).forEach(el => {
+                                el.classList.remove('selected');
                             });
                             
-                            label.classList.add('selected');
-                            input.checked = true;
-                            userAnswers[question.questionId] = input.value;
+                            // Select this one
+                            this.classList.add('selected');
+                            userAnswers[questionId] = value;
                         } 
-                        else if (question.type === 'mcq-multiple') {
-                            const wasChecked = input.checked;
-                            input.checked = !wasChecked;
+                        else if (type === 'mcq-multiple') {
+                            // Toggle selection
+                            this.classList.toggle('selected');
                             
-                            if (input.checked) {
-                                label.classList.add('selected');
-                            } else {
-                                label.classList.remove('selected');
+                            if (!userAnswers[questionId]) {
+                                userAnswers[questionId] = [];
                             }
                             
-                            if (!userAnswers[question.questionId]) {
-                                userAnswers[question.questionId] = [];
-                            }
-                            
-                            if (input.checked) {
-                                if (!userAnswers[question.questionId].includes(input.value)) {
-                                    userAnswers[question.questionId].push(input.value);
+                            if (this.classList.contains('selected')) {
+                                if (!userAnswers[questionId].includes(value)) {
+                                    userAnswers[questionId].push(value);
                                 }
                             } else {
-                                userAnswers[question.questionId] = userAnswers[question.questionId].filter(v => v !== input.value);
+                                userAnswers[questionId] = userAnswers[questionId].filter(v => v !== value);
                             }
                         }
                         
                         updateProgress();
                     });
-                }
+                });
             }, 10);
         }
 
@@ -810,8 +815,8 @@
 
         async function submitQuiz() {
             // Deactivate anti-cheating FIRST
-            if (antiCheating && AntiCheating.deactivate) {
-                AntiCheating.deactivate();
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
                 console.log('🔒 Anti-cheating deactivated after submission');
             }
             
@@ -986,8 +991,8 @@
 
         function restartQuiz() {
             // Deactivate current anti-cheating
-            if (antiCheating && AntiCheating.deactivate) {
-                AntiCheating.deactivate();
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
                 console.log('🔒 Anti-cheating deactivated for restart');
             }
             
@@ -1014,15 +1019,21 @@
             // Fetch new random questions and re-initialize anti-cheating
             fetchRandomQuestions().then(() => {
                 if (window.AntiCheating && questions.length > 0) {
-                    antiCheating = AntiCheating.initialize({
+                    antiCheating = window.AntiCheating.initialize({
                         quizName: "Sorting Algorithms Quiz - Retake",
-                        requestFullscreen: true,
-                        user: currentUser,
-                        autoSubmitThreshold: 10,
-                        allowTextSelection: true
+                        requestFullscreen: false, // Keep disabled
+                        user: currentUser
                     });
 
-                    AntiCheating.allowSelection('.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p');
+                    const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
+                    
+                    if (window.AntiCheating.allowSelection) {
+                        window.AntiCheating.allowSelection(allQuizElements);
+                    }
+                    
+                    document.querySelectorAll(allQuizElements).forEach(el => {
+                        el.classList.add('allow-select');
+                    });
                     
                     isQuizActive = true;
                     console.log('🔒 Anti-cheating reactivated for retake');
@@ -1032,8 +1043,8 @@
 
         function goToHome() {
             // Deactivate anti-cheating before leaving
-            if (antiCheating && AntiCheating.deactivate) {
-                AntiCheating.deactivate();
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
                 console.log('🔒 Anti-cheating deactivated for home navigation');
             }
             
