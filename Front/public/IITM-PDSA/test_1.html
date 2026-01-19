@@ -532,7 +532,8 @@
                 antiCheating = window.AntiCheating.initialize({
                     quizName: "Python Basics Quiz",
                     requestFullscreen: false, // CHANGED: Disable fullscreen to avoid errors
-                    user: currentUser
+                    user: currentUser,
+                    autoSubmitThreshold: 5
                 });
 
                 // Allow text selection for ALL quiz elements BEFORE initializing
@@ -1022,7 +1023,8 @@
                     antiCheating = window.AntiCheating.initialize({
                         quizName: "Python Basics Quiz - Retake",
                         requestFullscreen: false, // Keep disabled
-                        user: currentUser
+                        user: currentUser,
+                        autoSubmitThreshold: 5
                     });
 
                     const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
