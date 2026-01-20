@@ -241,7 +241,7 @@
         .option:hover { border-color: #4CAF50; background: #f1f8e9; }
         .option.selected { border-color: #4CAF50; background: #e8f5e9; }
 
-        .numeric-input {
+        .numeric-input, .text-input {
             width: 100%;
             max-width: 400px;
             padding: 12px 16px;
@@ -372,20 +372,20 @@
         }
 
         .calc-btn.operator {
-            background: #FF7043;
+            background: #ff6b6b;
             color: white;
             font-weight: 600;
         }
-
+        
         .calc-btn.equals {
-            background: #4CAF50;
+            background: #51cf66;
             color: white;
             font-weight: 600;
         }
-
+        
         .calc-btn.memory {
-            background: #E8F5E9;
-            color: #2E7D32;
+            background: #e3e8ff;
+            color: #667eea;
             font-size: 0.85rem;
         }
 
@@ -542,6 +542,12 @@
 
     <!-- Calculator Modal -->
     <div id="calculatorModal" class="calculator-modal">
+        <div class="calculator-header">
+            <h3>Scientific Calculator</h3>
+            <button class="help-btn">Help</button>
+            <button class="minimize-btn" onclick="minimizeCalculator()">―</button>
+            <button class="calculator-close" onclick="toggleCalculator()">×</button>
+        </div>
         <div class="calculator-header">
             <h3>Scientific Calculator</h3>
             <button class="help-btn">Help</button>
@@ -1097,7 +1103,7 @@
                 
                 optionsHtml = `
                     <input type="text" 
-                           class="numeric-input" 
+                           class="numeric-input text-input" 
                            placeholder="${specificPlaceholder}" 
                            onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
                            oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
@@ -1162,7 +1168,7 @@
                     }
                 });
             } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input', 'text'].includes(question.type)) {
-                const input = document.querySelector('.numeric-input');
+                const input = document.querySelector('.numeric-input, .text-input');
                 if (input) {
                     input.value = savedAnswer;
                 }
@@ -1814,6 +1820,18 @@
             }
         }
 
+                // Minimize calculator
+        function minimizeCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            modal.style.display = 'none';
+            btn.style.display = 'flex';
+            calculatorOpen = false;
+            
+            console.log('Calculator minimized');
+        }
+
         function initializeDrag() {
             const modal = document.getElementById('calculatorModal');
             const header = modal.querySelector('.calculator-header');
@@ -1824,7 +1842,10 @@
         }
 
         function startDrag(e) {
-            if (e.target.closest('.calculator-close') || e.target.closest('.calc-btn')) {
+            if (e.target.closest('.calculator-close') || 
+                e.target.closest('.calc-btn') ||
+                e.target.closest('.minimize-btn') ||
+                e.target.closest('.help-btn')) {
                 return;
             }
             
@@ -1836,6 +1857,7 @@
             dragOffsetY = e.clientY - rect.top;
             
             modal.style.cursor = 'grabbing';
+            modal.style.opacity = '0.9'; // Visual feedback while dragging
             e.preventDefault();
         }
 
@@ -1864,6 +1886,7 @@
             isDragging = false;
             const modal = document.getElementById('calculatorModal');
             modal.style.cursor = 'move';
+            modal.style.opacity = '1'; // Restore full opacity
         }
 
         function addToDisplay(value) {
