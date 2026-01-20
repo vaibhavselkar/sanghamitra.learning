@@ -873,13 +873,7 @@
                     }, 1000); // Show warning for 1 second after returning
                 }
             });
-            
-            // Detect mouse leaving the quiz area
-            document.addEventListener('mouseleave', function() {
-                if (isQuizActive) {
-                    recordCheatingAttempt('mouse_left_page');
-                }
-            });
+
             
             // Detect if user tries to open new tabs/windows
             window.addEventListener('beforeunload', function(e) {
@@ -1979,5 +1973,6 @@
     </script>
 </body>
 </html>
+
 
 
