@@ -779,10 +779,73 @@
                     devtools.open = false;
                 }
             }, 500);
+
+            // Screenshot detection
+            document.addEventListener('keyup', function(e) {
+                // Windows: PrtScn, Alt+PrtScn, Win+Shift+S
+                // Mac: Cmd+Shift+3, Cmd+Shift+4, Cmd+Shift+5
+                if (e.key === 'PrintScreen' || 
+                    (e.keyCode === 44) ||
+                    (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
+                    (e.metaKey && e.shiftKey && e.keyCode === 83)) {
+                    recordCheatingAttempt('screenshot_attempt');
+                    alert('Screenshot detected! This activity has been logged.');
+                }
+            });
             
-            window.addEventListener('focus', function() {
+            // Clipboard screenshot detection (Windows Snipping Tool)
+            document.addEventListener('copy', function(e) {
+                recordCheatingAttempt('clipboard_copy');
+            });
+            
+            // Detect if window loses focus (potential screenshot tool usage)
+            let lastBlurTime = 0;
+            window.addEventListener('blur', function() {
+                lastBlurTime = Date.now();
+                if (isQuizActive) {
+                    recordCheatingAttempt('window_focus_lost');
+                }
+            });
+
+            // Page visibility detection (tab switching, minimizing)
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && isQuizActive) {
+                    recordCheatingAttempt('tab_switched');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                }
+            });
+            
+            // Enhanced window blur tracking with warning
+            window.addEventListener('blur', function() {
+                if (isQuizActive) {
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                }
+            });
+            
+           window.addEventListener('focus', function() {
                 document.body.classList.remove('blurred');
-                document.getElementById('warningOverlay').style.display = 'none';
+                if (isQuizActive) {
+                    setTimeout(() => {
+                        document.getElementById('warningOverlay').style.display = 'none';
+                    }, 1000); // Show warning for 1 second after returning
+                }
+            });
+
+            // Detect mouse leaving the quiz area
+            document.addEventListener('mouseleave', function() {
+                if (isQuizActive) {
+                    recordCheatingAttempt('mouse_left_page');
+                }
+            });
+            
+            // Detect if user tries to open new tabs/windows
+            window.addEventListener('beforeunload', function(e) {
+                if (isQuizActive && !confirm('Are you sure you want to leave? Your progress may be lost.')) {
+                    e.preventDefault();
+                    recordCheatingAttempt('attempted_page_leave');
+                    return '';
+                }
             });
             
             document.onselectstart = function() {
@@ -793,7 +856,20 @@
         
         function recordCheatingAttempt(type) {
             cheatingAttempts++;
-            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+            const timestamp = new Date().toISOString();
+            console.warn(`🚨 Cheating attempt #${cheatingAttempts}: ${type} at ${timestamp}`);
+            
+            // Visual warning for specific actions
+            const highRiskActions = ['screenshot_attempt', 'tab_switched', 'window_focus_lost', 'attempted_page_leave'];
+            if (highRiskActions.includes(type)) {
+                const overlay = document.getElementById('warningOverlay');
+                overlay.style.display = 'flex';
+                setTimeout(() => {
+                    if (document.hasFocus()) {
+                        overlay.style.display = 'none';
+                    }
+                }, 2000);
+            }
             
             if (username && email) {
                 fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
@@ -804,14 +880,20 @@
                         username: username,
                         email: email,
                         cheatingType: type,
-                        timestamp: new Date(),
-                        currentQuestion: currentQuestionIndex + 1
+                        timestamp: timestamp,
+                        currentQuestion: currentQuestionIndex + 1,
+                        totalAttempts: cheatingAttempts,
+                        userAgent: navigator.userAgent,
+                        screenResolution: `${window.screen.width}x${window.screen.height}`
                     })
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
             
-            if (cheatingAttempts >= 5) {
-                alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
+            // Progressive warnings
+            if (cheatingAttempts === 3) {
+                alert('⚠️ WARNING: Suspicious activity detected!\nFurther violations will result in automatic submission.');
+            } else if (cheatingAttempts >= 5) {
+                alert('🚫 Too many suspicious activities detected.\nQuiz will be auto-submitted for review.');
                 submitQuiz();
             }
         }
@@ -1897,6 +1979,7 @@
     </script>
 </body>
 </html>
+
 
 
 
