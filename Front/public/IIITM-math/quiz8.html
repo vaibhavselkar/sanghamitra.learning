@@ -44,6 +44,39 @@
         opacity: 0.9; 
     }
 
+    /* Anti-cheating styles */
+    * {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    body.blurred {
+        filter: blur(5px);
+        pointer-events: none;
+    }
+
+    body.blurred .warning-overlay {
+        filter: none;
+    }
+
+    .warning-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(220, 53, 69, 0.95);
+        color: white;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        font-size: 2rem;
+        text-align: center;
+    }
+
     .btn {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -709,7 +742,13 @@
         <!-- ========== CALCULATOR ENDS ========== -->
         
     </div>
-  
+  <div id="warningOverlay" class="warning-overlay">
+    <div>
+        <h2>⚠️ CHEATING ATTEMPT DETECTED</h2>
+        <p>Please return to the quiz window</p>
+        <p>Your activity is being monitored</p>
+    </div>
+</div>
     <script>
         // Answer validation utility
         const answerNormalizer = {
@@ -827,6 +866,192 @@
         let dragOffsetY = 0;
         let angleMode = 'Deg';
         let memory = 0;
+        // Anti-cheating variables
+        let cheatingAttempts = 0;
+        let isQuizActive = false;
+        let devToolsWarned = false;
+
+
+        // ============================================
+        // ENHANCED ANTI-CHEATING SYSTEM
+        // ============================================
+        
+        function initializeAntiCheating() {
+            // Disable right-click
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                recordCheatingAttempt('right_click');
+                return false;
+            });
+            
+            // Disable common keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
+                if (e.keyCode === 123 ||
+                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) ||
+                    (e.ctrlKey && e.keyCode === 85) ||
+                    (e.ctrlKey && e.keyCode === 83) ||
+                    e.keyCode === 44) {
+                    e.preventDefault();
+                    recordCheatingAttempt('keyboard_shortcut');
+                    return false;
+                }
+                
+                // Disable Ctrl+A, Ctrl+C, Ctrl+V
+                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                    e.preventDefault();
+                    recordCheatingAttempt('copy_attempt');
+                    return false;
+                }
+            });
+            
+            // Detect developer tools
+            let devtools = {open: false, orientation: null};
+            const threshold = 160;
+            
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > threshold ||
+                    window.outerWidth - window.innerWidth > threshold) {
+                    if (!devtools.open) {
+                        devtools.open = true;
+                        recordCheatingAttempt('developer_tools');
+                        if (!devToolsWarned) {
+                            alert('Developer tools detected! This attempt has been logged.');
+                            devToolsWarned = true;
+                        }
+                    }
+                } else {
+                    devtools.open = false;
+                }
+            }, 500);
+            
+            // Screenshot detection
+            document.addEventListener('keyup', function(e) {
+                // Windows: PrtScn, Alt+PrtScn, Win+Shift+S
+                // Mac: Cmd+Shift+3, Cmd+Shift+4, Cmd+Shift+5
+                if (e.key === 'PrintScreen' || 
+                    (e.keyCode === 44) ||
+                    (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
+                    (e.metaKey && e.shiftKey && e.keyCode === 83)) {
+                    recordCheatingAttempt('screenshot_attempt');
+                    alert('Screenshot detected! This activity has been logged.');
+                }
+            });
+            
+            // Clipboard screenshot detection (Windows Snipping Tool)
+            document.addEventListener('copy', function(e) {
+                if (isQuizActive) {
+                    recordCheatingAttempt('clipboard_copy');
+                }
+            });
+            
+            // Detect if window loses focus (potential screenshot tool usage)
+            let lastBlurTime = 0;
+            window.addEventListener('blur', function() {
+                lastBlurTime = Date.now();
+                if (isQuizActive) {
+                    recordCheatingAttempt('window_focus_lost');
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                }
+            });
+            
+            // Page visibility detection (tab switching, minimizing)
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && isQuizActive) {
+                    recordCheatingAttempt('tab_switched');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                }
+            });
+            
+            // Window focus restoration
+            window.addEventListener('focus', function() {
+                document.body.classList.remove('blurred');
+                if (isQuizActive) {
+                    setTimeout(() => {
+                        document.getElementById('warningOverlay').style.display = 'none';
+                    }, 1000); // Show warning for 1 second after returning
+                }
+            });
+            
+            // Detect mouse leaving the quiz area
+            document.addEventListener('mouseleave', function() {
+                if (isQuizActive) {
+                    recordCheatingAttempt('mouse_left_page');
+                }
+            });
+            
+            // Detect if user tries to open new tabs/windows
+            window.addEventListener('beforeunload', function(e) {
+                if (isQuizActive) {
+                    recordCheatingAttempt('attempted_page_leave');
+                    e.preventDefault();
+                    return 'Are you sure you want to leave? Your progress may be lost.';
+                }
+            });
+            
+            // Prevent text selection
+            document.onselectstart = function() {
+                if (isQuizActive) {
+                    recordCheatingAttempt('text_selection');
+                    return false;
+                }
+            };
+            
+            // Disable drag
+            document.ondragstart = function() {
+                return false;
+            };
+            
+            console.log('✅ Anti-cheating initialized');
+        }
+        
+        // Enhanced record cheating attempts
+        function recordCheatingAttempt(type) {
+            cheatingAttempts++;
+            const timestamp = new Date().toISOString();
+            console.warn(`🚨 Cheating attempt #${cheatingAttempts}: ${type} at ${timestamp}`);
+            
+            // Visual warning for specific actions
+            const highRiskActions = ['screenshot_attempt', 'tab_switched', 'window_focus_lost', 'attempted_page_leave'];
+            if (highRiskActions.includes(type)) {
+                const overlay = document.getElementById('warningOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    setTimeout(() => {
+                        if (document.hasFocus()) {
+                            overlay.style.display = 'none';
+                        }
+                    }, 2000);
+                }
+            }
+            
+            if (username && email) {
+                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        cheatingType: type,
+                        timestamp: timestamp,
+                        currentQuestion: currentQuestionIndex + 1,
+                        totalAttempts: cheatingAttempts,
+                        userAgent: navigator.userAgent,
+                        screenResolution: `${window.screen.width}x${window.screen.height}`
+                    })
+                }).catch(err => console.error('Failed to log cheating attempt:', err));
+            }
+            
+            // Progressive warnings
+            if (cheatingAttempts === 3) {
+                alert('⚠️ WARNING: Suspicious activity detected!\nFurther violations will result in automatic submission.');
+            } else if (cheatingAttempts >= 5) {
+                alert('🚫 Too many suspicious activities detected.\nQuiz will be auto-submitted for review.');
+                submitQuiz();
+            }
+        }
 
         async function loadQuestions() {
             try {
@@ -1168,6 +1393,8 @@
         // Initialize quiz
         async function initializeQuiz() {
             try {
+
+                initializeAntiCheating();
                 const sessionValid = await fetchSessionInfo();
                 if (!sessionValid) return;
                 
@@ -1177,6 +1404,7 @@
                 currentUser = { username, email };
                 
                 initializeQuizTiming();
+                isQuizActive = true
                 
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('quizContainer').style.display = 'block';
@@ -1596,6 +1824,8 @@
                 return;
             }
 
+            isQuizActive = false; 
+
             if (!username || !email) {
                 alert("Error: User session data not found. Please log in.");
                 return;
@@ -1770,3 +2000,4 @@
     </script>
 </body>
 </html>
+
