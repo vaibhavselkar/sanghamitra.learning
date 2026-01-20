@@ -872,22 +872,7 @@
         }
        function recordCheatingAttempt(type) {
             cheatingAttempts++;
-            const timestamp = new Date().toISOString();
-            console.warn(`🚨 Cheating attempt #${cheatingAttempts}: ${type} at ${timestamp}`);
-            
-            // Visual warning for specific actions
-            const highRiskActions = ['screenshot_attempt', 'tab_switched', 'window_focus_lost', 'attempted_page_leave'];
-            if (highRiskActions.includes(type)) {
-                const overlay = document.getElementById('warningOverlay');
-                if (overlay) {
-                    overlay.style.display = 'flex';
-                    setTimeout(() => {
-                        if (document.hasFocus()) {
-                            overlay.style.display = 'none';
-                        }
-                    }, 2000);
-                }
-            }
+            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
             
             if (username && email) {
                 fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
@@ -898,21 +883,15 @@
                         username: username,
                         email: email,
                         cheatingType: type,
-                        timestamp: timestamp,
+                        timestamp: new Date(),
                         currentQuestion: currentQuestionIndex + 1,
-                        totalAttempts: cheatingAttempts,
-                        quizType: 'statistics_week2',
-                        userAgent: navigator.userAgent,
-                        screenResolution: `${window.screen.width}x${window.screen.height}`
+                        quizType: 'statistics_week2'
                     })
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
             
-            // Progressive warnings
-            if (cheatingAttempts === 3) {
-                alert('⚠️ WARNING: Suspicious activity detected!\nFurther violations will result in automatic submission.');
-            } else if (cheatingAttempts >= 5) {
-                alert('🚫 Too many suspicious activities detected.\nQuiz will be auto-submitted for review.');
+            if (cheatingAttempts >= 5) {
+                alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
                 submitQuiz();
             }
         }
@@ -1983,5 +1962,6 @@
     </script>
 </body>
 </html>
+
 
 
