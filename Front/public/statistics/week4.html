@@ -377,13 +377,13 @@
             color: white;
             font-weight: 600;
         }
-
+        
         .calc-btn.equals {
             background: #51cf66;
             color: white;
             font-weight: 600;
         }
-
+        
         .calc-btn.memory {
             background: #e3e8ff;
             color: #667eea;
@@ -546,7 +546,7 @@
         <div class="calculator-header">
             <h3>Scientific Calculator</h3>
             <button class="help-btn">Help</button>
-            <button class="minimize-btn">―</button>
+            <button class="minimize-btn" onclick="minimizeCalculator()">―</button>
             <button class="calculator-close" onclick="toggleCalculator()">×</button>
         </div>
         <div class="mode-selector">
@@ -1814,6 +1814,18 @@
             }
         }
 
+        // Minimize calculator
+        function minimizeCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            modal.style.display = 'none';
+            btn.style.display = 'flex';
+            calculatorOpen = false;
+            
+            console.log('Calculator minimized');
+        }
+
         function initializeDrag() {
             const modal = document.getElementById('calculatorModal');
             const header = modal.querySelector('.calculator-header');
@@ -1824,7 +1836,10 @@
         }
 
         function startDrag(e) {
-            if (e.target.closest('.calculator-close') || e.target.closest('.calc-btn')) {
+            if (e.target.closest('.calculator-close') || 
+                e.target.closest('.calc-btn') ||
+                e.target.closest('.minimize-btn') ||
+                e.target.closest('.help-btn')) {
                 return;
             }
             
@@ -1836,6 +1851,7 @@
             dragOffsetY = e.clientY - rect.top;
             
             modal.style.cursor = 'grabbing';
+            modal.style.opacity = '0.9'; // Visual feedback while dragging
             e.preventDefault();
         }
 
@@ -1864,6 +1880,7 @@
             isDragging = false;
             const modal = document.getElementById('calculatorModal');
             modal.style.cursor = 'move';
+            modal.style.opacity = '1'; // Restore full opacity
         }
 
         function addToDisplay(value) {
@@ -1973,6 +1990,7 @@
     </script>
 </body>
 </html>
+
 
 
 
