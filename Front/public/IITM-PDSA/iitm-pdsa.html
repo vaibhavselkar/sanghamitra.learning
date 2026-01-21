@@ -132,6 +132,13 @@
       flex-direction: column;
       align-items: flex-end;
       gap: 0.5rem;
+      width: 100%;
+    }
+    
+    .button-container .btn {
+      min-width: 200px;
+      width: 100%;
+      justify-content: space-between;
     }
 
    /* Add these styles to your existing CSS */
@@ -157,19 +164,78 @@
       transform: translateY(-1px);
     }
     
-    /* Update button container to handle three buttons */
-    .button-container {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 0.5rem;
-      width: 100%;
+    /* Outline button for interview - FIXED: More specific selector */
+    .btn.btn-outline-purple {
+      border: 1px solid #6f42c1 !important;
+      color: #6f42c1 !important;
+      background-color: transparent !important;
     }
     
-    .button-container .btn {
-      min-width: 200px;
-      width: 100%;
-      justify-content: space-between;
+    .btn.btn-outline-purple:hover {
+      background: linear-gradient(45deg, #6f42c1, #8a63d2) !important;
+      color: white !important;
+      border: none !important;
+      transform: translateY(-1px);
+    }
+
+    /* Authentication warning styles */
+    .auth-warning {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .auth-warning h3 {
+      color: #856404;
+      margin-bottom: 1rem;
+    }
+    
+    .auth-warning a {
+      color: #856404;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+    
+    .auth-warning a:hover {
+      color: #5a4b00;
+    }
+
+    /* Disabled button styles */
+    .btn-disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    /* FIXED: Specific styles for outline-primary and outline-success buttons */
+    .btn.btn-outline-primary {
+      border: 1px solid #007bff !important;
+      color: #007bff !important;
+      background-color: transparent !important;
+    }
+    
+    .btn.btn-outline-primary:hover {
+      background: linear-gradient(45deg, #007bff, #0056b3) !important;
+      color: white !important;
+      border: none !important;
+      transform: translateY(-1px);
+    }
+    
+    .btn.btn-outline-success {
+      border: 1px solid #28a745 !important;
+      color: #28a745 !important;
+      background-color: transparent !important;
+    }
+    
+    .btn.btn-outline-success:hover {
+      background: linear-gradient(45deg, #28a745, #20c997) !important;
+      color: white !important;
+      border: none !important;
+      transform: translateY(-1px);
     }
   </style>
 </head>
@@ -213,6 +279,13 @@
 
     <main id="main" class="main">
       <div class="container">
+        <!-- Authentication Warning (hidden by default) -->
+        <div id="authWarning" class="auth-warning d-none">
+          <h3><i class="bi bi-exclamation-triangle me-2"></i>Authentication Required</h3>
+          <p>You must be logged in to access quizzes, tests, and view your progress.</p>
+          <p>Please <a href="../login.html">login</a> to continue or <a href="../register.html">register</a> if you don't have an account.</p>
+        </div>
+
         <div class="course-list" id="courseList">
           <!-- Loading message -->
           <div id="loadingMessage" class="text-center py-4">
@@ -289,6 +362,7 @@
   <!-- Script to fetch and display course data from API -->
   <script>
     let currentUser = null;
+    let isAuthenticated = false;
 
     // Available topics configuration for PDSA
     const availableTopics = [
@@ -300,7 +374,7 @@
         icon: 'bi-list-ul',
         url: 'pdsa_quiz1.html',
         testUrl: 'test_1.html',
-        interviewUrl: 'interview_1.html' // Add this line
+        interviewUrl: 'interview_1.html'
       },
       {
         id: 'Sorting-Algorithms',
@@ -310,7 +384,7 @@
         icon: 'bi-diagram-3',
         url: 'pdsa_quiz2.html',
         testUrl: 'test_2.html',
-        interviewUrl: 'interview_2.html' // Add this line
+        interviewUrl: 'interview_2.html'
       },
       {
         id: 'Linear-Data-Structures',
@@ -320,7 +394,7 @@
         icon: 'bi-arrow-repeat',
         url: 'pdsa_quiz3.html',
         testUrl: 'test_3.html',
-        interviewUrl: 'interview_3.html' // Add this line
+        interviewUrl: 'interview_3.html'
       },
       {
         id: 'Introduction-to-Graphs',
@@ -330,7 +404,7 @@
         icon: 'bi-diagram-2',
         url: 'pdsa_quiz4.html',
         testUrl: 'test_4.html',
-        interviewUrl: 'interview_4.html' // Add this line
+        interviewUrl: 'interview_4.html'
       },
       {
         id: 'Graph-Algorithms',
@@ -340,7 +414,7 @@
         icon: 'bi-graph-up',
         url: 'pdsa_quiz5.html',
         testUrl: 'test_5.html',
-        interviewUrl: 'interview_5.html' // Add this line
+        interviewUrl: 'interview_5.html'
       },
       {
         id: 'Advanced-Data-Structures',
@@ -350,7 +424,7 @@
         icon: 'bi-database',
         url: 'pdsa_quiz6.html',
         testUrl: 'test_6.html',
-        interviewUrl: 'interview_6.html' // Add this line
+        interviewUrl: 'interview_6.html'
       },
      {
         id: 'Advanced-Algorithms',
@@ -360,7 +434,7 @@
         icon: 'bi-database',
         url: 'pdsa_quiz7.html',
         testUrl: 'test_7.html',
-        interviewUrl: 'interview_7.html' // Add this line
+        interviewUrl: 'interview_7.html'
       },
      {
         id: 'Divide-and-Conquer-Algorithms',
@@ -370,7 +444,7 @@
         icon: 'bi-database',
         url: 'pdsa_quiz8.html',
         testUrl: 'test_8.html',
-        interviewUrl: 'interview_8.html' // Add this line
+        interviewUrl: 'interview_8.html'
       },
      {
         id: 'Dynamic-programming',
@@ -380,7 +454,7 @@
         icon: 'bi-database',
         url: 'pdsa_quiz9.html',
         testUrl: 'test_9.html',
-        interviewUrl: 'interview_9.html' // Add this line
+        interviewUrl: 'interview_9.html'
       },
      {
         id: 'Linear-Programming',
@@ -390,7 +464,7 @@
         icon: 'bi-database',
         url: 'pdsa_quiz10.html',
         testUrl: 'test_10.html',
-        interviewUrl: 'interview_10.html' // Add this line
+        interviewUrl: 'interview_10.html'
       },
      {
         id: 'End-Term',
@@ -407,8 +481,17 @@
     async function initializeApp() {
       try {
         showLoading(true);
-        await fetchSessionInfo();
-        await loadCourseData();
+        
+        // First check authentication
+        await checkAuthentication();
+        
+        // Only load course data if user is authenticated
+        if (isAuthenticated && currentUser) {
+          await loadCourseData();
+        } else {
+          showAuthenticationWarning();
+          renderCoursesForUnauthenticated();
+        }
       } catch (error) {
         console.error('Initialization error:', error);
         showError('Failed to initialize the application. Please try refreshing the page.');
@@ -417,202 +500,211 @@
       }
     }
 
-    // Fetch user session information
-    async function fetchSessionInfo() {
+    // Check if user is authenticated
+    async function checkAuthentication() {
       try {
         const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
           credentials: 'include'
         });
 
-        if (!response.ok) {
-          throw new Error('Session expired or invalid');
+        if (response.ok) {
+          const data = await response.json();
+          currentUser = {
+            email: data.email,
+            username: data.username
+          };
+          isAuthenticated = true;
+          console.log('User authenticated:', currentUser);
+          return true;
+        } else {
+          console.warn('User not authenticated');
+          isAuthenticated = false;
+          currentUser = null;
+          return false;
         }
-        
-        const data = await response.json();
-        currentUser = {
-          email: data.email,
-          username: data.username
-        };
-        
-        console.log('Session info fetched:', currentUser);
       } catch (error) {
-        console.error('Session error:', error);
-        currentUser = { email: 'test@example.com', username: 'Test User' };
+        console.error('Authentication check failed:', error);
+        isAuthenticated = false;
+        currentUser = null;
+        return false;
       }
     }
 
-    // Load course data from API
+    // Show authentication warning
+    function showAuthenticationWarning() {
+      const authWarning = document.getElementById('authWarning');
+      if (authWarning) {
+        authWarning.classList.remove('d-none');
+      }
+    }
+
+    // Hide authentication warning
+    function hideAuthenticationWarning() {
+      const authWarning = document.getElementById('authWarning');
+      if (authWarning) {
+        authWarning.classList.add('d-none');
+      }
+    }
+
+    // Load course data from all three APIs
     async function loadCourseData() {
       try {
-        if (!currentUser) {
-          console.warn('No user session found');
-          renderCourses([]);
+        if (!currentUser || !isAuthenticated) {
+          console.warn('No authenticated user found');
+          renderCourses([], [], []);
           return;
         }
 
         console.log('Fetching scores for user:', currentUser.email);
 
-        // Fetch all submissions from the algorithm-submissions API
-        let allSubmissions = [];
+        // Fetch from all three APIs in parallel
+        const [codingSubmissions, pdsaSubmissions, interviewSubmissions] = await Promise.all([
+          fetchCodingSubmissions(),
+          fetchPDSASubmissions(),
+          fetchInterviewSubmissions()
+        ]);
 
-        try {
-          const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
-            credentials: 'include',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
+        console.log('Coding submissions for current user:', codingSubmissions);
+        console.log('PDSA submissions for current user:', pdsaSubmissions);
+        console.log('Interview submissions for current user:', interviewSubmissions);
 
-          if (response.ok) {
-            const submissions = await response.json();
-            console.log('API Response:', submissions);
-            
-            // Filter submissions for current user
-            if (Array.isArray(submissions)) {
-              allSubmissions = submissions.filter(submission => 
-                submission.email === currentUser.email || 
-                (!submission.email && currentUser.email === 'test@example.com')
-              );
-            }
-            
-            console.log('User submissions:', allSubmissions);
-          }
-        } catch (error) {
-          console.warn('Failed to fetch from API:', error);
-        }
-
-        renderCourses(allSubmissions);
+        renderCourses(codingSubmissions, pdsaSubmissions, interviewSubmissions);
         
       } catch (error) {
         console.error('Failed to load course data:', error);
         showError('Failed to load course data. Please try again.');
-        renderCourses([]);
+        renderCourses([], [], []);
       }
     }
 
-        // Find submissions for a specific topic WITH DEBUGGING
+    // Fetch coding submissions - MODIFIED to filter by current user
+    async function fetchCodingSubmissions() {
+      try {
+        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/coding-submissions`, {
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const submissions = data.submissions || [];
+          
+          // Filter submissions to only show current user's data
+          const userSubmissions = submissions.filter(submission => {
+            return submission.email === currentUser?.email || submission.username === currentUser?.username;
+          });
+          
+          console.log(`Filtered coding submissions: ${userSubmissions.length} out of ${submissions.length} total`);
+          return userSubmissions;
+        }
+        return [];
+      } catch (error) {
+        console.warn('Failed to fetch coding submissions:', error);
+        return [];
+      }
+    }
+
+    // Fetch PDSA (quiz) submissions - MODIFIED to filter by current user
+    async function fetchPDSASubmissions() {
+      try {
+        const response = await fetch("https://sanghamitra-learnworld.vercel.app/api/pdsa-submissions", {
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const submissions = data.submissions || [];
+          
+          // Filter submissions to only show current user's data
+          const userSubmissions = submissions.filter(submission => {
+            return submission.email === currentUser?.email || submission.username === currentUser?.username;
+          });
+          
+          console.log(`Filtered PDSA submissions: ${userSubmissions.length} out of ${submissions.length} total`);
+          return userSubmissions;
+        }
+        return [];
+      } catch (error) {
+        console.warn('Failed to fetch PDSA submissions:', error);
+        return [];
+      }
+    }
+
+    // Fetch interview submissions - MODIFIED to filter by current user
+    async function fetchInterviewSubmissions() {
+      try {
+        const response = await fetch("https://sanghamitra-learnworld.vercel.app/api/interview-submissions", {
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const submissions = data.submissions || [];
+          
+          // Filter submissions to only show current user's data
+          const userSubmissions = submissions.filter(submission => {
+            return submission.email === currentUser?.email || submission.username === currentUser?.username;
+          });
+          
+          console.log(`Filtered interview submissions: ${userSubmissions.length} out of ${submissions.length} total`);
+          return userSubmissions;
+        }
+        return [];
+      } catch (error) {
+        console.warn('Failed to fetch interview submissions:', error);
+        return [];
+      }
+    }
+
+    // Find submissions for a specific topic
     function findSubmissionsForTopic(submissions, topicName) {
       if (!submissions || !Array.isArray(submissions) || submissions.length === 0) {
-        console.log(`No submissions available to search for ${topicName}`);
         return [];
       }
 
-      console.log(`\n=== Searching for topic: "${topicName}" ===`);
-      
-      const filteredSubmissions = submissions.filter(submission => {
+      return submissions.filter(submission => {
         const submissionTopic = (submission.topic || '').trim().toLowerCase();
         const targetTopic = topicName.toLowerCase();
         
-        console.log(`Comparing: Target="${targetTopic}" vs Submission="${submissionTopic}"`);
-        
-        // SIMPLE EXACT OR CONTAINS MATCH
+        // Exact match
         if (submissionTopic === targetTopic) {
-          console.log(`✓ Exact match found for ${topicName}`);
           return true;
         }
         
-        // Check if submission topic contains the exact topic name
-        if (submissionTopic.includes(targetTopic)) {
-          console.log(`✓ Submission contains target: ${submissionTopic} contains ${targetTopic}`);
-          return true;
-        }
-        
-        // Check if target contains submission (for partial matches)
-        if (targetTopic.includes(submissionTopic)) {
-          console.log(`✓ Target contains submission: ${targetTopic} contains ${submissionTopic}`);
+        // Contains match
+        if (submissionTopic.includes(targetTopic) || targetTopic.includes(submissionTopic)) {
           return true;
         }
         
         return false;
       });
-      
-      console.log(`Found ${filteredSubmissions.length} submissions for ${topicName}`);
-      if (filteredSubmissions.length > 0) {
-        console.log('Submission topics found:', filteredSubmissions.map(s => s.topic));
-      }
-      
-      return filteredSubmissions;
-    }
-    // NEW: Check if a submission is a coding submission (Format 1)
-    function isCodingSubmission(submission) {
-      if (!submission.questions || !Array.isArray(submission.questions)) {
-        return false;
-      }
-      
-      // Check if any question has code property (even if empty string)
-      // OR if all questions have empty options array (Format 1)
-      const hasCodingQuestions = submission.questions.some(q => 
-        q.hasOwnProperty('code') || // Has code property
-        (q.options && Array.isArray(q.options) && q.options.length === 0) // Empty options array
-      );
-      
-      // Check if it's NOT an MCQ submission (Format 2)
-      const hasMCQQuestions = submission.questions.some(q => 
-        q.hasOwnProperty('type') && // Has type field
-        (q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical')
-      );
-      
-      return hasCodingQuestions && !hasMCQQuestions;
     }
 
-    // NEW: Check if a submission is an MCQ submission (Format 2)
-    function isMCQSubmission(submission) {
-      if (!submission.questions || !Array.isArray(submission.questions)) {
-        return false;
-      }
-      
-      // Check if any question has MCQ type or has options with content
-      return submission.questions.some(q => 
-        (q.hasOwnProperty('type') && 
-         (q.type === 'mcq-single' || q.type === 'mcq-multiple' || q.type === 'numerical')) ||
-        (q.options && Array.isArray(q.options) && q.options.length > 0 && 
-         q.options.some(opt => typeof opt === 'string' && opt.trim().length > 0))
-      );
-    }
-
-    // Get the MOST RECENT submission of each type for a topic
-    function getMostRecentSubmissionsForTopic(submissions, topicName) {
+    // Get the most recent submission for a topic
+    function getMostRecentSubmission(submissions, topicName) {
       const topicSubmissions = findSubmissionsForTopic(submissions, topicName);
       
       if (topicSubmissions.length === 0) {
-        return { coding: null, mcq: null };
+        return null;
       }
 
-      let mostRecentCoding = null;
-      let mostRecentMCQ = null;
-
-      topicSubmissions.forEach(submission => {
-        const submissionData = {
-          percentage: submission.percentage || 0,
-          score: submission.score || 0,
-          maxScore: submission.maxScore || 100,
-          timestamp: submission.timestamp,
-          questions: submission.questions || []
-        };
-
-        // Check submission type
-        if (isCodingSubmission(submission)) {
-          console.log(`Found coding submission for ${topicName}:`, submissionData.percentage);
-          if (!mostRecentCoding || 
-              new Date(submissionData.timestamp) > new Date(mostRecentCoding.timestamp)) {
-            mostRecentCoding = submissionData;
-          }
-        }
-        
-        if (isMCQSubmission(submission)) {
-          console.log(`Found MCQ submission for ${topicName}:`, submissionData.percentage);
-          if (!mostRecentMCQ || 
-              new Date(submissionData.timestamp) > new Date(mostRecentMCQ.timestamp)) {
-            mostRecentMCQ = submissionData;
-          }
-        }
+      // Sort by timestamp (newest first) and take the first one
+      topicSubmissions.sort((a, b) => {
+        const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+        const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+        return dateB - dateA;
       });
 
-      return { coding: mostRecentCoding, mcq: mostRecentMCQ };
+      return {
+        percentage: topicSubmissions[0].percentage || 0,
+        score: topicSubmissions[0].score || 0,
+        maxScore: topicSubmissions[0].maxScore || 100,
+        timestamp: topicSubmissions[0].timestamp,
+        questions: topicSubmissions[0].questions || []
+      };
     }
 
     // Render courses based on available topics and assessment data
-    function renderCourses(submissions) {
+    function renderCourses(codingSubmissions, pdsaSubmissions, interviewSubmissions) {
       const courseList = document.getElementById('courseList');
       
       if (!courseList) {
@@ -623,10 +715,12 @@
       courseList.innerHTML = '';
 
       availableTopics.forEach(topic => {
-        // Get most recent submissions for both types
-        const { coding, mcq } = getMostRecentSubmissionsForTopic(submissions, topic.name);
-        console.log(`Topic: ${topic.name}`, { coding, mcq });
-        const courseHTML = createCourseHTML(topic, coding, mcq);
+        // Get most recent submissions for each type
+        const coding = getMostRecentSubmission(codingSubmissions, topic.name);
+        const mcq = getMostRecentSubmission(pdsaSubmissions, topic.name);
+        const interview = getMostRecentSubmission(interviewSubmissions, topic.name);
+        
+        const courseHTML = createCourseHTML(topic, coding, mcq, interview);
         courseList.insertAdjacentHTML('beforeend', courseHTML);
       });
 
@@ -638,6 +732,23 @@
           </div>
         `;
       }
+    }
+
+    // Render courses for unauthenticated users (no data, disabled buttons)
+    function renderCoursesForUnauthenticated() {
+      const courseList = document.getElementById('courseList');
+      
+      if (!courseList) {
+        console.error('Course list element not found');
+        return;
+      }
+
+      courseList.innerHTML = '';
+
+      availableTopics.forEach(topic => {
+        const courseHTML = createCourseHTMLForUnauthenticated(topic);
+        courseList.insertAdjacentHTML('beforeend', courseHTML);
+      });
     }
 
     function createCourseHTML(topic, coding, mcq, interview) {
@@ -687,14 +798,20 @@
        }
        
        // Coding assessment button
-       const codingButton = `<a href="${topic.url}" class="btn ${hasCoding ? 'btn-primary' : 'btn-outline-primary'} btn-sm" style="min-width: 200px;">
+       const codingButton = `<a href="${isAuthenticated ? topic.url : 'javascript:void(0)'}" 
+         class="btn ${hasCoding ? 'btn-primary' : 'btn-outline-primary'} btn-sm ${!isAuthenticated ? 'btn-disabled' : ''}" 
+         style="min-width: 200px;"
+         ${!isAuthenticated ? 'onclick="showAuthMessage()"' : ''}>
          <span>${hasCoding ? `Coding: ${codingPercentage}%` : 'Start Coding'}</span>
          <i class="bi ${hasCoding ? 'bi-code-square ms-2' : 'bi-arrow-right ms-2'}"></i>
        </a>`;
        
        // MCQ/Quiz-Test button
        const mcqButton = topic.testUrl 
-         ? `<a href="${topic.testUrl}" class="btn ${hasMCQ ? 'test-paper-btn' : 'btn-outline-success'} btn-sm" style="min-width: 200px;">
+         ? `<a href="${isAuthenticated ? topic.testUrl : 'javascript:void(0)'}" 
+            class="btn ${hasMCQ ? 'test-paper-btn' : 'btn-outline-success'} btn-sm ${!isAuthenticated ? 'btn-disabled' : ''}" 
+            style="min-width: 200px;"
+            ${!isAuthenticated ? 'onclick="showAuthMessage()"' : ''}>
              <span>${hasMCQ ? `Quiz-Test: ${mcqPercentage}%` : 'Take Quiz-Test'}</span>
              <i class="bi ${hasMCQ ? 'bi-card-checklist ms-2' : 'bi-file-text ms-2'}"></i>
            </a>`
@@ -702,7 +819,10 @@
        
        // Interview button
        const interviewButton = topic.interviewUrl 
-         ? `<a href="${topic.interviewUrl}" class="btn ${hasInterview ? 'interview-btn' : 'btn-outline-purple'} btn-sm" style="min-width: 200px; ${!hasInterview ? 'border-color: #6f42c1; color: #6f42c1;' : ''}">
+         ? `<a href="${isAuthenticated ? topic.interviewUrl : 'javascript:void(0)'}" 
+            class="btn ${hasInterview ? 'interview-btn' : 'btn-outline-purple'} btn-sm ${!isAuthenticated ? 'btn-disabled' : ''}" 
+            style="min-width: 200px;"
+            ${!isAuthenticated ? 'onclick="showAuthMessage()"' : ''}>
              <span>${hasInterview ? `Interview: ${interviewPercentage}%` : 'Take Interview'}</span>
              <i class="bi ${hasInterview ? 'bi-mic-fill ms-2' : 'bi-mic ms-2'}"></i>
            </a>`
@@ -720,13 +840,13 @@
        if (interview && interview.timestamp) timestamps.push(new Date(interview.timestamp));
        
        if (timestamps.length > 0) {
-         lastAttempted = new Date(Math.max(...timestamps)).toISOString();
+         lastAttempted = new Date(Math.max(...timestamps));
        }
        
        let dateDisplay = '';
        if (lastAttempted) {
          try {
-           dateDisplay = new Date(lastAttempted).toLocaleDateString('en-US', { 
+           dateDisplay = lastAttempted.toLocaleDateString('en-US', { 
              year: 'numeric', 
              month: 'short', 
              day: 'numeric'
@@ -759,7 +879,7 @@
                    ${dateDisplay ? `<small class="text-muted d-block mt-1">Last: ${dateDisplay}</small>` : ''}
                  </div>
                  <div class="col-lg-2 col-md-2 text-center">
-                   <span class="percentage-badge" style="${badgeStyle}">${overallPercentage}%</span>
+                   <span class="percentage-badge" style="${badgeStyle}">${isAuthenticated ? overallPercentage + '%' : 'N/A'}</span>
                  </div>
                  <div class="col-lg-3 col-md-3">
                    <div class="button-container">
@@ -774,6 +894,66 @@
          </div>
        `;
      }
+
+    // Create course HTML for unauthenticated users
+    function createCourseHTMLForUnauthenticated(topic) {
+      return `
+        <div class="course-item mb-3" data-topic="${topic.id}">
+          <div class="card course-card h-100 border-0 shadow-sm hover-shadow">
+            <div class="card-body p-3">
+              <div class="row align-items-center">
+                <div class="col-lg-1 col-md-2 text-center">
+                  <div class="icon-box bg-secondary text-white rounded-circle p-2" style="width: 40px; height: 40px;">
+                    <i class="bi ${topic.icon} fs-5"></i>
+                  </div>
+                </div>
+                <div class="col-lg-6 col-md-5">
+                  <h4 class="mb-1 fs-5">${topic.displayName}</h4>
+                  <p class="text-muted mb-2 fs-6">${topic.description}</p>
+                  <div class="progress" style="height: 8px; background-color: #e9ecef;">
+                    <div class="progress-bar bg-secondary" role="progressbar" 
+                         style="width: 0%"
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                  </div>
+                  <small class="text-muted d-block mt-1">Login to view progress</small>
+                </div>
+                <div class="col-lg-2 col-md-2 text-center">
+                  <span class="percentage-badge" style="background: linear-gradient(45deg, #6c757d, #495057);">N/A</span>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                  <div class="button-container">
+                    <button class="btn btn-outline-secondary btn-sm btn-disabled" style="min-width: 200px;" onclick="showAuthMessage()">
+                      <span>Login Required</span>
+                      <i class="bi bi-lock ms-2"></i>
+                    </button>
+                    ${topic.testUrl ? `
+                      <button class="btn btn-outline-secondary btn-sm btn-disabled" style="min-width: 200px;" onclick="showAuthMessage()">
+                        <span>Login Required</span>
+                        <i class="bi bi-lock ms-2"></i>
+                      </button>
+                    ` : ''}
+                    ${topic.interviewUrl ? `
+                      <button class="btn btn-outline-secondary btn-sm btn-disabled" style="min-width: 200px;" onclick="showAuthMessage()">
+                        <span>Login Required</span>
+                        <i class="bi bi-lock ms-2"></i>
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Show authentication message
+    function showAuthMessage() {
+      alert('Please login to access quizzes and tests. Click OK to continue to login page.');
+      window.location.href = '../login.html';
+    }
+
     // Show/hide loading indicator
     function showLoading(show) {
       const loadingMessage = document.getElementById('loadingMessage');
@@ -813,21 +993,6 @@
       initializeApp();
     }
 
-</script>
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
