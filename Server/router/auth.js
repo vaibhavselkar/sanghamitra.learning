@@ -46,9 +46,11 @@ const IITM_Stats_2_Question = require('../model/iitm_stats2_questions')
 const IITM_Stats_2_Score = require('../model/iitm_stats2_scores')
 
 const Question = require('../model/pdsa_Questions');
-const PDSA_Submission = require('../model/pdsa_Submission');
+const pdsaSubmission = require('../model/pdsa_Submission');
 const CodingQuestion = require('../model/coding_Questions'); 
-const CodingSubmission = require('../model/coding_Submission'); 
+const CodingSubmission = require('../model/coding_submission'); 
+const InterviewSubmission = require('../model/interview_Submission'); 
+
 
 
 require('../db/conn');
@@ -989,8 +991,223 @@ router.get('/algorithm-submissions', async (req, res) => {
       }
   });
 
+
+
+
 //This are PDSA routes:
 
+
+// GET coding submissions
+router.get('/coding-submissions', async (req, res) => {
+  try {
+    const { username, email, topic, date } = req.query;
+
+    // Build dynamic filter object
+    const filter = {};
+    if (username) filter.username = username;
+    if (email) filter.email = email;
+    if (topic) filter.topic = topic;
+    
+    // Date filtering
+    if (date) {
+      const startDate = new Date(date);
+      const endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 1);
+      
+      filter.timestamp = {
+        $gte: startDate,
+        $lt: endDate
+      };
+    }
+
+    // Fetch based on filter
+    const submissions = await CodingSubmission.find(filter)
+      .sort({ timestamp: -1 });
+
+    // Handle empty results
+    if (!submissions.length) {
+      return res.status(404).json({
+        message: 'No coding submissions found for provided parameters.',
+        filterUsed: filter
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: submissions.length,
+      submissions
+    });
+  } catch (error) {
+    console.error('Error fetching coding submissions:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server Error', 
+      error: error.message 
+    });
+  }
+});
+
+// GET PDSA submissions - FIXED model name
+router.get('/pdsa-submissions', async (req, res) => { // Changed to plural for consistency
+  try {
+    const { username, email, topic, date } = req.query;
+
+    // Build dynamic filter object
+    const filter = {};
+    if (username) filter.username = username;
+    if (email) filter.email = email;
+    if (topic) filter.topic = topic;
+    
+    // Date filtering
+    if (date) {
+      const startDate = new Date(date);
+      const endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 1);
+      
+      filter.timestamp = {
+        $gte: startDate,
+        $lt: endDate
+      };
+    }
+
+    // Use correct model name: pdsaSubmission (not PDSA_Submission)
+    const submissions = await pdsaSubmission.find(filter)
+      .sort({ timestamp: -1 });
+
+    // Handle empty results
+    if (!submissions.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No PDSA submissions found for provided parameters.',
+        filterUsed: filter
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: submissions.length,
+      submissions
+    });
+  } catch (error) {
+    console.error('Error fetching PDSA submissions:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server Error', 
+      error: error.message 
+    });
+  }
+});
+
+// GET interview submissions - ADDED date filter
+router.get('/interview-submissions', async (req, res) => { // Changed to plural
+    try {
+        const { username, email, topic, type, date } = req.query; // Added date
+        
+        const filter = {};
+        if (username) filter.username = username;
+        if (email) filter.email = email;
+        if (topic) filter.topic = topic;
+        if (type) filter.type = type;
+        
+        // Date filtering (same as other routes)
+        if (date) {
+          const startDate = new Date(date);
+          const endDate = new Date(date);
+          endDate.setDate(endDate.getDate() + 1);
+          
+          filter.timestamp = {
+            $gte: startDate,
+            $lt: endDate
+          };
+        }
+        
+        const submissions = await InterviewSubmission.find(filter)
+            .sort({ timestamp: -1 })
+            .limit(10)
+            .select('-__v -questions.testResults');
+        
+        if (!submissions.length) {
+          return res.status(404).json({
+            success: false,
+            message: 'No interview submissions found for provided parameters.',
+            filterUsed: filter
+          });
+        }
+        
+        res.json({
+            success: true,
+            count: submissions.length,
+            submissions
+        });
+    } catch (error) {
+        console.error('Error fetching interview submissions:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch interview submissions',
+            error: error.message
+        });
+    }
+});
+
+// routes/interview.js
+router.post('/interview-submissions', async (req, res) => {
+    try {
+        const submissionData = req.body;
+        
+        console.log('📝 Received interview submission:', {
+            username: submissionData.username,
+            topic: submissionData.topic,
+            type: submissionData.type,
+            score: submissionData.score
+        });
+
+        // Validate required fields
+        if (!submissionData.username || !submissionData.email || !submissionData.topic) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields'
+            });
+        }
+
+        // Calculate breakdown scores
+        if (submissionData.questions) {
+            const codingQuestions = submissionData.questions.filter(q => q.type === 'coding');
+            const mcqQuestions = submissionData.questions.filter(q => q.type !== 'coding');
+            
+            submissionData.codingScore = codingQuestions.reduce((sum, q) => sum + (q.score || 0), 0);
+            submissionData.codingMaxScore = codingQuestions.reduce((sum, q) => sum + (q.maxScore || 0), 0);
+            submissionData.mcqScore = mcqQuestions.reduce((sum, q) => sum + (q.score || 0), 0);
+            submissionData.mcqMaxScore = mcqQuestions.reduce((sum, q) => sum + (q.maxScore || 0), 0);
+        }
+
+        const submission = new InterviewSubmission(submissionData);
+        await submission.save();
+        
+        console.log('✅ Interview submission saved:', submission._id);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Interview results saved',
+            submissionId: submission._id,
+            breakdown: {
+                coding: `${submission.codingScore}/${submission.codingMaxScore}`,
+                mcq: `${submission.mcqScore}/${submission.mcqMaxScore}`,
+                overall: `${submission.percentage}%`
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error saving interview submission:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to save interview results',
+            error: error.message
+        });
+    }
+});
+
+
+//fetching questions with type interview from collection. 
 router.get('/interview', async (req, res) => {
     try {
         const { topic, type, codingCount = 3, pdsaCount = 2 } = req.query;
@@ -2991,6 +3208,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
