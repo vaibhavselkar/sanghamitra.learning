@@ -7,9 +7,9 @@
     // ===== CONFIGURATION =====
     const CONFIG = {
         MAX_CHEATING_ATTEMPTS: 5,
-        INACTIVITY_TIMEOUT: 120000, // 2 minutes in milliseconds
+        // INACTIVITY_TIMEOUT: 120000, // 2 minutes in milliseconds - REMOVED
         DEVMONITOR_INTERVAL: 500,   // Check for dev tools every 500ms
-        INACTIVITY_CHECK_INTERVAL: 30000, // Check inactivity every 30 seconds
+        // INACTIVITY_CHECK_INTERVAL: 30000, // Check inactivity every 30 seconds - REMOVED
         WARNING_DISPLAY_TIME: 3000  // Warning display time in ms
     };
 
@@ -19,10 +19,10 @@
     let isQuizActive = false;
     let devToolsWarned = false;
     let tabSwitchCount = 0;
-    let lastActivityTime = Date.now();
+    // let lastActivityTime = Date.now(); // REMOVED - not needed without inactivity detection
     let devtoolsOpen = false;
     let securityInterval = null;
-    let inactivityInterval = null;
+    // let inactivityInterval = null; // REMOVED - not needed without inactivity detection
     let currentUser = { username: 'Guest', email: 'guest@example.com' };
     
     // ===== DOM ELEMENTS =====
@@ -48,7 +48,7 @@
     cheatingAttempts = 0;
     tabSwitchCount = 0;
     devToolsWarned = false;
-    lastActivityTime = Date.now();
+    // lastActivityTime = Date.now(); // REMOVED
     devtoolsOpen = false;
     
     // Set user if provided
@@ -72,7 +72,7 @@
     
     // Set quiz as active
     isQuizActive = true;
-    lastActivityTime = Date.now();
+    // lastActivityTime = Date.now(); // REMOVED
     
     // Update UI
     if (attemptCountElement) {
@@ -259,11 +259,13 @@
         // Disable text selection
         document.addEventListener('selectstart', handleTextSelection);
         
-        // Log activity for inactivity detection
+        // Log activity for inactivity detection - REMOVED
+        /*
         document.addEventListener('mousemove', updateActivityTime);
         document.addEventListener('keydown', updateActivityTime);
         document.addEventListener('click', updateActivityTime);
         document.addEventListener('scroll', updateActivityTime);
+        */
         
         // Prevent drag and drop
         document.addEventListener('dragstart', preventDefault);
@@ -280,8 +282,8 @@
         // Monitor for developer tools
         securityInterval = setInterval(monitorDeveloperTools, CONFIG.DEVMONITOR_INTERVAL);
         
-        // Check for inactivity
-        inactivityInterval = setInterval(checkInactivity, CONFIG.INACTIVITY_CHECK_INTERVAL);
+        // Check for inactivity - REMOVED
+        // inactivityInterval = setInterval(checkInactivity, CONFIG.INACTIVITY_CHECK_INTERVAL);
     }
     
     // ===== EVENT HANDLERS =====
@@ -360,7 +362,7 @@
         document.body.classList.remove('blurred');
         warningOverlay.style.display = 'none';
         updateSecurityIndicator();
-        updateActivityTime();
+        // updateActivityTime(); // REMOVED - not needed
     }
     
     function handlePrintAttempt(e) {
@@ -427,6 +429,8 @@
         }
     }
     
+    // INACTIVITY CHECK FUNCTION - REMOVED
+    /*
     function checkInactivity() {
         if (!isQuizActive) return;
         
@@ -440,6 +444,7 @@
     function updateActivityTime() {
         lastActivityTime = Date.now();
     }
+    */
     
     // ===== CORE FUNCTIONS =====
     
@@ -490,7 +495,6 @@
         // Try to log to multiple endpoints for reliability
         const endpoints = [
             'https://sanghamitra-learnworld.vercel.app/api/log-cheating',
-
         ];
         
         endpoints.forEach(endpoint => {
@@ -566,7 +570,7 @@
         
         // Clear intervals
         if (securityInterval) clearInterval(securityInterval);
-        if (inactivityInterval) clearInterval(inactivityInterval);
+        // if (inactivityInterval) clearInterval(inactivityInterval); // REMOVED
         
         // Remove event listeners
         document.removeEventListener('contextmenu', handleContextMenu);
@@ -598,8 +602,8 @@
             cheatingAttempts,
             tabSwitchCount,
             isQuizActive,
-            lastActivity: new Date(lastActivityTime),
-            inactiveTime: Date.now() - lastActivityTime
+            // lastActivity: new Date(lastActivityTime), // REMOVED
+            // inactiveTime: Date.now() - lastActivityTime // REMOVED
         };
     }
     
