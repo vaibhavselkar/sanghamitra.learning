@@ -1413,7 +1413,7 @@ router.post('/pdsa-submission', async (req, res) => {
         });
 
         // Create submission document
-        const submission = new PDSA_Submission(submissionData);
+        const submission = new pdsaSubmission(submissionData);
         
         // Save to database
         await submission.save();
@@ -3208,6 +3208,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
