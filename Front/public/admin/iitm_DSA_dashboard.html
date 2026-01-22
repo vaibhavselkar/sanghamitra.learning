@@ -528,12 +528,46 @@
         });
 
         console.log('Total submissions loaded:', allData.length);
+        
+        // Remove duplicate submissions
+        allData = removeDuplicates(allData);
+        console.log('Unique submissions after deduplication:', allData.length);
+        
         filteredData = [...allData];
 
       } catch (error) {
         console.error('Error loading data:', error);
         throw error;
       }
+    }
+
+    // NEW FUNCTION: Remove duplicate submissions
+    function removeDuplicates(submissions) {
+      const uniqueMap = new Map();
+      const uniqueSubmissions = [];
+      
+      submissions.forEach(submission => {
+        if (!submission.timestamp) {
+          uniqueSubmissions.push(submission);
+          return;
+        }
+        
+        // Create a unique key based on username, topic, date, time, and quiz type
+        const date = new Date(submission.timestamp);
+        const dateKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+        const timeKey = `${date.getHours()}:${date.getMinutes()}`;
+        
+        const uniqueKey = `${submission.username || ''}_${submission.topic || ''}_${dateKey}_${timeKey}_${submission.quizType || ''}`.toLowerCase();
+        
+        if (!uniqueMap.has(uniqueKey)) {
+          uniqueMap.set(uniqueKey, true);
+          uniqueSubmissions.push(submission);
+        } else {
+          console.log(`Removed duplicate submission: ${uniqueKey}`);
+        }
+      });
+      
+      return uniqueSubmissions;
     }
 
     // Calculate statistics
@@ -1016,7 +1050,7 @@
 
     // Populate filter options
     function populateFilters() {
-      const topics = [...new Set(allData.map(item => item.topic).filter(Boolean))];
+      const topics = [...new Set(filteredData.map(item => item.topic).filter(Boolean))];
       const topicFilter = document.getElementById('topicFilter');
       
       topicFilter.innerHTML = '<option value="">All Topics</option>';
