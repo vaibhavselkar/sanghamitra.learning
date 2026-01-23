@@ -12,7 +12,7 @@ const statisticsQuestionSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['multiple_choice', 'multiple_select', 'numeric', 'text_input']
+    enum: ['multiple_choice', 'multiple_select', 'numeric', 'text_input', 'numeric_input']
   },
   options: [String], // For multiple choice questions
   correct_answer: {
@@ -56,5 +56,6 @@ statisticsQuestionSchema.pre('save', function(next) {
 
 // Create and export the model with the specific collection name
 const Statistics_questions = mongoose.model('Statistics_questions', statisticsQuestionSchema, 'iitm_stats_questions');
+
 
 module.exports = Statistics_questions;
