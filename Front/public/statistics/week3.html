@@ -1025,114 +1025,126 @@
         }
 
        function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            console.log('Rendering question type:', question.type);
-            
-            container.innerHTML = '';
-        
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
-        
-            let optionsHtml = '';
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            // Check if question has options
-            const hasOptions = question.options && Array.isArray(question.options) && question.options.length > 0;
-            
-            if ((question.type === 'multiple_choice' || question.type === 'mcq') && hasOptions) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (question.type === 'multiple_select' && hasOptions) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
-                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input', 'text'].includes(question.type)) {
-                let specificPlaceholder = "Enter your answer";
-                if (question.type === 'coordinate_input') {
-                    specificPlaceholder = "Enter coordinates as (x, y)";
-                } else if (question.type === 'equation_input') {
-                    specificPlaceholder = "Enter equation (e.g., y = mx + b)";
-                } else if (question.type === 'interval_input') {
-                    specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
-                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                    specificPlaceholder = "Enter a number";
-                }
-                
-                optionsHtml = `
-                    <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${specificPlaceholder}" 
-                           value="${savedAnswer || ''}"
-                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false">
-                    ${question.format_hint ? `<div class="format-help">${question.format_hint}</div>` : ''}
-                `;
-            } else if ((question.type === 'multiple_choice' || question.type === 'mcq' || question.type === 'multiple_select') && !hasOptions) {
-                // Handle MC questions without options in the data
-                optionsHtml = `
-                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                        <strong>Error:</strong> This question has no options configured. Please contact administrator.
-                    </div>
-                `;
-            } else {
-                console.warn('Unknown question type or missing options:', question.type, question);
-                optionsHtml = `
-                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                        <strong>Error:</strong> Unable to display question options. Please contact administrator.
-                        <div style="font-size: 12px; margin-top: 5px;">Question type: ${question.type || 'unknown'}</div>
-                    </div>
-                `;
-            }
-        
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107', 
-                'hard': '#dc3545'
-            };
-            
-            const difficulty = question.difficulty || 'medium';
-            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-        
-            let processedQuestionText = question.question_text || 'Question text not available';
-        
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${difficultyText}
-                        </span>
-                        <span style="color: #666; font-size: 13px;">
-                            (${question.points || 1} point${(question.points || 1) > 1 ? 's' : ''})
-                        </span>
-                    </div>
-                </div>
-                <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
-                <div class="options">${optionsHtml}</div>
-            `;
-        
-            container.appendChild(questionDiv);
-            
-            restoreAnswer();
-            updateAnswerStatus();
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
+    
+    console.log('Rendering question type:', question.type, 'Question data:', question);
+    
+    container.innerHTML = '';
+
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
+
+    let optionsHtml = '';
+    const savedAnswer = userAnswers[currentQuestionIndex];
+    
+    // Define numeric question types
+    const numericQuestionTypes = ['numeric', 'numeric_input', 'interval_input', 'coordinate_input', 'equation_input', 'text_input', 'text'];
+    
+    // Check if question has options
+    const hasOptions = question.options && Array.isArray(question.options) && question.options.length > 0;
+    
+    // First check if it's a numeric input type
+    if (numericQuestionTypes.includes(question.type)) {
+        let specificPlaceholder = "Enter your answer";
+        if (question.type === 'coordinate_input') {
+            specificPlaceholder = "Enter coordinates as (x, y)";
+        } else if (question.type === 'equation_input') {
+            specificPlaceholder = "Enter equation (e.g., y = mx + b)";
+        } else if (question.type === 'interval_input') {
+            specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
+        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+            specificPlaceholder = "Enter a number";
         }
+        
+        optionsHtml = `
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${specificPlaceholder}" 
+                   value="${savedAnswer || ''}"
+                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false">
+            ${question.format_hint ? `<div class="format-help">${question.format_hint}</div>` : ''}
+        `;
+    }
+    // Then check if it's multiple choice WITH options
+    else if ((question.type === 'multiple_choice' || question.type === 'mcq') && hasOptions) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    }
+    // Then check if it's multiple select WITH options
+    else if (question.type === 'multiple_select' && hasOptions) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    }
+    // Handle MC questions without options (shouldn't happen but just in case)
+    else if ((question.type === 'multiple_choice' || question.type === 'mcq' || question.type === 'multiple_select') && !hasOptions) {
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> This multiple choice question has no options configured. Please contact administrator.
+            </div>
+        `;
+    }
+    // Fallback for unknown question types
+    else {
+        console.warn('Unknown question type or missing options:', question.type, question);
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options. Please contact administrator.
+                <div style="font-size: 12px; margin-top: 5px;">Question type: ${question.type || 'unknown'}</div>
+                <div style="font-size: 11px; margin-top: 5px;">Has options: ${hasOptions}</div>
+            </div>
+        `;
+    }
+
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107', 
+        'hard': '#dc3545'
+    };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+    let processedQuestionText = question.question_text || 'Question text not available';
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
+                </span>
+                <span style="color: #666; font-size: 13px;">
+                    (${question.points || 1} point${(question.points || 1) > 1 ? 's' : ''})
+                </span>
+            </div>
+        </div>
+        <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
+        <div class="options">${optionsHtml}</div>
+    `;
+
+    container.appendChild(questionDiv);
+    
+    restoreAnswer();
+    updateAnswerStatus();
+}
 
         function restoreAnswer() {
             const question = questions[currentQuestionIndex];
@@ -1995,6 +2007,7 @@
     </script>
 </body>
 </html>
+
 
 
 
