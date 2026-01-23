@@ -12,7 +12,7 @@ const statisticsQuestionSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['multiple_choice', 'multiple_select', 'numeric', 'text_input', 'numeric_input']
+    enum: ['multiple_choice', 'multiple_select', 'numeric', 'text_input', 'numeric_input', 'mcq']
   },
   options: [String], // For multiple choice questions
   correct_answer: {
@@ -59,3 +59,4 @@ const Statistics_questions = mongoose.model('Statistics_questions', statisticsQu
 
 
 module.exports = Statistics_questions;
+
