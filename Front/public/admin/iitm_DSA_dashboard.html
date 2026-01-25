@@ -253,22 +253,28 @@
       padding-right: 10px;
     }
 
-    /* Custom scrollbar for MCQ container */
-    .mcq-questions-container::-webkit-scrollbar {
+    /* Custom scrollbar for all containers */
+    .questions-scrollable-container {
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .questions-scrollable-container::-webkit-scrollbar {
       width: 8px;
     }
 
-    .mcq-questions-container::-webkit-scrollbar-track {
+    .questions-scrollable-container::-webkit-scrollbar-track {
       background: #f1f1f1;
       border-radius: 4px;
     }
 
-    .mcq-questions-container::-webkit-scrollbar-thumb {
+    .questions-scrollable-container::-webkit-scrollbar-thumb {
       background: #888;
       border-radius: 4px;
     }
 
-    .mcq-questions-container::-webkit-scrollbar-thumb:hover {
+    .questions-scrollable-container::-webkit-scrollbar-thumb:hover {
       background: #555;
     }
 
@@ -281,6 +287,31 @@
     .quiz-type-programming { background: linear-gradient(135deg, #4a6fa5, #2c5282); color: white; }
     .quiz-type-quiz { background: linear-gradient(135deg, #38a169, #2f855a); color: white; }
     .quiz-type-interview { background: linear-gradient(135deg, #805ad5, #6b46c1); color: white; }
+
+    /* Interview specific styles */
+    .interview-score-breakdown {
+      background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #805ad5;
+    }
+
+    .interview-question-type {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #28a745;
+    }
+
+    .interview-question-type.coding {
+      border-left-color: #4a6fa5;
+    }
+
+    .interview-question-type.mcq {
+      border-left-color: #38a169;
+    }
   </style>
 </head>
 
@@ -541,7 +572,7 @@
       }
     }
 
-    // NEW FUNCTION: Remove duplicate submissions
+    // Remove duplicate submissions
     function removeDuplicates(submissions) {
       const uniqueMap = new Map();
       const uniqueSubmissions = [];
@@ -677,8 +708,19 @@
         <div class="alert alert-info mb-3">
           <i class="bi bi-info-circle me-2"></i>
           <strong>Topic: ${item.topic}</strong> - Submitted on ${formatDateTime(item.timestamp).full}
+          ${item.duration ? ` - Duration: ${item.duration} minutes` : ''}
         </div>
       `;
+
+      // Add feedback if available (for interview submissions)
+      if (item.feedback) {
+        detailHtml += `
+          <div class="alert alert-warning mb-3">
+            <i class="bi bi-chat-left-text me-2"></i>
+            <strong>Interviewer Feedback:</strong> ${escapeHtml(item.feedback)}
+          </div>
+        `;
+      }
 
       // Handle different quiz types
       switch(item.quizType) {
@@ -689,7 +731,7 @@
           detailHtml += generateQuizTestDetail(questions, submissionIndex);
           break;
         case 'Interview':
-          detailHtml += generateInterviewDetail(questions, submissionIndex);
+          detailHtml += generateInterviewDetail(questions, submissionIndex, item);
           break;
         default:
           detailHtml += '<p class="text-muted">Unknown quiz type</p>';
@@ -698,9 +740,11 @@
       return detailHtml;
     }
 
-    // Generate programming questions detail
+    // Generate programming questions detail - FIXED SCROLLABLE ISSUE
     function generateProgrammingDetail(questions, submissionIndex) {
       let html = `<h5 class="mb-3"><i class="bi bi-code-slash me-2"></i>Coding Questions (${questions.length})</h5>`;
+      
+      html += `<div class="questions-scrollable-container">`;
       
       questions.forEach((question, qIndex) => {
         const testsPassed = question.testResults ? question.testResults.filter(t => t.passed).length : 0;
@@ -723,6 +767,7 @@
                   <span class="badge bg-light text-dark ms-2">
                     ${question.score || 0}/${question.maxScore || 0} Points
                   </span>
+                  ${question.timeTaken ? `<span class="badge bg-info ms-2">${question.timeTaken}s</span>` : ''}
                 </div>
               </div>
             </div>
@@ -751,20 +796,17 @@
             ` : '<p class="text-muted mt-3">No code submitted</p>'}
             
             ${question.testResults && question.testResults.length > 0 ? `
-              <div class="test-results-container mt-3">
+              <div class="test-results-container">
                 <h6><i class="bi bi-check-circle me-1"></i>Test Results:</h6>
                 ${question.testResults.map((test, tIndex) => `
                   <div class="test-result ${test.passed ? 'test-passed' : 'test-failed'}">
                     <div class="d-flex justify-content-between align-items-start">
                       <div>
                         <strong>${test.passed ? '✓' : '✗'} Test ${tIndex + 1}</strong>
-                        ${test.error ? `<div class="text-danger mt-1"><small>${escapeHtml(test.error)}</small></div>` : ''}
-                        ${test.output ? `
-                          <div class="mt-1">
-                            <small class="text-muted">Output:</small>
-                            <pre class="mb-0" style="font-size: 0.85rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; margin-top: 0.25rem;">${escapeHtml(JSON.stringify(test.output, null, 2))}</pre>
-                          </div>
-                        ` : ''}
+                        ${test.input ? `<div class="mt-1"><small class="text-muted">Input:</small> <code>${JSON.stringify(test.input)}</code></div>` : ''}
+                        ${test.expected ? `<div class="mt-1"><small class="text-muted">Expected:</small> <code>${JSON.stringify(test.expected)}</code></div>` : ''}
+                        ${test.output ? `<div class="mt-1"><small class="text-muted">Output:</small> <code>${JSON.stringify(test.output)}</code></div>` : ''}
+                        ${test.error ? `<div class="text-danger mt-1"><small>Error: ${escapeHtml(test.error)}</small></div>` : ''}
                       </div>
                       <span class="badge ${test.passed ? 'bg-success' : 'bg-danger'}">
                         ${test.passed ? 'PASSED' : 'FAILED'}
@@ -774,10 +816,20 @@
                 `).join('')}
               </div>
             ` : ''}
+            
+            ${question.explanation ? `
+              <div class="mt-3">
+                <strong>Explanation:</strong>
+                <div class="p-2 bg-light rounded mt-1">
+                  ${escapeHtml(question.explanation)}
+                </div>
+              </div>
+            ` : ''}
           </div>
         `;
       });
       
+      html += `</div>`;
       return html;
     }
 
@@ -786,7 +838,7 @@
       let html = `
         <div class="mb-3">
           <h5><i class="bi bi-check-square me-2"></i>Quiz Test Questions (${questions.length})</h5>
-          <div class="mcq-questions-container">
+          <div class="questions-scrollable-container">
       `;
       
       questions.forEach((question, qIndex) => {
@@ -797,6 +849,7 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h6 class="mb-0">
                 <i class="bi bi-question-circle me-1"></i>Question ${qIndex + 1}
+                ${question.title ? `: ${escapeHtml(question.title)}` : ''}
               </h6>
               <div>
                 <span class="badge ${isCorrect ? 'bg-success' : 'bg-danger'}">
@@ -805,6 +858,7 @@
                 <span class="badge bg-light text-dark ms-2">
                   ${question.score || 0}/${question.maxScore || 1} Points
                 </span>
+                ${question.timeTaken ? `<span class="badge bg-info ms-2">${question.timeTaken}s</span>` : ''}
               </div>
             </div>
             
@@ -869,65 +923,241 @@
       return html;
     }
 
-    // Generate interview questions detail
-    function generateInterviewDetail(questions, submissionIndex) {
-      let html = `<h5 class="mb-3"><i class="bi bi-mic me-2"></i>Interview Questions (${questions.length})</h5>`;
+    // Generate interview questions detail - UPDATED FOR MIXED QUESTION TYPES
+    function generateInterviewDetail(questions, submissionIndex, item) {
+      // Separate questions by type
+      const codingQuestions = questions.filter(q => 
+        q.type === 'coding' || (q.code && q.testResults)
+      );
+      const mcqQuestions = questions.filter(q => 
+        ['mcq-single', 'mcq-multiple', 'numerical', 'interview'].includes(q.type) ||
+        (q.options && q.correctAnswer !== undefined)
+      );
       
-      questions.forEach((question, qIndex) => {
+      let html = `<h5 class="mb-3"><i class="bi bi-mic me-2"></i>Interview Submission (${questions.length} total questions)</h5>`;
+      
+      // Add score breakdown if available
+      if (item.codingScore !== undefined || item.mcqScore !== undefined) {
         html += `
-          <div class="question-detail mb-4">
-            <div class="question-header">
-              <div class="d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">
-                  <i class="bi bi-chat-left-text me-1"></i>Question ${qIndex + 1}
-                </h6>
-                <div>
-                  <span class="badge bg-light text-dark">
-                    Score: ${question.score || 0}/${question.maxScore || 1}
-                  </span>
+          <div class="interview-score-breakdown">
+            <h6><i class="bi bi-graph-up me-2"></i>Score Breakdown</h6>
+            <div class="row">
+              ${item.codingScore !== undefined ? `
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Coding Score:</span>
+                    <strong>${item.codingScore}/${item.codingMaxScore}</strong>
+                  </div>
+                  <div class="progress mt-1" style="height: 8px;">
+                    <div class="progress-bar bg-primary" style="width: ${item.codingMaxScore > 0 ? (item.codingScore/item.codingMaxScore*100) : 0}%"></div>
+                  </div>
                 </div>
-              </div>
+              ` : ''}
+              ${item.mcqScore !== undefined ? `
+                <div class="col-md-6">
+                  <div class="d-flex justify-content-between">
+                    <span>Theory/MCQ Score:</span>
+                    <strong>${item.mcqScore}/${item.mcqMaxScore}</strong>
+                  </div>
+                  <div class="progress mt-1" style="height: 8px;">
+                    <div class="progress-bar bg-success" style="width: ${item.mcqMaxScore > 0 ? (item.mcqScore/item.mcqMaxScore*100) : 0}%"></div>
+                  </div>
+                </div>
+              ` : ''}
             </div>
-            
-            ${question.question || question.description ? `
-              <div class="mb-3">
-                <strong>Interview Question:</strong>
-                <div class="p-2 bg-light rounded mt-1">
-                  ${escapeHtml(question.question || question.description)}
-                </div>
-              </div>
-            ` : ''}
-            
-            ${question.userAnswer || question.answer ? `
-              <div class="mb-3">
-                <strong>User's Answer:</strong>
-                <div class="p-2 bg-success bg-opacity-10 rounded mt-1">
-                  ${escapeHtml(question.userAnswer || question.answer)}
-                </div>
-              </div>
-            ` : ''}
-            
-            ${question.feedback ? `
-              <div class="mb-3">
-                <strong>Feedback:</strong>
-                <div class="p-2 bg-info bg-opacity-10 rounded mt-1">
-                  ${escapeHtml(question.feedback)}
-                </div>
-              </div>
-            ` : ''}
-            
-            ${question.evaluation ? `
-              <div class="mb-3">
-                <strong>Evaluation:</strong>
-                <div class="p-2 bg-warning bg-opacity-10 rounded mt-1">
-                  ${escapeHtml(JSON.stringify(question.evaluation, null, 2))}
-                </div>
-              </div>
-            ` : ''}
           </div>
         `;
-      });
+      }
       
+      html += `<div class="questions-scrollable-container">`;
+      
+      // Show coding questions first
+      if (codingQuestions.length > 0) {
+        html += `
+          <div class="interview-question-type coding mb-4">
+            <h6 class="mb-3">
+              <i class="bi bi-code-slash me-2"></i>Coding Questions (${codingQuestions.length})
+            </h6>
+        `;
+        
+        codingQuestions.forEach((question, qIndex) => {
+          const testsPassed = question.testResults ? question.testResults.filter(t => t.passed).length : 0;
+          const totalTests = question.testResults ? question.testResults.length : 0;
+          const allPassed = testsPassed === totalTests && totalTests > 0;
+          
+          html += `
+            <div class="question-detail mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">
+                  <i class="bi bi-code-square me-1"></i>Coding Question ${qIndex + 1}: ${question.title || 'Untitled'}
+                </h6>
+                <div>
+                  ${totalTests > 0 ? `
+                    <span class="badge ${allPassed ? 'bg-success' : 'bg-danger'}">
+                      ${testsPassed}/${totalTests} Tests Passed
+                    </span>
+                  ` : ''}
+                  <span class="badge bg-light text-dark ms-2">
+                    ${question.score || 0}/${question.maxScore || 0} Points
+                  </span>
+                  ${question.timeTaken ? `<span class="badge bg-info ms-2">${question.timeTaken}s</span>` : ''}
+                </div>
+              </div>
+              
+              ${question.description ? `
+                <div class="mb-3">
+                  <strong>Problem Description:</strong>
+                  <div class="p-2 bg-light rounded mt-1">
+                    ${escapeHtml(question.description)}
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${question.code !== undefined ? `
+                <div class="mt-3">
+                  <div class="code-header">
+                    <span><i class="bi bi-file-code me-1"></i>Submitted Code</span>
+                    <button class="copy-btn" onclick="copyCode(${submissionIndex}, ${qIndex})">
+                      <i class="bi bi-clipboard me-1"></i>Copy
+                    </button>
+                  </div>
+                  <div class="code-container">
+                    <pre><code class="language-python" id="code-${submissionIndex}-${qIndex}">${escapeHtml(question.code || '')}</code></pre>
+                  </div>
+                </div>
+              ` : '<p class="text-muted mt-3">No code submitted</p>'}
+              
+              ${question.testResults && question.testResults.length > 0 ? `
+                <div class="test-results-container mt-3">
+                  <h6><i class="bi bi-check-circle me-1"></i>Test Results:</h6>
+                  ${question.testResults.map((test, tIndex) => `
+                    <div class="test-result ${test.passed ? 'test-passed' : 'test-failed'}">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                          <strong>${test.passed ? '✓' : '✗'} Test ${tIndex + 1}</strong>
+                          ${test.input ? `<div class="mt-1"><small class="text-muted">Input:</small> <code>${JSON.stringify(test.input)}</code></div>` : ''}
+                          ${test.expected ? `<div class="mt-1"><small class="text-muted">Expected:</small> <code>${JSON.stringify(test.expected)}</code></div>` : ''}
+                          ${test.output ? `<div class="mt-1"><small class="text-muted">Output:</small> <code>${JSON.stringify(test.output)}</code></div>` : ''}
+                          ${test.error ? `<div class="text-danger mt-1"><small>Error: ${escapeHtml(test.error)}</small></div>` : ''}
+                        </div>
+                        <span class="badge ${test.passed ? 'bg-success' : 'bg-danger'}">
+                          ${test.passed ? 'PASSED' : 'FAILED'}
+                        </span>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+              
+              ${question.explanation ? `
+                <div class="mt-3">
+                  <strong>Explanation/Solution:</strong>
+                  <div class="p-2 bg-light rounded mt-1">
+                    ${escapeHtml(question.explanation)}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+        
+        html += `</div>`;
+      }
+      
+      // Show MCQ/numerical questions
+      if (mcqQuestions.length > 0) {
+        html += `
+          <div class="interview-question-type mcq mb-4">
+            <h6 class="mb-3">
+              <i class="bi bi-check-square me-2"></i>Theory/MCQ Questions (${mcqQuestions.length})
+            </h6>
+        `;
+        
+        mcqQuestions.forEach((question, qIndex) => {
+          const isCorrect = question.score === question.maxScore;
+          const questionType = question.type || 'mcq';
+          const typeLabel = questionType === 'numerical' ? 'Numerical' : 
+                           questionType === 'interview' ? 'Theory' : 'MCQ';
+          
+          html += `
+            <div class="question-detail mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">
+                  <i class="bi bi-question-circle me-1"></i>${typeLabel} Question ${qIndex + 1}
+                  ${question.title ? `: ${escapeHtml(question.title)}` : ''}
+                </h6>
+                <div>
+                  <span class="badge ${isCorrect ? 'bg-success' : 'bg-danger'}">
+                    ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                  </span>
+                  <span class="badge bg-light text-dark ms-2">
+                    ${question.score || 0}/${question.maxScore || 1} Points
+                  </span>
+                  ${question.timeTaken ? `<span class="badge bg-info ms-2">${question.timeTaken}s</span>` : ''}
+                </div>
+              </div>
+              
+              ${question.description || question.question ? `
+                <div class="mb-3">
+                  <strong>Question:</strong>
+                  <div class="p-2 bg-light rounded mt-1">
+                    ${escapeHtml(question.description || question.question)}
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${question.options && question.options.length > 0 ? `
+                <div class="mb-3">
+                  <strong>Options:</strong>
+                  ${question.options.map((option, oIndex) => {
+                    const isCorrectOption = Array.isArray(question.correctAnswer) 
+                      ? question.correctAnswer.includes(oIndex)
+                      : question.correctAnswer === oIndex;
+                    
+                    const isUserAnswer = Array.isArray(question.userAnswer)
+                      ? question.userAnswer.includes(oIndex)
+                      : question.userAnswer === oIndex;
+                    
+                    let optionClass = 'mcq-option';
+                    if (isCorrectOption) optionClass += ' mcq-correct';
+                    if (isUserAnswer) optionClass += ' mcq-user-answer';
+                    
+                    return `<div class="${optionClass}">${String.fromCharCode(65 + oIndex)}. ${escapeHtml(option)}</div>`;
+                  }).join('')}
+                </div>
+              ` : ''}
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <strong>User Answer:</strong>
+                  <div class="mt-1">
+                    ${formatMCQAnswer(question.userAnswer, question.options)}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <strong>Correct Answer:</strong>
+                  <div class="mt-1">
+                    ${formatMCQAnswer(question.correctAnswer, question.options)}
+                  </div>
+                </div>
+              </div>
+              
+              ${question.explanation ? `
+                <div class="mt-3">
+                  <strong>Explanation:</strong>
+                  <div class="mt-1 p-2 bg-light rounded">
+                    ${escapeHtml(question.explanation)}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+        
+        html += `</div>`;
+      }
+      
+      html += `</div>`;
       return html;
     }
 
@@ -935,6 +1165,16 @@
     function formatMCQAnswer(answer, options) {
       if (answer === null || answer === undefined) {
         return '<span class="text-muted">No answer</span>';
+      }
+      
+      // Handle numerical answers
+      if (typeof answer === 'number' && !options) {
+        return `<span class="badge bg-secondary">${answer}</span>`;
+      }
+      
+      // Handle string answers
+      if (typeof answer === 'string') {
+        return `<span class="badge bg-secondary">${escapeHtml(answer)}</span>`;
       }
       
       if (Array.isArray(answer)) {
@@ -969,6 +1209,7 @@
 
     // Escape HTML to prevent XSS
     function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
