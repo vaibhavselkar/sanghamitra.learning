@@ -10,8 +10,8 @@ const interviewQuestionSchema = new mongoose.Schema({
         required: true 
     },
     // For coding questions
-    userCode: String,
-    functionName: String,
+    code: String,
+    //functionName: String,
     testResults: [{
         input: mongoose.Schema.Types.Mixed,
         expected: mongoose.Schema.Types.Mixed,
