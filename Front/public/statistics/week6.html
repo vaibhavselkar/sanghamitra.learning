@@ -56,6 +56,7 @@
             font-size: 2rem;
             text-align: center;
         }
+
         body.blurred {
             filter: blur(5px);
             pointer-events: none;
@@ -241,7 +242,7 @@
         .option:hover { border-color: #667eea; background: #f0f8ff; }
         .option.selected { border-color: #667eea; background: #e3f2fd; }
 
-        .numeric-input {
+        .numeric-input, .text-input {
             width: 100%;
             max-width: 400px;
             padding: 12px 16px;
@@ -376,13 +377,13 @@
             color: white;
             font-weight: 600;
         }
-        
+
         .calc-btn.equals {
             background: #51cf66;
             color: white;
             font-weight: 600;
         }
-        
+
         .calc-btn.memory {
             background: #e3e8ff;
             color: #667eea;
@@ -654,15 +655,19 @@
 
     <script>
         // ============================================
-        // ENHANCED ANSWER NORMALIZATION UTILITY
+        // ENHANCED ANSWER NORMALIZATION UTILITY (From Week 1)
         // ============================================
-        const AnswerNormalizer = {
+        const answerNormalizer = {
             normalizeInterval: (answer) => {
                 return (answer || '').toString().trim()
                     .replace(/\s+/g, '')
                     .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
                     .replace(/\+inf/gi, 'inf')
                     .replace(/-\s*inf/gi, '-inf')
+                    .replace(/\[/g, '[')
+                    .replace(/\]/g, ']')
+                    .replace(/\(/g, '(')
+                    .replace(/\)/g, ')')
                     .toLowerCase();
             },
             
@@ -680,13 +685,15 @@
                     .replace(/\^/g, '^')
                     .replace(/\+\-/g, '-')
                     .replace(/\-\+/g, '-')
+                    .replace(/log/gi, 'log')
+                    .replace(/ln/gi, 'ln')
                     .toLowerCase();
             },
             
             normalizeNumeric: (num) => {
                 const str = (num || '').toString().trim().toLowerCase();
                 
-                // Handle infinity
+                // Handle positive infinity
                 if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
                     return Infinity;
                 }
@@ -701,60 +708,24 @@
                 return cleaned ? parseFloat(cleaned) : NaN;
             },
             
-            normalizeText: (text) => {
-                return (text || '').toString()
-                    .toLowerCase()
-                    .trim()
-                    .replace(/\s+/g, ' ')
-                    .replace(/[-_]/g, '');
-            },
-            
-            normalizeTextWithHyphen: (text) => {
-                return (text || '').toString()
-                    .toLowerCase()
-                    .trim()
-                    .replace(/\s+/g, '')
-                    .replace(/[-_]/g, '');
-            },
-            
-            normalizeArray: (arr) => {
-                if (!Array.isArray(arr)) {
-                    if (typeof arr === 'string') {
-                        arr = arr.split(',').map(item => item.trim());
-                    } else {
-                        return [];
-                    }
-                }
-                
-                return arr
-                    .map(item => AnswerNormalizer.normalizeText(item))
-                    .filter(item => item && item.length > 0)
-                    .sort();
-            },
-            
             normalizeAnswer: (answer, questionType) => {
                 if (!answer) return '';
                 
                 const str = answer.toString().trim();
                 
-                switch(questionType) {
-                    case 'interval_input':
-                        return AnswerNormalizer.normalizeInterval(str);
-                    case 'numeric':
-                    case 'numeric_input':
-                        const normalized = AnswerNormalizer.normalizeNumeric(str);
-                        return isFinite(normalized) ? normalized.toString() : 
-                               normalized === Infinity ? 'inf' : 
-                               normalized === -Infinity ? '-inf' : str;
-                    case 'coordinate_input':
-                        return AnswerNormalizer.normalizeCoordinate(str);
-                    case 'equation_input':
-                        return AnswerNormalizer.normalizeEquation(str);
-                    case 'text_input':
-                    case 'text':
-                        return AnswerNormalizer.normalizeText(str);
-                    default:
-                        return str.toLowerCase();
+                if (questionType === 'interval_input') {
+                    return answerNormalizer.normalizeInterval(str);
+                } else if (questionType === 'numeric' || questionType === 'numeric_input') {
+                    const normalized = answerNormalizer.normalizeNumeric(str);
+                    return isFinite(normalized) ? normalized.toString() : 
+                           normalized === Infinity ? 'inf' : 
+                           normalized === -Infinity ? '-inf' : str;
+                } else if (questionType === 'coordinate_input') {
+                    return answerNormalizer.normalizeCoordinate(str);
+                } else if (questionType === 'equation_input') {
+                    return answerNormalizer.normalizeEquation(str);
+                } else {
+                    return str.toLowerCase();
                 }
             }
         };
@@ -773,7 +744,7 @@
         let devToolsWarned = false;
 
         // ============================================
-        // ENHANCED ANTI-CHEATING FUNCTIONS
+        // ENHANCED ANTI-CHEATING FUNCTIONS (From Week 1)
         // ============================================
         function initializeAntiCheating() {
             // Disable right-click
@@ -869,10 +840,9 @@
                 if (isQuizActive) {
                     setTimeout(() => {
                         document.getElementById('warningOverlay').style.display = 'none';
-                    }, 1000); // Show warning for 1 second after returning
+                    }, 1000);
                 }
             });
-            
             
             // Detect if user tries to open new tabs/windows
             window.addEventListener('beforeunload', function(e) {
@@ -896,12 +866,27 @@
                 return false;
             };
             
-            console.log('✅ Enhanced anti-cheating initialized for Statistics Week 2');
+            console.log('✅ Enhanced anti-cheating initialized for Statistics Week 6');
         }
         
         function recordCheatingAttempt(type) {
             cheatingAttempts++;
-            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+            const timestamp = new Date().toISOString();
+            console.warn(`🚨 Cheating attempt #${cheatingAttempts}: ${type} at ${timestamp}`);
+            
+            // Visual warning for specific actions
+            const highRiskActions = ['screenshot_attempt', 'tab_switched', 'window_focus_lost', 'attempted_page_leave'];
+            if (highRiskActions.includes(type)) {
+                const overlay = document.getElementById('warningOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    setTimeout(() => {
+                        if (document.hasFocus()) {
+                            overlay.style.display = 'none';
+                        }
+                    }, 2000);
+                }
+            }
             
             if (username && email) {
                 fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
@@ -912,23 +897,28 @@
                         username: username,
                         email: email,
                         cheatingType: type,
-                        timestamp: new Date(),
+                        timestamp: timestamp,
                         currentQuestion: currentQuestionIndex + 1,
-                        quizType: 'statistics_week6'
+                        totalAttempts: cheatingAttempts,
+                        quizType: 'statistics_week6',
+                        userAgent: navigator.userAgent,
+                        screenResolution: `${window.screen.width}x${window.screen.height}`
                     })
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
             
-            if (cheatingAttempts >= 5) {
-                alert('Too many suspicious activities detected. Quiz will be auto-submitted.');
+            // Progressive warnings
+            if (cheatingAttempts === 3) {
+                alert('⚠️ WARNING: Suspicious activity detected!\nFurther violations will result in automatic submission.');
+            } else if (cheatingAttempts >= 5) {
+                alert('🚫 Too many suspicious activities detected.\nQuiz will be auto-submitted for review.');
                 submitQuiz();
             }
         }
 
         // ============================================
-        // QUIZ INITIALIZATION
+        // SESSION & INITIALIZATION
         // ============================================
-
         async function fetchSessionInfo() {
             try {
                 const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
@@ -944,11 +934,12 @@
                 } else {
                     console.error('Failed to fetch session info');
                     alert('Please login to take the assessment');
-                    window.location.href = '/login.html';
+                    window.location.href = 'user_login.html';
                     return false;
                 }
             } catch (error) {
                 console.error('Error fetching session info:', error);
+                alert('Error connecting to server. Please try again.');
                 return false;
             }
         }
@@ -961,9 +952,8 @@
                 }
                 
                 const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/week-6_permutations_and_combinations?email=${encodeURIComponent(email)}&count=50`, {
-                credentials: 'include'
-            });
-
+                    credentials: 'include'
+                });
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -994,6 +984,7 @@
                     throw new Error('No questions found for Statistics Week 6');
                 }
                 
+                console.log(`Loaded ${questions.length} Statistics Week 6 questions successfully`);
                 document.getElementById('calculatorBtn').style.display = 'flex';
                 return true;
             } catch (error) {
@@ -1051,10 +1042,11 @@
         // ============================================
         // QUESTION RENDERING
         // ============================================
-
         function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
+            
+            console.log('Rendering question:', currentQuestionIndex + 1, question);
             
             container.innerHTML = '';
 
@@ -1063,7 +1055,7 @@
 
             let optionsHtml = '';
             
-            if ((question.type === 'multiple_choice' || question.type === 'mcq') && question.options && question.options.length > 0) {
+            if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
                 optionsHtml = question.options.map((option, optIndex) => {
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
@@ -1083,7 +1075,7 @@
                         </div>
                     `;
                 }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input', 'text'].includes(question.type)) {
+            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
                 let specificPlaceholder = "Enter your answer";
                 if (question.type === 'coordinate_input') {
                     specificPlaceholder = "Enter coordinates as (x, y)";
@@ -1122,6 +1114,8 @@
             const difficulty = question.difficulty || 'medium';
             const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
 
+            let processedQuestionText = question.question_text || 'Question text not available';
+
             questionDiv.innerHTML = `
                 <div class="question-header">
                     <div class="question-number">${currentQuestionIndex + 1}</div>
@@ -1131,7 +1125,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="question-text">${question.question_text || 'Question text not available'}</div>
+                <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
                 <div class="options">${optionsHtml}</div>
             `;
 
@@ -1147,7 +1141,7 @@
             
             if (!savedAnswer) return;
 
-            if (question.type === 'multiple_choice' || question.type === 'mcq') {
+            if (question.type === 'multiple_choice') {
                 const option = document.querySelector(`input[value="${savedAnswer}"]`);
                 if (option) {
                     option.checked = true;
@@ -1161,7 +1155,7 @@
                         option.closest('.option').classList.add('selected');
                     }
                 });
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input', 'text'].includes(question.type)) {
+            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
                 const input = document.querySelector('.numeric-input');
                 if (input) {
                     input.value = savedAnswer;
@@ -1169,107 +1163,11 @@
             }
         }
 
-        // ============================================
-        // USER INTERACTION
-        // ============================================
-
-        function selectOption(questionIndex, value, type, element) {
-            if (type === 'radio') {
-                const allOptions = document.querySelectorAll(`.question-card .option`);
-                allOptions.forEach(opt => {
-                    const input = opt.querySelector('input[type="radio"]');
-                    if (input && input.name === `q${questionIndex}`) {
-                        input.checked = false;
-                        opt.classList.remove('selected');
-                    }
-                });
-                
-                const radioInput = element.querySelector('input[type="radio"]');
-                if (radioInput) {
-                    radioInput.checked = true;
-                }
-                element.classList.add('selected');
-                userAnswers[questionIndex] = value.trim();
-                        
-            } else if (type === 'checkbox') {
-                const checkbox = element.querySelector('input');
-                checkbox.checked = !checkbox.checked;
-                
-                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
-                
-                if (checkbox.checked) {
-                    if (!userAnswers[questionIndex].includes(value.trim())) {
-                        userAnswers[questionIndex].push(value.trim());
-                    }
-                    element.classList.add('selected');
-                } else {
-                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-                    element.classList.remove('selected');
-                    
-                    if (userAnswers[questionIndex].length === 0) {
-                        delete userAnswers[questionIndex];
-                    }
-                }
-            }
-            
-            updateAnswerStatus();
-        }
-
-        function handleNumericInput(questionIndex, value) {
-            const trimmedValue = value.trim();
-            
-            if (trimmedValue) {
-                userAnswers[questionIndex] = trimmedValue;
-            } else {
-                delete userAnswers[questionIndex];
-            }
-            
-            updateAnswerStatus();
-        }
-
-        function validateAnswerFormat(questionIndex, userAnswer) {
-            const question = questions[currentQuestionIndex];
-            let feedback = '';
-            let suggestion = '';
-            
-            if (question.type === 'coordinate_input') {
-                feedback = '✓ Any format accepted';
-                suggestion = 'Examples: (3, 4), (2.5, -1.3), (x, y)';
-            } else if (question.type === 'equation_input') {
-                feedback = '✓ Any format accepted';
-                suggestion = 'Examples: y = log(x) + 2, f(x)=x^2, equation with = sign';
-            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                feedback = '✓ Any number format accepted';
-                suggestion = 'Examples: 42, -3.14, 0.5, inf, -infinity, ∞';
-            } else if (question.type === 'interval_input') {
-                feedback = '✓ Any interval format accepted';
-                suggestion = 'Examples: (0, inf), [1, 10], (-∞, 5], (a, b)';
-            } else {
-                feedback = '✓ Any text format accepted';
-                suggestion = '';
-            }
-            
-            return { isValidFormat: true, feedback, suggestion };
-        }
-
-        function handleNumericInputWithValidation(questionIndex, value) {
-            handleNumericInput(questionIndex, value);
-            
-            if (value.trim()) {
-                const validation = validateAnswerFormat(questionIndex, value.trim());
-                // You could add feedback display here if needed
-            }
-        }
-
-        // ============================================
-        // NAVIGATION & PROGRESS
-        // ============================================
-
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
             
             document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
             
@@ -1320,93 +1218,106 @@
         }
 
         // ============================================
-        // ANSWER VALIDATION
+        // USER INPUT HANDLERS
         // ============================================
-
-        function checkAnswer(userAnswer, correctAnswer, alternativeAnswers, questionType) {
-            if (!userAnswer && userAnswer !== 0 && userAnswer !== false) return false;
-
-            const normalizedUser = AnswerNormalizer.normalizeAnswer(userAnswer, questionType);
-            const normalizedCorrect = AnswerNormalizer.normalizeAnswer(correctAnswer, questionType);
+        function selectOption(questionIndex, value, type, element) {
+            if (type === 'radio') {
+                const allOptions = document.querySelectorAll(`.question-card .option`);
+                allOptions.forEach(opt => {
+                    const input = opt.querySelector('input[type="radio"]');
+                    if (input && input.name === `q${questionIndex}`) {
+                        input.checked = false;
+                        opt.classList.remove('selected');
+                    }
+                });
+                
+                const radioInput = element.querySelector('input[type="radio"]');
+                if (radioInput) {
+                    radioInput.checked = true;
+                }
+                element.classList.add('selected');
+                userAnswers[questionIndex] = value.trim();
+                        
+            } else if (type === 'checkbox') {
+                const checkbox = element.querySelector('input');
+                checkbox.checked = !checkbox.checked;
+                
+                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+                
+                if (checkbox.checked) {
+                    if (!userAnswers[questionIndex].includes(value.trim())) {
+                        userAnswers[questionIndex].push(value.trim());
+                    }
+                    element.classList.add('selected');
+                } else {
+                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+                    element.classList.remove('selected');
+                    
+                    if (userAnswers[questionIndex].length === 0) {
+                        delete userAnswers[questionIndex];
+                    }
+                }
+            }
             
-            switch(questionType) {
-                case 'numeric':
-                case 'numeric_input':
-                    const userNum = AnswerNormalizer.normalizeNumeric(userAnswer);
-                    const correctNum = AnswerNormalizer.normalizeNumeric(correctAnswer);
-                    
-                    if (userNum === correctNum) return true;
-                    if (isFinite(userNum) && isFinite(correctNum)) {
-                        const tolerance = Math.max(Math.abs(correctNum) * 0.01, 0.01);
-                        if (Math.abs(userNum - correctNum) <= tolerance) return true;
-                    }
-                    
-                    if (alternativeAnswers && alternativeAnswers.length > 0) {
-                        return alternativeAnswers.some(alt => {
-                            const altNum = AnswerNormalizer.normalizeNumeric(alt);
-                            if (userNum === altNum) return true;
-                            if (isFinite(userNum) && isFinite(altNum)) {
-                                const tolerance = Math.max(Math.abs(altNum) * 0.01, 0.01);
-                                return Math.abs(userNum - altNum) <= tolerance;
-                            }
-                            return false;
-                        });
-                    }
-                    return false;
-                    
-                case 'multiple_choice':
-                case 'mcq':
-                    if (normalizedUser === normalizedCorrect) return true;
-                    if (alternativeAnswers && alternativeAnswers.length > 0) {
-                        return alternativeAnswers.some(alt => 
-                            AnswerNormalizer.normalizeAnswer(alt, questionType) === normalizedUser
-                        );
-                    }
-                    return false;
-                    
-                case 'multiple_select':
-                    if (!Array.isArray(userAnswer)) {
-                        if (typeof userAnswer === 'string') {
-                            userAnswer = userAnswer.split(',').map(item => item.trim());
-                        } else {
-                            return false;
-                        }
-                    }
-                    
-                    const userNorm = AnswerNormalizer.normalizeArray(userAnswer);
-                    const correctNorm = AnswerNormalizer.normalizeArray(correctAnswer);
-                    
-                    return userNorm.length === correctNorm.length &&
-                           userNorm.every(item => correctNorm.includes(item)) &&
-                           correctNorm.every(item => userNorm.includes(item));
-                           
-                case 'text_input':
-                case 'text':
-                    const userNormText = AnswerNormalizer.normalizeText(userAnswer);
-                    const userNormNoSpace = AnswerNormalizer.normalizeTextWithHyphen(userAnswer);
-                    const correctNormText = AnswerNormalizer.normalizeText(correctAnswer);
-                    const correctNormNoSpace = AnswerNormalizer.normalizeTextWithHyphen(correctAnswer);
-                    
-                    if (userNormText === correctNormText || userNormNoSpace === correctNormNoSpace) return true;
-                    
-                    if (alternativeAnswers && alternativeAnswers.length > 0) {
-                        return alternativeAnswers.some(alt => {
-                            const altNorm = AnswerNormalizer.normalizeText(alt);
-                            const altNormNoSpace = AnswerNormalizer.normalizeTextWithHyphen(alt);
-                            return userNormText === altNorm || userNormNoSpace === altNormNoSpace;
-                        });
-                    }
-                    return false;
-                    
-                default:
-                    return normalizedUser === normalizedCorrect;
+            updateAnswerStatus();
+        }
+
+        function handleNumericInput(questionIndex, value) {
+            const question = questions[questionIndex];
+            const trimmedValue = value.trim();
+            
+            if (trimmedValue) {
+                userAnswers[questionIndex] = trimmedValue;
+            } else {
+                delete userAnswers[questionIndex];
+            }
+            
+            updateAnswerStatus();
+        }
+
+        function validateAnswerFormat(questionIndex, userAnswer) {
+            const question = questions[currentQuestionIndex];
+            let feedback = '';
+            let isValidFormat = true;
+            let suggestion = '';
+            
+            if (question.type === 'coordinate_input') {
+                feedback = '✓ Any format accepted';
+                suggestion = 'Examples: (3, 4), (2.5, -1.3), (x, y)';
+                isValidFormat = true;
+            } else if (question.type === 'equation_input') {
+                feedback = '✓ Any format accepted';
+                suggestion = 'Examples: y = log(x) + 2, f(x)=x^2, equation with = sign';
+                isValidFormat = true;
+            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+                feedback = '✓ Any number format accepted';
+                suggestion = 'Examples: 42, -3.14, 0.5, inf, -infinity, ∞';
+                isValidFormat = true;
+            } else if (question.type === 'interval_input') {
+                feedback = '✓ Any interval format accepted';
+                suggestion = 'Examples: (0, inf), [1, 10], (-∞, 5], (a, b)';
+                isValidFormat = true;
+            } else {
+                feedback = '✓ Any text format accepted';
+                suggestion = '';
+                isValidFormat = true;
+            }
+            
+            return { isValidFormat, feedback, suggestion };
+        }
+
+        function handleNumericInputWithValidation(questionIndex, value) {
+            handleNumericInput(questionIndex, value);
+            
+            if (value.trim()) {
+                const validation = validateAnswerFormat(questionIndex, value.trim());
+                // Could add feedback display here
             }
         }
 
         // ============================================
         // QUIZ SUBMISSION
         // ============================================
-
         async function submitQuiz() {
             const confirmSubmit = confirm(
                 `Ready to Submit?\n\n` +
@@ -1440,12 +1351,78 @@
                 const userAnswer = userAnswers[index];
                 totalPossiblePoints += question.points;
                 
-                const isCorrect = checkAnswer(
-                    userAnswer,
-                    question.correct_answer,
-                    question.alternative_answers,
-                    question.type
-                );
+                let isCorrect = false;
+                
+                if (userAnswer !== undefined && userAnswer !== null) {
+                    const normalizedUser = answerNormalizer.normalizeAnswer(userAnswer, question.type);
+                    const normalizedCorrect = answerNormalizer.normalizeAnswer(question.correct_answer, question.type);
+                    
+                    if (question.type === 'interval_input') {
+                        isCorrect = normalizedUser === normalizedCorrect;
+                        
+                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+                            isCorrect = question.alternative_answers.some(alt => {
+                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                return normalizedAlt === normalizedUser;
+                            });
+                        }
+                    } else if (question.type === 'multiple_choice') {
+                        isCorrect = normalizedUser === normalizedCorrect;
+                    } else if (question.type === 'multiple_select') {
+                        if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+                            const normalizeArray = (arr) => arr.map(item => 
+                                    answerNormalizer.normalizeAnswer(item, question.type)).sort();
+                            const userNorm = normalizeArray(userAnswer);
+                            const correctNorm = normalizeArray(question.correct_answer);
+                            isCorrect = userNorm.length === correctNorm.length &&
+                                    userNorm.every((ans, idx) => ans === correctNorm[idx]);
+                        }
+                    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+                        const userNum = answerNormalizer.normalizeNumeric(userAnswer);
+                        const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
+                        
+                        if (userNum === correctNum) {
+                            isCorrect = true;
+                        } else if (isFinite(userNum) && isFinite(correctNum)) {
+                            const tolerance = Math.max(Math.abs(correctNum) * 0.01, 0.01);
+                            isCorrect = Math.abs(userNum - correctNum) <= tolerance;
+                        } else {
+                            isCorrect = false;
+                        }
+                        
+                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+                            isCorrect = question.alternative_answers.some(alt => {
+                                const altNum = answerNormalizer.normalizeNumeric(alt);
+                                if (userNum === altNum) return true;
+                                if (isFinite(userNum) && isFinite(altNum)) {
+                                    const tolerance = Math.max(Math.abs(altNum) * 0.01, 0.01);
+                                    return Math.abs(userNum - altNum) <= tolerance;
+                                }
+                                return false;
+                            });
+                        }
+                    } else if (question.type === 'coordinate_input') {
+                        isCorrect = normalizedUser === normalizedCorrect;
+                        
+                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+                            isCorrect = question.alternative_answers.some(alt => {
+                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                return normalizedAlt === normalizedUser;
+                            });
+                        }
+                    } else if (question.type === 'equation_input') {
+                        isCorrect = normalizedUser === normalizedCorrect;
+                        
+                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+                            isCorrect = question.alternative_answers.some(alt => {
+                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                return normalizedAlt === normalizedUser;
+                            });
+                        }
+                    } else {
+                        isCorrect = normalizedUser === normalizedCorrect;
+                    }
+                }
                 
                 if (isCorrect) {
                     score += question.points;
@@ -1472,7 +1449,7 @@
             });
 
             const quizData = {
-                topic: 'week-6_permutations_and_combinations', 
+                topic: 'week-6_permutations_and_combinations',
                 quizType: 'practice',
                 score: score,
                 maxPossibleScore: totalPossiblePoints,
@@ -1535,7 +1512,6 @@
         // ============================================
         // RESULTS DISPLAY
         // ============================================
-
         function displayDetailedResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             
@@ -1642,14 +1618,16 @@
         // ============================================
         // UTILITY FUNCTIONS
         // ============================================
-
         async function resetUserProgress() {
             try {
                 const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-stats-progress', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ email: email, week: 'week6' })
+                    body: JSON.stringify({ 
+                        email: email,
+                        topic: 'week-6_permutations_and_combinations',
+                    })
                 });
                 
                 if (response.ok) {
@@ -1672,7 +1650,7 @@
         }
 
         // ============================================
-        // CALCULATOR FUNCTIONS (From Quadratic Functions)
+        // CALCULATOR FUNCTIONS (From Week 1)
         // ============================================
         let calculatorOpen = false;
         let isDragging = false;
@@ -1785,6 +1763,18 @@
             }
         }
 
+        // Minimize calculator
+        function minimizeCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            modal.style.display = 'none';
+            btn.style.display = 'flex';
+            calculatorOpen = false;
+            
+            console.log('Calculator minimized');
+        }
+
         function toggleCalculator() {
             const modal = document.getElementById('calculatorModal');
             const btn = document.getElementById('calculatorBtn');
@@ -1814,18 +1804,6 @@
             }
         }
 
-        // Minimize calculator
-        function minimizeCalculator() {
-            const modal = document.getElementById('calculatorModal');
-            const btn = document.getElementById('calculatorBtn');
-            
-            modal.style.display = 'none';
-            btn.style.display = 'flex';
-            calculatorOpen = false;
-            
-            console.log('Calculator minimized');
-        }
-
         function initializeDrag() {
             const modal = document.getElementById('calculatorModal');
             const header = modal.querySelector('.calculator-header');
@@ -1851,7 +1829,7 @@
             dragOffsetY = e.clientY - rect.top;
             
             modal.style.cursor = 'grabbing';
-            modal.style.opacity = '0.9'; // Visual feedback while dragging
+            modal.style.opacity = '0.9';
             e.preventDefault();
         }
 
@@ -1880,8 +1858,8 @@
             isDragging = false;
             const modal = document.getElementById('calculatorModal');
             modal.style.cursor = 'move';
-            modal.style.opacity = '1'; // Restore full opacity
-        }}
+            modal.style.opacity = '1';
+        }
 
         function addToDisplay(value) {
             const display = document.getElementById('calcDisplay');
@@ -1962,24 +1940,24 @@
             }
         });
 
-        setTimeout(() => {
-            if (document.getElementById('calculatorModal')) {
-                initializeDrag();
-            }
-            
-            const degMode = document.getElementById('degMode');
-            const radMode = document.getElementById('radMode');
-            
-            if (degMode) degMode.addEventListener('change', () => angleMode = 'Deg');
-            if (radMode) radMode.addEventListener('change', () => angleMode = 'Rad');
-        }, 1000);
-
         // ============================================
         // INITIALIZATION
         // ============================================
-
         document.addEventListener('DOMContentLoaded', function() {
             initializeQuiz();
+            
+            // Initialize calculator drag after DOM loads
+            setTimeout(() => {
+                if (document.getElementById('calculatorModal')) {
+                    initializeDrag();
+                }
+                
+                const degMode = document.getElementById('degMode');
+                const radMode = document.getElementById('radMode');
+                
+                if (degMode) degMode.addEventListener('change', () => angleMode = 'Deg');
+                if (radMode) radMode.addEventListener('change', () => angleMode = 'Rad');
+            }, 1000);
         });
 
         if (document.readyState === 'loading') {
@@ -1990,9 +1968,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
