@@ -978,7 +978,7 @@
                 }
                 
                 // CHANGED: Fetch questions for Conditional Probability topic (Week 8)
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/Conditional%20Probability?email=${encodeURIComponent(email)}&count=50`, {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/conditional_probability?email=${encodeURIComponent(email)}&count=50`, {
                     credentials: 'include'
                 });
                 
@@ -1491,7 +1491,7 @@
             });
 
             const quizData = {
-                topic: 'Conditional Probability', // Changed to Week 8 topic
+                topic: 'conditional_probability', // Changed to Week 8 topic
                 quizType: 'practice',
                 score: score,
                 maxPossibleScore: totalPossiblePoints,
@@ -1670,7 +1670,7 @@
                     credentials: 'include',
                     body: JSON.stringify({ 
                         email: email,
-                        topic: 'Conditional Probability',
+                        topic: 'conditional_probability',
                     })
                 });
                 
