@@ -1381,12 +1381,13 @@
             const difficultyBreakdown = {
                 easy: { attempted: 0, correct: 0, points: 0 },
                 medium: { attempted: 0, correct: 0, points: 0 },
-                hard: { attempted: 0, correct: 0, points: 0 }
+                hard: { attempted: 0, correct: 0, points: 0 },
+                unknown: { attempted: 0, correct: 0, points: 0 }
             };
             
             questions.forEach((question, index) => {
                 const userAnswer = userAnswers[index];
-                totalPossiblePoints += question.points;
+                totalPossiblePoints += question.points || 1;
                 
                 let isCorrect = false;
                 
@@ -1465,10 +1466,14 @@
                     score += question.points;
                 }
                 
-                difficultyBreakdown[question.difficulty].attempted++;
+                // Safely get difficulty with a default value
+                const difficulty = question.difficulty ? question.difficulty.toLowerCase() : 'medium';
+                const diffKey = ['easy', 'medium', 'hard'].includes(difficulty) ? difficulty : 'unknown';
+                
+                difficultyBreakdown[diffKey].attempted++;
                 if (isCorrect) {
-                    difficultyBreakdown[question.difficulty].correct++;
-                    difficultyBreakdown[question.difficulty].points += question.points;
+                    difficultyBreakdown[diffKey].correct++;
+                    difficultyBreakdown[diffKey].points += question.points || 1;
                 }
                 
                 questionResults.push({
@@ -1572,6 +1577,12 @@
                         <strong>Hard Questions</strong><br>
                         ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
                     </div>
+                    ${quizData.difficultyBreakdown.unknown.attempted > 0 ? `
+                    <div>
+                        <strong>Other Questions</strong><br>
+                        ${quizData.difficultyBreakdown.unknown.correct}/${quizData.difficultyBreakdown.unknown.attempted}
+                    </div>
+                    ` : ''}
                 </div>
                 <p style="margin-top: 15px; font-size: 0.9em;">
                     Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
@@ -2004,6 +2015,7 @@
     </script>
 </body>
 </html>
+
 
 
 
