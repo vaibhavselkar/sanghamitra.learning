@@ -932,54 +932,56 @@
         }
 
         async function loadQuestions() {
-            try {
-                if (!email) {
-                    alert('Please login to take the assessment');
-                    return false;
-                }
-                
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/Descriptive%20Statistics?email=${encodeURIComponent(email)}&count=50`, {
-                credentials: 'include'
-            });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.resetAvailable) {
-                    const resetConfirm = confirm(
-                        `You have completed all available questions!\n\n` +
-                        `Total questions in pool: ${data.totalQuestionsInPool}\n\n` +
-                        `Would you like to reset your progress to start over?`
-                    );
-                    
-                    if (resetConfirm) {
-                        await resetUserProgress();
-                        return loadQuestions();
-                    } else {
-                        alert('No new questions available. Please contact admin or try again later.');
-                        window.location.href = 'iitm_statistics.html';
-                        return false;
-                    }
-                }
-                
-                questions = data.questions || data;
-                
-                if (!questions || questions.length === 0) {
-                    throw new Error('No questions found for Statistics Week 3');
-                }
-                
-                console.log(`Loaded ${questions.length} statistics Week 3 questions successfully`);
-                document.getElementById('calculatorBtn').style.display = 'flex';
-                return true;
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                alert('Failed to load quiz questions. Please refresh and try again.');
-                return false;
-            }
+    try {
+        if (!email) {
+            alert('Please login to take the assessment');
+            return false;
         }
+        
+        console.log('Loading questions for email:', email);
+        console.log('Topic: Descriptive Statistics');
+        
+        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/Descriptive%20Statistics?email=${encodeURIComponent(email)}&count=50`, {
+            credentials: 'include'
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Received data:', data);
+        
+        // Check if we got questions
+        if (!data.questions && !Array.isArray(data)) {
+            throw new Error('No questions found in response');
+        }
+        
+        questions = data.questions || data;
+        
+        console.log(`Loaded ${questions.length} questions for Descriptive Statistics`);
+        
+        // Log first question for debugging
+        if (questions.length > 0) {
+            console.log('First question sample:', {
+                type: questions[0].type,
+                hasOptions: questions[0].options && questions[0].options.length > 0,
+                optionsCount: questions[0].options ? questions[0].options.length : 0,
+                correctAnswer: questions[0].correct_answer
+            });
+        }
+        
+        document.getElementById('calculatorBtn').style.display = 'flex';
+        return true;
+        
+    } catch (error) {
+        console.error('Error loading questions:', error);
+        alert(`Failed to load questions: ${error.message}`);
+        return false;
+    }
+}
 
         async function initializeQuiz() {
             try {
@@ -1017,128 +1019,157 @@
         // QUESTION RENDERING
         // ============================================
         function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            console.log('Rendering question type:', question.type);
-            
-            container.innerHTML = '';
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
+    
+    console.log('Rendering question:', currentQuestionIndex + 1, 'Type:', question.type, question);
+    
+    container.innerHTML = '';
 
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
 
-            let optionsHtml = '';
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (question.type === 'multiple_choice' || question.type === 'mcq') {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (question.type === 'multiple_select') {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
-                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input', 'text'].includes(question.type)) {
-                let specificPlaceholder = "Enter your answer";
-                if (question.type === 'coordinate_input') {
-                    specificPlaceholder = "Enter coordinates as (x, y)";
-                } else if (question.type === 'equation_input') {
-                    specificPlaceholder = "Enter equation (e.g., y = mx + b)";
-                } else if (question.type === 'interval_input') {
-                    specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
-                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                    specificPlaceholder = "Enter a number";
-                }
-                
-                optionsHtml = `
-                    <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${specificPlaceholder}" 
-                           value="${savedAnswer || ''}"
-                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false">
-                    ${question.format_hint ? `<div class="format-help">${question.format_hint}</div>` : ''}
-                `;
-            } else {
-                console.warn('Unknown question type or missing options:', question.type, question);
-                optionsHtml = `
-                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                        <strong>Error:</strong> Unable to display question options. Please contact administrator.
-                    </div>
-                `;
-            }
-
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107', 
-                'hard': '#dc3545'
-            };
-            
-            const difficulty = question.difficulty || 'medium';
-            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-            let processedQuestionText = question.question_text || 'Question text not available';
-
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${difficultyText}
-                        </span>
-                    </div>
+    let optionsHtml = '';
+    
+    // Handle both 'multiple_choice' and 'mcq' types
+    if ((question.type === 'multiple_choice' || question.type === 'mcq') && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
                 </div>
-                <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
-                <div class="options">${optionsHtml}</div>
             `;
-
-            container.appendChild(questionDiv);
-            
-            restoreAnswer();
-            updateAnswerStatus();
+        }).join('');
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+        let specificPlaceholder = "Enter your answer";
+        if (question.type === 'coordinate_input') {
+            specificPlaceholder = "Enter coordinates as (x, y)";
+        } else if (question.type === 'equation_input') {
+            specificPlaceholder = "Enter equation (e.g., y = mx + b)";
+        } else if (question.type === 'interval_input') {
+            specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
+        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+            specificPlaceholder = "Enter a number";
         }
+        
+        const savedAnswer = userAnswers[currentQuestionIndex] || '';
+        
+        optionsHtml = `
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${specificPlaceholder}"
+                   value="${savedAnswer}"
+                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                   oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false">
+        `;
+    } else {
+        console.warn('Unknown question type or missing options:', question.type, question);
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options. Please contact administrator.
+            </div>
+        `;
+    }
+
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107', 
+        'hard': '#dc3545'
+    };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+    let processedQuestionText = question.question_text || 'Question text not available';
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
+                </span>
+            </div>
+        </div>
+        <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
+        <div class="options">${optionsHtml}</div>
+    `;
+
+    container.appendChild(questionDiv);
+    
+    restoreAnswer();
+    updateAnswerStatus();
+}
 
         function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (!savedAnswer) return;
+    const question = questions[currentQuestionIndex];
+    const savedAnswer = userAnswers[currentQuestionIndex];
+    
+    if (savedAnswer === undefined || savedAnswer === null) return;
 
-            if (question.type === 'multiple_choice' || question.type === 'mcq') {
-                const option = document.querySelector(`input[value="${savedAnswer}"]`);
-                if (option) {
-                    option.checked = true;
-                    option.closest('.option').classList.add('selected');
-                }
-            } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[value="${answer}"]`);
-                    if (option) {
-                        option.checked = true;
-                        option.closest('.option').classList.add('selected');
-                    }
-                });
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input', 'text'].includes(question.type)) {
-                const input = document.querySelector('.numeric-input');
-                if (input) {
-                    input.value = savedAnswer;
-                }
+    console.log(`Restoring answer for Q${currentQuestionIndex}:`, savedAnswer);
+    
+    // Handle both 'multiple_choice' and 'mcq' types
+    if (question.type === 'multiple_choice' || question.type === 'mcq') {
+        const allInputs = document.querySelectorAll(`input[name="q${currentQuestionIndex}"]`);
+        let found = false;
+        
+        allInputs.forEach(input => {
+            // Compare values directly
+            if (input.value === savedAnswer) {
+                input.checked = true;
+                input.closest('.option').classList.add('selected');
+                found = true;
+                console.log('Restored radio option:', input.value);
             }
+        });
+        
+        if (!found) {
+            // Try more flexible matching
+            allInputs.forEach(input => {
+                const inputValue = input.value.toString().trim();
+                const savedValue = savedAnswer.toString().trim();
+                if (inputValue === savedValue) {
+                    input.checked = true;
+                    input.closest('.option').classList.add('selected');
+                    console.log('Restored via trim match:', inputValue);
+                }
+            });
         }
+        
+    } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+        const allInputs = document.querySelectorAll(`input[name="q${currentQuestionIndex}"]`);
+        
+        savedAnswer.forEach(answer => {
+            allInputs.forEach(input => {
+                if (input.value === answer) {
+                    input.checked = true;
+                    input.closest('.option').classList.add('selected');
+                }
+            });
+        });
+        
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+        const input = document.querySelector('.numeric-input');
+        if (input) {
+            input.value = savedAnswer;
+        }
+    }
+}
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
@@ -1973,6 +2004,7 @@
     </script>
 </body>
 </html>
+
 
 
 
