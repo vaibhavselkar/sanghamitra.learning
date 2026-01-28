@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Conditional Probability Quiz</title>
+    <title>Week 8 - Conditional Probability Quiz</title>
    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -481,8 +481,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Conditional Probability Quiz</h1>
-            <p>Test your understanding of conditional probability, Bayes' theorem, and related concepts</p>
+            <h1>Week 8 - Conditional Probability Quiz</h1>
+            <p>Probability Theory and Applications - Test your conditional probability knowledge with 50 questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -507,7 +507,7 @@
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #4CAF50;">
                 <button class="btn" onclick="submitQuiz()" id="submitBtn">
-                    <span id="submitText">Submit Conditional Probability Quiz</span>
+                    <span id="submitText">Submit Week 8 - Conditional Probability Quiz</span>
                     <span id="submitLoading" class="loading" style="display: none;"></span>
                 </button>
             </div>
@@ -516,7 +516,7 @@
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Conditional Probability Quiz...</h3>
+            <h3>Loading Week 8 - Conditional Probability Quiz...</h3>
             <p>Verifying your session and preparing questions</p>
         </div>
 
@@ -902,7 +902,7 @@
                 return false;
             };
             
-            console.log('✅ Enhanced anti-cheating initialized for Conditional Probability Quiz');
+            console.log('✅ Enhanced anti-cheating initialized for Week 8 - Conditional Probability');
         }
         
         function recordCheatingAttempt(type) {
@@ -920,7 +920,7 @@
                         cheatingType: type,
                         timestamp: new Date(),
                         currentQuestion: currentQuestionIndex + 1,
-                        quizType: 'conditional_probability'
+                        quizType: 'conditional_probability_week8'
                     })
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
@@ -966,10 +966,11 @@
                     return false;
                 }
                 
-                // UPDATED: Fetch from conditional_probability collection
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/conditional_probability?email=${encodeURIComponent(email)}&count=50`, {
+                // CHANGED: Fetch questions for conditional_probability topic (Week 8)
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/conditional_probability?email=${encodeURIComponent(email)}&count=50`, {
                     credentials: 'include'
                 });
+
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -997,7 +998,7 @@
                 questions = data.questions || data;
                 
                 if (!questions || questions.length === 0) {
-                    throw new Error('No questions found for Conditional Probability');
+                    throw new Error('No questions found for Week 8 - Conditional Probability');
                 }
                 
                 document.getElementById('calculatorBtn').style.display = 'flex';
@@ -1418,7 +1419,7 @@
                 `Ready to Submit?\n\n` +
                 `Please make sure you have reviewed all your answers before submitting.\n` +
                 `Once submitted, you won't be able to make changes.\n\n` +
-                `Are you ready to submit your Conditional Probability Quiz?`
+                `Are you ready to submit your Week 8 - Conditional Probability Quiz?`
             );
             
             if (!confirmSubmit) return;
@@ -1478,7 +1479,7 @@
             });
 
             const quizData = {
-                topic: 'conditional_probability', // UPDATED: Changed from 'week_7_probability'
+                topic: 'conditional_probability', 
                 quizType: 'practice',
                 score: score,
                 maxPossibleScore: totalPossiblePoints,
@@ -1498,7 +1499,7 @@
                 document.getElementById('submitLoading').style.display = 'inline-block';
                 document.getElementById('submitBtn').disabled = true;
 
-                console.log('Submitting conditional probability quiz data:', {
+                console.log('Submitting Week 8 - Conditional Probability quiz data:', {
                     email: email,
                     username: username,
                     quizData: quizData
@@ -1516,7 +1517,7 @@
                 });
 
                 if (response.ok) {
-                    console.log('Conditional probability quiz submitted successfully');
+                    console.log('Week 8 - Conditional Probability quiz submitted successfully');
                     displayDetailedResults(quizData);
                 } else {
                     const errorText = await response.text();
@@ -1551,7 +1552,7 @@
             const scoreDisplay = document.querySelector('.score-display');
             scoreDisplay.innerHTML = `
                 <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
-                <p>Conditional Probability Quiz Completed Successfully!</p>
+                <p>Week 8 - Conditional Probability Quiz Completed Successfully!</p>
                 <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
                     <div>
                         <strong>Easy Questions</strong><br>
@@ -1655,7 +1656,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ email: email, week: 'conditional_probability' }) // UPDATED
+                    body: JSON.stringify({ email: email, week: 'week8' })
                 });
                 
                 if (response.ok) {
