@@ -1060,7 +1060,7 @@
                     return false;
                 }
                 
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Function%20Concepts?email=${encodeURIComponent(email)}&count=50&random=true`, {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/exponential_function?email=${encodeURIComponent(email)}&count=50&random=true`, {
                     credentials: 'include'
                 });
                 
@@ -1894,7 +1894,7 @@
             });
 
             const quizData = {
-                topic: 'function_concepts',
+                topic: 'exponential_function',
                 quizType: 'practice',
                 score: score,
                 maxPossibleScore: totalPossiblePoints,
@@ -2000,4 +2000,5 @@
     </script>
 </body>
 </html>
+
 
