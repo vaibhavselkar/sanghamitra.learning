@@ -1391,7 +1391,7 @@
                         // Check alternative answers
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
+                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
@@ -1400,7 +1400,7 @@
                     } else if (question.type === 'multiple_select') {
                         if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
                             const normalizeArray = (arr) => arr.map(item => 
-                                    AnswerNormalizer.normalize(item, question.type)).sort();
+                                   answerNormalizer.normalizeAnswer(item, question.type)).sort();
                             const userNorm = normalizeArray(userAnswer);
                             const correctNorm = normalizeArray(question.correct_answer);
                             isCorrect = userNorm.length === correctNorm.length &&
@@ -1408,8 +1408,8 @@
                         }
                     } else if (question.type === 'numeric' || question.type === 'numeric_input') {
                         // Handle numeric comparisons with tolerance
-                        const userNum = AnswerNormalizer.normalizeNumeric(userAnswer);
-                        const correctNum = AnswerNormalizer.normalizeNumeric(question.correct_answer);
+                        const userNum = answerNormalizer.normalizeNumeric(userAnswer);
+                        const correctNum = answerNormalizer.normalizeNumeric(question.correct_answer);
                         
                         if (userNum === correctNum) {
                             // Exact match (including Infinity/-Infinity)
@@ -1425,7 +1425,7 @@
                         // Check alternative numeric answers
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const altNum = AnswerNormalizer.normalizeNumeric(alt);
+                                const altNum = answerNormalizer.normalizeNumeric(alt);
                                 if (userNum === altNum) return true;
                                 if (isFinite(userNum) && isFinite(altNum)) {
                                     const tolerance = Math.max(Math.abs(altNum) * 0.01, 0.01);
@@ -1440,7 +1440,7 @@
                         // Check alternative answers
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
+                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
@@ -1449,7 +1449,7 @@
                         
                         if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
                             isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
+                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
                                 return normalizedAlt === normalizedUser;
                             });
                         }
@@ -1975,6 +1975,7 @@
     </script>
 </body>
 </html>
+
 
 
 
