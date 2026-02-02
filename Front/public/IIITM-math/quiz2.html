@@ -1729,36 +1729,37 @@
         }
 
         function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (!savedAnswer) return;
+    const question = questions[currentQuestionIndex];
+    const savedAnswer = userAnswers[currentQuestionIndex];
+    
+    if (!savedAnswer) return;
 
-            if (question.type === 'multiple_choice') {
-                const option = document.querySelector(`input[value="${savedAnswer}"]`);
-                if (option) {
-                    option.checked = true;
-                    option.closest('.option').classList.add('selected');
-                }
-            } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[value="${answer}"]`);
-                    if (option) {
-                        option.checked = true;
-                        option.closest('.option').classList.add('selected');
-                    }
-                });
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'set_notation', 'text_input'].includes(question.type)) {
-                const input = document.querySelector(`#answerInput-${currentQuestionIndex}`);
-                if (input) {
-                    input.value = savedAnswer;
-                    // Update preview if there's an answer
-                    if (savedAnswer.trim()) {
-                        updateAnswerPreview(currentQuestionIndex, savedAnswer);
-                    }
-                }
+    if (question.type === 'multiple_choice') {
+        const option = document.querySelector(`input[value="${savedAnswer}"]`);
+        if (option) {
+            option.checked = true;
+            option.closest('.option').classList.add('selected');
+        }
+    } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+        savedAnswer.forEach(answer => {
+            const option = document.querySelector(`input[value="${answer}"]`);
+            if (option) {
+                option.checked = true;
+                option.closest('.option').classList.add('selected');
+            }
+        });
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'set_notation', 'text_input'].includes(question.type)) {
+        const input = document.querySelector(`#answerInput-${currentQuestionIndex}`);
+        if (input) {
+            input.value = savedAnswer;
+            // Update preview if there's an answer - SHOW FORMATTED VERSION
+            if (savedAnswer.trim()) {
+                // Update the preview with formatted version
+                updateAnswerPreview(currentQuestionIndex, savedAnswer);
             }
         }
+    }
+}
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
@@ -2649,4 +2650,5 @@
     </script>
 </body>
 </html>
+
 
