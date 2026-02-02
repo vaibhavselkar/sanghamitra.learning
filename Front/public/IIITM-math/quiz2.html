@@ -21,7 +21,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
    
-     <style>
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -296,6 +296,14 @@
             border: 2px solid #e9ecef;
             border-radius: 8px;
             font-size: 16px;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.2s ease;
+        }
+
+        .numeric-input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .results-container {
@@ -333,6 +341,23 @@
             color: #333;
             border-bottom: 2px solid #667eea;
             padding-bottom: 10px;
+        }
+
+        /* Ensure MathJax fractions display properly */
+        .mjx-mfrac {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Better alignment for preview values */
+        .preview-value.math {
+            font-family: inherit;
+            font-size: 16px;
+            color: #2c3e50;
+            line-height: 1.2;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
         }
 
         /* Calculator Styles */
@@ -778,6 +803,10 @@
             .help-button .help-icon {
                 font-size: 20px;
             }
+            
+            .numeric-input {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -1093,17 +1122,25 @@
                     .replace(/\s+/g, ' ')
                     .trim();
                 
+                // Handle fractions properly - only convert if not already in LaTeX
+                if (!formatted.includes('\\frac')) {
+                    // Match fractions like 1/2, (a)/(b), a/b/c (should be avoided)
+                    formatted = formatted.replace(/(\d+)\/(\d+)/g, function(match, num, den) {
+                        return `\\frac{${num}}{${den}}`;
+                    });
+                    
+                    // Handle fractions with parentheses like (x+1)/(x-1)
+                    formatted = formatted.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+                    formatted = formatted.replace(/\(([^)]+)\)\s*\/\s*([^\s)]+)/g, '\\frac{$1}{$2}');
+                    formatted = formatted.replace(/([^\s)]+)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+                }
+                
                 // Convert inf to infinity symbol
                 formatted = formatted.replace(/inf(inity)?/gi, '∞');
                 formatted = formatted.replace(/-∞/g, '-∞');
                 
                 // Convert sqrt() to √
                 formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√($1)');
-                
-                // Convert fractions if not already in LaTeX
-                if (!formatted.includes('\\frac')) {
-                    formatted = formatted.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
-                }
                 
                 // Convert exponents
                 formatted = formatted.replace(/(\w+)\^(\d+)/g, '$1^{$2}');
@@ -1131,9 +1168,15 @@
                 // Square roots
                 latex = latex.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
                 
-                // Fractions (simple)
+                // Fractions - careful handling
                 if (!latex.includes('\\frac')) {
+                    // Simple fractions like 1/2
                     latex = latex.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
+                    
+                    // Complex fractions with parentheses
+                    latex = latex.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+                    latex = latex.replace(/\(([^)]+)\)\s*\/\s*([^\s)]+)/g, '\\frac{$1}{$2}');
+                    latex = latex.replace(/([^\s)]+)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
                 }
                 
                 // Exponents
@@ -1167,6 +1210,31 @@
                     .toLowerCase();
             },
             
+            // New function to ensure proper fraction formatting in storage
+            formatForStorage: (text) => {
+                if (!text) return '';
+                
+                return text.toString()
+                    .replace(/\s+/g, '')  // Remove spaces
+                    .trim();
+            },
+            
+            // Add the missing createAnswerPreview method
+            createAnswerPreview: (answer, questionType) => {
+                if (!answer) return null;
+                
+                const normalized = answerNormalizer.normalizeAnswer(answer, questionType);
+                const displayText = answerFormatter.formatForDisplay(answer);
+                const latexText = answerFormatter.formatForMathJax(answer);
+                
+                return {
+                    original: answer,
+                    normalized: normalized,
+                    display: displayText,
+                    latex: latexText
+                };
+            },
+            
             roundDecimals: (num, decimals = 3) => {
                 if (typeof num === 'number') {
                     return parseFloat(num.toFixed(decimals));
@@ -1186,23 +1254,6 @@
                 }
                 
                 return num;
-            },
-            
-            createAnswerPreview: (answer, questionType) => {
-                if (!answer) return null;
-                
-                const normalized = answerNormalizer.normalizeAnswer(answer, questionType);
-                const displayText = answerFormatter.formatForDisplay(answer);
-                const latexText = answerFormatter.formatForMathJax(answer);
-                const rounded = answerFormatter.roundDecimals(answer);
-                
-                return {
-                    original: answer,
-                    normalized: normalized,
-                    display: displayText,
-                    latex: latexText,
-                    rounded: rounded !== answer ? rounded : null
-                };
             }
         };
 
@@ -1627,7 +1678,6 @@
                         <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                             ${difficultyText}
                         </span>
-                       
                     </div>
                 </div>
                 <div class="question-text" id="question-text-${currentQuestionIndex}">${questionText}</div>
@@ -1812,7 +1862,8 @@
             const trimmedValue = value.trim();
             
             if (trimmedValue) {
-                userAnswers[questionIndex] = trimmedValue;
+                // Store the formatted version (no spaces)
+                userAnswers[questionIndex] = answerFormatter.formatForStorage(trimmedValue);
             } else {
                 delete userAnswers[questionIndex];
             }
@@ -1820,6 +1871,7 @@
             updateAnswerStatus();
         }
 
+        // Correct updateAnswerPreview function - only one version needed
         function updateAnswerPreview(questionIndex, answer) {
             const preview = document.getElementById(`answerPreview-${questionIndex}`);
             const warning = document.getElementById(`inputWarning-${questionIndex}`);
@@ -1836,9 +1888,12 @@
             const question = questions[questionIndex];
             const previewData = answerFormatter.createAnswerPreview(answer, question.type);
             
-            // Update preview elements
+            if (!previewData) return;
+            
+            // Update preview elements - USE formatForStorage for stored value
+            const storedValue = answerFormatter.formatForStorage(answer);
             document.getElementById(`previewOriginal-${questionIndex}`).textContent = answer;
-            document.getElementById(`previewNormalized-${questionIndex}`).textContent = previewData.normalized;
+            document.getElementById(`previewNormalized-${questionIndex}`).textContent = storedValue;
             
             // Update formatted view with LaTeX
             const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
@@ -1848,8 +1903,9 @@
             const hintEl = document.getElementById(`previewHint-${questionIndex}`);
             let hint = '';
             
-            if (previewData.rounded && previewData.rounded !== answer) {
-                hint = `Note: Will be rounded to 3 decimal places: ${previewData.rounded}`;
+            const rounded = answerFormatter.roundDecimals(answer);
+            if (rounded && rounded !== answer) {
+                hint = `Note: Will be rounded to 3 decimal places: ${rounded}`;
             } else if (answer.includes('inf')) {
                 hint = 'Tip: "inf" will be converted to ∞ symbol';
             } else if (answer.includes('sqrt')) {
