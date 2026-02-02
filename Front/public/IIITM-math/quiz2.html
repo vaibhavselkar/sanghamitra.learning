@@ -1756,6 +1756,12 @@
             if (savedAnswer.trim()) {
                 // Update the preview with formatted version
                 updateAnswerPreview(currentQuestionIndex, savedAnswer);
+                
+                // Show the preview panel since there's an answer
+                const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+                if (preview) {
+                    preview.classList.add('visible');
+                }
             }
         }
     }
@@ -1911,24 +1917,24 @@
             formattedEl.innerHTML = previewData.latex;
             
             // Update hint
-            // Update the hint section:
-            const hintEl = document.getElementById(`previewHint-${questionIndex}`);
-            let hint = '';
-            
-            const rounded = answerFormatter.roundDecimals(answer);
-            if (rounded && rounded !== answer) {
-                hint = `Note: Will be rounded to 3 decimal places: ${rounded}`;
-            } else if (answer.includes('inf')) {
-                hint = 'Tip: "inf" will be displayed as ∞ symbol';
-            } else if (answer.includes('sqrt')) {
-                hint = 'Tip: "sqrt(x)" will be displayed as √x';
-            } else if (answer.match(/\d+\/\d+/)) {
-                hint = 'Tip: Fractions will be displayed properly';
-            } else if (answer.includes('{') || answer.includes('}')) {
-                hint = 'Note: Curly braces { } will be properly formatted';
-            }
-            
-            hintEl.textContent = hint;
+            // Update hint section (around line 808-824)
+const hintEl = document.getElementById(`previewHint-${questionIndex}`);
+let hint = '';
+
+const rounded = answerFormatter.roundDecimals(answer);
+if (rounded && rounded !== answer) {
+    hint = `Will be rounded to 3 decimal places: ${rounded}`;
+} else if (answer.includes('inf')) {
+    hint = '"inf" is displayed as ∞';
+} else if (answer.includes('sqrt')) {
+    hint = '"sqrt(x)" is displayed as √x';
+} else if (answer.match(/\d+\/\d+/)) {
+    hint = 'Fractions are displayed properly';
+} else if (answer.includes('{') || answer.includes('}')) {
+    hint = 'Curly braces are formatted for display';
+}
+
+hintEl.textContent = hint;
             
             // Process MathJax for formatted preview
             if (window.MathJax) {
@@ -2650,5 +2656,6 @@
     </script>
 </body>
 </html>
+
 
 
