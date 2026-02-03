@@ -1140,7 +1140,7 @@
                 formatted = formatted.replace(/-∞/g, '-∞');
                 
                 // Convert sqrt() to √
-                formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√($1)');
+                formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
                 
                 // Convert exponents
                 formatted = formatted.replace(/(\w+)\^(\d+)/g, '$1^{$2}');
@@ -1188,8 +1188,8 @@
     
     // Sets - fix the double curly braces issue
     // Only escape braces if they're not already escaped
-    if (!latex.includes('\\{') && !latex.includes('\\}')) {
-        latex = latex.replace(/{/g, '\\{').replace(/}/g, '\\}');
+    if (!latex.includes('\\sqrt{') && !latex.includes('\\frac{') && !latex.includes('\\{') && !latex.includes('\\}')) {
+    latex = latex.replace(/{/g, '\\{').replace(/}/g, '\\}');
     }
     latex = latex.replace(/\|/g, '\\mid');
     
@@ -1200,25 +1200,34 @@
     return `\\(${latex}\\)`;
 },
 
-            storeAnswerExactly: (text) => {
+          storeAnswerExactly: (text) => {
     if (!text) return '';
     
-    // Return the text exactly as typed, only trim whitespace
-    return text.toString().trim();
+    let formatted = text.toString().trim();
+    
+    // Convert sqrt() to √ symbol for storage
+    formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
+    
+    // Convert inf to ∞ symbol for storage
+    formatted = formatted.replace(/\binf\b/gi, '∞');
+    formatted = formatted.replace(/-∞/g, '-∞');
+    
+    return formatted;
 },
             
             formatForNormalization: (text) => {
-                if (!text) return '';
-                
-                return text.toString()
-                    .replace(/\s+/g, '')
-                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
-                    .replace(/√/g, 'sqrt')
-                    .replace(/≠/g, '!=')
-                    .replace(/≤/g, '<=')
-                    .replace(/≥/g, '>=')
-                    .toLowerCase();
-            },
+    if (!text) return '';
+    
+    return text.toString()
+        .replace(/\s+/g, '')
+        .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+        .replace(/√(\d+)/g, 'sqrt($1)')  // Convert √2 back to sqrt(2) for comparison
+        .replace(/√\(([^)]+)\)/g, 'sqrt($1)')  // Convert √(x+1) to sqrt(x+1)
+        .replace(/≠/g, '!=')
+        .replace(/≤/g, '<=')
+        .replace(/≥/g, '>=')
+        .toLowerCase();
+},
             
             // New function to ensure proper fraction formatting in storage
             formatForStorage: (text) => {
@@ -2656,6 +2665,7 @@ hintEl.textContent = hint;
     </script>
 </body>
 </html>
+
 
 
 
