@@ -1307,7 +1307,7 @@
             }
         }
 
-        async function submitQuiz() {
+                async function submitQuiz() {
             const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Polynomial - 1 Quiz?`);
             
             if (!confirmSubmit) {
@@ -1336,41 +1336,60 @@
             // ============================================
             // ENHANCED ANSWER CHECKING WITH NORMALIZATION
             // ============================================
-                            // ============================================
-                // ENHANCED ANSWER CHECKING WITH NORMALIZATION
-                // ============================================
-                questions.forEach((question, index) => {
-                    const userAnswer = userAnswers[index];
-                    totalPossiblePoints += question.points;
-                    
-                    let isCorrect = false;
-                    
-                    // Use comprehensive normalizer for ALL answer types
-                    if (question.type === 'multiple_select') {
-                        // Special handling for multiple_select
-                        if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                            const userNorm = userAnswer.map(ans => 
-                                AnswerNormalizer.normalize(ans, 'text_input')
-                            ).sort();
-                            const correctNorm = question.correct_answer.map(ans => 
-                                AnswerNormalizer.normalize(ans, 'text_input')
-                            ).sort();
-                            isCorrect = userNorm.length === correctNorm.length &&
-                                       userNorm.every((ans, idx) => ans === correctNorm[idx]);
-                        }
-                    } else {
-                        // Use normalizer for all other types
-                        isCorrect = AnswerNormalizer.compareAnswers(
-                            userAnswer,
-                            question.correct_answer,
-                            question.alternative_answers,
-                            question.type
-                        );
+            questions.forEach((question, index) => {
+                const userAnswer = userAnswers[index];
+                totalPossiblePoints += question.points;
+                
+                let isCorrect = false;
+                
+                // Use comprehensive normalizer for ALL answer types
+                if (question.type === 'multiple_select') {
+                    // Special handling for multiple_select
+                    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+                        const userNorm = userAnswer.map(ans => 
+                            AnswerNormalizer.normalize(ans, 'text_input')
+                        ).sort();
+                        const correctNorm = question.correct_answer.map(ans => 
+                            AnswerNormalizer.normalize(ans, 'text_input')
+                        ).sort();
+                        isCorrect = userNorm.length === correctNorm.length &&
+                                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
                     }
-                    
-                    if (isCorrect) {
-                        score += question.points;
-                    }
+                } else {
+                    // Use normalizer for all other types
+                    isCorrect = AnswerNormalizer.compareAnswers(
+                        userAnswer,
+                        question.correct_answer,
+                        question.alternative_answers,
+                        question.type
+                    );
+                }
+                
+                if (isCorrect) {
+                    score += question.points;
+                }
+                
+                // Update difficulty breakdown
+                difficultyBreakdown[question.difficulty].attempted++;
+                if (isCorrect) {
+                    difficultyBreakdown[question.difficulty].correct++;
+                    difficultyBreakdown[question.difficulty].points += question.points;
+                }
+                
+                // Build question result
+                questionResults.push({
+                    questionId: question._id,
+                    questionNumber: question.question_number,
+                    questionText: question.question_text,
+                    difficulty: question.difficulty,
+                    points: question.points,
+                    userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
+                    correctAnswer: question.correct_answer.toString(),
+                    explanation: question.explanation || '',
+                    isCorrect: isCorrect,
+                    timeTaken: questionTimes[index] || 0
+                });
+            });
 
             const quizData = {
                 topic: 'polynomial_zeros_and_multiplicity',
@@ -1440,8 +1459,7 @@
                 document.getElementById('submitBtn').disabled = false;
                 return;
             }
-        }
-
+        } // <-- Make sure this closing brace is present
         function displayDetailedResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             
@@ -1864,4 +1882,3 @@
     </script>
 </body>
 </html>
-
