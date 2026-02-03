@@ -1,14 +1,13 @@
-// unified-system.js
-// Brings Domain and Range functionality to ALL quizzes
-// Just include this ONE file in all quizzes
+// math-formatting-guide.js
+// Provides math formatting with preview AND guide for ALL quizzes
 
 (function() {
     'use strict';
     
-    console.log('🚀 Unified Quiz System Loading...');
+    console.log('🔧 Math Formatting System Loading...');
     
     // ============================================
-    // 1. ANSWER FORMATTING ENGINE (From Domain and Range)
+    // 1. ANSWER FORMATTING ENGINE
     // ============================================
     
     const answerFormatter = {
@@ -88,6 +87,7 @@
             return `\\(${latex}\\)`;
         },
         
+        // Store answer as user typed (converted for storage)
         storeAnswerExactly: function(text) {
             if (!text) return '';
             
@@ -101,158 +101,171 @@
             formatted = formatted.replace(/-∞/g, '-∞');
             
             return formatted;
+        },
+        
+        // Convert stored answer back to input format
+        convertToInputFormat: function(text) {
+            if (!text) return '';
+            
+            let inputFormat = String(text).trim();
+            
+            // Convert √ back to sqrt() for input
+            inputFormat = inputFormat.replace(/√(\d+)/g, 'sqrt($1)');
+            inputFormat = inputFormat.replace(/√\(([^)]+)\)/g, 'sqrt($1)');
+            
+            // Convert ∞ back to inf for input
+            inputFormat = inputFormat.replace(/∞/gi, 'inf');
+            
+            return inputFormat;
         }
     };
     
     // ============================================
-    // 2. AUTO-PATCH ALL ANSWER INPUTS
+    // 2. AUTO-PATCH ANSWER INPUTS FOR PREVIEW
     // ============================================
     
     function patchAnswerInputs() {
-        console.log('🔧 Patching answer inputs...');
-        
-        // Find all answer input fields
-        const answerInputs = document.querySelectorAll('input.numeric-input, input[type="text"], textarea');
+        const answerInputs = document.querySelectorAll('input[type="text"], input.numeric-input, textarea');
         
         answerInputs.forEach(input => {
-            // Skip if already patched
-            if (input.dataset.unifiedPatched === 'true') return;
+            // Skip if already patched or not an answer input
+            if (input.dataset.mathPatched === 'true') return;
+            if (!input.id || !input.id.includes('answerInput-')) {
+                // Check if input is near question text
+                const parentText = input.closest('.question-text, .problem-statement, [class*="question"]');
+                if (!parentText) return;
+            }
             
-            // Get question index from input ID or parent
+            // Get question index
             let questionIndex = 0;
             if (input.id && input.id.includes('answerInput-')) {
                 questionIndex = input.id.replace('answerInput-', '');
+            } else {
+                // Generate unique index
+                questionIndex = 'q' + Math.random().toString(36).substr(2, 9);
+                input.id = `answerInput-${questionIndex}`;
             }
             
-            // Add answer preview HTML if not present
+            // Add preview HTML
             addAnswerPreview(questionIndex, input);
             
             // Patch input events
             patchInputEvents(input, questionIndex);
             
-            // Mark as patched
-            input.dataset.unifiedPatched = 'true';
+            input.dataset.mathPatched = 'true';
         });
-        
-        console.log(`✅ Patched ${answerInputs.length} answer inputs`);
     }
     
     function addAnswerPreview(questionIndex, input) {
-        const previewId = `unified-preview-${questionIndex}`;
+        const previewId = `math-preview-${questionIndex}`;
         
-        // Check if preview already exists
         if (document.getElementById(previewId)) return;
         
-        // Create preview HTML
         const previewHTML = `
-            <div class="answer-preview unified-preview" id="${previewId}">
-                <h4>Answer Preview</h4>
-                <div class="answer-preview-content">
-                    <div class="preview-row">
-                        <span class="preview-label">Formatted view:</span>
-                        <div class="preview-value math" id="unified-preview-value-${questionIndex}"></div>
+            <div class="math-answer-preview" id="${previewId}" style="display: none;">
+                <div style="font-size: 14px; color: #666; margin-bottom: 5px;">
+                    <strong>Preview:</strong>
+                </div>
+                <div class="preview-content" style="
+                    background: #f8f9fa;
+                    border: 1px solid #dee2e6;
+                    border-radius: 6px;
+                    padding: 10px;
+                    min-height: 40px;
+                    display: flex;
+                    align-items: center;
+                    font-size: 16px;
+                ">
+                    <div class="math-preview-value" id="math-preview-value-${questionIndex}">
+                        Type something to see preview...
                     </div>
                 </div>
-                <div class="preview-hint" id="unified-preview-hint-${questionIndex}"></div>
+                <div class="preview-hint" id="math-preview-hint-${questionIndex}" style="
+                    font-size: 12px;
+                    color: #6c757d;
+                    margin-top: 5px;
+                    font-style: italic;
+                "></div>
             </div>
         `;
         
-        // Insert after input
         input.insertAdjacentHTML('afterend', previewHTML);
     }
     
     function patchInputEvents(input, questionIndex) {
-        // Remove any existing listeners to avoid duplicates
-        const newInput = input.cloneNode(true);
-        input.parentNode.replaceChild(newInput, input);
+        // Store original value for comparison
+        let lastValue = input.value;
         
-        // Add unified event listeners
-        newInput.addEventListener('input', function(e) {
-            handleAnswerInput(questionIndex, e.target.value);
-        });
-        
-        newInput.addEventListener('change', function(e) {
-            handleAnswerInput(questionIndex, e.target.value);
-        });
-        
-        // Show/hide preview on focus/blur
-        newInput.addEventListener('focus', function() {
-            const preview = document.getElementById(`unified-preview-${questionIndex}`);
-            if (preview) {
-                preview.classList.add('visible');
-            }
-        });
-        
-        newInput.addEventListener('blur', function() {
-            setTimeout(() => {
-                const preview = document.getElementById(`unified-preview-${questionIndex}`);
-                const activeElement = document.activeElement;
-                if (preview && !preview.contains(activeElement)) {
-                    preview.classList.remove('visible');
+        const updatePreview = () => {
+            const value = input.value.trim();
+            
+            if (value === lastValue) return;
+            lastValue = value;
+            
+            if (value) {
+                // Update preview
+                updateAnswerPreview(questionIndex, value);
+                
+                // Store answer (optional)
+                if (window.userAnswers) {
+                    window.userAnswers[questionIndex] = answerFormatter.storeAnswerExactly(value);
                 }
-            }, 100);
-        });
-    }
-    
-    function handleAnswerInput(questionIndex, value) {
-        const trimmedValue = value.trim();
+            } else {
+                // Hide preview
+                const preview = document.getElementById(`math-preview-${questionIndex}`);
+                if (preview) preview.style.display = 'none';
+            }
+        };
         
-        // Store answer (global userAnswers)
-        if (trimmedValue) {
-            window.userAnswers = window.userAnswers || {};
-            window.userAnswers[questionIndex] = answerFormatter.storeAnswerExactly(trimmedValue);
-        } else {
-            delete window.userAnswers[questionIndex];
-        }
+        // Update on input
+        input.addEventListener('input', updatePreview);
         
-        // Update preview
-        updateAnswerPreview(questionIndex, trimmedValue);
+        // Update on blur/focus
+        input.addEventListener('change', updatePreview);
+        input.addEventListener('blur', updatePreview);
         
-        // Update answer status if function exists
-        if (typeof window.updateAnswerStatus === 'function') {
-            window.updateAnswerStatus();
+        // Initial update if has value
+        if (input.value.trim()) {
+            setTimeout(() => updatePreview(), 100);
         }
     }
     
     function updateAnswerPreview(questionIndex, answer) {
-        const preview = document.getElementById(`unified-preview-${questionIndex}`);
+        const preview = document.getElementById(`math-preview-${questionIndex}`);
         if (!preview) return;
         
-        if (!answer) {
-            preview.classList.remove('visible');
-            return;
-        }
+        const previewValue = document.getElementById(`math-preview-value-${questionIndex}`);
+        const previewHint = document.getElementById(`math-preview-hint-${questionIndex}`);
         
-        // Update formatted view
-        const formattedEl = document.getElementById(`unified-preview-value-${questionIndex}`);
-        if (formattedEl) {
-            formattedEl.innerHTML = answerFormatter.formatForMathJax(answer);
-        }
+        if (!previewValue) return;
+        
+        // Show preview
+        preview.style.display = 'block';
+        
+        // Update preview value with MathJax
+        previewValue.innerHTML = answerFormatter.formatForMathJax(answer);
         
         // Update hint
-        const hintEl = document.getElementById(`unified-preview-hint-${questionIndex}`);
-        if (hintEl) {
+        if (previewHint) {
             let hint = '';
-            
             if (answer.includes('inf')) {
-                hint = '"inf" is displayed as ∞';
+                hint = 'Tip: "inf" will be displayed as ∞';
             } else if (answer.includes('sqrt')) {
-                hint = '"sqrt(x)" is displayed as √x';
+                hint = 'Tip: "sqrt(x)" will be displayed as √x';
             } else if (answer.match(/\d+\/\d+/)) {
-                hint = 'Fractions are displayed properly';
+                hint = 'Fractions will be displayed properly';
+            } else if (answer.includes('!=') || answer.includes('<=') || answer.includes('>=')) {
+                hint = 'Inequalities will be formatted correctly';
             }
-            
-            hintEl.textContent = hint;
+            previewHint.textContent = hint;
         }
         
         // Render MathJax
-        if (window.MathJax && formattedEl) {
-            MathJax.typesetPromise([formattedEl]).catch(err => {
+        if (window.MathJax) {
+            MathJax.typesetPromise([previewValue]).catch(err => {
                 console.log('MathJax preview error:', err);
             });
         }
-        
-        preview.classList.add('visible');
     }
     
     // ============================================
@@ -260,9 +273,7 @@
     // ============================================
     
     function initializeMathGuide() {
-        console.log('📘 Initializing Math Guide...');
-        
-        // Inject CSS if not already present
+        // Inject CSS
         injectGuideStyles();
         
         // Add guide button
@@ -273,11 +284,11 @@
     }
     
     function injectGuideStyles() {
-        if (document.getElementById('unified-system-styles')) return;
+        if (document.getElementById('math-system-styles')) return;
         
         const styles = `
-        /* Unified System Styles */
-        .unified-guide-btn {
+        /* Math System Styles */
+        .math-guide-btn {
             position: fixed !important;
             top: 20px !important;
             right: 100px !important;
@@ -294,14 +305,15 @@
             z-index: 9999 !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
             transition: all 0.3s ease !important;
+            font-size: 24px !important;
         }
         
-        .unified-guide-btn:hover {
+        .math-guide-btn:hover {
             transform: scale(1.1) !important;
             box-shadow: 0 6px 20px rgba(0,0,0,0.3) !important;
         }
         
-        .unified-guide-overlay {
+        .math-guide-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -315,123 +327,133 @@
             padding: 20px;
         }
         
-        .unified-guide-modal {
-            width: 500px;
+        .math-guide-modal {
+            width: 600px;
             max-width: 95vw;
-            max-height: 85vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
+            max-height: 90vh;
+            background: white;
+            color: #333;
+            border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             position: relative;
             overflow-y: auto;
         }
         
-        .unified-guide-close {
+        .math-guide-close {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: rgba(255,255,255,0.2);
+            background: #f8f9fa;
             border: none;
-            color: white;
-            font-size: 24px;
+            color: #666;
+            font-size: 28px;
             cursor: pointer;
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s ease;
         }
         
-        .unified-guide-content {
-            padding-right: 10px;
-        }
-        
-        .unified-guide-content ul {
-            padding-left: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .unified-guide-content li {
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-        
-        .unified-guide-content code {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        /* Answer Preview Styles */
-        .answer-preview.unified-preview {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            display: none;
-        }
-        
-        .answer-preview.unified-preview.visible {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .answer-preview h4 {
-            margin-top: 0;
-            margin-bottom: 10px;
+        .math-guide-close:hover {
+            background: #e9ecef;
             color: #333;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         
-        .answer-preview-content {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .math-guide-content h2 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
         }
         
-        .preview-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .format-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 15px;
         }
         
-        .preview-label {
-            font-weight: 600;
-            color: #666;
-            min-width: 120px;
-            font-size: 14px;
-        }
-        
-        .preview-value {
-            flex: 1;
-            padding: 8px 12px;
-            background: white;
-            border-radius: 4px;
+        .format-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
             border: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+        
+        .format-table td {
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+        
+        .format-table code {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 4px;
             font-family: 'Courier New', monospace;
-            min-height: 40px;
+            font-size: 14px;
+            color: #d63384;
+        }
+        
+        .example-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .example-box h4 {
+            color: #495057;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .example-row {
             display: flex;
+            justify-content: space-between;
             align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            margin: 8px 0;
+            border: 1px solid #dee2e6;
         }
         
-        .preview-value.math {
-            font-family: inherit;
+        .input-example {
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            color: #0d6efd;
+        }
+        
+        .output-example {
             font-size: 16px;
-            color: #2c3e50;
+            color: #198754;
+            font-weight: 500;
         }
         
-        .preview-hint {
-            font-size: 12px;
-            color: #6c757d;
-            font-style: italic;
-            margin-top: 5px;
+        .tip-box {
+            background: #fff3cd;
+            border: 1px solid #ffecb5;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .tip-box h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+        
+        .math-answer-preview {
+            animation: fadeIn 0.3s ease;
+            margin-top: 10px;
         }
         
         @keyframes fadeIn {
@@ -441,61 +463,153 @@
         `;
         
         const styleSheet = document.createElement("style");
-        styleSheet.id = 'unified-system-styles';
+        styleSheet.id = 'math-system-styles';
         styleSheet.textContent = styles;
         document.head.appendChild(styleSheet);
     }
     
     function addGuideButton() {
-        if (document.getElementById('unified-guide-btn')) return;
+        if (document.getElementById('math-guide-btn')) return;
         
         const guideBtn = document.createElement('button');
-        guideBtn.id = 'unified-guide-btn';
-        guideBtn.className = 'unified-guide-btn';
+        guideBtn.id = 'math-guide-btn';
+        guideBtn.className = 'math-guide-btn';
         guideBtn.innerHTML = '📘';
-        guideBtn.title = 'Math Formatting Guide';
+        guideBtn.title = 'Math Formatting Guide & Preview';
+        guideBtn.setAttribute('aria-label', 'Open Math Formatting Guide');
         guideBtn.onclick = showGuide;
         
         document.body.appendChild(guideBtn);
     }
     
     function addGuideModal() {
-        if (document.getElementById('unified-guide-overlay')) return;
+        if (document.getElementById('math-guide-overlay')) return;
         
         const guideHTML = `
-            <div id="unified-guide-overlay" class="unified-guide-overlay">
-                <div class="unified-guide-modal">
-                    <button class="unified-guide-close" onclick="hideGuide()">×</button>
-                    <h3><span>ℹ️</span> Math Answer Formatting Guide</h3>
-                    <div class="unified-guide-content">
-                        <p><strong>How to format your answers (Works for ALL quizzes):</strong></p>
+            <div id="math-guide-overlay" class="math-guide-overlay">
+                <div class="math-guide-modal">
+                    <button class="math-guide-close" onclick="hideMathGuide()">×</button>
+                    
+                    <div class="math-guide-content">
+                        <h2>📘 Math Formatting Guide</h2>
+                        <p><strong>Type plain text, see it formatted in real-time below your answer box!</strong></p>
                         
-                        <ul>
-                            <li><strong>Infinity:</strong> Type <code>inf</code> for ∞ or <code>-inf</code> for -∞</li>
-                            <li><strong>Square roots:</strong> Type <code>sqrt(2)</code> for √2</li>
-                            <li><strong>Fractions:</strong> Type <code>1/2</code> for ½</li>
-                            <li><strong>Exponents:</strong> Type <code>x^2</code> for x²</li>
-                            <li><strong>Inequalities:</strong> Type <code>!=</code> for ≠, <code><=</code> for ≤</li>
-                            <li><strong>Intervals:</strong> Type <code>(-inf, 3]</code> for (-∞, 3]</li>
-                            <li><strong>Sets:</strong> Type <code>{x | x > 0}</code> for {x | x > 0}</li>
-                            <li><strong>Equations:</strong> Type <code>x = -1/2, sqrt(2)</code> for multiple answers</li>
-                        </ul>
+                        <h3>Quick Formatting Rules</h3>
+                        <table class="format-table">
+                            <thead>
+                                <tr>
+                                    <th>Type This</th>
+                                    <th>See This</th>
+                                    <th>Stored As</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>sqrt(2)</code></td>
+                                    <td>√2</td>
+                                    <td>√2</td>
+                                </tr>
+                                <tr>
+                                    <td><code>1/2</code></td>
+                                    <td>½</td>
+                                    <td>1/2</td>
+                                </tr>
+                                <tr>
+                                    <td><code>inf</code></td>
+                                    <td>∞</td>
+                                    <td>∞</td>
+                                </tr>
+                                <tr>
+                                    <td><code>x^2</code></td>
+                                    <td>x²</td>
+                                    <td>x^2</td>
+                                </tr>
+                                <tr>
+                                    <td><code>x != 0</code></td>
+                                    <td>x ≠ 0</td>
+                                    <td>x ≠ 0</td>
+                                </tr>
+                                <tr>
+                                    <td><code>sqrt(2)/2</code></td>
+                                    <td>√2/2</td>
+                                    <td>√2/2</td>
+                                </tr>
+                            </tbody>
+                        </table>
                         
-                        <p><strong>Quick Examples:</strong></p>
-                        <ul>
-                            <li>Type: <code>sqrt(2)/2</code> → Shows: \\(\\frac{\\sqrt{2}}{2}\\)</li>
-                            <li>Type: <code>(-inf, 3] ∪ [5, inf)</code> → Shows: \\((-\\infty, 3] \\cup [5, \\infty)\\)</li>
-                            <li>Type: <code>{x | x != 0}</code> → Shows: \\(\\{x \\mid x \\neq 0\\}\\)</li>
-                            <li>Type: <code>x = -1/2, 2/3</code> → Shows: \\(x = -\\frac{1}{2}, \\frac{2}{3}\\)</li>
-                        </ul>
+                        <div class="example-box">
+                            <h4>Real Examples</h4>
+                            <div class="example-row">
+                                <div class="input-example"><code>sqrt(3)/2</code></div>
+                                <div class="output-example">→ \\(\\frac{\\sqrt{3}}{2}\\)</div>
+                            </div>
+                            <div class="example-row">
+                                <div class="input-example"><code>(-inf, 5]</code></div>
+                                <div class="output-example">→ \\((-\\infty, 5]\\)</div>
+                            </div>
+                            <div class="example-row">
+                                <div class="input-example"><code>{x | x != 0}</code></div>
+                                <div class="output-example">→ \\(\\{x \\mid x \\neq 0\\}\\)</div>
+                            </div>
+                            <div class="example-row">
+                                <div class="input-example"><code>x = -1/2 ± sqrt(5)/2</code></div>
+                                <div class="output-example">→ \\(x = -\\frac{1}{2} \\pm \\frac{\\sqrt{5}}{2}\\)</div>
+                            </div>
+                        </div>
                         
-                        <p><strong>Important:</strong></p>
-                        <ul>
-                            <li>Case-insensitive (sqrt, SQRT, Sqrt all work)</li>
-                            <li>Spaces are automatically removed</li>
-                            <li>Multiple answers: separate with commas</li>
-                            <li>Always check the preview below input box</li>
-                        </ul>
+                        <div class="tip-box">
+                            <h4>💡 Important Tips</h4>
+                            <ul>
+                                <li><strong>Preview appears automatically</strong> below your answer box</li>
+                                <li><strong>Answers are stored as displayed</strong> (√2, not sqrt(2))</li>
+                                <li><strong>Case doesn't matter:</strong> sqrt, SQRT, Sqrt all work</li>
+                                <li><strong>Multiple answers:</strong> Separate with commas</li>
+                                <li><strong>Works everywhere:</strong> Any quiz with answer boxes</li>
+                                <li><strong>No special setup needed:</strong> Just start typing!</li>
+                            </ul>
+                        </div>
+                        
+                        <h3>Advanced Formatting</h3>
+                        <table class="format-table">
+                            <thead>
+                                <tr>
+                                    <th>For</th>
+                                    <th>Type</th>
+                                    <th>Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Union</td>
+                                    <td><code>∪</code> or <code>U</code></td>
+                                    <td><code>(-inf,0) ∪ (0,inf)</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Intersection</td>
+                                    <td><code>∩</code> or <code>n</code></td>
+                                    <td><code>[1,3] ∩ [2,4]</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Set Builder</td>
+                                    <td><code>{x | condition}</code></td>
+                                    <td><code>{x | x > 0}</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Plus/Minus</td>
+                                    <td><code>±</code></td>
+                                    <td><code>-b ± sqrt(b^2-4ac)</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Greek Letters</td>
+                                    <td><code>pi, theta</code></td>
+                                    <td><code>pi/2, cos(theta)</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <p style="text-align: center; margin-top: 25px; color: #666; font-style: italic;">
+                            The preview below your answer shows exactly how your answer will be displayed!
+                        </p>
                     </div>
                 </div>
             </div>
@@ -505,64 +619,36 @@
     }
     
     function showGuide() {
-        const overlay = document.getElementById('unified-guide-overlay');
+        const overlay = document.getElementById('math-guide-overlay');
         if (overlay) {
             overlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             
-            // Render MathJax in guide
+            // Render MathJax
             if (window.MathJax) {
                 setTimeout(() => {
-                    const modal = document.querySelector('.unified-guide-modal');
-                    if (modal) {
-                        MathJax.typesetPromise([modal]).catch(err => {
-                            console.log('MathJax guide error:', err);
-                        });
-                    }
+                    MathJax.typesetPromise([overlay]).catch(err => {
+                        console.log('MathJax guide error:', err);
+                    });
                 }, 100);
             }
         }
     }
     
     function hideGuide() {
-        const overlay = document.getElementById('unified-guide-overlay');
+        const overlay = document.getElementById('math-guide-overlay');
         if (overlay) {
             overlay.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
     }
     
-    // Make functions globally accessible
-    window.showGuide = showGuide;
-    window.hideGuide = hideGuide;
-    
     // ============================================
-    // 4. RESTORE SAVED ANSWERS
+    // 4. INITIALIZE SYSTEM
     // ============================================
     
-    function restoreSavedAnswers() {
-        if (!window.userAnswers) return;
-        
-        console.log('🔍 Restoring saved answers...');
-        
-        Object.keys(window.userAnswers).forEach(questionIndex => {
-            const answer = window.userAnswers[questionIndex];
-            if (answer) {
-                const input = document.getElementById(`answerInput-${questionIndex}`);
-                if (input) {
-                    input.value = answer;
-                    updateAnswerPreview(questionIndex, answer);
-                }
-            }
-        });
-    }
-    
-    // ============================================
-    // 5. INITIALIZATION
-    // ============================================
-    
-    function initializeUnifiedSystem() {
-        console.log('🚀 Initializing Unified Quiz System...');
+    function initializeSystem() {
+        console.log('🔧 Initializing Math Formatting System...');
         
         // Initialize Math Guide
         initializeMathGuide();
@@ -570,57 +656,58 @@
         // Patch answer inputs
         patchAnswerInputs();
         
-        // Restore saved answers
-        setTimeout(restoreSavedAnswers, 300);
+        // Restore any existing answers
+        setTimeout(restoreAnswers, 500);
         
-        // Set up periodic checking for new inputs
+        // Watch for new inputs
         setInterval(patchAnswerInputs, 1000);
         
-        console.log('✅ Unified Quiz System Ready!');
+        console.log('✅ Math Formatting System Ready!');
     }
     
-    // Initialize when DOM is ready
+    function restoreAnswers() {
+        if (!window.userAnswers) return;
+        
+        Object.keys(window.userAnswers).forEach(questionIndex => {
+            const answer = window.userAnswers[questionIndex];
+            if (answer) {
+                const input = document.getElementById(`answerInput-${questionIndex}`);
+                if (input) {
+                    // Convert stored answer to input format
+                    const inputValue = answerFormatter.convertToInputFormat(answer);
+                    input.value = inputValue;
+                    
+                    // Update preview
+                    setTimeout(() => {
+                        updateAnswerPreview(questionIndex, inputValue);
+                    }, 100);
+                }
+            }
+        });
+    }
+    
+    // Make functions globally accessible
+    window.showMathGuide = showGuide;
+    window.hideMathGuide = hideGuide;
+    window.mathAnswerFormatter = answerFormatter;
+    
+    // Initialize
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeUnifiedSystem);
+        document.addEventListener('DOMContentLoaded', initializeSystem);
     } else {
-        initializeUnifiedSystem();
+        initializeSystem();
     }
     
-    // ============================================
-    // 6. GLOBAL HELPER FUNCTIONS
-    // ============================================
+    // Watch for dynamic content
+    const observer = new MutationObserver(() => {
+        patchAnswerInputs();
+        
+        // Ensure guide button exists
+        if (!document.getElementById('math-guide-btn')) {
+            addGuideButton();
+        }
+    });
     
-    // Make answerFormatter globally accessible
-    window.unifiedAnswerFormatter = answerFormatter;
-    
-    // Helper function for quiz scripts to use
-    window.unifiedHandleAnswer = function(questionIndex, value) {
-        handleAnswerInput(questionIndex, value);
-    };
-    
-    // Auto-patch common quiz functions
-    if (window.handleNumericInputWithPreview) {
-        const originalHandleNumericInput = window.handleNumericInputWithPreview;
-        window.handleNumericInputWithPreview = function(questionIndex, value) {
-            // Call original if it exists
-            if (originalHandleNumericInput) {
-                originalHandleNumericInput(questionIndex, value);
-            }
-            // Also use unified system
-            handleAnswerInput(questionIndex, value);
-        };
-    }
-    
-    if (window.updateAnswerPreview) {
-        const originalUpdateAnswerPreview = window.updateAnswerPreview;
-        window.updateAnswerPreview = function(questionIndex, answer) {
-            // Call original if it exists
-            if (originalUpdateAnswerPreview) {
-                originalUpdateAnswerPreview(questionIndex, answer);
-            }
-            // Also use unified system
-            updateAnswerPreview(questionIndex, answer);
-        };
-    }
+    observer.observe(document.body, { childList: true, subtree: true });
     
 })();
