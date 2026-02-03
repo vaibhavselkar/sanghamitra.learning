@@ -1653,25 +1653,17 @@
                 
                 // Add answer preview box
                 answerPreviewHtml = `
-                    <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
-                        <h4>Answer Preview</h4>
-                        <div class="answer-preview-content">
-                            <div class="preview-row">
-                                <span class="preview-label">As you typed:</span>
-                                <div class="preview-value" id="previewOriginal-${currentQuestionIndex}"></div>
-                            </div>
-                            <div class="preview-row">
-                                <span class="preview-label">Formatted view:</span>
-                                <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div>
-                            </div>
-                            <div class="preview-row">
-                                <span class="preview-label">How it's stored:</span>
-                                <div class="preview-value" id="previewNormalized-${currentQuestionIndex}"></div>
-                            </div>
+                <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
+                    <h4>Answer Preview</h4>
+                    <div class="answer-preview-content">
+                        <div class="preview-row">
+                            <span class="preview-label">Formatted view:</span>
+                            <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div>
                         </div>
-                        <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
                     </div>
-                `;
+                    <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
+                </div>
+            `;
             } else {
                 console.warn('Unknown question type:', question.type);
                 optionsHtml = `
@@ -1916,16 +1908,13 @@
             
             if (!previewData) return;
             
-            // Update preview elements - USE formatForStorage for stored value
-            const storedValue = answerFormatter.storeAnswerExactly(answer);
-            document.getElementById(`previewOriginal-${questionIndex}`).textContent = answer;
-            document.getElementById(`previewNormalized-${questionIndex}`).textContent = storedValue;
-            
-            // Update formatted view with LaTeX
+            // Update formatted view with LaTeX only
             const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
-            formattedEl.innerHTML = previewData.latex;
+            if (formattedEl) {
+                formattedEl.innerHTML = previewData.latex;
+            }
             
-            // Update hint
+            
             // Update hint section (around line 808-824)
 const hintEl = document.getElementById(`previewHint-${questionIndex}`);
 let hint = '';
@@ -2665,6 +2654,7 @@ hintEl.textContent = hint;
     </script>
 </body>
 </html>
+
 
 
 
