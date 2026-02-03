@@ -858,61 +858,66 @@
         </div>
     </div>
 
-    <div class="info-content">
-    <p><strong>How to format your answers:</strong></p>
-    
-    <ul>
-        <li><strong>Math Symbols:</strong> 
-            <code>inf</code> = ∞, 
-            <code>sqrt(x)</code> = √x, 
-            <code>^</code> = exponent,
-            <code>∪</code> = union, 
-            <code>∩</code> = intersection
-        </li>
-        <li><strong>Set Notation:</strong> 
-            <code>{1,2,3}</code>, 
-            <code>{x | x > 0}</code>,
-            <code>∅</code> = empty set
-        </li>
-        <li><strong>Relations:</strong> 
-            <code>(a,b)</code>, 
-            <code>R = {(1,2)}</code>,
-            <code>x ∈ A</code> = element of,
-            <code>A ⊆ B</code> = subset
-        </li>
-        <li><strong>Equations:</strong> 
-            <code>x = -1/2, sqrt(2)</code> (multiple answers with commas)
-        </li>
-        <li><strong>Intervals:</strong> 
-            <code>(-inf, 3]</code> = $(-\infty, 3]$
-        </li>
-    </ul>
-    
-    <p><strong>Quick Examples:</strong></p>
-    
-    <div class="math-example">
-        <div><code>(-inf, 3]</code> → $(-\infty, 3]$</div>
+        <!-- Information Bubble -->
+    <div id="infoBubble" class="info-bubble">
+        <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
+        <h3><span class="info-icon">ℹ️</span> Answer Formatting Guide</h3>
+        <div class="info-content">
+            <p><strong>How to format your answers:</strong></p>
+            
+            <ul>
+                <li><strong>Math Symbols:</strong> 
+                    <code>inf</code> = ∞, 
+                    <code>sqrt(x)</code> = √x, 
+                    <code>^</code> = exponent,
+                    <code>∪</code> = union, 
+                    <code>∩</code> = intersection
+                </li>
+                <li><strong>Set Notation:</strong> 
+                    <code>{1,2,3}</code>, 
+                    <code>{x | x > 0}</code>,
+                    <code>∅</code> = empty set
+                </li>
+                <li><strong>Relations:</strong> 
+                    <code>(a,b)</code>, 
+                    <code>R = {(1,2)}</code>,
+                    <code>x ∈ A</code> = element of,
+                    <code>A ⊆ B</code> = subset
+                </li>
+                <li><strong>Equations:</strong> 
+                    <code>x = -1/2, sqrt(2)</code> (multiple answers with commas)
+                </li>
+                <li><strong>Intervals:</strong> 
+                    <code>(-inf, 3]</code> = $(-\infty, 3]$
+                </li>
+            </ul>
+            
+            <p><strong>Quick Examples:</strong></p>
+            
+            <div class="math-example">
+                <div><code>(-inf, 3]</code> → $(-\infty, 3]$</div>
+            </div>
+            
+            <div class="math-example">
+                <div><code>x = -1/2, sqrt(2)</code> → $x = -\frac{1}{2}, \sqrt{2}$</div>
+            </div>
+            
+            <div class="math-example">
+                <div><code>A ∪ B = {1,2,3}</code> → $A ∪ B = \{1,2,3\}$</div>
+            </div>
+            
+            <div class="math-example">
+                <div><code>{(x,y) | x+y=5}</code> → $\{(x,y) \mid x+y=5\}$</div>
+            </div>
+            
+            <p><strong>Important:</strong></p>
+            <ul>
+                <li>Case-insensitive, spaces auto-removed</li>
+                <li>Multiple answers separated by commas</li>
+                <li>Check preview below input box</li>
+            </ul>
+        </div>
     </div>
-    
-    <div class="math-example">
-        <div><code>x = -1/2, sqrt(2)</code> → $x = -\frac{1}{2}, \sqrt{2}$</div>
-    </div>
-    
-    <div class="math-example">
-        <div><code>A ∪ B = {1,2,3}</code> → $A ∪ B = \{1,2,3\}$</div>
-    </div>
-    
-    <div class="math-example">
-        <div><code>{(x,y) | x+y=5}</code> → $\{(x,y) \mid x+y=5\}$</div>
-    </div>
-    
-    <p><strong>Important:</strong></p>
-    <ul>
-        <li>Case-insensitive, spaces auto-removed</li>
-        <li>Multiple answers separated by commas</li>
-        <li>Check preview below input box</li>
-    </ul>
-</div>
 
     <!-- Help Button -->
     <div id="helpButton" class="help-button" onclick="showInfoBubble()">
@@ -2699,6 +2704,7 @@ hintEl.textContent = hint;
     </script>
 </body>
 </html>
+
 
 
 
