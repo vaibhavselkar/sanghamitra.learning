@@ -1416,6 +1416,19 @@
                     return false;
                 }
             });
+
+            // Disable drag
+        document.ondragstart = function() {
+            return false;
+        };
+        
+        // Monitor for screenshot attempts
+        document.addEventListener('keyup', function(e) {
+            if (e.keyCode === 44) {
+                recordCheatingAttempt('screenshot_attempt');
+                alert('Screenshot attempt detected and logged!');
+            }
+        });
             
             let devtools = {open: false};
             const threshold = 160;
@@ -1446,6 +1459,13 @@
                 return false;
             };
         }
+
+        // Disable printing
+        window.addEventListener('beforeprint', function(e) {
+            recordCheatingAttempt('print_attempt');
+            e.preventDefault();
+            return false;
+        });
         
         function recordCheatingAttempt(type) {
             cheatingAttempts++;
@@ -1475,6 +1495,16 @@
         function initializeQuizTiming() {
             quizStartTime = new Date();
             questionStartTime = new Date();
+        }
+
+        // Hide questions from view source
+        function obfuscateQuestions() {
+            Object.defineProperty(window, 'questions', {
+                get: function() {
+                    recordCheatingAttempt('questions_access');
+                    return [];
+                }
+            });
         }
 
         function trackQuestionTime() {
@@ -2048,6 +2078,8 @@ hintEl.textContent = hint;
                 
                 initializeQuizTiming();
                 isQuizActive = true;
+                // Obfuscate questions
+                obfuscateQuestions();
                 
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('quizContainer').style.display = 'block';
@@ -2654,6 +2686,7 @@ hintEl.textContent = hint;
     </script>
 </body>
 </html>
+
 
 
 
