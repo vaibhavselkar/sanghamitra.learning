@@ -46,46 +46,47 @@
         },
         
         formatForMathJax: function(text) {
-            if (!text) return '';
-            
-            let latex = String(text)
-                .replace(/\s+/g, ' ')
-                .trim();
-            
-            // Infinity
-            latex = latex.replace(/inf(inity)?/gi, '\\infty');
-            latex = latex.replace(/-\\infty/g, '-\\infty');
-            
-            // Square roots
-            latex = latex.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
-            
-            // Fractions
-            if (!latex.includes('\\frac')) {
-                latex = latex.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
-                latex = latex.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
-                latex = latex.replace(/\(([^)]+)\)\s*\/\s*([^\s)]+)/g, '\\frac{$1}{$2}');
-                latex = latex.replace(/([^\s)]+)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
-            }
-            
-            // Exponents
-            latex = latex.replace(/(\w+)\^(\d+)/g, '{$1}^{$2}');
-            
-            // Inequalities
-            latex = latex.replace(/!=/g, '\\neq');
-            latex = latex.replace(/<=/g, '\\le').replace(/>=/g, '\\ge');
-            
-            // Sets
-            if (!latex.includes('\\sqrt{') && !latex.includes('\\frac{') && !latex.includes('\\{') && !latex.includes('\\}')) {
-                latex = latex.replace(/{/g, '\\{').replace(/}/g, '\\}');
-            }
-            latex = latex.replace(/\|/g, '\\mid');
-            
-            // Greek letters
-            latex = latex.replace(/pi/gi, '\\pi');
-            latex = latex.replace(/theta/gi, '\\theta');
-            
-            return `\\(${latex}\\)`;
-        },
+    if (!text) return '';
+    
+    let latex = String(text)
+        .replace(/\s+/g, ' ')
+        .trim();
+    
+    // Infinity - FIXED: Use \\\\infty for proper escaping
+    latex = latex.replace(/inf(inity)?/gi, '\\\\infty');
+    latex = latex.replace(/-\\\\infty/g, '-\\\\infty');
+    
+    // Square roots - FIXED: Use \\\\sqrt
+    latex = latex.replace(/sqrt\(([^)]+)\)/g, '\\\\sqrt{$1}');
+    
+    // Fractions - FIXED: Use \\\\frac
+    if (!latex.includes('\\\\frac')) {
+        latex = latex.replace(/(\d+)\/(\d+)/g, '\\\\frac{$1}{$2}');
+        latex = latex.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\\\frac{$1}{$2}');
+        latex = latex.replace(/\(([^)]+)\)\s*\/\s*([^\s)]+)/g, '\\\\frac{$1}{$2}');
+        latex = latex.replace(/([^\s)]+)\s*\/\s*\(([^)]+)\)/g, '\\\\frac{$1}{$2}');
+    }
+    
+    // Exponents
+    latex = latex.replace(/(\w+)\^(\d+)/g, '{$1}^{$2}');
+    
+    // Inequalities - FIXED: Use \\\\neq, \\\\le, \\\\ge
+    latex = latex.replace(/!=/g, '\\\\neq');
+    latex = latex.replace(/<=/g, '\\\\le').replace(/>=/g, '\\\\ge');
+    
+    // Sets - FIXED: Use \\\\{ and \\\\}
+    if (!latex.includes('\\\\sqrt{') && !latex.includes('\\\\frac{') && !latex.includes('\\\\{') && !latex.includes('\\\\}')) {
+        latex = latex.replace(/{/g, '\\\\{').replace(/}/g, '\\\\}');
+    }
+    latex = latex.replace(/\|/g, '\\\\mid');
+    
+    // Greek letters
+    latex = latex.replace(/pi/gi, '\\\\pi');
+    latex = latex.replace(/theta/gi, '\\\\theta');
+    
+    // FIXED: Return with single backslash for MathJax
+    return `\\(${latex}\\)`;
+},
         
         // Store answer as user typed (converted for storage)
         storeAnswerExactly: function(text) {
@@ -231,42 +232,57 @@
     }
     
     function updateAnswerPreview(questionIndex, answer) {
-        const preview = document.getElementById(`math-preview-${questionIndex}`);
-        if (!preview) return;
-        
-        const previewValue = document.getElementById(`math-preview-value-${questionIndex}`);
-        const previewHint = document.getElementById(`math-preview-hint-${questionIndex}`);
-        
-        if (!previewValue) return;
-        
-        // Show preview
-        preview.style.display = 'block';
-        
-        // Update preview value with MathJax
-        previewValue.innerHTML = answerFormatter.formatForMathJax(answer);
-        
-        // Update hint
-        if (previewHint) {
-            let hint = '';
-            if (answer.includes('inf')) {
-                hint = 'Tip: "inf" will be displayed as ∞';
-            } else if (answer.includes('sqrt')) {
-                hint = 'Tip: "sqrt(x)" will be displayed as √x';
-            } else if (answer.match(/\d+\/\d+/)) {
-                hint = 'Fractions will be displayed properly';
-            } else if (answer.includes('!=') || answer.includes('<=') || answer.includes('>=')) {
-                hint = 'Inequalities will be formatted correctly';
-            }
-            previewHint.textContent = hint;
+    const preview = document.getElementById(`math-preview-${questionIndex}`);
+    if (!preview) return;
+    
+    const previewValue = document.getElementById(`math-preview-value-${questionIndex}`);
+    const previewHint = document.getElementById(`math-preview-hint-${questionIndex}`);
+    
+    if (!previewValue) return;
+    
+    // Show preview
+    preview.style.display = 'block';
+    
+    // CLEAN FIX: Use a simpler approach
+    let latex = answer;
+    
+    // Convert to LaTeX
+    latex = latex.replace(/inf/gi, '\\infty');
+    latex = latex.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
+    latex = latex.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
+    latex = latex.replace(/!=/g, '\\neq');
+    latex = latex.replace(/<=/g, '\\le').replace(/>=/g, '\\ge');
+    
+    // Set the preview with proper MathJax
+    previewValue.innerHTML = `\\(${latex}\\)`;
+    
+    // Update hint
+    if (previewHint) {
+        let hint = '';
+        if (answer.includes('inf')) {
+            hint = 'Tip: "inf" will be displayed as ∞';
+        } else if (answer.includes('sqrt')) {
+            hint = 'Tip: "sqrt(x)" will be displayed as √x';
+        } else if (answer.match(/\d+\/\d+/)) {
+            hint = 'Fractions will be displayed properly';
+        } else if (answer.includes('!=') || answer.includes('<=') || answer.includes('>=')) {
+            hint = 'Inequalities will be formatted correctly';
         }
-        
-        // Render MathJax
-        if (window.MathJax) {
-            MathJax.typesetPromise([previewValue]).catch(err => {
-                console.log('MathJax preview error:', err);
-            });
+        previewHint.textContent = hint;
+    }
+    
+    // Render MathJax - IMPORTANT: Use typeset, not typesetPromise if needed
+    if (window.MathJax) {
+        try {
+            // Clear any previous MathJax
+            MathJax.texReset();
+            // Typeset
+            MathJax.typeset();
+        } catch(err) {
+            console.log('MathJax error:', err);
         }
     }
+}
     
     // ============================================
     // 3. MATH GUIDE SYSTEM
