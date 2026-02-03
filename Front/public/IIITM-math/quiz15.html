@@ -647,77 +647,117 @@
         // ENHANCED ANSWER NORMALIZATION UTILITY
         // Handles: inf, -inf, infinity, ∞, x=2, x=5, coordinates, equations, etc.
         // ============================================
-        const answerNormalizer = {
-            normalizeInterval: (answer) => {
-                return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf') // All infinity → 'inf'
-                    .replace(/\+inf/gi, 'inf') // +inf → inf
-                    .replace(/-\s*inf/gi, '-inf') // Ensure -inf format
-                    .replace(/\[/g, '[')
-                    .replace(/\]/g, ']')
-                    .replace(/\(/g, '(')
-                    .replace(/\)/g, ')')
-                    .toLowerCase();
-            },
-            
-            normalizeCoordinate: (coord) => {
-                return (coord || '').toString().trim()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/[()]/g, '')  // Remove parentheses for comparison
-                    .toLowerCase();
-            },
-            
-            normalizeEquation: (eq) => {
-                return (eq || '').toString()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/\*\*/g, '^')  // ** → ^
-                    .replace(/\^/g, '^')
-                    .replace(/\+\-/g, '-')
-                    .replace(/\-\+/g, '-')
-                    .replace(/log/gi, 'log')
-                    .replace(/ln/gi, 'ln')
-                    .toLowerCase();
-            },
-            
-            normalizeNumeric: (num) => {
-                const str = (num || '').toString().trim().toLowerCase();
-                
-                // Handle positive infinity
-                if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
-                    return Infinity;
-                }
-                
-                // Handle negative infinity
-                if (str === '-inf' || str === '-infinity' || str === '-∞') {
-                    return -Infinity;
-                }
-                
-                // Handle regular numbers
-                const cleaned = str.replace(/[^\d.-]/g, '');
-                return cleaned ? parseFloat(cleaned) : NaN;
-            },
-            
-            // Generic normalizer that auto-detects type
-            normalizeAnswer: (answer, questionType) => {
+                // ============================================
+        // COMPREHENSIVE ANSWER NORMALIZER
+        // ============================================
+        const AnswerNormalizer = {
+            // Main normalization function
+            normalize(answer, type) {
                 if (!answer) return '';
                 
-                const str = answer.toString().trim();
+                let normalized = answer.toString().trim();
                 
-                if (questionType === 'interval_input') {
-                    return answerNormalizer.normalizeInterval(str);
-                } else if (questionType === 'numeric' || questionType === 'numeric_input') {
-                    const normalized = answerNormalizer.normalizeNumeric(str);
-                    return isFinite(normalized) ? normalized.toString() : 
-                           normalized === Infinity ? 'inf' : 
-                           normalized === -Infinity ? '-inf' : str;
-                } else if (questionType === 'coordinate_input') {
-                    return answerNormalizer.normalizeCoordinate(str);
-                } else if (questionType === 'equation_input') {
-                    return answerNormalizer.normalizeEquation(str);
-                } else {
-                    return str.toLowerCase();
+                // Apply type-specific normalization
+                switch(type) {
+                    case 'interval_input':
+                        return this.normalizeInterval(normalized);
+                    case 'coordinate_input':
+                        return this.normalizeCoordinate(normalized);
+                    case 'equation_input':
+                        return this.normalizeEquation(normalized);
+                    case 'numeric':
+                    case 'numeric_input':
+                        return this.normalizeNumeric(normalized);
+                    case 'multiple_choice':
+                    case 'text_input':
+                        return this.normalizeText(normalized);
+                    default:
+                        return this.normalizeText(normalized);
                 }
+            },
+            
+            // Interval notation normalization
+            normalizeInterval(answer) {
+                return answer
+                    .toLowerCase()
+                    .replace(/\s+/g, '')  // Remove all spaces
+                    .replace(/infinity|inf/g, '∞')  // Standardize infinity
+                    .replace(/−/g, '-')  // Standardize minus sign
+                    .replace(/\bunion\b|∪|U/gi, '∪')  // Standardize union symbol
+                    .replace(/\{|\}/g, '')  // Remove set braces if present
+                    .replace(/,∪/g, '∪')  // Clean up union formatting
+                    .replace(/∪,/g, '∪');
+            },
+            
+            // Coordinate normalization
+            normalizeCoordinate(answer) {
+                return answer
+                    .toLowerCase()
+                    .replace(/\s+/g, '')  // Remove all spaces
+                    .replace(/[()]/g, '')  // Remove parentheses
+                    .replace(/−/g, '-');  // Standardize minus
+            },
+            
+            // Equation normalization
+            normalizeEquation(answer) {
+                return answer
+                    .toLowerCase()
+                    .replace(/\s+/g, '')  // Remove all spaces
+                    .replace(/\+\-/g, '-')  // Fix +- to -
+                    .replace(/\-\+/g, '-')  // Fix -+ to -
+                    .replace(/−/g, '-')  // Standardize minus
+                    .replace(/\*\*/g, '^')  // Standardize exponents
+                    .replace(/\^/g, '**');  // Allow both formats
+            },
+            
+            // Numeric normalization
+            normalizeNumeric(answer) {
+                const cleaned = answer.replace(/[^\d.-]/g, '').trim();
+                const num = parseFloat(cleaned);
+                return isNaN(num) ? '' : num.toString();
+            },
+            
+            // Text normalization
+            normalizeText(answer) {
+                return answer
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, ' ')  // Normalize whitespace
+                    .replace(/all real numbers/i, 'allrealnumbers')
+                    .replace(/no solution/i, 'nosolution')
+                    .replace(/does not exist|dne/i, 'dne');
+            },
+            
+            // Enhanced comparison with alternatives
+            compareAnswers(userAnswer, correctAnswer, alternatives, type) {
+                const normalizedUser = this.normalize(userAnswer, type);
+                const normalizedCorrect = this.normalize(correctAnswer, type);
+                
+                // Check main answer
+                if (this.isMatch(normalizedUser, normalizedCorrect, type)) {
+                    return true;
+                }
+                
+                // Check alternatives
+                if (alternatives && Array.isArray(alternatives)) {
+                    return alternatives.some(alt => 
+                        this.isMatch(normalizedUser, this.normalize(alt, type), type)
+                    );
+                }
+                
+                return false;
+            },
+            
+            // Type-specific matching
+            isMatch(user, correct, type) {
+                if (type === 'numeric' || type === 'numeric_input') {
+                    const userNum = parseFloat(user);
+                    const correctNum = parseFloat(correct);
+                    if (isNaN(userNum) || isNaN(correctNum)) return false;
+                    const tolerance = Math.abs(correctNum) * 0.01 || 0.01;
+                    return Math.abs(userNum - correctNum) <= tolerance;
+                }
+                return user === correct;
             }
         };
 
@@ -1296,114 +1336,41 @@
             // ============================================
             // ENHANCED ANSWER CHECKING WITH NORMALIZATION
             // ============================================
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                totalPossiblePoints += question.points;
-                
-                let isCorrect = false;
-                
-                if (userAnswer !== undefined && userAnswer !== null) {
-                    const normalizedUser = answerNormalizer.normalizeAnswer(userAnswer, question.type);
-                    const normalizedCorrect = answerNormalizer.normalizeAnswer(question.correct_answer, question.type);
+                            // ============================================
+                // ENHANCED ANSWER CHECKING WITH NORMALIZATION
+                // ============================================
+                questions.forEach((question, index) => {
+                    const userAnswer = userAnswers[index];
+                    totalPossiblePoints += question.points;
                     
-                    if (question.type === 'interval_input') {
-                        // For intervals, compare normalized strings
-                        isCorrect = normalizedUser === normalizedCorrect;
-                        
-                        // Check alternative answers
-                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                            isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
-                                return normalizedAlt === normalizedUser;
-                            });
-                        }
-                    } else if (question.type === 'multiple_choice') {
-                        isCorrect = normalizedUser === normalizedCorrect;
-                    } else if (question.type === 'multiple_select') {
+                    let isCorrect = false;
+                    
+                    // Use comprehensive normalizer for ALL answer types
+                    if (question.type === 'multiple_select') {
+                        // Special handling for multiple_select
                         if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                            const normalizeArray = (arr) => arr.map(item => 
-                                    AnswerNormalizer.normalize(item, question.type)).sort();
-                            const userNorm = normalizeArray(userAnswer);
-                            const correctNorm = normalizeArray(question.correct_answer);
+                            const userNorm = userAnswer.map(ans => 
+                                AnswerNormalizer.normalize(ans, 'text_input')
+                            ).sort();
+                            const correctNorm = question.correct_answer.map(ans => 
+                                AnswerNormalizer.normalize(ans, 'text_input')
+                            ).sort();
                             isCorrect = userNorm.length === correctNorm.length &&
-                                    userNorm.every((ans, idx) => ans === correctNorm[idx]);
-                        }
-                    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                        // Handle numeric comparisons with tolerance
-                        const userNum = AnswerNormalizer.normalizeNumeric(userAnswer);
-                        const correctNum = AnswerNormalizer.normalizeNumeric(question.correct_answer);
-                        
-                        if (userNum === correctNum) {
-                            // Exact match (including Infinity/-Infinity)
-                            isCorrect = true;
-                        } else if (isFinite(userNum) && isFinite(correctNum)) {
-                            // Both are finite numbers - use tolerance
-                            const tolerance = Math.max(Math.abs(correctNum) * 0.01, 0.01);
-                            isCorrect = Math.abs(userNum - correctNum) <= tolerance;
-                        } else {
-                            isCorrect = false;
-                        }
-                        
-                        // Check alternative numeric answers
-                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                            isCorrect = question.alternative_answers.some(alt => {
-                                const altNum = AnswerNormalizer.normalizeNumeric(alt);
-                                if (userNum === altNum) return true;
-                                if (isFinite(userNum) && isFinite(altNum)) {
-                                    const tolerance = Math.max(Math.abs(altNum) * 0.01, 0.01);
-                                    return Math.abs(userNum - altNum) <= tolerance;
-                                }
-                                return false;
-                            });
-                        }
-                    } else if (question.type === 'coordinate_input') {
-                        isCorrect = normalizedUser === normalizedCorrect;
-                        
-                        // Check alternative answers
-                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                            isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
-                                return normalizedAlt === normalizedUser;
-                            });
-                        }
-                    } else if (question.type === 'equation_input') {
-                        isCorrect = normalizedUser === normalizedCorrect;
-                        
-                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                            isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = AnswerNormalizer.normalize(alt, question.type);
-                                return normalizedAlt === normalizedUser;
-                            });
+                                       userNorm.every((ans, idx) => ans === correctNorm[idx]);
                         }
                     } else {
-                        // For text input and other types
-                        isCorrect = normalizedUser === normalizedCorrect;
+                        // Use normalizer for all other types
+                        isCorrect = AnswerNormalizer.compareAnswers(
+                            userAnswer,
+                            question.correct_answer,
+                            question.alternative_answers,
+                            question.type
+                        );
                     }
-                }
-                
-                if (isCorrect) {
-                    score += question.points;
-                }
-                
-                difficultyBreakdown[question.difficulty].attempted++;
-                if (isCorrect) {
-                    difficultyBreakdown[question.difficulty].correct++;
-                    difficultyBreakdown[question.difficulty].points += question.points;
-                }
-                
-                questionResults.push({
-                    questionId: question._id,
-                    questionNumber: question.question_number,
-                    questionText: question.question_text,
-                    difficulty: question.difficulty,
-                    points: question.points,
-                    userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-                    correctAnswer: question.correct_answer.toString(),
-                    explanation: question.explanation || '',
-                    isCorrect: isCorrect,
-                    timeTaken: questionTimes[index] || 0
-                });
-            });
+                    
+                    if (isCorrect) {
+                        score += question.points;
+                    }
 
             const quizData = {
                 topic: 'polynomial_zeros_and_multiplicity',
@@ -1897,3 +1864,4 @@
     </script>
 </body>
 </html>
+
