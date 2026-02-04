@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Quiz 1 Midterm</title>
+
+    <!-- Add this in the <head> section of Quiz 1 Midterm, right after the title -->
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -443,6 +460,239 @@
             font-weight: 600;
             margin-top: 15px;
         }
+
+        /* Add these CSS styles to Quiz 1 Midterm */
+.info-bubble {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 350px;
+    max-width: 90vw;
+    z-index: 10001;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    display: none;
+}
+
+.info-bubble.expanded {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+.info-bubble.collapsed {
+    display: none;
+}
+
+.info-bubble h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-bubble h3 .info-icon {
+    font-size: 1.5em;
+}
+
+.info-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.info-content ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.info-content li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.info-content code {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.info-content .math-example {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0;
+    font-family: monospace;
+}
+
+.info-bubble-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.info-bubble-close:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.help-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.help-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.help-button .help-icon {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Answer Preview Box */
+.answer-preview {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    display: none;
+}
+
+.answer-preview.visible {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.answer-preview h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.answer-preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-label {
+    font-weight: 600;
+    color: #666;
+    min-width: 120px;
+    font-size: 14px;
+}
+
+.preview-value {
+    flex: 1;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    font-family: 'Courier New', monospace;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.preview-value.math {
+    font-family: inherit;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.preview-hint {
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Warning for invalid input */
+.input-warning {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.input-warning.visible {
+    display: block;
+}
+
+/* Better alignment for preview values */
+.preview-value.math {
+    font-family: inherit;
+    font-size: 16px;
+    color: #2c3e50;
+    line-height: 1.2;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+/* Ensure MathJax fractions display properly */
+.mjx-mfrac {
+    padding: 0 !important;
+    margin: 0 !important;
+}
 
         /* Mobile Responsive */
         @media (max-width: 1024px) {
@@ -969,83 +1219,501 @@
     </div>
 
     <script>
-        // ============================================
-        // ENHANCED ANSWER NORMALIZATION UTILITY
-        // ============================================
-        const answerNormalizer = {
-            normalizeInterval: (answer) => {
-                return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')
-                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
-                    .replace(/\+inf/gi, 'inf')
-                    .replace(/-\s*inf/gi, '-inf')
-                    .replace(/\[/g, '[')
-                    .replace(/\]/g, ']')
-                    .replace(/\(/g, '(')
-                    .replace(/\)/g, ')')
-                    .toLowerCase();
-            },
-            
-            normalizeCoordinate: (coord) => {
-                return (coord || '').toString().trim()
-                    .replace(/\s+/g, '')
-                    .replace(/[()]/g, '')
-                    .toLowerCase();
-            },
-            
-            normalizeEquation: (eq) => {
-                return (eq || '').toString()
-                    .replace(/\s+/g, '')
-                    .replace(/\*\*/g, '^')
-                    .replace(/\^/g, '^')
-                    .replace(/\+\-/g, '-')
-                    .replace(/\-\+/g, '-')
-                    .replace(/log/gi, 'log')
-                    .replace(/ln/gi, 'ln')
-                    .toLowerCase();
-            },
-            
-            normalizeNumeric: (num) => {
-                const str = (num || '').toString().trim().toLowerCase();
-                
-                if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
-                    return Infinity;
-                }
-                
-                if (str === '-inf' || str === '-infinity' || str === '-∞') {
-                    return -Infinity;
-                }
-                
-                const cleaned = str.replace(/[^\d.-]/g, '');
-                return cleaned ? parseFloat(cleaned) : NaN;
-            },
-            
-            normalizeAnswer: (answer, questionType) => {
-                if (!answer) return '';
-                
-                const str = answer.toString().trim();
-                
-                if (questionType === 'interval_input') {
-                    return answerNormalizer.normalizeInterval(str);
-                } else if (questionType === 'numeric' || questionType === 'numeric_input') {
-                    const normalized = answerNormalizer.normalizeNumeric(str);
-                    return isFinite(normalized) ? normalized.toString() : 
-                           normalized === Infinity ? 'inf' : 
-                           normalized === -Infinity ? '-inf' : str;
-                } else if (questionType === 'coordinate_input') {
-                    return answerNormalizer.normalizeCoordinate(str);
-                } else if (questionType === 'equation_input') {
-                    return answerNormalizer.normalizeEquation(str);
-                } else {
-                    return str.toLowerCase();
-                }
-            }
-        };
+       
 
-        let userAnswers = {};
-        let currentUser = {};
-        let username = null;
-        let email = null;
+        // ============================================
+// ENHANCED ANSWER FORMATTING AND DISPLAY
+// ============================================
+
+let infoBubbleShown = false;
+let infoBubbleTimer = null;
+
+// Initialize information bubble
+function initializeInfoBubble() {
+    const infoBubble = document.getElementById('infoBubble');
+    const helpButton = document.getElementById('helpButton');
+    
+    // Show bubble for first 20 seconds
+    setTimeout(() => {
+        showInfoBubble();
+        infoBubbleShown = true;
+        
+        // Auto-hide after 20 seconds
+        infoBubbleTimer = setTimeout(() => {
+            hideInfoBubble();
+        }, 20000);
+    }, 1000); // Show after 1 second delay
+    
+    // Handle window resize
+    window.addEventListener('resize', positionInfoBubble);
+}
+
+function showInfoBubble() {
+    const infoBubble = document.getElementById('infoBubble');
+    const helpButton = document.getElementById('helpButton');
+    
+    infoBubble.classList.remove('collapsed');
+    infoBubble.classList.add('expanded');
+    helpButton.style.display = 'none';
+    positionInfoBubble();
+    
+    // Process any MathJax in the bubble
+    if (window.MathJax) {
+        MathJax.typesetPromise([infoBubble]).catch(err => console.log('MathJax error:', err));
+    }
+}
+
+function hideInfoBubble() {
+    const infoBubble = document.getElementById('infoBubble');
+    const helpButton = document.getElementById('helpButton');
+    
+    infoBubble.classList.remove('expanded');
+    infoBubble.classList.add('collapsed');
+    helpButton.style.display = 'flex';
+    
+    if (infoBubbleTimer) {
+        clearTimeout(infoBubbleTimer);
+    }
+}
+
+function positionInfoBubble() {
+    const infoBubble = document.getElementById('infoBubble');
+    const helpButton = document.getElementById('helpButton');
+    
+    if (infoBubble.classList.contains('expanded')) {
+        const bubbleWidth = infoBubble.offsetWidth;
+        const bubbleHeight = infoBubble.offsetHeight;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        let top = 20;
+        let right = 20;
+        
+        // Ensure bubble stays within viewport
+        if (top + bubbleHeight > viewportHeight - 20) {
+            top = viewportHeight - bubbleHeight - 20;
+        }
+        
+        if (right + bubbleWidth > viewportWidth - 20) {
+            right = viewportWidth - bubbleWidth - 20;
+        }
+        
+        infoBubble.style.top = top + 'px';
+        infoBubble.style.right = right + 'px';
+    } else {
+        helpButton.style.top = '20px';
+        helpButton.style.right = '20px';
+    }
+}
+
+// Enhanced answer formatting utilities
+const answerFormatter = {
+    formatForDisplay: (text) => {
+        if (!text) return '';
+        
+        let formatted = text.toString()
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        // Handle fractions properly
+        if (!formatted.includes('\\frac')) {
+            formatted = formatted.replace(/(\d+)\/(\d+)/g, function(match, num, den) {
+                return `\\frac{${num}}{${den}}`;
+            });
+            
+            formatted = formatted.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+            formatted = formatted.replace(/\(([^)]+)\)\s*\/\s*([^\s)]+)/g, '\\frac{$1}{$2}');
+            formatted = formatted.replace(/([^\s)]+)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+        }
+        
+        // Convert inf to infinity symbol
+        formatted = formatted.replace(/inf(inity)?/gi, '∞');
+        formatted = formatted.replace(/-∞/g, '-∞');
+        
+        // Convert sqrt() to √
+        formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
+        
+        // Convert exponents
+        formatted = formatted.replace(/(\w+)\^(\d+)/g, '$1^{$2}');
+        
+        // Convert != to ≠
+        formatted = formatted.replace(/!=/g, '≠');
+        
+        // Convert <= and >=
+        formatted = formatted.replace(/<=/g, '≤').replace(/>=/g, '≥');
+        
+        return formatted;
+    },
+    
+    formatForMathJax: (text) => {
+        if (!text) return '';
+        
+        let latex = text.toString()
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        // Infinity symbols
+        latex = latex.replace(/inf(inity)?/gi, '\\infty');
+        latex = latex.replace(/-\\infty/g, '-\\infty');
+        
+        // Square roots
+        latex = latex.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
+        
+        // Fractions
+        if (!latex.includes('\\frac')) {
+            latex = latex.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
+            latex = latex.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+            latex = latex.replace(/\(([^)]+)\)\s*\/\s*([^\s)]+)/g, '\\frac{$1}{$2}');
+            latex = latex.replace(/([^\s)]+)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+        }
+        
+        // Exponents
+        latex = latex.replace(/(\w+)\^(\d+)/g, '{$1}^{$2}');
+        
+        // Inequalities
+        latex = latex.replace(/!=/g, '\\neq');
+        latex = latex.replace(/<=/g, '\\le').replace(/>=/g, '\\ge');
+        
+        // Sets - only escape if not already escaped
+        if (!latex.includes('\\sqrt{') && !latex.includes('\\frac{') && !latex.includes('\\{') && !latex.includes('\\}')) {
+            latex = latex.replace(/{/g, '\\{').replace(/}/g, '\\}');
+        }
+        latex = latex.replace(/\|/g, '\\mid');
+        
+        // Greek letters
+        latex = latex.replace(/pi/gi, '\\pi');
+        latex = latex.replace(/theta/gi, '\\theta');
+        
+        return `\\(${latex}\\)`;
+    },
+    
+    storeAnswerExactly: (text) => {
+        if (!text) return '';
+        
+        let formatted = text.toString().trim();
+        
+        // Convert sqrt() to √ symbol for storage
+        formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
+        
+        // Convert inf to ∞ symbol for storage
+        formatted = formatted.replace(/\binf\b/gi, '∞');
+        formatted = formatted.replace(/-∞/g, '-∞');
+        
+        return formatted;
+    },
+    
+    formatForNormalization: (text) => {
+        if (!text) return '';
+        
+        return text.toString()
+            .replace(/\s+/g, '')
+            .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+            .replace(/√(\d+)/g, 'sqrt($1)')
+            .replace(/√\(([^)]+)\)/g, 'sqrt($1)')
+            .replace(/≠/g, '!=')
+            .replace(/≤/g, '<=')
+            .replace(/≥/g, '>=')
+            .toLowerCase();
+    },
+    
+    createAnswerPreview: (answer, questionType) => {
+        if (!answer) return null;
+        
+        const normalized = answerNormalizer.normalizeAnswer(answer, questionType);
+        const displayText = answerFormatter.formatForDisplay(answer);
+        const latexText = answerFormatter.formatForMathJax(answer);
+        
+        return {
+            original: answer,
+            normalized: normalized,
+            display: displayText,
+            latex: latexText
+        };
+    },
+    
+    roundDecimals: (num, decimals = 3) => {
+        if (typeof num === 'number') {
+            return parseFloat(num.toFixed(decimals));
+        }
+        
+        const str = num.toString();
+        const numbers = str.match(/-?\d+\.\d+/g);
+        
+        if (numbers) {
+            let result = str;
+            numbers.forEach(n => {
+                const rounded = parseFloat(n).toFixed(decimals);
+                result = result.replace(n, rounded);
+            });
+            return result;
+        }
+        
+        return num;
+    }
+};
+
+// Enhanced answer normalization utility
+const answerNormalizer = {
+    normalizeInterval: (answer) => {
+        return (answer || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+            .replace(/\+inf/gi, 'inf')
+            .replace(/-\s*inf/gi, '-inf')
+            .replace(/\[/g, '[')
+            .replace(/\]/g, ']')
+            .replace(/\(/g, '(')
+            .replace(/\)/g, ')')
+            .replace(/union|\∪|\|/gi, '∪')
+            .toLowerCase();
+    },
+    
+    normalizeSetNotation: (answer) => {
+        return (answer || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/[{}]/g, '')
+            .replace(/x∈R|x∈ℝ/gi, 'ℝ')
+            .replace(/R|ℝ/gi, 'ℝ')
+            .replace(/[|:]/g, ',')
+            .replace(/suchthat/gi, '|')
+            .toLowerCase();
+    },
+    
+    normalizeCoordinate: (coord) => {
+        return (coord || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/[()]/g, '')
+            .toLowerCase();
+    },
+    
+    normalizeDomainRange: (answer, type) => {
+        let normalized = (answer || '').toString().trim();
+        
+        normalized = normalized
+            .replace(/\s+/g, '')
+            .replace(/D\s*[:=]\s*/gi, '')
+            .replace(/R\s*[:=]\s*/gi, '')
+            .replace(/domain\s*[:=]\s*/gi, '')
+            .replace(/range\s*[:=]\s*/gi, '')
+            .replace(/allrealnumbers/gi, 'ℝ')
+            .replace(/allreals/gi, 'ℝ')
+            .replace(/[{}]/g, '')
+            .toLowerCase();
+        
+        if (type === 'interval_input') {
+            normalized = normalized
+                .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+                .replace(/\(-\s*inf,\s*inf\)/g, '(-inf,inf)')
+                .replace(/\[\s*-\s*inf,\s*inf\s*\]/g, '[-inf,inf]');
+        }
+        
+        return normalized;
+    },
+    
+    normalizeNumeric: (num) => {
+        const str = (num || '').toString().trim().toLowerCase();
+        
+        if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
+            return Infinity;
+        }
+        
+        if (str === '-inf' || str === '-infinity' || str === '-∞') {
+            return -Infinity;
+        }
+        
+        const cleaned = str.replace(/[^\d.-]/g, '');
+        return cleaned ? parseFloat(cleaned) : NaN;
+    },
+    
+    normalizeAnswer: (answer, questionType) => {
+        if (!answer) return '';
+        
+        const str = answer.toString().trim();
+        const formatted = answerFormatter.formatForNormalization(str);
+        
+        if (questionType === 'interval_input') {
+            return answerNormalizer.normalizeDomainRange(formatted, 'interval');
+        } else if (questionType === 'set_notation') {
+            return answerNormalizer.normalizeSetNotation(formatted);
+        } else if (questionType === 'numeric' || questionType === 'numeric_input') {
+            const normalized = answerNormalizer.normalizeNumeric(formatted);
+            return isFinite(normalized) ? normalized.toString() : 
+                   normalized === Infinity ? 'inf' : 
+                   normalized === -Infinity ? '-inf' : formatted;
+        } else if (questionType === 'coordinate_input') {
+            return answerNormalizer.normalizeCoordinate(formatted);
+        } else {
+            return formatted.toLowerCase();
+        }
+    }
+};
+
+// Add answer preview functionality
+function updateAnswerPreview(questionIndex, answer) {
+    const preview = document.getElementById(`answerPreview-${questionIndex}`);
+    const warning = document.getElementById(`inputWarning-${questionIndex}`);
+    
+    if (!preview || !answer.trim()) {
+        if (preview) preview.classList.remove('visible');
+        if (warning) {
+            warning.classList.remove('visible');
+            warning.textContent = '';
+        }
+        return;
+    }
+    
+    const question = questions[questionIndex];
+    const previewData = answerFormatter.createAnswerPreview(answer, question.type);
+    
+    if (!previewData) return;
+    
+    // Update formatted view with LaTeX only
+    const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
+    if (formattedEl) {
+        formattedEl.innerHTML = previewData.latex;
+    }
+    
+    // Update hint section
+    const hintEl = document.getElementById(`previewHint-${questionIndex}`);
+    let hint = '';
+    
+    const rounded = answerFormatter.roundDecimals(answer);
+    if (rounded && rounded !== answer) {
+        hint = `Will be rounded to 3 decimal places: ${rounded}`;
+    } else if (answer.includes('inf')) {
+        hint = '"inf" is displayed as ∞';
+    } else if (answer.includes('sqrt')) {
+        hint = '"sqrt(x)" is displayed as √x';
+    } else if (answer.match(/\d+\/\d+/)) {
+        hint = 'Fractions are displayed properly';
+    } else if (answer.includes('{') || answer.includes('}')) {
+        hint = 'Curly braces are formatted for display';
+    }
+    
+    hintEl.textContent = hint;
+    
+    // Process MathJax for formatted preview
+    if (window.MathJax) {
+        MathJax.typesetPromise([formattedEl]).catch(err => console.log('MathJax error:', err));
+    }
+    
+    // Show warning for invalid characters
+    if (warning) {
+        const invalidChars = answer.match(/[^0-9a-zA-Z\s.,+\-*/^(){}|≠≤≥=≠∞√πθ\-\/\\\[\]\$\{\}\|]/);
+        if (invalidChars) {
+            warning.textContent = `Warning: Unusual character "${invalidChars[0]}" detected`;
+            warning.classList.add('visible');
+        } else {
+            warning.classList.remove('visible');
+        }
+    }
+    
+    preview.classList.add('visible');
+}
+
+// New function to handle input with preview
+function handleNumericInputWithPreview(questionIndex, value) {
+    handleNumericInput(questionIndex, value);
+    updateAnswerPreview(questionIndex, value);
+    
+    if (value.trim()) {
+        const validation = validateAnswerFormat(questionIndex, value.trim());
+        showValidationFeedback(questionIndex, validation.feedback, validation.suggestion);
+    } else {
+        showValidationFeedback(questionIndex, '', '');
+    }
+}
+
+function handleNumericInput(questionIndex, value) {
+    const trimmedValue = value.trim();
+    
+    if (trimmedValue) {
+        userAnswers[questionIndex] = answerFormatter.storeAnswerExactly(trimmedValue);
+    } else {
+        delete userAnswers[questionIndex];
+    }
+    
+    updateAnswerStatus();
+}
+
+function validateAnswerFormat(questionIndex, userAnswer) {
+    const question = questions[currentQuestionIndex];
+    let feedback = '';
+    let suggestion = '';
+    let isValidFormat = true;
+    
+    if (question.type === 'interval_input') {
+        const normalized = answerNormalizer.normalizeInterval(userAnswer);
+        const intervalRegex = /^[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]$/;
+        const unionRegex = /^[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]\s*∪\s*[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]$/;
+        
+        if (intervalRegex.test(normalized) || unionRegex.test(normalized)) {
+            feedback = '✓ Valid interval notation';
+        } else {
+            feedback = '⚠ Check interval format';
+        }
+        suggestion = 'Examples: (-∞, 5], [1, 10), (-3, 3), [0,∞)∪(2,5)';
+        
+    } else if (question.type === 'set_notation') {
+        feedback = '✓ Any set notation accepted';
+        suggestion = 'Examples: ℝ, {x ∈ ℝ | x ≠ 2}, {x | x > 0}';
+        isValidFormat = true;
+        
+    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+        const normalized = answerNormalizer.normalizeNumeric(userAnswer);
+        if (!isNaN(normalized) || ['inf', '-inf', '∞', '-∞'].includes(userAnswer.toLowerCase())) {
+            feedback = '✓ Valid number';
+        } else {
+            feedback = '⚠ Enter a valid number';
+        }
+        suggestion = 'Examples: 3.14, -5, 0, inf, -infinity';
+        
+    } else {
+        feedback = '✓ Answer recorded';
+        isValidFormat = true;
+    }
+    
+    return { isValidFormat, feedback, suggestion };
+}
+
+function showValidationFeedback(questionIndex, feedback, suggestion) {
+    const questionDiv = document.querySelector('.question-card');
+    let feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+    
+    if (!feedbackDiv) {
+        feedbackDiv = document.createElement('div');
+        feedbackDiv.id = `feedback-${questionIndex}`;
+        questionDiv.appendChild(feedbackDiv);
+    }
+    
+    if (!feedback) {
+        feedbackDiv.innerHTML = '';
+        return;
+    }
+    
+    const isValid = feedback.includes('✓');
+    feedbackDiv.style.cssText = `
+        background: ${isValid ? '#d4edda' : '#fff3cd'};
+        border: 1px solid ${isValid ? '#c3e6cb' : '#ffeaa7'};
+        border-radius: 6px;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.5;
+    `;
+    
+    feedbackDiv.innerHTML = `
+        <div style="color: ${isValid ? '#155724' : '#856404'}; font-weight: 600; margin-bottom: 4px;">
+            ${feedback}
+        </div>
+        ${suggestion ? `<div style="color: #666; font-size: 13px;">${suggestion}</div>` : ''}
+    `;
+}
+
+// Modify the renderCurrentQuestion function to include answer preview
+// Update the optionsHtml section in renderCurrentQuestion function:
+
+      
         let currentQuestionIndex = 0;
         let quizStartTime = null;
         let questionStartTime = null;
@@ -1055,6 +1723,9 @@
         let isQuizActive = false;
         let devToolsWarned = false;
         let topicDistribution = {}; // Track questions per topic
+        let userAnswers = {};
+        let currentUser = {};
+        let username = null;
 
         // ============================================
         // MAIN CHANGES: EQUAL DISTRIBUTION FROM 5 TOPICS
@@ -1282,6 +1953,7 @@
         async function initializeQuiz() {
             try {
                 initializeAntiCheating();
+                initializeInfoBubble();
                 
                 const sessionValid = await fetchSessionInfo();
                 if (!sessionValid) return;
@@ -1370,6 +2042,20 @@
                            autocomplete="off"
                            spellcheck="false">
                 `;
+
+                 answerPreviewHtml = `
+        <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
+            <h4>Answer Preview</h4>
+            <div class="answer-preview-content">
+                <div class="preview-row">
+                    <span class="preview-label">Formatted view:</span>
+                    <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div>
+                </div>
+            </div>
+            <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
+        </div>
+    `;
+
             } else {
                 console.warn('Unknown question type or missing options:', question.type, question);
                 optionsHtml = `
@@ -1407,7 +2093,7 @@
             
             restoreAnswer();
             updateAnswerStatus();
-        }
+            }       
 
         function getTopicColor(topicName) {
             const topicColors = {
@@ -1421,7 +2107,7 @@
             return topicColors[topicName] || '#6c757d';
         }
 
-        function restoreAnswer() {
+              function restoreAnswer() {
             const question = questions[currentQuestionIndex];
             const savedAnswer = userAnswers[currentQuestionIndex];
             
@@ -1441,10 +2127,15 @@
                         option.closest('.option').classList.add('selected');
                     }
                 });
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-                const input = document.querySelector('.numeric-input');
+            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'set_notation', 'text_input'].includes(question.type)) {
+                const input = document.getElementById(`answerInput-${currentQuestionIndex}`);
                 if (input) {
                     input.value = savedAnswer;
+                    
+                    // Trigger preview update
+                    setTimeout(() => {
+                        updateAnswerPreview(currentQuestionIndex, savedAnswer);
+                    }, 100);
                 }
             }
         }
@@ -2371,12 +3062,9 @@ document.addEventListener('DOMContentLoaded', function() {
             initializeQuiz();
         }
     </script>
-    <script src="../IIITM-math/unified-system.js"></script>
+   
+
+   
+</div>
 </body>
 </html>
-
-
-
-
-
-
