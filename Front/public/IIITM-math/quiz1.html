@@ -1093,6 +1093,75 @@
         </div>
     </div>
 
+    <!-- Information Bubble for Quiz 1 -->
+<div id="infoBubble" class="info-bubble">
+    <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
+    <h3><span class="info-icon">ℹ️</span> Answer Formatting Guide</h3>
+    <div class="info-content">
+        <p><strong>How to format your answers:</strong></p>
+        
+        <ul>
+            <li><strong>Math Symbols:</strong> 
+                <code>inf</code> = ∞, 
+                <code>sqrt(x)</code> = √x, 
+                <code>^</code> = exponent,
+                <code>∪</code> = union, 
+                <code>∩</code> = intersection
+            </li>
+            <li><strong>Set Notation:</strong> 
+                <code>{1,2,3}</code>, 
+                <code>{x | x > 0}</code>,
+                <code>∅</code> = empty set
+            </li>
+            <li><strong>Intervals:</strong> 
+                <code>(-∞, 3]</code> = $(-\infty, 3]$
+            </li>
+            <li><strong>Equations:</strong> 
+                <code>x = -1/2, sqrt(2)</code> (multiple answers with commas)
+            </li>
+            <li><strong>Functions:</strong> 
+                <code>f(x) = x^2 + 1</code>, 
+                <code>y = mx + b</code>
+            </li>
+            <li><strong>Polynomials:</strong> 
+                <code>x^2 - 4x + 4</code>, 
+                <code>(x-2)^2</code>
+            </li>
+        </ul>
+        
+        <p><strong>Quick Examples:</strong></p>
+        
+        <div class="math-example">
+            <div><code>(-inf, 3]</code> → $(-\infty, 3]$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>x = -1/2, sqrt(2)</code> → $x = -\frac{1}{2}, \sqrt{2}$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>f(x) = x^2 + 2x + 1</code> → $f(x) = x^2 + 2x + 1$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>A ∪ B = {1,2,3}</code> → $A ∪ B = \{1,2,3\}$</div>
+        </div>
+        
+        <p><strong>Important:</strong></p>
+        <ul>
+            <li>Case-insensitive, spaces auto-removed</li>
+            <li>Multiple answers separated by commas</li>
+            <li>Check preview below input box</li>
+            <li>Use calculator button for complex calculations</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Help Button for Quiz 1 -->
+<div id="helpButton" class="help-button" onclick="showInfoBubble()">
+    <span class="help-icon">?</span>
+</div>
+
      <!-- ========== CALCULATOR CODE STARTS HERE ========== -->
     <div id="calculatorBtn" class="calculator-btn" onclick="toggleCalculator()">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1951,99 +2020,131 @@ function showValidationFeedback(questionIndex, feedback, suggestion) {
         }
 
         async function initializeQuiz() {
-            try {
-                initializeAntiCheating();
-                initializeInfoBubble();
-                
-                const sessionValid = await fetchSessionInfo();
-                if (!sessionValid) return;
-                
-                // CHANGED: Use multi-topic loading instead of single topic
-                const questionsLoaded = await loadQuestionsFromAllTopics();
-                if (!questionsLoaded) {
-                    alert('Failed to load questions. Please try again.');
-                    return;
-                }
-                
-                currentUser = { username, email };
-                
-                initializeQuizTiming();
-                isQuizActive = true;
-                
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('quizContainer').style.display = 'block';
-                
-                renderCurrentQuestion();
-                initializeQuestionNavigator();
-                updateProgress();
-                
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.log('Fullscreen request failed:', err);
-                    });
-                }
-            } catch (error) {
-                console.error('Error initializing quiz:', error);
-                alert('Error initializing quiz. Please refresh and try again.');
-            }
+    try {
+        initializeAntiCheating();
+        initializeInfoBubble(); // Add this line
+        
+        const sessionValid = await fetchSessionInfo();
+        if (!sessionValid) return;
+        
+        // CHANGED: Use multi-topic loading instead of single topic
+        const questionsLoaded = await loadQuestionsFromAllTopics();
+        if (!questionsLoaded) {
+            alert('Failed to load questions. Please try again.');
+            return;
         }
+        
+        currentUser = { username, email };
+        
+        initializeQuizTiming();
+        isQuizActive = true;
+        
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+        
+        renderCurrentQuestion();
+        initializeQuestionNavigator();
+        updateProgress();
+        
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Fullscreen request failed:', err);
+            });
+        }
+    } catch (error) {
+        console.error('Error initializing quiz:', error);
+        alert('Error initializing quiz. Please refresh and try again.');
+    }
+}
 
         function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            console.log('Rendering question:', currentQuestionIndex + 1, question);
-            
-            container.innerHTML = '';
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
+    
+    console.log('Rendering question:', currentQuestionIndex + 1, question);
+    
+    container.innerHTML = '';
 
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
 
-            let optionsHtml = '';
+    let optionsHtml = '';
+    let answerPreviewHtml = '';
+    
+    // Process question text for LaTeX
+    let questionText = question.question_text || 'Question text not available';
+    
+    // Check if question text contains LaTeX or math expressions
+    if (questionText.includes('$') || questionText.includes('\\') || 
+        questionText.includes('sqrt') || questionText.includes('^') ||
+        questionText.includes('frac')) {
+        questionText = answerFormatter.formatForMathJax(questionText);
+    }
+    
+    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            // Format option text for display
+            let optionText = option;
+            if (option.includes('inf') || option.includes('sqrt') || 
+                option.includes('^') || option.includes('frac') ||
+                option.includes('{') || option.includes('}')) {
+                optionText = answerFormatter.formatForMathJax(option);
+            }
             
-            if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
-                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-                let specificPlaceholder = "Enter your answer";
-                if (question.type === 'coordinate_input') {
-                    specificPlaceholder = "Enter coordinates as (x, y)";
-                } else if (question.type === 'equation_input') {
-                    specificPlaceholder = "Enter equation (e.g., y = mx + b)";
-                } else if (question.type === 'interval_input') {
-                    specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
-                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                    specificPlaceholder = "Enter a number";
-                }
-                
-                optionsHtml = `
-                    <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${specificPlaceholder}" 
-                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false">
-                `;
-
-                 answerPreviewHtml = `
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            let optionText = option;
+            if (option.includes('inf') || option.includes('sqrt') || 
+                option.includes('^') || option.includes('frac')) {
+                optionText = answerFormatter.formatForMathJax(option);
+            }
+            
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input', 'set_notation'].includes(question.type)) {
+        let placeholder = "Enter your answer";
+        if (question.type === 'interval_input') {
+            placeholder = "e.g., (-∞, 3], [1,5)∪(5,∞), or type: (-inf, 3]";
+        } else if (question.type === 'set_notation') {
+            placeholder = "e.g., {x ∈ ℝ | x ≠ 0}, or type: {x | x != 0}";
+        } else if (question.type === 'coordinate_input') {
+            placeholder = "e.g., (2, 3), (-1/2, sqrt(2))";
+        } else if (question.type === 'equation_input') {
+            placeholder = "e.g., f(x) = x^2 + 1, y = 2x - 3";
+        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+            placeholder = "e.g., 3.14159, -5, sqrt(2), 1/3";
+        } else {
+            placeholder = "Type your answer here";
+        }
+        
+        optionsHtml = `
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${placeholder}" 
+                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                   oninput="handleNumericInputWithPreview(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false"
+                   id="answerInput-${currentQuestionIndex}">
+            <div class="input-warning" id="inputWarning-${currentQuestionIndex}"></div>
+        `;
+        
+        // Add answer preview box
+        answerPreviewHtml = `
         <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
             <h4>Answer Preview</h4>
             <div class="answer-preview-content">
@@ -2055,45 +2156,76 @@ function showValidationFeedback(questionIndex, feedback, suggestion) {
             <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
         </div>
     `;
+    } else {
+        console.warn('Unknown question type:', question.type);
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options.
+            </div>
+        `;
+    }
 
-            } else {
-                console.warn('Unknown question type or missing options:', question.type, question);
-                optionsHtml = `
-                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                        <strong>Error:</strong> Unable to display question options. Please contact administrator.
-                    </div>
-                `;
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107',
+        'hard': '#dc3545'
+    };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+    
+    // Get topic name for display
+    const topicName = question.originalTopic || question.topic || 'General';
+    const topicColor = getTopicColor(topicName);
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
+                </span>
+                <span style="background: ${topicColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-transform: uppercase;">
+                    ${topicName}
+                </span>
+            </div>
+        </div>
+        <div class="question-text" id="question-text-${currentQuestionIndex}">${questionText}</div>
+        <div class="options">${optionsHtml}</div>
+        ${answerPreviewHtml}
+    `;
+
+    container.appendChild(questionDiv);
+    
+    // Process MathJax for question text and options
+    if (window.MathJax) {
+        MathJax.typesetPromise([questionDiv]).catch(err => console.log('MathJax error:', err));
+    }
+    
+    restoreAnswer();
+    updateAnswerStatus();
+    
+    // Add event listener for input focus to show preview
+    const input = document.getElementById(`answerInput-${currentQuestionIndex}`);
+    if (input) {
+        input.addEventListener('focus', () => {
+            const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+            if (preview) {
+                preview.classList.add('visible');
             }
-
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107', 
-                'hard': '#dc3545'
-            };
-            
-            const difficulty = question.difficulty || 'medium';
-            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-            
-            // Get topic name for display
-            const topicName = question.originalTopic || question.topic || 'General';
-            const topicColor = getTopicColor(topicName);
-
-            let processedQuestionText = question.question_text || 'Question text not available';
-
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    
-                </div>
-                <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
-                <div class="options">${optionsHtml}</div>
-            `;
-
-            container.appendChild(questionDiv);
-            
-            restoreAnswer();
-            updateAnswerStatus();
-            }       
+        });
+        
+        input.addEventListener('blur', () => {
+            setTimeout(() => {
+                const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+                const activeElement = document.activeElement;
+                if (preview && !preview.contains(activeElement)) {
+                    preview.classList.remove('visible');
+                }
+            }, 100);
+        });
+    }
+}    
 
         function getTopicColor(topicName) {
             const topicColors = {
@@ -2108,37 +2240,43 @@ function showValidationFeedback(questionIndex, feedback, suggestion) {
         }
 
               function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (!savedAnswer) return;
+                const question = questions[currentQuestionIndex];
+                const savedAnswer = userAnswers[currentQuestionIndex];
+                
+                if (!savedAnswer) return;
 
-            if (question.type === 'multiple_choice') {
-                const option = document.querySelector(`input[value="${savedAnswer}"]`);
-                if (option) {
-                    option.checked = true;
-                    option.closest('.option').classList.add('selected');
-                }
-            } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[value="${answer}"]`);
+                if (question.type === 'multiple_choice') {
+                    const option = document.querySelector(`input[value="${savedAnswer}"]`);
                     if (option) {
                         option.checked = true;
                         option.closest('.option').classList.add('selected');
                     }
-                });
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'set_notation', 'text_input'].includes(question.type)) {
-                const input = document.getElementById(`answerInput-${currentQuestionIndex}`);
-                if (input) {
-                    input.value = savedAnswer;
-                    
-                    // Trigger preview update
-                    setTimeout(() => {
-                        updateAnswerPreview(currentQuestionIndex, savedAnswer);
-                    }, 100);
+                } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+                    savedAnswer.forEach(answer => {
+                        const option = document.querySelector(`input[value="${answer}"]`);
+                        if (option) {
+                            option.checked = true;
+                            option.closest('.option').classList.add('selected');
+                        }
+                    });
+                } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'set_notation', 'text_input', 'equation_input'].includes(question.type)) {
+                    const input = document.getElementById(`answerInput-${currentQuestionIndex}`);
+                    if (input) {
+                        input.value = savedAnswer;
+                        
+                        // Update preview if there's an answer
+                        if (savedAnswer.trim()) {
+                            updateAnswerPreview(currentQuestionIndex, savedAnswer);
+                            
+                            // Show the preview panel
+                            const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+                            if (preview) {
+                                preview.classList.add('visible');
+                            }
+                        }
+                    }
                 }
             }
-        }
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
@@ -3068,3 +3206,10 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </body>
 </html>
+
+
+
+
+
+
+
