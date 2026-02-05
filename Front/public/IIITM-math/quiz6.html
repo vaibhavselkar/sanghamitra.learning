@@ -1162,7 +1162,7 @@
                 formatted = formatted.replace(/-∞/g, '-∞');
                 
                 // Convert sqrt() to √
-                formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
+                formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√{$1}');
                 
                 // Convert pi to π
                 formatted = formatted.replace(/\bpi\b/gi, 'π');
@@ -1258,7 +1258,7 @@
                 let formatted = text.toString().trim();
                 
                 // Convert sqrt() to √ for storage
-                formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
+                formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√{$1}');
                 
                 // Convert inf to ∞ for storage
                 formatted = formatted.replace(/\binf\b/gi, '∞');
@@ -2671,3 +2671,4 @@
     </script>
 </body>
 </html>
+
