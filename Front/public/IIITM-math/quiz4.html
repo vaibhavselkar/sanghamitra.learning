@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Quadratic Functions</title>
+
+    <script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        }
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -462,6 +477,239 @@
             padding: 10px 0;
             background: #f0f0f0;
         }
+
+        /* Information Bubble Styles */
+.info-bubble {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 350px;
+    max-width: 90vw;
+    z-index: 10001;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    display: none;
+}
+
+.info-bubble.expanded {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+.info-bubble.collapsed {
+    display: none;
+}
+
+.info-bubble h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-bubble h3 .info-icon {
+    font-size: 1.5em;
+}
+
+.info-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.info-content ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.info-content li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.info-content code {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.info-content .math-example {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0;
+    font-family: monospace;
+}
+
+.info-bubble-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.info-bubble-close:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.help-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.help-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.help-button .help-icon {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Answer Preview Box */
+.answer-preview {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    display: none;
+}
+
+.answer-preview.visible {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.answer-preview h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.answer-preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-label {
+    font-weight: 600;
+    color: #666;
+    min-width: 120px;
+    font-size: 14px;
+}
+
+.preview-value {
+    flex: 1;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    font-family: 'Courier New', monospace;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.preview-value.math {
+    font-family: inherit;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.preview-hint {
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Warning for invalid input */
+.input-warning {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.input-warning.visible {
+    display: block;
+}
+
+/* Better alignment for preview values */
+.preview-value.math {
+    font-family: inherit;
+    font-size: 16px;
+    color: #2c3e50;
+    line-height: 1.2;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+/* Ensure MathJax fractions display properly */
+.mjx-mfrac {
+    padding: 0 !important;
+    margin: 0 !important;
+}
 
         @media (max-width: 768px) {
             .results-container { padding: 15px; }
@@ -1054,6 +1302,7 @@
             questionDiv.className = 'question-card';
 
             let optionsHtml = '';
+            let answerPreviewHtml = '';
             
             if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
                 optionsHtml = question.options.map((option, optIndex) => {
@@ -1076,28 +1325,45 @@
                     `;
                 }).join('');
             } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-            // Use generic placeholders that don't reveal answers
-            let specificPlaceholder = "Enter your answer";
-            if (question.type === 'coordinate_input') {
-                specificPlaceholder = "Enter coordinates as (x, y)";
-            } else if (question.type === 'equation_input') {
-                specificPlaceholder = "Enter equation (e.g., y = mx + b)";
-            } else if (question.type === 'interval_input') {
-                specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
-            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                specificPlaceholder = "Enter a number";
-            }
-            
-            optionsHtml = `
-                <input type="text" 
-                       class="numeric-input" 
-                       placeholder="${specificPlaceholder}" 
-                       onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                       oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                       autocomplete="off"
-                       spellcheck="false">
-            `;
-        } else {
+                let placeholder = "Enter your answer";
+                if (question.type === 'equation_input') {
+                    placeholder = "e.g., y = ax² + bx + c, f(x) = 2(x-1)² + 3";
+                } else if (question.type === 'coordinate_input') {
+                    placeholder = "e.g., (2, -3), (h, k) = (1/2, sqrt(2))";
+                } else if (question.type === 'interval_input') {
+                    placeholder = "e.g., (-∞, 3], [0, ∞), or type: (-inf, 3]";
+                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+                    placeholder = "e.g., 3.14, -5, sqrt(2), 1/3, discriminant value";
+                } else {
+                    placeholder = "Type your answer here";
+                }
+                
+                optionsHtml = `
+                    <input type="text" 
+                           class="numeric-input" 
+                           placeholder="${placeholder}" 
+                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                           oninput="handleNumericInputWithPreview(${currentQuestionIndex}, this.value)"
+                           autocomplete="off"
+                           spellcheck="false"
+                           id="answerInput-${currentQuestionIndex}">
+                    <div class="input-warning" id="inputWarning-${currentQuestionIndex}"></div>
+                `;
+                
+                // Add answer preview box
+                answerPreviewHtml = `
+                    <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
+                        <h4>Answer Preview</h4>
+                        <div class="answer-preview-content">
+                            <div class="preview-row">
+                                <span class="preview-label">Formatted view:</span>
+                                <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div>
+                            </div>
+                        </div>
+                        <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
+                    </div>
+                `;
+            } else {
                 console.warn('Unknown question type or missing options:', question.type, question);
                 optionsHtml = `
                     <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
@@ -1128,6 +1394,7 @@
                 </div>
                 <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
                 <div class="options">${optionsHtml}</div>
+                ${answerPreviewHtml}
             `;
 
             container.appendChild(questionDiv);
@@ -1973,8 +2240,77 @@
             initializeQuiz();
         }
     </script>
+    <!-- Information Bubble -->
+<div id="infoBubble" class="info-bubble">
+    <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
+    <h3><span class="info-icon">ℹ️</span> Quadratic Functions Answer Guide</h3>
+    <div class="info-content">
+        <p><strong>How to format your answers:</strong></p>
+        
+        <ul>
+            <li><strong>Quadratic Equations:</strong> 
+                <code>x = 2, -3</code> = $x = 2, -3$, 
+                <code>y = a(x-h)² + k</code> = $y = a(x-h)^2 + k$
+            </li>
+            <li><strong>Math Symbols:</strong> 
+                <code>inf</code> = ∞, 
+                <code>sqrt(x)</code> = √x, 
+                <code>^</code> = exponent,
+                <code>±</code> = plus-minus
+            </li>
+            <li><strong>Discriminant:</strong> 
+                <code>b² - 4ac</code> = $b^2 - 4ac$,
+                <code>D > 0</code> = $D > 0$
+            </li>
+            <li><strong>Vertex Form:</strong> 
+                <code>(h, k)</code> = vertex coordinates,
+                <code>y = 2(x-3)² + 1</code> = $y = 2(x-3)^2 + 1$
+            </li>
+            <li><strong>Intervals:</strong> 
+                <code>(-inf, 3]</code> = $(-\infty, 3]$,
+                <code>(-∞, ∞)</code> = $(-\infty, \infty)$
+            </li>
+        </ul>
+        
+        <p><strong>Quadratic Formula Examples:</strong></p>
+        
+        <div class="math-example">
+            <div><code>x = (-b ± sqrt(b² - 4ac))/(2a)</code></div>
+            <div>→ $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>y = 2(x-3)² - 5</code> → $y = 2(x-3)^2 - 5$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>Vertex: (h, k) = (2, -3)</code></div>
+            <div>→ Vertex: $(h, k) = (2, -3)$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>Roots: x = -1/2, sqrt(3)</code></div>
+            <div>→ Roots: $x = -\frac{1}{2}, \sqrt{3}$</div>
+        </div>
+        
+        <p><strong>Important:</strong></p>
+        <ul>
+            <li>For fractions: Use <code>1/2</code> or <code>(x+1)/(x-1)</code></li>
+            <li>For exponents: Use <code>x^2</code> or <code>(x+1)^3</code></li>
+            <li>For square roots: Use <code>sqrt(2)</code> or <code>sqrt(x+1)</code></li>
+            <li>Multiple answers separated by commas</li>
+            <li>Check preview below input box</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Help Button -->
+<div id="helpButton" class="help-button" onclick="showInfoBubble()">
+    <span class="help-icon">?</span>
+</div>
 </body>
 </html>
+
 
 
 
