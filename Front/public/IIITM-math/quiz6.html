@@ -1225,7 +1225,6 @@ const answerFormatter = {
 };
 
 // Information Bubble Functions
-// Information Bubble Functions
 function initializeInfoBubble() {
     const infoBubble = document.getElementById('infoBubble');
     const helpButton = document.getElementById('helpButton');
@@ -1233,9 +1232,10 @@ function initializeInfoBubble() {
     // Show bubble for first 20 seconds
     setTimeout(() => {
         showInfoBubble();
+        infoBubbleShown = true;
         
         // Auto-hide after 20 seconds
-        setTimeout(() => {
+        infoBubbleTimer = setTimeout(() => {
             hideInfoBubble();
         }, 20000);
     }, 1000);
@@ -2861,6 +2861,7 @@ const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm
     
 </body>
 </html>
+
 
 
 
