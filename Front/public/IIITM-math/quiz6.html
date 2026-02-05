@@ -1164,7 +1164,12 @@ const answerFormatter = {
         return {
             original: answer,
             display: displayText,
-            latex: latexText
+            latex: latexText,
+            needsMathJax: answer.includes('sqrt') || 
+                         answer.includes('π') || 
+                         answer.includes('/') || 
+                         answer.includes('{') || 
+                         answer.includes('}')
         };
     },
     
@@ -1882,11 +1887,19 @@ function updateAnswerPreview(questionIndex, answer) {
     
     if (!previewData) return;
     
-    // Update formatted view with LaTeX only
+    // Update formatted view with LaTeX
     const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
-    if (formattedEl) {
-        formattedEl.innerHTML = previewData.latex;
-    }
+        if (formattedEl) {
+            if (previewData.needsMathJax) {
+                formattedEl.innerHTML = previewData.latex;
+                // Process MathJax for formatted preview
+                if (window.MathJax) {
+                    MathJax.typesetPromise([formattedEl]).catch(err => console.log('MathJax error:', err));
+                }
+            } else {
+                formattedEl.innerHTML = previewData.display;
+            }
+        }
     
     // Update hint section
     const hintEl = document.getElementById(`previewHint-${questionIndex}`);
@@ -2818,6 +2831,7 @@ const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm
     
 </body>
 </html>
+
 
 
 
