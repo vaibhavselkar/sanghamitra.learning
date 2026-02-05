@@ -1287,96 +1287,101 @@
         // ENHANCED ANSWER NORMALIZATION UTILITY
         // Specialized for Exponential Functions questions
         // ============================================
-        const answerNormalizer = {
-            normalizeExponential: (answer) => {
-                return (answer || '').toString().trim()
+        // ============================================
+// ENHANCED ANSWER NORMALIZATION UTILITY
+// Specialized for Exponential Functions questions
+// ============================================
+const answerNormalizer = {
+    normalizeExponential: function(answer) {
+        return (answer || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/exp\(/gi, 'e^(')
+            .replace(/e\^\(/g, 'e^')
+            .toLowerCase();
+    },
+    
+    normalizeLogarithm: function(answer) {
+        return (answer || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/log_(\d+)\(/g, 'log$1(')
+            .replace(/ln\(/g, 'loge(')
+            .toLowerCase();
+    },
+    
+    normalizeInterval: function(answer) {
+        return (answer || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+            .replace(/\+inf/gi, 'inf')
+            .replace(/-\s*inf/gi, '-inf')
+            .replace(/\[/g, '[')
+            .replace(/\]/g, ']')
+            .replace(/\(/g, '(')
+            .replace(/\)/g, ')')
+            .replace(/union|\∪|\|/gi, '∪')
+            .toLowerCase();
+    },
+    
+    normalizeCoordinate: function(coord) {
+        return (coord || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/[()]/g, '')
+            .toLowerCase();
+    },
+    
+    normalizeNumeric: function(num) {
+        const str = (num || '').toString().trim().toLowerCase();
+        
+        if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
+            return Infinity;
+        }
+        
+        if (str === '-inf' || str === '-infinity' || str === '-∞') {
+            return -Infinity;
+        }
+        
+        const cleaned = str.replace(/[^\d.-]/g, '');
+        return cleaned ? parseFloat(cleaned) : NaN;
+    },
+    
+    // Fixed the normalizeAnswer function - removed the duplicate parameter list
+    normalizeAnswer: function(answer, questionType) {
+        if (!answer) return '';
+        
+        let normalized = answer.toString().trim();
+        
+        switch(questionType) {
+            case 'interval_input':
+                return this.normalizeInterval(normalized);
+            case 'coordinate_input':
+                return this.normalizeCoordinate(normalized);
+            case 'equation_input':
+                // Special handling for exponential equations
+                normalized = normalized.toLowerCase()
                     .replace(/\s+/g, '')
-                    .replace(/exp\(/gi, 'e^(')
+                    .replace(/exp\(/g, 'e^')
                     .replace(/e\^\(/g, 'e^')
-                    .toLowerCase();
-            },
-            
-            normalizeLogarithm: (answer) => {
-                return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')
                     .replace(/log_(\d+)\(/g, 'log$1(')
-                    .replace(/ln\(/g, 'loge(')
-                    .toLowerCase();
-            },
-            
-            normalizeInterval: (answer) => {
-                return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')
-                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
-                    .replace(/\+inf/gi, 'inf')
-                    .replace(/-\s*inf/gi, '-inf')
-                    .replace(/\[/g, '[')
-                    .replace(/\]/g, ']')
-                    .replace(/\(/g, '(')
-                    .replace(/\)/g, ')')
-                    .replace(/union|\∪|\|/gi, '∪')
-                    .toLowerCase();
-            },
-            
-            normalizeCoordinate: (coord) => {
-                return (coord || '').toString().trim()
-                    .replace(/\s+/g, '')
-                    .replace(/[()]/g, '')
-                    .toLowerCase();
-            },
-            
-            normalizeNumeric: (num) => {
-                const str = (num || '').toString().trim().toLowerCase();
-                
-                if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
-                    return Infinity;
-                }
-                
-                if (str === '-inf' || str === '-infinity' || str === '-∞') {
-                    return -Infinity;
-                }
-                
-                const cleaned = str.replace(/[^\d.-]/g, '');
-                return cleaned ? parseFloat(cleaned) : NaN;
-            },
-            
-            normalizeAnswer: (answer, questionType) {
-                if (!answer) return '';
-                
-                let normalized = answer.toString().trim();
-                
-                switch(questionType) {
-                    case 'interval_input':
-                        return this.normalizeInterval(normalized);
-                    case 'coordinate_input':
-                        return this.normalizeCoordinate(normalized);
-                    case 'equation_input':
-                        // Special handling for exponential equations
-                        normalized = normalized.toLowerCase()
-                            .replace(/\s+/g, '')
-                            .replace(/exp\(/g, 'e^')
-                            .replace(/e\^\(/g, 'e^')
-                            .replace(/log_(\d+)\(/g, 'log$1(')
-                            .replace(/ln\(/g, 'loge(');
-                        return normalized;
-                    case 'numeric':
-                    case 'numeric_input':
-                        const num = this.normalizeNumeric(normalized);
-                        return isFinite(num) ? num.toString() : 
-                               num === Infinity ? 'inf' : 
-                               num === -Infinity ? '-inf' : normalized;
-                    case 'multiple_choice':
-                    case 'text_input':
-                    default:
-                        return normalized.toLowerCase()
-                            .trim()
-                            .replace(/\s+/g, ' ')
-                            .replace(/all real numbers/i, 'allrealnumbers')
-                            .replace(/no solution/i, 'nosolution')
-                            .replace(/does not exist|dne/i, 'dne');
-                }
-            }
-        };
+                    .replace(/ln\(/g, 'loge(');
+                return normalized;
+            case 'numeric':
+            case 'numeric_input':
+                const num = this.normalizeNumeric(normalized);
+                return isFinite(num) ? num.toString() : 
+                       num === Infinity ? 'inf' : 
+                       num === -Infinity ? '-inf' : normalized;
+            case 'multiple_choice':
+            case 'text_input':
+            default:
+                return normalized.toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, ' ')
+                    .replace(/all real numbers/i, 'allrealnumbers')
+                    .replace(/no solution/i, 'nosolution')
+                    .replace(/does not exist|dne/i, 'dne');
+        }
+    }
+};
        
         let userAnswers = {};
         let currentUser = {};
@@ -2682,3 +2687,4 @@
     </script>
 </body>
 </html>
+
