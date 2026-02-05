@@ -1245,9 +1245,11 @@
                     .replace(/implies/gi, '\\Rightarrow');
                 
                 // Properly escape curly braces
-                latex = latex.replace(/(?<!\\)\{/g, '\\{').replace(/(?<!\\)\}/g, '\\}');
+                if (!latex.includes('\\sqrt{') && !latex.includes('\\frac{') && !latex.includes('\\{') && !latex.includes('\\}')) {
+                    latex = latex.replace(/{/g, '\\{').replace(/}/g, '\\}');
+                }
                 latex = latex.replace(/\|/g, '\\mid');
-                
+                                
                 return `\\(${latex}\\)`;
             },
 
@@ -2671,4 +2673,5 @@
     </script>
 </body>
 </html>
+
 
