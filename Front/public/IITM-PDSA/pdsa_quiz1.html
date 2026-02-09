@@ -32,7 +32,7 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, nghns-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -488,6 +488,7 @@
                         <p>🎯 Score ≥ 60% to unlock Level 2</p>
                     </div>
                     <div id="level1Progress" class="level-progress">
+                        <div id="level1Status"></div>
                         <button class="btn btn-success btn-level" onclick="startLevel(1)">Start Level 1</button>
                     </div>
                 </div>
@@ -503,6 +504,7 @@
                         <p>🔒 Complete Level 1 first</p>
                     </div>
                     <div id="level2Progress" class="level-progress">
+                        <div id="level2Status"></div>
                         <button class="btn btn-secondary btn-level" onclick="startLevel(2)" disabled>Locked</button>
                     </div>
                 </div>
@@ -518,23 +520,20 @@
                         <p>🔒 Complete Level 2 first</p>
                     </div>
                     <div id="level3Progress" class="level-progress">
+                        <div id="level3Status"></div>
                         <button class="btn btn-secondary btn-level" onclick="startLevel(3)" disabled>Locked</button>
                     </div>
                 </div>
             </div>
             
-            <!-- Removed the progress bar from level selection -->
             <div class="mt-4 level-progress-text">
-                <p><strong>Progress:</strong> <span id="overallProgress">0/3 levels completed</span></p>
+                <p><strong>Progress:</strong> <span id="overallProgress">Loading...</span></p>
             </div>
         </div>
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <!-- Removed the progress bar from quiz container too -->
             <div id="questionContainer"></div>
-            
-            <!-- Removed the button container that was here -->
         </div>
 
         <!-- Results -->
@@ -575,12 +574,13 @@
         
         // Level system variables
         let currentLevel = 1;
-        let completedLevels = JSON.parse(localStorage.getItem('completedLevels') || '{}');
-        let levelScores = JSON.parse(localStorage.getItem('levelScores') || '{}');
+        let userSubmissions = [];
         
         // API Configuration
         const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
         const CODING_QUESTIONS_API = `${API_BASE_URL}/coding-questions`;
+        const SUBMISSIONS_API = `${API_BASE_URL}/coding-submission`;
+        const GET_SUBMISSIONS = `${API_BASE_URL}/coding-submissions`;
         
         // ===== ANTI-CHEATING SYSTEM =====
         function initializeAntiCheating() {
@@ -734,78 +734,152 @@
         }
 
         // ===== LEVEL MANAGEMENT =====
-        function updateLevelUI() {
-            // Update level cards
-            const level1Card = document.getElementById('level1Card');
-            const level2Card = document.getElementById('level2Card');
-            const level3Card = document.getElementById('level3Card');
-            const level2Btn = level2Card.querySelector('button');
-            const level3Btn = level3Card.querySelector('button');
-            
-            // Clear any existing completion badges
-            document.querySelectorAll('.completion-badge').forEach(badge => badge.remove());
-            
-            // Level 1 always accessible
-            if (completedLevels[1]) {
-                const completionBadge = document.createElement('div');
-                completionBadge.className = 'completion-badge';
-                completionBadge.textContent = `✓ Completed: ${levelScores[1]}%`;
-                level1Card.querySelector('.level-progress').appendChild(completionBadge);
+        async function loadUserProgress() {
+            try {
+                // Get current user info
+                const sessionRes = await fetch(`${API_BASE_URL}/session-info`, {
+                    credentials: 'include',
+                    mode: 'cors'
+                });
+                
+                if (sessionRes.ok) {
+                    const sessionData = await sessionRes.json();
+                    currentUser = { 
+                        username: sessionData.username || 'TestUser', 
+                        email: sessionData.email || 'test@example.com' 
+                    };
+                    
+                    // Fetch user submissions
+                    const submissionsRes = await fetch(`${GET_SUBMISSIONS}?email=${encodeURIComponent(currentUser.email)}`, {
+                        credentials: 'include',
+                        mode: 'cors'
+                    });
+                    
+                    if (submissionsRes.ok) {
+                        const submissionsData = await submissionsRes.json();
+                        if (submissionsData.success) {
+                            userSubmissions = submissionsData.submissions || [];
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Error loading progress:', error);
+                userSubmissions = [];
             }
             
-            // Level 2 unlock logic
-            if (completedLevels[1] && levelScores[1] >= 60) {
+            updateLevelUI();
+        }
+        
+        function getLevelScore(level) {
+            // Map level to difficulty
+            const difficultyMap = {1: 'easy', 2: 'medium', 3: 'hard'};
+            const targetDifficulty = difficultyMap[level];
+            
+            // Find submissions for this difficulty
+            const levelSubmissions = userSubmissions.filter(sub => {
+                // Check both old format (level field) and new format (difficulty in questions)
+                if (sub.level === level) return true;
+                
+                // If no level field, check questions difficulty
+                if (sub.questions && sub.questions.length > 0) {
+                    // All questions should have same difficulty in a level
+                    const question = sub.questions[0];
+                    return question.difficulty === targetDifficulty;
+                }
+                return false;
+            });
+            
+            if (levelSubmissions.length === 0) return null;
+            
+            // Get the highest score for this level
+            const bestSubmission = levelSubmissions.reduce((best, current) => 
+                current.percentage > best.percentage ? current : best
+            );
+            
+            return bestSubmission.percentage;
+        }
+        
+        function isLevelCompleted(level) {
+            return getLevelScore(level) !== null;
+        }
+        
+        function updateLevelUI() {
+            // Get scores for each level
+            const level1Score = getLevelScore(1);
+            const level2Score = getLevelScore(2);
+            const level3Score = getLevelScore(3);
+            
+            // Update level 1
+            const level1Status = document.getElementById('level1Status');
+            if (level1Score !== null) {
+                level1Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level1Score}%</div>`;
+            } else {
+                level1Status.innerHTML = '';
+            }
+            
+            // Update level 2
+            const level2Card = document.getElementById('level2Card');
+            const level2Btn = level2Card.querySelector('button');
+            const level2Status = document.getElementById('level2Status');
+            
+            if (level1Score !== null && level1Score >= 60) {
                 level2Card.classList.remove('locked');
                 level2Btn.disabled = false;
                 level2Btn.className = 'btn btn-success btn-level';
                 level2Btn.textContent = 'Start Level 2';
                 level2Btn.onclick = () => startLevel(2);
                 
-                if (completedLevels[2]) {
-                    const completionBadge = document.createElement('div');
-                    completionBadge.className = 'completion-badge';
-                    completionBadge.textContent = `✓ Completed: ${levelScores[2]}%`;
-                    level2Card.querySelector('.level-progress').appendChild(completionBadge);
+                if (level2Score !== null) {
+                    level2Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level2Score}%</div>`;
+                } else {
+                    level2Status.innerHTML = '';
                 }
             } else {
                 level2Card.classList.add('locked');
                 level2Btn.disabled = true;
                 level2Btn.className = 'btn btn-secondary btn-level';
                 level2Btn.textContent = 'Locked';
+                level2Status.innerHTML = '';
             }
             
-            // Level 3 unlock logic
-            if (completedLevels[1] && completedLevels[2] && levelScores[1] >= 60 && levelScores[2] >= 60) {
+            // Update level 3
+            const level3Card = document.getElementById('level3Card');
+            const level3Btn = level3Card.querySelector('button');
+            const level3Status = document.getElementById('level3Status');
+            
+            if (level1Score !== null && level2Score !== null && level1Score >= 60 && level2Score >= 60) {
                 level3Card.classList.remove('locked');
                 level3Btn.disabled = false;
                 level3Btn.className = 'btn btn-success btn-level';
                 level3Btn.textContent = 'Start Level 3';
                 level3Btn.onclick = () => startLevel(3);
                 
-                if (completedLevels[3]) {
-                    const completionBadge = document.createElement('div');
-                    completionBadge.className = 'completion-badge';
-                    completionBadge.textContent = `✓ Completed: ${levelScores[3]}%`;
-                    level3Card.querySelector('.level-progress').appendChild(completionBadge);
+                if (level3Score !== null) {
+                    level3Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level3Score}%</div>`;
+                } else {
+                    level3Status.innerHTML = '';
                 }
             } else {
                 level3Card.classList.add('locked');
                 level3Btn.disabled = true;
                 level3Btn.className = 'btn btn-secondary btn-level';
                 level3Btn.textContent = 'Locked';
+                level3Status.innerHTML = '';
             }
             
-            // Update overall progress text
-            const completedCount = Object.keys(completedLevels).length;
+            // Update overall progress
+            const completedCount = [level1Score, level2Score, level3Score].filter(score => score !== null).length;
             document.getElementById('overallProgress').textContent = `${completedCount}/3 levels completed`;
         }
         
         function selectLevel(level) {
-            // Only allow selection if level is unlocked
-            if (level === 1 || (completedLevels[1] && levelScores[1] >= 60 && level === 2) || 
-                (completedLevels[1] && completedLevels[2] && levelScores[1] >= 60 && levelScores[2] >= 60 && level === 3)) {
-                
-                // Update card styles
+            const levelScore = getLevelScore(level);
+            const isUnlocked = (level === 1) || 
+                (level === 2 && getLevelScore(1) !== null && getLevelScore(1) >= 60) ||
+                (level === 3 && getLevelScore(1) !== null && getLevelScore(2) !== null && 
+                 getLevelScore(1) >= 60 && getLevelScore(2) >= 60);
+            
+            if (isUnlocked) {
                 document.querySelectorAll('.level-card').forEach(card => card.classList.remove('active'));
                 document.getElementById(`level${level}Card`).classList.add('active');
             }
@@ -815,12 +889,15 @@
             currentLevel = level;
             
             // Check if level is unlocked
-            if (level === 2 && (!completedLevels[1] || levelScores[1] < 60)) {
+            const level1Score = getLevelScore(1);
+            const level2Score = getLevelScore(2);
+            
+            if (level === 2 && (level1Score === null || level1Score < 60)) {
                 alert('Please complete Level 1 with at least 60% score to unlock Level 2');
                 return;
             }
             
-            if (level === 3 && (!completedLevels[1] || !completedLevels[2] || levelScores[1] < 60 || levelScores[2] < 60)) {
+            if (level === 3 && (level1Score === null || level2Score === null || level1Score < 60 || level2Score < 60)) {
                 alert('Please complete both Level 1 and Level 2 with at least 60% score to unlock Level 3');
                 return;
             }
@@ -857,7 +934,8 @@
                         questions = data.questions.map(q => ({
                             ...q,
                             id: q.questionId,
-                            points: q.maxScore || 20
+                            points: q.maxScore || 20,
+                            difficulty: q.difficulty || difficulty
                         }));
                         console.log(`✅ Loaded ${questions.length} questions for Level ${level} (${difficulty})`);
                     } else {
@@ -883,9 +961,36 @@
                     functionName: "find_factors", testCases: [{input: 12, expected: [1,2,3,4,6,12]}],
                     maxScore: 20, points: 20
                 },
-                // Add more fallback questions as needed
+                {
+                    id: 2, questionId: 2, title: "Reverse String", 
+                    description: "Reverse a string", difficulty: "easy",
+                    prompt: "Write reverse_string(s)", starterCode: "def reverse_string(s):\n    pass",
+                    functionName: "reverse_string", testCases: [{input: "hello", expected: "olleh"}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 3, questionId: 3, title: "Find Maximum", 
+                    description: "Find maximum in a list", difficulty: "easy",
+                    prompt: "Write find_maximum(lst)", starterCode: "def find_maximum(lst):\n    pass",
+                    functionName: "find_maximum", testCases: [{input: [1,5,3,9,2], expected: 9}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 4, questionId: 4, title: "Check Palindrome", 
+                    description: "Check if string is palindrome", difficulty: "easy",
+                    prompt: "Write is_palindrome(s)", starterCode: "def is_palindrome(s):\n    pass",
+                    functionName: "is_palindrome", testCases: [{input: "radar", expected: true}, {input: "hello", expected: false}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 5, questionId: 5, title: "Sum Even Numbers", 
+                    description: "Sum all even numbers in list", difficulty: "easy",
+                    prompt: "Write sum_even_numbers(lst)", starterCode: "def sum_even_numbers(lst):\n    pass",
+                    functionName: "sum_even_numbers", testCases: [{input: [1,2,3,4,5,6], expected: 12}],
+                    maxScore: 20, points: 20
+                }
             ];
-            return fallbackQuestions;
+            return fallbackQuestions.map(q => ({...q, difficulty: level === 1 ? 'easy' : level === 2 ? 'medium' : 'hard'}));
         }
         
         function goToLevelSelection() {
@@ -904,8 +1009,8 @@
             document.getElementById('resultsContainer').style.display = 'none';
             document.getElementById('levelContainer').style.display = 'block';
             
-            // Update UI
-            updateLevelUI();
+            // Reload progress from backend
+            loadUserProgress();
             
             // Exit fullscreen
             if (document.fullscreenElement && document.exitFullscreen) {
@@ -960,7 +1065,6 @@
             initializeAntiCheating();
             
             // Get user session
-            currentUser = { username: 'TestUser', email: 'test@example.com' };
             try {
                 const response = await fetch(`${API_BASE_URL}/session-info`, {
                     credentials: 'include',
@@ -1224,24 +1328,30 @@
                     results.push({
                         questionId: question.id,
                         title: question.title,
+                        type: 'coding',
                         code,
                         score,
                         maxScore: question.points,
                         passedTests,
                         totalTests: testResults.length,
-                        hasExplanations
+                        hasExplanations,
+                        difficulty: question.difficulty,
+                        timeTaken: 0
                     });
                 } catch (error) {
                     results.push({
                         questionId: question.id,
                         title: question.title,
+                        type: 'coding',
                         code,
                         score: 0,
                         maxScore: question.points,
                         passedTests: 0,
                         totalTests: question.testCases.length,
                         hasExplanations: checkExplanations(code),
-                        error: error.message
+                        difficulty: question.difficulty,
+                        error: error.message,
+                        timeTaken: 0
                     });
                 }
             }
@@ -1265,20 +1375,20 @@
             
             submittedQuizData = quizData;
             
-            // Save level completion
-            completedLevels[currentLevel] = true;
-            levelScores[currentLevel] = percentage;
-            localStorage.setItem('completedLevels', JSON.stringify(completedLevels));
-            localStorage.setItem('levelScores', JSON.stringify(levelScores));
-            
             try {
-                const response = await fetch(`${API_BASE_URL}/coding-submission`, {
+                const response = await fetch(`${SUBMISSIONS_API}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify(quizData)
                 });
+                
                 if (response.ok) {
                     console.log('Quiz submitted successfully');
+                    // Refresh user progress
+                    await loadUserProgress();
+                } else {
+                    console.error('Failed to submit quiz');
                 }
             } catch (error) {
                 console.error('Submission error:', error);
@@ -1363,14 +1473,18 @@
             window.location.href = './iitm-pdsa.html';
         }
 
+
+
         // ===== INITIALIZATION =====
         window.addEventListener('DOMContentLoaded', function() {
             // Initialize level UI
-            updateLevelUI();
+            loadUserProgress();
             
             // Start loading Pyodide in background
             initPyodide().catch(console.error);
         });
+
+
     </script>
 </body>
 </html>
