@@ -733,72 +733,201 @@
             }
         }
 
+
+
+
+
+
+
+
         // ===== LEVEL MANAGEMENT =====
-        async function loadUserProgress() {
-            try {
-                // Get current user info
-                const sessionRes = await fetch(`${API_BASE_URL}/session-info`, {
-                    credentials: 'include',
-                    mode: 'cors'
-                });
-                
-                if (sessionRes.ok) {
-                    const sessionData = await sessionRes.json();
-                    currentUser = { 
-                        username: sessionData.username || 'TestUser', 
-                        email: sessionData.email || 'test@example.com' 
-                    };
-                    
-                    // Fetch user submissions
-                    const submissionsRes = await fetch(`${GET_SUBMISSIONS}?email=${encodeURIComponent(currentUser.email)}`, {
-                        credentials: 'include',
-                        mode: 'cors'
-                    });
-                    
-                    if (submissionsRes.ok) {
-                        const submissionsData = await submissionsRes.json();
-                        if (submissionsData.success) {
-                            userSubmissions = submissionsData.submissions || [];
-                        }
-                    }
-                }
-            } catch (error) {
-                console.log('Error loading progress:', error);
-                userSubmissions = [];
-            }
-            
-            updateLevelUI();
-        }
+        // ===== LEVEL MANAGEMENT =====
+async function loadUserProgress() {
+    try {
+        // Get current user info
+        const sessionRes = await fetch(`${API_BASE_URL}/session-info`, {
+            credentials: 'include',
+            mode: 'cors'
+        });
         
-        function getLevelScore(level) {
-            // Map level to difficulty
-            const difficultyMap = {1: 'easy', 2: 'medium', 3: 'hard'};
-            const targetDifficulty = difficultyMap[level];
+        if (sessionRes.ok) {
+            const sessionData = await sessionRes.json();
+            currentUser = { 
+                username: sessionData.username || 'TestUser', 
+                email: sessionData.email || 'test@example.com' 
+            };
             
-            // Find submissions for this difficulty
-            const levelSubmissions = userSubmissions.filter(sub => {
-                // Check both old format (level field) and new format (difficulty in questions)
-                if (sub.level === level) return true;
-                
-                // If no level field, check questions difficulty
-                if (sub.questions && sub.questions.length > 0) {
-                    // All questions should have same difficulty in a level
-                    const question = sub.questions[0];
-                    return question.difficulty === targetDifficulty;
-                }
-                return false;
+            // IMPORTANT: Fetch user submissions for THIS TOPIC
+            // Assuming current topic is 'Python Basics' - you might want to make this dynamic
+            const currentTopic = 'Python Basics';
+            const submissionsRes = await fetch(
+                `${GET_SUBMISSIONS}?email=${encodeURIComponent(currentUser.email)}&topic=${encodeURIComponent(currentTopic)}`, {
+                credentials: 'include',
+                mode: 'cors'
             });
             
-            if (levelSubmissions.length === 0) return null;
-            
-            // Get the highest score for this level
-            const bestSubmission = levelSubmissions.reduce((best, current) => 
-                current.percentage > best.percentage ? current : best
-            );
-            
-            return bestSubmission.percentage;
+            if (submissionsRes.ok) {
+                const submissionsData = await submissionsRes.json();
+                if (submissionsData.success) {
+                    userSubmissions = submissionsData.submissions || [];
+                    console.log(`Loaded ${userSubmissions.length} submissions for topic: ${currentTopic}`);
+                }
+            }
         }
+    } catch (error) {
+        console.log('Error loading progress:', error);
+        userSubmissions = [];
+    }
+    
+    updateLevelUI();
+}
+
+
+function getLevelScore(level, topic = 'Python Basics') {
+    // Map level to difficulty
+    const difficultyMap = {1: 'easy', 2: 'medium', 3: 'hard'};
+    const targetDifficulty = difficultyMap[level];
+    
+    // Find submissions for this topic AND level
+    const levelSubmissions = userSubmissions.filter(sub => {
+        // Check if submission matches the topic
+        if (sub.topic !== topic) return false;
         
+        // Check both old format (level field) and new format (difficulty in questions)
+        if (sub.level === level) return true;
+        
+        // If no level field, check questions difficulty
+        if (sub.questions && sub.questions.length > 0) {
+            // All questions should have same difficulty in a level
+            const question = sub.questions[0];
+            return question.difficulty === targetDifficulty;
+        }
+        return false;
+    });
+    
+    if (levelSubmissions.length === 0) return null;
+    
+    // Get the highest score for this level and topic
+    const bestSubmission = levelSubmissions.reduce((best, current) => 
+        current.percentage > best.percentage ? current : best
+    );
+    
+    return bestSubmission.percentage;
+}
+
+function isLevelCompleted(level, topic = 'Python Basics') {
+    return getLevelScore(level, topic) !== null;
+}
+
+function updateLevelUI() {
+    // Get scores for each level FOR THIS TOPIC
+    const level1Score = getLevelScore(1, 'Python Basics');
+    const level2Score = getLevelScore(2, 'Python Basics');
+    const level3Score = getLevelScore(3, 'Python Basics');
+    
+    // Update level 1
+    const level1Status = document.getElementById('level1Status');
+    if (level1Score !== null) {
+        level1Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level1Score}%</div>`;
+    } else {
+        level1Status.innerHTML = '';
+    }
+    
+    // Update level 2
+    const level2Card = document.getElementById('level2Card');
+    const level2Btn = level2Card.querySelector('button');
+    const level2Status = document.getElementById('level2Status');
+    
+    if (level1Score !== null && level1Score >= 60) {
+        level2Card.classList.remove('locked');
+        level2Btn.disabled = false;
+        level2Btn.className = 'btn btn-success btn-level';
+        level2Btn.textContent = 'Start Level 2';
+        level2Btn.onclick = () => startLevel(2);
+        
+        if (level2Score !== null) {
+            level2Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level2Score}%</div>`;
+        } else {
+            level2Status.innerHTML = '';
+        }
+    } else {
+        level2Card.classList.add('locked');
+        level2Btn.disabled = true;
+        level2Btn.className = 'btn btn-secondary btn-level';
+        level2Btn.textContent = 'Locked';
+        level2Status.innerHTML = '';
+    }
+    
+    // Update level 3
+    const level3Card = document.getElementById('level3Card');
+    const level3Btn = level3Card.querySelector('button');
+    const level3Status = document.getElementById('level3Status');
+    
+    if (level1Score !== null && level2Score !== null && level1Score >= 60 && level2Score >= 60) {
+        level3Card.classList.remove('locked');
+        level3Btn.disabled = false;
+        level3Btn.className = 'btn btn-success btn-level';
+        level3Btn.textContent = 'Start Level 3';
+        level3Btn.onclick = () => startLevel(3);
+        
+        if (level3Score !== null) {
+            level3Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level3Score}%</div>`;
+        } else {
+            level3Status.innerHTML = '';
+        }
+    } else {
+        level3Card.classList.add('locked');
+        level3Btn.disabled = true;
+        level3Btn.className = 'btn btn-secondary btn-level';
+        level3Btn.textContent = 'Locked';
+        level3Status.innerHTML = '';
+    }
+    
+    // Update overall progress FOR THIS TOPIC
+    const completedCount = [level1Score, level2Score, level3Score].filter(score => score !== null).length;
+    document.getElementById('overallProgress').textContent = `${completedCount}/3 levels completed`;
+}
+
+async function startLevel(level) {
+    currentLevel = level;
+    const currentTopic = 'Python Basics'; // Define current topic
+    
+    // Check if level is unlocked FOR THIS TOPIC
+    const level1Score = getLevelScore(1, currentTopic);
+    const level2Score = getLevelScore(2, currentTopic);
+    
+    if (level === 2 && (level1Score === null || level1Score < 60)) {
+        alert('Please complete Level 1 with at least 60% score to unlock Level 2');
+        return;
+    }
+    
+    if (level === 3 && (level1Score === null || level2Score === null || level1Score < 60 || level2Score < 60)) {
+        alert('Please complete both Level 1 and Level 2 with at least 60% score to unlock Level 3');
+        return;
+    }
+    
+    // Hide level selection, show loading
+    document.getElementById('levelContainer').style.display = 'none';
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.querySelector('.loading-text').textContent = `Loading Level ${level} Questions...`;
+    
+    try {
+        // Fetch questions for this level
+        await fetchLevelQuestions(level);
+        
+        // Initialize quiz
+        initializeQuiz();
+        
+    } catch (error) {
+        console.error('Failed to start level:', error);
+        alert('Failed to load questions. Please try again.');
+        goToLevelSelection();
+    }
+}
+
+
+
+
         function isLevelCompleted(level) {
             return getLevelScore(level) !== null;
         }
@@ -885,41 +1014,6 @@
             }
         }
         
-        async function startLevel(level) {
-            currentLevel = level;
-            
-            // Check if level is unlocked
-            const level1Score = getLevelScore(1);
-            const level2Score = getLevelScore(2);
-            
-            if (level === 2 && (level1Score === null || level1Score < 60)) {
-                alert('Please complete Level 1 with at least 60% score to unlock Level 2');
-                return;
-            }
-            
-            if (level === 3 && (level1Score === null || level2Score === null || level1Score < 60 || level2Score < 60)) {
-                alert('Please complete both Level 1 and Level 2 with at least 60% score to unlock Level 3');
-                return;
-            }
-            
-            // Hide level selection, show loading
-            document.getElementById('levelContainer').style.display = 'none';
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            document.querySelector('.loading-text').textContent = `Loading Level ${level} Questions...`;
-            
-            try {
-                // Fetch questions for this level
-                await fetchLevelQuestions(level);
-                
-                // Initialize quiz
-                initializeQuiz();
-                
-            } catch (error) {
-                console.error('Failed to start level:', error);
-                alert('Failed to load questions. Please try again.');
-                goToLevelSelection();
-            }
-        }
         
         async function fetchLevelQuestions(level) {
             const difficultyMap = {1: 'easy', 2: 'medium', 3: 'hard'};
