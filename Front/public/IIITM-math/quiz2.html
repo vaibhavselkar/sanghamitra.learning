@@ -1784,29 +1784,32 @@
     if (!savedAnswer) return;
 
     if (question.type === 'multiple_choice') {
-        const option = document.querySelector(`input[value="${savedAnswer}"]`);
-        if (option) {
-            option.checked = true;
-            option.closest('.option').classList.add('selected');
-        }
+        // More robust selection - iterate through all radio buttons for this question
+        const radios = document.querySelectorAll(`input[name="q${currentQuestionIndex}"]`);
+        radios.forEach(radio => {
+            // Compare the trimmed values
+            if (radio.value.trim() === savedAnswer.trim()) {
+                radio.checked = true;
+                radio.closest('.option').classList.add('selected');
+            }
+        });
     } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-        savedAnswer.forEach(answer => {
-            const option = document.querySelector(`input[value="${answer}"]`);
-            if (option) {
-                option.checked = true;
-                option.closest('.option').classList.add('selected');
+        const checkboxes = document.querySelectorAll(`input[name="q${currentQuestionIndex}"]`);
+        checkboxes.forEach(checkbox => {
+            // Check if this checkbox's value is in the saved answers array
+            if (savedAnswer.some(ans => ans.trim() === checkbox.value.trim())) {
+                checkbox.checked = true;
+                checkbox.closest('.option').classList.add('selected');
             }
         });
     } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'set_notation', 'text_input'].includes(question.type)) {
         const input = document.querySelector(`#answerInput-${currentQuestionIndex}`);
         if (input) {
             input.value = savedAnswer;
-            // Update preview if there's an answer - SHOW FORMATTED VERSION
+            // Update preview if there's an answer
             if (savedAnswer.trim()) {
-                // Update the preview with formatted version
                 updateAnswerPreview(currentQuestionIndex, savedAnswer);
                 
-                // Show the preview panel since there's an answer
                 const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
                 if (preview) {
                     preview.classList.add('visible');
@@ -1871,6 +1874,7 @@
 
         function selectOption(questionIndex, value, type, element) {
             if (type === 'radio') {
+                // Clear all options for this question
                 const allOptions = document.querySelectorAll(`.question-card .option`);
                 allOptions.forEach(opt => {
                     const input = opt.querySelector('input[type="radio"]');
@@ -1880,26 +1884,33 @@
                     }
                 });
                 
+                // Select the clicked option
                 const radioInput = element.querySelector('input[type="radio"]');
                 if (radioInput) {
                     radioInput.checked = true;
                 }
                 element.classList.add('selected');
+                
+                // Store the trimmed value
                 userAnswers[questionIndex] = value.trim();
-                        
+                
             } else if (type === 'checkbox') {
                 const checkbox = element.querySelector('input');
                 checkbox.checked = !checkbox.checked;
                 
-                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+                if (!userAnswers[questionIndex]) {
+                    userAnswers[questionIndex] = [];
+                }
+                
+                const trimmedValue = value.trim();
                 
                 if (checkbox.checked) {
-                    if (!userAnswers[questionIndex].includes(value.trim())) {
-                        userAnswers[questionIndex].push(value.trim());
+                    if (!userAnswers[questionIndex].includes(trimmedValue)) {
+                        userAnswers[questionIndex].push(trimmedValue);
                     }
                     element.classList.add('selected');
                 } else {
-                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
+                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== trimmedValue);
                     element.classList.remove('selected');
                     
                     if (userAnswers[questionIndex].length === 0) {
@@ -2704,6 +2715,7 @@ hintEl.textContent = hint;
     </script>
 </body>
 </html>
+
 
 
 
