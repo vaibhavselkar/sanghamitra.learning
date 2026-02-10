@@ -582,6 +582,44 @@
         const SUBMISSIONS_API = `${API_BASE_URL}/coding-submission`;
         const GET_SUBMISSIONS = `${API_BASE_URL}/coding-submissions`;
         
+        // ===== HELPER FUNCTIONS FOR COMPLEX TEST CASES =====
+        function formatValueForDisplay(value) {
+            if (Array.isArray(value)) {
+                return `[${value.map(formatValueForDisplay).join(', ')}]`;
+            } else if (value && typeof value === 'object') {
+                return JSON.stringify(value, null, 2);
+            } else if (typeof value === 'string') {
+                return `"${value}"`;
+            }
+            return String(value);
+        }
+        
+        function formatTestCase(test) {
+            const input = formatValueForDisplay(test.input);
+            const expected = formatValueForDisplay(test.expected);
+            const description = test.description ? ` (${test.description})` : '';
+            return `Input: ${input} → Expected: ${expected}${description}`;
+        }
+        
+        function preparePythonArgument(value) {
+            if (Array.isArray(value)) {
+                const items = value.map(preparePythonArgument);
+                return `[${items.join(', ')}]`;
+            } else if (value && typeof value === 'object') {
+                // Convert object to JSON string for Python to parse
+                const jsonStr = JSON.stringify(value).replace(/'/g, "\\'");
+                return `json.loads('${jsonStr}')`;
+            } else if (typeof value === 'string') {
+                return `'${value.replace(/'/g, "\\'")}'`;
+            } else if (value === null) {
+                return 'None';
+            } else if (value === undefined) {
+                return 'None';
+            } else {
+                return String(value);
+            }
+        }
+        
         // ===== ANTI-CHEATING SYSTEM =====
         function initializeAntiCheating() {
             // Disable right-click everywhere except code editor
@@ -955,18 +993,30 @@
             // Fallback questions for demo
             const fallbackQuestions = [
                 {
-                    id: 1, questionId: 1, title: "Find Factors", 
-                    description: "Find all factors of a number", difficulty: "easy",
-                    prompt: "Write find_factors(n)", starterCode: "def find_factors(n):\n    pass",
-                    functionName: "find_factors", testCases: [{input: 12, expected: [1,2,3,4,6,12]}],
+                    id: 1, questionId: 1, title: "BFS Traversal", 
+                    description: "Perform BFS traversal on a graph", difficulty: "easy",
+                    prompt: "Write bfs(graph, start) that returns BFS order",
+                    starterCode: "def bfs(graph, start):\n    pass",
+                    functionName: "bfs", 
+                    testCases: [{
+                        input: [{"A": ["B", "C"], "B": ["D"], "C": [], "D": []}, "A"], 
+                        expected: ["A", "B", "C", "D"],
+                        description: "Simple graph BFS"
+                    }],
                     maxScore: 20, points: 20
                 },
                 {
-                    id: 2, questionId: 2, title: "Reverse String", 
-                    description: "Reverse a string", difficulty: "easy",
-                    prompt: "Write reverse_string(s)", starterCode: "def reverse_string(s):\n    pass",
-                    functionName: "reverse_string", testCases: [{input: "hello", expected: "olleh"}],
-                    maxScore: 20, points: 20
+                    id: 2, questionId: 2, title: "BFS Level Distances", 
+                    description: "Find shortest distance from start node using BFS", difficulty: "medium",
+                    prompt: "Write bfs_levels(graph, start) that returns a dictionary of node distances",
+                    starterCode: "def bfs_levels(graph, start):\n    from collections import deque\n    pass",
+                    functionName: "bfs_levels", 
+                    testCases: [{
+                        input: [{"A": ["B", "C"], "B": ["D"], "C": [], "D": []}, "A"], 
+                        expected: {"A": 0, "B": 1, "C": 1, "D": 2},
+                        description: "Graph distances"
+                    }],
+                    maxScore: 25, points: 25
                 },
                 {
                     id: 3, questionId: 3, title: "Find Maximum", 
@@ -1042,6 +1092,8 @@
                 pyodide = await loadPyodide({
                     indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
                 });
+                // Load json module
+                await pyodide.loadPackage(['micropip']);
                 loadingText.textContent = 'Python ready!';
                 pyodideReady = true;
                 require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
@@ -1160,53 +1212,105 @@
             });
         }
         
-        function formatTestCase(test) {
-            const input = Array.isArray(test.input) ? test.input.join(', ') : test.input;
-            const expected = JSON.stringify(test.expected);
-            return `Input: ${input} → Expected: ${expected}`;
-        }
-        
         async function executePythonTests(code, question) {
             if (!pyodideReady) throw new Error('Python environment not ready');
             
             const results = [];
+            
+            // Import json module if not already imported
+            try {
+                await pyodide.runPythonAsync(`import json`);
+            } catch (e) {
+                // json is built-in
+            }
+            
             for (let i = 0; i < question.testCases.length; i++) {
                 const testCase = question.testCases[i];
                 try {
-                    await pyodide.runPythonAsync(`for name in list(globals().keys()):
-    if not name.startswith('__') and name not in ['sys']:
+                    // Clear previous execution context
+                    await pyodide.runPythonAsync(`
+import sys
+for name in list(globals().keys()):
+    if not name.startswith('__') and name not in ['sys', 'json']:
         try:
             del globals()[name]
         except:
-            pass`);
+            pass
+`);
                     
-                    await pyodide.runPythonAsync(code);
+                    // Prepare the test execution code
+                    const testWrapper = `
+import json
+${code}
+
+# Helper function to run the test
+def run_test(test_input):
+    """
+    Execute the user's function with the given test input.
+    Handles different input structures including objects/dictionaries.
+    """
+    try:
+        # If input is a list with one element (single argument)
+        if isinstance(test_input, list) and len(test_input) == 1:
+            return ${question.functionName}(test_input[0])
+        # If input is a list with multiple elements (multiple arguments)
+        elif isinstance(test_input, list):
+            return ${question.functionName}(*test_input)
+        # If input is a single value
+        else:
+            return ${question.functionName}(test_input)
+    except Exception as e:
+        raise RuntimeError(f"Error executing function: {str(e)}")
+`;
                     
-                    let functionCall;
+                    await pyodide.runPythonAsync(testWrapper);
+                    
+                    // Prepare arguments for Python
+                    let pythonArgs;
                     if (Array.isArray(testCase.input)) {
-                        functionCall = `${question.functionName}(${testCase.input.map(v => 
-                            Array.isArray(v) ? JSON.stringify(v) : v
-                        ).join(', ')})`;
+                        // Handle array inputs (multiple arguments or single list)
+                        const preparedArgs = testCase.input.map(arg => {
+                            if (typeof arg === 'object' && arg !== null) {
+                                return JSON.stringify(arg);
+                            }
+                            return arg;
+                        });
+                        pythonArgs = preparedArgs;
                     } else {
-                        functionCall = `${question.functionName}(${testCase.input})`;
+                        // Single argument
+                        pythonArgs = [typeof testCase.input === 'object' && testCase.input !== null ? 
+                                     JSON.stringify(testCase.input) : testCase.input];
                     }
                     
+                    // Execute the test
+                    const functionCall = `run_test(${JSON.stringify(pythonArgs)})`;
                     const result = await pyodide.runPythonAsync(functionCall);
-                    let output = result && typeof result === 'object' && result.toJs ? 
-                        result.toJs({ dict_converter: Object.fromEntries }) : result;
+                    
+                    // Convert Pyodide result to JavaScript
+                    let output;
+                    if (result && typeof result === 'object' && result.toJs) {
+                        output = result.toJs({ dict_converter: Object.fromEntries });
+                    } else {
+                        output = result;
+                    }
+                    
+                    // Compare with expected result
+                    const passed = deepEqual(output, testCase.expected);
                     
                     results.push({
-                        passed: deepEqual(output, testCase.expected),
+                        passed,
                         output,
                         expected: testCase.expected,
                         error: null
                     });
+                    
                 } catch (error) {
+                    console.error('Test execution error:', error);
                     results.push({
                         passed: false,
                         output: null,
                         expected: testCase.expected,
-                        error: error.message
+                        error: error.message || 'Unknown error'
                     });
                 }
             }
@@ -1227,6 +1331,14 @@
             }
             
             if (typeof a === 'object' && typeof b === 'object') {
+                if (a instanceof Map && b instanceof Map) {
+                    if (a.size !== b.size) return false;
+                    for (let [key, val] of a) {
+                        if (!b.has(key) || !deepEqual(val, b.get(key))) return false;
+                    }
+                    return true;
+                }
+                
                 const keysA = Object.keys(a).sort();
                 const keysB = Object.keys(b).sort();
                 if (keysA.length !== keysB.length) return false;
@@ -1236,7 +1348,12 @@
                 return true;
             }
             
-            return false;
+            // Handle numeric comparisons (int vs float)
+            if (typeof a === 'number' && typeof b === 'number') {
+                return Math.abs(a - b) < 0.000001;
+            }
+            
+            return a === b;
         }
         
         async function runTests() {
@@ -1257,29 +1374,36 @@
                 
                 testResults.forEach((result, i) => {
                     if (result.passed) passedCount++;
+                    const testCase = question.testCases[i];
+                    const description = testCase.description ? `<br><small>${testCase.description}</small>` : '';
+                    
                     testHtml += `
                         <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
-                            Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
+                            <strong>Test ${i+1}:</strong> ${result.passed ? '✓ PASSED' : '✗ FAILED'}${description}
                             ${result.error ? `<br>Error: ${result.error}` : ''}
-                            ${!result.passed && !result.error ? `<br>Expected: ${JSON.stringify(result.expected)}<br>Got: ${JSON.stringify(result.output)}` : ''}
+                            ${!result.passed && !result.error ? `
+                                <br>Expected: ${formatValueForDisplay(result.expected)}
+                                <br>Got: ${formatValueForDisplay(result.output)}
+                            ` : ''}
                         </div>
                     `;
                 });
                 
+                const successRate = (passedCount / testResults.length) * 100;
                 testHtml += `
-                    <div class="mt-3">
-                        <strong>Summary:</strong> ${passedCount}/${testResults.length} tests passed
+                    <div class="mt-3 alert ${successRate === 100 ? 'alert-success' : 'alert-warning'}">
+                        <strong>Summary:</strong> ${passedCount}/${testResults.length} tests passed (${Math.round(successRate)}%)
                     </div>
                     <div class="mt-2">
                         <strong>Explanation Check:</strong>
-                        ${checkExplanations(code) ? '✓ Explanations found' : '⚠ Add comments'}
+                        ${checkExplanations(code) ? '✓ Explanations found' : '⚠ Add explanatory comments for full credit'}
                     </div>
                 `;
                 
                 resultsDiv.innerHTML = testHtml;
             } catch (error) {
                 console.error('Test execution error:', error);
-                resultsDiv.innerHTML = `<div class="test-result test-failed">❌ Error: ${error.message}</div>`;
+                resultsDiv.innerHTML = `<div class="test-result test-failed">❌ Error running tests: ${error.message}</div>`;
             }
         }
         
@@ -1469,12 +1593,6 @@
             return div.innerHTML;
         }
         
-        function goToHome() {
-            window.location.href = './iitm-pdsa.html';
-        }
-
-
-
         // ===== INITIALIZATION =====
         window.addEventListener('DOMContentLoaded', function() {
             // Initialize level UI
@@ -1483,7 +1601,6 @@
             // Start loading Pyodide in background
             initPyodide().catch(console.error);
         });
-
 
     </script>
 </body>
