@@ -1,6 +1,4 @@
 
-
-// model/coding_Questions.js
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
@@ -31,11 +29,11 @@ const questionSchema = new mongoose.Schema({
     testCases: [{
         input: mongoose.Schema.Types.Mixed,
         expected: mongoose.Schema.Types.Mixed,
-        description: String
+        
     }],
     maxScore: {
         type: Number,
-        default: 10
+        default: 20
     },
     difficulty: {
         type: String,
@@ -45,14 +43,6 @@ const questionSchema = new mongoose.Schema({
     timeLimit: {
         type: Number,
         default: 600 // seconds
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
     }
 });
 
