@@ -1,10 +1,10 @@
-<!DOCTYPE html>      
-<html lang="en">    
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Exponential Functions Quiz</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exponential Functions Quiz (Updated)</title>
+
     <!-- MathJax for LaTeX rendering -->
     <script>
         MathJax = {
@@ -20,13 +20,13 @@
         };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
-   
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -59,24 +59,22 @@
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
         }
-        
+
         body {
             -webkit-print-color-adjust: exact;
             pointer-events: auto;
         }
-        
-        /* Disable context menu */
-        .no-context {
-            pointer-events: none;
+
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
         }
-        
-        /* Blur content when window loses focus */
+
         body.blurred {
             filter: blur(5px);
             pointer-events: none;
         }
-        
-        /* Warning overlay */
+
         .warning-overlay {
             position: fixed;
             top: 0;
@@ -104,14 +102,10 @@
             transition: transform 0.2s ease;
         }
 
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled { 
-            background: #6c757d; 
-            cursor: not-allowed; 
-            transform: none; 
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .loading {
@@ -290,7 +284,8 @@
         .option.selected { border-color: #667eea; background: #e3f2fd; }
 
         .numeric-input {
-            width: 200px;
+            width: 100%;
+            max-width: 400px;
             padding: 12px 16px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
@@ -323,8 +318,7 @@
 
         .score-display h2 { font-size: 2.5rem; margin-bottom: 10px; }
         .hidden { display: none; }
-        
-        /* Difficulty badges */
+
         .difficulty-badge {
             font-size: 0.7rem;
             padding: 0.2rem 0.5rem;
@@ -370,9 +364,7 @@
             gap: 10px;
         }
 
-        .info-bubble h3 .info-icon {
-            font-size: 1.5em;
-        }
+        .info-bubble h3 .info-icon { font-size: 1.5em; }
 
         .info-content {
             max-height: 400px;
@@ -380,16 +372,8 @@
             padding-right: 10px;
         }
 
-        .info-content ul {
-            padding-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .info-content li {
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-
+        .info-content ul { padding-left: 20px; margin-bottom: 15px; }
+        .info-content li { margin-bottom: 8px; line-height: 1.4; }
         .info-content code {
             background: rgba(255,255,255,0.2);
             padding: 2px 6px;
@@ -422,10 +406,7 @@
             border-radius: 50%;
             transition: background 0.2s;
         }
-
-        .info-bubble-close:hover {
-            background: rgba(255,255,255,0.2);
-        }
+        .info-bubble-close:hover { background: rgba(255,255,255,0.2); }
 
         .help-button {
             position: fixed;
@@ -445,26 +426,12 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
-
-        .help-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        .help-button .help-icon {
-            font-size: 24px;
-            font-weight: bold;
-        }
+        .help-button:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .help-button .help-icon { font-size: 24px; font-weight: bold; }
 
         @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
         }
 
         /* Answer Preview Box */
@@ -476,314 +443,105 @@
             margin-top: 15px;
             display: none;
         }
-
-        .answer-preview.visible {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
+        .answer-preview.visible { display: block; animation: fadeIn 0.3s ease; }
         .answer-preview h4 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-top: 0; margin-bottom: 10px; color: #333;
+            font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
         }
-
-        .answer-preview-content {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .preview-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .preview-label {
-            font-weight: 600;
-            color: #666;
-            min-width: 120px;
-            font-size: 14px;
-        }
-
+        .answer-preview-content { display: flex; flex-direction: column; gap: 10px; }
+        .preview-row { display: flex; align-items: center; gap: 10px; }
+        .preview-label { font-weight: 600; color: #666; min-width: 120px; font-size: 14px; }
         .preview-value {
-            flex: 1;
-            padding: 8px 12px;
-            background: white;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
-            font-family: 'Courier New', monospace;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
+            flex: 1; padding: 8px 12px; background: white; border-radius: 4px;
+            border: 1px solid #dee2e6; font-family: 'Courier New', monospace; min-height: 40px;
+            display: flex; align-items: center;
         }
-
-        .preview-value.math {
-            font-family: inherit;
-            font-size: 16px;
-            color: #2c3e50;
-        }
-
-        .preview-hint {
-            font-size: 12px;
-            color: #6c757d;
-            font-style: italic;
-            margin-top: 5px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Warning for invalid input */
-        .input-warning {
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 5px;
-            display: none;
-        }
-
-        .input-warning.visible {
-            display: block;
-        }
+        .preview-value.math { font-family: inherit; font-size: 16px; color: #2c3e50; }
+        .preview-hint { font-size: 12px; color: #6c757d; font-style: italic; margin-top: 5px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .input-warning { color: #dc3545; font-size: 12px; margin-top: 5px; display: none; }
+        .input-warning.visible { display: block; }
 
         /* Calculator Styles */
         .calculator-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+            position: fixed; bottom: 20px; right: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 50px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 9999;
-            transition: all 0.3s ease;
-            border: none;
-            font-weight: 600;
+            color: white; padding: 12px 20px; border-radius: 50px;
+            display: none; align-items: center; gap: 10px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 9999;
+            transition: all 0.3s ease; border: none; font-weight: 600;
         }
-
-        .calculator-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-
-        .calculator-btn svg {
-            width: 20px;
-            height: 20px;
-        }
+        .calculator-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
 
         .calculator-modal {
-            position: fixed;
-            width: 590px;
-            min-height: 400px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid #e0e0e0;
-            cursor: move;
+            position: fixed; width: 590px; background: white; border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 10000; display: none;
+            flex-direction: column; overflow: hidden; border: 1px solid #e0e0e0; cursor: move;
             user-select: none;
         }
 
         .calculator-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: move;
+            color: white; padding: 15px 20px; display: flex; justify-content: space-between;
+            align-items: center; cursor: move;
         }
-
-        .calculator-header h3 {
-            margin: 0;
-            font-size: 1.1rem;
-        }
-
+        .calculator-header h3 { margin: 0; font-size: 1.1rem; }
         .calculator-header .help-btn {
-            background: #4fc3f7;
-            color: white;
-            border: none;
-            padding: 6px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-left: auto;
-            margin-right: 10px;
+            background: #4fc3f7; color: white; border: none; padding: 6px 15px;
+            border-radius: 5px; cursor: pointer; font-weight: 600; margin-left: auto; margin-right: 10px;
         }
-
         .calculator-header .minimize-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 0 8px;
+            background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0 8px;
         }
-
         .calculator-header .calculator-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            line-height: 1;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s;
+            background: none; border: none; color: white; font-size: 24px; cursor: pointer;
+            line-height: 1; width: 30px; height: 30px; display: flex; align-items: center;
+            justify-content: center; border-radius: 50%; transition: background 0.2s;
         }
-
-        .calculator-header .calculator-close:hover {
-            background: rgba(255,255,255,0.2);
-        }
+        .calculator-header .calculator-close:hover { background: rgba(255,255,255,0.2); }
 
         .mode-selector {
-            padding: 10px 15px;
-            background: #f0f0f0;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            gap: 15px;
-            align-items: center;
+            padding: 10px 15px; background: #f0f0f0; border-bottom: 1px solid #e0e0e0;
+            display: flex; gap: 15px; align-items: center;
         }
 
         .calculator-display {
-            padding: 15px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 15px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0;
         }
-
         #calcDisplay {
-            width: 100%;
-            padding: 12px;
-            font-size: 1.5rem;
-            text-align: right;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 5px;
+            width: 100%; padding: 12px; font-size: 1.5rem; text-align: right;
+            border: 2px solid #e0e0e0; border-radius: 8px; background: white;
+            font-family: 'Courier New', monospace; margin-bottom: 5px;
         }
-
         #resultDisplay {
-            width: 100%;
-            padding: 8px 12px;
-            font-size: 1.8rem;
-            text-align: right;
-            border: none;
-            background: transparent;
-            font-family: 'Courier New', monospace;
+            width: 100%; padding: 8px 12px; font-size: 1.8rem; text-align: right;
+            border: none; background: transparent; font-family: 'Courier New', monospace;
             font-weight: bold;
         }
 
-        .calculator-buttons {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: #f8f9fa;
-        }
-
-        .calc-row {
-            display: flex;
-            gap: 8px;
-        }
-
+        .calculator-buttons { padding: 15px; display: flex; flex-direction: column; gap: 8px; background: #f8f9fa; }
+        .calc-row { display: flex; gap: 8px; }
         .calc-btn {
-            flex: 1;
-            padding: 12px 0;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            background: white;
-            border: 1px solid #e0e0e0;
-            transition: all 0.2s;
+            flex: 1; padding: 12px 0; font-size: 1.1rem; border: none; border-radius: 6px;
+            cursor: pointer; background: white; border: 1px solid #e0e0e0; transition: all 0.2s;
             font-weight: 500;
         }
-
-        .calc-btn:hover {
-            background: #f0f0f0;
-            transform: translateY(-1px);
-        }
-
-        .calc-btn.func {
-            background: #e3e8ff;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .calc-btn.sci {
-            font-size: 0.9rem;
-            padding: 10px 0;
-            background: #f0f0f0;
-        }
-
-        .calc-btn.operator {
-            background: #ff6b6b;
-            color: white;
-            font-weight: 600;
-        }
-
-        .calc-btn.equals {
-            background: #51cf66;
-            color: white;
-            font-weight: 600;
-        }
-
-        .calc-btn.memory {
-            background: #e3e8ff;
-            color: #667eea;
-            font-size: 0.85rem;
-        }
+        .calc-btn:hover { background: #f0f0f0; transform: translateY(-1px); }
+        .calc-btn.func { background: #e3e8ff; color: #667eea; font-weight: 600; }
+        .calc-btn.sci { font-size: 0.9rem; padding: 10px 0; background: #f0f0f0; }
+        .calc-btn.operator { background: #ff6b6b; color: white; font-weight: 600; }
+        .calc-btn.equals { background: #51cf66; color: white; font-weight: 600; }
+        .calc-btn.memory { background: #e3e8ff; color: #667eea; font-size: 0.85rem; }
 
         @media (max-width: 768px) {
-            .results-container {
-                padding: 15px;
-            }
-            
-            .score-display {
-                padding: 20px;
-            }
-            
-            .score-display h2 {
-                font-size: 2rem;
-            }
-            
-            .info-bubble {
-                width: 300px;
-                padding: 15px;
-            }
-            
-            .help-button {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .help-button .help-icon {
-                font-size: 20px;
-            }
-            
-            .numeric-input {
-                width: 100%;
-            }
+            .results-container { padding: 15px; }
+            .score-display { padding: 20px; }
+            .score-display h2 { font-size: 2rem; }
+            .info-bubble { width: 300px; padding: 15px; }
+            .help-button { width: 40px; height: 40px; }
+            .help-button .help-icon { font-size: 20px; }
+            .numeric-input { width: 100%; }
+            .calculator-modal { width: 100%; left: 0 !important; right: 0 !important; top: auto !important; bottom: 0; border-radius: 15px 15px 0 0; }
         }
     </style>
 </head>
@@ -791,7 +549,7 @@
     <div class="container">
         <div class="header">
             <h1>Exponential Functions Quiz</h1>
-            <p>Test your knowledge of exponential functions with 50 comprehensive questions</p>
+            <p>Test your knowledge of exponential functions – 50 never‑seen questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -801,9 +559,9 @@
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
             </div>
-            
+
             <div id="questionContainer"></div>
-            
+
             <div class="question-navigation">
                 <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
                 <div class="question-status">
@@ -812,7 +570,7 @@
                 </div>
                 <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
             </div>
-            
+
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
                 <button class="btn" onclick="submitQuiz()" id="submitBtn">
                     <span id="submitText">Submit Exponential Functions Quiz</span>
@@ -825,7 +583,7 @@
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
             <h3>Loading Exponential Functions Quiz...</h3>
-            <p>Verifying your session and preparing questions</p>
+            <p>Verifying your session and preparing fresh questions</p>
         </div>
 
         <!-- Results -->
@@ -844,74 +602,17 @@
         <h3><span class="info-icon">ℹ️</span> Exponential Functions Formatting Guide</h3>
         <div class="info-content">
             <p><strong>How to format your answers:</strong></p>
-            
             <ul>
-                <li><strong>Exponential Functions:</strong> 
-                    <code>e^x</code> = $e^x$, 
-                    <code>e^(2x)</code> = $e^{2x}$,
-                    <code>e^(-x)</code> = $e^{-x}$,
-                    <code>exp(x)</code> = $\exp(x)$,
-                    <code>2^x</code> = $2^x$,
-                    <code>2^(x+1)</code> = $2^{x+1}$
-                </li>
-                <li><strong>Logarithms:</strong> 
-                    <code>log(x)</code> = $\log(x)$, 
-                    <code>ln(x)</code> = $\ln(x)$,
-                    <code>log_2(x)</code> = $\log_2(x)$,
-                    <code>log_10(x)</code> = $\log_{10}(x)$
-                </li>
-                <li><strong>Math Symbols:</strong> 
-                    <code>inf</code> = ∞, 
-                    <code>sqrt(x)</code> = √x, 
-                    <code>^</code> = exponent
-                </li>
-                <li><strong>Fractions:</strong> 
-                    <code>1/2</code> = $\frac{1}{2}$, 
-                    <code>(x+1)/(x-1)</code> = $\frac{x+1}{x-1}$
-                </li>
-                <li><strong>Equations:</strong> 
-                    <code>x = -1/2, e^3</code> (multiple answers with commas)
-                </li>
-                <li><strong>Intervals:</strong> 
-                    <code>(-inf, 3]</code> = $(-\infty, 3]$
-                </li>
+                <li><strong>Exponential:</strong> <code>e^(2x)</code> = e^{2x}, <code>2^(x+1)</code>, <code>exp(x)</code></li>
+                <li><strong>Logarithms:</strong> <code>ln(x)</code>, <code>log_2(8)</code>, <code>log(x)</code></li>
+                <li><strong>Infinity:</strong> <code>inf</code> → ∞, <code>-inf</code> → -∞</li>
+                <li><strong>Fractions:</strong> <code>1/2</code> = ½, <code>(x+1)/(x-1)</code></li>
+                <li><strong>Multiple answers:</strong> separate with commas</li>
             </ul>
-            
-            <p><strong>Quick Examples for Exponential Functions:</strong></p>
-            
-            <div class="math-example">
-                <div><code>e^(2x)</code> → $e^{2x}$</div>
-            </div>
-            
-            <div class="math-example">
-                <div><code>2^(x+1)</code> → $2^{x+1}$</div>
-            </div>
-            
-            <div class="math-example">
-                <div><code>3e^(-x/2)</code> → $3e^{-x/2}$</div>
-            </div>
-            
-            <div class="math-example">
-                <div><code>ln(x^2)</code> → $\ln(x^2)$</div>
-            </div>
-            
-            <div class="math-example">
-                <div><code>log_2(8)</code> → $\log_{2}(8)$</div>
-            </div>
-            
-            <div class="math-example">
-                <div><code>domain: (-inf, inf)</code> → $(-\infty, \infty)$</div>
-            </div>
-            
-            <p><strong>Important:</strong></p>
-            <ul>
-                <li>Use <code>^</code> for exponents: <code>x^2</code> for $x^2$</li>
-                <li>Use <code>e^x</code> or <code>exp(x)</code> for exponential</li>
-                <li>Parentheses matter: <code>e^(2x)</code> ≠ <code>e^2x</code></li>
-                <li>Case-insensitive, spaces auto-removed</li>
-                <li>Multiple answers separated by commas</li>
-                <li>Check preview below input box</li>
-            </ul>
+            <p><strong>Examples:</strong></p>
+            <div class="math-example"><code>e^(2x)</code> → e²ˣ</div>
+            <div class="math-example"><code>log_2(8)</code> → log₂(8)</div>
+            <div class="math-example"><code>domain: (-inf, inf)</code> → (-∞, ∞)</div>
         </div>
     </div>
 
@@ -950,8 +651,7 @@
             <input type="text" id="resultDisplay" readonly value="0">
         </div>
         <div class="calculator-buttons">
-            <!-- Calculator buttons (same as before) -->
-            <!-- Row 1 - Hyperbolic and Advanced Functions -->
+            <!-- Row 1 -->
             <div class="calc-row">
                 <button class="calc-btn sci" onclick="calcFunction('sinh')">sinh</button>
                 <button class="calc-btn sci" onclick="calcFunction('cosh')">cosh</button>
@@ -964,8 +664,7 @@
                 <button class="calc-btn operator" onclick="addToDisplay('+/-')">+/-</button>
                 <button class="calc-btn sci" onclick="addToDisplay('Math.sqrt(')">√</button>
             </div>
-            
-            <!-- Row 2 - Inverse Hyperbolic -->
+            <!-- Row 2 -->
             <div class="calc-row">
                 <button class="calc-btn sci" onclick="calcFunction('sinh⁻¹')">sinh⁻¹</button>
                 <button class="calc-btn sci" onclick="calcFunction('cosh⁻¹')">cosh⁻¹</button>
@@ -979,8 +678,7 @@
                 <button class="calc-btn operator" onclick="addToDisplay('/')">/</button>
                 <button class="calc-btn operator" onclick="addToDisplay('%')">%</button>
             </div>
-            
-            <!-- Row 3 - Constants and Trig -->
+            <!-- Row 3 -->
             <div class="calc-row">
                 <button class="calc-btn sci" onclick="addToDisplay('Math.PI')">π</button>
                 <button class="calc-btn sci" onclick="addToDisplay('Math.E')">e</button>
@@ -994,8 +692,7 @@
                 <button class="calc-btn operator" onclick="addToDisplay('*')">*</button>
                 <button class="calc-btn operator" onclick="calcFunction('1/x')">1/x</button>
             </div>
-            
-            <!-- Row 4 - Trig Functions -->
+            <!-- Row 4 -->
             <div class="calc-row">
                 <button class="calc-btn sci" onclick="calcFunction('sin')">sin</button>
                 <button class="calc-btn sci" onclick="calcFunction('cos')">cos</button>
@@ -1008,8 +705,7 @@
                 <button class="calc-btn" onclick="addToDisplay('3')">3</button>
                 <button class="calc-btn operator" onclick="addToDisplay('-')">-</button>
             </div>
-            
-            <!-- Row 5 - Inverse Trig and Numbers -->
+            <!-- Row 5 -->
             <div class="calc-row">
                 <button class="calc-btn sci" onclick="calcFunction('sin⁻¹')">sin⁻¹</button>
                 <button class="calc-btn sci" onclick="calcFunction('cos⁻¹')">cos⁻¹</button>
@@ -1022,8 +718,7 @@
                 <button class="calc-btn equals" onclick="calculateResult()">=</button>
                 <button class="calc-btn operator" onclick="addToDisplay('+')">+</button>
             </div>
-            
-            <!-- Row 6 - Memory Functions -->
+            <!-- Row 6 -->
             <div class="calc-row">
                 <button class="calc-btn memory" onclick="memoryFunction('MC')">MC</button>
                 <button class="calc-btn memory" onclick="memoryFunction('MR')">MR</button>
@@ -1044,82 +739,45 @@
 
     <script>
         // ============================================
-        // ENHANCED EXPONENTIAL FUNCTIONS ANSWER FORMATTING
+        // ENHANCED EXPONENTIAL ANSWER FORMATTING & NORMALIZATION (like Polynomial)
         // ============================================
-        
+
         let infoBubbleShown = false;
         let infoBubbleTimer = null;
 
-        // Initialize information bubble
         function initializeInfoBubble() {
-            const infoBubble = document.getElementById('infoBubble');
-            const helpButton = document.getElementById('helpButton');
-            
-            // Show bubble for first 20 seconds
             setTimeout(() => {
                 showInfoBubble();
                 infoBubbleShown = true;
-                
-                // Auto-hide after 20 seconds
-                infoBubbleTimer = setTimeout(() => {
-                    hideInfoBubble();
-                }, 20000);
-            }, 1000); // Show after 1 second delay
-            
-            // Handle window resize
+                infoBubbleTimer = setTimeout(() => hideInfoBubble(), 20000);
+            }, 1000);
             window.addEventListener('resize', positionInfoBubble);
         }
 
         function showInfoBubble() {
             const infoBubble = document.getElementById('infoBubble');
             const helpButton = document.getElementById('helpButton');
-            
             infoBubble.classList.remove('collapsed');
             infoBubble.classList.add('expanded');
             helpButton.style.display = 'none';
             positionInfoBubble();
-            
-            // Process any MathJax in the bubble
-            if (window.MathJax) {
-                MathJax.typesetPromise([infoBubble]).catch(err => console.log('MathJax error:', err));
-            }
+            if (window.MathJax) MathJax.typesetPromise([infoBubble]).catch(()=>{});
         }
 
         function hideInfoBubble() {
             const infoBubble = document.getElementById('infoBubble');
             const helpButton = document.getElementById('helpButton');
-            
             infoBubble.classList.remove('expanded');
             infoBubble.classList.add('collapsed');
             helpButton.style.display = 'flex';
-            
-            if (infoBubbleTimer) {
-                clearTimeout(infoBubbleTimer);
-            }
+            if (infoBubbleTimer) clearTimeout(infoBubbleTimer);
         }
 
         function positionInfoBubble() {
             const infoBubble = document.getElementById('infoBubble');
             const helpButton = document.getElementById('helpButton');
-            
             if (infoBubble.classList.contains('expanded')) {
-                const bubbleWidth = infoBubble.offsetWidth;
-                const bubbleHeight = infoBubble.offsetHeight;
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                
-                let top = 20;
-                let right = 20;
-                
-                // Ensure bubble stays within viewport
-                if (top + bubbleHeight > viewportHeight - 20) {
-                    top = viewportHeight - bubbleHeight - 20;
-                }
-                
-                if (right + bubbleWidth > viewportWidth - 20) {
-                    right = viewportWidth - bubbleWidth - 20;
-                }
-                
+                let top = 20, right = 20;
                 infoBubble.style.top = top + 'px';
                 infoBubble.style.right = right + 'px';
             } else {
@@ -1128,307 +786,149 @@
             }
         }
 
-        // Enhanced answer formatting utilities for Exponential Functions
+        // ----- Answer formatting utilities -----
         const answerFormatter = {
             formatForDisplay: (text) => {
-    if (!text) return '';
-    
-    let formatted = text.toString()
-        .replace(/\s+/g, ' ')
-        .trim();
-    
-    console.log('formatForDisplay input:', formatted);
-    
-    // Convert e^2 to e² (superscript 2) for display
-    formatted = formatted.replace(/e\^(\d+)/g, function(match, num) {
-        const superscripts = {
-            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
-        };
-        return 'e' + num.split('').map(d => superscripts[d] || d).join('');
-    });
-    
-    // Handle e^x with single letters
-    formatted = formatted.replace(/e\^([a-zA-Z])/g, 'e$1'); // Just show as e^x for display
-    
-    // Handle e^(2x) - convert to e²ˣ
-    formatted = formatted.replace(/e\^\((\d+)([a-zA-Z])\)/g, function(match, num, letter) {
-        const superscripts = {
-            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
-        };
-        const numStr = num.split('').map(d => superscripts[d] || d).join('');
-        return 'e' + numStr + letter;
-    });
-    
-    // Handle exp(x)
-    formatted = formatted.replace(/exp\(([^)]+)\)/g, 'e^{$1}');
-    
-    // For other powers, show as superscript
-    formatted = formatted.replace(/(\d+)\^(\d+)/g, function(match, base, exp) {
-        const superscripts = {
-            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
-            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
-        };
-        return base + exp.split('').map(d => superscripts[d] || d).join('');
-    });
-    
-    // Convert inf to infinity symbol
-    formatted = formatted.replace(/\binf\b/gi, '∞');
-    formatted = formatted.replace(/-∞/g, '-∞');
-    
-    // Convert sqrt
-    formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
-    
-    // Convert fractions for display
-    formatted = formatted.replace(/(\d+)\/(\d+)/g, '$1/$2');
-    
-    // Convert logarithms for display
-    formatted = formatted.replace(/ln\(([^)]+)\)/g, 'ln($1)');
-    formatted = formatted.replace(/log_(\d+)\(([^)]+)\)/g, 'log$1($2)');
-    formatted = formatted.replace(/log\(([^)]+)\)/g, 'log($1)');
-    
-    // Convert inequalities
-    formatted = formatted.replace(/!=/g, '≠');
-    formatted = formatted.replace(/<=/g, '≤').replace(/>=/g, '≥');
-    
-    console.log('formatForDisplay output:', formatted);
-    
-    return formatted;
-},
-            
-            // Replace your current formatForMathJax function with this simplified version:
-formatForMathJax: (text) => {
-    if (!text) return '';
-    
-    let latex = text.toString()
-        .replace(/\s+/g, ' ')
-        .trim();
-    
-    console.log('formatForMathJax input:', latex); // Debug log
-    
-    // Convert exponential functions to LaTeX - SIMPLIFIED
-    // Handle e^(something) → e^{something}
-    latex = latex.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
-    
-    // Handle e^number (like e^2, e^3) → e^{2}
-    latex = latex.replace(/e\^(\d+(?:\.\d+)?)/g, 'e^{$1}');
-    
-    // Handle e^negative number (like e^-1, e^-2) → e^{-1}
-    latex = latex.replace(/e\^(-?\d+(?:\.\d+)?)/g, 'e^{$1}');
-    
-    // Handle e^variable (like e^x, e^t) → e^{x}
-    latex = latex.replace(/e\^([a-zA-Z])/g, 'e^{$1}');
-    
-    // Handle e^complex (like e^2x, e^x+1) → e^{2x}
-    latex = latex.replace(/e\^([a-zA-Z0-9+\-*/]+)/g, 'e^{$1}');
-    
-    // Handle exp(something) → e^{something}
-    latex = latex.replace(/exp\(([^)]+)\)/g, 'e^{$1}');
-    
-    // Handle general a^b patterns
-    // For patterns like 2^(x+1), x^2, etc
-    latex = latex.replace(/(\d+|\([^)]+\))\^\(([^)]+)\)/g, '$1^{$2}');
-    latex = latex.replace(/(\d+|[a-zA-Z])\^(\d+|[a-zA-Z])/g, '$1^{$2}');
-    
-    // Infinity symbols
-    latex = latex.replace(/\binf\b/gi, '\\infty');
-    
-    // Square roots
-    latex = latex.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
-    
-    // Fractions - keep simple for now
-    latex = latex.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
-    
-    // Logarithms
-    latex = latex.replace(/ln\(([^)]+)\)/g, '\\ln($1)');
-    latex = latex.replace(/log_(\d+)\(([^)]+)\)/g, '\\log_{$1}($2)');
-    latex = latex.replace(/log\(([^)]+)\)/g, '\\log($1)');
-    
-    // Inequalities
-    latex = latex.replace(/!=/g, '\\neq');
-    latex = latex.replace(/<=/g, '\\le').replace(/>=/g, '\\ge');
-    
-    console.log('formatForMathJax output:', latex); // Debug log
-    
-    return `\\(${latex}\\)`;
-},
-
-            storeAnswerExactly: (text) => {
                 if (!text) return '';
-                
-                let formatted = text.toString().trim();
-                
-                // Convert sqrt() to √ symbol for storage
-                formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
-                
-                // Convert inf to ∞ symbol for storage
+                let formatted = text.toString().replace(/\s+/g, ' ').trim();
+                // e^2 → e² etc.
+                formatted = formatted.replace(/e\^(\d+)/g, (m, num) => {
+                    const sup = {0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹'};
+                    return 'e' + num.split('').map(d=>sup[d]||d).join('');
+                });
+                formatted = formatted.replace(/e\^\((\d+)([a-zA-Z])\)/g, (m, num, letter) => {
+                    const sup = {0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹'};
+                    return 'e' + num.split('').map(d=>sup[d]||d).join('') + letter;
+                });
+                formatted = formatted.replace(/exp\(([^)]+)\)/g, 'e^{$1}');
                 formatted = formatted.replace(/\binf\b/gi, '∞');
                 formatted = formatted.replace(/-∞/g, '-∞');
-                
+                formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
+                formatted = formatted.replace(/(\d+)\^(\d+)/g, (m,base,exp)=>{
+                    const sup = {0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹'};
+                    return base + exp.split('').map(d=>sup[d]||d).join('');
+                });
+                // Fractions for display (no LaTeX, just slash)
+                formatted = formatted.replace(/(\d+)\/(\d+)/g, '$1/$2');
+                formatted = formatted.replace(/ln\(/g, 'ln(');
+                formatted = formatted.replace(/log_(\d+)\(/g, 'log$1(');
+                formatted = formatted.replace(/!=/g, '≠');
+                formatted = formatted.replace(/<=/g, '≤').replace(/>=/g, '≥');
                 return formatted;
             },
-            
+            formatForMathJax: (text) => {
+                if (!text) return '';
+                let latex = text.toString().replace(/\s+/g, ' ').trim();
+                // exponential: e^(anything) → e^{anything}
+                latex = latex.replace(/e\^\(([^)]+)\)/g, 'e^{$1}');
+                latex = latex.replace(/e\^([a-zA-Z0-9+\-*/]+)/g, 'e^{$1}');
+                latex = latex.replace(/exp\(([^)]+)\)/g, 'e^{$1}');
+                // general powers
+                latex = latex.replace(/(\d+|\([^)]+\))\^\(([^)]+)\)/g, '$1^{$2}');
+                latex = latex.replace(/(\d+|[a-zA-Z])\^(\d+|[a-zA-Z])/g, '$1^{$2}');
+                // infinity
+                latex = latex.replace(/\binf\b/gi, '\\infty');
+                // sqrt
+                latex = latex.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
+                // fractions
+                latex = latex.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
+                latex = latex.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+                // logs
+                latex = latex.replace(/ln\(([^)]+)\)/g, '\\ln($1)');
+                latex = latex.replace(/log_(\d+)\(([^)]+)\)/g, '\\log_{$1}($2)');
+                latex = latex.replace(/log\(([^)]+)\)/g, '\\log($1)');
+                // inequalities
+                latex = latex.replace(/!=/g, '\\neq');
+                latex = latex.replace(/<=/g, '\\le').replace(/>=/g, '\\ge');
+                return `\\(${latex}\\)`;
+            },
+            storeAnswerExactly: (text) => {
+                if (!text) return '';
+                let stored = text.toString().trim();
+                stored = stored.replace(/sqrt\(([^)]+)\)/g, '√$1');
+                stored = stored.replace(/\binf\b/gi, '∞');
+                stored = stored.replace(/-∞/g, '-∞');
+                return stored;
+            },
             formatForNormalization: (text) => {
                 if (!text) return '';
-                
-                let normalized = text.toString()
+                return text.toString()
                     .replace(/\s+/g, '')
                     .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
                     .replace(/√(\d+)/g, 'sqrt($1)')
                     .replace(/√\(([^)]+)\)/g, 'sqrt($1)')
                     .replace(/≠/g, '!=')
                     .replace(/≤/g, '<=')
-                    .replace(/≥/g, '>=');
-                
-                // Handle exponential functions for normalization
-                normalized = normalized.replace(/e\^\(/g, 'e^');
-                normalized = normalized.replace(/exp\(/g, 'e^');
-                
-                return normalized.toLowerCase();
+                    .replace(/≥/g, '>=')
+                    .replace(/exp\(/gi, 'e^')
+                    .toLowerCase();
             },
-            
-            formatForStorage: (text) => {
-                if (!text) return '';
-                
-                return text.toString()
-                    .replace(/\s+/g, '')
-                    .trim();
-            },
-            
             createAnswerPreview: (answer, questionType) => {
                 if (!answer) return null;
-                
-                const normalized = answerNormalizer.normalizeAnswer(answer, questionType);
-                const displayText = answerFormatter.formatForDisplay(answer);
-                const latexText = answerFormatter.formatForMathJax(answer);
-                
                 return {
                     original: answer,
-                    normalized: normalized,
-                    display: displayText,
-                    latex: latexText
+                    display: answerFormatter.formatForDisplay(answer),
+                    latex: answerFormatter.formatForMathJax(answer)
                 };
             },
-            
             roundDecimals: (num, decimals = 3) => {
-                if (typeof num === 'number') {
-                    return parseFloat(num.toFixed(decimals));
-                }
-                
-                // Try to extract numbers from string and round them
+                if (typeof num === 'number') return parseFloat(num.toFixed(decimals));
                 const str = num.toString();
-                const numbers = str.match(/-?\d+\.\d+/g);
-                
-                if (numbers) {
-                    let result = str;
-                    numbers.forEach(n => {
-                        const rounded = parseFloat(n).toFixed(decimals);
-                        result = result.replace(n, rounded);
-                    });
-                    return result;
+                const nums = str.match(/-?\d+\.\d+/g);
+                if (nums) {
+                    let res = str;
+                    nums.forEach(n => res = res.replace(n, parseFloat(n).toFixed(decimals)));
+                    return res;
                 }
-                
                 return num;
             }
         };
 
-        // ============================================
-        // ENHANCED ANSWER NORMALIZATION UTILITY
-        // Specialized for Exponential Functions questions
-        // ============================================
+        // ----- Answer normalization (critical for comparison) -----
         const answerNormalizer = {
-            normalizeExponential: function(answer) {
-                return (answer || '').toString().trim()
+            normalizeInterval: (ans) => {
+                return (ans || '').toString().trim()
                     .replace(/\s+/g, '')
-                    .replace(/exp\(/gi, 'e^')
-                    .replace(/e\^\(/g, 'e^')
-                    .replace(/ln\(/g, 'loge(')
-                    .toLowerCase();
-            },
-            
-            normalizeLogarithm: function(answer) {
-                return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')
-                    .replace(/log_(\d+)\(/g, 'log$1(')
-                    .replace(/ln\(/g, 'loge(')
-                    .toLowerCase();
-            },
-            
-            normalizeInterval: function(answer) {
-                return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')
-                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+                    .replace(/infinity|∞/gi, 'inf')
                     .replace(/\+inf/gi, 'inf')
                     .replace(/-\s*inf/gi, '-inf')
-                    .replace(/\[/g, '[')
-                    .replace(/\]/g, ']')
-                    .replace(/\(/g, '(')
-                    .replace(/\)/g, ')')
-                    .replace(/union|\∪|\|/gi, '∪')
+                    .replace(/\[/g, '[').replace(/\]/g, ']')
+                    .replace(/\(/g, '(').replace(/\)/g, ')')
+                    .replace(/union|\∪/gi, '∪')
                     .toLowerCase();
             },
-            
-            normalizeCoordinate: function(coord) {
+            normalizeCoordinate: (coord) => {
                 return (coord || '').toString().trim()
                     .replace(/\s+/g, '')
                     .replace(/[()]/g, '')
                     .toLowerCase();
             },
-            
-            normalizeNumeric: function(num) {
+            normalizeNumeric: (num) => {
                 const str = (num || '').toString().trim().toLowerCase();
-                
-                if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
-                    return Infinity;
-                }
-                
-                if (str === '-inf' || str === '-infinity' || str === '-∞') {
-                    return -Infinity;
-                }
-                
+                if (/^[-+]?inf(inity)?$|^[-+]?∞$/.test(str)) return str.includes('-') ? -Infinity : Infinity;
                 const cleaned = str.replace(/[^\d.-]/g, '');
                 return cleaned ? parseFloat(cleaned) : NaN;
             },
-            
-            normalizeAnswer: function(answer, questionType) {
+            normalizeAnswer: (answer, questionType) => {
                 if (!answer) return '';
-                
-                let normalized = answer.toString().trim();
-                
-                switch(questionType) {
-                    case 'interval_input':
-                        return this.normalizeInterval(normalized);
-                    case 'coordinate_input':
-                        return this.normalizeCoordinate(normalized);
-                    case 'equation_input':
-                        // Special handling for exponential equations
-                        normalized = normalized.toLowerCase()
-                            .replace(/\s+/g, '')
-                            .replace(/exp\(/g, 'e^')
-                            .replace(/e\^\(/g, 'e^')
-                            .replace(/ln\(/g, 'loge(')
-                            .replace(/log_(\d+)\(/g, 'log$1(');
-                        return normalized;
-                    case 'numeric':
-                    case 'numeric_input':
-                        const num = this.normalizeNumeric(normalized);
-                        return isFinite(num) ? num.toString() : 
-                               num === Infinity ? 'inf' : 
-                               num === -Infinity ? '-inf' : normalized;
-                    case 'multiple_choice':
-                    case 'text_input':
-                    default:
-                        return normalized.toLowerCase()
-                            .trim()
-                            .replace(/\s+/g, ' ')
-                            .replace(/all real numbers/i, 'allrealnumbers')
-                            .replace(/no solution/i, 'nosolution')
-                            .replace(/does not exist|dne/i, 'dne');
+                const str = answerFormatter.formatForNormalization(answer);
+                if (questionType === 'interval_input') return answerNormalizer.normalizeInterval(str);
+                if (questionType === 'numeric' || questionType === 'numeric_input') {
+                    const n = answerNormalizer.normalizeNumeric(str);
+                    if (n === Infinity) return 'inf';
+                    if (n === -Infinity) return '-inf';
+                    if (!isNaN(n)) return n.toString();
+                    return str;
                 }
+                if (questionType === 'coordinate_input') return answerNormalizer.normalizeCoordinate(str);
+                // default
+                return str.toLowerCase();
             }
         };
-       
+
+        // ============================================
+        // GLOBAL STATE
+        // ============================================
         let userAnswers = {};
         let currentUser = {};
         let username = null;
@@ -1442,1320 +942,512 @@ formatForMathJax: (text) => {
         let isQuizActive = false;
         let devToolsWarned = false;
 
-        // Calculator variables
-        let calculatorOpen = false;
-        let isDragging = false;
-        let dragOffsetX = 0;
-        let dragOffsetY = 0;
-        let angleMode = 'Deg';
-        let memory = 0;
-
-        // ============================================
-        // ANTI-CHEATING SYSTEM
-        // ============================================
-        
+        // ----- Anti-cheating (same as polynomial) -----
         function initializeAntiCheating() {
-            // Disable right-click
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                recordCheatingAttempt('right_click');
-                return false;
-            });
-            
-            // Disable common keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                if (e.keyCode === 123 ||
-                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) ||
-                    (e.ctrlKey && e.keyCode === 85) ||
-                    (e.ctrlKey && e.keyCode === 83) ||
-                    e.keyCode === 44) {
-                    e.preventDefault();
-                    recordCheatingAttempt('keyboard_shortcut');
-                    return false;
+            document.addEventListener('contextmenu', (e) => { e.preventDefault(); recordCheatingAttempt('right_click'); return false; });
+            document.addEventListener('keydown', (e) => {
+                if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) ||
+                    (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83) || e.keyCode === 44) {
+                    e.preventDefault(); recordCheatingAttempt('keyboard_shortcut'); return false;
                 }
-                
                 if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
-                    e.preventDefault();
-                    recordCheatingAttempt('copy_attempt');
-                    return false;
+                    e.preventDefault(); recordCheatingAttempt('copy_attempt'); return false;
                 }
             });
-            
-            // Detect developer tools
-            let devtools = {open: false, orientation: null};
-            const threshold = 160;
-            
-            setInterval(function() {
-                if (window.outerHeight - window.innerHeight > threshold ||
-                    window.outerWidth - window.innerWidth > threshold) {
-                    if (!devtools.open) {
-                        devtools.open = true;
-                        recordCheatingAttempt('developer_tools');
-                        if (!devToolsWarned) {
-                            alert('Developer tools detected! This attempt has been logged.');
-                            devToolsWarned = true;
-                        }
-                    }
-                } else {
-                    devtools.open = false;
-                }
+            document.ondragstart = () => false;
+            document.addEventListener('keyup', (e) => { if (e.keyCode === 44) recordCheatingAttempt('screenshot_attempt'); });
+            let devtools = { open: false };
+            setInterval(() => {
+                if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+                    if (!devtools.open) { devtools.open = true; recordCheatingAttempt('developer_tools'); }
+                } else devtools.open = false;
             }, 500);
-            
-            // Screenshot detection
-            document.addEventListener('keyup', function(e) {
-                if (e.key === 'PrintScreen' || 
-                    (e.keyCode === 44) ||
-                    (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
-                    (e.metaKey && e.shiftKey && e.keyCode === 83)) {
-                    recordCheatingAttempt('screenshot_attempt');
-                    alert('Screenshot detected! This activity has been logged.');
-                }
-            });
-            
-            // Detect if window loses focus
-            let lastBlurTime = 0;
-            window.addEventListener('blur', function() {
-                lastBlurTime = Date.now();
-                if (isQuizActive) {
-                    recordCheatingAttempt('window_focus_lost');
-                    document.body.classList.add('blurred');
-                    document.getElementById('warningOverlay').style.display = 'flex';
-                }
-            });
-            
-            // Page visibility detection
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden && isQuizActive) {
-                    recordCheatingAttempt('tab_switched');
-                    document.getElementById('warningOverlay').style.display = 'flex';
-                }
-            });
-            
-            // Window focus restoration
-            window.addEventListener('focus', function() {
-                document.body.classList.remove('blurred');
-                if (isQuizActive) {
-                    setTimeout(() => {
-                        document.getElementById('warningOverlay').style.display = 'none';
-                    }, 1000);
-                }
-            });
-            
-            // Prevent text selection
-            document.onselectstart = function() {
-                recordCheatingAttempt('text_selection');
-                return false;
-            };
-            
-            // Disable drag
-            document.ondragstart = function() {
-                return false;
-            };
-            
-            console.log('✅ Anti-cheating initialized');
+            window.addEventListener('focus', () => { document.body.classList.remove('blurred'); document.getElementById('warningOverlay').style.display = 'none'; });
+            document.onselectstart = () => { recordCheatingAttempt('text_selection'); return false; };
         }
 
         function recordCheatingAttempt(type) {
             cheatingAttempts++;
-            const timestamp = new Date().toISOString();
-            console.warn(`🚨 Cheating attempt #${cheatingAttempts}: ${type} at ${timestamp}`);
-            
-            // Visual warning for specific actions
-            const highRiskActions = ['screenshot_attempt', 'tab_switched', 'window_focus_lost'];
-            if (highRiskActions.includes(type)) {
-                const overlay = document.getElementById('warningOverlay');
-                if (overlay) {
-                    overlay.style.display = 'flex';
-                    setTimeout(() => {
-                        if (document.hasFocus()) {
-                            overlay.style.display = 'none';
-                        }
-                    }, 2000);
-                }
-            }
-            
+            console.warn(`🚨 Cheating #${cheatingAttempts}: ${type}`);
             if (username && email) {
                 fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        cheatingType: type,
-                        timestamp: timestamp,
-                        currentQuestion: currentQuestionIndex + 1,
-                        totalAttempts: cheatingAttempts
-                    })
-                }).catch(err => console.error('Failed to log cheating attempt:', err));
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                    body: JSON.stringify({ username, email, cheatingType: type, timestamp: new Date(), currentQuestion: currentQuestionIndex+1 })
+                }).catch(()=>{});
             }
-            
-            // Progressive warnings
-            if (cheatingAttempts === 3) {
-                alert('⚠️ WARNING: Suspicious activity detected!\nFurther violations will result in automatic submission.');
-            } else if (cheatingAttempts >= 5) {
-                alert('🚫 Too many suspicious activities detected.\nQuiz will be auto-submitted for review.');
-                submitQuiz();
-            }
+            if (cheatingAttempts >= 5) { alert('Too many suspicious activities. Auto-submitting.'); submitQuiz(); }
+        }
+
+        // ----- Session & question loading with FRONTEND FILTERING (never-seen) -----
+        async function fetchSessionInfo() {
+            try {
+                const resp = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', { credentials: 'include' });
+                if (resp.ok) { const d = await resp.json(); username = d.username; email = d.email; console.log("User:", username, email); return true; }
+                else { alert('Please login'); window.location.href = '/login.html'; return false; }
+            } catch(e) { console.error(e); return false; }
+        }
+
+        async function getAnsweredQuestionIds() {
+            try {
+                const resp = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(email)}&topic=exponential_function`, { credentials: 'include' });
+                if (!resp.ok) return [];
+                const scores = await resp.json();
+                const ids = new Set();
+                if (Array.isArray(scores)) scores.forEach(s => {
+                    if (s.quizData?.questionResults) s.quizData.questionResults.forEach(r => {
+                        if (r.questionId) ids.add(r.questionId.toString());
+                        if (r.questionNumber) ids.add(r.questionNumber.toString());
+                    });
+                });
+                return Array.from(ids);
+            } catch(e) { console.error(e); return []; }
+        }
+
+        function validateAndPrepareQuestions(qs) {
+            return qs.map((q, idx) => ({
+                ...q,
+                _id: q._id || `q-${idx}`,
+                question_number: q.question_number || idx+1,
+                question_text: q.question_text || 'Question text missing',
+                correct_answer: q.correct_answer ?? '',
+                explanation: q.explanation || '',
+                difficulty: q.difficulty || 'medium',
+                points: q.points || 1,
+                type: q.type || 'multiple_choice',
+                alternative_answers: q.alternative_answers || []
+            }));
+        }
+
+        function shuffleArray(arr) { const a = [...arr]; for (let i=a.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+
+        async function resetUserProgress() {
+            try {
+                const resp = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                    body: JSON.stringify({ email, topic: 'exponential_function' })
+                });
+                const data = await resp.json();
+                if (resp.ok) { alert(`✅ Progress reset! You can retake all ${data.questionsAvailable || 'available'} questions.`); return true; }
+                else throw new Error(data.message);
+            } catch(e) { alert('❌ Reset failed'); return false; }
         }
 
         async function loadQuestions() {
             try {
-                if (!email) {
-                    alert('Please login to take the assessment');
-                    return false;
-                }
-                
-                // KEEP THE SAME API ENDPOINT - exponential_function
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/exponential_function?email=${encodeURIComponent(email)}&count=50&random=true`, {
-                    credentials: 'include'
+                if (!email) { alert('Please login'); return false; }
+                const answeredIds = await getAnsweredQuestionIds();
+                console.log('📝 Already answered:', answeredIds.length);
+                const resp = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/exponential_function?email=${encodeURIComponent(email)}&count=100`, { credentials: 'include' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                let allQs = data.questions || data;
+                if (!allQs || !allQs.length) throw new Error('No questions');
+                console.log('📚 Total in DB:', allQs.length);
+                const unanswered = allQs.filter(q => {
+                    const id = q._id || q.id || q.question_number;
+                    return !answeredIds.includes(id?.toString());
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Handle case where user has completed all questions
-                if (data.resetAvailable || data.allQuestionsCompleted) {
-                    const resetConfirm = confirm(
-                        `🎉 You have completed all available questions!\n\n` +
-                        `Total questions in pool: ${data.totalQuestionsInPool || 'All'}\n\n` +
-                        `Would you like to reset your progress and start over?`
-                    );
-                    
+                console.log('🆕 Unanswered:', unanswered.length);
+                if (unanswered.length === 0) {
+                    const resetConfirm = confirm(`🎉 You completed all ${allQs.length} exponential questions!\n\nReset progress and start over?`);
                     if (resetConfirm) {
-                        const resetSuccess = await resetUserProgress();
-                        if (resetSuccess) {
-                            return loadQuestions();
-                        } else {
-                            window.location.href = 'iitm_math.html';
-                            return false;
-                        }
-                    } else {
-                        window.location.href = 'iitm_math.html';
-                        return false;
-                    }
+                        const ok = await resetUserProgress();
+                        if (ok) return loadQuestions();
+                        else { alert('Returning home.'); window.location.href = 'iitm_math.html'; return false; }
+                    } else { window.location.href = 'iitm_math.html'; return false; }
                 }
-                
-                questions = data.questions || data;
-                
-                if (!questions || questions.length === 0) {
-                    throw new Error('No questions found');
-                }
-                
-                console.log(`Loaded ${questions.length} questions successfully`);
+                const takeCount = Math.min(50, unanswered.length);
+                questions = shuffleArray(unanswered).slice(0, takeCount);
+                questions = validateAndPrepareQuestions(questions);
+                console.log(`✨ Loaded ${questions.length} new exponential questions`);
                 document.getElementById('calculatorBtn').style.display = 'flex';
                 return true;
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                return false;
-            }
-        }
-        
-        async function resetUserProgress() {
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ 
-                        email: email,
-                        topic: 'exponential_function'
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    console.log('Progress reset successfully:', data);
-                    alert(`✅ Progress reset successfully!\n\nYou can now retake all ${data.questionsAvailable || 'available'} questions.`);
-                    return true;
-                } else {
-                    throw new Error(data.message || 'Failed to reset progress');
-                }
-            } catch (error) {
-                console.error('Error resetting progress:', error);
-                alert('❌ Failed to reset progress. Please try again or contact support.');
-                return false;
-            }
+            } catch(e) { console.error(e); return false; }
         }
 
-        // Initialize quiz timing
-        function initializeQuizTiming() {
-            quizStartTime = new Date();
-            questionStartTime = new Date();
-        }
+        // ----- Quiz flow -----
+        function initializeQuizTiming() { quizStartTime = new Date(); questionStartTime = new Date(); }
+        function trackQuestionTime() { if (questionStartTime) { questionTimes[currentQuestionIndex] = Math.floor((new Date() - questionStartTime)/1000); } questionStartTime = new Date(); }
 
-        // Track question time
-        function trackQuestionTime() {
-            if (questionStartTime) {
-                const timeSpent = Math.floor((new Date() - questionStartTime) / 1000);
-                questionTimes[currentQuestionIndex] = timeSpent;
-            }
-            questionStartTime = new Date();
-        }
-
-        // Fetch user session
-        async function fetchSessionInfo() {
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    username = data.username;
-                    email = data.email;
-                    console.log("User:", username, "Email:", email);
-                    return true;
-                } else {
-                    console.error('Failed to fetch session info');
-                    alert('Please login to take the assessment');
-                    window.location.href = '/login.html';
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error fetching session info:', error);
-                return false;
-            }
-        }
-
-        // Render current question with LaTeX support
         function renderCurrentQuestion() {
             const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            console.log('Rendering Exponential Functions question:', currentQuestionIndex + 1, question);
-            
+            const q = questions[currentQuestionIndex];
             container.innerHTML = '';
+            const div = document.createElement('div'); div.className = 'question-card';
+            let optsHtml = '', previewHtml = '';
+            let questionText = q.question_text || 'Question text missing';
+            if (questionText.includes('$') || questionText.includes('\\') || questionText.includes('^') || questionText.includes('sqrt')) {
+                questionText = answerFormatter.formatForMathJax(questionText);
+            }
 
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
-
-            let optionsHtml = '';
-            let answerPreviewHtml = '';
-            
-            // Display question text AS-IS from database but allow MathJax to process it
-            let questionText = question.question_text || 'Question text not available';
-            
-            // DON'T format the question text - display it as-is
-            // This preserves the original formatting from the database
-            
-            if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    // Format option text for MathJax display
-                    let optionText = option;
-                    // Check if option contains exponential notation
-                    if (option.includes('^') || option.includes('exp') || option.includes('log') || option.includes('ln')) {
-                        optionText = answerFormatter.formatForMathJax(option);
-                    }
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
-                        </div>
-                    `;
+            if (q.type === 'multiple_choice' && q.options?.length) {
+                optsHtml = q.options.map((opt,i)=>{
+                    let displayOpt = opt;
+                    if (opt.includes('^')||opt.includes('exp')||opt.includes('log')||opt.includes('ln')) displayOpt = answerFormatter.formatForMathJax(opt);
+                    return `<div class="option" onclick="selectOption(${currentQuestionIndex}, '${opt.replace(/'/g,"\\'")}', 'radio', this)">
+                        <input type="radio" name="q${currentQuestionIndex}" value="${opt.replace(/"/g,'&quot;')}" id="q${currentQuestionIndex}_${i}">
+                        <label for="q${currentQuestionIndex}_${i}">${displayOpt}</label></div>`;
                 }).join('');
-                
-            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    let optionText = option;
-                    if (option.includes('^') || option.includes('exp') || option.includes('log') || option.includes('ln')) {
-                        optionText = answerFormatter.formatForMathJax(option);
-                    }
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
-                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
-                        </div>
-                    `;
+            } else if (q.type === 'multiple_select' && q.options?.length) {
+                optsHtml = q.options.map((opt,i)=>{
+                    let displayOpt = opt;
+                    if (opt.includes('^')||opt.includes('exp')||opt.includes('log')||opt.includes('ln')) displayOpt = answerFormatter.formatForMathJax(opt);
+                    return `<div class="option" onclick="selectOption(${currentQuestionIndex}, '${opt.replace(/'/g,"\\'")}', 'checkbox', this)">
+                        <input type="checkbox" name="q${currentQuestionIndex}" value="${opt.replace(/"/g,'&quot;')}" id="q${currentQuestionIndex}_${i}">
+                        <label for="q${currentQuestionIndex}_${i}">${displayOpt}</label></div>`;
                 }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'text_input'].includes(question.type)) {
+            } else if (['numeric','interval_input','numeric_input','coordinate_input','equation_input','text_input'].includes(q.type)) {
                 let placeholder = "Enter your answer";
-                if (question.type === 'interval_input') {
-                    placeholder = "e.g., (-∞, 3], [1,5)∪(5,∞)";
-                } else if (question.type === 'coordinate_input') {
-                    placeholder = "e.g., (2, 3), (-1/2, sqrt(2))";
-                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                    placeholder = "e.g., 3.14159, -5, sqrt(2), 1/3";
-                } else if (question.type === 'equation_input') {
-                    placeholder = "e.g., e^(2x), 2^(x+1), ln(x), log_2(8)";
-                }
-                
-                optionsHtml = `
-                    <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${placeholder}" 
-                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                           oninput="handleNumericInputWithPreview(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false"
-                           id="answerInput-${currentQuestionIndex}">
-                    <div class="input-warning" id="inputWarning-${currentQuestionIndex}"></div>
-                `;
-                
-                // Add answer preview box
-                answerPreviewHtml = `
-                <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
-                    <h4>Answer Preview</h4>
-                    <div class="answer-preview-content">
-                        <div class="preview-row">
-                            <span class="preview-label">Formatted view:</span>
-                            <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div>
-                        </div>
-                    </div>
-                    <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
-                </div>
-            `;
-            } else {
-                console.warn('Unknown question type:', question.type);
-                optionsHtml = `
-                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                        <strong>Error:</strong> Unable to display question options.
-                    </div>
-                `;
+                if (q.type === 'interval_input') placeholder = "e.g., (-∞,3], [1,5)∪(5,∞)";
+                else if (q.type === 'coordinate_input') placeholder = "e.g., (2,3), (-1/2, sqrt(2))";
+                else if (q.type === 'equation_input') placeholder = "e.g., e^(2x), log_2(8), 2^x";
+                else if (q.type === 'numeric') placeholder = "e.g., 3.1416, sqrt(2), 1/3";
+                optsHtml = `<input type="text" class="numeric-input" placeholder="${placeholder}" 
+                    onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                    oninput="handleNumericInputWithPreview(${currentQuestionIndex}, this.value)"
+                    autocomplete="off" spellcheck="false" id="answerInput-${currentQuestionIndex}">
+                    <div class="input-warning" id="inputWarning-${currentQuestionIndex}"></div>`;
+                previewHtml = `<div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
+                    <h4>Answer Preview</h4><div class="answer-preview-content">
+                    <div class="preview-row"><span class="preview-label">Formatted view:</span>
+                    <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div></div></div>
+                    <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div></div>`;
             }
-
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107',
-                'hard': '#dc3545'
-            };
-            
-            const difficulty = question.difficulty || 'medium';
-            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${difficultyText}
-                        </span>
-                    </div>
-                </div>
+            const diffColor = { easy:'#28a745', medium:'#ffc107', hard:'#dc3545' };
+            const diff = q.difficulty || 'medium';
+            div.innerHTML = `<div class="question-header"><div class="question-number">${currentQuestionIndex+1}</div>
+                <div style="display:flex; align-items:center; gap:10px;"><span style="background:${diffColor[diff]}; color:white; padding:4px 8px; border-radius:12px; font-size:12px; text-transform:uppercase;">${diff}</span></div></div>
                 <div class="question-text" id="question-text-${currentQuestionIndex}">${questionText}</div>
-                <div class="options">${optionsHtml}</div>
-                ${answerPreviewHtml}
-            `;
-
-            container.appendChild(questionDiv);
-            
-            // Process MathJax for question text and options
-            if (window.MathJax) {
-                MathJax.typesetPromise([questionDiv]).catch(err => console.log('MathJax error:', err));
-            }
-            
+                <div class="options">${optsHtml}</div>${previewHtml}`;
+            container.appendChild(div);
+            if (window.MathJax) MathJax.typesetPromise([div]).catch(()=>{});
             restoreAnswer();
             updateAnswerStatus();
-            
-            // Add event listener for input focus to show preview
-            const input = document.getElementById(`answerInput-${currentQuestionIndex}`);
-            if (input) {
-                input.addEventListener('focus', () => {
-                    const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
-                    if (preview) {
-                        preview.classList.add('visible');
-                    }
+            const inp = document.getElementById(`answerInput-${currentQuestionIndex}`);
+            if (inp) {
+                inp.addEventListener('focus', ()=>{
+                    const pv = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+                    if(pv) pv.classList.add('visible');
                 });
-                
-                input.addEventListener('blur', () => {
-                    setTimeout(() => {
-                        const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
-                        const activeElement = document.activeElement;
-                        if (preview && !preview.contains(activeElement)) {
-                            preview.classList.remove('visible');
-                        }
-                    }, 100);
+                inp.addEventListener('blur', ()=>{
+                    setTimeout(()=>{
+                        const pv = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+                        if(pv && !pv.contains(document.activeElement)) pv.classList.remove('visible');
+                    },100);
                 });
             }
         }
 
         function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (!savedAnswer) return;
-
-            if (question.type === 'multiple_choice') {
-                const option = document.querySelector(`input[value="${savedAnswer}"]`);
-                if (option) {
-                    option.checked = true;
-                    option.closest('.option').classList.add('selected');
-                }
-            } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[value="${answer}"]`);
-                    if (option) {
-                        option.checked = true;
-                        option.closest('.option').classList.add('selected');
-                    }
+            const q = questions[currentQuestionIndex];
+            const saved = userAnswers[currentQuestionIndex];
+            if (!saved) return;
+            if (q.type === 'multiple_choice') {
+                const opt = document.querySelector(`input[value="${saved}"]`);
+                if (opt) { opt.checked = true; opt.closest('.option').classList.add('selected'); }
+            } else if (q.type === 'multiple_select' && Array.isArray(saved)) {
+                saved.forEach(ans => {
+                    const opt = document.querySelector(`input[value="${ans}"]`);
+                    if (opt) { opt.checked = true; opt.closest('.option').classList.add('selected'); }
                 });
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'text_input'].includes(question.type)) {
-                const input = document.querySelector(`#answerInput-${currentQuestionIndex}`);
-                if (input) {
-                    input.value = savedAnswer;
-                    // Update preview if there's an answer
-                    if (savedAnswer.trim()) {
-                        updateAnswerPreview(currentQuestionIndex, savedAnswer);
-                        
-                        // Show the preview panel since there's an answer
-                        const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
-                        if (preview) {
-                            preview.classList.add('visible');
-                        }
-                    }
+            } else {
+                const inp = document.getElementById(`answerInput-${currentQuestionIndex}`);
+                if (inp) {
+                    inp.value = saved;
+                    if (saved.trim()) { updateAnswerPreview(currentQuestionIndex, saved); 
+                        document.getElementById(`answerPreview-${currentQuestionIndex}`)?.classList.add('visible'); }
                 }
             }
         }
 
         function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-            
-            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
-            
+            const p = ((currentQuestionIndex+1)/questions.length)*100;
+            document.getElementById('progressFill').style.width = p+'%';
+            document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex+1} of ${questions.length}`;
+            document.getElementById('prevBtn').disabled = currentQuestionIndex===0;
             const nextBtn = document.getElementById('nextBtn');
-            if (currentQuestionIndex === questions.length - 1) {
+            if (currentQuestionIndex === questions.length-1) {
                 nextBtn.textContent = 'Finish';
-                nextBtn.onclick = () => {
-                    document.getElementById('quizContainer').scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'end' 
-                    });
-                };
-            } else {
-                nextBtn.textContent = 'Next';
-                nextBtn.onclick = nextQuestion;
-            }
+                nextBtn.onclick = ()=> document.getElementById('quizContainer').scrollIntoView({ behavior:'smooth', block:'end' });
+            } else { nextBtn.textContent = 'Next'; nextBtn.onclick = nextQuestion; }
         }
-
         function updateAnswerStatus() {
-            const statusSpan = document.getElementById('answeredStatus');
-            const hasAnswer = userAnswers[currentQuestionIndex] !== undefined;
-            
-            if (hasAnswer) {
-                statusSpan.textContent = 'Answered';
-                statusSpan.className = 'status-answered';
-            } else {
-                statusSpan.textContent = 'Unanswered';
-                statusSpan.className = 'status-unanswered';
-            }
+            const s = document.getElementById('answeredStatus');
+            if (userAnswers[currentQuestionIndex] !== undefined) { s.textContent='Answered'; s.className='status-answered'; }
+            else { s.textContent='Unanswered'; s.className='status-unanswered'; }
         }
+        function nextQuestion() { if (currentQuestionIndex < questions.length-1) { trackQuestionTime(); currentQuestionIndex++; renderCurrentQuestion(); updateProgress(); } }
+        function previousQuestion() { if (currentQuestionIndex > 0) { trackQuestionTime(); currentQuestionIndex--; renderCurrentQuestion(); updateProgress(); } }
 
-        function nextQuestion() {
-            if (currentQuestionIndex < questions.length - 1) {
-                trackQuestionTime();
-                currentQuestionIndex++;
-                renderCurrentQuestion();
-                updateProgress();
-            }
-        }
-
-        function previousQuestion() {
-            if (currentQuestionIndex > 0) {
-                trackQuestionTime();
-                currentQuestionIndex--;
-                renderCurrentQuestion();
-                updateProgress();
-            }
-        }
-
-        function selectOption(questionIndex, value, type, element) {
+        function selectOption(idx, val, type, el) {
             if (type === 'radio') {
-                const allOptions = document.querySelectorAll(`.question-card .option`);
-                allOptions.forEach(opt => {
-                    const input = opt.querySelector('input[type="radio"]');
-                    if (input && input.name === `q${questionIndex}`) {
-                        input.checked = false;
-                        opt.classList.remove('selected');
-                    }
+                document.querySelectorAll(`.question-card .option`).forEach(opt => {
+                    const inp = opt.querySelector('input[type="radio"]');
+                    if (inp && inp.name === `q${idx}`) { inp.checked = false; opt.classList.remove('selected'); }
                 });
-                
-                const radioInput = element.querySelector('input[type="radio"]');
-                if (radioInput) {
-                    radioInput.checked = true;
-                }
-                element.classList.add('selected');
-                userAnswers[questionIndex] = value.trim();
-                        
+                el.querySelector('input').checked = true;
+                el.classList.add('selected');
+                userAnswers[idx] = val.trim();
             } else if (type === 'checkbox') {
-                const checkbox = element.querySelector('input');
-                checkbox.checked = !checkbox.checked;
-                
-                if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
-                
-                if (checkbox.checked) {
-                    if (!userAnswers[questionIndex].includes(value.trim())) {
-                        userAnswers[questionIndex].push(value.trim());
-                    }
-                    element.classList.add('selected');
-                } else {
-                    userAnswers[questionIndex] = userAnswers[questionIndex].filter(ans => ans !== value.trim());
-                    element.classList.remove('selected');
-                    
-                    if (userAnswers[questionIndex].length === 0) {
-                        delete userAnswers[questionIndex];
-                    }
-                }
+                const chk = el.querySelector('input');
+                chk.checked = !chk.checked;
+                if (!userAnswers[idx]) userAnswers[idx] = [];
+                if (chk.checked) { if (!userAnswers[idx].includes(val.trim())) userAnswers[idx].push(val.trim()); el.classList.add('selected'); }
+                else { userAnswers[idx] = userAnswers[idx].filter(a=>a!==val.trim()); el.classList.remove('selected'); if(userAnswers[idx].length===0) delete userAnswers[idx]; }
             }
-            
             updateAnswerStatus();
         }
 
-        // New function to handle input with preview
-        function handleNumericInputWithPreview(questionIndex, value) {
-            handleNumericInput(questionIndex, value);
-            updateAnswerPreview(questionIndex, value);
-            
-            if (value.trim()) {
-                const validation = validateAnswerFormat(questionIndex, value.trim());
-                showValidationFeedback(questionIndex, validation.feedback, validation.suggestion);
-            } else {
-                showValidationFeedback(questionIndex, '', '');
-            }
+        function handleNumericInputWithPreview(idx, val) {
+            handleNumericInput(idx, val);
+            updateAnswerPreview(idx, val);
+            if (val.trim()) {
+                const v = validateAnswerFormat(idx, val.trim());
+                showValidationFeedback(idx, v.feedback, v.suggestion);
+            } else showValidationFeedback(idx, '', '');
         }
-
-        function handleNumericInput(questionIndex, value) {
-            const trimmedValue = value.trim();
-            
-            if (trimmedValue) {
-                userAnswers[questionIndex] = answerFormatter.storeAnswerExactly(trimmedValue);
-            } else {
-                delete userAnswers[questionIndex];
-            }
-            
+        function handleNumericInput(idx, val) {
+            const t = val.trim();
+            if (t) userAnswers[idx] = answerFormatter.storeAnswerExactly(t);
+            else delete userAnswers[idx];
             updateAnswerStatus();
         }
+        function handleNumericInputWithValidation(idx, val) { handleNumericInputWithPreview(idx, val); }
 
-        function handleNumericInputWithValidation(questionIndex, value) {
-            handleNumericInputWithPreview(questionIndex, value);
-        }
-
-        function updateAnswerPreview(questionIndex, answer) {
-            const preview = document.getElementById(`answerPreview-${questionIndex}`);
-            const warning = document.getElementById(`inputWarning-${questionIndex}`);
-            
-            if (!preview || !answer.trim()) {
-                if (preview) preview.classList.remove('visible');
-                if (warning) {
-                    warning.classList.remove('visible');
-                    warning.textContent = '';
-                }
-                return;
-            }
-            
-            const question = questions[questionIndex];
-            const previewData = answerFormatter.createAnswerPreview(answer, question.type);
-            
+        function updateAnswerPreview(idx, answer) {
+            const preview = document.getElementById(`answerPreview-${idx}`);
+            const warn = document.getElementById(`inputWarning-${idx}`);
+            if (!preview || !answer.trim()) { if(preview) preview.classList.remove('visible'); if(warn) { warn.classList.remove('visible'); warn.textContent=''; } return; }
+            const previewData = answerFormatter.createAnswerPreview(answer, questions[idx]?.type);
             if (!previewData) return;
-            
-            // Update formatted view with LaTeX only
-            const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
-            if (formattedEl) {
-                formattedEl.innerHTML = previewData.latex;
-            }
-            
-            // Update hint section
-            const hintEl = document.getElementById(`previewHint-${questionIndex}`);
+            const fmtEl = document.getElementById(`previewFormatted-${idx}`);
+            if (fmtEl) fmtEl.innerHTML = previewData.latex;
+            const hintEl = document.getElementById(`previewHint-${idx}`);
             let hint = '';
-
-            const rounded = answerFormatter.roundDecimals(answer);
-            if (rounded && rounded !== answer) {
-                hint = `Will be rounded to 3 decimal places: ${rounded}`;
-            } else if (answer.includes('inf')) {
-                hint = '"inf" is displayed as ∞';
-            } else if (answer.includes('sqrt')) {
-                hint = '"sqrt(x)" is displayed as √x';
-            } else if (answer.match(/\d+\/\d+/)) {
-                hint = 'Fractions are displayed properly';
-            } else if (answer.includes('e^') || answer.includes('exp(')) {
-                hint = 'Exponential functions formatted correctly';
-            } else if (answer.includes('log') || answer.includes('ln')) {
-                hint = 'Logarithmic functions formatted correctly';
-            } else if (answer.includes('^')) {
-                hint = 'Exponents are formatted correctly';
-            }
-
+            if (answer.includes('inf')) hint = '"inf" → ∞';
+            else if (answer.includes('sqrt')) hint = '"sqrt(x)" → √x';
+            else if (answer.match(/\d+\/\d+/)) hint = 'Fractions displayed';
+            else if (answer.includes('e^')||answer.includes('exp')) hint = 'Exponential formatted';
             hintEl.textContent = hint;
-            
-            // Process MathJax for formatted preview
-            if (window.MathJax) {
-                MathJax.typesetPromise([formattedEl]).catch(err => console.log('MathJax error:', err));
+            if (window.MathJax) MathJax.typesetPromise([fmtEl]).catch(()=>{});
+            if (warn) {
+                const inv = answer.match(/[^0-9a-zA-Z\s.,+\-*/^(){}|≠≤≥=∞√πθ\-\/\\\[\]\$\{\}\|]/);
+                if (inv) { warn.textContent = `Unusual character "${inv[0]}"`; warn.classList.add('visible'); }
+                else warn.classList.remove('visible');
             }
-            
-            // Show warning for invalid characters
-            if (warning) {
-                const invalidChars = answer.match(/[^0-9a-zA-Z\s.,+\-*/^(){}|≠≤≥=≠∞√πθ\-\/\\\[\]\$\{\}\|]/);
-                if (invalidChars) {
-                    warning.textContent = `Warning: Unusual character "${invalidChars[0]}" detected`;
-                    warning.classList.add('visible');
-                } else {
-                    warning.classList.remove('visible');
-                }
-            }
-            
             preview.classList.add('visible');
         }
 
-        function validateAnswerFormat(questionIndex, userAnswer) {
-            const question = questions[currentQuestionIndex];
-            let feedback = '';
-            let suggestion = '';
-            let isValidFormat = true;
-            
-            if (question.type === 'interval_input') {
-                const normalized = answerNormalizer.normalizeInterval(userAnswer);
-                const intervalRegex = /^[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]$/;
-                const unionRegex = /^[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]\s*∪\s*[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]$/;
-                
-                if (intervalRegex.test(normalized) || unionRegex.test(normalized)) {
-                    feedback = '✓ Valid interval notation';
-                } else {
-                    feedback = '⚠ Check interval format';
-                }
-                suggestion = 'Examples: (-∞, 5], [1, 10), (-3, 3), [0,∞)∪(2,5)';
-                
-            } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                const normalized = answerNormalizer.normalizeNumeric(userAnswer);
-                if (!isNaN(normalized) || ['inf', '-inf', '∞', '-∞'].includes(userAnswer.toLowerCase())) {
-                    feedback = '✓ Valid number';
-                } else {
-                    feedback = '⚠ Enter a valid number';
-                }
-                suggestion = 'Examples: 3.14, -5, 0, inf, -infinity, e^2, log(10)';
-                
-            } else if (question.type === 'equation_input') {
-                // Check for exponential function format
-                if (userAnswer.includes('^') || userAnswer.includes('exp') || 
-                    userAnswer.includes('log') || userAnswer.includes('ln')) {
-                    feedback = '✓ Valid exponential/logarithmic function';
-                } else {
-                    feedback = '✓ Answer recorded';
-                }
-                suggestion = 'Examples: e^(2x), 2^(x+1), ln(x), log_2(8)';
-                
-            } else {
-                feedback = '✓ Answer recorded';
-                isValidFormat = true;
-            }
-            
-            return { isValidFormat, feedback, suggestion };
+        function validateAnswerFormat(idx, userAnswer) {
+            const q = questions[currentQuestionIndex];
+            let feedback='', suggestion='';
+            if (q.type === 'interval_input') {
+                const norm = answerNormalizer.normalizeInterval(userAnswer);
+                if (/^[(\[](?:-?\d+|-inf|inf)[,\s]*(?:-?\d+|inf)[)\]]$/.test(norm) || norm.includes('∪')) feedback='✓ Valid interval';
+                else feedback='⚠ Check interval format';
+                suggestion='e.g. (-∞,5], [1,10)';
+            } else if (q.type === 'numeric'||q.type==='numeric_input') {
+                const n = answerNormalizer.normalizeNumeric(userAnswer);
+                if (!isNaN(n)||/^[-+]?inf$/.test(userAnswer.toLowerCase())||/∞/.test(userAnswer)) feedback='✓ Valid number';
+                else feedback='⚠ Enter a valid number';
+                suggestion='Examples: 3.14, -5, inf, sqrt(2)';
+            } else if (q.type === 'equation_input') { feedback='✓ Format accepted'; suggestion='e.g. e^(2x), log_2(8)'; }
+            else feedback='✓ Answer recorded';
+            return { isValidFormat: !feedback.includes('⚠'), feedback, suggestion };
         }
-
-        function showValidationFeedback(questionIndex, feedback, suggestion) {
-            const questionDiv = document.querySelector('.question-card');
-            let feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
-            
-            if (!feedbackDiv) {
-                feedbackDiv = document.createElement('div');
-                feedbackDiv.id = `feedback-${questionIndex}`;
-                questionDiv.appendChild(feedbackDiv);
-            }
-            
-            if (!feedback) {
-                feedbackDiv.innerHTML = '';
-                return;
-            }
-            
+        function showValidationFeedback(idx, feedback, suggestion) {
+            let fb = document.getElementById(`feedback-${idx}`);
+            if (!fb) { fb = document.createElement('div'); fb.id = `feedback-${idx}`; document.querySelector('.question-card').appendChild(fb); }
+            if (!feedback) { fb.innerHTML = ''; return; }
             const isValid = feedback.includes('✓');
-            feedbackDiv.style.cssText = `
-                background: ${isValid ? '#d4edda' : '#fff3cd'};
-                border: 1px solid ${isValid ? '#c3e6cb' : '#ffeaa7'};
-                border-radius: 6px;
-                padding: 10px;
-                margin-top: 10px;
-                font-size: 14px;
-                line-height: 1.5;
-            `;
-            
-            feedbackDiv.innerHTML = `
-                <div style="color: ${isValid ? '#155724' : '#856404'}; font-weight: 600; margin-bottom: 4px;">
-                    ${feedback}
-                </div>
-                ${suggestion ? `<div style="color: #666; font-size: 13px;">${suggestion}</div>` : ''}
-            `;
+            fb.style.cssText = `background:${isValid?'#d4edda':'#fff3cd'}; border:1px solid ${isValid?'#c3e6cb':'#ffeaa7'}; border-radius:6px; padding:10px; margin-top:10px; font-size:14px;`;
+            fb.innerHTML = `<div style="color:${isValid?'#155724':'#856404'}; font-weight:600;">${feedback}</div>${suggestion?`<div style="color:#666; font-size:13px;">${suggestion}</div>`:''}`;
         }
 
-        // Enhanced initializeQuiz function
-        async function initializeQuiz() {
-            try {
-                initializeAntiCheating();
-                initializeInfoBubble();
-                
-                const sessionValid = await fetchSessionInfo();
-                if (!sessionValid) return;
-                
-                const questionsLoaded = await loadQuestions();
-                if (!questionsLoaded) return;
-                
-                currentUser = { username, email };
-                
-                initializeQuizTiming();
-                isQuizActive = true;
-                
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('quizContainer').style.display = 'block';
-                
-                renderCurrentQuestion();
-                updateProgress();
-                
-            } catch (error) {
-                console.error('Error initializing quiz:', error);
-            }
-        }
-
-        // ============================================
-        // CALCULATOR FUNCTIONS
-        // ============================================
-
-        // Initialize calculator
-        function initializeCalculator() {
-            const calculatorBtn = document.getElementById('calculatorBtn');
-            const calculatorModal = document.getElementById('calculatorModal');
-            const closeBtn = calculatorModal.querySelector('.calculator-close');
-            const minimizeBtn = calculatorModal.querySelector('.minimize-btn');
-            const helpBtn = calculatorModal.querySelector('.help-btn');
-            
-            // Set up calculator button click
-            calculatorBtn.addEventListener('click', toggleCalculator);
-            
-            // Set up close button
-            closeBtn.addEventListener('click', toggleCalculator);
-            
-            // Set up minimize button
-            if (minimizeBtn) {
-                minimizeBtn.addEventListener('click', function() {
-                    calculatorModal.style.display = 'none';
-                    calculatorBtn.style.display = 'flex';
-                    calculatorOpen = false;
-                });
-            }
-            
-            // Set up help button
-            if (helpBtn) {
-                helpBtn.addEventListener('click', function() {
-                    alert('Scientific Calculator Help:\n\n• Use Deg/Rad for angle modes\n• Click buttons or type directly\n• Drag the header to move calculator\n• Close with × or minimize with ―');
-                });
-            }
-            
-            // Initialize drag functionality
-            initializeDrag();
-            
-            // Initialize angle mode listeners
-            const degMode = document.getElementById('degMode');
-            const radMode = document.getElementById('radMode');
-            
-            degMode.addEventListener('change', () => {
-                angleMode = 'Deg';
-                console.log('Angle mode changed to:', angleMode);
-            });
-            
-            radMode.addEventListener('change', () => {
-                angleMode = 'Rad';
-                console.log('Angle mode changed to:', angleMode);
-            });
-            
-            console.log('Calculator initialized');
-        }
-
-        // Toggle calculator visibility
-        function toggleCalculator() {
-            const modal = document.getElementById('calculatorModal');
-            const btn = document.getElementById('calculatorBtn');
-            
-            calculatorOpen = !calculatorOpen;
-            
-            if (calculatorOpen) {
-                modal.style.display = 'flex';
-                btn.style.display = 'none';
-                
-                // Set initial position
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                const modalWidth = modal.offsetWidth || 590;
-                const modalHeight = modal.offsetHeight || 400;
-                
-                modal.style.position = 'fixed';
-                modal.style.left = (viewportWidth - modalWidth - 20) + 'px';
-                modal.style.top = (viewportHeight - modalHeight - 100) + 'px';
-                
-                // Focus on display
-                setTimeout(() => {
-                    document.getElementById('calcDisplay').focus();
-                }, 100);
-            } else {
-                modal.style.display = 'none';
-                btn.style.display = 'flex';
-            }
-            
-            console.log('Calculator toggled. Open:', calculatorOpen);
-        }
-
-        // Initialize drag functionality
-        function initializeDrag() {
-            const modal = document.getElementById('calculatorModal');
-            const header = modal.querySelector('.calculator-header');
-            
-            header.addEventListener('mousedown', startDrag);
-            header.addEventListener('touchstart', startDragTouch);
-            
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('touchmove', dragTouch);
-            document.addEventListener('mouseup', stopDrag);
-            document.addEventListener('touchend', stopDrag);
-            
-            // Prevent button drag
-            const buttons = modal.querySelectorAll('.calc-btn, .calculator-close, .help-btn, .minimize-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                });
-                btn.addEventListener('touchstart', (e) => {
-                    e.stopPropagation();
-                });
-            });
-        }
-
-        function startDrag(e) {
-            if (e.target.closest('.calculator-close') || 
-                e.target.closest('.calc-btn') || 
-                e.target.closest('.help-btn') || 
-                e.target.closest('.minimize-btn')) {
-                return;
-            }
-            
-            const modal = document.getElementById('calculatorModal');
-            isDragging = true;
-            
-            const rect = modal.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-            
-            modal.style.cursor = 'grabbing';
-            e.preventDefault();
-        }
-
-        function startDragTouch(e) {
-            if (e.target.closest('.calculator-close') || 
-                e.target.closest('.calc-btn') || 
-                e.target.closest('.help-btn') || 
-                e.target.closest('.minimize-btn')) {
-                return;
-            }
-            
-            const modal = document.getElementById('calculatorModal');
-            isDragging = true;
-            
-            const touch = e.touches[0];
-            const rect = modal.getBoundingClientRect();
-            dragOffsetX = touch.clientX - rect.left;
-            dragOffsetY = touch.clientY - rect.top;
-            
-            modal.style.cursor = 'grabbing';
-            e.preventDefault();
-        }
-
-        function drag(e) {
-            if (!isDragging) return;
-            
-            const modal = document.getElementById('calculatorModal');
-            const x = e.clientX - dragOffsetX;
-            const y = e.clientY - dragOffsetY;
-            
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            const modalWidth = modal.offsetWidth;
-            const modalHeight = modal.offsetHeight;
-            
-            let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
-            let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
-            
-            modal.style.left = finalX + 'px';
-            modal.style.top = finalY + 'px';
-            
-            e.preventDefault();
-        }
-
-        function dragTouch(e) {
-            if (!isDragging) return;
-            
-            const modal = document.getElementById('calculatorModal');
-            const touch = e.touches[0];
-            const x = touch.clientX - dragOffsetX;
-            const y = touch.clientY - dragOffsetY;
-            
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            const modalWidth = modal.offsetWidth;
-            const modalHeight = modal.offsetHeight;
-            
-            let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
-            let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
-            
-            modal.style.left = finalX + 'px';
-            modal.style.top = finalY + 'px';
-            
-            e.preventDefault();
-        }
-
-        function stopDrag() {
-            isDragging = false;
-            const modal = document.getElementById('calculatorModal');
-            modal.style.cursor = 'move';
-        }
-
-        // Calculator functions
-        function addToDisplay(value) {
-            const display = document.getElementById('calcDisplay');
-            const resultDisplay = document.getElementById('resultDisplay');
-            
-            if (resultDisplay.value !== '0' && display.value === '') {
-                resultDisplay.value = '0';
-            }
-            
-            display.value += value;
-            display.focus();
-        }
-
-        function clearCalculator() {
-            document.getElementById('calcDisplay').value = '';
-            document.getElementById('resultDisplay').value = '0';
-        }
-
-        function backspace() {
-            const display = document.getElementById('calcDisplay');
-            display.value = display.value.slice(0, -1);
-        }
-
-        function calculateResult() {
-            const display = document.getElementById('calcDisplay');
-            const resultDisplay = document.getElementById('resultDisplay');
-            
-            try {
-                let expression = display.value
-                    .replace(/×/g, '*')
-                    .replace(/÷/g, '/')
-                    .replace(/\^/g, '**')
-                    .replace(/√/g, 'Math.sqrt')
-                    .replace(/π/g, 'Math.PI')
-                    .replace(/e(?![a-zA-Z])/g, 'Math.E');
-                
-                const allowedChars = /^[0-9+\-*/().^MathsincostanasinacosatanlogexpsqrtPIElE, ]+$/;
-                
-                if (!allowedChars.test(expression)) {
-                    throw new Error('Invalid characters');
-                }
-                
-                const safeEval = new Function('return ' + expression);
-                let result = safeEval();
-                
-                if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
-                    result = Math.round(result * 100000000) / 100000000;
-                }
-                
-                resultDisplay.value = result;
-                
-            } catch (error) {
-                resultDisplay.value = 'Error';
-                setTimeout(() => {
-                    resultDisplay.value = '0';
-                }, 1500);
-            }
-        }
-
-        function calcFunction(func) {
-            const display = document.getElementById('calcDisplay');
-            const value = parseFloat(display.value) || 0;
-            let result;
-            
-            switch(func) {
-                case 'sin':
-                case 'cos':
-                case 'tan':
-                    result = angleMode === 'Deg' ? 
-                        Math[func](value * Math.PI / 180) : 
-                        Math[func](value);
-                    break;
-                case 'sin⁻¹':
-                    result = angleMode === 'Deg' ? 
-                        Math.asin(value) * 180 / Math.PI : 
-                        Math.asin(value);
-                    break;
-                case 'cos⁻¹':
-                    result = angleMode === 'Deg' ? 
-                        Math.acos(value) * 180 / Math.PI : 
-                        Math.acos(value);
-                    break;
-                case 'tan⁻¹':
-                    result = angleMode === 'Deg' ? 
-                        Math.atan(value) * 180 / Math.PI : 
-                        Math.atan(value);
-                    break;
-                case 'sinh':
-                    result = Math.sinh(value);
-                    break;
-                case 'cosh':
-                    result = Math.cosh(value);
-                    break;
-                case 'tanh':
-                    result = Math.tanh(value);
-                    break;
-                case 'ln':
-                    result = Math.log(value);
-                    break;
-                case 'log':
-                    result = Math.log10(value);
-                    break;
-                case 'eˣ':
-                    result = Math.exp(value);
-                    break;
-                case '10ˣ':
-                    result = Math.pow(10, value);
-                    break;
-                case 'x²':
-                    result = value * value;
-                    break;
-                case 'x³':
-                    result = value * value * value;
-                    break;
-                case '1/x':
-                    result = 1 / value;
-                    break;
-                case 'n!':
-                    result = factorial(value);
-                    break;
-                case '|x|':
-                    result = Math.abs(value);
-                    break;
-                default:
-                    return;
-            }
-            
-            document.getElementById('resultDisplay').value = result;
-            document.getElementById('calcDisplay').value = result;
-        }
-
-        function factorial(n) {
-            if (n < 0) return NaN;
-            if (n === 0 || n === 1) return 1;
-            let result = 1;
-            for (let i = 2; i <= n; i++) {
-                result *= i;
-            }
-            return result;
-        }
-
-        function memoryFunction(func) {
-            const value = parseFloat(document.getElementById('resultDisplay').value) || 0;
-            
-            switch(func) {
-                case 'MC':
-                    memory = 0;
-                    break;
-                case 'MR':
-                    document.getElementById('calcDisplay').value = memory;
-                    break;
-                case 'MS':
-                    memory = value;
-                    break;
-                case 'M+':
-                    memory += value;
-                    break;
-                case 'M-':
-                    memory -= value;
-                    break;
-            }
-        }
-
-        // Submit quiz function
+        // ----- Submission & results -----
         async function submitQuiz() {
-            const confirmSubmit = confirm(`Ready to Submit?\n\nAre you ready to submit your Exponential Functions Quiz?`);
-            
-            if (!confirmSubmit) {
-                return;
-            }
-
-            isQuizActive = false; 
-
-            if (!username || !email) {
-                alert("Error: User session data not found. Please log in.");
-                return;
-            }
-
-            trackQuestionTime();
-            const quizEndTime = new Date();
-            const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
-
-            let score = 0;
-            let totalPossiblePoints = 0;
-            const questionResults = [];
-            const difficultyBreakdown = {
-                easy: { attempted: 0, correct: 0, points: 0 },
-                medium: { attempted: 0, correct: 0, points: 0 },
-                hard: { attempted: 0, correct: 0, points: 0 }
-            };
-            
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                totalPossiblePoints += question.points || 1;
-                
-                let isCorrect = false;
-                
-                if (question.type === 'multiple_select') {
-                    if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                        const userNorm = userAnswer.map(ans => 
-                            answerNormalizer.normalizeAnswer(ans, 'text_input')
-                        ).sort();
-                        const correctNorm = question.correct_answer.map(ans => 
-                            answerNormalizer.normalizeAnswer(ans, 'text_input')
-                        ).sort();
-                        isCorrect = userNorm.length === correctNorm.length &&
-                                   userNorm.every((ans, idx) => ans === correctNorm[idx]);
+            if (!confirm(`Ready to submit? You won't be able to change answers.`)) return;
+            if (!username||!email) { alert("Session lost"); return; }
+            trackQuestionTime(); isQuizActive = false;
+            const quizEnd = new Date(), totalTime = Math.floor((quizEnd-quizStartTime)/1000);
+            let score = 0, totalPossible = 0;
+            const results = [], diffBreak = { easy:{attempted:0,correct:0,points:0}, medium:{attempted:0,correct:0,points:0}, hard:{attempted:0,correct:0,points:0} };
+            questions.forEach((q,idx)=>{
+                const userAns = userAnswers[idx];
+                totalPossible += q.points||1;
+                let correct = false;
+                const normUser = answerNormalizer.normalizeAnswer(userAns, q.type);
+                const normCorrect = answerNormalizer.normalizeAnswer(q.correct_answer, q.type);
+                if (q.type === 'multiple_select') {
+                    if (Array.isArray(userAns) && Array.isArray(q.correct_answer)) {
+                        const u = userAns.map(a=>answerNormalizer.normalizeAnswer(a,q.type)).sort();
+                        const c = q.correct_answer.map(a=>answerNormalizer.normalizeAnswer(a,q.type)).sort();
+                        correct = u.length===c.length && u.every((v,i)=>v===c[i]);
                     }
-                } else if (question.type === 'multiple_choice') {
-                    const normalizeAnswer = (answer) => (answer || '').toString().trim().toLowerCase();
-                    isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(question.correct_answer);
+                } else if (q.type === 'numeric' || q.type === 'numeric_input') {
+                    const uNum = answerNormalizer.normalizeNumeric(userAns);
+                    const cNum = answerNormalizer.normalizeNumeric(q.correct_answer);
+                    if (uNum === cNum) correct = true;
+                    else if (isFinite(uNum) && isFinite(cNum)) correct = Math.abs(uNum-cNum) <= Math.max(Math.abs(cNum)*0.01,0.01);
+                    if (!correct && q.alternative_answers) correct = q.alternative_answers.some(alt=> {
+                        const aNum = answerNormalizer.normalizeNumeric(alt);
+                        if (uNum === aNum) return true;
+                        if (isFinite(uNum)&&isFinite(aNum)) return Math.abs(uNum-aNum) <= Math.max(Math.abs(aNum)*0.01,0.01);
+                        return false;
+                    });
                 } else {
-                    const userNorm = answerNormalizer.normalizeAnswer(userAnswer, question.type);
-                    const correctNorm = answerNormalizer.normalizeAnswer(question.correct_answer, question.type);
-                    isCorrect = userNorm === correctNorm;
+                    correct = normUser === normCorrect;
+                    if (!correct && q.alternative_answers) correct = q.alternative_answers.some(alt => answerNormalizer.normalizeAnswer(alt,q.type) === normUser);
                 }
-
-                if (isCorrect) {
-                    score += question.points || 1;
-                }
-
-                difficultyBreakdown[question.difficulty].attempted++;
-                if (isCorrect) {
-                    difficultyBreakdown[question.difficulty].correct++;
-                    difficultyBreakdown[question.difficulty].points += question.points || 1;
-                }
-                
-                questionResults.push({
-                    questionNumber: index + 1,
-                    questionText: question.question_text,
-                    difficulty: question.difficulty,
-                    points: question.points || 1,
-                    userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
-                    correctAnswer: question.correct_answer.toString(),
-                    explanation: question.explanation || '',
-                    isCorrect: isCorrect,
-                    timeTaken: questionTimes[index] || 0
+                if (correct) score += q.points||1;
+                const d = q.difficulty || 'medium';
+                diffBreak[d].attempted++;
+                if (correct) { diffBreak[d].correct++; diffBreak[d].points += q.points||1; }
+                results.push({
+                    questionId: q._id, questionNumber: idx+1, questionText: q.question_text,
+                    difficulty: d, points: q.points||1, userAnswer: userAns?.toString()||'No answer',
+                    correctAnswer: q.correct_answer?.toString()||'', explanation: q.explanation||'',
+                    isCorrect: correct, timeTaken: questionTimes[idx]||0
                 });
             });
-
             const quizData = {
-                topic: 'exponential_function',
-                quizType: 'practice',
-                score: score,
-                maxPossibleScore: totalPossiblePoints,
-                totalQuestions: questions.length,
-                correctAnswers: questionResults.filter(q => q.isCorrect).length,
-                percentage: Math.round((score / totalPossiblePoints) * 100),
-                difficultyBreakdown: difficultyBreakdown,
-                questionResults: questionResults,
-                startTime: quizStartTime,
-                endTime: quizEndTime,
-                totalTimeTaken: totalTimeTaken,
+                topic: 'exponential_function', quizType: 'practice', score, maxPossibleScore: totalPossible,
+                totalQuestions: questions.length, correctAnswers: results.filter(r=>r.isCorrect).length,
+                percentage: Math.round((score/totalPossible)*100), difficultyBreakdown: diffBreak,
+                questionResults: results, startTime: quizStartTime, endTime: quizEnd, totalTimeTaken: totalTime,
                 isCompleted: true
             };
-
             try {
-                document.getElementById('submitText').style.display = 'none';
-                document.getElementById('submitLoading').style.display = 'inline-block';
-                document.getElementById('submitBtn').disabled = true;
-
-                console.log('Submitting quiz data...');
-                
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        email: email,
-                        username: username,
-                        quizData: quizData
-                    })
+                document.getElementById('submitText').style.display='none';
+                document.getElementById('submitLoading').style.display='inline-block';
+                document.getElementById('submitBtn').disabled=true;
+                const resp = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
+                    method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+                    body: JSON.stringify({ email, username, quizData })
                 });
-
-                if (response.ok) {
-                    console.log('Quiz submitted successfully');
-                    displayDetailedResults(quizData);
-                } else {
-                    const errorText = await response.text();
-                    console.error('Failed to submit quiz:', errorText);
-                    alert('Failed to submit quiz. Please try again.');
-                    
-                    document.getElementById('submitText').style.display = 'inline';
-                    document.getElementById('submitLoading').style.display = 'none';
-                    document.getElementById('submitBtn').disabled = false;
-                    return;
-                }
-            } catch (error) {
-                console.error('Error submitting quiz:', error);
-                alert('Error submitting quiz. Please check your connection and try again.');
-                document.getElementById('submitText').style.display = 'inline';
-                document.getElementById('submitLoading').style.display = 'none';
-                document.getElementById('submitBtn').disabled = false;
-                return;
+                if (resp.ok) displayDetailedResults(quizData);
+                else throw new Error('Submit failed');
+            } catch(e) { alert('Submission error'); console.error(e);
+                document.getElementById('submitText').style.display='inline';
+                document.getElementById('submitLoading').style.display='none';
+                document.getElementById('submitBtn').disabled=false;
             }
         }
 
-        function displayDetailedResults(quizData) {
-            document.getElementById('quizContainer').style.display = 'none';
-            
-            const resultsContainer = document.getElementById('resultsContainer');
-            resultsContainer.style.display = 'block';
-            
-            const scoreDisplay = document.querySelector('.score-display');
-            scoreDisplay.innerHTML = `
-                <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
-                <p>Exponential Functions Quiz Completed Successfully!</p>
-                <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
-                    <div>
-                        <strong>Easy Questions</strong><br>
-                        ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
+        function displayDetailedResults(qd) {
+            document.getElementById('quizContainer').style.display='none';
+            const rc = document.getElementById('resultsContainer');
+            rc.style.display='block';
+            const sd = document.querySelector('.score-display');
+            sd.innerHTML = `<h2>${qd.score}/${qd.maxPossibleScore} (${qd.percentage}%)</h2><p>Exponential Functions Quiz Completed</p>
+                <div style="margin-top:20px; display:flex; justify-content:space-around;">
+                <div><strong>Easy</strong><br>${qd.difficultyBreakdown.easy.correct}/${qd.difficultyBreakdown.easy.attempted}</div>
+                <div><strong>Medium</strong><br>${qd.difficultyBreakdown.medium.correct}/${qd.difficultyBreakdown.medium.attempted}</div>
+                <div><strong>Hard</strong><br>${qd.difficultyBreakdown.hard.correct}/${qd.difficultyBreakdown.hard.attempted}</div></div>
+                <p style="margin-top:15px;">Time: ${Math.floor(qd.totalTimeTaken/60)}m ${qd.totalTimeTaken%60}s</p>`;
+            const rev = document.createElement('div');
+            rev.style.cssText = 'margin-top:30px; text-align:left; background:white; border-radius:10px; padding:20px;';
+            rev.innerHTML = `<h3 style="text-align:center;">Exponential Questions Review</h3>` +
+                qd.questionResults.map((r,i)=>`
+                <div style="border:2px solid ${r.isCorrect?'#28a745':'#dc3545'}; border-radius:8px; padding:15px; margin-bottom:15px; background:${r.isCorrect?'#f8fff9':'#fff8f8'};">
+                    <div style="display:flex; align-items:center; margin-bottom:10px;">
+                        <span style="background:${r.isCorrect?'#28a745':'#dc3545'}; color:white; padding:4px 8px; border-radius:50%; margin-right:10px;">${r.questionNumber||i+1}</span>
+                        <span style="font-weight:bold; color:${r.isCorrect?'#28a745':'#dc3545'};">${r.isCorrect?'✓ Correct':'✗ Incorrect'}</span>
+                        <span style="margin-left:auto; background:#6c757d; color:white; padding:2px 8px; border-radius:12px; font-size:12px;">${r.difficulty}</span>
                     </div>
-                    <div>
-                        <strong>Medium Questions</strong><br>
-                        ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
-                    </div>
-                    <div>
-                        <strong>Hard Questions</strong><br>
-                        ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
-                    </div>
-                </div>
-                <p style="margin-top: 15px; font-size: 0.9em;">
-                    Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
-                </p>
-            `;
+                    <div style="margin-bottom:8px;"><strong>Q:</strong> ${r.questionText}</div>
+                    <div><strong>Your answer:</strong> <span style="color:${r.isCorrect?'#28a745':'#dc3545'};">${r.userAnswer}</span></div>
+                    <div><strong>Correct answer:</strong> <span style="color:#28a745;">${r.correctAnswer}</span></div>
+                    <div><strong>Explanation:</strong> ${r.explanation}</div>
+                    <div style="font-size:0.9em; color:#666;">Time: ${r.timeTaken}s | Points: ${r.points}</div>
+                </div>`).join('');
+            rc.appendChild(rev);
         }
 
-        function goback() {
-            window.location.href = 'iitm_math.html';
+        function goback() { window.location.href = 'iitm_math.html'; }
+
+        // ----- Calculator functions -----
+        let calculatorOpen = false, isDragging = false, dragX=0,dragY=0, angleMode='Deg', memory=0;
+        function toggleCalculator() {
+            const m = document.getElementById('calculatorModal'), b = document.getElementById('calculatorBtn');
+            calculatorOpen = !calculatorOpen;
+            if (calculatorOpen) { m.style.display='flex'; b.style.display='none'; 
+                if (!m.style.left) { const vw=window.innerWidth, vh=window.innerHeight; m.style.left = (vw-590-20)+'px'; m.style.top = (vh-400-100)+'px'; } 
+                setTimeout(()=>document.getElementById('calcDisplay').focus(),100); 
+            } else { m.style.display='none'; b.style.display='flex'; }
+        }
+        function initializeDrag() {
+            const m = document.getElementById('calculatorModal'), h = m.querySelector('.calculator-header');
+            h.addEventListener('mousedown', startDrag); document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag);
+        }
+        function startDrag(e) { if (e.target.closest('.calculator-close')||e.target.closest('.calc-btn')||e.target.closest('.help-btn')||e.target.closest('.minimize-btn')) return;
+            isDragging = true; const rect = document.getElementById('calculatorModal').getBoundingClientRect();
+            dragX = e.clientX - rect.left; dragY = e.clientY - rect.top; e.preventDefault(); }
+        function drag(e) { if (!isDragging) return; const m = document.getElementById('calculatorModal');
+            let x = e.clientX - dragX, y = e.clientY - dragY;
+            x = Math.max(0, Math.min(x, window.innerWidth - m.offsetWidth));
+            y = Math.max(0, Math.min(y, window.innerHeight - m.offsetHeight));
+            m.style.left = x+'px'; m.style.top = y+'px'; e.preventDefault(); }
+        function stopDrag() { isDragging = false; document.getElementById('calculatorModal').style.cursor='move'; }
+        function addToDisplay(v) { const d=document.getElementById('calcDisplay'), r=document.getElementById('resultDisplay'); if(r.value!=='0' && d.value==='') r.value='0'; d.value+=v; d.focus(); }
+        function clearCalculator() { document.getElementById('calcDisplay').value=''; document.getElementById('resultDisplay').value='0'; }
+        function backspace() { const d=document.getElementById('calcDisplay'); d.value = d.value.slice(0,-1); }
+        function calculateResult() {
+            const d=document.getElementById('calcDisplay'), r=document.getElementById('resultDisplay');
+            try { let expr = d.value.replace(/×/g,'*').replace(/÷/g,'/').replace(/\^/g,'**').replace(/√/g,'Math.sqrt').replace(/π/g,'Math.PI').replace(/e(?![a-zA-Z])/g,'Math.E');
+                if (!/^[0-9+\-*/().^MathsincostanasinacosatanlogexpsqrtPIElE, ]+$/.test(expr)) throw Error();
+                const res = new Function('return '+expr)();
+                r.value = (typeof res==='number'&&!isNaN(res)&&isFinite(res)) ? Math.round(res*1e8)/1e8 : res;
+            } catch { r.value='Error'; setTimeout(()=>r.value='0',1500); }
+        }
+        function calcFunction(f) {
+            const d = document.getElementById('calcDisplay'); let val = parseFloat(d.value) || 0, res;
+            const toDeg = (v) => v * 180 / Math.PI, toRad = (v) => v * Math.PI / 180;
+            if (f === 'sin'||f==='cos'||f==='tan') res = angleMode==='Deg' ? Math[f](val*Math.PI/180) : Math[f](val);
+            else if (f === 'sin⁻¹') res = angleMode==='Deg' ? toDeg(Math.asin(val)) : Math.asin(val);
+            else if (f === 'cos⁻¹') res = angleMode==='Deg' ? toDeg(Math.acos(val)) : Math.acos(val);
+            else if (f === 'tan⁻¹') res = angleMode==='Deg' ? toDeg(Math.atan(val)) : Math.atan(val);
+            else if (f === 'sinh') res = Math.sinh(val);
+            else if (f === 'cosh') res = Math.cosh(val);
+            else if (f === 'tanh') res = Math.tanh(val);
+            else if (f === 'ln') res = Math.log(val);
+            else if (f === 'log') res = Math.log10(val);
+            else if (f === 'eˣ') res = Math.exp(val);
+            else if (f === '10ˣ') res = Math.pow(10,val);
+            else if (f === 'x²') res = val*val;
+            else if (f === 'x³') res = val*val*val;
+            else if (f === '1/x') res = 1/val;
+            else if (f === 'n!') { res = 1; for(let i=2;i<=val;i++) res*=i; }
+            else if (f === '|x|') res = Math.abs(val);
+            else return;
+            document.getElementById('resultDisplay').value = res;
+            document.getElementById('calcDisplay').value = res;
+        }
+        function memoryFunction(f) { 
+            const v = parseFloat(document.getElementById('resultDisplay').value)||0;
+            if (f==='MC') memory=0; else if (f==='MR') document.getElementById('calcDisplay').value = memory;
+            else if (f==='MS') memory = v; else if (f==='M+') memory += v; else if (f==='M-') memory -= v;
         }
 
-        // Initialize everything when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing...');
-            
-            // Initialize calculator first (so it's always available)
-            initializeCalculator();
-            
-            // Then initialize quiz
-            setTimeout(() => {
-                initializeQuiz();
-            }, 100);
+        // ----- Init -----
+        document.addEventListener('DOMContentLoaded', async function() {
+            initializeAntiCheating();
+            initializeInfoBubble();
+            initializeDrag();
+            document.getElementById('degMode').addEventListener('change',()=>angleMode='Deg');
+            document.getElementById('radMode').addEventListener('change',()=>angleMode='Rad');
+            const sessOk = await fetchSessionInfo();
+            if (sessOk) {
+                const qsOk = await loadQuestions();
+                if (qsOk) {
+                    initializeQuizTiming(); isQuizActive = true;
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('quizContainer').style.display = 'block';
+                    renderCurrentQuestion();
+                    updateProgress();
+                }
+            }
         });
-
     </script>
 </body>
 </html>
-
-
