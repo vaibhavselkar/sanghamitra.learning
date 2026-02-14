@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkAuth() {
-        fetch('http://localhost:5000/api/check-auth', {
+        fetch('https://sanghamitra-learnworld.vercel.app/api/check-auth', {
             method: 'GET',
             credentials: 'include'
         })
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const confirmLogout = window.confirm("Do you really want to logout?");
                     if (confirmLogout) {
                         try {
-                            const response = await fetch('http://localhost:5000/api/logout', {
+                            const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/logout', {
                                 method: 'GET',
                                 credentials: 'include'
                             });
@@ -74,4 +74,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadNavbar(); // Initial load of navbar and authentication status
 });
+
 
