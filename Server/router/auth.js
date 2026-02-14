@@ -45,6 +45,10 @@ const IITM_Maths_2_Score = require('../model/iitm_math2_scores')
 const IITM_Stats_2_Question = require('../model/iitm_stats2_questions')
 const IITM_Stats_2_Score = require('../model/iitm_stats2_scores')
 
+const iitm_maths2_scores_databases = require('../model/iitmMaths2ScoresSchema');
+const IITMath2Question = require('../model/iitmMath2QuestionsSchema');
+
+
 const Question = require('../model/pdsa_Questions');
 const pdsaSubmission = require('../model/pdsa_Submission');
 const CodingQuestion = require('../model/coding_Questions'); 
@@ -2534,6 +2538,181 @@ router.post('/iitmmath_scores', async (req, res) => {
   }
 });
 
+
+// Maths2
+
+
+router.get('/iitm_maths2_questions_databases/:topic', async (req, res) => {
+  try {
+    const { topic } = req.params;
+    const { email, count = 50 } = req.query;
+
+    // IMPORTANT: Don't decode - use EXACT match
+    // The topic in DB is "Vector_and_Matrices" exactly
+    console.log('🔍 Topic received:', topic);
+    console.log('🗄️ Database name:', mongoose.connection.name);
+    console.log('📁 Collection name:', IITMath2Question.collection.name);
+
+    // Count ALL documents first
+    const totalDocs = await IITMath2Question.countDocuments({});
+    console.log('📊 Total documents in collection:', totalDocs);
+
+    if (totalDocs === 0) {
+      return res.status(404).json({ 
+        error: 'No questions found in database',
+        message: 'Please seed the database with questions first'
+      });
+    }
+
+    // Get questions - use EXACT match, no decoding needed
+    // The frontend sends "Vector_and_Matrices" which matches DB exactly
+    let allQuestions = await IITMath2Question.find({
+      topic: topic  // Use the topic directly as received
+    });
+
+    console.log(`📊 Found ${allQuestions.length} questions for topic: "${topic}"`);
+    
+    // If no questions found, try case-insensitive search as fallback
+    if (allQuestions.length === 0) {
+      console.log('⚠️ No exact matches, trying case-insensitive search...');
+      allQuestions = await IITMath2Question.find({
+        topic: { $regex: new RegExp(`^${topic}$`, 'i') }
+      });
+      console.log(`📊 Found ${allQuestions.length} questions with case-insensitive search`);
+    }
+
+    // If still no questions, show all available topics
+    if (allQuestions.length === 0) {
+      const availableTopics = await IITMath2Question.distinct('topic');
+      console.log('📋 Available topics in database:', availableTopics);
+      
+      return res.status(404).json({
+        error: 'No questions found for this topic',
+        message: `Topic "${topic}" not found. Available topics: ${availableTopics.join(', ')}`,
+        availableTopics: availableTopics
+      });
+    }
+
+    // Check if we have enough questions
+    const totalQuestionsInPool = allQuestions.length;
+    
+    if (totalQuestionsInPool < parseInt(count)) {
+      console.warn(`⚠️ Only ${totalQuestionsInPool} questions available, requested ${count}`);
+    }
+
+    // Enhanced shuffle for better randomness
+    const shuffledQuestions = [...allQuestions];
+    
+    // Fisher-Yates shuffle
+    for (let i = shuffledQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
+    }
+
+    // Take exactly the requested count (or all if less than requested)
+    const requestedCount = Math.min(parseInt(count), shuffledQuestions.length);
+    const selectedQuestions = shuffledQuestions.slice(0, requestedCount);
+    
+    // Optional: Sort by question_number for consistent display
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`✅ Returning ${selectedQuestions.length} random questions for ${topic}`);
+
+    res.json({
+      questions: selectedQuestions,
+      metadata: {
+        totalQuestionsInPool: totalQuestionsInPool,
+        selectedCount: selectedQuestions.length,
+        requestedCount: parseInt(count),
+        topic: topic,
+        isRandom: true,
+        timestamp: new Date().toISOString()
+      }
+    });
+  
+  } catch (error) {
+    console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
+    res.status(500).json({ 
+      error: `Failed to fetch ${req.params.topic} questions`,
+      details: error.message 
+    });
+  }
+});
+
+router.post('/iitm_maths2_scores_databases', async (req, res) => {
+  try {
+    const { email, username, quizData } = req.body;
+    
+    console.log('Received request body:', JSON.stringify(req.body, null, 2));
+    
+    if (!email || !username || !quizData) {
+      return res.status(400).json({ error: 'Email, username and quizData are required' });
+    }
+    
+    // Extract question IDs from the quiz results
+    const completedQuestionIds = quizData.questionResults
+      ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
+      : [];
+    
+    console.log(`Quiz completed with ${completedQuestionIds.length} question IDs:`, completedQuestionIds);
+    
+    // FIXED: Use iitm_math_score instead of Statistics_score
+    let user = await iitm_maths2_scores_databases.findOne({ email });
+    
+    if (!user) {
+      // Create new user with completed questions and score
+      user = new iitm_maths2_scores_databases({ 
+        username, 
+        email, 
+        completedQuestionIds: completedQuestionIds,
+        quizScores: [quizData] // Use quizScores to match your iitm schema
+      });
+    } else {
+      user.username = username;
+      user.quizScores.push(quizData); // Use quizScores to match your iitm schema
+      
+      // Add new completed questions to the array (avoid duplicates)
+      const newCompletedIds = completedQuestionIds.filter(
+        id => !user.completedQuestionIds.includes(id)
+      );
+      user.completedQuestionIds.push(...newCompletedIds);
+      
+      console.log(`Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`);
+    }
+    
+    await user.save();
+    
+    res.status(201).json({ 
+      message: 'Quiz result saved successfully', 
+      completedQuestionsCount: user.completedQuestionIds.length,
+      user 
+    });
+    
+  } catch (error) {
+    console.error('Error saving quiz result:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/iitm_maths2_scores_databases', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (email) {
+      const user = await iitm_maths2_scores_databases.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, data: user });
+    } else {
+      const users = await iitm_maths2_scores_databases.find({});
+      res.json({ success: true, data: users });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // fetching users' predaignostic data
 
 router.get('/arithmetic_responses', async (req, res) => {
@@ -3208,6 +3387,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
