@@ -1662,7 +1662,7 @@
 
         async function fetchSessionInfo() {
             try {
-                const response = await fetch('http://localhost:5000/api/session-info', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                     credentials: 'include'
                 });
 
@@ -1692,7 +1692,7 @@
                 }
                 
                 // NEW: Pass email to get personalized question set
-                const response = await fetch(`http://localhost:5000/api/iitm_maths2_questions_databases/Vectors_and_Matrices?email=${encodeURIComponent(email)}&count=50`, {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm_maths2_questions_databases/Vectors_and_Matrices?email=${encodeURIComponent(email)}&count=50`, {
                     credentials: 'include'
                 });
                 
@@ -2377,7 +2377,7 @@
 
                 console.log('Submitting Vectors_and_Matrices quiz data:', quizData);
                 
-                const response = await fetch('http://localhost:5000/api/iitm_maths2_scores_databases', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_maths2_scores_databases', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -2389,7 +2389,7 @@
                 });
 
                 if (response.ok) {
-                    console.log('Domain and Range quiz submitted successfully');
+                    console.log('Vectors_and_Matrices quiz submitted successfully');
                     displayDetailedResults(quizData);
                 } else {
                     const errorText = await response.text();
@@ -2525,7 +2525,7 @@
 
         async function resetUserProgress() {
             try {
-                const response = await fetch('http://localhost:5000/api/reset-user-progress', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -2847,6 +2847,7 @@
     </script>
 </body>
 </html>
+
 
 
 
