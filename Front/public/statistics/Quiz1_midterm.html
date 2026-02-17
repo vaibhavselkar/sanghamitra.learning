@@ -2251,11 +2251,6 @@ function showValidationFeedback(questionIndex, feedback, suggestion) {
     const difficulty = question.difficulty || 'medium';
     const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
     
-    // Get topic name for display
-    const topicName = question.originalTopic || question.topic || 'General';
-    const topicColor = getTopicColor(topicName);
-
-    // Add image if available
    // Add image if available
 let imageHtml = '';
 if (question.img_file || question.image_file) {
@@ -2289,9 +2284,7 @@ if (question.img_file || question.image_file) {
                 <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                     ${difficultyText}
                 </span>
-                <span style="background: ${topicColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-transform: uppercase;">
-                    ${topicName}
-                </span>
+               
             </div>
         </div>
         <div class="question-text" id="question-text-${currentQuestionIndex}">${questionText}</div>
@@ -2331,18 +2324,6 @@ if (question.img_file || question.image_file) {
         });
     }
 }    
-
-        function getTopicColor(topicName) {
-            const topicColors = {
-                'Domain and Range': '#e83e8c',
-                'Quadratic Functions': '#20c997',
-                'Linear Functions': '#fd7e14',
-                'Sets and Relations': '#17a2b8',
-                'Polynomials': '#6f42c1',
-                'General': '#6c757d'
-            };
-            return topicColors[topicName] || '#6c757d';
-        }
 
               function restoreAnswer() {
                 const question = questions[currentQuestionIndex];
@@ -3298,3 +3279,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
