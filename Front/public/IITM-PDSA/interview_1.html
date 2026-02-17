@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Add Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <!-- Add these to head section after existing CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -198,124 +210,219 @@
             display: none; /* Hidden until all PDSA questions completed */
         }
 
-        .pdsa-section .chat-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 20px;
-        }
+        /* PDSA Section - Improved styling */
+.pdsa-section .chat-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    height: 100%;
+    min-height: 500px;
+}
 
-        .pdsa-section .chat-header {
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+.pdsa-section .chat-header {
+    padding-bottom: 15px;
+    border-bottom: 2px solid #eef2f7;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .pdsa-section .chat-header h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #1a237e;
-        }
+.pdsa-section .chat-header h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1a237e;
+    font-size: 18px;
+}
 
-        .pdsa-section .chat-messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            max-height: 300px;
-            padding-right: 10px;
-            margin-bottom: 15px;
-        }
+.pdsa-section .chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 400px;
+    padding-right: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
 
-        .pdsa-section .chat-messages::-webkit-scrollbar {
-            width: 6px;
-        }
+/* Remove box styling from questions */
+.pdsa-section .msg-interviewer, 
+.pdsa-section .msg-user {
+    margin-bottom: 20px;
+    padding: 0;
+    border-radius: 0;
+    position: relative;
+    background: transparent;
+    border-left: none;
+}
 
-        .pdsa-section .chat-messages::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
+.pdsa-section .msg-interviewer {
+    background: transparent;
+    border-left: none;
+}
 
-        .pdsa-section .chat-messages::-webkit-scrollbar-thumb {
-            background: #c5c5c5;
-            border-radius: 10px;
-        }
+.pdsa-section .msg-user {
+    background: transparent;
+    border-left: none;
+    margin-left: 0;
+    text-align: right;
+}
 
-        .pdsa-section .msg-interviewer, .pdsa-section .msg-user {
-            margin-bottom: 15px;
-            padding: 12px;
-            border-radius: 10px;
-            position: relative;
-        }
+.pdsa-section .msg-sender {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: #1a237e;
+}
 
-        .pdsa-section .msg-interviewer {
-            background: #f0f7ff;
-            border-left: 4px solid #2979ff;
-        }
+/* Make questions larger and free-form */
+.pdsa-section .msg-content {
+    font-size: 16px;
+    line-height: 1.7;
+}
 
-        .pdsa-section .msg-user {
-            background: #f8f9ff;
-            border-left: 4px solid #7e57c2;
-            margin-left: 20px;
-        }
+.pdsa-question {
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
+}
 
-        .pdsa-section .msg-sender {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 5px;
-            color: #1a237e;
-        }
+.pdsa-question strong {
+    font-size: 18px;
+    color: #1a237e;
+    display: block;
+    margin-bottom: 10px;
+}
 
-        .pdsa-section .msg-content {
-            font-size: 14px;
-            line-height: 1.5;
-        }
+.pdsa-question p {
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: #333;
+}
 
-        .pdsa-section .msg-time {
-            font-size: 11px;
-            color: #888;
-            text-align: right;
-            margin-top: 5px;
-        }
+/* Time stamp positioning */
+.pdsa-section .msg-time {
+    font-size: 11px;
+    color: #888;
+    text-align: right;
+    margin-top: 5px;
+}
 
-        .pdsa-section .chat-input-area {
-            margin-top: 15px;
-        }
+/* User messages aligned to right */
+.pdsa-section .msg-user .msg-sender {
+    text-align: right;
+    color: #7e57c2;
+}
 
-        .pdsa-section .chat-input-area textarea {
-            width: 100%;
-            height: 80px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            resize: none;
-            font-size: 14px;
-            margin-bottom: 10px;
-            transition: border 0.3s;
-        }
+.pdsa-section .msg-user .msg-content {
+    text-align: right;
+}
 
-        .pdsa-section .chat-input-area textarea:focus {
-            outline: none;
-            border-color: #2979ff;
-        }
+.pdsa-section .msg-user .msg-time {
+    text-align: right;
+}
 
-        .pdsa-section .chat-controls {
-            display: flex;
-            gap: 10px;
-        }
+/* MCQ options styling - keep box style for options only */
+.mcq-options {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-        .pdsa-section .btn-send {
-            background: #2979ff;
-            color: white;
-            flex-grow: 1;
-        }
+.mcq-option {
+    padding: 12px 16px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 15px;
+}
 
-        .pdsa-section .btn-voice {
-            background: #7e57c2;
-            color: white;
-        }
+.mcq-option:hover {
+    background: #f5f7fa;
+    border-color: #2979ff;
+}
+
+.mcq-option.selected {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    border-width: 2px;
+}
+
+/* Answer submitted confirmation - positioned to right */
+.question-complete {
+    background: #e8f5e9;
+    padding: 10px 16px;
+    border-radius: 18px;
+    border-left: none;
+    font-size: 14px;
+    display: inline-block;
+    color: #2e7d32;
+    margin-left: auto;
+    max-width: 80%;
+}
+
+/* Container for answer confirmation to align right */
+.msg-user .msg-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* Chat input area */
+.pdsa-section .chat-input-area {
+    margin-top: 20px;
+    border-top: 1px solid #eef2f7;
+    padding-top: 20px;
+}
+
+.pdsa-section .chat-input-area textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    resize: vertical;
+    font-size: 15px;
+    margin-bottom: 15px;
+    transition: border 0.3s, box-shadow 0.3s;
+    font-family: inherit;
+}
+
+.pdsa-section .chat-input-area textarea:focus {
+    outline: none;
+    border-color: #2979ff;
+    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.1);
+}
+
+.pdsa-section .chat-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.pdsa-section .btn-send {
+    background: #2979ff;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.pdsa-section .btn-voice {
+    background: #7e57c2;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-weight: 600;
+}
 
         /* Coding Questions Section */
         .coding-section {
@@ -1316,7 +1423,7 @@
             <div class="pdsa-section">
                 <div class="chat-container">
                     <div class="chat-header">
-                        <h4><i class="fas fa-comments"></i> Interview Questions (PDSA)</h4>
+                        <h4><i class="fas fa-comments"></i> Interview Questions</h4>
                         <div class="current-question-indicator" id="pdsaProgress">
                             Question 1 of 3
                         </div>
@@ -1404,8 +1511,10 @@
                     </div>
                     
                     <div class="code-editor">
-                        <div class="editor-line-numbers" id="lineNumbers"></div>
-                        <pre id="codeEditor" contenteditable="true" onkeyup="updateLineNumbers()" oninput="updateLineNumbers()"># Write your Python solution here</pre>
+                        <textarea id="codeEditor"># Write your Python solution here
+                    def solution():
+                        # Implement your solution
+                        pass</textarea>
                     </div>
                     
                     <div class="output-console">
@@ -1736,219 +1845,267 @@
         }
         
         // ============ FIXED PYOIDE CODE EXECUTION ============
-        async function runCodeWithPyodide() {
-            const code = codeEditor.textContent;
-            const language = document.getElementById('languageSelect').value;
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-            const question = codingQuestions[currentCodingQuestionIndex];
-            
-            // Clear previous output
-            outputConsole.innerHTML = '';
-            
-            // Show loading
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'output-loading';
-            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing code with Pyodide...';
-            outputConsole.appendChild(loadingDiv);
-            
-            // Disable run button during execution
-            const runBtn = document.querySelector('.btn-run');
-            runBtn.disabled = true;
-            runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
-            
-            try {
-                if (language !== 'python') {
-                    throw new Error('Only Python is supported for real execution with Pyodide. Other languages will be simulated.');
-                }
-                
-                if (!pyodide) {
-                    throw new Error('Python runtime not loaded');
-                }
-                
-                // Get test cases
-                const testCases = question?.testCases || [];
-                
-                // Prepare test wrapper - SIMPLIFIED VERSION
-                const testWrapper = createSimplePythonTestWrapper(code, question.functionName, testCases);
-                
-                console.log('Python code to execute:', testWrapper);
-                
-                // Execute with Pyodide
-                const startTime = performance.now();
-                
-                let testResults = [];
-                let outputText = '';
-                
-                try {
-                    // Clear any previous output
-                    await pyodide.runPythonAsync(`
+        // FIXED Pyodide execution with CodeMirror
+async function runCodeWithPyodide() {
+    const code = getCodeFromEditor(); // Get from CodeMirror
+    const language = document.getElementById('languageSelect').value;
+    const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
+    const question = codingQuestions[currentCodingQuestionIndex];
+    
+    // Clear previous output
+    outputConsole.innerHTML = '';
+    
+    // Show loading with better UI
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'output-loading';
+    loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing code with Pyodide...';
+    outputConsole.appendChild(loadingDiv);
+    
+    // Disable run button during execution
+    const runBtn = document.querySelector('.btn-run');
+    if (runBtn) {
+        runBtn.disabled = true;
+        runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+    }
+    
+    try {
+        if (language !== 'python') {
+            throw new Error('Currently only Python is supported with Pyodide. Other languages are coming soon!');
+        }
+        
+        if (!pyodide) {
+            throw new Error('Python runtime not loaded. Please wait or refresh the page.');
+        }
+        
+        // Get test cases
+        const testCases = question?.testCases || [];
+        
+        // Clear Pyodide's stdout/stderr
+        await pyodide.runPythonAsync(`
 import sys
 import io
 sys.stdout = io.StringIO()
 sys.stderr = io.StringIO()
-                    `);
-                    
-                    // Run the test wrapper
-                    await pyodide.runPythonAsync(testWrapper);
-                    
-                    // Get the output
-                    const stdout = pyodide.runPython("sys.stdout.getvalue()");
-                    const stderr = pyodide.runPython("sys.stderr.getvalue()");
-                    
-                    outputText = stdout;
-                    
-                    console.log('Python stdout:', stdout);
-                    console.log('Python stderr:', stderr);
-                    
-                    // Try to parse the output as JSON
-                    if (stdout && stdout.trim()) {
-                        try {
-                            // First, try to find JSON in the output
-                            const jsonMatch = stdout.match(/\[.*\]/s) || stdout.match(/\{.*\}/s);
-                            if (jsonMatch) {
-                                testResults = JSON.parse(jsonMatch[0]);
-                            } else {
-                                // Try parsing the entire output
-                                testResults = JSON.parse(stdout.trim());
-                            }
-                        } catch (jsonError) {
-                            console.error('JSON parse error:', jsonError, 'Output was:', stdout);
-                            
-                            // If we can't parse as JSON, create test results from any errors
-                            if (stderr && stderr.trim()) {
-                                throw new Error(`Python error: ${stderr}`);
-                            } else {
-                                throw new Error('Code executed but did not return valid test results in JSON format');
-                            }
-                        }
-                    } else {
-                        throw new Error('No output received from Python execution');
-                    }
-                    
-                } catch (pyError) {
-                    console.error('Python execution error:', pyError);
-                    
-                    // Check if there's stderr output
-                    const stderr = pyodide.runPython("sys.stderr.getvalue()");
-                    if (stderr && stderr.trim()) {
-                        throw new Error(`Python error: ${stderr}`);
-                    } else {
-                        throw new Error(`Execution failed: ${pyError.message}`);
-                    }
-                }
+        `);
+        
+        // Execute the user's code first
+        try {
+            await pyodide.runPythonAsync(code);
+        } catch (codeError) {
+            // If there's an error in the user's function definition, show it
+            throw new Error(`Code error: ${codeError.message}`);
+        }
+        
+        // In runCodeWithPyodide() function, replace the function call building section:
+
+        // Prepare test cases
+        let testResults = [];
+        const functionName = question?.functionName || 'solution';
+
+        for (let i = 0; i < testCases.length; i++) {
+            const testCase = testCases[i];
+            
+            try {
+                // FIXED: Handle different input types correctly
+                let callCode;
+                let inputArgs = testCase.input;
                 
-                const endTime = performance.now();
-                const executionTime = Math.round(endTime - startTime);
-                
-                // Clear loading
-                outputConsole.innerHTML = '';
-                
-                // Ensure testResults is an array
-                if (!Array.isArray(testResults)) {
-                    console.error('testResults is not an array:', testResults);
-                    testResults = [];
-                }
-                
-                // Display results
-                let passedCount = 0;
-                let totalTests = testResults.length;
-                
-                if (totalTests === 0) {
-                    outputConsole.innerHTML = `
-                        <div class="error-message">
-                            <i class="fas fa-exclamation-triangle"></i> No test results returned.
-                            <div class="code-output">
-                                <strong>Raw output:</strong><br>
-                                <pre>${outputText || 'No output'}</pre>
-                            </div>
-                        </div>
-                    `;
+                if (Array.isArray(inputArgs)) {
+                    // Multiple arguments - pass them directly
+                    callCode = `${functionName}(${inputArgs.map(arg => {
+                        if (typeof arg === 'string') return `'${arg}'`;
+                        return arg;
+                    }).join(', ')})`;
                 } else {
-                    testResults.forEach((result, index) => {
-                        const testDiv = document.createElement('div');
-                        testDiv.className = `test-result ${result.passed ? 'passed' : 'failed'}`;
-                        
-                        const icon = result.passed ? '✓' : '✗';
-                        testDiv.innerHTML = `
-                            Test ${index + 1}: ${result.passed ? 'Passed' : 'Failed'}
-                            <span class="test-status-indicator">${icon}</span>
-                            <div class="code-output">
-                                <div><strong>Input:</strong> ${JSON.stringify(result.input)}</div>
-                                <div><strong>Expected:</strong> ${JSON.stringify(result.expected)}</div>
-                                <div><strong>Got:</strong> ${JSON.stringify(result.output)}</div>
-                                ${result.error ? `<div style="color: #ff6b6b;"><strong>Error:</strong> ${result.error}</div>` : ''}
-                            </div>
-                        `;
-                        
-                        outputConsole.appendChild(testDiv);
-                        if (result.passed) passedCount++;
-                    });
-                    
-                    // Calculate score based on test results
-                    const maxScore = question.maxScore || 10;
-                    const score = Math.round((passedCount / totalTests) * maxScore);
-                    
-                    // Add execution summary
-                    const summaryDiv = document.createElement('div');
-                    summaryDiv.className = 'execution-summary';
-                    summaryDiv.innerHTML = `
-                        Execution time: ${executionTime}ms | 
-                        Tests passed: ${passedCount}/${totalTests} | 
-                        Score: ${score}/${maxScore}
-                        <span class="score-indicator ${getScoreClass(passedCount/totalTests)}">
-                            ${Math.round((passedCount/totalTests)*100)}%
-                        </span>
-                    `;
-                    outputConsole.appendChild(summaryDiv);
-                    
-                    // Store the test results in submission
-                    if (!codingSubmissions[currentCodingQuestionIndex]) {
-                        codingSubmissions[currentCodingQuestionIndex] = {};
+                    // Single argument - handle based on type
+                    if (typeof inputArgs === 'string') {
+                        callCode = `${functionName}('${inputArgs}')`;
+                    } else {
+                        // For numbers, booleans, etc. - pass directly without stringify
+                        callCode = `${functionName}(${inputArgs})`;
                     }
-                    codingSubmissions[currentCodingQuestionIndex].testResults = testResults;
-                    codingSubmissions[currentCodingQuestionIndex].score = score;
-                    codingSubmissions[currentCodingQuestionIndex].maxScore = maxScore;
-                    codingSubmissions[currentCodingQuestionIndex].passedTests = passedCount;
-                    codingSubmissions[currentCodingQuestionIndex].totalTests = totalTests;
-                    codingSubmissions[currentCodingQuestionIndex].code = code;
-                    codingSubmissions[currentCodingQuestionIndex].timestamp = new Date();
-                    
-                    // Update test case status in tests tab
-                    updateTestStatus(testResults);
-                    
-                    // Update progress
-                    updateProgressDisplays();
-                    
-                    showNotification(`Code executed! ${passedCount}/${totalTests} tests passed.`);
                 }
                 
-            } catch (error) {
-                console.error('Execution error:', error);
-                outputConsole.innerHTML = `
-                    <div class="error-message">
-                        <i class="fas fa-exclamation-triangle"></i> ${error.message}
-                        <div style="margin-top: 10px; font-size: 12px; color: #999;">
-                            <strong>Debug info:</strong> Make sure your function returns the expected output format.
-                        </div>
-                    </div>
-                `;
+                // Execute the function with test input
+                const result = await pyodide.runPythonAsync(callCode);
                 
-                // Fallback to simulation if Pyodide fails
-                if (error.message.includes('Python runtime') || error.message.includes('JSON.parse')) {
-                    setTimeout(() => {
-                        outputConsole.innerHTML = '<div class="loading-indicator">Falling back to simulated execution...</div>';
-                        setTimeout(() => {
-                            runCodeSimulated();
-                        }, 1000);
-                    }, 1500);
-                }
-            } finally {
-                // Re-enable run button
-                runBtn.disabled = false;
-                runBtn.innerHTML = '<i class="fas fa-play"></i> Run Code';
+                // Compare with expected output
+                const expected = testCase.expected;
+                
+                // Better comparison that handles lists with tuples
+                const passed = comparePythonResults(result, expected);
+                
+                testResults.push({
+                    testCase: i + 1,
+                    input: inputArgs,
+                    expected: expected,
+                    output: result,
+                    passed: passed,
+                    error: null
+                });
+                
+            } catch (testError) {
+                testResults.push({
+                    testCase: i + 1,
+                    input: testCase.input,
+                    expected: testCase.expected,
+                    output: null,
+                    passed: false,
+                    error: testError.message
+                });
             }
         }
 
+        // Add this helper function for better comparison
+        function comparePythonResults(result, expected) {
+            try {
+                // Convert Pyodide Python objects to JS
+                let actual = result;
+                if (result && typeof result === 'object' && result.toJs) {
+                    actual = result.toJs();
+                }
+                
+                // Handle tuple conversion - Python tuples become JS arrays
+                if (Array.isArray(actual) && Array.isArray(expected)) {
+                    return JSON.stringify(actual) === JSON.stringify(expected);
+                }
+                
+                // Direct comparison for primitives
+                return actual === expected;
+            } catch (e) {
+                return false;
+            }
+        }
+        // Get stdout output
+        const stdout = pyodide.runPython("sys.stdout.getvalue()");
+        const stderr = pyodide.runPython("sys.stderr.getvalue()");
+        
+        // Clear loading
+        outputConsole.innerHTML = '';
+        
+        // Display any print statements
+        if (stdout && stdout.trim()) {
+            const stdoutDiv = document.createElement('div');
+            stdoutDiv.className = 'code-output';
+            stdoutDiv.style.background = '#1e1e1e';
+            stdoutDiv.style.color = '#d4d4d4';
+            stdoutDiv.style.padding = '10px';
+            stdoutDiv.style.margin = '10px 0';
+            stdoutDiv.style.borderRadius = '4px';
+            stdoutDiv.style.fontFamily = 'Consolas, monospace';
+            stdoutDiv.innerHTML = `<strong>Output:</strong><br><pre style="margin: 5px 0 0 0;">${stdout}</pre>`;
+            outputConsole.appendChild(stdoutDiv);
+        }
+        
+        if (stderr && stderr.trim()) {
+            const stderrDiv = document.createElement('div');
+            stderrDiv.className = 'error-message';
+            stderrDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${stderr}`;
+            outputConsole.appendChild(stderrDiv);
+        }
+        
+        // Display test results
+        let passedCount = 0;
+        testResults.forEach((result, index) => {
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-result ${result.passed ? 'passed' : 'failed'}`;
+            
+            const icon = result.passed ? '✓' : '✗';
+            const iconColor = result.passed ? '#4caf50' : '#f44336';
+            
+            testDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: ${iconColor}; font-weight: bold;">${icon}</span>
+                    <span style="font-weight: 600;">Test ${index + 1}:</span>
+                    <span>${result.passed ? 'Passed' : 'Failed'}</span>
+                </div>
+                <div style="margin-left: 25px; font-size: 13px; color: #b0b0b0;">
+                    <div>Input: ${JSON.stringify(result.input)}</div>
+                    <div>Expected: ${JSON.stringify(result.expected)}</div>
+                    <div>Got: ${JSON.stringify(result.output) || 'Error'}</div>
+                    ${result.error ? `<div style="color: #ff6b6b;">Error: ${result.error}</div>` : ''}
+                </div>
+            `;
+            
+            outputConsole.appendChild(testDiv);
+            if (result.passed) passedCount++;
+        });
+        
+        // Calculate score
+        const totalTests = testResults.length;
+        const maxScore = question?.maxScore || 10;
+        const score = totalTests > 0 ? Math.round((passedCount / totalTests) * maxScore) : 0;
+        
+        // Add execution summary
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'execution-summary';
+        summaryDiv.style.marginTop = '15px';
+        summaryDiv.style.padding = '10px';
+        summaryDiv.style.background = '#252526';
+        summaryDiv.style.borderRadius = '4px';
+        summaryDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>Test Results:</strong> ${passedCount}/${totalTests} passed
+                </div>
+                <div>
+                    <strong>Score:</strong> ${score}/${maxScore}
+                    <span class="score-indicator ${getScoreClass(passedCount/totalTests)}" style="margin-left: 10px;">
+                        ${Math.round((passedCount/totalTests)*100)}%
+                    </span>
+                </div>
+            </div>
+        `;
+        outputConsole.appendChild(summaryDiv);
+        
+        // Store the test results in submission
+        if (!codingSubmissions[currentCodingQuestionIndex]) {
+            codingSubmissions[currentCodingQuestionIndex] = {};
+        }
+        codingSubmissions[currentCodingQuestionIndex].testResults = testResults;
+        codingSubmissions[currentCodingQuestionIndex].score = score;
+        codingSubmissions[currentCodingQuestionIndex].maxScore = maxScore;
+        codingSubmissions[currentCodingQuestionIndex].passedTests = passedCount;
+        codingSubmissions[currentCodingQuestionIndex].totalTests = totalTests;
+        codingSubmissions[currentCodingQuestionIndex].code = code;
+        codingSubmissions[currentCodingQuestionIndex].timestamp = new Date();
+        
+        // Update test case status in tests tab
+        updateTestStatus(testResults);
+        
+        // Update progress
+        updateProgressDisplays();
+        
+        showNotification(`Code executed! ${passedCount}/${totalTests} tests passed. Score: ${score}/${maxScore}`);
+        
+    } catch (error) {
+        console.error('Execution error:', error);
+        outputConsole.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i> ${error.message}
+                <div style="margin-top: 10px; font-size: 12px; color: #999;">
+                    <strong>Tips:</strong>
+                    <ul style="margin-top: 5px;">
+                        <li>Make sure your function is defined correctly</li>
+                        <li>Check that your function name matches "${question?.functionName || 'solution'}"</li>
+                        <li>Ensure your function returns the expected output format</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        
+        // Fallback to simulation if Pyodide fails
+        if (error.message.includes('Python runtime') || error.message.includes('not loaded')) {
+            runCodeSimulated();
+        }
+    } finally {
+        // Re-enable run button
+        if (runBtn) {
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<i class="fas fa-play"></i> Run Code';
+        }
+    }
+}
         // Create SIMPLIFIED Python test wrapper that definitely works
         function createSimplePythonTestWrapper(code, functionName, testCases) {
             const functionNameSafe = functionName || 'solution';
@@ -2227,7 +2384,6 @@ print(json.dumps(results))
                         <div class="pdsa-question">
                             <strong>${question.title}</strong>
                             <p>${question.description || ''}</p>
-                            <p><em>Please type your answer below and click "Submit Answer"</em></p>
                         </div>
                     </div>
                     <div class="msg-time">${time}</div>
@@ -2398,104 +2554,120 @@ print(json.dumps(results))
             updateProgressDisplays();
         }
         
-        // Load coding question
-        function loadCodingQuestion(index) {
-            // Only load coding questions if PDSA is completed
-            if (!pdsaCompleted) {
-                return;
-            }
+       // Load coding question
+function loadCodingQuestion(index) {
+    // Only load coding questions if PDSA is completed
+    if (!pdsaCompleted) {
+        return;
+    }
+    
+    const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
+    
+    if (!codingQuestions || codingQuestions.length === 0) {
+        showError('No coding questions available');
+        return;
+    }
+    
+    if (index >= codingQuestions.length) {
+        index = 0;
+    }
+    
+    currentCodingQuestionIndex = index;
+    const question = codingQuestions[index];
+    
+    // Show loading
+    problemContent.style.display = 'none';
+    problemLoading.style.display = 'flex';
+    
+    setTimeout(() => {
+        // Update title and metadata
+        document.getElementById('problemTitle').textContent = question.title || 'Coding Question';
+        document.getElementById('problemDifficulty').textContent = question.difficulty || 'Medium';
+        document.getElementById('problemScore').textContent = `${question.maxScore || 10} points`;
+        document.getElementById('codingProgress').textContent = `Coding Question ${currentCodingQuestionIndex + 1} of ${codingQuestions.length}`;
+        
+        // FIX: Build the description HTML properly - REMOVE the placeholder "..."
+        const descriptionHTML = `
+            ${question.prompt ? `<div class="problem-prompt">
+                <h3>Prompt:</h3>
+                <p>${question.prompt}</p>
+            </div>` : ''}
             
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
+            ${question.description ? `<div class="problem-description">
+                <p>${question.description}</p>
+            </div>` : ''}
             
-            if (!codingQuestions || codingQuestions.length === 0) {
-                showError('No coding questions available');
-                return;
-            }
-            
-            if (index >= codingQuestions.length) {
-                index = 0;
-            }
-            
-            currentCodingQuestionIndex = index;
-            const question = codingQuestions[index];
-            
-            // Show loading
-            problemContent.style.display = 'none';
-            problemLoading.style.display = 'flex';
-            
-            // Update problem content
-            setTimeout(() => {
-                // Update title and metadata
-                document.getElementById('problemTitle').textContent = ` ${question.description}`;
-                document.getElementById('problemDifficulty').textContent = question.difficulty || 'Medium';
-                document.getElementById('problemScore').textContent = `${question.maxScore || 10} points`;
-                document.getElementById('codingProgress').textContent = `Coding Question ${currentCodingQuestionIndex + 1} of ${codingQuestions.length}`;
-                
-                // Update problem description
-                const descriptionHTML = `
-                    ${question.prompt ? `<p><strong>Prompt:</strong> ${question.prompt}</p>` : ''}
-                    
-            
-                    
-                    ${question.testCases && question.testCases.length > 0 ? `
-                        <div class="example-box">
-                            <h4><i class="fas fa-list-ol"></i> Examples</h4>
-                            ${question.testCases.map((testCase, i) => `
-                                <div class="example-content">
-                                    <p><strong>Example ${i + 1}:</strong></p>
-                                    <p><strong>Input:</strong> <code>${JSON.stringify(testCase.input)}</code></p>
-                                    <p><strong>Expected Output:</strong> <code>${JSON.stringify(testCase.expected)}</code></p>
-                                    ${testCase.description ? `<p><em>${testCase.description}</em></p>` : ''}
-                                </div>
-                            `).join('')}
+            ${question.testCases && question.testCases.length > 0 ? `
+                <div class="example-box">
+                    <h4><i class="fas fa-list-ol"></i> Examples</h4>
+                    ${question.testCases.map((testCase, i) => `
+                        <div class="example-content">
+                            <p><strong>Example ${i + 1}:</strong></p>
+                            <p><strong>Input:</strong> <code>${JSON.stringify(testCase.input)}</code></p>
+                            <p><strong>Expected Output:</strong> <code>${JSON.stringify(testCase.expected)}</code></p>
+                            ${testCase.description ? `<p><em>${testCase.description}</em></p>` : ''}
                         </div>
-                    ` : ''}
-                    
-                    <div class="constraints-box">
-                        <h4><i class="fas fa-exclamation-circle"></i> Constraints</h4>
-                        <ul>
-                            <li><code>Time Limit: ${question.timeLimit || 600} seconds</code></li>
-                            <li><code>Memory Limit: 256 MB</code></li>
-                        </ul>
-                    </div>
-                    
-                    
-                `;
-                
-                document.getElementById('problemDescription').innerHTML = descriptionHTML;
-                
-                // Update code editor with starter code
-                if (question.starterCode) {
-                    codeEditor.textContent = question.starterCode;
-                } else {
-                    // Generate default Python starter code
-                    const defaultCode = `def ${question.functionName || 'solution'}(...):
+                    `).join('')}
+                </div>
+            ` : ''}
+            
+            <div class="constraints-box">
+                <h4><i class="fas fa-exclamation-circle"></i> Constraints</h4>
+                <ul>
+                    <li><code>Time Limit: ${question.timeLimit || 600} seconds</code></li>
+                    <li><code>Memory Limit: 256 MB</code></li>
+                </ul>
+            </div>
+            
+            ${question.followUp ? `
+                <div class="follow-up-box">
+                    <h4><i class="fas fa-lightbulb"></i> Follow-up</h4>
+                    <p>${question.followUp}</p>
+                </div>
+            ` : ''}
+        `;
+        
+        document.getElementById('problemDescription').innerHTML = descriptionHTML;
+        
+        // Update code editor with starter code using CodeMirror
+        if (codeMirrorEditor) {
+            if (question.starterCode) {
+                codeMirrorEditor.setValue(question.starterCode);
+            } else {
+                const functionName = question.functionName || 'solution';
+                const params = question.parameters ? question.parameters.join(', ') : '';
+                const defaultCode = `def ${functionName}(${params}):
     # Implement your solution here
     pass
 
-# Test cases - Run your code to see results
+# Test your function
 if __name__ == "__main__":
     # Example test
-    print(${question.functionName || 'solution'}(...))`;
-                    codeEditor.textContent = defaultCode;
-                }
-                updateLineNumbers();
-                
-                // Update test cases
-                loadTestCases(question);
-                
-                // Hide loading, show content
-                problemLoading.style.display = 'none';
-                problemContent.style.display = 'block';
-                
-                // Update navigation
-                updateNavigation();
-                
-                // Update progress
-                updateProgressDisplays();
-                
-            }, 500);
+    result = ${functionName}(${question.testCases && question.testCases[0] ? 
+        JSON.stringify(question.testCases[0].input) : ''})
+    print(result)`;
+                codeMirrorEditor.setValue(defaultCode);
+            }
+            
+            // Update language mode
+            updateLanguageMode();
         }
+        
+        // Update test cases
+        loadTestCases(question);
+        
+        // Hide loading, show content
+        problemLoading.style.display = 'none';
+        problemContent.style.display = 'block';
+        
+        // Update navigation
+        updateNavigation();
+        
+        // Update progress
+        updateProgressDisplays();
+        
+    }, 500);
+}
         
         // Load test cases
         function loadTestCases(question) {
@@ -3077,39 +3249,241 @@ if __name__ == "__main__":
                 }, 300);
             }, 5000);
         }
+
+
+
+// Format code with proper indentation
+function formatCode() {
+    if (!codeMirrorEditor) return;
+    
+    const code = codeMirrorEditor.getValue();
+    const language = document.getElementById('languageSelect').value;
+    
+    // Basic formatting - reindent lines
+    const lines = code.split('\n');
+    let indentLevel = 0;
+    const formattedLines = [];
+    
+    lines.forEach(line => {
+        const trimmedLine = line.trim();
+        
+        // Decrease indent for closing braces/brackets
+        if (trimmedLine.startsWith('}') || trimmedLine.startsWith(')') || trimmedLine.startsWith(']')) {
+            indentLevel = Math.max(0, indentLevel - 1);
+        }
+        
+        // Add indentation
+        const indentation = '    '.repeat(indentLevel);
+        formattedLines.push(indentation + trimmedLine);
+        
+        // Increase indent for opening braces/brackets and colons (Python)
+        if (trimmedLine.endsWith('{') || 
+            trimmedLine.endsWith('(') || 
+            trimmedLine.endsWith('[') ||
+            (language === 'python' && trimmedLine.endsWith(':'))) {
+            indentLevel++;
+        }
+    });
+    
+    codeMirrorEditor.setValue(formattedLines.join('\n'));
+}
+
+
+// Initialize CodeMirror editor with syntax highlighting and auto-indentation
+let codeMirrorEditor = null;
+
+function initializeCodeMirror() {
+    const textarea = document.getElementById('codeEditor');
+    
+    codeMirrorEditor = CodeMirror.fromTextArea(textarea, {
+        mode: "python",
+        theme: "dracula",
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4,
+        indentWithTabs: false,
+        smartIndent: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        lineWrapping: true,
+        viewportMargin: Infinity,
+        extraKeys: {
+            "Tab": function(cm) {
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                } else {
+                    cm.replaceSelection("    ", "end");
+                }
+            },
+            "Shift-Tab": function(cm) {
+                cm.indentSelection("subtract");
+            },
+            "Ctrl-/": "toggleComment",
+            "Cmd-/": "toggleComment",
+            "Ctrl-]": "indentMore",
+            "Ctrl-[": "indentLess"
+        }
+    });
+
+    // Set initial height
+    codeMirrorEditor.setSize("100%", "400px");
+    
+    // Auto-resize based on content
+    codeMirrorEditor.on("change", function() {
+        const lineCount = codeMirrorEditor.lineCount();
+        const newHeight = Math.max(300, Math.min(600, lineCount * 20));
+        codeMirrorEditor.setSize("100%", newHeight + "px");
+    });
+
+    // Add resize handle
+    addResizeHandle(codeMirrorEditor);
+}
+
+
+
+
+// Add resize functionality
+function addResizeHandle(editor) {
+    const wrapper = editor.getWrapperElement();
+    
+    const resizeHandle = document.createElement('div');
+    resizeHandle.className = 'editor-resize-handle';
+    resizeHandle.style.cssText = `
+        height: 10px;
+        background: #2d2d2d;
+        cursor: ns-resize;
+        border-top: 1px solid #3e3e42;
+        border-bottom: 1px solid #3e3e42;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #858585;
+        font-size: 12px;
+    `;
+    resizeHandle.innerHTML = '⋮';
+    
+    wrapper.parentNode.insertBefore(resizeHandle, wrapper.nextSibling);
+    
+    let startY, startHeight;
+    
+    function dragStart(e) {
+        startY = e.clientY;
+        startHeight = wrapper.clientHeight;
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+        e.preventDefault();
+    }
+    
+    function dragMove(e) {
+        const newHeight = startHeight + (e.clientY - startY);
+        if (newHeight > 200) {
+            editor.setSize("100%", newHeight + "px");
+        }
+    }
+    
+    function dragEnd() {
+        document.removeEventListener('mousemove', dragMove);
+        document.removeEventListener('mouseup', dragEnd);
+    }
+    
+    resizeHandle.addEventListener('mousedown', dragStart);
+}
+
+// Update language mode in CodeMirror
+function updateLanguageMode() {
+    const language = document.getElementById('languageSelect').value;
+    let mode;
+    
+    switch(language) {
+        case 'python':
+            mode = 'python';
+            break;
+        case 'javascript':
+            mode = 'javascript';
+            break;
+        case 'java':
+            mode = 'text/x-java';
+            break;
+        case 'cpp':
+            mode = 'text/x-c++src';
+            break;
+        default:
+            mode = 'python';
+    }
+    
+    if (codeMirrorEditor) {
+        codeMirrorEditor.setOption('mode', mode);
+    }
+}
+
+// Get code from CodeMirror
+function getCodeFromEditor() {
+    return codeMirrorEditor ? codeMirrorEditor.getValue() : '';
+}
+
+// Set code in CodeMirror
+function setCodeInEditor(code) {
+    if (codeMirrorEditor) {
+        codeMirrorEditor.setValue(code);
+    }
+}
         
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeInterview();
-            updateLineNumbers();
-            
-            // Add CSS animations
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-                @keyframes fadeIn {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-                .loading-indicator {
-                    color: #666;
-                    font-size: 14px;
-                }
-                .output-loading {
-                    padding: 20px;
-                    text-align: center;
-                    color: #888;
-                }
-            `;
-            document.head.appendChild(style);
-        });
+        // Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeInterview();
+    initializeCodeMirror(); // Add this line
+    updateLineNumbers(); // Remove this if you keep it
+    
+    // Add language change listener
+    document.getElementById('languageSelect').addEventListener('change', updateLanguageMode);
+    
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .CodeMirror {
+            height: auto;
+            min-height: 300px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .CodeMirror pre {
+            padding: 0 10px;
+        }
+        .editor-resize-handle {
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .editor-resize-handle:hover {
+            background: #3e3e42 !important;
+        }
+        .test-result {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            background: #2d2d2d;
+            border-left: 4px solid;
+            animation: fadeIn 0.3s;
+        }
+        .test-result.passed {
+            border-left-color: #4caf50;
+        }
+        .test-result.failed {
+            border-left-color: #f44336;
+        }
+    `;
+    document.head.appendChild(style);
+});
+
     </script>
 </body>
 </html>
