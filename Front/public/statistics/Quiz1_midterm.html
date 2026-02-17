@@ -2250,12 +2250,7 @@ function showValidationFeedback(questionIndex, feedback, suggestion) {
     
     const difficulty = question.difficulty || 'medium';
     const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-    
-    // Get topic name for display
-    const topicName = question.originalTopic || question.topic || 'General';
-    const topicColor = getTopicColor(topicName);
 
-    // Add image if available
    // Add image if available
 let imageHtml = '';
 if (question.img_file || question.image_file) {
@@ -3298,4 +3293,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
 
