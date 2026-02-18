@@ -25,6 +25,139 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+       .question-review-item {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.question-review-item.correct {
+    border-left: 5px solid #28a745;
+}
+
+.question-review-item.incorrect {
+    border-left: 5px solid #dc3545;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.review-number {
+    background: #667eea;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.review-status {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.review-status.correct {
+    background: #d4edda;
+    color: #155724;
+}
+
+.review-status.incorrect {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.review-topic {
+    background: #6f42c1;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    margin-left: auto;
+}
+
+.review-question {
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.review-answers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 15px 0;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.review-answer-box {
+    flex: 1;
+}
+
+.review-answer-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.review-answer-value {
+    font-size: 15px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    word-break: break-word;
+}
+
+.review-answer-value.user-answer {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.review-answer-value.user-answer.correct-answer {
+    color: #28a745;
+}
+
+.review-answer-value.correct-answer {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.review-explanation {
+    background: #e3f2fd;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #0c5460;
+    border-left: 3px solid #17a2b8;
+}
+
+.review-meta {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+}
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
@@ -2716,121 +2849,156 @@ if (question.img_file || question.image_file) {
         }
 
         function displayDetailedResults(quizData) {
-            document.getElementById('quizContainer').style.display = 'none';
-            
-            const resultsContainer = document.getElementById('resultsContainer');
-            resultsContainer.style.display = 'block';
-            
-            // Calculate topic performance
-            const topicStats = Object.entries(quizData.topicBreakdown || {}).map(([topic, stats]) => {
-                const percentage = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-                return { topic, ...stats, percentage };
-            }).sort((a, b) => b.percentage - a.percentage);
+    document.getElementById('quizContainer').style.display = 'none';
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.style.display = 'block';
+    resultsContainer.innerHTML = ''; // Clear existing content
+    
+    // Calculate topic performance
+    const topicStats = Object.entries(quizData.topicBreakdown || {}).map(([topic, stats]) => {
+        const percentage = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+        return { topic, ...stats, percentage };
+    }).sort((a, b) => b.percentage - a.percentage);
 
-            const scoreDisplay = document.querySelector('.score-display');
-            scoreDisplay.innerHTML = `
-                <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
-                <p>Statistics Quiz 1 Midterm Completed Successfully!</p>
-                
-                <div style="margin-top: 25px; background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                    <h3 style="margin-bottom: 15px;">Topic Performance</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        ${topicStats.map(stat => `
-                            <div style="background: rgba(255,255,255,0.3); padding: 12px; border-radius: 8px;">
-                                <strong>${stat.topic}</strong><br>
-                                <span style="font-size: 1.2rem; font-weight: bold;">${stat.correct}/${stat.total}</span>
-                                <div style="height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin-top: 5px;">
-                                    <div style="width: ${stat.percentage}%; height: 100%; background: ${getTopicColor(stat.topic)}; border-radius: 4px;"></div>
-                                </div>
-                                <div style="font-size: 0.9em; margin-top: 3px;">${stat.percentage}% correct</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
-                    <div>
-                        <strong>Easy Questions</strong><br>
-                        ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
-                    </div>
-                    <div>
-                        <strong>Medium Questions</strong><br>
-                        ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
-                    </div>
-                    <div>
-                        <strong>Hard Questions</strong><br>
-                        ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
-                    </div>
-                </div>
-                <p style="margin-top: 15px; font-size: 0.9em;">
-                    Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
-                </p>
-            `;
-            
-            const reviewDiv = document.createElement('div');
-            reviewDiv.style.cssText = `
-                margin-top: 30px;
-                text-align: left;
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            `;
-            
-            reviewDiv.innerHTML = `
-                <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question-by-Question Review</h3>
-                ${quizData.questionResults.map(result => `
-                    <div style="border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                border-radius: 8px; 
-                                padding: 15px; 
-                                margin-bottom: 15px; 
-                                background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};">
-                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                            <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                        color: white; 
-                                        padding: 4px 8px; 
-                                        border-radius: 50%; 
-                                        margin-right: 10px; 
-                                        font-weight: bold;">
-                                ${result.questionNumber}
-                            </span>
-                            <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
-                                ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                            </span>
-                            <span class="topic-tag" style="margin-left: auto; background: ${getTopicColor(result.topic)};">
-                                ${result.topic}
-                            </span>
+    // Create score display
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.className = 'score-display';
+    scoreDisplay.innerHTML = `
+        <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
+        <p>Statistics Quiz 1 Midterm Completed Successfully!</p>
+        
+        <div style="margin-top: 25px; background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+            <h3 style="margin-bottom: 15px;">Topic Performance</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                ${topicStats.map(stat => `
+                    <div style="background: rgba(255,255,255,0.3); padding: 12px; border-radius: 8px;">
+                        <strong>${stat.topic}</strong><br>
+                        <span style="font-size: 1.2rem; font-weight: bold;">${stat.correct}/${stat.total}</span>
+                        <div style="height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin-top: 5px;">
+                            <div style="width: ${stat.percentage}%; height: 100%; background: ${getTopicColor(stat.topic)}; border-radius: 4px;"></div>
                         </div>
-                        <div style="margin-bottom: 10px; line-height: 1.4;">
-                            <strong>Question:</strong> ${result.questionText}
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <strong>Your Answer:</strong> 
-                            <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'}; font-weight: bold;">
-                                ${result.userAnswer || 'No answer provided'}
-                            </span>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <strong>Correct Answer:</strong> 
-                            <span style="color: #28a745; font-weight: bold;">
-                                ${result.correctAnswer}
-                            </span>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <strong>Explanation:</strong> 
-                            <span style="color: #555;">
-                                ${result.explanation}
-                            </span>
-                        </div>
-                        <div style="font-size: 0.9em; color: #666;">
-                            Time taken: ${result.timeTaken}s • Difficulty: ${result.difficulty}
-                        </div>
+                        <div style="font-size: 0.9em; margin-top: 3px;">${stat.percentage}% correct</div>
                     </div>
                 `).join('')}
-            `;
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
+            <div>
+                <strong>Easy Questions</strong><br>
+                ${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}
+            </div>
+            <div>
+                <strong>Medium Questions</strong><br>
+                ${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}
+            </div>
+            <div>
+                <strong>Hard Questions</strong><br>
+                ${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}
+            </div>
+        </div>
+        <p style="margin-top: 15px; font-size: 0.9em;">
+            Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
+        </p>
+    `;
+    
+    resultsContainer.appendChild(scoreDisplay);
+    
+    // Create review section
+    const reviewDiv = document.createElement('div');
+    reviewDiv.style.cssText = `
+        margin-top: 30px;
+        text-align: left;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    `;
+    
+    reviewDiv.innerHTML = `
+        <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question-by-Question Review</h3>
+        ${quizData.questionResults.map(result => {
+            // Format question text
+            let questionText = result.questionText;
+            if (questionText.includes('$') || questionText.includes('\\')) {
+                questionText = answerFormatter.formatForMathJax(questionText);
+            }
             
-            resultsContainer.appendChild(reviewDiv);
-        }
+            // Format answers
+            let userAnswer = result.userAnswer || 'No answer provided';
+            let correctAnswer = result.correctAnswer;
+            
+            if (userAnswer.includes('$') || userAnswer.includes('\\') || userAnswer.includes('sqrt') || userAnswer.includes('inf')) {
+                userAnswer = answerFormatter.formatForMathJax(userAnswer);
+            }
+            if (correctAnswer.includes('$') || correctAnswer.includes('\\') || correctAnswer.includes('sqrt') || correctAnswer.includes('inf')) {
+                correctAnswer = answerFormatter.formatForMathJax(correctAnswer);
+            }
+            
+            return `
+                <div class="question-review-item ${result.isCorrect ? 'correct' : 'incorrect'}">
+                    <div class="review-header">
+                        <span class="review-number">${result.questionNumber}</span>
+                        <span class="review-status ${result.isCorrect ? 'correct' : 'incorrect'}">
+                            ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        </span>
+                        <span class="review-topic" style="background: ${getTopicColor(result.topic)};">
+                            ${result.topic}
+                        </span>
+                    </div>
+                    
+                    <div class="review-question" id="review-question-${result.questionNumber}">
+                        <strong>Question:</strong> ${questionText}
+                    </div>
+                    
+                    <div class="review-answers">
+                        <div class="review-answer-box">
+                            <div class="review-answer-label">Your Answer:</div>
+                            <div class="review-answer-value user-answer ${result.isCorrect ? 'correct-answer' : ''}" 
+                                 id="review-user-${result.questionNumber}">
+                                ${userAnswer}
+                            </div>
+                        </div>
+                        <div class="review-answer-box">
+                            <div class="review-answer-label">Correct Answer:</div>
+                            <div class="review-answer-value correct-answer" id="review-correct-${result.questionNumber}">
+                                ${correctAnswer}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${result.explanation ? `
+                        <div class="review-explanation">
+                            <strong>Explanation:</strong> ${result.explanation}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="review-meta">
+                        <span>⏱️ Time: ${result.timeTaken}s</span>
+                        <span>📊 Difficulty: ${result.difficulty}</span>
+                        <span>📝 Points: ${result.points}</span>
+                    </div>
+                </div>
+            `;
+        }).join('')}
+    `;
+    
+    resultsContainer.appendChild(reviewDiv);
+    
+    // Add Home Page button if not present
+    const homeButton = document.createElement('button');
+    homeButton.className = 'btn';
+    homeButton.onclick = goback;
+    homeButton.textContent = 'Home Page';
+    homeButton.style.marginTop = '20px';
+    resultsContainer.appendChild(homeButton);
+    
+    // Process MathJax for all the new content
+    if (window.MathJax) {
+        MathJax.typesetPromise([resultsContainer]).catch(err => console.log('MathJax error:', err));
+    }
+}
 
         async function resetUserProgress(topic) {
             try {
@@ -3279,4 +3447,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
 
