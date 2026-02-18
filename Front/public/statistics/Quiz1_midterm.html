@@ -2847,22 +2847,6 @@ if (question.img_file || question.image_file) {
         <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
         <p>Statistics Quiz 1 Midterm Completed Successfully!</p>
         
-        <div style="margin-top: 25px; background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-            <h3 style="margin-bottom: 15px;">Topic Performance</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                ${topicStats.map(stat => `
-                    <div style="background: rgba(255,255,255,0.3); padding: 12px; border-radius: 8px;">
-                        <strong>${stat.topic}</strong><br>
-                        <span style="font-size: 1.2rem; font-weight: bold;">${stat.correct}/${stat.total}</span>
-                        <div style="height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin-top: 5px;">
-                            <div style="width: ${stat.percentage}%; height: 100%; background: #667eea; border-radius: 4px;"></div>
-                        </div>
-                        <div style="font-size: 0.9em; margin-top: 3px;">${stat.percentage}% correct</div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-        
         <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
             <div>
                 <strong>Easy Questions</strong><br>
@@ -3426,6 +3410,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
 
 
 
