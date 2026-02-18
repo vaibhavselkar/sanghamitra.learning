@@ -1254,39 +1254,43 @@
     <!-- Information Bubble for Statistics Quiz 1 -->
 <div id="infoBubble" class="info-bubble">
     <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
-    <h3><span class="info-icon">📊</span> Statistics Quick Guide</h3>
+    <h3><span class="info-icon">📊</span> Statistics Answer Guide</h3>
     <div class="info-content">
-        <p><strong>Answer Formats:</strong></p>
+        <p><strong>Based on your quiz questions:</strong></p>
 
         <ul>
-            <li><strong>Numbers:</strong> <code>35</code>, <code>147</code>, <code>7.73</code></li>
-            <li><strong>Percentages:</strong> <code>45</code> (just number, no %)</li>
-            <li><strong>Multiple Select:</strong> <code>1,2,4,5,7</code> (comma-separated)</li>
-            <li><strong>Mean/Average:</strong> <code>7.73</code></li>
-            <li><strong>Mode:</strong> <code>9</code> (the value)</li>
-            <li><strong>Range/IQR:</strong> <code>5</code>, <code>3</code></li>
-            <li><strong>Correlation (r):</strong> <code>0.76</code>, <code>-0.63</code></li>
+            <li><strong>Single Number:</strong> <code>35</code>, <code>147</code>, <code>30</code>, <code>167</code></li>
+            <li><strong>Percentages:</strong> <code>45</code>, <code>50</code>, <code>61</code> (just the number)</li>
+            <li><strong>Multiple Choice:</strong> Just click the option (1,2,3,4,5,6,7,8)</li>
+            <li><strong>Multiple Select:</strong> Click all that apply</li>
+            <li><strong>Multiple Select Answers in dataset:</strong> <code>1,2,4,5,7</code> (comma-separated)</li>
+            <li><strong>Decimal values:</strong> <code>7.73</code>, <code>0.76</code>, <code>-0.63</code></li>
         </ul>
 
-        <p><strong>Dataset Terms:</strong></p>
+        <p><strong>From your questions:</strong></p>
         <ul>
-            <li><strong>Cases:</strong> Individual rows/students <code>CE19055</code></li>
-            <li><strong>Numerical:</strong> Age, CGPA, Salary, Counts</li>
-            <li><strong>Categorical:</strong> Gender, Branch, Company</li>
+            <li>• "How many players scored more than 30 runs?" → <code>35</code></li>
+            <li>• "What is the modal class?" → Click option <code>5</code></li>
+            <li>• "Total number of students who gave 'Poor' ratings" → <code>147</code></li>
+            <li>• "What percentage of students rated as Good/Excellent?" → <code>45</code></li>
+            <li>• "Which statements are true?" → Select multiple options</li>
+            <li>• "Correlation coefficient r = -0.63" → <code>-0.63</code></li>
         </ul>
 
-        <p><strong>Correlation Signs:</strong></p>
+        <p><strong>Simple rules:</strong></p>
         <ul>
-            <li><strong>r > 0:</strong> As X ↑, Y ↑ (positive)</li>
-            <li><strong>r < 0:</strong> As X ↑, Y ↓ (negative)</li>
+            <li>✅ Just type the number (no words, no % sign)</li>
+            <li>✅ For multiple select, just click options</li>
+            <li>✅ Decimals are fine: <code>7.73</code></li>
+            <li>✅ Negative numbers: <code>-0.63</code></li>
+            <li>✅ Check preview below input box</li>
         </ul>
-
-        <p><strong>Fractions:</strong> <code>1/2</code> → $\frac{1}{2}$</p>
-        <p><strong>Square roots:</strong> <code>sqrt(16)</code> → √16</p>
-        <p><strong>Infinity:</strong> <code>inf</code> → ∞</p>
-        
-        <p style="margin-top: 10px; font-style: italic;">✅ Check preview below input!</p>
     </div>
+</div>
+
+<!-- Help Button -->
+<div id="helpButton" class="help-button" onclick="showInfoBubble()">
+    <span class="help-icon">📊</span>
 </div>
 
 <!-- Help Button for Statistics Quiz 1 -->
@@ -3411,6 +3415,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
 
 
 
