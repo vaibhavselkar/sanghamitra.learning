@@ -1254,65 +1254,44 @@
     <!-- Information Bubble for Statistics Quiz 1 -->
 <div id="infoBubble" class="info-bubble">
     <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
-    <h3><span class="info-icon">ℹ️</span> Answer Formatting Guide</h3>
+    <h3><span class="info-icon">📊</span> Statistics Quick Guide</h3>
     <div class="info-content">
-        <p><strong>How to format your answers:</strong></p>
-        
+        <p><strong>Answer Formats:</strong></p>
+
         <ul>
-            <li><strong>Math Symbols:</strong> 
-                <code>inf</code> = ∞, 
-                <code>sqrt(x)</code> = √x, 
-                <code>^</code> = exponent,
-                <code>∪</code> = union, 
-                <code>∩</code> = intersection
-            </li>
-            <li><strong>Set Notation:</strong> 
-                <code>{1,2,3}</code>, 
-                <code>{x | x > 0}</code>,
-                <code>∅</code> = empty set
-            </li>
-            <li><strong>Intervals:</strong> 
-                <code>(-∞, 3]</code> = $(-\infty, 3]$
-            </li>
-            <li><strong>Equations:</strong> 
-                <code>x = -1/2, sqrt(2)</code> (multiple answers with commas)
-            </li>
-            <li><strong>Functions:</strong> 
-                <code>f(x) = x^2 + 1</code>, 
-                <code>y = mx + b</code>
-            </li>
-            <li><strong>Polynomials:</strong> 
-                <code>x^2 - 4x + 4</code>, 
-                <code>(x-2)^2</code>
-            </li>
+            <li><strong>Numbers:</strong> <code>35</code>, <code>147</code>, <code>7.73</code></li>
+            <li><strong>Percentages:</strong> <code>45</code> (just number, no %)</li>
+            <li><strong>Multiple Select:</strong> <code>1,2,4,5,7</code> (comma-separated)</li>
+            <li><strong>Mean/Average:</strong> <code>7.73</code></li>
+            <li><strong>Mode:</strong> <code>9</code> (the value)</li>
+            <li><strong>Range/IQR:</strong> <code>5</code>, <code>3</code></li>
+            <li><strong>Correlation (r):</strong> <code>0.76</code>, <code>-0.63</code></li>
         </ul>
-        
-        <p><strong>Quick Examples:</strong></p>
-        
-        <div class="math-example">
-            <div><code>(-inf, 3]</code> → $(-\infty, 3]$</div>
-        </div>
-        
-        <div class="math-example">
-            <div><code>x = -1/2, sqrt(2)</code> → $x = -\frac{1}{2}, \sqrt{2}$</div>
-        </div>
-        
-        <div class="math-example">
-            <div><code>f(x) = x^2 + 2x + 1</code> → $f(x) = x^2 + 2x + 1$</div>
-        </div>
-        
-        <div class="math-example">
-            <div><code>A ∪ B = {1,2,3}</code> → $A ∪ B = \{1,2,3\}$</div>
-        </div>
-        
-        <p><strong>Important:</strong></p>
+
+        <p><strong>Dataset Terms:</strong></p>
         <ul>
-            <li>Case-insensitive, spaces auto-removed</li>
-            <li>Multiple answers separated by commas</li>
-            <li>Check preview below input box</li>
-            <li>Use calculator button for complex calculations</li>
+            <li><strong>Cases:</strong> Individual rows/students <code>CE19055</code></li>
+            <li><strong>Numerical:</strong> Age, CGPA, Salary, Counts</li>
+            <li><strong>Categorical:</strong> Gender, Branch, Company</li>
         </ul>
+
+        <p><strong>Correlation Signs:</strong></p>
+        <ul>
+            <li><strong>r > 0:</strong> As X ↑, Y ↑ (positive)</li>
+            <li><strong>r < 0:</strong> As X ↑, Y ↓ (negative)</li>
+        </ul>
+
+        <p><strong>Fractions:</strong> <code>1/2</code> → $\frac{1}{2}$</p>
+        <p><strong>Square roots:</strong> <code>sqrt(16)</code> → √16</p>
+        <p><strong>Infinity:</strong> <code>inf</code> → ∞</p>
+        
+        <p style="margin-top: 10px; font-style: italic;">✅ Check preview below input!</p>
     </div>
+</div>
+
+<!-- Help Button for Statistics Quiz 1 -->
+<div id="helpButton" class="help-button" onclick="showInfoBubble()">
+    <span class="help-icon">📊</span>
 </div>
 
 <!-- Help Button for Statistics Quiz 1 -->
@@ -3447,6 +3426,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
 
 
 
