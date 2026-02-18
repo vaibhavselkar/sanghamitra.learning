@@ -2876,7 +2876,7 @@ if (question.img_file || question.image_file) {
                         <strong>${stat.topic}</strong><br>
                         <span style="font-size: 1.2rem; font-weight: bold;">${stat.correct}/${stat.total}</span>
                         <div style="height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; margin-top: 5px;">
-                            <div style="width: ${stat.percentage}%; height: 100%; background: ${getTopicColor(stat.topic)}; border-radius: 4px;"></div>
+                            <div style="width: ${stat.percentage}%; height: 100%; background: #667eea; border-radius: 4px;"></div>
                         </div>
                         <div style="font-size: 0.9em; margin-top: 3px;">${stat.percentage}% correct</div>
                     </div>
@@ -2943,7 +2943,7 @@ if (question.img_file || question.image_file) {
                         <span class="review-status ${result.isCorrect ? 'correct' : 'incorrect'}">
                             ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
                         </span>
-                        <span class="review-topic" style="background: ${getTopicColor(result.topic)};">
+                        <span class="review-topic" style="background: #6f42c1;">
                             ${result.topic}
                         </span>
                     </div>
@@ -3447,6 +3447,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
 
 
 
