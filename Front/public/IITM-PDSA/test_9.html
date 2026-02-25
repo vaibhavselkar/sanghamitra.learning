@@ -3,12 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Programming Quiz</title>
-    <!-- Include Monaco Editor for code editing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <title>Dynamic programming Quiz</title>
+    <!-- Load Anti-Cheating Library -->
+    <script src="anti-cheating.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <style>
+        /* ANTI-CHEATING CSS */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Allow text selection only for specific elements */
+        .code-block pre,
+        .option-label,
+        .numerical-input,
+        .explanation-section,
+        .question-card h4,
+        .question-card p,
+        .btn {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        
+        /* Warning overlay */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 2rem;
+            text-align: center;
+            flex-direction: column;
+        }
+        
+        .warning-overlay h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+        
+        /* Blur effect when tab switching */
+        body.blurred {
+            filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        /* Security indicator */
+        .security-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .security-indicator.warning {
+            background: rgba(220, 53, 69, 0.9);
+            animation: pulse 1s infinite;
+        }
+        
+        .security-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Original styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -41,40 +128,6 @@
             border-left: 5px solid #667eea;
         }
 
-        .code-editor-container {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            margin: 20px 0;
-            height: 400px;
-        }
-
-        .test-cases {
-            background: #e8f4fd;
-            border: 1px solid #bee5eb;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-
-        .test-result {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            font-family: monospace;
-        }
-
-        .test-passed {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-
-        .test-failed {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -105,7 +158,6 @@
         }
 
         .results-container { display: none; padding: 30px; }
-        .loading { display: none; }
         
         .explanation-section {
             background: #fff3cd;
@@ -152,8 +204,8 @@
         }
 
         .code-block {
-            background: #2d2d2d;
-            color: #f8f8f2;
+            background: white; /* change this to white */
+            color: black; /* change this to black */
             padding: 15px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
@@ -161,40 +213,22 @@
             overflow-x: auto;
         }
 
-        .matrix-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
-
-        .matrix-table th, .matrix-table td {
-            border: 1px solid #dee2e6;
-            padding: 8px 12px;
-            text-align: center;
-        }
-
-        .matrix-table th {
-            background-color: #f8f9fa;
-        }
-
-        .dp-table {
-            background: #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .progress-container {
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
             margin-bottom: 20px;
         }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
         .btn-success {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
             color: white !important;
@@ -209,32 +243,141 @@
             transform: translateY(-2px) scale(1.05);
             box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .topic-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .btn-outline-secondary {
+            background: white !important;
+            color: #6c757d !important;
+            border: 2px solid #6c757d !important;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: #6c757d !important;
+            color: white !important;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .question-title {
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .score-indicator {
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .score-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #28a745;
+        }
+        
+        .score-breakdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            min-width: 100px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .score-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>⚡ Dynamic Programming Quiz</h1>
-            <p>Test your knowledge of Matrix Chain Multiplication and Dynamic Programming Concepts</p>
-        </div>
+    <!-- Security Indicator -->
+    <div id="securityIndicator" class="security-indicator">
+        <div class="security-dot"></div>
+        <span id="securityText">Monitoring Active</span>
+    </div>
 
+    <!-- Warning overlay -->
+    <div id="warningOverlay" class="warning-overlay">
+        <div>
+            <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
+            <p style="font-size: 1.5rem;">Please return to the quiz window</p>
+            <p style="font-size: 1.2rem;">Your activity is being monitored and logged</p>
+            <p style="font-size: 1rem; margin-top: 20px;">Attempts logged: <span id="attemptCount">0</span></p>
+        </div>
+    </div>
+
+    <div class="container">
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <h3>Loading Quiz...</h3>
+            <div class="loading-spinner"></div>
+            <h3>Loading Dynamic programming Quiz...</h3>
             <p>Preparing your test environment</p>
+            <small style="opacity: 0.8;">Anti-cheating measures will be activated</small>
         </div>
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div class="topic-header">
+                <h3>Dynamic programming Quiz</h3>
+                <p>Test your knowledge of Dynamic programming concepts, functions, and logic</p>
+                <p id="questionCount">50 Questions</p>
+                <small style="opacity: 0.8; display: block; margin-top: 10px;">
+                    ⚠️ Anti-cheating measures are active. Do not switch tabs or windows.
+                </small>
+            </div>
+            
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
-                    <span id="progressText">Question 1 of 20</span>
+                    <span id="progressText">Question 1 of 50</span>
                 </div>
-                <div class="progress" style="height: 8px;">
-                    <div class="progress-bar" id="progressFill" style="width: 5%;"></div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressFill" style="width: 2%;"></div>
                 </div>
             </div>
             
@@ -249,28 +392,25 @@
                     </button>
                 </div>
             </div>
-            
-    
         </div>
 
         <!-- Results -->
-        <div id="resultsContainer" class="results-container">
+        <div id="resultsContainer" class="results-container" style="display: none;">
             <div class="score-display">
-                <h2 id="finalScore">0/20</h2>
+                <h2 id="finalScore">0/50</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
-                
+                <p class="mt-2"><strong>Topic:</strong> Dynamic programming </p>
+                <p id="cheatingLog" style="font-size: 0.9rem; opacity: 0.8;"></p>
             </div>
             <div id="detailedResults"></div>
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <!-- Left: Take Quiz Again -->
-                 <button class="btn btn-outline-secondary" onclick="goToHome()">
+                <button class="btn btn-outline-secondary" onclick="goToHome()">
                     <span class="d-flex align-items-center">
                         <span class="me-2">←</span>
-                        <span> Go to Home</span>
+                        <span>Go Back</span>
                     </span>
                 </button>
-                <!-- Right: Go to Home -->
                 <button class="btn btn-primary" onclick="restartQuiz()">
                     <span class="d-flex align-items-center">
                         <span class="me-2">🔄</span>
@@ -282,806 +422,212 @@
     </div>
 
     <script>
-        const questions = [
-            {
-                questionId: 1,
-                title: "For two matrices A(m×n) and B(n×p) to be multiplied to get AB, what is the computational complexity (number of scalar multiplications) of this single matrix multiplication?",
-                type: "mcq-single",
-                options: [
-                    "O(m+n+p)",
-                    "O(mp)",
-                    "O(mnp)",
-                    "O(n)"
-                ],
-                correctAnswer: "O(mnp)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Matrix multiplication requires m×n×p scalar multiplications, as each element in the resulting m×p matrix requires n multiplications."
-            },
-            {
-                questionId: 2,
-                title: "Matrix multiplication is associative, meaning (AB)C = A(BC). What is the significant implication of this associativity when optimizing the multiplication of a chain of matrices?",
-                type: "mcq-single",
-                options: [
-                    "The order of matrices can be rearranged arbitrarily.",
-                    "The final result matrix will be different depending on the bracketing.",
-                    "The bracketing does not change the answer, but it can affect the complexity (number of operations).",
-                    "The problem cannot be solved using dynamic programming."
-                ],
-                correctAnswer: "The bracketing does not change the answer, but it can affect the complexity (number of operations).",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "While associativity guarantees the same mathematical result, different bracketings can lead to dramatically different numbers of scalar multiplications."
-            },
-            {
-                questionId: 3,
-                title: "Consider three matrices with dimensions: A: 10×100, B: 100×5, C: 5×50. What is the total number of scalar multiplications required to compute (AB)C?",
-                type: "numerical",
-                correctAnswer: 7500,
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "(AB) requires 10×100×5 = 5000 multiplications, resulting in 10×5 matrix. Then (AB)C requires 10×5×50 = 2500 multiplications. Total = 5000 + 2500 = 7500."
-            },
-            {
-                questionId: 4,
-                title: "Consider three matrices with dimensions: A: 10×100, B: 100×5, C: 5×50. What is the total number of scalar multiplications required to compute A(BC)?",
-                type: "numerical",
-                correctAnswer: 75000,
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "(BC) requires 100×5×50 = 25000 multiplications, resulting in 100×50 matrix. Then A(BC) requires 10×100×50 = 50000 multiplications. Total = 25000 + 50000 = 75000."
-            },
-            {
-                questionId: 5,
-                title: "In the dynamic programming formulation for Matrix Chain Multiplication, the cost function C(j, k) represents the minimum cost to multiply which sequence of matrices?",
-                type: "mcq-single",
-                options: [
-                    "From matrix j up to matrix k-1",
-                    "From matrix j up to matrix k (inclusive)",
-                    "The entire sequence of n matrices",
-                    "Only matrices j and k"
-                ],
-                correctAnswer: "From matrix j up to matrix k (inclusive)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "In standard DP formulation, C(i,j) represents the minimum cost to multiply matrices from A_i to A_j inclusive."
-            },
-            {
-                questionId: 6,
-                title: "What is the base case for the dynamic programming recurrence C(j, k) in Matrix Chain Multiplication?",
-                type: "mcq-single",
-                options: [
-                    "C(j, k) = 1 for j = k",
-                    "C(j, j) = 0 for 0 ≤ j < n",
-                    "C(j, k) = ∞ for j > k",
-                    "C(0, n-1) = 0"
-                ],
-                correctAnswer: "C(j, j) = 0 for 0 ≤ j < n",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The base case is that multiplying a single matrix costs zero multiplications, since no actual multiplication is needed."
-            },
-            {
-                questionId: 7,
-                title: "What is the primary reason why dynamic programming (or memoization) is preferred over a purely recursive approach for the Matrix Chain Multiplication problem?",
-                type: "mcq-single",
-                options: [
-                    "Matrix multiplication is inherently slow.",
-                    "The problem has 'overlapping subproblems,' leading to wasteful re-computation in a naive recursive solution.",
-                    "The dimensions of matrices change during multiplication.",
-                    "It avoids the need to check for compatible dimensions."
-                ],
-                correctAnswer: "The problem has 'overlapping subproblems,' leading to wasteful re-computation in a naive recursive solution.",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The naive recursive approach has exponential time complexity due to recomputing the same subproblems multiple times."
-            },
-            {
-                questionId: 8,
-                title: "What is the overall time complexity of the dynamic programming algorithm for Matrix Chain Multiplication for n matrices?",
-                type: "mcq-single",
-                options: [
-                    "O(n)",
-                    "O(n²)",
-                    "O(n³)",
-                    "O(2ⁿ)"
-                ],
-                correctAnswer: "O(n³)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The DP algorithm fills an n×n table where each entry takes O(n) time to compute, resulting in O(n³) total time complexity."
-            },
-            {
-                questionId: 9,
-                title: "What does the dp[i][j] table entry represent in the matrix chain DP algorithm?",
-                type: "mcq-single",
-                options: [
-                    "Number of ways to multiply matrices i to j",
-                    "Number of multiplications between matrices i and j",
-                    "Minimum scalar multiplications needed to compute Ai × Ai+1 × … × Aj",
-                    "Number of scalar multiplications at each step"
-                ],
-                correctAnswer: "Minimum scalar multiplications needed to compute Ai × Ai+1 × … × Aj",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "dp[i][j] stores the minimum number of scalar multiplications required to multiply the matrix chain from index i to j."
-            },
-            {
-                questionId: 10,
-                title: "Consider four matrices with dimensions: M0: 10×20, M1: 20×5, M2: 5×30, M3: 30×10. What is the minimum number of scalar multiplications required?",
-                type: "numerical",
-                correctAnswer: 3500,
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Optimal parenthesization: (M0×(M1×M2))×M3. M1×M2: 20×5×30=3000, M0×result: 10×20×30=6000, result×M3: 10×30×10=3000. Total=3000+6000+3000=12000. Wait, recalculating... Actually optimal is ((M0×M1)×M2)×M3: M0×M1=10×20×5=1000, result×M2=10×5×30=1500, result×M3=10×30×10=3000. Total=1000+1500+3000=5500. Let me check again... Actually the correct minimum is 3500 with optimal bracketing."
-            },
-            {
-                questionId: 11,
-                title: "Which of the following problems can NOT be optimally solved using dynamic programming?",
-                type: "mcq-single",  // Changed from "mcq-multiple"
-                options: [
-                    "Matrix Chain Multiplication",
-                    "Fibonacci Sequence", 
-                    "0/1 Knapsack Problem",
-                    "Travelling Salesman Problem"
-                ],
-                correctAnswer: "Travelling Salesman Problem",  // Changed from array to string
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Travelling Salesman Problem has a DP solution (Held-Karp algorithm) but it's still exponential O(n²2ⁿ), not considered 'optimal' like polynomial-time DP solutions for the others."
-            },
-            {
-                questionId: 12,
-                title: "What is the space complexity of the matrix chain multiplication DP algorithm?",
-                type: "mcq-single",
-                options: [
-                    "O(n)",
-                    "O(n²)",
-                    "O(n³)",
-                    "O(2ⁿ)"
-                ],
-                correctAnswer: "O(n²)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The algorithm uses an n×n DP table to store intermediate results, requiring O(n²) space."
-            },
-            {
-                questionId: 13,
-                title: "In the matrix chain DP recurrence, what does the term 'p[i-1] * p[k] * p[j]' represent?",
-                type: "mcq-single",
-                options: [
-                    "The cost of multiplying matrices i through k",
-                    "The cost of multiplying matrices k+1 through j",
-                    "The cost of multiplying the two resulting matrices from the split",
-                    "The base case cost"
-                ],
-                correctAnswer: "The cost of multiplying the two resulting matrices from the split",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "This term represents the cost of multiplying the result of matrices i..k (size p[i-1]×p[k]) with the result of matrices k+1..j (size p[k]×p[j])."
-            },
-            {
-                questionId: 14,
-                title: "For a chain of 6 matrices, how many different ways are there to fully parenthesize the product?",
-                type: "numerical",
-                correctAnswer: 42,
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The number of ways to parenthesize n matrices is given by the Catalan number C(n-1). For n=6, C(5)=42."
-            },
-            {
-                questionId: 15,
-                title: "Which of the following is NOT a characteristic of problems that can be solved by dynamic programming?",
-                type: "mcq-single",
-                options: [
-                    "Optimal substructure",
-                    "Overlapping subproblems",
-                    "Greedy choice property",
-                    "Memoization capability"
-                ],
-                correctAnswer: "Greedy choice property",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Greedy choice property is characteristic of greedy algorithms, not necessarily dynamic programming problems."
-            },
-            {
-                questionId: 16,
-                title: "What is the minimum number of scalar multiplications needed for matrices: A: 5×4, B: 4×6, C: 6×2, D: 2×7?",
-                type: "numerical",
-                correctAnswer: 158,
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Optimal parenthesization: ((A×B)×(C×D)). A×B: 5×4×6=120, C×D: 6×2×7=84, result×result: 5×6×7=210. Total=120+84+210=414. Wait, recalculating... Actually optimal is (A×(B×C))×D: B×C=4×6×2=48, A×result=5×4×2=40, result×D=5×2×7=70. Total=48+40+70=158."
-            },
-            {
-                questionId: 17,
-                title: "In the DP table for matrix chain, what is the order in which the table should be filled?",
-                type: "mcq-single",
-                options: [
-                    "Row by row from top to bottom",
-                    "Column by column from left to right",
-                    "Diagonal by diagonal",
-                    "Random order"
-                ],
-                correctAnswer: "Diagonal by diagonal",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The table should be filled diagonal by diagonal, starting with the main diagonal (chain length 1), then chain length 2, and so on."
-            },
-            {
-                questionId: 18,
-                title: "For the matrix chain problem, what is the recurrence relation for dp[i][j]?",
-                type: "mcq-single",
-                options: [
-                    "dp[i][j] = min(dp[i][k] + dp[k+1][j] + p[i-1]*p[k]*p[j]) for i ≤ k < j",
-                    "dp[i][j] = dp[i][j-1] + p[i-1]*p[j-1]*p[j]",
-                    "dp[i][j] = dp[i+1][j] + p[i]*p[i+1]*p[j]",
-                    "dp[i][j] = max(dp[i][k] + dp[k+1][j]) for i ≤ k < j"
-                ],
-                correctAnswer: "dp[i][j] = min(dp[i][k] + dp[k+1][j] + p[i-1]*p[k]*p[j]) for i ≤ k < j",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "This is the standard recurrence that considers all possible splits and chooses the minimum cost."
-            },
-            {
-                questionId: 19,
-                title: "What is the time complexity of the naive recursive approach for matrix chain multiplication?",
-                type: "mcq-single",
-                options: [
-                    "O(n²)",
-                    "O(n³)",
-                    "O(2ⁿ)",
-                    "O(n!)"
-                ],
-                correctAnswer: "O(2ⁿ)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "The naive recursive solution has exponential time complexity due to repeatedly solving the same subproblems."
-            },
-            {
-                questionId: 20,
-                title: "Which of the following is true about the matrix chain multiplication problem?",
-                type: "mcq-single",
-                options: [
-                    "It can be solved using a greedy algorithm",
-                    "The optimal solution always puts the largest matrix first",
-                    "Different parenthesizations can lead to the same cost",
-                    "The problem becomes easier when all matrices are square"
-                ],
-                correctAnswer: "Different parenthesizations can lead to the same cost",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "For some matrix chains, multiple different parenthesizations can yield the same minimum cost."
-            },
-            
-    {
-    "questionId": 21,
-    "title": "Consider the following algorithm to find the length of the longest strictly decreasing contiguous subsequence in list A[0..n-1]. Step 5 is missing. Which inductive structure is correct?",
-    "type": "mcq-single",
-    "options": [
-        "L[i] = { 1 + L[i+1] if A[i] > A[i+1], else 1 }",
-        "L[i] = { 1 + L[i-1] if A[i] > A[i-1], else 1 }",
-        "L[i] = { 1 + L[i-1] if A[i] < A[i-1], else 1 }",
-        "L[i] = { 1 + L[i-1] if A[i] ≥ A[i-1], else 1 }"
-    ],
-    "correctAnswer": "L[i] = { 1 + L[i-1] if A[i] < A[i-1], else 1 }",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "L[i] stores the length of the longest strictly decreasing subsequence ending at A[i]. If A[i] < A[i-1], it extends the previous decreasing subsequence, so L[i] = L[i-1] + 1. Otherwise, it starts a new one: L[i] = 1."
-},
-{
-    "questionId": 22,
-    "title": "What is the asymptotic time complexity of the algorithm for finding the longest strictly decreasing contiguous subsequence?",
-    "type": "mcq-single",
-    "options": [
-        "O(n²)",
-        "O(n log n)",
-        "O(n)",
-        "O(2ⁿ)"
-    ],
-    "correctAnswer": "O(n)",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "The algorithm iterates through the list once, performing constant-time operations per element, so it runs in O(n) time."
-},
-{
-    "questionId": 23,
-    "title": "Given strings x='RADIANT' and y='DISTANT', and function LCS(x,y) returns length of longest common subsequence. What does mystery(x,y) = len(x)+len(y)-LCS(x,y) return?",
-    "type": "numerical",
-    "correctAnswer": 9,
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "LCS('RADIANT','DISTANT') is 'DIANT' length 5. len(x)=7, len(y)=7. mystery = 7+7-5 = 9."
-},
-{
-    "questionId": 24,
-    "title": "Consider four matrices M1(4×6), M2(6×3), M3(3×4), M4(4×6). Which parenthesization minimizes scalar multiplications?",
-    "type": "mcq-single",
-    "options": [
-        "M1(M2(M3M4))",
-        "(M1(M2M3))M4",
-        "(M1M2)(M3M4)",
-        "M1((M2M3)M4)"
-    ],
-    "correctAnswer": "(M1(M2M3))M4",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Compute costs: Option 1: M3M4=3×4×6=72, M2×(M3M4)=6×3×6=108, M1×result=4×6×6=144. Total=324. Others yield higher costs."
-},
-{
-    "questionId": 25,
-    "title": "Given matrices M0(10×20), M1(20×5), M2(5×30), M3(30×10). Minimum scalar multiplications?",
-    "type": "numerical",
-    "correctAnswer": 3500,
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Optimal: ((M0×M1)×(M2×M3)): M0M1=10×20×5=1000, M2M3=5×30×10=1500, result×result=10×5×10=500. Total=1000+1500+500=3000. Actually 3500 with different optimal bracketing."
-},
-{
-    "questionId": 26,
-    "title": "What is the time complexity of the standard DP solution for matrix chain multiplication of n matrices?",
-    "type": "mcq-single",
-    "options": [
-        "O(n)",
-        "O(n²)",
-        "O(n³)",
-        "O(2ⁿ)"
-    ],
-    "correctAnswer": "O(n³)",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "The DP table is n×n, each entry computed in O(n) time, so total O(n³)."
-},
-{
-    "questionId": 27,
-    "title": "Given a grid m×n with hurdles, what does it mean if SP[m-1,n-1] > m+n-2?",
-    "type": "mcq-single",
-    "options": [
-        "No path without double jumps",
-        "Two consecutive columns full of hurdles",
-        "Two consecutive rows full of hurdles",
-        "Diagonal hurdles from bottom-left to top-right"
-    ],
-    "correctAnswer": "No path without double jumps",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "SP is shortest path length. In clear grid, shortest path length is m+n-2. If longer, some cells blocked, forcing detours/double jumps."
-},
-{
-    "questionId": 28,
-    "title": "For a sequence of length n, the longest strictly decreasing subsequence (not necessarily contiguous) DP algorithm runs in:",
-    "type": "mcq-single",
-    "options": [
-        "O(n)",
-        "O(n log n)",
-        "O(n²)",
-        "O(n³)"
-    ],
-    "correctAnswer": "O(n log n)",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Non-contiguous version uses patience sorting, O(n log n). Contiguous version is O(n)."
-},
-{
-    "questionId": 29,
-    "title": "If LCS('DYNAMIC','PROGRAM') = 3, what is mystery('DYNAMIC','PROGRAM')?",
-    "type": "numerical",
-    "correctAnswer": 11,
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Lengths: 7 and 7. mystery = 7+7-3 = 11."
-},
-{
-    "questionId": 30,
-    "title": "For matrices A(2×3), B(3×4), C(4×5), which parenthesization minimizes multiplications?",
-    "type": "mcq-single",
-    "options": [
-        "(AB)C",
-        "A(BC)"
-    ],
-    "correctAnswer": "(AB)C",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "(AB)C cost: AB=2×3×4=24, (AB)C=2×4×5=40, total=64. A(BC): BC=3×4×5=60, A(BC)=2×3×5=30, total=90. So (AB)C is better."
-},
-{
-    "questionId": 31,
-    "title": "The DP approach for longest common subsequence of strings length m and n has time complexity:",
-    "type": "mcq-single",
-    "options": [
-        "O(mn)",
-        "O(m+n)",
-        "O(2^m)",
-        "O(m log n)"
-    ],
-    "correctAnswer": "O(mn)",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Standard DP uses m×n table filled in O(1) per cell → O(mn)."
-},
-{
-    "questionId": 32,
-    "title": "Given sequence [10,9,2,5,3,7,101,18], length of longest strictly increasing subsequence?",
-    "type": "numerical",
-    "correctAnswer": 4,
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "One LIS is [2,5,7,101] length 4."
-},
-{
-    "questionId": 33,
-    "title": "If M1(5×10), M2(10×20), M3(20×5), optimal multiplication count?",
-    "type": "numerical",
-    "correctAnswer": 1250,
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "M1(M2M3): M2M3=10×20×5=1000, M1×result=5×10×5=250, total=1250. (M1M2)M3: M1M2=5×10×20=1000, result×M3=5×20×5=500, total=1500. So 1250 is optimal."
-},
-{
-    "questionId": 34,
-    "title": "What does the DP cell L[i][j] represent in longest common subsequence?",
-    "type": "mcq-single",
-    "options": [
-        "LCS of first i chars of str1 and first j of str2",
-        "LCS ending at i in str1 and j in str2",
-        "Edit distance between prefixes",
-        "Longest common substring length"
-    ],
-    "correctAnswer": "LCS of first i chars of str1 and first j of str2",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Standard definition: L[i][j] = LCS of str1[0..i-1] and str2[0..j-1]."
-},
-{
-    "questionId": 35,
-    "title": "For the longest decreasing contiguous subsequence DP, what is base case?",
-    "type": "mcq-single",
-    "options": [
-        "L[0]=0",
-        "L[0]=1",
-        "L[n-1]=0",
-        "L[n-1]=1"
-    ],
-    "correctAnswer": "L[0]=1",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Single element is decreasing subsequence of length 1."
-},
-{
-    "questionId": 36,
-    "title": "Given matrices chain with dimensions [5,10,3,12,5], min multiplications?",
-    "type": "numerical",
-    "correctAnswer": 405,
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Matrices: A1(5×10), A2(10×3), A3(3×12), A4(12×5). Optimal: (A1A2)(A3A4) cost: A1A2=150, A3A4=180, multiply results 5×3×5=75, total=150+180+75=405."
-},
-{
-    "questionId": 37,
-    "title": "In grid DP, if moving only right and down, number of unique paths in m×n grid?",
-    "type": "numerical",
-    "correctAnswer": 6,
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "For 3×3 grid: paths = 6. Formula: C(m+n-2, m-1). For 3×3: C(4,2)=6."
-},
-{
-    "questionId": 38,
-    "title": "For strings 'AGGTAB' and 'GXTXAYB', LCS length?",
-    "type": "numerical",
-    "correctAnswer": 4,
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "LCS is 'GTAB' length 4."
-},
-{
-    "questionId": 39,
-    "title": "What is space complexity of LCS DP with two strings length m,n?",
-    "type": "mcq-single",
-    "options": [
-        "O(mn)",
-        "O(m+n)",
-        "O(min(m,n))",
-        "O(1)"
-    ],
-    "correctAnswer": "O(min(m,n))",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Can be optimized to O(min(m,n)) by keeping only two rows."
-},
-{
-    "questionId": 40,
-    "title": "In matrix chain DP, what does m[i][j] store?",
-    "type": "mcq-single",
-    "options": [
-        "Min multiplications for matrices i..j",
-        "Max multiplications",
-        "Cost of multiplying i and j",
-        "Dimensions product"
-    ],
-    "correctAnswer": "Min multiplications for matrices i..j",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Standard DP definition: m[i][j] = minimum scalar multiplications to compute product of matrices i through j."
-},
-{
-    "questionId": 41,
-    "title": "Given a string S, find the length of the longest palindromic subsequence using DP. What is the recurrence relation for LPS(i,j)?",
-    "type": "mcq-single",
-    "options": [
-        "If S[i]==S[j], LPS(i,j)=2+LPS(i+1,j-1); else max(LPS(i+1,j), LPS(i,j-1))",
-        "If S[i]==S[j], LPS(i,j)=1+LPS(i+1,j-1); else LPS(i+1,j-1)",
-        "If S[i]==S[j], LPS(i,j)=LPS(i+1,j-1); else max(LPS(i+1,j), LPS(i,j-1))",
-        "If S[i]==S[j], LPS(i,j)=1+LPS(i+1,j-1); else max(LPS(i+1,j), LPS(i,j-1))"
-    ],
-    "correctAnswer": "If S[i]==S[j], LPS(i,j)=2+LPS(i+1,j-1); else max(LPS(i+1,j), LPS(i,j-1))",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "For LPS, if ends match, they contribute 2 to length (since both ends counted). Then recurse on inner substring i+1..j-1. If not match, try dropping one end."
-},
-{
-    "questionId": 42,
-    "title": "Given an array of integers, find the maximum sum of a subsequence where no two elements are adjacent. Recurrence: dp[i] = ?",
-    "type": "mcq-single",
-    "options": [
-        "max(dp[i-1], dp[i-2]+arr[i])",
-        "max(dp[i-1], dp[i-2])",
-        "dp[i-1]+arr[i]",
-        "max(dp[i-1]+arr[i], dp[i-2])"
-    ],
-    "correctAnswer": "max(dp[i-1], dp[i-2]+arr[i])",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "At position i: either skip arr[i] (take dp[i-1]), or take arr[i] plus dp[i-2] (since i-1 can't be taken)."
-},
-{
-    "questionId": 43,
-    "title": "You are given coins of different denominations and a total amount. Find the minimum number of coins needed to make up that amount using DP. Time complexity?",
-    "type": "mcq-single",
-    "options": [
-        "O(n·amount)",
-        "O(n²)",
-        "O(2ⁿ)",
-        "O(n log amount)"
-    ],
-    "correctAnswer": "O(n·amount)",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "DP table of size amount, for each amount we try n coins → O(n·amount)."
-},
-{
-    "questionId": 44,
-    "title": "Given a set of integers, determine if it can be partitioned into two subsets with equal sum. This is a variant of:",
-    "type": "mcq-single",
-    "options": [
-        "Knapsack problem",
-        "Longest common subsequence",
-        "Matrix chain multiplication",
-        "Edit distance"
-    ],
-    "correctAnswer": "Knapsack problem",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Partition problem reduces to subset sum: find subset with sum = total/2, which is a 0/1 knapsack problem."
-},
-{
-    "questionId": 45,
-    "title": "Given two strings, find the minimum edit distance (insert, delete, replace) to convert one to another. Recurrence if characters differ?",
-    "type": "mcq-single",
-    "options": [
-        "1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])",
-        "1 + min(dp[i-1][j], dp[i][j-1])",
-        "dp[i-1][j-1]",
-        "1 + dp[i-1][j-1]"
-    ],
-    "correctAnswer": "1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "If chars differ: minimum of insert (dp[i][j-1]), delete (dp[i-1][j]), replace (dp[i-1][j-1]) plus 1."
-},
-
-{
-    "questionId": 46,
-    "title": "Given a weighted directed graph with n vertices, find the shortest paths between all pairs using Floyd-Warshall. Time complexity?",
-    "type": "mcq-single",
-    "options": [
-        "O(n³)",
-        "O(n²)",
-        "O(n·m)",
-        "O(2ⁿ)"
-    ],
-    "correctAnswer": "O(n³)",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Three nested loops over vertices → O(n³)."
-},
-{
-    "questionId": 47,
-    "title": "Given a sequence, find the length of the longest bitonic subsequence (first increasing then decreasing). Approach uses:",
-    "type": "mcq-single",
-    "options": [
-        "Two LIS arrays: forward and backward",
-        "Single LIS scan",
-        "LCS with reversed sequence",
-        "Edit distance"
-    ],
-    "correctAnswer": "Two LIS arrays: forward and backward",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Compute LIS ending at each i (forward) and LIS starting at each i (backward = LDS from end). Then bitonic length at i = forward[i] + backward[i] - 1."
-},
-{
-    "questionId": 48,
-    "title": "Given an array, find the maximum product subarray. DP recurrence must track:",
-    "type": "mcq-single",
-    "options": [
-        "Both max and min product ending at i",
-        "Only max product ending at i",
-        "Only min product ending at i",
-        "Sum ending at i"
-    ],
-    "correctAnswer": "Both max and min product ending at i",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Negative numbers can flip min to max, so we need both max_prod[i] and min_prod[i] to handle sign changes."
-},
-{
-    "questionId": 49,
-    "title": "Given a string, find the minimum number of deletions to make it a palindrome. Relates to:",
-    "type": "mcq-single",
-    "options": [
-        "Longest Palindromic Subsequence",
-        "Edit Distance",
-        "Longest Common Substring",
-        "Matrix Chain Multiplication"
-    ],
-    "correctAnswer": "Longest Palindromic Subsequence",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "Min deletions = length of string - length of LPS (since LPS is the largest palindrome we can keep)."
-},
-{
-    "questionId": 50,
-    "title": "Given a rod of length n and prices for lengths 1..n, maximize revenue by cutting. Optimal substructure: revenue(n) = ?",
-    "type": "mcq-single",
-    "options": [
-        "max(price[i] + revenue(n-i)) for i=1 to n",
-        "max(revenue(i) + revenue(n-i))",
-        "price[n]",
-        "max(price[i])"
-    ],
-    "correctAnswer": "max(price[i] + revenue(n-i)) for i=1 to n",
-    "maxScore": 1,
-    "hasExplanations": true,
-    "explanation": "For rod cutting: try all possible first cut lengths i, take price[i] + optimal revenue for remaining length n-i."
-}
-
-        ];
-
+        // Anti-cheating variables
+        let antiCheating;
+        let isQuizActive = false;
+        let cheatingAttempts = 0;
+        let tabSwitchCount = 0;
+        
+        let questions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
         let currentUser = {};
+        
+        // API Configuration
+        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
+        const QUESTIONS_API = `${API_BASE_URL}/questions/Dynamic%20programming?limit=50`;
+        const SESSION_API = `${API_BASE_URL}/session-info`;
+        const SUBMISSION_API = `${API_BASE_URL}/pdsa-submission`;
+        const CHEATING_LOG_API = `${API_BASE_URL}/log-cheating`;
+
+        // Initialize quiz when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🔒 Initializing Dynamic programming Quiz with anti-cheating...');
+            
+            try {
+                // First, get user session if available
+                currentUser = { username: 'TestUser', email: 'test@example.com' };
+                
+                try {
+                    const response = await fetch(SESSION_API, {
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.username && data.email) {
+                            currentUser = { username: data.username, email: data.email };
+                            console.log('✅ User logged in:', currentUser);
+                        }
+                    }
+                } catch (error) {
+                    console.log('ℹ️ Using test user for demo');
+                }
+                
+                // Start quiz initialization
+                initializeQuiz();
+                
+            } catch (error) {
+                console.error('Failed to initialize quiz:', error);
+                document.getElementById('loadingScreen').innerHTML = 
+                    '<div class="error-message"><h3>Error Loading Quiz</h3><p>Please refresh the page</p><button class="btn mt-3" onclick="location.reload()">Retry</button></div>';
+            }
+        });
+
+        // Listen for auto-submission due to cheating
+        document.addEventListener('cheatingAutoSubmit', function(e) {
+            console.log('Auto-submitting due to cheating:', e.detail);
+            
+            // Mark as auto-submitted
+            window.quizAutoSubmitted = true;
+            
+            // Deactivate anti-cheating immediately
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for auto-submission');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            // Remove blur and show results clearly
+            document.body.classList.remove('blurred');
+            
+            // Hide warning overlay immediately
+            const warningOverlay = document.getElementById('warningOverlay');
+            if (warningOverlay) {
+                warningOverlay.style.display = 'none';
+            }
+            
+            // Exit fullscreen for better viewing
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            
+            // Enable text selection for results
+            document.querySelectorAll('*').forEach(el => {
+                el.style.userSelect = 'auto';
+                el.style.webkitUserSelect = 'auto';
+            });
+            
+            // Now submit the quiz
+            submitQuiz();
+        });
 
         async function initializeQuiz() {
-            console.log('🚀 Initializing quiz...');
+            console.log('🚀 Initializing Dynamic programming Quiz...');
             
-            // Initialize with test user first (fallback)
-            currentUser = { username: 'TestUser', email: 'test@example.com' };
+            // Set default user
             userAnswers = {};
             
-            // Try to get user session (non-blocking)
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-                    credentials: 'include',
-                    mode: 'cors'
+            // Fetch random questions for Sorting Algorithms
+            await fetchRandomQuestions();
+            
+            // Initialize anti-cheating AFTER getting questions
+            if (window.AntiCheating && questions.length > 0) {
+                antiCheating = window.AntiCheating.initialize({
+                    quizName: "Dynamic programming Quiz",
+                    requestFullscreen: false, // CHANGED: Disable fullscreen to avoid errors
+                    user: currentUser,
+                    autoSubmitThreshold: 5
                 });
+
+                // Allow text selection for ALL quiz elements BEFORE initializing
+                // This is the CRITICAL FIX - allow selection before any events are bound
+                const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
+                
+                if (window.AntiCheating.allowSelection) {
+                    window.AntiCheating.allowSelection(allQuizElements);
+                }
+                
+                // Also add allow-select class directly to prevent text_selection violations
+                document.querySelectorAll(allQuizElements).forEach(el => {
+                    el.classList.add('allow-select');
+                });
+                
+                // Mark quiz as active
+                isQuizActive = true;
+                
+                console.log('🔒 Anti-cheating initialized with text selection allowed');
+            } else {
+                console.error('❌ AntiCheating library not loaded or no questions!');
+                // If anti-cheating not available, still run quiz
+                isQuizActive = true;
+            }
+        }
+
+        async function fetchRandomQuestions() {
+            try {
+                console.log('📡 Fetching random Sorting Algorithms questions...');
+                const response = await fetch(QUESTIONS_API);
                 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.username && data.email) {
-                        currentUser = { username: data.username, email: data.email };
-                        console.log('✅ User logged in:', currentUser);
+                    if (data.success && data.questions && data.questions.length > 0) {
+                        questions = data.questions;
+                        console.log(`✅ Loaded ${questions.length} random questions`);
+                        
+                        // Hide loading, show quiz
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('quizContainer').style.display = 'block';
+                        
+                        // Update question count display
+                        document.getElementById('questionCount').textContent = `${questions.length} Questions`;
+                        
+                        renderCurrentQuestion();
+                        updateProgress();
+                    } else {
+                        throw new Error(data.message || 'No questions found for Dynamic programming');
                     }
+                } else {
+                    throw new Error('Failed to fetch questions from server');
                 }
             } catch (error) {
-                console.log('ℹ️ Using test user for demo');
+                console.error('❌ Error loading questions:', error);
+                document.getElementById('loadingScreen').innerHTML = `
+                    <div class="error-message">
+                        <h3>Error Loading Quiz</h3>
+                        <p>${error.message}</p>
+                        <p>Please check your connection and try again.</p>
+                        <button class="btn mt-3" onclick="location.reload()">Retry</button>
+                    </div>
+                `;
             }
-            
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            
-            renderCurrentQuestion();
-            updateProgress();
         }
 
         function renderCurrentQuestion() {
+            if (!questions || questions.length === 0) {
+                console.error('No questions loaded');
+                return;
+            }
+            
             const question = questions[currentQuestionIndex];
             const container = document.getElementById('questionContainer');
             
             let questionHTML = `
-                <div class="question-card">
-                    <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
+                <div class="question-card allow-select">
+                    <div class="question-header">
+                        <div class="question-title">
+                            <h4 class="allow-select">Question ${currentQuestionIndex + 1}: ${question.title}</h4>
+                        </div>
+                        <div class="score-indicator">
+                            ${question.maxScore || 1} Point${question.maxScore > 1 ? 's' : ''}
+                        </div>
+                    </div>
             `;
 
-            // Add description if available
             if (question.description) {
-                questionHTML += `<p class="mb-3">${question.description}</p>`;
+                questionHTML += `<p class="mb-3 allow-select">${question.description}</p>`;
             }
 
-            // Add matrix tables for relevant questions
-            if (question.questionId === 3 || question.questionId === 4) {
+            if (question.code) {
                 questionHTML += `
-                    <div class="matrix-table-container mt-3">
-                        <table class="matrix-table">
-                            <thead>
-                                <tr>
-                                    <th>Matrix</th>
-                                    <th>Dimensions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>A</td><td>10 × 100</td></tr>
-                                <tr><td>B</td><td>100 × 5</td></tr>
-                                <tr><td>C</td><td>5 × 50</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            }
-
-            if (question.questionId === 10) {
-                questionHTML += `
-                    <div class="matrix-table-container mt-3">
-                        <table class="matrix-table">
-                            <thead>
-                                <tr>
-                                    <th>Matrix</th>
-                                    <th>Dimensions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>M0</td><td>10 × 20</td></tr>
-                                <tr><td>M1</td><td>20 × 5</td></tr>
-                                <tr><td>M2</td><td>5 × 30</td></tr>
-                                <tr><td>M3</td><td>30 × 10</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            }
-
-            if (question.questionId === 16) {
-                questionHTML += `
-                    <div class="matrix-table-container mt-3">
-                        <table class="matrix-table">
-                            <thead>
-                                <tr>
-                                    <th>Matrix</th>
-                                    <th>Dimensions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>A</td><td>5 × 4</td></tr>
-                                <tr><td>B</td><td>4 × 6</td></tr>
-                                <tr><td>C</td><td>6 × 2</td></tr>
-                                <tr><td>D</td><td>2 × 7</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            }
-
-            // Add DP table visualization
-            if (question.questionId === 8 || question.questionId === 12 || question.questionId === 17) {
-                questionHTML += `
-                    <div class="dp-table mt-3">
-                        <p><strong>DP Table Structure:</strong></p>
-                        <div class="code-block">
-                            <pre>dp[i][j] = minimum cost for matrices i to j
-
-Fill order: diagonal by diagonal
-Time: O(n³), Space: O(n²)</pre>
-                        </div>
+                    <div class="code-block">
+                        <pre class="allow-select">${question.code}</pre>
                     </div>
                 `;
             }
@@ -1091,10 +637,11 @@ Time: O(n³), Space: O(n²)</pre>
                 question.options.forEach((option, index) => {
                     const isSelected = userAnswers[question.questionId] === option;
                     questionHTML += `
-                        <label class="option-label ${isSelected ? 'selected' : ''}">
-                            <input type="radio" name="q${question.questionId}" value="${option}" 
-                                   ${isSelected ? 'checked' : ''} style="display: none;">
-                            ${option}
+                        <label class="option-label allow-select ${isSelected ? 'selected' : ''}" 
+                               data-value="${option}" 
+                               data-question-id="${question.questionId}"
+                               data-type="mcq-single">
+                            <span class="allow-select">${option}</span>
                         </label>
                     `;
                 });
@@ -1103,12 +650,13 @@ Time: O(n³), Space: O(n²)</pre>
                 questionHTML += `<div class="options-container mt-3">`;
                 const currentAnswers = userAnswers[question.questionId] || [];
                 question.options.forEach((option, index) => {
-                    const isSelected = currentAnswers.includes(option);
+                    const isSelected = Array.isArray(currentAnswers) && currentAnswers.includes(option);
                     questionHTML += `
-                        <label class="option-label ${isSelected ? 'selected' : ''}">
-                            <input type="checkbox" name="q${question.questionId}" value="${option}" 
-                                   ${isSelected ? 'checked' : ''} style="display: none;">
-                            ${option}
+                        <label class="option-label allow-select ${isSelected ? 'selected' : ''}" 
+                               data-value="${option}" 
+                               data-question-id="${question.questionId}"
+                               data-type="mcq-multiple">
+                            <span class="allow-select">${option}</span>
                         </label>
                     `;
                 });
@@ -1117,10 +665,10 @@ Time: O(n³), Space: O(n²)</pre>
                 const currentAnswer = userAnswers[question.questionId] || '';
                 questionHTML += `
                     <div class="mt-3">
-                        <input type="number" class="numerical-input" 
+                        <input type="number" class="numerical-input allow-select" 
                                value="${currentAnswer}" 
                                placeholder="Enter your answer"
-                               oninput="saveNumericalAnswer(${question.questionId}, this.value)">
+                               oninput="saveNumericalAnswer('${question.questionId}', this.value)">
                     </div>
                 `;
             }
@@ -1129,41 +677,62 @@ Time: O(n³), Space: O(n²)</pre>
 
             container.innerHTML = questionHTML;
 
-            // Add event listeners for MCQ options
-            if (question.type === 'mcq-single') {
-                document.querySelectorAll('.option-label').forEach(label => {
-                    label.addEventListener('click', function() {
-                        document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
-                        this.classList.add('selected');
-                        const radio = this.querySelector('input[type="radio"]');
-                        radio.checked = true;
-                        userAnswers[question.questionId] = radio.value;
-                    });
-                });
-            } else if (question.type === 'mcq-multiple') {
-                document.querySelectorAll('.option-label').forEach(label => {
-                    label.addEventListener('click', function() {
-                        this.classList.toggle('selected');
-                        const checkbox = this.querySelector('input[type="checkbox"]');
-                        checkbox.checked = !checkbox.checked;
+            // Add click handlers for MCQ options
+            setTimeout(() => {
+                const optionLabels = container.querySelectorAll('.option-label');
+                optionLabels.forEach(label => {
+                    label.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation(); // Prevent event bubbling
                         
-                        const selectedOptions = [];
-                        document.querySelectorAll(`input[name="q${question.questionId}"]:checked`).forEach(cb => {
-                            selectedOptions.push(cb.value);
-                        });
-                        userAnswers[question.questionId] = selectedOptions;
+                        const questionId = this.getAttribute('data-question-id');
+                        const value = this.getAttribute('data-value');
+                        const type = this.getAttribute('data-type');
+                        
+                        if (type === 'mcq-single') {
+                            // Deselect all other options
+                            document.querySelectorAll(`[data-question-id="${questionId}"]`).forEach(el => {
+                                el.classList.remove('selected');
+                            });
+                            
+                            // Select this one
+                            this.classList.add('selected');
+                            userAnswers[questionId] = value;
+                        } 
+                        else if (type === 'mcq-multiple') {
+                            // Toggle selection
+                            this.classList.toggle('selected');
+                            
+                            if (!userAnswers[questionId]) {
+                                userAnswers[questionId] = [];
+                            }
+                            
+                            if (this.classList.contains('selected')) {
+                                if (!userAnswers[questionId].includes(value)) {
+                                    userAnswers[questionId].push(value);
+                                }
+                            } else {
+                                userAnswers[questionId] = userAnswers[questionId].filter(v => v !== value);
+                            }
+                        }
+                        
+                        updateProgress();
                     });
                 });
-            }
+            }, 10);
         }
 
         function saveNumericalAnswer(questionId, value) {
-            // Convert to number if possible, otherwise keep as string
-            const numValue = parseFloat(value);
-            userAnswers[questionId] = isNaN(numValue) ? value : numValue;
+            userAnswers[questionId] = value.trim();
+            updateProgress();
         }
 
         function nextQuestion() {
+            if (!questions || questions.length === 0) {
+                console.error('No questions loaded');
+                return;
+            }
+            
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 renderCurrentQuestion();
@@ -1172,6 +741,11 @@ Time: O(n³), Space: O(n²)</pre>
         }
 
         function previousQuestion() {
+            if (!questions || questions.length === 0) {
+                console.error('No questions loaded');
+                return;
+            }
+            
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
                 renderCurrentQuestion();
@@ -1179,7 +753,50 @@ Time: O(n³), Space: O(n²)</pre>
             }
         }
 
+        function calculateCurrentScore() {
+            if (!questions || questions.length === 0) {
+                return { score: 0, totalPossible: 0 };
+            }
+            
+            let score = 0;
+            let totalPossible = 0;
+            
+            questions.forEach(question => {
+                const userAnswer = userAnswers[question.questionId];
+                totalPossible += question.maxScore || 1;
+                
+                if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
+                    if (question.type === 'mcq-multiple') {
+                        const userArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
+                        const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer];
+                        
+                        const userSorted = [...userArr].sort();
+                        const correctSorted = [...correctArr].sort();
+                        
+                        if (JSON.stringify(userSorted) === JSON.stringify(correctSorted)) {
+                            score += question.maxScore || 1;
+                        }
+                    } else if (question.type === 'numerical') {
+                        if (String(userAnswer).trim() === String(question.correctAnswer).trim()) {
+                            score += question.maxScore || 1;
+                        }
+                    } else {
+                        if (userAnswer === question.correctAnswer) {
+                            score += question.maxScore || 1;
+                        }
+                    }
+                }
+            });
+            
+            return {
+                score: score,
+                totalPossible: totalPossible
+            };
+        }
+
         function updateProgress() {
+            if (!questions || questions.length === 0) return;
+            
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
             document.getElementById('progressFill').style.width = `${progress}%`;
             document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
@@ -1188,94 +805,109 @@ Time: O(n³), Space: O(n²)</pre>
             const nextBtn = document.getElementById('nextBtn');
             const submitBtn = document.getElementById('submitBtn');
             
-            // Show/hide appropriate buttons
             if (currentQuestionIndex === questions.length - 1) {
-                // Last question: Hide Next, Show Submit button
                 nextBtn.style.display = 'none';
                 submitBtn.style.display = 'inline-block';
             } else {
-                // Not last question: Show Next, Hide Submit button
                 nextBtn.style.display = 'inline-block';
                 submitBtn.style.display = 'none';
             }
         }
 
-        function calculateCurrentScore() {
-            let score = 0;
-            questions.forEach(question => {
-                const userAnswer = userAnswers[question.questionId];
-                if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
-                    if (Array.isArray(question.correctAnswer)) {
-                        // For multiple choice questions
-                        if (Array.isArray(userAnswer) && 
-                            userAnswer.length === question.correctAnswer.length &&
-                            userAnswer.every(val => question.correctAnswer.includes(val))) {
-                            score += question.maxScore;
-                        }
-                    } else {
-                        // For single answer questions
-                        if (userAnswer == question.correctAnswer) {
-                            score += question.maxScore;
-                        }
-                    }
-                }
-            });
-            return score;
-        }
-
         async function submitQuiz() {
-            const score = calculateCurrentScore();
+            // Deactivate anti-cheating FIRST
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated after submission');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            if (!questions || questions.length === 0) {
+                alert('No questions to submit');
+                return;
+            }
+            
+            // Disable the submit button to prevent multiple submissions
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.disabled = true;
+            
+            const result = calculateCurrentScore();
+            const score = result.score;
+            const totalPossible = result.totalPossible;
+            const percentage = Math.round((score / totalPossible) * 100);
+            
+            // Get cheating data if available
+            let cheatingData = {};
+            if (antiCheating && antiCheating.getStats) {
+                cheatingData = antiCheating.getStats();
+            }
+            
             const quizData = {
                 username: currentUser.username,
                 email: currentUser.email,
-                topic: "Dynamic Programming",
+                topic: "Dynamic programming",
                 score: score,
-                maxScore: questions.length,
-                percentage: Math.round((score / questions.length) * 100),
-                timestamp: new Date(),
-                questions: questions.map(question => ({
-                    questionId: question.questionId,
-                    title: question.title,
-                    type: question.type,
-                    userAnswer: userAnswers[question.questionId] || '',
-                    correctAnswer: question.correctAnswer,
-                    options: question.options || [],
-                    score: (() => {
-                        const userAnswer = userAnswers[question.questionId];
-                        if (userAnswer === undefined || userAnswer === '' || userAnswer === null) return 0;
-                        
-                        if (Array.isArray(question.correctAnswer)) {
-                            return (Array.isArray(userAnswer) && 
-                                   userAnswer.length === question.correctAnswer.length &&
-                                   userAnswer.every(val => question.correctAnswer.includes(val))) 
-                                   ? question.maxScore : 0;
+                maxScore: totalPossible,
+                percentage: percentage,
+                timestamp: new Date().toISOString(),
+                cheatingData: cheatingData,
+                isAutoSubmitted: window.quizAutoSubmitted || false,
+                questions: questions.map(question => {
+                    const userAnswer = userAnswers[question.questionId];
+                    let isCorrect = false;
+                    let earnedScore = 0;
+                    
+                    if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
+                        if (question.type === 'mcq-multiple') {
+                            const userArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
+                            const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer];
+                            const userSorted = [...userArr].sort();
+                            const correctSorted = [...correctArr].sort();
+                            isCorrect = JSON.stringify(userSorted) === JSON.stringify(correctSorted);
+                        } else if (question.type === 'numerical') {
+                            isCorrect = String(userAnswer).trim() === String(question.correctAnswer).trim();
                         } else {
-                            return (userAnswer == question.correctAnswer) ? question.maxScore : 0;
+                            isCorrect = userAnswer === question.correctAnswer;
                         }
-                    })(),
-                    maxScore: question.maxScore,
-                    hasExplanations: question.hasExplanations,
-                    explanation: question.explanation
-                }))
+                        
+                        earnedScore = isCorrect ? (question.maxScore || 1) : 0;
+                    }
+                    
+                    return {
+                        questionId: question.questionId,
+                        title: question.title,
+                        type: question.type,
+                        userAnswer: userAnswer || (question.type === 'mcq-multiple' ? [] : ''),
+                        correctAnswer: question.correctAnswer,
+                        score: earnedScore,
+                        maxScore: question.maxScore || 1,
+                        hasExplanations: question.hasExplanations,
+                        explanation: question.explanation
+                    };
+                })
             };
 
-            // Save to backend api/algorithm-submissions
+            // Try to save results
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+                const response = await fetch(SUBMISSION_API, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify(quizData)
+                    body: JSON.stringify(quizData),
+                    credentials: 'include'
                 });
-
+                
                 if (response.ok) {
                     console.log('✅ Quiz results saved successfully');
                 } else {
-                    console.log('⚠️ Failed to save results, but continuing...');
+                    console.log('⚠️ Failed to save results');
                 }
             } catch (error) {
-                console.log('⚠️ Error saving results, but continuing...');
+                console.log('⚠️ Error saving results:', error);
             }
 
             showResults(quizData);
@@ -1288,16 +920,63 @@ Time: O(n³), Space: O(n²)</pre>
             document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
             document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
             
+            // Show cheating info if applicable
+            const cheatingLogElement = document.getElementById('cheatingLog');
+            if (quizData.isAutoSubmitted) {
+                cheatingLogElement.textContent = "⚠️ This quiz was auto-submitted due to multiple cheating attempts.";
+                cheatingLogElement.style.color = "#dc3545";
+            } else if (quizData.cheatingData && quizData.cheatingData.attempts > 0) {
+                cheatingLogElement.textContent = `⚠️ ${quizData.cheatingData.attempts} suspicious activities were detected during this quiz.`;
+                cheatingLogElement.style.color = "#ffc107";
+            }
+            
             const detailedResults = document.getElementById('detailedResults');
-            let resultsHTML = `<h4>Detailed Results:</h4>`;
+            let resultsHTML = `
+                <h4>Detailed Results:</h4>
+                <div class="score-summary mb-4">
+                    <h5>Final Score Breakdown</h5>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 1).length}</div>
+                            <div class="score-label">1-Point Questions</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 2).length}</div>
+                            <div class="score-label">2-Point Questions</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 3).length}</div>
+                            <div class="score-label">3-Point Questions</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">${quizData.maxScore}</div>
+                            <div class="score-label">Total Points</div>
+                        </div>
+                    </div>
+                </div>
+            `;
             
             quizData.questions.forEach((question, index) => {
                 const isCorrect = question.score > 0;
+                const userAnswer = Array.isArray(question.userAnswer) 
+                    ? question.userAnswer.join(', ') 
+                    : question.userAnswer;
+                const correctAnswer = Array.isArray(question.correctAnswer) 
+                    ? question.correctAnswer.join(', ') 
+                    : question.correctAnswer;
+                
                 resultsHTML += `
-                    <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}" style="border-left-color: ${isCorrect ? '#28a745' : '#dc3545'}">
-                        <h6>Q${index + 1}: ${question.title}</h6>
-                        <p><strong>Your Answer:</strong> ${Array.isArray(question.userAnswer) ? question.userAnswer.join(', ') : question.userAnswer}</p>
-                        <p><strong>Correct Answer:</strong> ${Array.isArray(question.correctAnswer) ? question.correctAnswer.join(', ') : question.correctAnswer}</p>
+                    <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
+                        <div class="question-header">
+                            <div class="question-title">
+                                <h6>Q${index + 1}: ${question.title}</h6>
+                            </div>
+                            <div class="score-indicator" style="background: ${isCorrect ? '#28a745' : '#dc3545'}">
+                                ${question.score}/${question.maxScore}
+                            </div>
+                        </div>
+                        <p><strong>Your Answer:</strong> ${userAnswer || 'No answer'}</p>
+                        <p><strong>Correct Answer:</strong> ${correctAnswer}</p>
                         <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
                         ${question.hasExplanations ? `
                             <div class="explanation-section">
@@ -1312,27 +991,76 @@ Time: O(n³), Space: O(n²)</pre>
         }
 
         function restartQuiz() {
+            // Deactivate current anti-cheating
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for restart');
+            }
+            
+            // Reset all variables
             currentQuestionIndex = 0;
             userAnswers = {};
+            questions = [];
+            isQuizActive = false;
+            window.quizAutoSubmitted = false;
+            
+            // Hide results, show loading
             document.getElementById('resultsContainer').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            // Reset button visibility
-            const nextBtn = document.getElementById('nextBtn');
+            document.getElementById('loadingScreen').style.display = 'block';
+            document.getElementById('quizContainer').style.display = 'none';
+            
+            // Clear cheating log
+            const cheatingLogElement = document.getElementById('cheatingLog');
+            cheatingLogElement.textContent = '';
+            
+            // Re-enable submit button
             const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.disabled = false;
             
-            nextBtn.style.display = 'inline-block';
-            submitBtn.style.display = 'none';
-            
-            renderCurrentQuestion();
-            updateProgress();
+            // Fetch new random questions and re-initialize anti-cheating
+            fetchRandomQuestions().then(() => {
+                if (window.AntiCheating && questions.length > 0) {
+                    antiCheating = window.AntiCheating.initialize({
+                        quizName: "Dynamic programming Quiz - Retake",
+                        requestFullscreen: false, // Keep disabled
+                        user: currentUser,
+                        autoSubmitThreshold: 5
+                    });
+
+                    const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
+                    
+                    if (window.AntiCheating.allowSelection) {
+                        window.AntiCheating.allowSelection(allQuizElements);
+                    }
+                    
+                    document.querySelectorAll(allQuizElements).forEach(el => {
+                        el.classList.add('allow-select');
+                    });
+                    
+                    isQuizActive = true;
+                    console.log('🔒 Anti-cheating reactivated for retake');
+                }
+            });
         }
 
         function goToHome() {
+            // Deactivate anti-cheating before leaving
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for home navigation');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            // Exit fullscreen if active
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            
+            // Redirect to home page
             window.location.href = './iitm-pdsa.html';
         }
-
-        // Initialize quiz when page loads
-        window.addEventListener('DOMContentLoaded', initializeQuiz);
     </script>
 </body>
 </html>
