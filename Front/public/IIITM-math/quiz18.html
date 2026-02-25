@@ -1806,7 +1806,7 @@ function showValidationFeedback(questionIndex, feedback, suggestion) {
                 }
                 
                 // NEW: Pass email to get personalized question set
-                const response = await fetch(`http://localhost:4000/api/iitm-math-questions/Quiz1_midterm?email=${encodeURIComponent(email)}&count=50`, {
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Quiz1_midterm?email=${encodeURIComponent(email)}&count=50`, {
 
                     credentials: 'include'
                 });
@@ -3161,4 +3161,5 @@ document.addEventListener('DOMContentLoaded', function() {
    
 </div>
 </body>
+
 </html>
