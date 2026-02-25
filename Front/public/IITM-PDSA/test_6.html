@@ -3,18 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Data Structures</title>
-    <!-- Include Monaco Editor for code editing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <title>Advanced Data Structures Quiz</title>
+    <!-- Load Anti-Cheating Library -->
+    <script src="anti-cheating.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* ANTI-CHEATING CSS */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Allow text selection only for specific elements */
+        .code-block pre,
+        .option-label,
+        .numerical-input,
+        .explanation-section,
+        .question-card h4,
+        .question-card p,
+        .btn {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        
+        /* Warning overlay */
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 2rem;
+            text-align: center;
+            flex-direction: column;
+        }
+        
+        .warning-overlay h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+        
+        /* Blur effect when tab switching */
+        body.blurred {
+            filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        /* Security indicator */
+        .security-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .security-indicator.warning {
+            background: rgba(220, 53, 69, 0.9);
+            animation: pulse 1s infinite;
+        }
+        
+        .security-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Original styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -23,7 +110,7 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
-           
+    
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -39,40 +126,6 @@
             padding: 25px;
             margin-bottom: 25px;
             border-left: 5px solid #667eea;
-        }
-
-        .code-editor-container {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            margin: 20px 0;
-            height: 400px;
-        }
-
-        .test-cases {
-            background: #e8f4fd;
-            border: 1px solid #bee5eb;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-
-        .test-result {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            font-family: monospace;
-        }
-
-        .test-passed {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-
-        .test-failed {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
         }
 
         .btn {
@@ -105,7 +158,6 @@
         }
 
         .results-container { display: none; padding: 30px; }
-        .loading { display: none; }
         
         .explanation-section {
             background: #fff3cd;
@@ -151,15 +203,32 @@
             outline: none;
         }
 
-        .code-snippet {
-            background: #2d2d2d;
-            color: #f8f8f2;
+        .code-block {
+            background: white; /* change this to white */
+            color: black; /* change this to black */
             padding: 15px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
             margin: 15px 0;
             overflow-x: auto;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .btn-success {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
             color: white !important;
@@ -174,28 +243,138 @@
             transform: translateY(-2px) scale(1.05);
             box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .topic-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .btn-outline-secondary {
+            background: white !important;
+            color: #6c757d !important;
+            border: 2px solid #6c757d !important;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: #6c757d !important;
+            color: white !important;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .question-title {
+            flex: 1;
+            margin-right: 15px;
+        }
+        
+        .score-indicator {
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .score-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #28a745;
+        }
+        
+        .score-breakdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            min-width: 100px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .score-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Advanced Data Structures</h1>
-            <p>Test your understanding of Union–Find, Priority Queues, Heaps & Search Trees</p>
-        </div>
+    <!-- Security Indicator -->
+    <div id="securityIndicator" class="security-indicator">
+        <div class="security-dot"></div>
+        <span id="securityText">Monitoring Active</span>
+    </div>
 
+    <!-- Warning overlay -->
+    <div id="warningOverlay" class="warning-overlay">
+        <div>
+            <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
+            <p style="font-size: 1.5rem;">Please return to the quiz window</p>
+            <p style="font-size: 1.2rem;">Your activity is being monitored and logged</p>
+            <p style="font-size: 1rem; margin-top: 20px;">Attempts logged: <span id="attemptCount">0</span></p>
+        </div>
+    </div>
+
+    <div class="container">
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
-            <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Quiz...</h3>
+            <div class="loading-spinner"></div>
+            <h3>Loading Advanced Data Structures Quiz...</h3>
             <p>Preparing your test environment</p>
+            <small style="opacity: 0.8;">Anti-cheating measures will be activated</small>
         </div>
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div class="topic-header">
+                <h3>Advanced Data Structures Quiz</h3>
+                <p>Test your knowledge of Advanced Data Structures concepts, functions, and logic</p>
+                <p id="questionCount">50 Questions</p>
+                <small style="opacity: 0.8; display: block; margin-top: 10px;">
+                    ⚠️ Anti-cheating measures are active. Do not switch tabs or windows.
+                </small>
+            </div>
+            
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
                     <span id="progressText">Question 1 of 50</span>
-                    
                 </div>
                 <div class="progress">
                     <div class="progress-bar" id="progressFill" style="width: 2%;"></div>
@@ -213,27 +392,25 @@
                     </button>
                 </div>
             </div>
-            
-            
         </div>
 
         <!-- Results -->
-        <div id="resultsContainer" class="results-container">
+        <div id="resultsContainer" class="results-container" style="display: none;">
             <div class="score-display">
                 <h2 id="finalScore">0/50</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
+                <p class="mt-2"><strong>Topic:</strong> Advanced Data Structures </p>
+                <p id="cheatingLog" style="font-size: 0.9rem; opacity: 0.8;"></p>
             </div>
             <div id="detailedResults"></div>
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <!-- Left: Take Quiz Again -->
-                 <button class="btn btn-outline-secondary" onclick="goToHome()">
+                <button class="btn btn-outline-secondary" onclick="goToHome()">
                     <span class="d-flex align-items-center">
                         <span class="me-2">←</span>
-                        <span> Go to Home</span>
+                        <span>Go Back</span>
                     </span>
                 </button>
-                <!-- Right: Go to Home -->
                 <button class="btn btn-primary" onclick="restartQuiz()">
                     <span class="d-flex align-items-center">
                         <span class="me-2">🔄</span>
@@ -245,995 +422,645 @@
     </div>
 
     <script>
-        const questions = [
-            // =========================
-            // 1–10: Union–Find (Disjoint Set Union)
-            // =========================
-            {
-                questionId: 1,
-                title: "What problem is the Union–Find (Disjoint Set Union) data structure designed to solve?",
-                type: "mcq-single",
-                options: [
-                    "Maintaining dynamic connectivity between elements",
-                    "Finding shortest paths in a weighted graph",
-                    "Sorting a collection of elements",
-                    "Balancing a binary search tree"
-                ],
-                correctAnswer: "Maintaining dynamic connectivity between elements",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Union–Find efficiently answers connectivity queries like 'are x and y in the same set?' while supporting merges of sets."
-            },
-            {
-                questionId: 2,
-                title: "Which two main operations does Union–Find support?",
-                type: "mcq-single",
-                options: [
-                    "insert and delete",
-                    "push and pop",
-                    "union and find",
-                    "enqueue and dequeue"
-                ],
-                correctAnswer: "union and find",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Union–Find supports union(x, y) to merge sets and find(x) to get the representative (root) of the set containing x."
-            },
-            {
-                questionId: 3,
-                title: "What is the typical time complexity per operation in Union–Find with both path compression and union by rank/size?",
-                type: "mcq-single",
-                options: [
-                    "O(1)",
-                    "O(log n)",
-                    "Amortized O(α(n)) (inverse Ackermann function)",
-                    "O(n)"
-                ],
-                correctAnswer: "Amortized O(α(n)) (inverse Ackermann function)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "With both optimizations, Union–Find operations run in amortized O(α(n)) time, which is effectively constant for all practical inputs."
-            },
-            {
-                questionId: 4,
-                title: "Numerical: number of sets after unions",
-                type: "numerical",
-                description: "Start with 5 elements {1,2,3,4,5}, each in its own set. Perform unions: union(1,2), union(3,4), union(2,3). How many disjoint sets remain?",
-                correctAnswer: 2,
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "After union(1,2): {1,2},{3},{4},{5} → 4 sets; union(3,4): {1,2},{3,4},{5} → 3 sets; union(2,3): {1,2,3,4},{5} → 2 sets."
-            },
-            {
-                questionId: 5,
-                title: "What is the purpose of 'path compression' in Union–Find?",
-                type: "mcq-single",
-                options: [
-                    "To balance the tree by height",
-                    "To reduce the height of trees during find operations",
-                    "To keep track of component sizes",
-                    "To detect cycles in directed graphs"
-                ],
-                correctAnswer: "To reduce the height of trees during find operations",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Path compression flattens the tree structure during find, making future operations faster."
-            },
-            {
-                questionId: 6,
-                title: "What does 'union by rank' (or union by size) do?",
-                type: "mcq-single",
-                options: [
-                    "Always attaches the larger tree under the smaller tree",
-                    "Always attaches the smaller tree under the larger tree",
-                    "Always attaches trees randomly",
-                    "Makes no change to the tree structure"
-                ],
-                correctAnswer: "Always attaches the smaller tree under the larger tree",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Union by rank/size attaches the smaller tree under the larger one to keep the resulting tree shallower."
-            },
-            {
-                questionId: 7,
-                title: "Which of the following is a common application of Union–Find?",
-                type: "mcq-single",
-                options: [
-                    "Implementing priority queues",
-                    "Cycle detection in undirected graphs",
-                    "Implementing binary search trees",
-                    "Computing shortest paths"
-                ],
-                correctAnswer: "Cycle detection in undirected graphs",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Union–Find is used in MST algorithms and for detecting cycles when adding edges to undirected graphs."
-            },
-            {
-                questionId: 8,
-                title: "Numerical: number of sets after k unions with no duplicates",
-                type: "numerical",
-                description: "You start with 10 singleton sets (elements 1 to 10). You perform 4 union operations, each between elements from different sets, and no operation is repeated. How many sets remain?",
-                correctAnswer: 6,
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Each union of two different sets reduces the number of sets by 1. So 10 − 4 = 6 sets remain."
-            },
-            {
-                questionId: 9,
-                title: "In a Union–Find implementation without any optimizations (no path compression, no union by rank), what is the worst-case time complexity of a single find operation?",
-                type: "mcq-single",
-                options: [
-                    "O(1)",
-                    "O(log n)",
-                    "O(√n)",
-                    "O(n)"
-                ],
-                correctAnswer: "O(n)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "In the worst case the tree can become a long chain, so find may traverse up to n nodes."
-            },
-            {
-                questionId: 10,
-                title: "What is usually stored at each root node in a Union–Find with union by size?",
-                type: "mcq-single",
-                options: [
-                    "The rank (height) of the tree",
-                    "The number of elements in the set",
-                    "The adjacency list of neighbors",
-                    "The distance from the source"
-                ],
-                correctAnswer: "The number of elements in the set",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "In union by size, each root typically stores the size (number of elements) of its set."
-            },
+        // Anti-cheating variables
+        let antiCheating;
+        let isQuizActive = false;
+        let cheatingAttempts = 0;
+        let tabSwitchCount = 0;
+        
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let currentUser = {};
+        
+        // API Configuration
+        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
+        const QUESTIONS_API = `${API_BASE_URL}/questions/Advanced%20Data%20Structures?limit=50`;
+        const SESSION_API = `${API_BASE_URL}/session-info`;
+        const SUBMISSION_API = `${API_BASE_URL}/pdsa-submission`;
+        const CHEATING_LOG_API = `${API_BASE_URL}/log-cheating`;
 
-            // =========================
-            // 11–20: Priority Queues
-            // =========================
-            {
-                questionId: 11,
-                title: "What is the main feature of a priority queue?",
-                type: "mcq-single",
-                options: [
-                    "Elements are accessed in FIFO order",
-                    "Elements are accessed in LIFO order",
-                    "Elements are accessed based on their priority",
-                    "Elements are always unique"
-                ],
-                correctAnswer: "Elements are accessed based on their priority",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "A priority queue always removes (or accesses) the element with the highest or lowest priority first."
-            },
-            {
-                questionId: 12,
-                title: "Which of the following is a typical implementation of a priority queue?",
-                type: "mcq-single",
-                options: [
-                    "Hash table",
-                    "Binary heap",
-                    "Linked list",
-                    "Binary search tree only"
-                ],
-                correctAnswer: "Binary heap",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Binary heaps are the most common backing data structure for priority queues due to their O(log n) operations."
-            },
-            {
-                questionId: 13,
-                title: "What is the time complexity of insert (push) and extract-min operations in a binary-heap-based priority queue?",
-                type: "mcq-single",
-                options: [
-                    "Insert O(1), extract-min O(1)",
-                    "Insert O(1), extract-min O(log n)",
-                    "Insert O(log n), extract-min O(log n)",
-                    "Insert O(n), extract-min O(n)"
-                ],
-                correctAnswer: "Insert O(log n), extract-min O(log n)",
-                maxScore: 1,
-                hasExplanations: true,
-                explanation: "Both operations may require heapify-up or heapify-down, which take O(log n) in a binary heap."
-            },
-            {
-               questionId: 14,
-               title: "Which operation is NOT typically supported efficiently by a basic binary heap priority queue?",
-               type: "mcq-single",
-               options: [
-               "Insert",
-               "Decrease-key",
-               "Extract-min / extract-max",
-               "Random deletion of an arbitrary element (by value)"
-               ],
-               correctAnswer: "Random deletion of an arbitrary element (by value)",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "A basic heap does not support efficient deletion of arbitrary non-root elements unless additional structures are used."
-               },
-               {
-               questionId: 15,
-               title: "Numerical: final max element in a priority queue",
-               type: "numerical",
-               description: "You have a max-priority queue. You insert the elements: 5, 1, 10, 3, 7. Then you call extract-max once. What value is returned?",
-               correctAnswer: 10,
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "In a max-priority queue, the largest element is removed first. Among {5,1,10,3,7}, the maximum is 10."
-               },
-               {
-               questionId: 16,
-               title: "Priority queues are especially useful in which of the following algorithms?",
-               type: "mcq-single",
-               options: [
-               "Dijkstra’s shortest path algorithm",
-               "Depth-first search",
-               "Kruskal’s algorithm only",
-               "Counting sort"
-               ],
-               correctAnswer: "Dijkstra’s shortest path algorithm",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Dijkstra’s algorithm uses a priority queue to repeatedly pick the vertex with minimum tentative distance."
-               },
-               {
-               questionId: 17,
-               title: "Which data structure yields O(1) amortized decrease-key operations but is complex to implement?",
-               type: "mcq-single",
-               options: [
-               "Binary heap",
-               "Fibonacci heap",
-               "Stack",
-               "Queue"
-               ],
-               correctAnswer: "Fibonacci heap",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Fibonacci heaps support O(1) amortized decrease-key and insert, and O(log n) extract-min."
-               },
-               {
-               questionId: 18,
-               title: "Numerical: size of a priority queue after operations",
-               type: "numerical",
-               description: "A min-priority queue starts empty. You perform: insert(4), insert(2), insert(9), extract-min, insert(1), extract-min. What is the size of the queue now?",
-               correctAnswer: 2,
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Sequence: after 3 inserts → size 3; extract-min removes 2 → size 2; insert(1) → size 3; extract-min removes 1 → size 2."
-               },
-               {
-               questionId: 19,
-               title: "What is the main difference between a regular queue and a priority queue?",
-               type: "mcq-single",
-               options: [
-               "Regular queue uses LIFO, priority queue uses FIFO",
-               "Regular queue uses FIFO, priority queue removes based on priority",
-               "They are identical structures",
-               "Priority queue cannot be implemented using arrays"
-               ],
-               correctAnswer: "Regular queue uses FIFO, priority queue removes based on priority",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "A regular queue is FIFO; a priority queue always removes the highest- or lowest-priority element."
-               },
-               {
-               questionId: 20,
-               title: "In a min-priority queue, which element is removed on extract-min?",
-               type: "mcq-single",
-               options: [
-               "The largest key",
-               "The smallest key",
-               "A random key",
-               "The median key"
-               ],
-               correctAnswer: "The smallest key",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "By definition, a min-priority queue removes the element with the smallest priority value."
-               },
-              
-               // =========================
-               // 21–30: Heaps (Max/Min Heap DS)
-               // =========================
-               {
-               questionId: 21,
-               title: "What is the heap property in a max-heap?",
-               type: "mcq-single",
-               options: [
-               "Each node is smaller than its children",
-               "Each node is greater than or equal to its children",
-               "The tree is balanced and sorted in-order",
-               "All leaves have the same depth"
-               ],
-               correctAnswer: "Each node is greater than or equal to its children",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "In a max-heap, every parent node's key is ≥ the keys of its children."
-               },
-               {
-               questionId: 22,
-               title: "Which of the following is TRUE for a binary heap?",
-               type: "mcq-single",
-               options: [
-               "It is a complete binary tree",
-               "It is a binary search tree",
-               "It is always perfectly balanced",
-               "It is an arbitrary binary tree"
-               ],
-               correctAnswer: "It is a complete binary tree",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "A binary heap is a complete binary tree (all levels full except possibly last, filled left to right)."
-               },
-               {
-               questionId: 23,
-               title: "How is a binary heap typically stored in memory?",
-               type: "mcq-single",
-               options: [
-               "As a linked list",
-               "As an array",
-               "As a hash table",
-               "As a graph adjacency list"
-               ],
-               correctAnswer: "As an array",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Due to its complete tree structure, a heap is naturally and efficiently stored in an array."
-               },
-               {
-               questionId: 24,
-               title: "In an array-based heap (0-indexed), what are the indices of the children of node at index i?",
-               type: "mcq-single",
-               options: [
-               "2*i and 2*i + 1",
-               "2*i + 1 and 2*i + 2",
-               "i/2 and (i/2)+1",
-               "i−1 and i+1"
-               ],
-               correctAnswer: "2*i + 1 and 2*i + 2",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "For 0-based arrays, left child = 2i+1, right child = 2i+2."
-               },
-               {
-               questionId: 25,
-               title: "What is the worst-case time complexity of heapify-down (sift-down) in a binary heap with n elements?",
-               type: "mcq-single",
-               options: [
-               "O(1)",
-               "O(log n)",
-               "O(n)",
-               "O(n log n)"
-               ],
-               correctAnswer: "O(log n)",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Heapify-down may traverse from the root to a leaf, which is at most height log₂n."
-               },
-               {
-               questionId: 26,
-               title: "What is the time complexity of building a heap from an unsorted array of n elements using the bottom-up heapify method?",
-               type: "mcq-single",
-               options: [
-               "O(n)",
-               "O(n log n)",
-               "O(log n)",
-               "O(n²)"
-               ],
-               correctAnswer: "O(n)",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "The bottom-up build-heap algorithm runs in O(n) time, not O(n log n)."
-               },
-               {
-               questionId: 27,
-               title: "Numerical: height of a heap",
-               type: "numerical",
-               description: "A binary heap has 15 nodes. What is its height (with height of a single-node heap = 0)?",
-               correctAnswer: 3,
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "A complete binary tree with 15 nodes is full: levels 0,1,2,3 → height = 3."
-               },
-               {
-               questionId: 28,
-               title: "Numerical: maximum number of nodes in a heap of height 4",
-               type: "numerical",
-               description: "For a binary heap of height 4, what is the maximum possible number of nodes?",
-               correctAnswer: 31,
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "A complete binary tree of height h has at most 2^(h+1) − 1 nodes. For h=4 → 2^5 − 1 = 32−1 = 31."
-               },
-               {
-               questionId: 29,
-               title: "Which of the following arrays represents a valid max-heap?",
-               type: "mcq-single",
-               options: [
-               "[10, 5, 3, 2, 4]",
-               "[10, 15, 3, 2, 4]",
-               "[5, 10, 3, 2, 4]",
-               "[7, 7, 7, 7, 8]"
-               ],
-               correctAnswer: "[10, 5, 3, 2, 4]",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "In [10,5,3,2,4], each parent >= children. In [10,15,...] child 15 > parent 10, so not a max-heap; others violate heap property too."
-               },
-               {
-               questionId: 30,
-               title: "Which operation may violate the heap property and require re-heapifying?",
-               type: "mcq-single",
-               options: [
-               "Reading the root element",
-               "Inserting a new element",
-               "Checking if the heap is empty",
-               "Getting the size of the heap"
-               ],
-               correctAnswer: "Inserting a new element",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Insertions (and deletions like extract-max) may violate the heap property and require heapify-up or heapify-down."
-               },
-              
-               // =========================
-               // 31–40: Using Heaps in Algorithms
-               // =========================
-               {
-               questionId: 31,
-               title: "Which algorithm commonly uses a min-heap to efficiently select the next closest vertex?",
-               type: "mcq-single",
-               options: [
-               "Breadth-first search",
-               "Dijkstra’s shortest path algorithm",
-               "Kruskal’s algorithm",
-               "Depth-first search"
-               ],
-               correctAnswer: "Dijkstra’s shortest path algorithm",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Dijkstra’s algorithm uses a min-heap priority queue to repeatedly extract the vertex with minimum tentative distance."
-               },
-               {
-               questionId: 32,
-               title: "Which MST algorithm can be efficiently implemented with a min-heap?",
-               type: "mcq-single",
-               options: [
-               "Prim’s algorithm",
-               "Kruskal’s algorithm",
-               "Floyd–Warshall algorithm",
-               "Bellman–Ford algorithm"
-               ],
-               correctAnswer: "Prim’s algorithm",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Prim’s algorithm uses a min-heap to pick the next lightest edge that connects a new vertex to the growing MST."
-               },
-               {
-               questionId: 33,
-               title: "Heaps are useful for the 'k largest elements' problem because:",
-               type: "mcq-single",
-               options: [
-               "They sort the entire array",
-               "They support fast random access",
-               "They allow us to maintain the top k elements in O(n log k) time",
-               "They are always faster than sorting"
-               ],
-               correctAnswer: "They allow us to maintain the top k elements in O(n log k) time",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Using a min-heap of size k, we can process n elements in O(n log k) time and keep only the k largest."
-               },
-               {
-               questionId: 34,
-               title: "Which of the following tasks can be efficiently solved using two heaps (one max-heap and one min-heap)?",
-               type: "mcq-single",
-               options: [
-               "Finding the median of a dynamic stream of numbers",
-               "Detecting negative cycles",
-               "Counting connected components",
-               "Performing topological sort"
-               ],
-               correctAnswer: "Finding the median of a dynamic stream of numbers",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Two heaps (max-heap for lower half, min-heap for upper half) can maintain the median in O(log n) per insertion."
-               },
-               {
-               questionId: 35,
-               title: "Numerical: number of extract-min operations",
-               type: "numerical",
-               description: "In Dijkstra’s algorithm using a min-heap on a connected graph with V vertices, how many extract-min operations are performed (in terms of V)?",
-               correctAnswer: 1,
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Each vertex is extracted from the priority queue exactly once. So the number of extract-min operations is V. (Store your answer as the coefficient of V: 1)"
-               },
-               {
-               questionId: 36,
-               title: "Heaps are commonly used in which sorting algorithm?",
-               type: "mcq-single",
-               options: [
-               "Quick Sort",
-               "Heap Sort",
-               "Merge Sort",
-               "Insertion Sort"
-               ],
-               correctAnswer: "Heap Sort",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Heap Sort builds a heap and repeatedly extracts the max (or min) to produce a sorted sequence."
-               },
-               {
-               questionId: 37,
-               title: "Time complexity of Heap Sort for n elements using a binary heap is:",
-               type: "mcq-single",
-               options: [
-               "O(n)",
-               "O(n log n)",
-               "O(log n)",
-               "O(n²)"
-               ],
-               correctAnswer: "O(n log n)",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Building the heap is O(n) and performing n extract-max operations is O(n log n), dominating the total time."
-               },
-               {
-               questionId: 38,
-               title: "Which is an advantage of using a heap-based priority queue in scheduling problems?",
-               type: "mcq-single",
-               options: [
-               "It guarantees optimal scheduling",
-               "It gives constant-time insertion",
-               "It efficiently picks the next job with minimum (or maximum) priority",
-               "It uses no extra memory"
-               ],
-               correctAnswer: "It efficiently picks the next job with minimum (or maximum) priority",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "In scheduling, a heap allows fast selection of the next job according to priority."
-               },
-               {
-               questionId: 39,
-               title: "Numerical: top-k using a heap",
-               type: "numerical",
-               description: "You have an array of 1,000,000 integers and want to find the largest 10 elements using a min-heap of size 10. Asymptotically, how many heap insertions (or push/pop operations) are required (answer in terms of n, where n is the number of elements)?",
-               correctAnswer: 1,
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "We process each of the n elements once, leading to O(n) heap operations. (Store your answer as the coefficient of n: 1)"
-               },
-               {
-               questionId: 40,
-               title: "Why is a heap preferred over sorting when we only need the smallest element repeatedly and do not care about order of the rest?",
-               type: "mcq-single",
-               options: [
-               "Heap uses less memory than sorting",
-               "Heap gives O(log n) per extract-min while full sort costs O(n log n)",
-               "Heap guarantees a stable order",
-               "Heap changes the input array"
-               ],
-               correctAnswer: "Heap gives O(log n) per extract-min while full sort costs O(n log n)",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "If we repeatedly need the minimum element, a heap avoids paying the cost of fully sorting the entire array."
-               },
-              
-               // =========================
-               // 41–50: Search Trees (BST & Balanced BST)
-               // =========================
-               {
-               questionId: 41,
-               title: "What is the Binary Search Tree (BST) property?",
-               type: "mcq-single",
-               options: [
-               "Every node has at most two children",
-               "Left subtree keys < node key and right subtree keys > node key",
-               "Tree is always perfectly balanced",
-               "Root contains the maximum key"
-               ],
-               correctAnswer: "Left subtree keys < node key and right subtree keys > node key",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "BST property ensures ordering: all keys in left subtree are smaller, and all in right subtree are larger than the root key."
-               },
-               {
-               questionId: 42,
-               title: "What is the average-case time complexity of search in a balanced BST (e.g., AVL or Red-Black Tree)?",
-               type: "mcq-single",
-               options: [
-               "O(1)",
-               "O(log n)",
-               "O(n)",
-               "O(n log n)"
-               ],
-               correctAnswer: "O(log n)",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Balanced BSTs maintain height O(log n), so search, insert, and delete are O(log n) in average and worst case."
-               },
-               {
-               questionId: 43,
-               title: "What is the worst-case time complexity of search in an unbalanced (degenerate) BST?",
-               type: "mcq-single",
-               options: [
-               "O(1)",
-               "O(log n)",
-               "O(n)",
-               "O(n log n)"
-               ],
-               correctAnswer: "O(n)",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "In worst case, a BST may become like a linked list, making search take O(n) time."
-               },
-               {
-               questionId: 44,
-               title: "Which traversal of a BST gives the keys in sorted (non-decreasing) order?",
-               type: "mcq-single",
-               options: [
-               "Preorder",
-               "Inorder",
-               "Postorder",
-               "Level-order"
-               ],
-               correctAnswer: "Inorder",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Inorder traversal of a BST visits nodes in sorted order of their keys."
-               },
-               {
-               questionId: 45,
-               title: "Which of the following is TRUE for a balanced search tree like AVL or Red-Black tree?",
-               type: "mcq-single",
-               options: [
-               "They keep the tree perfectly balanced at all times",
-               "They guarantee height O(log n)",
-               "They require O(n) time for rotations",
-               "They cannot support deletions efficiently"
-               ],
-               correctAnswer: "They guarantee height O(log n)",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Balanced search trees ensure the height is O(log n) using rebalancing operations (rotations)."
-               },
-               {
-               questionId: 46,
-               title: "Numerical: height of a perfect BST",
-               type: "numerical",
-               description: "In a perfect binary search tree with 31 nodes, what is its height (height of single-node tree = 0)?",
-               correctAnswer: 4,
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Perfect tree with height h has 2^(h+1) − 1 nodes. Solve 2^(h+1) − 1 = 31 → 2^(h+1) = 32 → h+1 = 5 → h = 4."
-               },
-               {
-               questionId: 47,
-               title: "What is the main benefit of using a balanced BST over an unbalanced one?",
-               type: "mcq-single",
-               options: [
-               "Less memory usage",
-               "Simpler code",
-               "Guaranteed O(log n) operations",
-               "No need for pointers or references"
-               ],
-               correctAnswer: "Guaranteed O(log n) operations",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Balanced BSTs avoid degenerating into a list, so search/insert/delete stay O(log n)."
-               },
-               {
-               questionId: 48,
-               title: "Which operation(s) typically require rotations in an AVL or Red-Black tree?",
-               type: "mcq-single",
-               options: [
-               "Only search",
-               "Search and delete",
-               "Only insert",
-               "Insert and delete"
-               ],
-               correctAnswer: "Insert and delete",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Insertions and deletions may unbalance the tree; rotations are used to restore the balance."
-               },
-               {
-               questionId: 49,
-               title: "Numerical: number of comparisons in successful search of a balanced BST",
-               type: "numerical",
-               description: "Assume a balanced BST with 127 nodes (height 6). In the worst case, how many node comparisons are needed to find a key?",
-               correctAnswer: 7,
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Height is 6, so we may traverse from root (level 0) to leaf (level 6), visiting 7 nodes → 7 comparisons."
-               },
-               {
-               questionId: 50,
-               title: "Which of the following is NOT a binary search tree variant?",
-               type: "mcq-single",
-               options: [
-               "AVL tree",
-               "Red-Black tree",
-               "B-tree",
-               "Heap"
-               ],
-               correctAnswer: "Heap",
-               maxScore: 1,
-               hasExplanations: true,
-               explanation: "Heaps satisfy the heap property, not the BST ordering property."
-               }
-      ];
-              
-           let currentQuestionIndex = 0;
-           let userAnswers = {};
-           let currentUser = {};
-          
-           // Initialize Monaco Editor
-           require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-           require(['vs/editor/editor.main'], function() {
-           initializeQuiz();
-           });
-          
-           async function initializeQuiz() {
-           console.log('🚀 Initializing quiz...');
-           
-           // Initialize with test user first (fallback)
-           currentUser = { username: 'TestUser', email: 'test@example.com' };
-           userAnswers = {};
-           
-           // Try to get user session (non-blocking)
-           try {
-           const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-           credentials: 'include',
-           mode: 'cors'
-           });
-           
-           if (response.ok) {
-           const data = await response.json();
-           if (data.username && data.email) {
-           currentUser = { username: data.username, email: data.email };
-           console.log('✅ User logged in:', currentUser);
-           }
-           }
-           } catch (error) {
-           console.log('ℹ️ Using test user for demo');
-           }
-           
-           document.getElementById('loadingScreen').style.display = 'none';
-           document.getElementById('quizContainer').style.display = 'block';
-           
-           renderCurrentQuestion();
-           updateProgress();
-           }
-          
-           function renderCurrentQuestion() {
-           const question = questions[currentQuestionIndex];
-           const container = document.getElementById('questionContainer');
-           
-           let questionHTML = `
-           <div class="question-card">
-           <h4>Question ${currentQuestionIndex + 1}: ${question.title}</h4>
-           `;
-          
-           // Add description, if any
-           if (question.description) {
-           questionHTML += `<p class="mt-2">${question.description}</p>`;
-           }
-          
-           // Add code snippet if available (not used here, but kept for compatibility)
-           if (question.codeSnippet) {
-           questionHTML += `
-           <div class="code-snippet">
-           <pre>${question.codeSnippet}</pre>
-           </div>
-           `;
-           }
-          
-           if (question.type === 'mcq-single') {
-           questionHTML += `<div class="options-container mt-3">`;
-           question.options.forEach((option) => {
-           const isSelected = userAnswers[question.questionId] === option;
-           questionHTML += `
-           <label class="option-label ${isSelected ? 'selected' : ''}">
-           <input type="radio" name="q${question.questionId}" value="${option}" 
-           ${isSelected ? 'checked' : ''} style="display: none;">
-           ${option}
-           </label>
-           `;
-           });
-           questionHTML += `</div>`;
-           } else if (question.type === 'numerical') {
-           const currentAnswer = userAnswers[question.questionId] || '';
-           questionHTML += `
-           <div class="mt-3">
-           <input type="number" class="numerical-input" 
-           value="${currentAnswer}" 
-           placeholder="Enter your answer"
-           onchange="saveNumericalAnswer(${question.questionId}, this.value)">
-           </div>
-           `;
-           }
-          
-           questionHTML += `</div>`;
-          
-           container.innerHTML = questionHTML;
-          
-           // Add event listeners for MCQ options
-           if (question.type === 'mcq-single') {
-           document.querySelectorAll('.option-label').forEach(label => {
-           label.addEventListener('click', function() {
-           document.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
-           this.classList.add('selected');
-           const radio = this.querySelector('input[type="radio"]');
-           radio.checked = true;
-           userAnswers[question.questionId] = radio.value;
-           });
-           });
-           }
-           }
-          
-           function saveNumericalAnswer(questionId, value) {
-           userAnswers[questionId] = value ? parseInt(value) : '';
-           }
-          
-           function nextQuestion() {
-           if (currentQuestionIndex < questions.length - 1) {
-           currentQuestionIndex++;
-           renderCurrentQuestion();
-           updateProgress();
-           }
-           }
-          
-           function previousQuestion() {
-           if (currentQuestionIndex > 0) {
-           currentQuestionIndex--;
-           renderCurrentQuestion();
-           updateProgress();
-           }
-           }
-          
-           function updateProgress() {
-           const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-           document.getElementById('progressFill').style.width = `${progress}%`;
-           document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-           document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
-           const nextBtn = document.getElementById('nextBtn');
+        // Initialize quiz when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🔒 Initializing Advanced Data Structures Quiz with anti-cheating...');
+            
+            try {
+                // First, get user session if available
+                currentUser = { username: 'TestUser', email: 'test@example.com' };
+                
+                try {
+                    const response = await fetch(SESSION_API, {
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.username && data.email) {
+                            currentUser = { username: data.username, email: data.email };
+                            console.log('✅ User logged in:', currentUser);
+                        }
+                    }
+                } catch (error) {
+                    console.log('ℹ️ Using test user for demo');
+                }
+                
+                // Start quiz initialization
+                initializeQuiz();
+                
+            } catch (error) {
+                console.error('Failed to initialize quiz:', error);
+                document.getElementById('loadingScreen').innerHTML = 
+                    '<div class="error-message"><h3>Error Loading Quiz</h3><p>Please refresh the page</p><button class="btn mt-3" onclick="location.reload()">Retry</button></div>';
+            }
+        });
+
+        // Listen for auto-submission due to cheating
+        document.addEventListener('cheatingAutoSubmit', function(e) {
+            console.log('Auto-submitting due to cheating:', e.detail);
+            
+            // Mark as auto-submitted
+            window.quizAutoSubmitted = true;
+            
+            // Deactivate anti-cheating immediately
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for auto-submission');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            // Remove blur and show results clearly
+            document.body.classList.remove('blurred');
+            
+            // Hide warning overlay immediately
+            const warningOverlay = document.getElementById('warningOverlay');
+            if (warningOverlay) {
+                warningOverlay.style.display = 'none';
+            }
+            
+            // Exit fullscreen for better viewing
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            
+            // Enable text selection for results
+            document.querySelectorAll('*').forEach(el => {
+                el.style.userSelect = 'auto';
+                el.style.webkitUserSelect = 'auto';
+            });
+            
+            // Now submit the quiz
+            submitQuiz();
+        });
+
+        async function initializeQuiz() {
+            console.log('🚀 Initializing Advanced Data Structures Quiz...');
+            
+            // Set default user
+            userAnswers = {};
+            
+            // Fetch random questions for Sorting Algorithms
+            await fetchRandomQuestions();
+            
+            // Initialize anti-cheating AFTER getting questions
+            if (window.AntiCheating && questions.length > 0) {
+                antiCheating = window.AntiCheating.initialize({
+                    quizName: "Advanced Data Structures Quiz",
+                    requestFullscreen: false, // CHANGED: Disable fullscreen to avoid errors
+                    user: currentUser,
+                    autoSubmitThreshold: 5
+                });
+
+                // Allow text selection for ALL quiz elements BEFORE initializing
+                // This is the CRITICAL FIX - allow selection before any events are bound
+                const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
+                
+                if (window.AntiCheating.allowSelection) {
+                    window.AntiCheating.allowSelection(allQuizElements);
+                }
+                
+                // Also add allow-select class directly to prevent text_selection violations
+                document.querySelectorAll(allQuizElements).forEach(el => {
+                    el.classList.add('allow-select');
+                });
+                
+                // Mark quiz as active
+                isQuizActive = true;
+                
+                console.log('🔒 Anti-cheating initialized with text selection allowed');
+            } else {
+                console.error('❌ AntiCheating library not loaded or no questions!');
+                // If anti-cheating not available, still run quiz
+                isQuizActive = true;
+            }
+        }
+
+        async function fetchRandomQuestions() {
+            try {
+                console.log('📡 Fetching random Sorting Algorithms questions...');
+                const response = await fetch(QUESTIONS_API);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.questions && data.questions.length > 0) {
+                        questions = data.questions;
+                        console.log(`✅ Loaded ${questions.length} random questions`);
+                        
+                        // Hide loading, show quiz
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('quizContainer').style.display = 'block';
+                        
+                        // Update question count display
+                        document.getElementById('questionCount').textContent = `${questions.length} Questions`;
+                        
+                        renderCurrentQuestion();
+                        updateProgress();
+                    } else {
+                        throw new Error(data.message || 'No questions found for Advanced Data Structures');
+                    }
+                } else {
+                    throw new Error('Failed to fetch questions from server');
+                }
+            } catch (error) {
+                console.error('❌ Error loading questions:', error);
+                document.getElementById('loadingScreen').innerHTML = `
+                    <div class="error-message">
+                        <h3>Error Loading Quiz</h3>
+                        <p>${error.message}</p>
+                        <p>Please check your connection and try again.</p>
+                        <button class="btn mt-3" onclick="location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        function renderCurrentQuestion() {
+            if (!questions || questions.length === 0) {
+                console.error('No questions loaded');
+                return;
+            }
+            
+            const question = questions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            let questionHTML = `
+                <div class="question-card allow-select">
+                    <div class="question-header">
+                        <div class="question-title">
+                            <h4 class="allow-select">Question ${currentQuestionIndex + 1}: ${question.title}</h4>
+                        </div>
+                        <div class="score-indicator">
+                            ${question.maxScore || 1} Point${question.maxScore > 1 ? 's' : ''}
+                        </div>
+                    </div>
+            `;
+
+            if (question.description) {
+                questionHTML += `<p class="mb-3 allow-select">${question.description}</p>`;
+            }
+
+            if (question.code) {
+                questionHTML += `
+                    <div class="code-block">
+                        <pre class="allow-select">${question.code}</pre>
+                    </div>
+                `;
+            }
+
+            if (question.type === 'mcq-single') {
+                questionHTML += `<div class="options-container mt-3">`;
+                question.options.forEach((option, index) => {
+                    const isSelected = userAnswers[question.questionId] === option;
+                    questionHTML += `
+                        <label class="option-label allow-select ${isSelected ? 'selected' : ''}" 
+                               data-value="${option}" 
+                               data-question-id="${question.questionId}"
+                               data-type="mcq-single">
+                            <span class="allow-select">${option}</span>
+                        </label>
+                    `;
+                });
+                questionHTML += `</div>`;
+            } else if (question.type === 'mcq-multiple') {
+                questionHTML += `<div class="options-container mt-3">`;
+                const currentAnswers = userAnswers[question.questionId] || [];
+                question.options.forEach((option, index) => {
+                    const isSelected = Array.isArray(currentAnswers) && currentAnswers.includes(option);
+                    questionHTML += `
+                        <label class="option-label allow-select ${isSelected ? 'selected' : ''}" 
+                               data-value="${option}" 
+                               data-question-id="${question.questionId}"
+                               data-type="mcq-multiple">
+                            <span class="allow-select">${option}</span>
+                        </label>
+                    `;
+                });
+                questionHTML += `</div>`;
+            } else if (question.type === 'numerical') {
+                const currentAnswer = userAnswers[question.questionId] || '';
+                questionHTML += `
+                    <div class="mt-3">
+                        <input type="number" class="numerical-input allow-select" 
+                               value="${currentAnswer}" 
+                               placeholder="Enter your answer"
+                               oninput="saveNumericalAnswer('${question.questionId}', this.value)">
+                    </div>
+                `;
+            }
+
+            questionHTML += `</div>`;
+
+            container.innerHTML = questionHTML;
+
+            // Add click handlers for MCQ options
+            setTimeout(() => {
+                const optionLabels = container.querySelectorAll('.option-label');
+                optionLabels.forEach(label => {
+                    label.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation(); // Prevent event bubbling
+                        
+                        const questionId = this.getAttribute('data-question-id');
+                        const value = this.getAttribute('data-value');
+                        const type = this.getAttribute('data-type');
+                        
+                        if (type === 'mcq-single') {
+                            // Deselect all other options
+                            document.querySelectorAll(`[data-question-id="${questionId}"]`).forEach(el => {
+                                el.classList.remove('selected');
+                            });
+                            
+                            // Select this one
+                            this.classList.add('selected');
+                            userAnswers[questionId] = value;
+                        } 
+                        else if (type === 'mcq-multiple') {
+                            // Toggle selection
+                            this.classList.toggle('selected');
+                            
+                            if (!userAnswers[questionId]) {
+                                userAnswers[questionId] = [];
+                            }
+                            
+                            if (this.classList.contains('selected')) {
+                                if (!userAnswers[questionId].includes(value)) {
+                                    userAnswers[questionId].push(value);
+                                }
+                            } else {
+                                userAnswers[questionId] = userAnswers[questionId].filter(v => v !== value);
+                            }
+                        }
+                        
+                        updateProgress();
+                    });
+                });
+            }, 10);
+        }
+
+        function saveNumericalAnswer(questionId, value) {
+            userAnswers[questionId] = value.trim();
+            updateProgress();
+        }
+
+        function nextQuestion() {
+            if (!questions || questions.length === 0) {
+                console.error('No questions loaded');
+                return;
+            }
+            
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (!questions || questions.length === 0) {
+                console.error('No questions loaded');
+                return;
+            }
+            
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function calculateCurrentScore() {
+            if (!questions || questions.length === 0) {
+                return { score: 0, totalPossible: 0 };
+            }
+            
+            let score = 0;
+            let totalPossible = 0;
+            
+            questions.forEach(question => {
+                const userAnswer = userAnswers[question.questionId];
+                totalPossible += question.maxScore || 1;
+                
+                if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
+                    if (question.type === 'mcq-multiple') {
+                        const userArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
+                        const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer];
+                        
+                        const userSorted = [...userArr].sort();
+                        const correctSorted = [...correctArr].sort();
+                        
+                        if (JSON.stringify(userSorted) === JSON.stringify(correctSorted)) {
+                            score += question.maxScore || 1;
+                        }
+                    } else if (question.type === 'numerical') {
+                        if (String(userAnswer).trim() === String(question.correctAnswer).trim()) {
+                            score += question.maxScore || 1;
+                        }
+                    } else {
+                        if (userAnswer === question.correctAnswer) {
+                            score += question.maxScore || 1;
+                        }
+                    }
+                }
+            });
+            
+            return {
+                score: score,
+                totalPossible: totalPossible
+            };
+        }
+
+        function updateProgress() {
+            if (!questions || questions.length === 0) return;
+            
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            const nextBtn = document.getElementById('nextBtn');
             const submitBtn = document.getElementById('submitBtn');
             
-            // Show/hide appropriate buttons
             if (currentQuestionIndex === questions.length - 1) {
-                // Last question: Hide Next, Show Submit button
                 nextBtn.style.display = 'none';
                 submitBtn.style.display = 'inline-block';
             } else {
-                // Not last question: Show Next, Hide Submit button
                 nextBtn.style.display = 'inline-block';
                 submitBtn.style.display = 'none';
             }
-           
-           
-           }
-          
-           function calculateCurrentScore() {
-           let score = 0;
-           questions.forEach(question => {
-           const userAnswer = userAnswers[question.questionId];
-           if (userAnswer !== undefined && userAnswer !== '') {
-           if (userAnswer === question.correctAnswer) {
-           score += question.maxScore;
-           }
-           }
-           });
-           return score;
-           }
-          
-           async function submitQuiz() {
-           const quizData = {
-           username: currentUser.username,
-           email: currentUser.email,
-           topic: "Advanced Data Structures - Disjoint Sets, Heaps & Trees",
-           score: calculateCurrentScore(),
-           maxScore: questions.length,
-           percentage: Math.round((calculateCurrentScore() / questions.length) * 100),
-           timestamp: new Date(),
-           questions: questions.map(question => ({
-           questionId: question.questionId,
-           title: question.title,
-           type: question.type,
-           userAnswer: userAnswers[question.questionId] || '',
-           correctAnswer: question.correctAnswer,
-           options: question.options || [],
-           score: (userAnswers[question.questionId] === question.correctAnswer) ? question.maxScore : 0,
-           maxScore: question.maxScore,
-           testResults: [{
-           passed: userAnswers[question.questionId] === question.correctAnswer,
-           expectedAnswer: question.correctAnswer,
-           userAnswer: userAnswers[question.questionId] || ''
-           }],
-           hasExplanations: question.hasExplanations,
-           explanation: question.explanation,
-           codeSnippet: question.codeSnippet || ''
-           }))
-           };
-          
-           // Save to backend api/algorithm-submissions
-           try {
-           const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
-           method: 'POST',
-           headers: {
-           'Content-Type': 'application/json',
-           },
-           body: JSON.stringify(quizData)
-           });
-          
-           if (response.ok) {
-           console.log('✅ Quiz results saved successfully');
-           } else {
-           console.log('⚠️ Failed to save results, but continuing...');
-           }
-           } catch (error) {
-           console.log('⚠️ Error saving results, but continuing...');
-           }
-          
-           showResults(quizData);
-           }
-          
-           function showResults(quizData) {
-           document.getElementById('quizContainer').style.display = 'none';
-           document.getElementById('resultsContainer').style.display = 'block';
-           
-           document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
-           document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
-           
-           const detailedResults = document.getElementById('detailedResults');
-           let resultsHTML = `<h4>Detailed Results:</h4>`;
-           
-           quizData.questions.forEach((question, index) => {
-           const isCorrect = question.score > 0;
-           resultsHTML += `
-           <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
-           <h6>Q${index + 1}: ${question.title}</h6>
-           ${question.codeSnippet ? `
-           <div class="code-snippet">
-           <pre>${question.codeSnippet}</pre>
-           </div>
-           ` : ''}
-           <p><strong>Your Answer:</strong> ${question.userAnswer}</p>
-           <p><strong>Correct Answer:</strong> ${question.correctAnswer}</p>
-           <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
-           ${question.hasExplanations ? `
-           <div class="explanation-section">
-           <strong>Explanation:</strong> ${question.explanation}
-           </div>
-           ` : ''}
-           </div>
-           `;
-           });
-           
-           detailedResults.innerHTML = resultsHTML;
-           }
-          
-           function restartQuiz() {
-               currentQuestionIndex = 0;
-               userAnswers = {};
-               document.getElementById('resultsContainer').style.display = 'none';
-               document.getElementById('quizContainer').style.display = 'block';
-               // Reset button visibility
-                const nextBtn = document.getElementById('nextBtn');
-                const submitBtn = document.getElementById('submitBtn');
-                
-                nextBtn.style.display = 'inline-block';
-                submitBtn.style.display = 'none';
+        }
+
+        async function submitQuiz() {
+            // Deactivate anti-cheating FIRST
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated after submission');
+            }
             
-               renderCurrentQuestion();
-               updateProgress();
-           }
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            if (!questions || questions.length === 0) {
+                alert('No questions to submit');
+                return;
+            }
+            
+            // Disable the submit button to prevent multiple submissions
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.disabled = true;
+            
+            const result = calculateCurrentScore();
+            const score = result.score;
+            const totalPossible = result.totalPossible;
+            const percentage = Math.round((score / totalPossible) * 100);
+            
+            // Get cheating data if available
+            let cheatingData = {};
+            if (antiCheating && antiCheating.getStats) {
+                cheatingData = antiCheating.getStats();
+            }
+            
+            const quizData = {
+                username: currentUser.username,
+                email: currentUser.email,
+                topic: "Advanced Data Structures",
+                score: score,
+                maxScore: totalPossible,
+                percentage: percentage,
+                timestamp: new Date().toISOString(),
+                cheatingData: cheatingData,
+                isAutoSubmitted: window.quizAutoSubmitted || false,
+                questions: questions.map(question => {
+                    const userAnswer = userAnswers[question.questionId];
+                    let isCorrect = false;
+                    let earnedScore = 0;
+                    
+                    if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
+                        if (question.type === 'mcq-multiple') {
+                            const userArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
+                            const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer];
+                            const userSorted = [...userArr].sort();
+                            const correctSorted = [...correctArr].sort();
+                            isCorrect = JSON.stringify(userSorted) === JSON.stringify(correctSorted);
+                        } else if (question.type === 'numerical') {
+                            isCorrect = String(userAnswer).trim() === String(question.correctAnswer).trim();
+                        } else {
+                            isCorrect = userAnswer === question.correctAnswer;
+                        }
+                        
+                        earnedScore = isCorrect ? (question.maxScore || 1) : 0;
+                    }
+                    
+                    return {
+                        questionId: question.questionId,
+                        title: question.title,
+                        type: question.type,
+                        userAnswer: userAnswer || (question.type === 'mcq-multiple' ? [] : ''),
+                        correctAnswer: question.correctAnswer,
+                        score: earnedScore,
+                        maxScore: question.maxScore || 1,
+                        hasExplanations: question.hasExplanations,
+                        explanation: question.explanation
+                    };
+                })
+            };
+
+            // Try to save results
+            try {
+                const response = await fetch(SUBMISSION_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(quizData),
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    console.log('✅ Quiz results saved successfully');
+                } else {
+                    console.log('⚠️ Failed to save results');
+                }
+            } catch (error) {
+                console.log('⚠️ Error saving results:', error);
+            }
+
+            showResults(quizData);
+        }
+
+        function showResults(quizData) {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+            document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            
+            // Show cheating info if applicable
+            const cheatingLogElement = document.getElementById('cheatingLog');
+            if (quizData.isAutoSubmitted) {
+                cheatingLogElement.textContent = "⚠️ This quiz was auto-submitted due to multiple cheating attempts.";
+                cheatingLogElement.style.color = "#dc3545";
+            } else if (quizData.cheatingData && quizData.cheatingData.attempts > 0) {
+                cheatingLogElement.textContent = `⚠️ ${quizData.cheatingData.attempts} suspicious activities were detected during this quiz.`;
+                cheatingLogElement.style.color = "#ffc107";
+            }
+            
+            const detailedResults = document.getElementById('detailedResults');
+            let resultsHTML = `
+                <h4>Detailed Results:</h4>
+                <div class="score-summary mb-4">
+                    <h5>Final Score Breakdown</h5>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 1).length}</div>
+                            <div class="score-label">1-Point Questions</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 2).length}</div>
+                            <div class="score-label">2-Point Questions</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 3).length}</div>
+                            <div class="score-label">3-Point Questions</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="score-value">${quizData.maxScore}</div>
+                            <div class="score-label">Total Points</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            quizData.questions.forEach((question, index) => {
+                const isCorrect = question.score > 0;
+                const userAnswer = Array.isArray(question.userAnswer) 
+                    ? question.userAnswer.join(', ') 
+                    : question.userAnswer;
+                const correctAnswer = Array.isArray(question.correctAnswer) 
+                    ? question.correctAnswer.join(', ') 
+                    : question.correctAnswer;
+                
+                resultsHTML += `
+                    <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
+                        <div class="question-header">
+                            <div class="question-title">
+                                <h6>Q${index + 1}: ${question.title}</h6>
+                            </div>
+                            <div class="score-indicator" style="background: ${isCorrect ? '#28a745' : '#dc3545'}">
+                                ${question.score}/${question.maxScore}
+                            </div>
+                        </div>
+                        <p><strong>Your Answer:</strong> ${userAnswer || 'No answer'}</p>
+                        <p><strong>Correct Answer:</strong> ${correctAnswer}</p>
+                        <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
+                        ${question.hasExplanations ? `
+                            <div class="explanation-section">
+                                <strong>Explanation:</strong> ${question.explanation}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            detailedResults.innerHTML = resultsHTML;
+        }
+
+        function restartQuiz() {
+            // Deactivate current anti-cheating
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for restart');
+            }
+            
+            // Reset all variables
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            questions = [];
+            isQuizActive = false;
+            window.quizAutoSubmitted = false;
+            
+            // Hide results, show loading
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'block';
+            document.getElementById('quizContainer').style.display = 'none';
+            
+            // Clear cheating log
+            const cheatingLogElement = document.getElementById('cheatingLog');
+            cheatingLogElement.textContent = '';
+            
+            // Re-enable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.disabled = false;
+            
+            // Fetch new random questions and re-initialize anti-cheating
+            fetchRandomQuestions().then(() => {
+                if (window.AntiCheating && questions.length > 0) {
+                    antiCheating = window.AntiCheating.initialize({
+                        quizName: "Advanced Data Structures Quiz - Retake",
+                        requestFullscreen: false, // Keep disabled
+                        user: currentUser,
+                        autoSubmitThreshold: 5
+                    });
+
+                    const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
+                    
+                    if (window.AntiCheating.allowSelection) {
+                        window.AntiCheating.allowSelection(allQuizElements);
+                    }
+                    
+                    document.querySelectorAll(allQuizElements).forEach(el => {
+                        el.classList.add('allow-select');
+                    });
+                    
+                    isQuizActive = true;
+                    console.log('🔒 Anti-cheating reactivated for retake');
+                }
+            });
+        }
+
         function goToHome() {
+            // Deactivate anti-cheating before leaving
+            if (window.AntiCheating && window.AntiCheating.deactivate) {
+                window.AntiCheating.deactivate();
+                console.log('🔒 Anti-cheating deactivated for home navigation');
+            }
+            
+            // Set quiz as inactive
+            isQuizActive = false;
+            
+            // Exit fullscreen if active
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+            
+            // Redirect to home page
             window.location.href = './iitm-pdsa.html';
         }
- </script>
+    </script>
 </body>
 </html>
