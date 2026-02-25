@@ -2140,9 +2140,7 @@ function showValidationFeedback(questionIndex, feedback, suggestion) {
     const difficulty = question.difficulty || 'medium';
     const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
     
-    // Get topic name for display
-    const topicName = 'Quiz1_midterm';
-    const topicColor = getTopicColor(topicName);
+    
 
     questionDiv.innerHTML = `
         <div class="question-header">
@@ -2150,9 +2148,6 @@ function showValidationFeedback(questionIndex, feedback, suggestion) {
             <div style="display: flex; align-items: center; gap: 10px;">
                 <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
                     ${difficultyText}
-                </span>
-                <span style="background: ${topicColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-transform: uppercase;">
-                    ${topicName}
                 </span>
             </div>
         </div>
@@ -3163,3 +3158,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
+
