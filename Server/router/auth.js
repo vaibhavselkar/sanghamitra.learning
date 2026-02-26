@@ -1978,68 +1978,83 @@ router.post('/save-arithmetic-response', async (req, res) => {
 
 
 
+// Get random IITM Stats 2 questions by topic
 router.get('/iitm_stats2_questions_databases/:topic', async (req, res) => {
   try {
     const { topic } = req.params;
     const { email, count = 50 } = req.query;
-    
+
+    // Validate email
     if (!email) {
       return res.status(400).json({
-        error: 'Email is required'
+        error: "Email is required"
       });
     }
 
+    // Validate topic
     if (!topic) {
       return res.status(400).json({
-        error: 'Topic is required'
+        error: "Topic is required"
       });
     }
 
-    // Get all questions for the topic (NO FILTERING by completed questions)
-    let allQuestions = await IITStats2Question.find({
-      topic: topic
-    });
+    // Validate and parse count safely
+    const requestedCount = Math.max(1, parseInt(count) || 50);
 
-    // Check if we have enough questions in the pool
+    console.log(`📊 Fetching questions for topic: ${topic}, requested count: ${requestedCount}`);
+
+    // Fetch all questions for the topic
+    const allQuestions = await IITStats2Question.find({ topic });
+
     const totalQuestionsInPool = allQuestions.length;
 
-    // Enhanced shuffle for better randomness
-    const shuffledQuestions = [...allQuestions];
-    
-    // Fisher-Yates shuffle
-    for (let i = shuffledQuestions.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
+    console.log(`📊 Found ${totalQuestionsInPool} total questions for topic: ${topic}`);
+
+    if (totalQuestionsInPool === 0) {
+      return res.status(404).json({
+        error: `No questions found for topic: ${topic}`
+      });
     }
 
-    // Take exactly the requested count
-    const selectedQuestions = shuffledQuestions.slice(0, parseInt(count));
-    
-    // Optional: Sort by question_number for consistent display
+    // Fisher-Yates shuffle
+    const shuffledQuestions = [...allQuestions];
+
+    for (let i = shuffledQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledQuestions[i], shuffledQuestions[j]] =
+        [shuffledQuestions[j], shuffledQuestions[i]];
+    }
+
+    // Select requested number of questions
+    const selectedQuestions = shuffledQuestions.slice(0, requestedCount);
+
+    // Optional sorting
     selectedQuestions.sort((a, b) => a.question_number - b.question_number);
 
-    res.json({
+    console.log(`✅ Returning ${selectedQuestions.length} questions`);
+
+    // Send response
+    res.status(200).json({
       questions: selectedQuestions,
       metadata: {
-        totalQuestionsInPool: totalQuestionsInPool,
+        totalQuestionsInPool,
         selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count),
-        topic: topic,
-        isRandom: true, // Indicate this is pure random selection
+        requestedCount,
+        topic,
+        isRandom: true,
         timestamp: new Date().toISOString()
       }
     });
 
- catch (error) {
-  console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
+  } catch (error) {
+    console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
 
-  res.status(500).json({ 
-    error: `Failed to fetch ${req.params.topic} questions`,
-    details: error.message 
-  });
+    res.status(500).json({
+      error: `Failed to fetch ${req.params.topic} questions`,
+      details: error.message
+    });
   }
 });
-
 
 router.post('/iitm_stats2_scores_databases', async (req, res) => {
   try {
@@ -3525,6 +3540,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
