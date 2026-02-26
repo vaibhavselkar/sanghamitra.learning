@@ -2030,12 +2030,13 @@ router.get('/iitm_stats2_questions_databases/:topic', async (req, res) => {
       }
     });
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ 
-      error: Failed to fetch ${req.params.topic} questions,
-      details: error.message 
-    });
+ catch (error) {
+  console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
+
+  res.status(500).json({ 
+    error: `Failed to fetch ${req.params.topic} questions`,
+    details: error.message 
+  });
   }
 });
 
@@ -3524,6 +3525,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
