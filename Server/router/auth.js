@@ -2000,15 +2000,8 @@ router.get('/iitm_stats2_questions_databases/:topic', async (req, res) => {
       topic: topic
     });
 
-    console.log(📊 Found ${allQuestions.length} total questions for topic: ${topic});
-    
     // Check if we have enough questions in the pool
     const totalQuestionsInPool = allQuestions.length;
-    
-    if (totalQuestionsInPool < 50) {
-      console.warn(⚠️ WARNING: Only ${totalQuestionsInPool} questions in pool for ${topic}, requested ${count});
-      // You might want to alert the admin about this
-    }
 
     // Enhanced shuffle for better randomness
     const shuffledQuestions = [...allQuestions];
@@ -2024,8 +2017,6 @@ router.get('/iitm_stats2_questions_databases/:topic', async (req, res) => {
     
     // Optional: Sort by question_number for consistent display
     selectedQuestions.sort((a, b) => a.question_number - b.question_number);
-
-    console.log(✅ Returning ${selectedQuestions.length} random questions for ${topic} to ${email});
 
     res.json({
       questions: selectedQuestions,
@@ -3533,6 +3524,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
