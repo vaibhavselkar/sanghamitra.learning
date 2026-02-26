@@ -1977,7 +1977,7 @@ router.post('/save-arithmetic-response', async (req, res) => {
 
 
 
-// Statistics - II routes here
+
 router.get('/iitm_stats2_questions_databases/:topic', async (req, res) => {
   try {
     const { topic } = req.params;
@@ -3533,6 +3533,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
