@@ -639,6 +639,8 @@
     let notifications = [];
     let unreadCount = 0;
     let refreshInterval;
+    let lastNotificationCount = 0;
+    let hasNewNotifications = false;
 
     // Subject display mapping
     const subjectDisplay = {
@@ -656,6 +658,12 @@
     document.getElementById('notificationBell').addEventListener('click', function(e) {
       e.stopPropagation();
       const dropdown = document.getElementById('notificationDropdown');
+      
+      // If opening the dropdown, mark all as viewed
+      if (!dropdown.classList.contains('show')) {
+        markAllAsRead();
+      }
+      
       dropdown.classList.toggle('show');
     });
 
@@ -672,6 +680,9 @@
     // Load all notifications from APIs
     async function loadAllNotifications() {
       try {
+        // Store current notification count before loading new ones
+        const previousCount = notifications.length;
+        
         document.getElementById('notificationList').innerHTML = `
           <div class="loading-spinner">
             <div class="spinner-border text-primary" role="status">
@@ -696,7 +707,7 @@
         let allActivities = [];
 
         // Process each result
-        results.forEach((result, index) => {
+        results.forEach((result) => {
           if (result.status === 'fulfilled' && result.value) {
             allActivities = [...allActivities, ...result.value];
           }
@@ -706,12 +717,21 @@
         allActivities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         // Take only the most recent 50 activities
-        notifications = allActivities.slice(0, 50).map(activity => ({
+        const newNotifications = allActivities.slice(0, 50);
+        
+        // Check if there are new notifications
+        if (newNotifications.length > previousCount) {
+          hasNewNotifications = true;
+        }
+        
+        notifications = newNotifications.map(activity => ({
           ...activity,
-          read: false
+          read: false // Initially all are unread
         }));
 
-        unreadCount = notifications.length;
+        // Update unread count based on new notifications only
+        unreadCount = hasNewNotifications ? notifications.length : 0;
+        
         updateNotificationBadge();
         renderNotifications();
 
@@ -1009,13 +1029,13 @@
       }
       
       let html = '';
-      notifications.slice(0, 20).forEach((notif, index) => {
+      notifications.slice(0, 20).forEach((notif) => {
         const unreadClass = notif.read ? '' : 'unread';
         const timeAgo = getTimeAgo(notif.timestamp);
         const scoreClass = getScoreClass(notif.score);
         
         html += `
-          <li class="notification-item ${unreadClass}" onclick="markAsRead(${index})">
+          <li class="notification-item ${unreadClass}">
             <div class="notification-icon ${notif.iconClass}">
               <i class="bi ${notif.icon}"></i>
             </div>
@@ -1068,22 +1088,18 @@
         .replace(/'/g, "&#039;");
     }
 
-    // Mark notification as read
-    function markAsRead(index) {
-      if (notifications[index] && !notifications[index].read) {
-        notifications[index].read = true;
-        unreadCount--;
+    // Mark all as read (called when dropdown is opened)
+    function markAllAsRead() {
+      if (notifications.length > 0) {
+        notifications.forEach(n => n.read = true);
+        unreadCount = 0;
+        hasNewNotifications = false;
         updateNotificationBadge();
         renderNotifications();
+        
+        // Save to localStorage that notifications were viewed at this time
+        localStorage.setItem('lastNotificationView', new Date().toISOString());
       }
-    }
-
-    // Mark all as read
-    function markAllAsRead() {
-      notifications.forEach(n => n.read = true);
-      unreadCount = 0;
-      updateNotificationBadge();
-      renderNotifications();
     }
 
     // Refresh notifications
