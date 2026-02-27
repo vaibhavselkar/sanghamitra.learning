@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+ 
+<head> 
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Statistics</title>
@@ -226,7 +226,7 @@
   <script>
     let currentUser = null;
 
-    // Define topic groups for statistics - similar to math page
+    // Define topic groups for statistics - updated to match second code structure
     const topicGroups = {
         'Week 1 and 2 (Quiz 1)': ['Quiz1', 'week1_week2', 'Week1_and_Week2', 'Statistics_Quiz1'],
         'Week 1 - Basics of Data': ['week1', 'Basics_of_Data', 'statistics_week1'],
@@ -235,10 +235,12 @@
         'Week 4 - Variable Association': ['week4', 'Variable_Association', 'statistics_week4'],
         'Week 5 - Basic Principles of Counting': ['week5', 'Basic_Principles_of_Counting', 'statistics_week5'],
         'Week 6 - Permutations and Combinations': ['week6', 'Permutations_and_Combinations', 'statistics_week6'],
-        'Week 7 - Probability': ['week7', 'Probability', 'statistics_week7']  
+        'Week 7 - Probability': ['week7', 'Probability', 'statistics_week7'],
+        'Week 8 - Conditional Probability': ['week8', 'Conditional_Probability', 'statistics_week8'],
+        'Quiz 1 Midterm': ['Quiz1_midterm', 'midterm', 'Quiz1 Midterm', 'Quiz1_Midterm']
     };
 
-    // Define available topics for statistics
+    // Define available topics for statistics - updated to match second code structure
     const availableTopics = [
         {
             id: 'review_page',
@@ -288,7 +290,6 @@
             icon: 'bi-cpu',
             url: 'week4.html'
         },
-
         {
             id: 'Quiz 1 Midterm',
             name: 'Quiz 1 Midterm',
@@ -313,8 +314,7 @@
             icon: 'bi-cpu',
             url: 'week6.html'
         },
-
-         {
+        {
             id: 'week7',
             name: 'Week 7 - Probability',
             displayName: 'Week 7 - Probability',
@@ -322,8 +322,7 @@
             icon: 'bi-cpu',
             url: 'week7.html'
         },
-
-         {
+        {
             id: 'week8',
             name: 'Week 8 - Conditional Probability',
             displayName: 'Week 8 - Conditional Probability',
@@ -367,12 +366,11 @@
             console.log('Session info fetched:', currentUser);
         } catch (error) {
             console.error('Session error:', error);
-            // For now, use test data
             currentUser = { email: 'test@example.com', username: 'Test User' };
         }
     }
 
-    // Get display topic for grouping
+    // Get display topic for grouping - updated to match second code logic
     function getDisplayTopic(topicName) {
         if (!topicName) return null;
         
@@ -402,7 +400,7 @@
         return topicName; // Return original if no match
     }
 
-    // Load course data from API
+    // Load course data from API - updated to match second code structure
     async function loadCourseData() {
         try {
             if (!currentUser) {
@@ -423,33 +421,30 @@
             }
             
             const data = await response.json();
-            console.log('📦 API Response:', data);
+            console.log('📦 API Response keys:', Object.keys(data));
             
-            // Extract scores from the response
+            // Extract scores from the correct location - matching second code structure
             let scores = [];
             
             if (data.success && data.data) {
                 console.log('📊 User data structure:', {
-                    hasScores: 'scores' in data.data,
-                    scoresLength: data.data.scores?.length || 0,
+                    hasQuizScores: 'quizScores' in data.data,
+                    quizScoresLength: data.data.quizScores?.length || 0,
                     allKeys: Object.keys(data.data)
                 });
                 
-                // Check different possible locations for scores
-                if (data.data.scores && Array.isArray(data.data.scores)) {
-                    scores = data.data.scores;
-                } else if (data.data.quizScores && Array.isArray(data.data.quizScores)) {
+                if (data.data.quizScores && Array.isArray(data.data.quizScores)) {
                     scores = data.data.quizScores;
-                } else if (Array.isArray(data.data)) {
-                    scores = data.data;
+                    console.log(`✅ Found ${scores.length} quiz scores`);
+                    
+                    // Log each score for debugging
+                    scores.forEach((score, i) => {
+                        console.log(`Score ${i + 1}: topic="${score.topic}", percentage=${score.percentage}%`);
+                    });
+                } else {
+                    console.log('⚠️ No quizScores array found in data.data');
+                    console.log('Available in data.data:', Object.keys(data.data));
                 }
-                
-                console.log(`✅ Found ${scores.length} statistics scores`);
-                
-                // Log each score for debugging
-                scores.forEach((score, i) => {
-                    console.log(`Score ${i + 1}: topic="${score.topic}", percentage=${score.percentage}%`);
-                });
             } else {
                 console.log('⚠️ Unexpected response structure:', data);
             }
@@ -466,47 +461,7 @@
         }
     }
 
-    // Debug topic grouping
-    function debugTopicGrouping(userScoreData) {
-        console.log('=== STATISTICS TOPIC GROUPING DEBUG ===');
-        
-        if (!userScoreData?.scores) return;
-        
-        // Group scores by display topic
-        const groupedScores = {};
-        
-        userScoreData.scores.forEach(score => {
-            const displayTopic = getDisplayTopic(score.topic);
-            
-            if (!groupedScores[displayTopic]) {
-                groupedScores[displayTopic] = [];
-            }
-            
-            groupedScores[displayTopic].push({
-                topic: score.topic,
-                percentage: score.percentage,
-                score: score.score,
-                totalQuestions: score.totalQuestions,
-                timestamp: score.timestamp
-            });
-        });
-        
-        // Log the grouped results
-        Object.entries(groupedScores).forEach(([displayTopic, scores]) => {
-            console.log(`\n📊 ${displayTopic}: ${scores.length} attempt(s)`);
-            scores.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            scores.forEach((score, i) => {
-                const date = new Date(score.timestamp).toLocaleString();
-                console.log(`  ${i+1}. ${score.topic} - ${score.percentage}% (${score.score}/${score.totalQuestions}) - ${date}`);
-            });
-            
-            const latest = scores[0];
-            console.log(`  ✅ Latest percentage: ${latest.percentage}%`);
-        });
-    }
-
-    // Find assessment data for a specific topic
+    // Find assessment data for a specific topic - updated to match second code logic
     function findTopicAssessment(userScoreData, topicName) {
         if (!userScoreData || !userScoreData.scores || !Array.isArray(userScoreData.scores)) {
             console.log(`No scores found for user`);
@@ -545,7 +500,7 @@
                             matchedVariation: variation
                         });
                     }
-                    break;
+                    break; // Found a match, no need to check other variations
                 }
             }
         });
@@ -565,7 +520,7 @@
             return dateB - dateA; // Most recent first
         })[0];
         
-        // Calculate percentage
+        // Calculate percentage (use stored percentage or calculate from score)
         let percentage = 0;
         if (latestScore.percentage !== undefined && latestScore.percentage !== null) {
             percentage = Math.round(parseFloat(latestScore.percentage));
@@ -601,7 +556,7 @@
         });
     }
 
-    // Create HTML for a course item
+    // Create HTML for a course item - updated to match second code exactly
     function createCourseHTML(topic, assessment) {
         const isCompleted = assessment && assessment.score !== undefined && assessment.score !== null;
         const score = assessment ? Math.round(assessment.score || 0) : 0;
@@ -631,7 +586,7 @@
             badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
         }
 
-        // Updated action button logic with Retest button
+        // Action button logic with Retest button - matching second code
         const actionButton = isCompleted 
             ? `<a href="${topic.url}" class="btn btn-primary btn-sm">
                 <span>Retest</span>
@@ -729,23 +684,6 @@
         hideError();
         initializeApp();
     }
-
-    // Optional: Add a refresh button to the error message
-    function addRefreshButton() {
-        const errorMessage = document.getElementById('errorMessage');
-        if (errorMessage && !errorMessage.querySelector('.refresh-btn')) {
-            const refreshButton = document.createElement('button');
-            refreshButton.className = 'btn btn-outline-primary btn-sm ms-3 refresh-btn';
-            refreshButton.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Refresh';
-            refreshButton.onclick = refreshCourseData;
-            errorMessage.appendChild(refreshButton);
-        }
-    }
   </script>
 </body>
 </html>
-
-
-
-
-
