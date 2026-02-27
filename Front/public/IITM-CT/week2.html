@@ -1167,7 +1167,7 @@
 
         async function fetchSessionInfo() {
             try {
-                const response = await fetch('http://localhost:4000/api/session-info', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                     credentials: 'include'
                 });
                 if (response.ok) {
@@ -1198,7 +1198,7 @@
 
         async function loadQuestions() {
             try {
-                const url = 'http://localhost:4000/api/iitm-ct-questions?topic=Week 2';
+                const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions/Week%202?email=${encodeURIComponent(userEmail)}&count=50`;
                 const response = await fetch(url);
                 
                 if (!response.ok) {
@@ -1549,7 +1549,7 @@
                 submitBtn.textContent = 'Submitting...';
 
                 console.log('Sending POST request...');
-                const response = await fetch('http://localhost:4000/api/iitm_ct_scores', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1598,7 +1598,7 @@
                 
                 console.log('Retrying with attempt number:', payload.attempt_number);
                 
-                const response = await fetch('http://localhost:4000/api/iitm_ct_scores', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1709,4 +1709,5 @@
         });
     </script>
 </body>
+
 </html>
