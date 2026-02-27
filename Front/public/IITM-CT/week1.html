@@ -590,7 +590,7 @@
 
         async function loadQuestions() {
             try {
-                const url = 'https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=Programming Basics';
+                const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions/Programming%20Basics?email=${encodeURIComponent(userEmail)}`;
                 const response = await fetch(url);
                 
                 if (!response.ok) {
@@ -1065,5 +1065,6 @@ async function retrySubmission(payload) {
     </script>
 </body>
 </html>
+
 
 
