@@ -2059,58 +2059,83 @@ router.get('/iitm_stats2_questions_databases/:topic', async (req, res) => {
 router.post('/iitm_stats2_scores_databases', async (req, res) => {
   try {
     const { email, username, quizData } = req.body;
-    
-    console.log('Received request body:', JSON.stringify(req.body, null, 2));
-    
+
+    console.log("📥 Received request body:", JSON.stringify(req.body, null, 2));
+
+    // Validation
     if (!email || !username || !quizData) {
-      return res.status(400).json({ error: 'Email, username and quizData are required' });
-    }
-    
-    // Extract question IDs from the quiz results
-    const completedQuestionIds = quizData.questionResults
-      ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
-      : [];
-    
-    console.log(Quiz completed with ${completedQuestionIds.length} question IDs:, completedQuestionIds);
-    
-    // FIXED: Use iitm_stats2_score instead of Statistics_score
-    let user = await iitm_stats2_score.findOne({ email });
-    
-    if (!user) {
-      // Create new user with completed questions and score
-      user = new iitm_stats2_score({ 
-        username, 
-        email, 
-        completedQuestionIds: completedQuestionIds,
-        quizScores: [quizData] // Use quizScores to match your iitm schema
+      return res.status(400).json({
+        error: "Email, username and quizData are required"
       });
+    }
+
+    // Extract question IDs safely
+    const completedQuestionIds = quizData.questionResults
+      ? quizData.questionResults
+          .map(result => result.questionId)
+          .filter(Boolean)
+      : [];
+
+    console.log(
+      `📊 Quiz completed with ${completedQuestionIds.length} question IDs:`,
+      completedQuestionIds
+    );
+
+    // Find user
+    let user = await iitm_stats2_score.findOne({ email });
+
+    if (!user) {
+      console.log(`🆕 Creating new user score record for ${email}`);
+
+      // Create new user
+      user = new iitm_stats2_score({
+        username,
+        email,
+        completedQuestionIds,
+        quizScores: [quizData]
+      });
+
     } else {
+      console.log(`👤 Updating existing user score record for ${email}`);
+
+      // Update username
       user.username = username;
-      user.quizScores.push(quizData); // Use quizScores to match your iitm schema
-      
-      // Add new completed questions to the array (avoid duplicates)
+
+      // Add quiz score
+      user.quizScores.push(quizData);
+
+      // Add new completed question IDs (avoid duplicates)
       const newCompletedIds = completedQuestionIds.filter(
         id => !user.completedQuestionIds.includes(id)
       );
+
       user.completedQuestionIds.push(...newCompletedIds);
-      
-      console.log(Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length});
+
+      console.log(
+        `✅ Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`
+      );
     }
-    
+
+    // Save to database
     await user.save();
-    
-    res.status(201).json({ 
-      message: 'Quiz result saved successfully', 
+
+    console.log(`💾 Quiz result saved successfully for ${email}`);
+
+    res.status(201).json({
+      message: "Quiz result saved successfully",
       completedQuestionsCount: user.completedQuestionIds.length,
-      user 
+      user
     });
-    
+
   } catch (error) {
-    console.error('Error saving quiz result:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("❌ Error saving quiz result:", error);
+
+    res.status(500).json({
+      error: "Internal server error",
+      details: error.message
+    });
   }
 });
-
 router.get('/iitm_stats2_scores_databases', async (req, res) => {
   try {
     const { email } = req.query;
@@ -3540,6 +3565,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
