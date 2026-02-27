@@ -31,6 +31,189 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
+    /* Notification Bell Styles */
+    .notification-container {
+      position: relative;
+      margin-right: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .notification-bell {
+      font-size: 1.5rem;
+      color: white;
+      position: relative;
+      transition: transform 0.3s;
+    }
+    
+    .notification-bell:hover {
+      transform: scale(1.1);
+    }
+    
+    .notification-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: var(--danger-color);
+      color: white;
+      border-radius: 50%;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      min-width: 20px;
+      text-align: center;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.2);
+        background-color: #ff4444;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    
+    .notification-dropdown {
+      position: absolute;
+      top: 40px;
+      right: -10px;
+      width: 350px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .notification-dropdown.show {
+      display: block;
+    }
+    
+    .notification-header {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      color: white;
+      border-radius: 12px 12px 0 0;
+    }
+    
+    .notification-header h6 {
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .notification-header .btn-link {
+      color: white;
+      text-decoration: none;
+      padding: 0;
+    }
+    
+    .notification-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .notification-item {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.3s;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .notification-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .notification-item.unread {
+      background-color: #e8f4fd;
+    }
+    
+    .notification-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+    
+    .notification-icon.ct { background: rgba(102, 126, 234, 0.1); color: var(--primary-color); }
+    .notification-icon.python { background: rgba(52, 152, 219, 0.1); color: #3498db; }
+    .notification-icon.dsa { background: rgba(155, 89, 182, 0.1); color: #9b59b6; }
+    .notification-icon.math { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+    .notification-icon.stats { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+    
+    .notification-content {
+      flex: 1;
+    }
+    
+    .notification-content strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      color: var(--dark-color);
+    }
+    
+    .notification-content small {
+      color: #6c757d;
+      font-size: 0.8rem;
+    }
+    
+    .notification-time {
+      font-size: 0.7rem;
+      color: #adb5bd;
+      margin-top: 0.25rem;
+    }
+    
+    .notification-footer {
+      padding: 0.75rem;
+      text-align: center;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    .notification-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    
+    .notification-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .blink {
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
     .sidebar {
       background: white;
       border-radius: 12px;
@@ -183,6 +366,11 @@
       .sidebar {
         margin-bottom: 2rem;
       }
+      
+      .notification-dropdown {
+        width: 300px;
+        right: -50px;
+      }
     }
   </style>
 </head>
@@ -196,6 +384,33 @@
           <h1 class="mb-0 fs-3">IITM Admin Dashboard</h1>
         </div>
         <div class="d-flex align-items-center">
+          <!-- Notification Bell -->
+          <div class="notification-container" id="notificationContainer">
+            <div class="notification-bell" id="notificationBell">
+              <i class="bi bi-bell-fill"></i>
+              <span class="notification-badge" id="notificationBadge">0</span>
+            </div>
+            
+            <!-- Notification Dropdown -->
+            <div class="notification-dropdown" id="notificationDropdown">
+              <div class="notification-header">
+                <h6>Notifications</h6>
+                <button class="btn btn-link btn-sm text-white" onclick="markAllAsRead()">
+                  <i class="bi bi-check-all"></i>
+                </button>
+              </div>
+              
+              <ul class="notification-list" id="notificationList">
+                <li class="text-center py-3 text-muted">No new notifications</li>
+              </ul>
+              
+              <div class="notification-footer">
+                <a href="#" onclick="viewAllNotifications()">View All Notifications</a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- User Dropdown -->
           <div class="dropdown">
             <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               <div class="user-avatar me-2">
@@ -272,7 +487,7 @@
                   <i class="bi bi-diagram-3"></i> Content Dashboard
                 </a>
               </li>
-            </ul> <!-- This was missing -->
+            </ul>
             
             <div class="mt-4 pt-3 border-top">
               <h6 class="text-muted mb-3">Quick Actions</h6>
@@ -303,7 +518,7 @@
           </div>
           
           <!-- Stats Cards -->
-          <div class="row"> <!-- Added row wrapper for all cards -->
+          <div class="row">
             <!-- Dashboard Cards -->
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
@@ -402,23 +617,210 @@
                 <button class="btn btn-primary" onclick="showSection('analytics')">View Analytics</button>
               </div>
             </div>
-          </div> <!-- End of row -->
-        </div> <!-- End of overview section -->
-      </div> <!-- End of col-lg-9 -->
-    </div> <!-- End of main row -->
-  </div> <!-- End of container -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-
-  
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // Notification System
+    let notifications = [];
+    let unreadCount = 0;
+    let notificationInterval;
 
+    // Sample user names for demo
+    const sampleUsers = [
+      "John Doe", "Jane Smith", "Mike Johnson", "Sarah Williams", 
+      "David Brown", "Emily Davis", "Robert Wilson", "Lisa Anderson"
+    ];
 
-    
+    // Subject details
+    const subjects = {
+      'ct': { name: 'Computational Thinking', icon: 'bi-cpu', class: 'ct' },
+      'python': { name: 'Python', icon: 'bi-code-slash', class: 'python' },
+      'dsa': { name: 'Data Structures & Algorithms', icon: 'bi-diagram-3', class: 'dsa' },
+      'math1': { name: 'Mathematics-1', icon: 'bi-calculator', class: 'math' },
+      'math2': { name: 'Mathematics-2', icon: 'bi-calculator', class: 'math' },
+      'stats1': { name: 'Statistics-1', icon: 'bi-bar-chart', class: 'stats' },
+      'stats2': { name: 'Statistics-2', icon: 'bi-bar-chart', class: 'stats' }
+    };
+
+    // Quiz topics per subject
+    const quizTopics = {
+      'ct': ['Week 1 - Logic Gates', 'Week 2 - Algorithms', 'Week 3 - Flowcharts', 'Week 4 - Problem Solving'],
+      'python': ['Week 1 - Variables & Data Types', 'Week 2 - Control Flow', 'Week 3 - Functions', 'Week 4 - OOP'],
+      'dsa': ['Week 1 - Arrays', 'Week 2 - Linked Lists', 'Week 3 - Trees', 'Week 4 - Graphs'],
+      'math1': ['Week 1 - Sets & Relations', 'Week 2 - Functions', 'Week 3 - Limits', 'Week 4 - Derivatives'],
+      'math2': ['Week 1 - Integration', 'Week 2 - Differential Equations', 'Week 3 - Vectors', 'Week 4 - Matrices'],
+      'stats1': ['Week 1 - Descriptive Stats', 'Week 2 - Probability', 'Week 3 - Distributions', 'Week 4 - Hypothesis Testing'],
+      'stats2': ['Week 1 - Regression', 'Week 2 - ANOVA', 'Week 3 - Time Series', 'Week 4 - Machine Learning']
+    };
+
+    // Toggle notification dropdown
+    document.getElementById('notificationBell').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const dropdown = document.getElementById('notificationDropdown');
+      dropdown.classList.toggle('show');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const container = document.getElementById('notificationContainer');
+      const dropdown = document.getElementById('notificationDropdown');
+      
+      if (!container.contains(event.target) && dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    // Function to add a new notification
+    function addNotification(subjectKey, userName, topic) {
+      const subject = subjects[subjectKey];
+      const now = new Date();
+      const timeString = now.toLocaleTimeString();
+      
+      const notification = {
+        id: Date.now(),
+        userName: userName,
+        subject: subject.name,
+        subjectKey: subjectKey,
+        icon: subject.icon,
+        iconClass: subject.class,
+        topic: topic,
+        time: now,
+        timeString: timeString,
+        read: false
+      };
+      
+      notifications.unshift(notification);
+      unreadCount++;
+      updateNotificationBadge();
+      renderNotifications();
+      
+      // Make bell blink
+      document.getElementById('notificationBell').classList.add('blink');
+      
+      // Play notification sound (optional)
+      // playNotificationSound();
+    }
+
+    // Function to update notification badge
+    function updateNotificationBadge() {
+      const badge = document.getElementById('notificationBadge');
+      badge.textContent = unreadCount;
+      
+      if (unreadCount > 0) {
+        badge.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+        document.getElementById('notificationBell').classList.remove('blink');
+      }
+    }
+
+    // Function to render notifications
+    function renderNotifications() {
+      const list = document.getElementById('notificationList');
+      
+      if (notifications.length === 0) {
+        list.innerHTML = '<li class="text-center py-3 text-muted">No new notifications</li>';
+        return;
+      }
+      
+      let html = '';
+      notifications.slice(0, 10).forEach(notif => {
+        const unreadClass = notif.read ? '' : 'unread';
+        const timeAgo = getTimeAgo(notif.time);
+        
+        html += `
+          <li class="notification-item ${unreadClass}" onclick="markAsRead(${notif.id})">
+            <div class="notification-icon ${notif.iconClass}">
+              <i class="bi ${notif.icon}"></i>
+            </div>
+            <div class="notification-content">
+              <strong>${notif.userName}</strong>
+              <small>took ${notif.subject} - ${notif.topic}</small>
+              <div class="notification-time">
+                <i class="bi bi-clock"></i> ${timeAgo}
+              </div>
+            </div>
+          </li>
+        `;
+      });
+      
+      list.innerHTML = html;
+    }
+
+    // Function to get time ago string
+    function getTimeAgo(time) {
+      const seconds = Math.floor((new Date() - time) / 1000);
+      
+      if (seconds < 60) return 'just now';
+      if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
+      if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+      return Math.floor(seconds / 86400) + ' days ago';
+    }
+
+    // Function to mark notification as read
+    function markAsRead(id) {
+      const notification = notifications.find(n => n.id === id);
+      if (notification && !notification.read) {
+        notification.read = true;
+        unreadCount--;
+        updateNotificationBadge();
+        renderNotifications();
+      }
+    }
+
+    // Function to mark all as read
+    function markAllAsRead() {
+      notifications.forEach(n => n.read = true);
+      unreadCount = 0;
+      updateNotificationBadge();
+      renderNotifications();
+    }
+
+    // Function to view all notifications
+    function viewAllNotifications() {
+      // Redirect to notifications page or show all
+      alert('View all notifications - This would open a full notifications page');
+    }
+
+    // Simulate random user activity
+    function simulateUserActivity() {
+      const randomUser = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+      const subjectKeys = Object.keys(subjects);
+      const randomSubject = subjectKeys[Math.floor(Math.random() * subjectKeys.length)];
+      const topics = quizTopics[randomSubject];
+      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+      
+      addNotification(randomSubject, randomUser, randomTopic);
+    }
+
+    // Start simulation (in real app, this would be replaced with actual WebSocket/API calls)
+    function startNotificationSimulation() {
+      // Simulate initial notifications
+      setTimeout(() => {
+        addNotification('dsa', 'John Doe', 'Week 2 - Linked Lists');
+      }, 2000);
+      
+      setTimeout(() => {
+        addNotification('python', 'Jane Smith', 'Week 3 - Functions');
+      }, 5000);
+      
+      setTimeout(() => {
+        addNotification('ct', 'Mike Johnson', 'Week 1 - Logic Gates');
+      }, 8000);
+      
+      // Simulate random activity every 15-30 seconds
+      notificationInterval = setInterval(simulateUserActivity, 15000 + Math.random() * 15000);
+    }
+
+    // Quiz display functions
     function getQuizDisplayName(originalTopic, weekNumber = null) {
-      // Map database topic fields to display names
       const topicToDisplayName = {
           'Quiz1': 'Week 1 - Domain and Range Quiz',
           'Quiz2_Domain_Range': 'Week 1 - Domain and Range - 2 Quiz',
@@ -439,25 +841,21 @@
           return topicToDisplayName[originalTopic];
       }
       
-      // Fallback: if no mapping found, use the original topic with week prefix
       if (weekNumber) {
           return `Week ${weekNumber} - ${originalTopic || 'Quiz'}`;
       }
       
       return originalTopic || 'Unknown Quiz';
-  }
+    }
 
-  // Function to extract week number from topic
-  function extractWeekNumber(topic) {
+    function extractWeekNumber(topic) {
       if (!topic) return null;
       
-      // Try to extract week from topic name
       const weekMatch = topic.match(/\bweek\s*(\d+)\b/i);
       if (weekMatch) {
           return parseInt(weekMatch[1]);
       }
       
-      // Check known topics for week patterns
       const topicToWeek = {
           'Quiz1': 1,
           'Quiz2_Domain_Range': 1,
@@ -475,93 +873,77 @@
       };
       
       return topicToWeek[topic] || null;
-  }
-
-    // Add these functions AFTER the mapping functions but BEFORE your main dashboard code
-
-// Helper function to process quiz data with proper display names
-function processQuizData(quizData) {
-    if (!quizData) return null;
-    
-    // Extract week number from topic or use provided week
-    const weekNumber = extractWeekNumber(quizData.topic) || quizData.week || 1;
-    const displayName = getQuizDisplayName(quizData.topic, weekNumber);
-    
-    // Return enhanced quiz data
-    return {
-        ...quizData,
-        displayName: displayName,
-        weekNumber: weekNumber,
-        // Keep original topic for reference if needed
-        originalTopic: quizData.topic
-    };
-}
-
-// Process an array of quizzes
-function processQuizArray(quizzes) {
-    if (!Array.isArray(quizzes)) return [];
-    return quizzes.map(quiz => processQuizData(quiz));
-}
-
-// Example: When you fetch quiz data from API
-async function loadQuizData() {
-    try {
-        const response = await fetch('your-api-endpoint');
-        const data = await response.json();
-        
-        // Process the quiz data to add display names
-        const processedQuizzes = processQuizArray(data.quizzes || []);
-        
-        // Now use processedQuizzes in your UI
-        renderQuizTable(processedQuizzes);
-        updateStats(processedQuizzes);
-        
-    } catch (error) {
-        console.error('Error loading quiz data:', error);
     }
-}
 
-// Function to render quiz table with display names
-function renderQuizTable(quizzes) {
-    const tableBody = document.getElementById('quizTableBody');
-    if (!tableBody) return;
-    
-    tableBody.innerHTML = '';
-    
-    quizzes.forEach((quiz, index) => {
-        // quiz already has displayName from processQuizData
-        const row = `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${quiz.displayName}</td>
-                <td>Week ${quiz.weekNumber}</td>
-                <td>${quiz.correctAnswers || 0}/${quiz.totalQuestions || 0}</td>
-                <td>${quiz.totalQuestions ? ((quiz.correctAnswers/quiz.totalQuestions)*100).toFixed(1) : 0}%</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" onclick="viewQuizDetails('${quiz.id || quiz.originalTopic}')">
-                        View Details
-                    </button>
-                </td>
-            </tr>
-        `;
-        tableBody.innerHTML += row;
-    });
-}
-    
-    // Function to show specific dashboard section
+    function processQuizData(quizData) {
+      if (!quizData) return null;
+      
+      const weekNumber = extractWeekNumber(quizData.topic) || quizData.week || 1;
+      const displayName = getQuizDisplayName(quizData.topic, weekNumber);
+      
+      return {
+          ...quizData,
+          displayName: displayName,
+          weekNumber: weekNumber,
+          originalTopic: quizData.topic
+      };
+    }
+
+    function processQuizArray(quizzes) {
+      if (!Array.isArray(quizzes)) return [];
+      return quizzes.map(quiz => processQuizData(quiz));
+    }
+
+    async function loadQuizData() {
+      try {
+          const response = await fetch('your-api-endpoint');
+          const data = await response.json();
+          
+          const processedQuizzes = processQuizArray(data.quizzes || []);
+          
+          renderQuizTable(processedQuizzes);
+          updateStats(processedQuizzes);
+          
+      } catch (error) {
+          console.error('Error loading quiz data:', error);
+      }
+    }
+
+    function renderQuizTable(quizzes) {
+      const tableBody = document.getElementById('quizTableBody');
+      if (!tableBody) return;
+      
+      tableBody.innerHTML = '';
+      
+      quizzes.forEach((quiz, index) => {
+          const row = `
+              <tr>
+                  <td>${index + 1}</td>
+                  <td>${quiz.displayName}</td>
+                  <td>Week ${quiz.weekNumber}</td>
+                  <td>${quiz.correctAnswers || 0}/${quiz.totalQuestions || 0}</td>
+                  <td>${quiz.totalQuestions ? ((quiz.correctAnswers/quiz.totalQuestions)*100).toFixed(1) : 0}%</td>
+                  <td>
+                      <button class="btn btn-sm btn-primary" onclick="viewQuizDetails('${quiz.id || quiz.originalTopic}')">
+                          View Details
+                      </button>
+                  </td>
+              </tr>
+          `;
+          tableBody.innerHTML += row;
+      });
+    }
+
     function showSection(sectionId) {
-      // Hide all sections
       document.querySelectorAll('.dashboard-section').forEach(section => {
         section.classList.remove('active');
       });
       
-      // Show the selected section
       const targetSection = document.getElementById(sectionId);
       if (targetSection) {
         targetSection.classList.add('active');
       }
       
-      // Update active nav link
       document.querySelectorAll('.sidebar .nav-link').forEach(link => {
         link.classList.remove('active');
       });
@@ -571,20 +953,37 @@ function renderQuizTable(quizzes) {
         targetLink.classList.add('active');
       }
     }
-    
-    // Set up navigation for internal sections
-    document.querySelectorAll('.sidebar .nav-link[data-target]').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = this.getAttribute('data-target');
-        showSection(target);
-      });
-    });
-    
+
     // Initialize the dashboard
     document.addEventListener('DOMContentLoaded', function() {
-      // Show overview section by default
       showSection('overview');
+      
+      // Set up navigation for internal sections
+      document.querySelectorAll('.sidebar .nav-link[data-target]').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const target = this.getAttribute('data-target');
+          showSection(target);
+        });
+      });
+      
+      // Start notification simulation
+      startNotificationSimulation();
+      
+      // For demonstration: Add button to simulate test taking
+      // In real app, this would be triggered by actual test submissions
+      const simulateBtn = document.createElement('button');
+      simulateBtn.className = 'btn btn-sm btn-warning mt-3';
+      simulateBtn.innerHTML = '<i class="bi bi-play-fill"></i> Simulate Test (Demo)';
+      simulateBtn.onclick = simulateUserActivity;
+      document.querySelector('.quick-actions').appendChild(simulateBtn);
+    });
+
+    // Clean up interval on page unload
+    window.addEventListener('beforeunload', function() {
+      if (notificationInterval) {
+        clearInterval(notificationInterval);
+      }
     });
   </script>
 </body>
