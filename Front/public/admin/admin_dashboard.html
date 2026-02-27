@@ -80,7 +80,7 @@
       position: absolute;
       top: 40px;
       right: -10px;
-      width: 350px;
+      width: 400px;
       background: white;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -103,6 +103,9 @@
       background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
       color: white;
       border-radius: 12px 12px 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
     
     .notification-header h6 {
@@ -151,14 +154,14 @@
     }
     
     .notification-icon {
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-right: 1rem;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
     }
     
     .notification-icon.ct { background: rgba(102, 126, 234, 0.1); color: var(--primary-color); }
@@ -166,6 +169,10 @@
     .notification-icon.dsa { background: rgba(155, 89, 182, 0.1); color: #9b59b6; }
     .notification-icon.math { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
     .notification-icon.stats { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+    .notification-icon.math2 { background: rgba(230, 126, 34, 0.1); color: #e67e22; }
+    .notification-icon.stats2 { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+    .notification-icon.programming { background: rgba(52, 152, 219, 0.1); color: #3498db; }
+    .notification-icon.interview { background: rgba(155, 89, 182, 0.1); color: #9b59b6; }
     
     .notification-content {
       flex: 1;
@@ -175,29 +182,51 @@
       display: block;
       margin-bottom: 0.25rem;
       color: var(--dark-color);
+      font-size: 0.95rem;
     }
     
     .notification-content small {
       color: #6c757d;
       font-size: 0.8rem;
+      display: block;
     }
+    
+    .notification-score {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-top: 0.25rem;
+    }
+    
+    .score-high { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+    .score-medium { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+    .score-low { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
     
     .notification-time {
       font-size: 0.7rem;
       color: #adb5bd;
       margin-top: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
     }
     
     .notification-footer {
       padding: 0.75rem;
       text-align: center;
       border-top: 1px solid #e9ecef;
+      background: white;
+      position: sticky;
+      bottom: 0;
     }
     
     .notification-footer a {
       color: var(--primary-color);
       text-decoration: none;
       font-size: 0.9rem;
+      cursor: pointer;
     }
     
     .notification-footer a:hover {
@@ -212,6 +241,18 @@
       0% { opacity: 1; }
       50% { opacity: 0.5; }
       100% { opacity: 1; }
+    }
+    
+    .no-notifications {
+      padding: 3rem;
+      text-align: center;
+      color: #6c757d;
+    }
+    
+    .no-notifications i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #dee2e6;
     }
     
     .sidebar {
@@ -278,64 +319,6 @@
     .icon-analytics { background: rgba(255, 193, 7, 0.1); color: var(--warning-color); }
     .icon-settings { background: rgba(108, 117, 125, 0.1); color: #6c757d; }
     
-    .stats-card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      margin-bottom: 1.5rem;
-    }
-    
-    .stats-value {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 0;
-    }
-    
-    .stats-label {
-      color: #6c757d;
-      font-size: 0.9rem;
-    }
-    
-    .stats-change {
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-    
-    .positive { color: var(--success-color); }
-    .negative { color: var(--danger-color); }
-    
-    .recent-activity {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-    
-    .activity-item {
-      padding: 1rem 0;
-      border-bottom: 1px solid #e9ecef;
-    }
-    
-    .activity-item:last-child {
-      border-bottom: none;
-    }
-    
-    .activity-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1rem;
-    }
-    
-    .activity-dsa { background: rgba(102, 126, 234, 0.1); color: var(--primary-color); }
-    .activity-python { background: rgba(52, 152, 219, 0.1); color: #3498db; }
-    .activity-ct { background: rgba(155, 89, 182, 0.1); color: #9b59b6; }
-    .activity-user { background: rgba(40, 167, 69, 0.1); color: var(--success-color); }
-    
     .welcome-card {
       background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
       color: white;
@@ -360,6 +343,11 @@
     .quick-actions .btn {
       margin-right: 0.5rem;
       margin-bottom: 0.5rem;
+    }
+    
+    .loading-spinner {
+      text-align: center;
+      padding: 2rem;
     }
     
     @media (max-width: 768px) {
@@ -394,18 +382,24 @@
             <!-- Notification Dropdown -->
             <div class="notification-dropdown" id="notificationDropdown">
               <div class="notification-header">
-                <h6>Notifications</h6>
+                <h6>Recent Activity</h6>
                 <button class="btn btn-link btn-sm text-white" onclick="markAllAsRead()">
                   <i class="bi bi-check-all"></i>
                 </button>
               </div>
               
-              <ul class="notification-list" id="notificationList">
-                <li class="text-center py-3 text-muted">No new notifications</li>
-              </ul>
+              <div id="notificationList" class="notification-list">
+                <!-- Notifications will be loaded here -->
+                <div class="loading-spinner">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="mt-2 text-muted">Loading notifications...</p>
+                </div>
+              </div>
               
               <div class="notification-footer">
-                <a href="#" onclick="viewAllNotifications()">View All Notifications</a>
+                <a onclick="refreshNotifications()">Refresh Notifications</a>
               </div>
             </div>
           </div>
@@ -492,8 +486,11 @@
             <div class="mt-4 pt-3 border-top">
               <h6 class="text-muted mb-3">Quick Actions</h6>
               <div class="quick-actions">
-                <button class="btn btn-outline-success btn-sm">
+                <button class="btn btn-outline-success btn-sm" onclick="exportData()">
                   <i class="bi bi-download"></i> Export Data
+                </button>
+                <button class="btn btn-outline-primary btn-sm mt-2" onclick="refreshNotifications()">
+                  <i class="bi bi-arrow-repeat"></i> Refresh
                 </button>
               </div>
             </div>
@@ -517,9 +514,8 @@
             </div>
           </div>
           
-          <!-- Stats Cards -->
+          <!-- Dashboard Cards -->
           <div class="row">
-            <!-- Dashboard Cards -->
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-ct">
@@ -556,9 +552,9 @@
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-python">
-                  <i class="bi bi-code-slash"></i>
+                  <i class="bi bi-calculator"></i>
                 </div>
-                <h4>Mathematic-1 Dashboard</h4>
+                <h4>Mathematics-1 Dashboard</h4>
                 <p class="text-muted">Track mathematics assignments, problem sets, and analytical reasoning exercises.</p>
                 <a href="IITM_math_dashboard.html" class="btn btn-primary">Open Dashboard</a>
               </div>
@@ -567,9 +563,9 @@
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-python">
-                  <i class="bi bi-code-slash"></i>
+                  <i class="bi bi-calculator"></i>
                 </div>
-                <h4>Mathematic-2 Dashboard</h4>
+                <h4>Mathematics-2 Dashboard</h4>
                 <p class="text-muted">Monitor advanced mathematics concepts, proofs, and mathematical modeling assignments.</p>
                 <a href="iitm_maths2_admin_dashboard.html" class="btn btn-primary">Open Dashboard</a>
               </div>
@@ -578,9 +574,9 @@
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-python">
-                  <i class="bi bi-code-slash"></i>
+                  <i class="bi bi-bar-chart"></i>
                 </div>
-                <h4>Statistic-1 Dashboard</h4>
+                <h4>Statistics-1 Dashboard</h4>
                 <p class="text-muted">View statistical analysis assignments, data interpretation tasks, and probability exercises.</p>
                 <a href="statistics_dashboard.html" class="btn btn-primary">Open Dashboard</a>
               </div>
@@ -589,7 +585,7 @@
             <div class="col-md-4 mb-4">
               <div class="dashboard-card">
                 <div class="card-icon icon-python">
-                  <i class="bi bi-code-slash"></i>
+                  <i class="bi bi-bar-chart"></i>
                 </div>
                 <h4>Statistics-2 Dashboard</h4>
                 <p class="text-muted">Monitor advanced statistical methods, inferential statistics, and data modeling assignments.</p>
@@ -627,37 +623,33 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
+    // API Endpoints
+    const API_ENDPOINTS = {
+      coding: 'https://sanghamitra-learnworld.vercel.app/api/coding-submissions',
+      pdsa: 'https://sanghamitra-learnworld.vercel.app/api/pdsa-submissions',
+      interview: 'https://sanghamitra-learnworld.vercel.app/api/interview-submissions',
+      math1: 'https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores',
+      math2: 'https://sanghamitra-learnworld.vercel.app/api/iitm_maths2_scores_databases',
+      ct: 'https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores',
+      stats1: 'https://sanghamitra-learnworld.vercel.app/api/statistics_scores',
+      stats2: 'https://sanghamitra-learnworld.vercel.app/api/iitm_stats2_scores'
+    };
+
     // Notification System
     let notifications = [];
     let unreadCount = 0;
-    let notificationInterval;
+    let refreshInterval;
 
-    // Sample user names for demo
-    const sampleUsers = [
-      "John Doe", "Jane Smith", "Mike Johnson", "Sarah Williams", 
-      "David Brown", "Emily Davis", "Robert Wilson", "Lisa Anderson"
-    ];
-
-    // Subject details
-    const subjects = {
-      'ct': { name: 'Computational Thinking', icon: 'bi-cpu', class: 'ct' },
-      'python': { name: 'Python', icon: 'bi-code-slash', class: 'python' },
-      'dsa': { name: 'Data Structures & Algorithms', icon: 'bi-diagram-3', class: 'dsa' },
+    // Subject display mapping
+    const subjectDisplay = {
+      'coding': { name: 'Programming', icon: 'bi-code-slash', class: 'programming' },
+      'pdsa': { name: 'Quiz Test (PDSA)', icon: 'bi-pencil-square', class: 'dsa' },
+      'interview': { name: 'Interview', icon: 'bi-mic', class: 'interview' },
       'math1': { name: 'Mathematics-1', icon: 'bi-calculator', class: 'math' },
-      'math2': { name: 'Mathematics-2', icon: 'bi-calculator', class: 'math' },
+      'math2': { name: 'Mathematics-2', icon: 'bi-calculator', class: 'math2' },
+      'ct': { name: 'Computational Thinking', icon: 'bi-cpu', class: 'ct' },
       'stats1': { name: 'Statistics-1', icon: 'bi-bar-chart', class: 'stats' },
-      'stats2': { name: 'Statistics-2', icon: 'bi-bar-chart', class: 'stats' }
-    };
-
-    // Quiz topics per subject
-    const quizTopics = {
-      'ct': ['Week 1 - Logic Gates', 'Week 2 - Algorithms', 'Week 3 - Flowcharts', 'Week 4 - Problem Solving'],
-      'python': ['Week 1 - Variables & Data Types', 'Week 2 - Control Flow', 'Week 3 - Functions', 'Week 4 - OOP'],
-      'dsa': ['Week 1 - Arrays', 'Week 2 - Linked Lists', 'Week 3 - Trees', 'Week 4 - Graphs'],
-      'math1': ['Week 1 - Sets & Relations', 'Week 2 - Functions', 'Week 3 - Limits', 'Week 4 - Derivatives'],
-      'math2': ['Week 1 - Integration', 'Week 2 - Differential Equations', 'Week 3 - Vectors', 'Week 4 - Matrices'],
-      'stats1': ['Week 1 - Descriptive Stats', 'Week 2 - Probability', 'Week 3 - Distributions', 'Week 4 - Hypothesis Testing'],
-      'stats2': ['Week 1 - Regression', 'Week 2 - ANOVA', 'Week 3 - Time Series', 'Week 4 - Machine Learning']
+      'stats2': { name: 'Statistics-2', icon: 'bi-bar-chart', class: 'stats2' }
     };
 
     // Toggle notification dropdown
@@ -677,72 +669,360 @@
       }
     });
 
-    // Function to add a new notification
-    function addNotification(subjectKey, userName, topic) {
-      const subject = subjects[subjectKey];
-      const now = new Date();
-      const timeString = now.toLocaleTimeString();
-      
-      const notification = {
-        id: Date.now(),
-        userName: userName,
-        subject: subject.name,
-        subjectKey: subjectKey,
-        icon: subject.icon,
-        iconClass: subject.class,
-        topic: topic,
-        time: now,
-        timeString: timeString,
-        read: false
-      };
-      
-      notifications.unshift(notification);
-      unreadCount++;
-      updateNotificationBadge();
-      renderNotifications();
-      
-      // Make bell blink
-      document.getElementById('notificationBell').classList.add('blink');
-      
-      // Play notification sound (optional)
-      // playNotificationSound();
+    // Load all notifications from APIs
+    async function loadAllNotifications() {
+      try {
+        document.getElementById('notificationList').innerHTML = `
+          <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading notifications...</p>
+          </div>
+        `;
+
+        // Fetch data from all APIs in parallel
+        const results = await Promise.allSettled([
+          fetchCodingSubmissions(),
+          fetchPDSASubmissions(),
+          fetchInterviewSubmissions(),
+          fetchMath1Scores(),
+          fetchMath2Scores(),
+          fetchCTScores(),
+          fetchStats1Scores(),
+          fetchStats2Scores()
+        ]);
+
+        let allActivities = [];
+
+        // Process each result
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled' && result.value) {
+            allActivities = [...allActivities, ...result.value];
+          }
+        });
+
+        // Sort by timestamp (newest first)
+        allActivities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        // Take only the most recent 50 activities
+        notifications = allActivities.slice(0, 50).map(activity => ({
+          ...activity,
+          read: false
+        }));
+
+        unreadCount = notifications.length;
+        updateNotificationBadge();
+        renderNotifications();
+
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        document.getElementById('notificationList').innerHTML = `
+          <div class="no-notifications">
+            <i class="bi bi-exclamation-triangle"></i>
+            <p>Error loading notifications</p>
+            <small class="text-muted">Click refresh to try again</small>
+          </div>
+        `;
+      }
     }
 
-    // Function to update notification badge
+    // Fetch Coding Submissions
+    async function fetchCodingSubmissions() {
+      try {
+        const response = await fetch(API_ENDPOINTS.coding);
+        const data = await response.json();
+        const submissions = Array.isArray(data) ? data : (data.submissions || data.data || []);
+        
+        return submissions
+          .filter(s => s.email && s.email.toLowerCase() !== 'test@example.com')
+          .map(s => ({
+            userName: s.username || s.name || s.email,
+            subject: 'Programming',
+            subjectKey: 'coding',
+            topic: s.topic || 'Coding Assignment',
+            score: s.percentage || ((s.score / (s.maxScore || 100)) * 100) || 0,
+            timestamp: s.timestamp || new Date().toISOString(),
+            icon: subjectDisplay.coding.icon,
+            iconClass: subjectDisplay.coding.class
+          }));
+      } catch (error) {
+        console.error('Error fetching coding submissions:', error);
+        return [];
+      }
+    }
+
+    // Fetch PDSA Submissions
+    async function fetchPDSASubmissions() {
+      try {
+        const response = await fetch(API_ENDPOINTS.pdsa);
+        const data = await response.json();
+        const submissions = Array.isArray(data) ? data : (data.submissions || data.data || []);
+        
+        return submissions
+          .filter(s => s.email && s.email.toLowerCase() !== 'test@example.com')
+          .map(s => ({
+            userName: s.username || s.name || s.email,
+            subject: 'Quiz Test (PDSA)',
+            subjectKey: 'pdsa',
+            topic: s.topic || 'Quiz Test',
+            score: s.percentage || ((s.score / (s.maxScore || 100)) * 100) || 0,
+            timestamp: s.timestamp || new Date().toISOString(),
+            icon: subjectDisplay.pdsa.icon,
+            iconClass: subjectDisplay.pdsa.class
+          }));
+      } catch (error) {
+        console.error('Error fetching PDSA submissions:', error);
+        return [];
+      }
+    }
+
+    // Fetch Interview Submissions
+    async function fetchInterviewSubmissions() {
+      try {
+        const response = await fetch(API_ENDPOINTS.interview);
+        const data = await response.json();
+        const submissions = Array.isArray(data) ? data : (data.submissions || data.data || []);
+        
+        return submissions
+          .filter(s => s.email && s.email.toLowerCase() !== 'test@example.com')
+          .map(s => ({
+            userName: s.username || s.name || s.email,
+            subject: 'Interview',
+            subjectKey: 'interview',
+            topic: s.topic || 'Interview Assessment',
+            score: s.percentage || ((s.score / (s.maxScore || 100)) * 100) || 0,
+            timestamp: s.timestamp || new Date().toISOString(),
+            icon: subjectDisplay.interview.icon,
+            iconClass: subjectDisplay.interview.class
+          }));
+      } catch (error) {
+        console.error('Error fetching interview submissions:', error);
+        return [];
+      }
+    }
+
+    // Fetch Mathematics-1 Scores
+    async function fetchMath1Scores() {
+      try {
+        const response = await fetch(API_ENDPOINTS.math1);
+        const result = await response.json();
+        
+        let activities = [];
+        let data = [];
+        
+        if (result.success && result.data) {
+          data = Array.isArray(result.data) ? result.data : [result.data];
+        } else if (Array.isArray(result)) {
+          data = result;
+        }
+        
+        data.forEach(student => {
+          if (student.quizScores && student.quizScores.length > 0) {
+            student.quizScores.forEach(quiz => {
+              activities.push({
+                userName: student.username || student.name || student.email,
+                subject: 'Mathematics-1',
+                subjectKey: 'math1',
+                topic: quiz.topic || 'Quiz',
+                score: quiz.percentage || ((quiz.correctAnswers / quiz.totalQuestions) * 100) || 0,
+                timestamp: quiz.timestamp || new Date().toISOString(),
+                icon: subjectDisplay.math1.icon,
+                iconClass: subjectDisplay.math1.class
+              });
+            });
+          }
+        });
+        
+        return activities;
+      } catch (error) {
+        console.error('Error fetching Math-1 scores:', error);
+        return [];
+      }
+    }
+
+    // Fetch Mathematics-2 Scores
+    async function fetchMath2Scores() {
+      try {
+        const response = await fetch(API_ENDPOINTS.math2);
+        const result = await response.json();
+        
+        let activities = [];
+        
+        if (Array.isArray(result)) {
+          result.forEach(student => {
+            if (student.scores && student.scores.length > 0) {
+              student.scores.forEach(score => {
+                activities.push({
+                  userName: student.name || student.email,
+                  subject: 'Mathematics-2',
+                  subjectKey: 'math2',
+                  topic: score.subtopic || `Week ${score.week}`,
+                  score: ((score.score / score.totalQuestions) * 100) || 0,
+                  timestamp: score.dateAttempted || new Date().toISOString(),
+                  icon: subjectDisplay.math2.icon,
+                  iconClass: subjectDisplay.math2.class
+                });
+              });
+            }
+          });
+        }
+        
+        return activities;
+      } catch (error) {
+        console.error('Error fetching Math-2 scores:', error);
+        return [];
+      }
+    }
+
+    // Fetch Computational Thinking Scores
+    async function fetchCTScores() {
+      try {
+        const response = await fetch(API_ENDPOINTS.ct);
+        const result = await response.json();
+        
+        let activities = [];
+        
+        if (result.success && result.data) {
+          const data = Array.isArray(result.data) ? result.data : [result.data];
+          data.forEach(student => {
+            if (student.scores && student.scores.length > 0) {
+              student.scores.forEach(score => {
+                activities.push({
+                  userName: student.username || student.name || student.email,
+                  subject: 'Computational Thinking',
+                  subjectKey: 'ct',
+                  topic: score.topic || 'CT Exercise',
+                  score: score.percentage || ((score.score / (score.totalQuestions || 1)) * 100) || 0,
+                  timestamp: score.timestamp || new Date().toISOString(),
+                  icon: subjectDisplay.ct.icon,
+                  iconClass: subjectDisplay.ct.class
+                });
+              });
+            }
+          });
+        }
+        
+        return activities;
+      } catch (error) {
+        console.error('Error fetching CT scores:', error);
+        return [];
+      }
+    }
+
+    // Fetch Statistics-1 Scores
+    async function fetchStats1Scores() {
+      try {
+        const response = await fetch(API_ENDPOINTS.stats1);
+        const result = await response.json();
+        
+        let activities = [];
+        
+        if (result.success && result.data) {
+          const data = Array.isArray(result.data) ? result.data : [result.data];
+          data.forEach(student => {
+            if (student.quizScores && student.quizScores.length > 0) {
+              student.quizScores.forEach(quiz => {
+                activities.push({
+                  userName: student.username || student.name || student.email,
+                  subject: 'Statistics-1',
+                  subjectKey: 'stats1',
+                  topic: quiz.topic || 'Statistics Quiz',
+                  score: quiz.percentage || ((quiz.correctAnswers / quiz.totalQuestions) * 100) || 0,
+                  timestamp: quiz.timestamp || new Date().toISOString(),
+                  icon: subjectDisplay.stats1.icon,
+                  iconClass: subjectDisplay.stats1.class
+                });
+              });
+            }
+          });
+        }
+        
+        return activities;
+      } catch (error) {
+        console.error('Error fetching Statistics-1 scores:', error);
+        return [];
+      }
+    }
+
+    // Fetch Statistics-2 Scores
+    async function fetchStats2Scores() {
+      try {
+        const response = await fetch(API_ENDPOINTS.stats2);
+        const result = await response.json();
+        
+        let activities = [];
+        
+        if (Array.isArray(result)) {
+          result.forEach(student => {
+            if (student.scores && student.scores.length > 0) {
+              student.scores.forEach(score => {
+                activities.push({
+                  userName: student.name || student.email,
+                  subject: 'Statistics-2',
+                  subjectKey: 'stats2',
+                  topic: score.subtopic || `Week ${score.week}`,
+                  score: ((score.score / (score.totalQuestions || 1)) * 100) || 0,
+                  timestamp: score.dateAttempted || new Date().toISOString(),
+                  icon: subjectDisplay.stats2.icon,
+                  iconClass: subjectDisplay.stats2.class
+                });
+              });
+            }
+          });
+        }
+        
+        return activities;
+      } catch (error) {
+        console.error('Error fetching Statistics-2 scores:', error);
+        return [];
+      }
+    }
+
+    // Update notification badge
     function updateNotificationBadge() {
       const badge = document.getElementById('notificationBadge');
       badge.textContent = unreadCount;
       
       if (unreadCount > 0) {
         badge.style.display = 'block';
+        document.getElementById('notificationBell').classList.add('blink');
       } else {
         badge.style.display = 'none';
         document.getElementById('notificationBell').classList.remove('blink');
       }
     }
 
-    // Function to render notifications
+    // Render notifications
     function renderNotifications() {
       const list = document.getElementById('notificationList');
       
       if (notifications.length === 0) {
-        list.innerHTML = '<li class="text-center py-3 text-muted">No new notifications</li>';
+        list.innerHTML = `
+          <div class="no-notifications">
+            <i class="bi bi-bell-slash"></i>
+            <p>No recent activity</p>
+            <small class="text-muted">New submissions will appear here</small>
+          </div>
+        `;
         return;
       }
       
       let html = '';
-      notifications.slice(0, 10).forEach(notif => {
+      notifications.slice(0, 20).forEach((notif, index) => {
         const unreadClass = notif.read ? '' : 'unread';
-        const timeAgo = getTimeAgo(notif.time);
+        const timeAgo = getTimeAgo(notif.timestamp);
+        const scoreClass = getScoreClass(notif.score);
         
         html += `
-          <li class="notification-item ${unreadClass}" onclick="markAsRead(${notif.id})">
+          <li class="notification-item ${unreadClass}" onclick="markAsRead(${index})">
             <div class="notification-icon ${notif.iconClass}">
               <i class="bi ${notif.icon}"></i>
             </div>
             <div class="notification-content">
-              <strong>${notif.userName}</strong>
-              <small>took ${notif.subject} - ${notif.topic}</small>
+              <strong>${escapeHtml(notif.userName || 'Unknown User')}</strong>
+              <small>${escapeHtml(notif.subject)} - ${escapeHtml(notif.topic || 'Exercise')}</small>
+              ${notif.score ? `<span class="notification-score ${scoreClass}">${Math.round(notif.score)}%</span>` : ''}
               <div class="notification-time">
                 <i class="bi bi-clock"></i> ${timeAgo}
               </div>
@@ -754,28 +1034,51 @@
       list.innerHTML = html;
     }
 
-    // Function to get time ago string
-    function getTimeAgo(time) {
-      const seconds = Math.floor((new Date() - time) / 1000);
+    // Get score class for styling
+    function getScoreClass(score) {
+      if (score >= 80) return 'score-high';
+      if (score >= 60) return 'score-medium';
+      return 'score-low';
+    }
+
+    // Get time ago string
+    function getTimeAgo(timestamp) {
+      if (!timestamp) return 'Unknown time';
+      
+      const now = new Date();
+      const time = new Date(timestamp);
+      const seconds = Math.floor((now - time) / 1000);
       
       if (seconds < 60) return 'just now';
       if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
       if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
-      return Math.floor(seconds / 86400) + ' days ago';
+      if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
+      
+      return time.toLocaleDateString();
     }
 
-    // Function to mark notification as read
-    function markAsRead(id) {
-      const notification = notifications.find(n => n.id === id);
-      if (notification && !notification.read) {
-        notification.read = true;
+    // Escape HTML to prevent XSS
+    function escapeHtml(unsafe) {
+      if (!unsafe) return '';
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Mark notification as read
+    function markAsRead(index) {
+      if (notifications[index] && !notifications[index].read) {
+        notifications[index].read = true;
         unreadCount--;
         updateNotificationBadge();
         renderNotifications();
       }
     }
 
-    // Function to mark all as read
+    // Mark all as read
     function markAllAsRead() {
       notifications.forEach(n => n.read = true);
       unreadCount = 0;
@@ -783,206 +1086,38 @@
       renderNotifications();
     }
 
-    // Function to view all notifications
-    function viewAllNotifications() {
-      // Redirect to notifications page or show all
-      alert('View all notifications - This would open a full notifications page');
+    // Refresh notifications
+    function refreshNotifications() {
+      loadAllNotifications();
     }
 
-    // Simulate random user activity
-    function simulateUserActivity() {
-      const randomUser = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
-      const subjectKeys = Object.keys(subjects);
-      const randomSubject = subjectKeys[Math.floor(Math.random() * subjectKeys.length)];
-      const topics = quizTopics[randomSubject];
-      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-      
-      addNotification(randomSubject, randomUser, randomTopic);
+    // Export data (placeholder function)
+    function exportData() {
+      alert('Export functionality would be implemented here');
     }
 
-    // Start simulation (in real app, this would be replaced with actual WebSocket/API calls)
-    function startNotificationSimulation() {
-      // Simulate initial notifications
-      setTimeout(() => {
-        addNotification('dsa', 'John Doe', 'Week 2 - Linked Lists');
-      }, 2000);
-      
-      setTimeout(() => {
-        addNotification('python', 'Jane Smith', 'Week 3 - Functions');
-      }, 5000);
-      
-      setTimeout(() => {
-        addNotification('ct', 'Mike Johnson', 'Week 1 - Logic Gates');
-      }, 8000);
-      
-      // Simulate random activity every 15-30 seconds
-      notificationInterval = setInterval(simulateUserActivity, 15000 + Math.random() * 15000);
-    }
-
-    // Quiz display functions
-    function getQuizDisplayName(originalTopic, weekNumber = null) {
-      const topicToDisplayName = {
-          'Quiz1': 'Week 1 - Domain and Range Quiz',
-          'Quiz2_Domain_Range': 'Week 1 - Domain and Range - 2 Quiz',
-          'Quiz3_Linear_functions': 'Week 2 - Linear Functions Quiz',
-          'Quiz4_Quadratic_functions': 'Week 3 - Quadratic Functions Quiz',
-          'Quiz5_Linear_functions': 'Week 2 - Linear Functions - 1 Quiz',
-          'Quiz6_Sets_and_Relations': 'Week 1 - Sets and Relations Quiz',
-          'function_concepts': 'Week 4 - Polynomials Quiz',
-          'Function_Limits': 'Week 7 - Sequences, Limits, and Continuity Quiz',
-          'logarithmic_functions': 'Week 6 - Logarithmic Functions Quiz',
-          'Limit_Concepts': 'Week 8 - Limits, Continuity and Differentiation Quiz',
-          'Derivatives_Integrals': 'Week 9 - Derivatives and Integrals Quiz',
-          'graph_theory': 'Week 10 - Graph Theory Quiz',
-          'graph_properties': 'Week 11 - Graph Properties Quiz'
-      };
-      
-      if (originalTopic && topicToDisplayName[originalTopic]) {
-          return topicToDisplayName[originalTopic];
-      }
-      
-      if (weekNumber) {
-          return `Week ${weekNumber} - ${originalTopic || 'Quiz'}`;
-      }
-      
-      return originalTopic || 'Unknown Quiz';
-    }
-
-    function extractWeekNumber(topic) {
-      if (!topic) return null;
-      
-      const weekMatch = topic.match(/\bweek\s*(\d+)\b/i);
-      if (weekMatch) {
-          return parseInt(weekMatch[1]);
-      }
-      
-      const topicToWeek = {
-          'Quiz1': 1,
-          'Quiz2_Domain_Range': 1,
-          'Quiz3_Linear_functions': 2,
-          'Quiz5_Linear_functions': 2,
-          'Quiz4_Quadratic_functions': 3,
-          'Quiz6_Sets_and_Relations': 4,
-          'function_concepts': 4,
-          'logarithmic_functions': 6,
-          'Function_Limits': 7,
-          'Limit_Concepts': 8,
-          'Derivatives_Integrals': 9,
-          'graph_theory': 10,
-          'graph_properties': 11
-      };
-      
-      return topicToWeek[topic] || null;
-    }
-
-    function processQuizData(quizData) {
-      if (!quizData) return null;
-      
-      const weekNumber = extractWeekNumber(quizData.topic) || quizData.week || 1;
-      const displayName = getQuizDisplayName(quizData.topic, weekNumber);
-      
-      return {
-          ...quizData,
-          displayName: displayName,
-          weekNumber: weekNumber,
-          originalTopic: quizData.topic
-      };
-    }
-
-    function processQuizArray(quizzes) {
-      if (!Array.isArray(quizzes)) return [];
-      return quizzes.map(quiz => processQuizData(quiz));
-    }
-
-    async function loadQuizData() {
-      try {
-          const response = await fetch('your-api-endpoint');
-          const data = await response.json();
-          
-          const processedQuizzes = processQuizArray(data.quizzes || []);
-          
-          renderQuizTable(processedQuizzes);
-          updateStats(processedQuizzes);
-          
-      } catch (error) {
-          console.error('Error loading quiz data:', error);
-      }
-    }
-
-    function renderQuizTable(quizzes) {
-      const tableBody = document.getElementById('quizTableBody');
-      if (!tableBody) return;
-      
-      tableBody.innerHTML = '';
-      
-      quizzes.forEach((quiz, index) => {
-          const row = `
-              <tr>
-                  <td>${index + 1}</td>
-                  <td>${quiz.displayName}</td>
-                  <td>Week ${quiz.weekNumber}</td>
-                  <td>${quiz.correctAnswers || 0}/${quiz.totalQuestions || 0}</td>
-                  <td>${quiz.totalQuestions ? ((quiz.correctAnswers/quiz.totalQuestions)*100).toFixed(1) : 0}%</td>
-                  <td>
-                      <button class="btn btn-sm btn-primary" onclick="viewQuizDetails('${quiz.id || quiz.originalTopic}')">
-                          View Details
-                      </button>
-                  </td>
-              </tr>
-          `;
-          tableBody.innerHTML += row;
-      });
-    }
-
+    // Show section (for internal navigation)
     function showSection(sectionId) {
-      document.querySelectorAll('.dashboard-section').forEach(section => {
-        section.classList.remove('active');
-      });
-      
-      const targetSection = document.getElementById(sectionId);
-      if (targetSection) {
-        targetSection.classList.add('active');
-      }
-      
-      document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-        link.classList.remove('active');
-      });
-      
-      const targetLink = document.querySelector(`.sidebar .nav-link[data-target="${sectionId}"]`);
-      if (targetLink) {
-        targetLink.classList.add('active');
-      }
+      // This is a placeholder for section navigation
+      console.log('Showing section:', sectionId);
     }
 
-    // Initialize the dashboard
+    // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
+      // Load initial notifications
+      loadAllNotifications();
+      
+      // Set up auto-refresh every 30 seconds
+      refreshInterval = setInterval(loadAllNotifications, 30000);
+      
+      // Show overview section by default
       showSection('overview');
-      
-      // Set up navigation for internal sections
-      document.querySelectorAll('.sidebar .nav-link[data-target]').forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const target = this.getAttribute('data-target');
-          showSection(target);
-        });
-      });
-      
-      // Start notification simulation
-      startNotificationSimulation();
-      
-      // For demonstration: Add button to simulate test taking
-      // In real app, this would be triggered by actual test submissions
-      const simulateBtn = document.createElement('button');
-      simulateBtn.className = 'btn btn-sm btn-warning mt-3';
-      simulateBtn.innerHTML = '<i class="bi bi-play-fill"></i> Simulate Test (Demo)';
-      simulateBtn.onclick = simulateUserActivity;
-      document.querySelector('.quick-actions').appendChild(simulateBtn);
     });
 
-    // Clean up interval on page unload
+    // Clean up on page unload
     window.addEventListener('beforeunload', function() {
-      if (notificationInterval) {
-        clearInterval(notificationInterval);
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
       }
     });
   </script>
