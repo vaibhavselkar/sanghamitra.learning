@@ -44,6 +44,8 @@ const IITM_Maths_2_Question = require('../model/iitm_math2_questions')
 const IITM_Maths_2_Score = require('../model/iitm_math2_scores')
 
 
+const iitm_stats2_score = require('../model/iitm_stats2_scores_schema');
+const IITStats2Question = require('../model/iitm_stats2_questions_schema');
 
 
 const Question = require('../model/pdsa_Questions');
@@ -1976,7 +1978,183 @@ router.post('/save-arithmetic-response', async (req, res) => {
 
 
 
+// Get random IITM Stats 2 questions by topic
+router.get('/iitm_stats2_questions_databases/:topic', async (req, res) => {
+  try {
+    const { topic } = req.params;
+    const { email, count = 50 } = req.query;
 
+    // Validate email
+    if (!email) {
+      return res.status(400).json({
+        error: "Email is required"
+      });
+    }
+
+    // Validate topic
+    if (!topic) {
+      return res.status(400).json({
+        error: "Topic is required"
+      });
+    }
+
+    // Validate and parse count safely
+    const requestedCount = Math.max(1, parseInt(count) || 50);
+
+    console.log(`📊 Fetching questions for topic: ${topic}, requested count: ${requestedCount}`);
+
+    // Fetch all questions for the topic
+    const allQuestions = await IITStats2Question.find({ topic });
+
+    const totalQuestionsInPool = allQuestions.length;
+
+    console.log(`📊 Found ${totalQuestionsInPool} total questions for topic: ${topic}`);
+
+    if (totalQuestionsInPool === 0) {
+      return res.status(404).json({
+        error: `No questions found for topic: ${topic}`
+      });
+    }
+
+    // Fisher-Yates shuffle
+    const shuffledQuestions = [...allQuestions];
+
+    for (let i = shuffledQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledQuestions[i], shuffledQuestions[j]] =
+        [shuffledQuestions[j], shuffledQuestions[i]];
+    }
+
+    // Select requested number of questions
+    const selectedQuestions = shuffledQuestions.slice(0, requestedCount);
+
+    // Optional sorting
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`✅ Returning ${selectedQuestions.length} questions`);
+
+    // Send response
+    res.status(200).json({
+      questions: selectedQuestions,
+      metadata: {
+        totalQuestionsInPool,
+        selectedCount: selectedQuestions.length,
+        requestedCount,
+        topic,
+        isRandom: true,
+        timestamp: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
+
+    res.status(500).json({
+      error: `Failed to fetch ${req.params.topic} questions`,
+      details: error.message
+    });
+  }
+});
+
+router.post('/iitm_stats2_scores_databases', async (req, res) => {
+  try {
+    const { email, username, quizData } = req.body;
+
+    console.log("📥 Received request body:", JSON.stringify(req.body, null, 2));
+
+    // Validation
+    if (!email || !username || !quizData) {
+      return res.status(400).json({
+        error: "Email, username and quizData are required"
+      });
+    }
+
+    // Extract question IDs safely
+    const completedQuestionIds = quizData.questionResults
+      ? quizData.questionResults
+          .map(result => result.questionId)
+          .filter(Boolean)
+      : [];
+
+    console.log(
+      `📊 Quiz completed with ${completedQuestionIds.length} question IDs:`,
+      completedQuestionIds
+    );
+
+    // Find user
+    let user = await iitm_stats2_score.findOne({ email });
+
+    if (!user) {
+      console.log(`🆕 Creating new user score record for ${email}`);
+
+      // Create new user
+      user = new iitm_stats2_score({
+        username,
+        email,
+        completedQuestionIds,
+        quizScores: [quizData]
+      });
+
+    } else {
+      console.log(`👤 Updating existing user score record for ${email}`);
+
+      // Update username
+      user.username = username;
+
+      // Add quiz score
+      user.quizScores.push(quizData);
+
+      // Add new completed question IDs (avoid duplicates)
+      const newCompletedIds = completedQuestionIds.filter(
+        id => !user.completedQuestionIds.includes(id)
+      );
+
+      user.completedQuestionIds.push(...newCompletedIds);
+
+      console.log(
+        `✅ Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`
+      );
+    }
+
+    // Save to database
+    await user.save();
+
+    console.log(`💾 Quiz result saved successfully for ${email}`);
+
+    res.status(201).json({
+      message: "Quiz result saved successfully",
+      completedQuestionsCount: user.completedQuestionIds.length,
+      user
+    });
+
+  } catch (error) {
+    console.error("❌ Error saving quiz result:", error);
+
+    res.status(500).json({
+      error: "Internal server error",
+      details: error.message
+    });
+  }
+});
+
+router.get('/iitm_stats2_scores_databases', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (email) {
+      const user = await iitm_stats2_score.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, data: user });
+    } else {
+      const users = await iitm_stats2_score.find({});
+      res.json({ success: true, data: users });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 router.get('/iitm-ct-questions', async (req, res) => {
   try {
@@ -3388,8 +3566,6 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
-
-
 
 
 
