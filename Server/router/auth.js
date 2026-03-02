@@ -43,6 +43,9 @@ const iitm_ct_scores = require('../model/iitm_ct_scores');
 const IITM_Maths_2_Question = require('../model/iitm_math2_questions')
 const IITM_Maths_2_Score = require('../model/iitm_math2_scores')
 
+const IITMath2Question = require('../model/iitmMath2QuestionsSchema');
+const iitm_maths2_scores_databases = require('../model/iitmMaths2ScoresSchema');
+
 
 const iitm_stats2_score = require('../model/iitm_stats2_scores_schema');
 const IITStats2Question = require('../model/iitm_stats2_questions_schema');
@@ -3608,6 +3611,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
