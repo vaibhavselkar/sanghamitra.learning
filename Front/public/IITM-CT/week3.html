@@ -880,40 +880,83 @@
         }
 
         async function loadQuestions() {
-            try {
-                const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions/Week%203?email=${encodeURIComponent(userEmail)}&count=50`;
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    console.warn(`API returned ${response.status}, using mock data instead`);
-                    // Use mock data when API fails
-                    useMockData();
-                    return;
-                }
-                
-                const data = await response.json();
-                
-                if (data.success && data.data && Array.isArray(data.data)) {
-                    questions = data.data;
-                } else if (Array.isArray(data.questions)) {
-                    questions = data.questions;
-                } else if (Array.isArray(data)) {
-                    questions = data;
-                } else {
-                    throw new Error('Invalid data format received from API');
-                }
-        
-                if (questions.length === 0) {
-                    throw new Error('No questions found in the dataset');
-                }
-        
-                startQuiz();
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                console.warn('Using mock data due to error');
-                useMockData();
-            }
+    try {
+        // Make sure userEmail is defined
+        if (!userEmail) {
+            console.error('No user email found');
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('errorScreen').style.display = 'block';
+            document.getElementById('errorMessage').innerHTML = `
+                <strong>Error:</strong> No user email found<br>
+                <strong>Please login again</strong>
+            `;
+            return;
         }
+        
+        // Updated URL to match your API pattern with email parameter
+        const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions/Week%203?email=${encodeURIComponent(userEmail)}&count=50`;
+        console.log('Fetching from:', url);
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('API Response:', data);
+        
+        // Handle the response based on your API structure
+        if (data.success && Array.isArray(data.questions)) {
+            // Case: { success: true, questions: [...] }
+            questions = data.questions;
+        } else if (data.success && Array.isArray(data.data)) {
+            // Case: { success: true, data: [...] }
+            questions = data.data;
+        } else if (Array.isArray(data)) {
+            // Case: direct array
+            questions = data;
+        } else if (data.questions && Array.isArray(data.questions)) {
+            // Case: { questions: [...] }
+            questions = data.questions;
+        } else {
+            console.error('Unexpected data format:', data);
+            throw new Error('Invalid data format received from API');
+        }
+
+        if (!questions || questions.length === 0) {
+            throw new Error('No Week 3 questions found in the database');
+        }
+
+        console.log(`✅ Loaded ${questions.length} questions for Week 3`);
+        startQuiz();
+    } catch (error) {
+        console.error('❌ Error loading questions:', error);
+        
+        // Show error screen with no mock data option
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('errorScreen').style.display = 'block';
+        document.getElementById('errorMessage').innerHTML = `
+            <strong>Failed to load questions from database:</strong><br>
+            ${error.message}<br><br>
+            <strong>API Endpoint:</strong><br>
+            <code style="background: #f0f0f0; padding: 8px; display: block; margin: 10px 0; word-break: break-all;">
+            /api/iitm-ct-questions/Week%203?email=${userEmail}&count=50
+            </code><br>
+            <strong>Debug Info:</strong><br>
+            - User Email: ${userEmail}<br>
+            - Topic: Week 3<br>
+            - Collection: ittm_ct_questions<br>
+            - Status: Check if database has Week 3 questions
+        `;
+    }
+}
 
         function trackQuestionTime() {
             if (questionStartTimes[currentQuestionIndex]) {
