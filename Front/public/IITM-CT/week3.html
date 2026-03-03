@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CT Week 3 Quiz - Secure Mode</title>
+    <title>CT Week 3 Quiz</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -32,42 +32,6 @@
 
         .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
         .header p { font-size: 1.1rem; opacity: 0.9; }
-
-        .security-header {
-            background: #2c3e50;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-
-        .security-indicator {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .security-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .badge-green { background: #27ae60; color: white; }
-        .badge-red { background: #e74c3c; color: white; }
-        .badge-yellow { background: #f39c12; color: white; }
-
-        .warning-banner {
-            background: #e74c3c;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-weight: 600;
-            display: none;
-        }
 
         .progress-container {
             background: #f8f9fa;
@@ -681,49 +645,13 @@
                 max-width: 590px;
             }
         }
-
-        .fullscreen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.9);
-            color: white;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 20000;
-        }
     </style>
 </head>
 <body>
-    <div class="fullscreen-overlay" id="fullscreenOverlay">
-        <h2>⚠️ Fullscreen Mode Required</h2>
-        <p>Please enter fullscreen mode to continue the quiz</p>
-        <button class="btn btn-next" onclick="requestFullscreen()">Enter Fullscreen</button>
-    </div>
-
     <div class="container">
-        <div class="security-header">
-            <div class="security-indicator">
-                <span>🔒 Secure Quiz Mode</span>
-                <span id="fullscreenStatus" class="security-badge badge-red">Fullscreen: OFF</span>
-                <span id="focusStatus" class="security-badge badge-green">Focus: OK</span>
-                <span id="tabStatus" class="security-badge badge-green">Tab: OK</span>
-            </div>
-            <div>
-                <span id="warningCount">Warnings: 0/3</span>
-            </div>
-        </div>
-        <div id="warningBanner" class="warning-banner">
-            ⚠️ Warning: Please stay in fullscreen mode and don't switch tabs
-        </div>
-
         <div class="header">
             <h1>🧠 CT Week 3 Quiz</h1>
-            <p>Week 3 Assessment - Secure Mode Enabled</p>
+            <p>Week 3 Assessment</p>
         </div>
 
         <div id="loadingScreen" class="loading">
@@ -939,209 +867,6 @@
     </div>
 
     <script>
-        // ============================================
-        // ANTI-CHEATING FEATURES
-        // ============================================
-        let warningCount = 0;
-        const MAX_WARNINGS = 3;
-        let fullscreenEnabled = false;
-        let tabSwitchCount = 0;
-        let focusLostCount = 0;
-        let copyPasteAttempts = 0;
-        let securityViolations = [];
-        
-        // Disable right click
-        document.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            logViolation('right_click');
-            return false;
-        });
-
-        // Disable copy/paste/cut
-        document.addEventListener('copy', (e) => {
-            e.preventDefault();
-            copyPasteAttempts++;
-            showWarning('Copying is disabled during the quiz');
-            logViolation('copy_attempt');
-        });
-
-        document.addEventListener('paste', (e) => {
-            e.preventDefault();
-            copyPasteAttempts++;
-            showWarning('Pasting is disabled during the quiz');
-            logViolation('paste_attempt');
-        });
-
-        document.addEventListener('cut', (e) => {
-            e.preventDefault();
-            copyPasteAttempts++;
-            showWarning('Cutting is disabled during the quiz');
-            logViolation('cut_attempt');
-        });
-
-        // Disable keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Disable Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+S, Ctrl+P, Ctrl+Shift+I, F12
-            if (e.ctrlKey || e.metaKey) {
-                if (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'a' || 
-                    e.key === 's' || e.key === 'p' || e.key === 'u' || e.key === 'C' || 
-                    e.key === 'V' || e.key === 'X' || e.key === 'A' || e.key === 'S' || 
-                    e.key === 'P' || e.key === 'U') {
-                    e.preventDefault();
-                    showWarning('Keyboard shortcuts are disabled');
-                    logViolation('keyboard_shortcut', e.key);
-                }
-            }
-            
-            // Disable F12
-            if (e.key === 'F12') {
-                e.preventDefault();
-                showWarning('Developer tools are disabled');
-                logViolation('dev_tools');
-            }
-            
-            // Disable Print Screen (partial - can't fully prevent)
-            if (e.key === 'PrintScreen') {
-                showWarning('Screenshots are not allowed');
-                logViolation('print_screen');
-            }
-        });
-
-        // Detect tab visibility change
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && document.getElementById('quizScreen').style.display === 'block') {
-                tabSwitchCount++;
-                showWarning(`Tab switching detected! Warning ${tabSwitchCount}/${MAX_WARNINGS}`);
-                logViolation('tab_switch');
-                
-                if (tabSwitchCount >= MAX_WARNINGS) {
-                    autoSubmitQuiz('Excessive tab switching detected');
-                }
-            }
-        });
-
-        // Detect window blur (user clicked outside)
-        window.addEventListener('blur', () => {
-            if (document.getElementById('quizScreen').style.display === 'block') {
-                focusLostCount++;
-                showWarning('Please stay focused on the quiz');
-                logViolation('window_blur');
-            }
-        });
-
-        // Fullscreen change detection
-        document.addEventListener('fullscreenchange', handleFullscreenChange);
-        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
-
-        function handleFullscreenChange() {
-            fullscreenEnabled = !!document.fullscreenElement;
-            updateSecurityStatus();
-            
-            if (!fullscreenEnabled && document.getElementById('quizScreen').style.display === 'block') {
-                showWarning('Please return to fullscreen mode');
-                document.getElementById('fullscreenOverlay').style.display = 'flex';
-                logViolation('fullscreen_exit');
-            } else {
-                document.getElementById('fullscreenOverlay').style.display = 'none';
-            }
-        }
-
-        // Detect developer tools (basic detection)
-        (function detectDevTools() {
-            const devToolsDetected = new Function('debugger;');
-            setInterval(() => {
-                if (document.getElementById('quizScreen').style.display === 'block') {
-                    const start = performance.now();
-                    devToolsDetected();
-                    const end = performance.now();
-                    
-                    // If debugger caused significant delay, dev tools might be open
-                    if (end - start > 100) {
-                        logViolation('dev_tools_detected');
-                        showWarning('Developer tools detected');
-                    }
-                }
-            }, 1000);
-        })();
-
-        // Detect screen recording (basic detection)
-        let mediaStreams = 0;
-        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-            navigator.mediaDevices.addEventListener('devicechange', () => {
-                logViolation('device_change');
-            });
-        }
-
-        function logViolation(type, details = '') {
-            const violation = {
-                type: type,
-                timestamp: new Date().toISOString(),
-                questionIndex: currentQuestionIndex,
-                details: details
-            };
-            securityViolations.push(violation);
-            console.warn('Security violation:', violation);
-        }
-
-        function showWarning(message) {
-            const banner = document.getElementById('warningBanner');
-            banner.style.display = 'block';
-            banner.textContent = `⚠️ Warning: ${message}`;
-            
-            setTimeout(() => {
-                banner.style.display = 'none';
-            }, 3000);
-            
-            updateWarningCount();
-        }
-
-        function updateWarningCount() {
-            const totalWarnings = tabSwitchCount + focusLostCount + copyPasteAttempts;
-            document.getElementById('warningCount').textContent = `Warnings: ${totalWarnings}/${MAX_WARNINGS}`;
-            
-            if (totalWarnings >= MAX_WARNINGS) {
-                autoSubmitQuiz('Maximum warnings exceeded');
-            }
-        }
-
-        function updateSecurityStatus() {
-            const fullscreenStatus = document.getElementById('fullscreenStatus');
-            const focusStatus = document.getElementById('focusStatus');
-            const tabStatus = document.getElementById('tabStatus');
-            
-            fullscreenStatus.textContent = fullscreenEnabled ? 'Fullscreen: ON' : 'Fullscreen: OFF';
-            fullscreenStatus.className = `security-badge ${fullscreenEnabled ? 'badge-green' : 'badge-red'}`;
-            
-            focusStatus.className = `security-badge ${document.hasFocus() ? 'badge-green' : 'badge-red'}`;
-            
-            tabStatus.className = `security-badge ${!document.hidden ? 'badge-green' : 'badge-red'}`;
-        }
-
-        function requestFullscreen() {
-            const element = document.documentElement;
-            if (element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if (element.webkitRequestFullscreen) {
-                element.webkitRequestFullscreen();
-            } else if (element.mozRequestFullScreen) {
-                element.mozRequestFullScreen();
-            } else if (element.msRequestFullscreen) {
-                element.msRequestFullscreen();
-            }
-        }
-
-        function autoSubmitQuiz(reason) {
-            if (document.getElementById('quizScreen').style.display === 'block') {
-                alert(`Quiz auto-submitted: ${reason}`);
-                submitQuiz();
-            }
-        }
-
-        // ============================================
-        // EXISTING QUIZ FUNCTIONS (with anti-cheating integration)
-        // ============================================
         let questions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
@@ -1151,7 +876,9 @@
         let userName = '';
         let userEmail = '';
 
-        // Calculator variables
+        // ============================================
+        // CALCULATOR FUNCTIONS
+        // ============================================
         let calculatorOpen = false;
         let isDragging = false;
         let dragOffsetX = 0;
@@ -1159,22 +886,6 @@
         let angleMode = 'Deg';
         let memory = 0;
 
-        // Modified initQuiz to include fullscreen requirement
-        async function initQuiz() {
-            const sessionValid = await fetchSessionInfo();
-            if (!sessionValid) return;
-            
-            // Request fullscreen when quiz starts
-            requestFullscreen();
-            
-            // Start monitoring
-            setInterval(updateSecurityStatus, 1000);
-            
-            quizStartTime = Date.now();
-            loadQuestions();
-        }
-
-        // Calculator functions (keep existing)
         function calcFunction(func) {
             const display = document.getElementById('calcDisplay');
             const value = parseFloat(display.value) || 0;
@@ -1432,17 +1143,14 @@
             }
         }
 
-        // Add keyboard support for calculator (restricted)
+        // Add keyboard support for calculator
         document.addEventListener('keydown', function(e) {
             if (!calculatorOpen) return;
             
             const display = document.getElementById('calcDisplay');
             if (!display) return;
             
-            // Only allow number keys and basic operators
-            const allowedKeys = ['0','1','2','3','4','5','6','7','8','9','.','+','-','*','/','(',')','Enter','Backspace','Escape'];
-            
-            if (allowedKeys.includes(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            if (/[\d\+\-\*\/\(\)\.=%]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
                 e.preventDefault();
                 
                 if (e.key === 'Enter' || e.key === '=') {
@@ -1478,6 +1186,14 @@
                 alert('Error connecting to server. Please try again.');
                 return false;
             }
+        }
+
+        async function initQuiz() {
+            const sessionValid = await fetchSessionInfo();
+            if (!sessionValid) return;
+            
+            quizStartTime = Date.now();
+            loadQuestions();
         }
 
         async function loadQuestions() {
@@ -1718,7 +1434,6 @@
             }
         }
 
-        // Modified submitQuiz to include security violations
         async function submitQuiz() {
             trackQuestionTime();
 
@@ -1799,8 +1514,6 @@
                 timestamp: new Date().toISOString(),
                 questionResults: questionResults,
                 completedQuestionIds: questions.map(q => q._id).filter(id => id),
-                securityViolations: securityViolations, // Add security violations to payload
-                warningCount: tabSwitchCount + focusLostCount + copyPasteAttempts,
                 quizData: {
                     topic: "Week 3",
                     percentage: parseFloat(percentage),
@@ -1811,8 +1524,7 @@
                     earnedPoints: earnedPoints,
                     attemptNumber: 1,
                     timestamp: new Date().toISOString(),
-                    questionResults: questionResults,
-                    securityViolations: securityViolations
+                    questionResults: questionResults
                 }
             };
 
@@ -1826,7 +1538,9 @@
             console.log('User ID:', payload.user_id);
             console.log('Email:', payload.email);
             console.log('Question ID:', payload.question_id);
-            console.log('Security Violations:', securityViolations.length);
+            console.log('Attempt Number:', payload.attempt_number);
+            console.log('All required fields present:', 
+                payload.user_id && payload.email && payload.question_id && payload.attempt_number);
             console.log('Full payload:', JSON.stringify(payload, null, 2));
 
             try {
@@ -1977,7 +1691,6 @@
             });
         }
 
-        // Initialize everything when page loads
         window.addEventListener('DOMContentLoaded', function() {
             initQuiz();
             
@@ -1996,4 +1709,5 @@
         });
     </script>
 </body>
+
 </html>
