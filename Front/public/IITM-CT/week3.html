@@ -881,7 +881,7 @@
 
         async function loadQuestions() {
             try {
-                const url = 'https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=Week 3';
+                const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions/Week%203?email=${encodeURIComponent(userEmail)}&count=50`;
                 const response = await fetch(url);
                 
                 if (!response.ok) {
