@@ -175,6 +175,15 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
     }
+    
+    .week-badge {
+      background: #6c757d;
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      margin-left: 0.5rem;
+    }
   </style>
 </head>
 
@@ -246,7 +255,7 @@
             <input type="text" class="form-control" id="searchFilter" placeholder="Search by name or email...">
           </div>
         </div>
-        <div class="col-md-2 mb-2">
+        <div class="col-md-3 mb-2">
           <select class="form-select" id="topicFilter">
             <option value="">All Topics</option>
           </select>
@@ -264,7 +273,7 @@
         <div class="col-md-2 mb-2">
           <input type="date" class="form-control" id="dateFilter">
         </div>
-        <div class="col-md-3 mb-2">
+        <div class="col-md-2 mb-2">
           <button class="btn btn-primary" onclick="applyFilters()">
             <i class="bi bi-funnel me-1"></i>Filter
           </button>
@@ -317,6 +326,24 @@
     let filteredData = [];
     let expandedRows = new Set();
 
+    // Helper function to get display-friendly CT topic names
+    function getDisplayTopicName(topic) {
+      if (!topic) return 'Computational Thinking';
+      
+      // Map of CT topics to display names (these would come from your actual API data)
+      const ctTopicDisplayNames = {
+        'Computational Thinking': 'Computational Thinking',
+        'CT_Week1': 'Week 1 - Computational Thinking Basics',
+        'CT_Week2': 'Week 2 - Problem Decomposition',
+        'CT_Week3': 'Week 3 - Pattern Recognition',
+        'CT_Week4': 'Week 4 - Abstraction',
+        'CT_Week5': 'Week 5 - Algorithm Design',
+        'CT_Week6': 'Week 6 - Advanced CT Concepts'
+      };
+      
+      return ctTopicDisplayNames[topic] || topic;
+    }
+
     // Initialize
     async function init() {
       try {
@@ -343,19 +370,25 @@
         
         allData = [];
         
+        // Track attempts per student per topic
+        const studentTopicAttempts = {};
+        
         if (result.data) {
           // Handle array of users
           if (Array.isArray(result.data)) {
             result.data.forEach(student => {
+              // Collect all quiz scores with timestamps
+              const allScores = [];
+              
               // Handle quizScores array for CT
               if (student.quizScores && student.quizScores.length > 0) {
-                student.quizScores.forEach((quizScore, index) => {
+                student.quizScores.forEach((quizScore) => {
                   let percentage = quizScore.percentage;
                   if (!percentage && quizScore.correctAnswers !== undefined && quizScore.totalQuestions > 0) {
                     percentage = ((quizScore.correctAnswers / quizScore.totalQuestions) * 100).toFixed(2);
                   }
                   
-                  allData.push({
+                  allScores.push({
                     username: student.username,
                     email: student.email,
                     topic: quizScore.topic || 'Computational Thinking',
@@ -363,7 +396,6 @@
                     totalQuestions: quizScore.totalQuestions,
                     correctAnswers: quizScore.correctAnswers || quizScore.score || 0,
                     percentage: parseFloat(percentage || 0),
-                    attemptNumber: quizScore.attemptNumber || (index + 1),
                     timestamp: quizScore.timestamp || quizScore.endTime,
                     questionResults: quizScore.questionResults || [],
                     difficultyBreakdown: quizScore.difficultyBreakdown || {},
@@ -371,18 +403,38 @@
                   });
                 });
               }
+              
+              // Sort scores by timestamp (oldest first) for attempt numbering
+              allScores.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+              
+              // Assign attempt numbers
+              allScores.forEach((scoreData) => {
+                const attemptKey = `${scoreData.email}_${scoreData.topic}`;
+                
+                if (!studentTopicAttempts[attemptKey]) {
+                  studentTopicAttempts[attemptKey] = 0;
+                }
+                studentTopicAttempts[attemptKey]++;
+                
+                allData.push({
+                  ...scoreData,
+                  attemptNumber: studentTopicAttempts[attemptKey]
+                });
+              });
             });
           } 
           // Handle single user object
           else if (result.data.quizScores) {
             const student = result.data;
-            student.quizScores.forEach((quizScore, index) => {
+            const allScores = [];
+            
+            student.quizScores.forEach((quizScore) => {
               let percentage = quizScore.percentage;
               if (!percentage && quizScore.correctAnswers !== undefined && quizScore.totalQuestions > 0) {
                 percentage = ((quizScore.correctAnswers / quizScore.totalQuestions) * 100).toFixed(2);
               }
               
-              allData.push({
+              allScores.push({
                 username: student.username,
                 email: student.email,
                 topic: quizScore.topic || 'Computational Thinking',
@@ -390,17 +442,33 @@
                 totalQuestions: quizScore.totalQuestions,
                 correctAnswers: quizScore.correctAnswers || quizScore.score || 0,
                 percentage: parseFloat(percentage || 0),
-                attemptNumber: quizScore.attemptNumber || (index + 1),
                 timestamp: quizScore.timestamp || quizScore.endTime,
                 questionResults: quizScore.questionResults || [],
                 difficultyBreakdown: quizScore.difficultyBreakdown || {},
                 totalTimeTaken: quizScore.totalTimeTaken || 0
               });
             });
+            
+            // Sort and assign attempt numbers
+            allScores.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            
+            allScores.forEach((scoreData) => {
+              const attemptKey = `${scoreData.email}_${scoreData.topic}`;
+              
+              if (!studentTopicAttempts[attemptKey]) {
+                studentTopicAttempts[attemptKey] = 0;
+              }
+              studentTopicAttempts[attemptKey]++;
+              
+              allData.push({
+                ...scoreData,
+                attemptNumber: studentTopicAttempts[attemptKey]
+              });
+            });
           }
         }
         
-        // Sort by timestamp (newest first)
+        // Sort by timestamp (newest first) for display
         allData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         
         filteredData = [...allData];
@@ -464,7 +532,9 @@
             </td>
             <td><strong>${item.username}</strong></td>
             <td><small class="text-muted">${item.email}</small></td>
-            <td><span class="badge topic-badge">${item.topic}</span></td>
+            <td>
+              <span class="badge topic-badge">${getDisplayTopicName(item.topic)}</span>
+            </td>
             <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
             <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
             <td>
@@ -521,7 +591,7 @@
         
         <div class="alert alert-info mb-3">
           <i class="bi bi-info-circle me-2"></i>
-          <strong>${item.topic}:</strong> This assessment covers computational thinking concepts including problem decomposition, pattern recognition, abstraction, and algorithm design.
+          <strong>${getDisplayTopicName(item.topic)}:</strong> This assessment covers computational thinking concepts including problem decomposition, pattern recognition, abstraction, and algorithm design.
         </div>
         
         <!-- Difficulty Breakdown -->
@@ -630,7 +700,7 @@
         <div class="mt-3">
           <small class="text-muted">
             <i class="bi bi-info-circle me-1"></i>
-            Scroll to view all questions. This is attempt #${item.attemptNumber} for ${item.topic}.
+            Scroll to view all questions. This is attempt #${item.attemptNumber} for ${getDisplayTopicName(item.topic)}.
           </small>
         </div>
       `;
@@ -676,17 +746,26 @@
 
     // Populate filter options
     function populateFilters() {
-      const topics = [...new Set(allData.map(item => item.topic))].sort((a, b) => {
-        // Extract week number if format is "Week X: ..."
-        const weekA = a.match(/Week (\d+)/)?.[1] || 999;
-        const weekB = b.match(/Week (\d+)/)?.[1] || 999;
+      // Get unique topics from the data
+      const uniqueTopics = [...new Set(allData.map(item => item.topic))].filter(topic => topic);
+      
+      // Sort topics
+      uniqueTopics.sort((a, b) => {
+        // Extract week number if format contains week info
+        const weekA = a.match(/week[_\s]*(\d+)/i)?.[1] || 
+                     a.match(/Week[_\s]*(\d+)/)?.[1] || 
+                     a.match(/(\d+)/)?.[1] || 999;
+        const weekB = b.match(/week[_\s]*(\d+)/i)?.[1] || 
+                     b.match(/Week[_\s]*(\d+)/)?.[1] || 
+                     b.match(/(\d+)/)?.[1] || 999;
         return weekA - weekB;
       });
+      
       const topicFilter = document.getElementById('topicFilter');
       
       topicFilter.innerHTML = '<option value="">All Topics</option>';
-      topics.forEach(topic => {
-        topicFilter.innerHTML += `<option value="${topic}">${topic}</option>`;
+      uniqueTopics.forEach(topic => {
+        topicFilter.innerHTML += `<option value="${topic}">${getDisplayTopicName(topic)}</option>`;
       });
     }
 
@@ -774,7 +853,7 @@
         csv += [
           `"${item.username}"`,
           `"${item.email}"`,
-          `"${item.topic}"`,
+          `"${getDisplayTopicName(item.topic)}"`,
           `${item.correctAnswers}`,
           `${item.totalQuestions}`,
           `${item.percentage}%`,
@@ -821,6 +900,3 @@
   </script>
 </body>
 </html>
-
-
-
