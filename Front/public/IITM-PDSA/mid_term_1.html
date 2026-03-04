@@ -204,8 +204,8 @@
         }
 
         .code-block {
-            background: white; /* change this to white */
-            color: black; /* change this to black */
+            background: white;
+            color: black;
             padding: 15px;
             border-radius: 8px;
             font-family: 'Courier New', monospace;
@@ -366,7 +366,7 @@
             <div class="topic-header">
                 <h3>🐍 Python Programming Quiz</h3>
                 <p>Test your knowledge of Python programming concepts, functions, and logic</p>
-                <p id="questionCount">50 Questions</p>
+                <p id="questionCount">25 Questions</p>
                 <small style="opacity: 0.8; display: block; margin-top: 10px;">
                     ⚠️ Anti-cheating measures are active. Do not switch tabs or windows.
                 </small>
@@ -374,7 +374,7 @@
             
             <div class="progress-container mb-4">
                 <div class="d-flex justify-content-between mb-2">
-                    <span id="progressText">Question 1 of 50</span>
+                    <span id="progressText">Question 1 of 25</span>
                 </div>
                 <div class="progress">
                     <div class="progress-bar" id="progressFill" style="width: 2%;"></div>
@@ -397,7 +397,7 @@
         <!-- Results -->
         <div id="resultsContainer" class="results-container" style="display: none;">
             <div class="score-display">
-                <h2 id="finalScore">0/50</h2>
+                <h2 id="finalScore">0/100</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
                 <p class="mt-2"><strong>Topic:</strong> Midterm 1 </p>
@@ -439,6 +439,15 @@
         const SESSION_API = `${API_BASE_URL}/session-info`;
         const SUBMISSION_API = `${API_BASE_URL}/pdsa-submission`;
         const CHEATING_LOG_API = `${API_BASE_URL}/log-cheating`;
+
+        // Helper function to format score display (integer for whole numbers, decimal for fractions)
+        function formatScore(score) {
+            if (Number.isInteger(score)) {
+                return score.toString();
+            }
+            // Round to 1 decimal place for non-integers
+            return score.toFixed(1);
+        }
 
         // Initialize quiz when page loads
         document.addEventListener('DOMContentLoaded', async function() {
@@ -524,20 +533,19 @@
             // Set default user
             userAnswers = {};
             
-            // Fetch random questions for Sorting Algorithms
+            // Fetch random questions
             await fetchRandomQuestions();
             
             // Initialize anti-cheating AFTER getting questions
             if (window.AntiCheating && questions.length > 0) {
                 antiCheating = window.AntiCheating.initialize({
                     quizName: "Midterm 1 Quiz",
-                    requestFullscreen: false, // CHANGED: Disable fullscreen to avoid errors
+                    requestFullscreen: false,
                     user: currentUser,
                     autoSubmitThreshold: 5
                 });
 
                 // Allow text selection for ALL quiz elements BEFORE initializing
-                // This is the CRITICAL FIX - allow selection before any events are bound
                 const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
                 
                 if (window.AntiCheating.allowSelection) {
@@ -562,7 +570,7 @@
 
         async function fetchRandomQuestions() {
             try {
-                console.log('📡 Fetching random Sorting Algorithms questions...');
+                console.log('📡 Fetching random questions...');
                 const response = await fetch(QUESTIONS_API);
                 
                 if (response.ok) {
@@ -615,7 +623,7 @@
                             <h4 class="allow-select">Question ${currentQuestionIndex + 1}: ${question.title}</h4>
                         </div>
                         <div class="score-indicator">
-                            ${question.maxScore || 1} Point${question.maxScore > 1 ? 's' : ''}
+                            ${question.maxScore || 4} Point${question.maxScore > 1 ? 's' : ''}
                         </div>
                     </div>
             `;
@@ -683,7 +691,7 @@
                 optionLabels.forEach(label => {
                     label.addEventListener('click', function(e) {
                         e.preventDefault();
-                        e.stopPropagation(); // Prevent event bubbling
+                        e.stopPropagation();
                         
                         const questionId = this.getAttribute('data-question-id');
                         const value = this.getAttribute('data-value');
@@ -753,6 +761,82 @@
             }
         }
 
+        /**
+         * Calculate score for a single question with maxScore 4
+         * @param {Object} question - The question object
+         * @param {any} userAnswer - User's answer
+         * @returns {number} - Earned score (0-4)
+         */
+        function calculateQuestionScore(question, userAnswer) {
+            // If no answer provided, score is 0
+            if (userAnswer === undefined || userAnswer === '' || userAnswer === null) {
+                return 0;
+            }
+
+            const maxScore = question.maxScore || 4;
+            const correctAnswer = question.correctAnswer;
+
+            switch (question.type) {
+                case 'mcq-single':
+                    // Single correct answer - full score if correct, 0 if wrong
+                    return userAnswer === correctAnswer ? maxScore : 0;
+
+                case 'mcq-multiple':
+                    // Ensure userAnswer is an array
+                    const userArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
+                    const correctArr = Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer];
+                    
+                    // Check if ANY incorrect option is selected
+                    const hasIncorrectSelection = userArr.some(answer => !correctArr.includes(answer));
+                    
+                    if (hasIncorrectSelection) {
+                        // If any incorrect option is selected, score is 0
+                        return 0;
+                    }
+                    
+                    // Count how many correct options were selected
+                    const correctSelections = userArr.filter(answer => correctArr.includes(answer)).length;
+                    
+                    // Calculate partial score: (selected correct count / total correct count) * maxScore
+                    const pointsPerCorrect = maxScore / correctArr.length;
+                    let earnedScore = correctSelections * pointsPerCorrect;
+                    
+                    // Round to 1 decimal place to avoid floating point precision issues
+                    return Math.round(earnedScore * 10) / 10;
+
+                case 'numerical':
+                    // Numerical answer - check if within tolerance or exact match
+                    const userNum = parseFloat(userAnswer);
+                    const correctNum = parseFloat(correctAnswer);
+                    
+                    if (isNaN(userNum) || isNaN(correctNum)) {
+                        return 0;
+                    }
+                    
+                    // If question has tolerance, use it for partial scoring
+                    if (question.tolerance) {
+                        const tolerance = parseFloat(question.tolerance);
+                        const difference = Math.abs(userNum - correctNum);
+                        
+                        if (difference === 0) {
+                            return maxScore;
+                        } else if (difference <= tolerance) {
+                            // Partial credit based on how close they are
+                            let earnedScore = maxScore * (1 - (difference / (tolerance * 2)));
+                            return Math.round(earnedScore * 10) / 10;
+                        } else {
+                            return 0;
+                        }
+                    } else {
+                        // Exact match required
+                        return userNum === correctNum ? maxScore : 0;
+                    }
+
+                default:
+                    return 0;
+            }
+        }
+
         function calculateCurrentScore() {
             if (!questions || questions.length === 0) {
                 return { score: 0, totalPossible: 0 };
@@ -762,31 +846,16 @@
             let totalPossible = 0;
             
             questions.forEach(question => {
-                const userAnswer = userAnswers[question.questionId];
-                totalPossible += question.maxScore || 1;
+                const maxScore = question.maxScore || 4;
+                totalPossible += maxScore;
                 
-                if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
-                    if (question.type === 'mcq-multiple') {
-                        const userArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
-                        const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer];
-                        
-                        const userSorted = [...userArr].sort();
-                        const correctSorted = [...correctArr].sort();
-                        
-                        if (JSON.stringify(userSorted) === JSON.stringify(correctSorted)) {
-                            score += question.maxScore || 1;
-                        }
-                    } else if (question.type === 'numerical') {
-                        if (String(userAnswer).trim() === String(question.correctAnswer).trim()) {
-                            score += question.maxScore || 1;
-                        }
-                    } else {
-                        if (userAnswer === question.correctAnswer) {
-                            score += question.maxScore || 1;
-                        }
-                    }
-                }
+                const userAnswer = userAnswers[question.questionId];
+                const earnedScore = calculateQuestionScore(question, userAnswer);
+                score += earnedScore;
             });
+            
+            // Round total score to 1 decimal place
+            score = Math.round(score * 10) / 10;
             
             return {
                 score: score,
@@ -856,24 +925,13 @@
                 isAutoSubmitted: window.quizAutoSubmitted || false,
                 questions: questions.map(question => {
                     const userAnswer = userAnswers[question.questionId];
-                    let isCorrect = false;
-                    let earnedScore = 0;
+                    const earnedScore = calculateQuestionScore(question, userAnswer);
+                    const maxScore = question.maxScore || 4;
                     
-                    if (userAnswer !== undefined && userAnswer !== '' && userAnswer !== null) {
-                        if (question.type === 'mcq-multiple') {
-                            const userArr = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
-                            const correctArr = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer];
-                            const userSorted = [...userArr].sort();
-                            const correctSorted = [...correctArr].sort();
-                            isCorrect = JSON.stringify(userSorted) === JSON.stringify(correctSorted);
-                        } else if (question.type === 'numerical') {
-                            isCorrect = String(userAnswer).trim() === String(question.correctAnswer).trim();
-                        } else {
-                            isCorrect = userAnswer === question.correctAnswer;
-                        }
-                        
-                        earnedScore = isCorrect ? (question.maxScore || 1) : 0;
-                    }
+                    // Determine if fully correct for status display
+                    const isFullyCorrect = earnedScore === maxScore;
+                    // Check if partially correct (score > 0 but not full)
+                    const isPartiallyCorrect = earnedScore > 0 && earnedScore < maxScore;
                     
                     return {
                         questionId: question.questionId,
@@ -882,7 +940,9 @@
                         userAnswer: userAnswer || (question.type === 'mcq-multiple' ? [] : ''),
                         correctAnswer: question.correctAnswer,
                         score: earnedScore,
-                        maxScore: question.maxScore || 1,
+                        maxScore: maxScore,
+                        isFullyCorrect: isFullyCorrect,
+                        isPartiallyCorrect: isPartiallyCorrect,
                         hasExplanations: question.hasExplanations,
                         explanation: question.explanation
                     };
@@ -917,7 +977,9 @@
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
             
-            document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
+            // Format final score display (integer for whole numbers)
+            const formattedFinalScore = formatScore(quizData.score);
+            document.getElementById('finalScore').textContent = `${formattedFinalScore}/${quizData.maxScore}`;
             document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
             
             // Show cheating info if applicable
@@ -931,23 +993,37 @@
             }
             
             const detailedResults = document.getElementById('detailedResults');
+            
+            // Group questions by maxScore for summary
+            const questionsByScore = {};
+            quizData.questions.forEach(q => {
+                const maxScore = q.maxScore;
+                if (!questionsByScore[maxScore]) {
+                    questionsByScore[maxScore] = [];
+                }
+                questionsByScore[maxScore].push(q);
+            });
+            
             let resultsHTML = `
                 <h4>Detailed Results:</h4>
                 <div class="score-summary mb-4">
                     <h5>Final Score Breakdown</h5>
                     <div class="score-breakdown">
+            `;
+            
+            // Add breakdown for each score type (1-4 points)
+            for (let i = 1; i <= 4; i++) {
+                if (questionsByScore[i] && questionsByScore[i].length > 0) {
+                    resultsHTML += `
                         <div class="score-item">
-                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 1).length}</div>
-                            <div class="score-label">1-Point Questions</div>
+                            <div class="score-value">${questionsByScore[i].length}</div>
+                            <div class="score-label">${i}-Point Questions</div>
                         </div>
-                        <div class="score-item">
-                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 2).length}</div>
-                            <div class="score-label">2-Point Questions</div>
-                        </div>
-                        <div class="score-item">
-                            <div class="score-value">${quizData.questions.filter(q => q.maxScore === 3).length}</div>
-                            <div class="score-label">3-Point Questions</div>
-                        </div>
+                    `;
+                }
+            }
+            
+            resultsHTML += `
                         <div class="score-item">
                             <div class="score-value">${quizData.maxScore}</div>
                             <div class="score-label">Total Points</div>
@@ -957,27 +1033,41 @@
             `;
             
             quizData.questions.forEach((question, index) => {
-                const isCorrect = question.score > 0;
                 const userAnswer = Array.isArray(question.userAnswer) 
                     ? question.userAnswer.join(', ') 
-                    : question.userAnswer;
+                    : question.userAnswer || 'No answer';
                 const correctAnswer = Array.isArray(question.correctAnswer) 
                     ? question.correctAnswer.join(', ') 
                     : question.correctAnswer;
                 
+                // Determine color based on score
+                let scoreColor = '#dc3545'; // red for 0
+                let statusText = '❌ Incorrect';
+                
+                if (question.isFullyCorrect) {
+                    scoreColor = '#28a745'; // green for full score
+                    statusText = '✅ Fully Correct';
+                } else if (question.isPartiallyCorrect) {
+                    scoreColor = '#ffc107'; // yellow for partial
+                    statusText = '⚠️ Partially Correct';
+                }
+                
+                // Format the score display (integer for whole numbers)
+                const formattedScore = formatScore(question.score);
+                
                 resultsHTML += `
-                    <div class="question-card ${isCorrect ? 'border-success' : 'border-danger'}">
+                    <div class="question-card" style="border-left-color: ${scoreColor}">
                         <div class="question-header">
                             <div class="question-title">
                                 <h6>Q${index + 1}: ${question.title}</h6>
                             </div>
-                            <div class="score-indicator" style="background: ${isCorrect ? '#28a745' : '#dc3545'}">
-                                ${question.score}/${question.maxScore}
+                            <div class="score-indicator" style="background: ${scoreColor}">
+                                ${formattedScore}/${question.maxScore}
                             </div>
                         </div>
-                        <p><strong>Your Answer:</strong> ${userAnswer || 'No answer'}</p>
+                        <p><strong>Your Answer:</strong> ${userAnswer}</p>
                         <p><strong>Correct Answer:</strong> ${correctAnswer}</p>
-                        <p><strong>Status:</strong> ${isCorrect ? '✅ Correct' : '❌ Incorrect'}</p>
+                        <p><strong>Status:</strong> ${statusText}</p>
                         ${question.hasExplanations ? `
                             <div class="explanation-section">
                                 <strong>Explanation:</strong> ${question.explanation}
@@ -1022,7 +1112,7 @@
                 if (window.AntiCheating && questions.length > 0) {
                     antiCheating = window.AntiCheating.initialize({
                         quizName: "Midterm 1 Quiz - Retake",
-                        requestFullscreen: false, // Keep disabled
+                        requestFullscreen: false,
                         user: currentUser,
                         autoSubmitThreshold: 5
                     });
