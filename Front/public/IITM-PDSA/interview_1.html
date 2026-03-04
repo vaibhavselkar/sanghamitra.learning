@@ -3,3301 +3,1224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSA Mock Interview</title>
+    <title>Sanghamitra – Mock Interview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Add Pyodide -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-    <!-- Add these to head section after existing CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/monokai.css">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
-    <!-- Monaco Editor -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<style>
+:root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e2a;
+    --border: #252b38;
+    --border2: #2e3548;
+    --accent: #4f8ef7;
+    --accent2: #6c63ff;
+    --green: #36d399;
+    --red: #ff5370;
+    --orange: #ffa040;
+    --yellow: #ffd166;
+    --text: #e2e8f4;
+    --text2: #8b93a8;
+    --text3: #555f78;
+    --header-h: 62px;
+    --footer-h: 64px;
+    --font: 'Sora', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+}
 
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            line-height: 1.6;
-        }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Header Styles */
-        .interview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 25px;
-            background: linear-gradient(135deg, #2cc844, #667eea);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo i {
-            font-size: 28px;
-            color: #4fc3f7;
-        }
-
-        .interview-badge {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid #ff5252;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .live-dot {
-            color: #ff5252;
-            font-size: 10px;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; }
-            100% { opacity: 0.4; }
-        }
-
-        .header-center {
-            text-align: center;
-            flex-grow: 1;
-        }
-
-        .header-center h1 {
-            font-size: 22px;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .meta-info {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-end-interview {
-            background: #ff5252;
-            color: white;
-        }
-
-        .btn-end-interview:hover {
-            background: #ff1744;
-            transform: translateY(-2px);
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #4fc3f7, #2979ff);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .username {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .user-level {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-
-        /* Main Container - MODIFIED: 2 columns instead of 3 */
-        .interview-container {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 20px;
-            padding: 20px;
-            min-height: calc(100vh - 140px);
-        }
-
-        .panel {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Main Panel - Combines left and center panels */
-        .main-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        /* PDSA Section - Always visible first */
-        .pdsa-section {
-            display: block; /* Always visible initially */
-        }
-
-        /* Coding Section - Hidden initially */
-        .coding-section {
-            display: none; /* Hidden until all PDSA questions completed */
-        }
-
-        /* PDSA Section - Improved styling */
-.pdsa-section .chat-container {
-    flex-grow: 1;
+body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
-    height: 100%;
-    min-height: 500px;
 }
 
-.pdsa-section .chat-header {
-    padding-bottom: 15px;
-    border-bottom: 2px solid #eef2f7;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.pdsa-section .chat-header h4 {
+/* ───────────── HEADER ───────────── */
+.hdr {
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: #1a237e;
-    font-size: 18px;
+    padding: 0 24px;
+    gap: 20px;
+    flex-shrink: 0;
+    z-index: 50;
 }
-
-.pdsa-section .chat-messages {
-    flex-grow: 1;
-    overflow-y: auto;
-    max-height: 400px;
-    padding-right: 15px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
+.hdr-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 18px; color: var(--text);
+    letter-spacing: -0.3px;
 }
+.hdr-logo .dot { color: var(--accent); font-size: 22px; }
 
-/* Remove box styling from questions */
-.pdsa-section .msg-interviewer, 
-.pdsa-section .msg-user {
-    margin-bottom: 20px;
-    padding: 0;
-    border-radius: 0;
-    position: relative;
-    background: transparent;
-    border-left: none;
-}
-
-.pdsa-section .msg-interviewer {
-    background: transparent;
-    border-left: none;
-}
-
-.pdsa-section .msg-user {
-    background: transparent;
-    border-left: none;
-    margin-left: 0;
-    text-align: right;
-}
-
-.pdsa-section .msg-sender {
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 8px;
-    color: #1a237e;
-}
-
-/* Make questions larger and free-form */
-.pdsa-section .msg-content {
-    font-size: 16px;
-    line-height: 1.7;
-}
-
-.pdsa-question {
-    background: transparent;
-    border-radius: 0;
-    padding: 0;
-    margin: 0;
-    border: none;
-}
-
-.pdsa-question strong {
-    font-size: 18px;
-    color: #1a237e;
-    display: block;
-    margin-bottom: 10px;
-}
-
-.pdsa-question p {
-    font-size: 16px;
-    margin-bottom: 15px;
-    color: #333;
-}
-
-/* Time stamp positioning */
-.pdsa-section .msg-time {
-    font-size: 11px;
-    color: #888;
-    text-align: right;
-    margin-top: 5px;
-}
-
-/* User messages aligned to right */
-.pdsa-section .msg-user .msg-sender {
-    text-align: right;
-    color: #7e57c2;
-}
-
-.pdsa-section .msg-user .msg-content {
-    text-align: right;
-}
-
-.pdsa-section .msg-user .msg-time {
-    text-align: right;
-}
-
-/* MCQ options styling - keep box style for options only */
-.mcq-options {
-    margin-top: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.mcq-option {
-    padding: 12px 16px;
-    background: white;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 15px;
-}
-
-.mcq-option:hover {
-    background: #f5f7fa;
-    border-color: #2979ff;
-}
-
-.mcq-option.selected {
-    background: #e3f2fd;
-    border-color: #2196f3;
-    border-width: 2px;
-}
-
-/* Answer submitted confirmation - positioned to right */
-.question-complete {
-    background: #e8f5e9;
-    padding: 10px 16px;
-    border-radius: 18px;
-    border-left: none;
-    font-size: 14px;
-    display: inline-block;
-    color: #2e7d32;
-    margin-left: auto;
-    max-width: 80%;
-}
-
-/* Container for answer confirmation to align right */
-.msg-user .msg-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-/* Chat input area */
-.pdsa-section .chat-input-area {
-    margin-top: 20px;
-    border-top: 1px solid #eef2f7;
-    padding-top: 20px;
-}
-
-.pdsa-section .chat-input-area textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    resize: vertical;
-    font-size: 15px;
-    margin-bottom: 15px;
-    transition: border 0.3s, box-shadow 0.3s;
-    font-family: inherit;
-}
-
-.pdsa-section .chat-input-area textarea:focus {
-    outline: none;
-    border-color: #2979ff;
-    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.1);
-}
-
-.pdsa-section .chat-controls {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-}
-
-.pdsa-section .btn-send {
-    background: #2979ff;
-    color: white;
-    padding: 12px 28px;
-    border-radius: 30px;
-    font-weight: 600;
+.live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,83,112,0.12);
+    border: 1px solid rgba(255,83,112,0.3);
+    color: var(--red);
+    font-size: 11px; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px;
     letter-spacing: 0.5px;
 }
+.live-badge .blink {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--red);
+    animation: blink 1.4s infinite;
+}
+@keyframes blink { 0%,100%{opacity:.3} 50%{opacity:1} }
 
-.pdsa-section .btn-voice {
-    background: #7e57c2;
-    color: white;
-    padding: 12px 28px;
-    border-radius: 30px;
-    font-weight: 600;
+.hdr-title {
+    flex: 1; text-align: center;
+}
+.hdr-title h1 {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    letter-spacing: -0.2px;
+}
+.hdr-meta {
+    display: flex; justify-content: center; gap: 20px;
+    font-size: 12px; color: var(--text2); margin-top: 3px;
+}
+.hdr-meta span { display: flex; align-items: center; gap: 5px; }
+
+.hdr-right { display: flex; align-items: center; gap: 14px; }
+
+.btn-end {
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(255,83,112,0.1);
+    border: 1px solid rgba(255,83,112,0.3);
+    color: var(--red);
+    padding: 7px 16px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all .2s; font-family: var(--font);
+}
+.btn-end:hover { background: rgba(255,83,112,0.2); }
+
+.avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
 }
 
-        /* Coding Questions Section */
-        .coding-section {
-            flex-grow: 1;
-        }
-
-        /* Tabs for Coding Section */
-        .coding-section .tabs {
-            display: flex;
-            background: #f5f7fa;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .coding-section .tab-btn {
-            flex: 1;
-            padding: 15px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-weight: 600;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .coding-section .tab-btn.active {
-            color: #2979ff;
-            border-bottom-color: #2979ff;
-            background: white;
-        }
-
-        .coding-section .tab-btn:hover:not(.active) {
-            background: #eef2f7;
-            color: #444;
-        }
-
-        .coding-section .tab-content {
-            display: none;
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .coding-section .tab-content.active {
-            display: block;
-        }
-
-        /* Right Panel - Tools & Feedback */
-        .right-panel {
-            padding: 20px;
-        }
-
-        .tool-section {
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .tool-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .tool-section h3 {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #1a237e;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        /* Timer Section */
-        .timer-display {
-            font-size: 32px;
-            font-weight: bold;
-            text-align: center;
-            color: #1a237e;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-        }
-
-        .progress-container {
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: #e0e0e0;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4caf50, #2979ff);
-            width: 51%;
-            border-radius: 5px;
-            transition: width 0.5s ease;
-        }
-
-        /* Interview Tips moved to right panel */
-        .interview-tips {
-            background: #fff8e1;
-            border-radius: 8px;
-            padding: 15px;
-            border: 1px solid #ffecb3;
-            margin-top: 20px;
-        }
-
-        .interview-tips h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #ff8f00;
-            margin-bottom: 10px;
-        }
-
-        .interview-tips ul {
-            padding-left: 20px;
-            font-size: 13px;
-        }
-
-        .interview-tips li {
-            margin-bottom: 5px;
-        }
-
-        /* Combined Progress Section - MODIFIED */
-        .progress-summary-combined {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .progress-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #2979ff;
-        }
-
-        .progress-item:nth-child(2) {
-            border-left-color: #4caf50;
-        }
-
-        
-
-        .progress-label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .progress-value {
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .progress-value.good {
-            color: #4caf50;
-        }
-
-        .progress-value.average {
-            color: #ff9800;
-        }
-
-        .progress-value.poor {
-            color: #f44336;
-        }
-
-        /* Hints Section */
-        .hints-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .hint-item {
-            background: #fff8e1;
-            border-radius: 8px;
-            padding: 12px;
-            border-left: 4px solid #ffb300;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .hint-item:hover:not(.locked) {
-            transform: translateX(5px);
-            background: #ffecb3;
-        }
-
-        .hint-item.locked {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background: #f5f5f5;
-            border-left-color: #bdbdbd;
-        }
-
-        .hint-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .hint-number {
-            font-weight: bold;
-            color: #ff8f00;
-        }
-
-        .hint-status {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .hint-status.available {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .hint-status.locked {
-            background: #f5f5f5;
-            color: #757575;
-        }
-
-        .hint-content {
-            font-size: 13px;
-            color: #666;
-        }
-
-        /* Problem Content Styles */
-        .problem-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .problem-header h2 {
-            color: #1a237e;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .problem-meta {
-            display: flex;
-            gap: 10px;
-        }
-
-        .tag {
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .problem-content {
-            line-height: 1.7;
-        }
-
-        .problem-content p {
-            margin-bottom: 20px;
-            font-size: 16px;
-        }
-
-        .problem-content code {
-            background: #f5f5f5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Consolas', monospace;
-            color: #d63384;
-        }
-
-        .example-box, .constraints-box, .follow-up-box {
-            background: #f9f9f9;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2979ff;
-        }
-
-        .example-box h4, .constraints-box h4, .follow-up-box h4 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #1a237e;
-            margin-bottom: 10px;
-        }
-
-        .example-content {
-            font-size: 14px;
-        }
-
-        .example-content p {
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .constraints-box ul {
-            padding-left: 20px;
-            font-size: 14px;
-        }
-
-        .constraints-box li {
-            margin-bottom: 5px;
-        }
-
-        .follow-up-box {
-            border-left-color: #ff9800;
-            background: #fff8e1;
-        }
-
-        /* Editor Tab */
-        .editor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .language-selector select {
-            padding: 8px 15px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            background: white;
-            font-weight: 600;
-            color: #333;
-            cursor: pointer;
-        }
-
-        .editor-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-run {
-            background: #4caf50;
-            color: white;
-        }
-
-        .btn-submit {
-            background: #2979ff;
-            color: white;
-        }
-
-        .btn-reset {
-            background: #f5f5f5;
-            color: #666;
-        }
-
-        .code-editor {
-            background: #1e1e1e;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            display: flex;
-            min-height: 300px;
-        }
-
-        .editor-line-numbers {
-            background: #2d2d30;
-            color: #858585;
-            padding: 15px 10px;
-            font-family: 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            text-align: right;
-            user-select: none;
-            border-right: 1px solid #3e3e42;
-        }
-
-        .editor-line-numbers span {
-            display: block;
-        }
-
-        #codeEditor {
-            flex-grow: 1;
-            padding: 15px;
-            color: #d4d4d4;
-            font-family: 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            white-space: pre;
-            overflow-x: auto;
-            outline: none;
-            tab-size: 2;
-        }
-
-        .output-console {
-            background: #1e1e1e;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .console-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            background: #252526;
-            color: #cccccc;
-            border-bottom: 1px solid #3e3e42;
-        }
-
-        .console-output {
-            padding: 15px;
-            color: #d4d4d4;
-            font-family: 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            min-height: 100px;
-            white-space: pre-wrap;
-        }
-
-        .output-placeholder {
-            color: #858585;
-            font-style: italic;
-        }
-
-        /* Tests Tab */
-        .tests-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .btn-add-test {
-            background: #4caf50;
-            color: white;
-        }
-
-        .test-cases {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .test-case {
-            background: #f9f9f9;
-            border-radius: 8px;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .test-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #ddd;
-        }
-
-        .test-name {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .test-status {
-            font-size: 12px;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-weight: 600;
-        }
-
-        .test-status.pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .test-status.passed {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .test-status.failed {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .test-content {
-            font-size: 14px;
-        }
-
-        .test-content p {
-            margin-bottom: 8px;
-        }
-
-        .custom-test-input, .custom-test-expected {
-            margin-bottom: 10px;
-        }
-
-        .custom-test-input label, .custom-test-expected label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .custom-test-input input, .custom-test-expected input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Consolas', monospace;
-        }
-
-        .btn-run-custom {
-            background: #2979ff;
-            color: white;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        /* Question Navigation */
-        .question-navigation {
-            background: white;
-            padding: 15px 25px;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .question-progress {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .question-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #e0e0e0;
-            color: #757575;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            transition: all 0.3s;
-        }
-
-        .question-step.active .step-circle {
-            background: #2979ff;
-            color: white;
-            box-shadow: 0 4px 8px rgba(41, 121, 255, 0.3);
-        }
-
-        .step-label {
-            font-size: 12px;
-            margin-top: 5px;
-            color: #666;
-            font-weight: 600;
-        }
-
-        .question-step.active .step-label {
-            color: #2979ff;
-        }
-
-        .progress-line {
-            width: 50px;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
-        }
-
-        .nav-actions {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn-prev, .btn-next, .btn-submit-interview {
-            padding: 10px 25px;
-            background: #f5f5f5;
-            color: #333;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-next {
-            background: #2979ff;
-            color: white;
-        }
-        
-        .btn-submit-interview {
-            background: #4caf50;
-            color: white;
-        }
-
-        .btn-prev:hover {
-            background: #e0e0e0;
-        }
-
-        .btn-next:hover {
-            background: #1565c0;
-        }
-        
-        .btn-submit-interview:hover {
-            background: #388e3c;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 25px 30px;
-            background: linear-gradient(135deg, #1a237e, #283593);
-            color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .modal-header h2 {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .modal-body {
-            padding: 30px;
-        }
-
-        .score-summary {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
-            align-items: center;
-        }
-
-        .overall-score {
-            text-align: center;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            min-width: 150px;
-        }
-
-        .score-display {
-            font-size: 48px;
-            font-weight: bold;
-            color: #2979ff;
-            margin: 10px 0;
-        }
-
-        .score-label {
-            font-size: 14px;
-            color: #666;
-            font-weight: 600;
-        }
-
-        .score-breakdown {
-            flex-grow: 1;
-        }
-
-        .breakdown-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .breakdown-item:last-child {
-            border-bottom: none;
-        }
-
-        .breakdown-value {
-            font-weight: bold;
-            color: #333;
-        }
-
-        /* Custom Styles */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
-            color: #666;
-            font-style: italic;
-        }
-
-        .loading i {
-            margin-right: 10px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px;
-            border-left: 4px solid #f44336;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .pdsa-question {
-            background: #e3f2fd;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-        }
-
-        .mcq-options {
-            margin-top: 10px;
-        }
-
-        .mcq-option {
-            padding: 8px 12px;
-            margin: 5px 0;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .mcq-option:hover {
-            background: #f5f5f5;
-        }
-
-        .mcq-option.selected {
-            background: #e3f2fd;
-            border-color: #2196f3;
-        }
-
-        .mcq-option.correct {
-            background: #e8f5e9;
-            border-color: #4caf50;
-        }
-
-        .btn-small {
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .current-question-indicator {
-            background: #e3f2fd;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin: 10px 0;
-            font-size: 14px;
-            border-left: 4px solid #2196f3;
-        }
-
-        .question-complete {
-            background: #e8f5e9;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0;
-            border-left: 4px solid #4caf50;
-            font-size: 14px;
-        }
-        
-        .submission-pending {
-            background: #fff3e0;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #ff9800;
-            margin: 20px 0;
-        }
-        
-        .modal-footer {
-            display: flex;
-            gap: 15px;
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-radius: 0 0 12px 12px;
-            border-top: 1px solid #eee;
-        }
-        
-        .modal-footer .btn {
-            flex: 1;
-            padding: 12px 20px;
-            text-align: center;
-        }
-        
-        .btn-review {
-            background: #607d8b;
-            color: white;
-        }
-        
-        .btn-practice {
-            background: #9c27b0;
-            color: white;
-        }
-        
-        .btn-next-interview {
-            background: #ff9800;
-            color: white;
-        }
-        
-        .practice-links {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .practice-link {
-            padding: 12px;
-            background: #e3f2fd;
-            border-radius: 8px;
-            color: #1976d2;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background 0.3s;
-        }
-        
-        .practice-link:hover {
-            background: #bbdefb;
-            text-decoration: none;
-        }
-        
-        /* Test result styles */
-        .test-result {
-            padding: 8px 0;
-            font-family: 'Consolas', monospace;
-            border-bottom: 1px solid #333;
-        }
-        
-        .test-result.passed {
-            color: #4caf50;
-        }
-        
-        .test-result.failed {
-            color: #f44336;
-        }
-        
-        .test-status-indicator {
-            float: right;
-            font-weight: bold;
-        }
-        
-        .execution-summary {
-            margin-top: 10px;
-            color: #858585;
-            font-style: italic;
-        }
-        
-        .code-output {
-            background: #2d2d2d;
-            color: #fff;
-            padding: 10px;
-            border-radius: 4px;
-            margin-top: 10px;
-            font-family: 'Consolas', monospace;
-            font-size: 13px;
-        }
-        
-        .score-indicator {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        
-        .score-good {
-            background: #4caf50;
-            color: white;
-        }
-        
-        .score-average {
-            background: #ff9800;
-            color: white;
-        }
-        
-        .score-poor {
-            background: #f44336;
-            color: white;
-        }
-    </style>
+.timer-hdr {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 8px;
+    font-family: var(--mono); font-size: 14px; font-weight: 600;
+    color: var(--text);
+}
+.timer-hdr i { color: var(--accent); font-size: 12px; }
+
+/* ───────────── MAIN LAYOUT ───────────── */
+.workspace {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* ───────────── PHASE: THEORY ───────────── */
+#theory-phase {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.theory-left {
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    gap: 20px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+.sidebar-label {
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.q-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.q-step {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; border-radius: 10px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+}
+.q-step.active {
+    background: rgba(79,142,247,0.1);
+    border-color: var(--accent);
+}
+.q-step.answered {
+    background: rgba(54,211,153,0.07);
+    border-color: rgba(54,211,153,0.3);
+}
+.q-step.future { opacity: 0.4; cursor: default; }
+.step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    background: var(--surface2);
+    color: var(--text2);
+    flex-shrink: 0;
+    transition: all .2s;
+}
+.q-step.active .step-num { background: var(--accent); color: #fff; }
+.q-step.answered .step-num { background: var(--green); color: #fff; }
+.step-info .step-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.step-info .step-status { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.q-step.answered .step-info .step-status { color: var(--green); }
+.q-step.active .step-info .step-status { color: var(--accent); }
+
+.timer-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+}
+.timer-ring-wrap {
+    display: flex; justify-content: center; margin: 10px 0;
+}
+.timer-big {
+    font-family: var(--mono); font-size: 28px; font-weight: 700;
+    color: var(--text); text-align: center; letter-spacing: 2px;
+}
+.progress-ring {
+    width: 80px; height: 80px; position: relative;
+    display: flex; align-items: center; justify-content: center;
+}
+.progress-ring svg {
+    position: absolute; top: 0; left: 0;
+    transform: rotate(-90deg);
+}
+.progress-ring .time-inner {
+    font-family: var(--mono); font-size: 14px; font-weight: 700;
+    color: var(--text); text-align: center; line-height: 1;
+    z-index: 1;
+}
+.progress-ring .time-label {
+    font-size: 9px; color: var(--text3);
+    text-transform: uppercase; letter-spacing: .5px;
+}
+
+.tips-box {
+    background: rgba(255,160,64,0.06);
+    border: 1px solid rgba(255,160,64,0.2);
+    border-radius: 10px;
+    padding: 14px;
+}
+.tips-box h4 {
+    font-size: 12px; font-weight: 600; color: var(--orange);
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 10px;
+}
+.tips-box ul {
+    list-style: none; padding: 0;
+}
+.tips-box li {
+    font-size: 12px; color: var(--text2);
+    padding: 4px 0;
+    display: flex; align-items: flex-start; gap: 6px;
+}
+.tips-box li::before {
+    content: '→'; color: var(--orange); flex-shrink: 0; margin-top: 1px;
+}
+
+/* ───────────── THEORY MAIN ───────────── */
+.theory-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 28px 32px;
+    gap: 0;
+}
+
+.phase-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 24px;
+}
+.phase-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.25);
+    color: var(--accent);
+    padding: 5px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.3px;
+}
+.phase-title {
+    font-size: 16px; font-weight: 600; color: var(--text);
+}
+.phase-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+/* Question display area */
+.q-display {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-right: 8px;
+    scroll-behavior: smooth;
+}
+.q-display::-webkit-scrollbar { width: 4px; }
+.q-display::-webkit-scrollbar-track { background: transparent; }
+.q-display::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* Question bubble */
+.q-bubble {
+    display: flex; gap: 14px;
+    animation: fadeUp .4s ease forwards;
+}
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.q-bubble .bot-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 15px;
+}
+.q-bubble .bubble-body { flex: 1; }
+.q-bubble .bubble-who {
+    font-size: 12px; font-weight: 600; color: var(--accent);
+    margin-bottom: 6px;
+}
+.q-bubble .bubble-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0 12px 12px 12px;
+    padding: 18px 20px;
+}
+.q-bubble .bubble-card .q-num {
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: .8px;
+    margin-bottom: 8px;
+}
+.q-bubble .bubble-card .q-text {
+    font-size: 16px; font-weight: 500; color: var(--text);
+    line-height: 1.65;
+}
+.q-bubble .bubble-card .q-desc {
+    font-size: 13px; color: var(--text2); margin-top: 8px; line-height: 1.6;
+}
+
+/* MCQ options */
+.mcq-grid {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-top: 14px;
+}
+.mcq-opt {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .18s;
+    font-size: 14px; color: var(--text);
+}
+.mcq-opt:hover { border-color: var(--accent); background: rgba(79,142,247,0.06); }
+.mcq-opt.selected {
+    border-color: var(--accent);
+    background: rgba(79,142,247,0.1);
+    color: var(--accent);
+}
+.mcq-opt .opt-letter {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--text2);
+    flex-shrink: 0; transition: all .18s;
+}
+.mcq-opt.selected .opt-letter { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* User answer bubble */
+.ans-bubble {
+    display: flex; justify-content: flex-end; gap: 14px;
+    animation: fadeUp .35s ease forwards;
+}
+.ans-bubble .ans-inner { max-width: 70%; }
+.ans-bubble .ans-who {
+    font-size: 12px; font-weight: 600; color: var(--accent2);
+    margin-bottom: 6px; text-align: right;
+}
+.ans-bubble .ans-card {
+    background: rgba(108,99,255,0.1);
+    border: 1px solid rgba(108,99,255,0.25);
+    border-radius: 12px 0 12px 12px;
+    padding: 14px 18px;
+    font-size: 14px; color: var(--text); line-height: 1.6;
+}
+.ans-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(54,211,153,0.1); border: 1px solid rgba(54,211,153,0.25);
+    color: var(--green); padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; margin-top: 8px;
+}
+
+/* Answer input box */
+.ans-input-wrap {
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    flex-shrink: 0;
+}
+.ans-input-wrap textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 14px 16px;
+    resize: none;
+    min-height: 90px;
+    transition: border-color .2s;
+    outline: none;
+}
+.ans-input-wrap textarea:focus { border-color: var(--accent); }
+.ans-input-wrap textarea::placeholder { color: var(--text3); }
+
+.input-actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 10px;
+}
+.input-hint { font-size: 12px; color: var(--text3); }
+.btn-submit-ans {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 22px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: none; font-family: var(--font);
+    transition: all .2s;
+}
+.btn-submit-ans:hover { background: #3a7be8; transform: translateY(-1px); }
+.btn-submit-ans:disabled { opacity: .5; cursor: default; transform: none; }
+
+/* mcq submit bar */
+.mcq-submit-bar {
+    display: flex; justify-content: flex-end; margin-top: 16px;
+}
+
+/* ───────────── PHASE: CODING ───────────── */
+#coding-phase {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Coding footer */
+.coding-footer {
+    height: var(--footer-h);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 24px;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+.footer-steps {
+    display: flex; align-items: center; gap: 10px;
+}
+.footer-step {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer;
+}
+.footer-step .fs-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--surface2); border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: var(--text2);
+    transition: all .2s;
+}
+.footer-step.active .fs-circle { background: var(--accent); border-color: var(--accent); color: #fff; }
+.footer-step.done .fs-circle { background: rgba(54,211,153,.15); border-color: var(--green); color: var(--green); }
+.footer-step .fs-label { font-size: 10px; color: var(--text3); font-weight: 500; }
+.footer-step.active .fs-label { color: var(--accent); }
+.footer-connector { width: 40px; height: 2px; background: var(--border); margin-bottom: 14px; }
+.footer-connector.done { background: var(--green); }
+
+.footer-actions { display: flex; gap: 10px; align-items: center; }
+.btn-footer {
+    display: flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: none; font-family: var(--font); transition: all .2s;
+}
+.btn-footer.prev { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+.btn-footer.prev:hover { border-color: var(--accent); color: var(--accent); }
+.btn-footer.next { background: var(--accent); color: #fff; }
+.btn-footer.next:hover { background: #3a7be8; }
+.btn-footer.submit-all { background: var(--green); color: var(--bg); }
+.btn-footer.submit-all:hover { background: #2dbf85; }
+.btn-footer:disabled { opacity: .4; cursor: default; }
+
+/* Coding workspace */
+.coding-workspace {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+}
+
+/* Problem panel */
+.prob-panel {
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.panel-tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.ptab {
+    padding: 12px 20px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text2); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+    display: flex; align-items: center; gap: 7px;
+}
+.ptab:hover { color: var(--text); }
+.ptab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.panel-body {
+    flex: 1; overflow-y: auto; padding: 22px 24px;
+}
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.prob-title {
+    font-size: 20px; font-weight: 700; color: var(--text);
+    letter-spacing: -.3px; margin-bottom: 10px;
+}
+.prob-tags {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.prob-tag {
+    padding: 4px 10px; border-radius: 5px;
+    font-size: 11px; font-weight: 600;
+}
+.tag-medium { background: rgba(255,160,64,.12); color: var(--orange); }
+.tag-easy { background: rgba(54,211,153,.12); color: var(--green); }
+.tag-hard { background: rgba(255,83,112,.12); color: var(--red); }
+.tag-pts { background: rgba(79,142,247,.1); color: var(--accent); }
+.tag-time { background: rgba(108,99,255,.1); color: var(--accent2); }
+
+.section-head {
+    font-size: 12px; font-weight: 600; color: var(--text3);
+    text-transform: uppercase; letter-spacing: .8px;
+    margin: 18px 0 8px;
+}
+.prob-desc {
+    font-size: 14px; color: var(--text2); line-height: 1.75;
+}
+.prob-desc p { margin-bottom: 10px; }
+.prob-desc code {
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 2px 6px; border-radius: 4px;
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+}
+
+.example-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+.example-card .ex-label { font-size: 11px; color: var(--text3); font-weight: 600; margin-bottom: 8px; }
+.example-card .ex-row { display: flex; gap: 8px; margin-bottom: 4px; align-items: flex-start; }
+.example-card .ex-key { font-size: 12px; font-weight: 600; color: var(--text3); min-width: 70px; }
+.example-card .ex-val { font-family: var(--mono); font-size: 13px; color: var(--text); }
+
+.constraint-list { list-style: none; padding: 0; }
+.constraint-list li {
+    font-family: var(--mono); font-size: 13px; color: var(--text2);
+    padding: 5px 0; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+}
+.constraint-list li::before { content: '·'; color: var(--accent2); font-size: 18px; }
+.constraint-list li:last-child { border: none; }
+
+/* Test cases tab */
+.test-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+.test-card-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+.test-card-head .tc-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.tc-status {
+    font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 10px;
+}
+.tc-status.pending { background: rgba(255,160,64,.1); color: var(--orange); }
+.tc-status.passed { background: rgba(54,211,153,.12); color: var(--green); }
+.tc-status.failed { background: rgba(255,83,112,.12); color: var(--red); }
+.test-card-body { padding: 12px 14px; }
+.test-card-body .tr { display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+.test-card-body .tk { color: var(--text3); font-weight: 600; min-width: 80px; }
+.test-card-body .tv { font-family: var(--mono); color: var(--text2); }
+
+/* ───────────── EDITOR PANEL ───────────── */
+.editor-panel {
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.editor-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.editor-topbar select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px; border-radius: 6px;
+    font-size: 13px; font-weight: 600;
+    font-family: var(--font); cursor: pointer; outline: none;
+}
+.editor-btns { display: flex; gap: 8px; }
+.ebtn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 7px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    border: none; font-family: var(--font); transition: all .18s;
+}
+.ebtn.run { background: rgba(54,211,153,.12); border: 1px solid rgba(54,211,153,.25); color: var(--green); }
+.ebtn.run:hover { background: rgba(54,211,153,.2); }
+.ebtn.submit { background: var(--accent); color: #fff; }
+.ebtn.submit:hover { background: #3a7be8; }
+.ebtn.reset { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+.ebtn.reset:hover { border-color: var(--accent2); color: var(--accent2); }
+.ebtn:disabled { opacity: .4; cursor: default; }
+
+.editor-body {
+    flex: 1;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* CodeMirror container */
+.cm-wrap {
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+.cm-wrap .CodeMirror {
+    height: 100%;
+    font-family: var(--mono) !important;
+    font-size: 14px;
+    line-height: 1.65;
+    background: #1a1b26;
+    color: #c0caf5;
+}
+.cm-wrap .CodeMirror-scroll { height: 100%; }
+.cm-wrap .CodeMirror-gutters { background: #16172a; border-right: 1px solid var(--border); }
+.cm-wrap .CodeMirror-linenumber { color: var(--text3); padding: 0 8px; }
+
+/* Output console */
+.output-pane {
+    height: 220px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    flex-shrink: 0;
+}
+.output-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.output-head h4 {
+    font-size: 12px; font-weight: 600; color: var(--text2);
+    display: flex; align-items: center; gap: 7px;
+    text-transform: uppercase; letter-spacing: .6px;
+}
+.output-head h4 i { color: var(--accent); }
+.btn-clear {
+    font-size: 11px; color: var(--text3); cursor: pointer;
+    background: none; border: none; font-family: var(--font);
+    padding: 4px 8px; border-radius: 4px; transition: all .15s;
+}
+.btn-clear:hover { color: var(--red); background: rgba(255,83,112,.08); }
+
+.output-scroll {
+    flex: 1; overflow-y: auto; padding: 12px 14px;
+    background: #111318;
+}
+.output-scroll::-webkit-scrollbar { width: 4px; }
+.output-scroll::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.out-placeholder {
+    font-family: var(--mono); font-size: 13px; color: var(--text3); font-style: italic;
+}
+
+/* Output lines */
+.out-line {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: #e2e8f4; /* white-ish for normal output */
+    white-space: pre;
+    display: block;
+}
+.out-line.err { color: var(--red); }
+.out-line.ok  { color: var(--green); }
+.out-line.warn { color: var(--orange); }
+.out-line.sep { color: var(--border2); }
+.out-line.info { color: var(--text2); }
+
+/* Test result blocks */
+.tr-block {
+    margin: 6px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.tr-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+}
+.tr-head.pass { background: rgba(54,211,153,.1); color: var(--green); }
+.tr-head.fail { background: rgba(255,83,112,.1); color: var(--red); }
+.tr-body {
+    padding: 8px 12px;
+    background: #161820;
+}
+.tr-row {
+    display: flex; gap: 8px;
+    font-family: var(--mono); font-size: 12px;
+    color: var(--text2); margin-bottom: 3px;
+}
+.tr-row .trk { color: var(--text3); min-width: 75px; }
+.tr-row .trv { color: #e2e8f4; }
+.tr-row.err-row .trv { color: var(--red); }
+
+.run-summary {
+    margin-top: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 12px; font-weight: 600;
+}
+.run-summary .rs-label { color: var(--text2); }
+.run-summary .rs-val { font-family: var(--mono); }
+.rs-val.good { color: var(--green); }
+.rs-val.avg  { color: var(--orange); }
+.rs-val.bad  { color: var(--red); }
+
+/* ───────────── MODAL ───────────── */
+.modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    width: 100%; max-width: 560px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,.5);
+    animation: modalIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-box-head {
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(79,142,247,.15), rgba(108,99,255,.15));
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 14px;
+}
+.modal-box-head .icon-wrap {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(79,142,247,.15); border: 1px solid rgba(79,142,247,.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--accent);
+}
+.modal-box-head h2 { font-size: 18px; font-weight: 700; color: var(--text); }
+.modal-box-head p { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.modal-box-body { padding: 24px 28px; }
+.modal-box-body .status-msg {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(54,211,153,.07);
+    border: 1px solid rgba(54,211,153,.2);
+    border-radius: 10px; padding: 16px;
+    margin-bottom: 18px;
+    font-size: 14px; color: var(--green); font-weight: 500;
+}
+.modal-box-body .result-row {
+    display: flex; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+.modal-box-body .result-row:last-child { border: none; }
+.modal-box-body .result-row .rk { color: var(--text2); }
+.modal-box-body .result-row .rv { font-weight: 600; color: var(--text); }
+.modal-box-body .result-row .rv.pending { color: var(--orange); }
+.modal-box-body .result-row .rv.auto { color: var(--green); }
+.modal-footer-btns {
+    display: flex; gap: 10px; padding: 16px 28px;
+    border-top: 1px solid var(--border);
+}
+.modal-footer-btns .mfb {
+    flex: 1; padding: 11px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: none; font-family: var(--font); transition: all .2s;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.mfb.secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+.mfb.secondary:hover { border-color: var(--accent); color: var(--accent); }
+.mfb.primary { background: var(--accent); color: #fff; }
+.mfb.primary:hover { background: #3a7be8; }
+
+/* ───────────── TOAST ───────────── */
+.toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 13px; font-weight: 500; color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    z-index: 500;
+    display: flex; align-items: center; gap: 10px;
+    animation: toastIn .3s ease forwards;
+    max-width: 360px;
+}
+@keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.toast.success .ti { color: var(--green); }
+.toast.error .ti { color: var(--red); }
+.toast.info .ti { color: var(--accent); }
+
+/* Loading spinner */
+.spin { animation: spin .8s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Pyodide loading overlay */
+.py-loading {
+    position: fixed; inset: 0; background: rgba(13,15,20,.92);
+    z-index: 300; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+}
+.py-loading h3 { font-size: 16px; font-weight: 600; color: var(--text); }
+.py-loading p { font-size: 13px; color: var(--text2); }
+.py-loader-ring {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 3px solid var(--border2);
+    border-top-color: var(--accent);
+    animation: spin .8s linear infinite;
+}
+
+/* transition animation for phase switch */
+.phase-fade-out { animation: fadeOut .3s ease forwards; }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+.phase-fade-in { animation: fadeIn .4s ease forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+</style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header class="interview-header">
-        <div class="header-left">
-            <div class="logo">
-                <i class="fas fa-code"></i>
-                <h2>Sanghamitra</h2>
-            </div>
-            <span class="interview-badge">
-                <i class="fas fa-circle live-dot"></i> LIVE MOCK INTERVIEW
-            </span>
-        </div>
-        
-        <div class="header-center">
-            <h1 id="pageTitle">Loading Interview Session...</h1>
-            <div class="meta-info">
-                <span class="meta-item">
-                    <i class="fas fa-tag"></i> <span id="topicDisplay">Loading...</span>
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-clock"></i> <span id="timerDisplayHeader">45:00</span>
-                </span>
-                <span class="meta-item">
-                    <i class="fas fa-list-ol"></i> <span id="questionCount">0</span> Questions
-                </span>
-            </div>
-        </div>
-        
-        <div class="header-right">
-            <button class="btn btn-end-interview" onclick="endInterview()">
-                <i class="fas fa-stop-circle"></i> End Interview
-            </button>
-            <div class="user-profile">
-                <div class="avatar" id="userAvatar">U</div>
-                <div class="user-info">
-                    <span class="username" id="usernameDisplay">User</span>
-                </div>
-            </div>
-        </div>
-    </header>
 
-    <!-- MAIN INTERVIEW CONTAINER - MODIFIED STRUCTURE -->
-    <main class="interview-container">
-        <!-- MAIN PANEL - Combines PDSA and Coding sections -->
-        <section class="panel main-panel">
-            <!-- PDSA Questions Section - Visible first -->
-            <div class="pdsa-section">
-                <div class="chat-container">
-                    <div class="chat-header">
-                        <h4><i class="fas fa-comments"></i> Interview Questions</h4>
-                        <div class="current-question-indicator" id="pdsaProgress">
-                            Question 1 of 3
-                        </div>
-                    </div>
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="loading" id="chatLoading">
-                            <i class="fas fa-spinner"></i> Loading interview questions...
-                        </div>
-                    </div>
-                    
-                    <div class="chat-input-area">
-                        <textarea id="chatInput" placeholder="Type your answer to the current question..."></textarea>
-                        <div class="chat-controls">
-                            <button class="btn btn-send" id="sendBtn" onclick="sendPDSAAnswer()">
-                                <i class="fas fa-paper-plane"></i> Submit Answer
-                            </button>
-                            <button class="btn btn-voice" id="nextBtn" onclick="nextPDSAQuestion()" style="display:none;">
-                                <i class="fas fa-forward"></i> Next Question
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Coding Questions Section - Hidden until PDSA completed -->
-            <div class="coding-section">
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="problem" onclick="switchTab('problem')">
-                        <i class="fas fa-file-alt"></i> Problem
-                    </button>
-                    <button class="tab-btn" data-tab="editor" onclick="switchTab('editor')">
-                        <i class="fas fa-code"></i> Code Editor
-                    </button>
-                    <button class="tab-btn" data-tab="tests" onclick="switchTab('tests')">
-                        <i class="fas fa-vial"></i> Test Cases
-                    </button>
-                </div>
-                
-                <!-- PROBLEM TAB -->
-                <div class="tab-content active" id="problem-tab">
-                    <div class="loading" id="problemLoading">
-                        <i class="fas fa-spinner"></i> Loading problem statement...
-                    </div>
-                    <div id="problemContent" style="display: none;">
-                        <div class="problem-header">
-                            <h2 id="problemTitle">Coding Question</h2>
-                            <div class="current-question-indicator" id="codingProgress">
-                                Coding Question 1 of 2
-                            </div>
-                            <div class="problem-meta">
-                                <span class="tag" id="problemDifficulty">Medium</span>
-                                <span class="tag" id="problemScore">20 points</span>
-                                <span class="tag" id="questionTime">Time: 15 min</span>
-                            </div>
-                        </div>
-                        
-                        <div class="problem-content" id="problemDescription">
-                            <!-- Problem content will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- EDITOR TAB -->
-                <div class="tab-content" id="editor-tab">
-                    <div class="editor-header">
-                        <div class="language-selector">
-                            <select id="languageSelect">
-                                <option value="python">Python</option>
-                                <option value="java">Java</option>
-                                <option value="javascript">JavaScript</option>
-                                <option value="cpp">C++</option>
-                            </select>
-                        </div>
-                        <div class="editor-actions">
-                            <button class="btn btn-run" onclick="runCodeWithPyodide()">
-                                <i class="fas fa-play"></i> Run Code
-                            </button>
-                            <button class="btn btn-submit" onclick="submitCodingQuestion()">
-                                <i class="fas fa-paper-plane"></i> Submit Solution
-                            </button>
-                            <button class="btn btn-reset" onclick="resetCode()">
-                                <i class="fas fa-redo"></i> Reset
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="code-editor">
-                        <textarea id="codeEditor"># Write your Python solution here
-                    def solution():
-                        # Implement your solution
-                        pass</textarea>
-                    </div>
-                    
-                    <div class="output-console">
-                        <div class="console-header">
-                            <h4><i class="fas fa-terminal"></i> Output</h4>
-                            <button class="btn btn-clear-output" onclick="clearOutput()">
-                                <i class="fas fa-trash"></i> Clear
-                            </button>
-                        </div>
-                        <div class="console-output" id="outputConsole" style="max-height: 300px; overflow-y: auto;">
-                            <div class="output-placeholder">Click "Run Code" to see output here...</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- TESTS TAB -->
-                <div class="tab-content" id="tests-tab">
-                    <div class="tests-header">
-                        <h3><i class="fas fa-vial"></i> Test Cases</h3>
-                        <button class="btn btn-add-test" onclick="addCustomTest()">
-                            <i class="fas fa-plus"></i> Add Custom Test
-                        </button>
-                    </div>
-                    
-                    <div class="test-cases" id="testCasesContainer">
-                        <div class="loading">
-                            <i class="fas fa-spinner"></i> Loading test cases...
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+<!-- Pyodide loading overlay -->
+<div class="py-loading" id="pyLoading">
+    <div class="py-loader-ring"></div>
+    <h3>Initializing Python Runtime</h3>
+    <p>Loading Pyodide environment, please wait...</p>
+</div>
 
-        <!-- RIGHT PANEL - TOOLS & FEEDBACK -->
-        <section class="panel right-panel">
-            <!-- TIMER SECTION -->
-            <div class="tool-section timer-section">
-                <h3><i class="fas fa-clock"></i> Interview Timer</h3>
-                <div class="timer-display" id="timerDisplay">45:00</div>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                </div>
-                
-                <!-- Combined Progress Summary - MODIFIED -->
-                <div class="progress-summary-combined" id="combinedProgressSummary">
-                    <div class="progress-item">
-                        <span class="progress-label">PDSA Questions:</span>
-                        <span class="progress-value" id="pdsaTime">0/3 answered</span>
-                    </div>
-                    <div class="progress-item">
-                        <span class="progress-label">Coding Questions:</span>
-                        <span class="progress-value" id="codingTime">1/2 completed</span>
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <!-- HINTS SECTION -->
-            <div class="tool-section hints-section">
-                <h3><i class="fas fa-lightbulb"></i> Available Hints</h3>
-                <div class="hints-container" id="hintsContainer">
-                    <div class="hint-item" data-hint="1" onclick="revealHint(1)">
-                        <div class="hint-header">
-                            <span class="hint-number">Hint 1</span>
-                            <span class="hint-status available">Click to reveal</span>
-                        </div>
-                        <div class="hint-content">Think about edge cases</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- INTERVIEW TIPS - MOVED TO RIGHT PANEL -->
-            <div class="interview-tips">
-                <h4><i class="fas fa-lightbulb"></i> Interview Tips</h4>
-                <ul>
-                    <li>Think out loud while solving problems</li>
-                    <li>Ask clarifying questions before starting</li>
-                    <li>Discuss time and space complexity</li>
-                    <li>Consider edge cases</li>
-                </ul>
-            </div>
-        </section>
-    </main>
+<!-- ═══ HEADER ═══ -->
+<header class="hdr">
+    <div class="hdr-logo">
+        <i class="fas fa-code dot"></i>
+        Sanghamitra
+    </div>
+    <div class="live-badge">
+        <div class="blink"></div>
+        LIVE MOCK
+    </div>
 
-    <!-- QUESTION NAVIGATION -->
-    <footer class="question-navigation">
-        <div class="nav-container">
-            <div class="question-progress" id="questionProgress">
-                <!-- Question progress will be loaded here -->
-            </div>
-            
-            <div class="nav-actions">
-                <button class="btn btn-prev" onclick="prevCodingQuestion()" disabled>
-                    <i class="fas fa-arrow-left"></i> Previous
-                </button>
-                <button class="btn btn-submit-interview" onclick="submitEntireInterview()" id="submitInterviewBtn" style="display: none;">
-                    <i class="fas fa-paper-plane"></i> Submit Interview
-                </button>
-                <button class="btn btn-next" onclick="nextCodingQuestion()" id="nextCodingBtn">
-                    Next Coding Question <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
-    </footer>
-
-    <!-- COMPLETION MODAL -->
-    <div class="modal-overlay" id="completionModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-trophy"></i> Interview Completed!</h2>
-                <button class="btn-close-modal" onclick="closeModal()">&times;</button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="submission-pending" id="submissionStatus">
-                    <h3><i class="fas fa-clock"></i> Submission in Progress...</h3>
-                    <p>Please wait while we submit your interview responses.</p>
-                </div>
-                
-                <div class="score-summary" id="scoreSummary" style="display: none;">
-                    <div class="overall-score">
-                        <h3>Overall Score</h3>
-                        <div class="score-display" id="overallScore">0/100</div>
-                        <div class="score-label">Under Review</div>
-                    </div>
-                    
-                    <div class="score-breakdown">
-                        <h4>Performance Breakdown</h4>
-                        <div class="breakdown-item">
-                            <span>PDSA Questions</span>
-                            <span class="breakdown-value" id="pdsaScore">Pending Review</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span>Coding Questions</span>
-                            <span class="breakdown-value" id="codingScore">Pending Review</span>
-                        </div>
-                        <div class="breakdown-item">
-                            <span>Communication</span>
-                            <span class="breakdown-value" id="communicationScore">Pending Review</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="review-message" id="reviewMessage" style="display: none;">
-                    <div class="submission-pending">
-                        <h3><i class="fas fa-user-tie"></i> Interviewer Review Required</h3>
-                        <p><strong>Your interview has been submitted successfully!</strong></p>
-                        <p>Your answers will now be reviewed by an interviewer. This process usually takes 24-48 hours.</p>
-                        <p><strong>What happens next:</strong></p>
-                        <ul>
-                            <li>An interviewer will review your PDSA and coding answers</li>
-                            <li>They will assess your problem-solving approach and communication</li>
-                            <li>You'll receive detailed feedback and scores</li>
-                            <li>Results will be available in your dashboard</li>
-                        </ul>
-                        <p><em>You will receive a notification when your scores are ready.</em></p>
-                    </div>
-                </div>
-                        
-                <div class="recommended-practice" id="practiceSection" style="display: none;">
-                    <h3><i class="fas fa-dumbbell"></i> While You Wait...</h3>
-                    <div class="practice-links" id="practiceLinks">
-                        <a href="#" class="practice-link" onclick="practiceTopic()">
-                            <i class="fas fa-book"></i> Practice more interview questions
-                        </a>
-                        <a href="#" class="practice-link" onclick="reviewTopics()">
-                            <i class="fas fa-chart-bar"></i> Review interview performance tips
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-footer" id="modalFooter" style="display: none;">
-                <button class="btn btn-review" onclick="reviewSession()">
-                    <i class="fas fa-chart-bar"></i> Review Session
-                </button>
-                <button class="btn btn-practice" onclick="practiceMore()">
-                    <i class="fas fa-dumbbell"></i> Practice More
-                </button>
-                <button class="btn btn-next-interview" onclick="nextInterview()">
-                    <i class="fas fa-forward"></i> Next Mock Interview
-                </button>
-            </div>
+    <div class="hdr-title">
+        <h1 id="pageTitle">Loading Interview...</h1>
+        <div class="hdr-meta">
+            <span><i class="fas fa-tag"></i> <span id="topicDisplay">—</span></span>
+            <span><i class="fas fa-list-ol"></i> <span id="totalQDisplay">0</span> Questions</span>
         </div>
     </div>
 
-    <script>
-        // Global variables
-        let currentInterviewData = null;
-        let currentCodingQuestionIndex = 0;
-        let currentPDSAQuestionIndex = 0;
-        let pdsaAnswers = [];
-        let codingSubmissions = [];
-        let totalTime = 45 * 60; // 45 minutes in seconds
-        let elapsedTime = 0;
-        let timerInterval;
-        let apiBaseUrl = 'https://sanghamitra-learnworld.vercel.app/api';
-        let pyodide = null;
-        let userData = null;
-        let pdsaCompleted = false; // NEW: Track if PDSA is completed
-        
-        // DOM Elements
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const problemContent = document.getElementById('problemContent');
-        const problemLoading = document.getElementById('problemLoading');
-        const codeEditor = document.getElementById('codeEditor');
-        const outputConsole = document.getElementById('outputConsole');
-        const testCasesContainer = document.getElementById('testCasesContainer');
-        const questionProgress = document.getElementById('questionProgress');
-        const pdsaProgress = document.getElementById('pdsaProgress');
-        const codingProgress = document.getElementById('codingProgress');
-        
-        // Initialize the interview
-        async function initializeInterview() {
-            try {
-                // 1. Get user session data
-                await fetchUserSession();
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                const topic = urlParams.get('topic') || 'Python Basics';
-                const type = urlParams.get('type') || 'interview';
-                
-                document.getElementById('pageTitle').textContent = `${topic.charAt(0).toUpperCase() + topic.slice(1)} Practice Session`;
-                document.getElementById('topicDisplay').textContent = topic;
-                
-                // 2. Initialize Pyodide
-                await initializePyodide();
-                
-                // 3. Fetch questions from API
-                console.log('Fetching questions from:', `${apiBaseUrl}/interview?topic=${encodeURIComponent(topic)}&type=${type}&codingCount=2&pdsaCount=3`);
-                const response = await fetch(`${apiBaseUrl}/interview?topic=${encodeURIComponent(topic)}&type=${type}&codingCount=2&pdsaCount=3`);
-                const data = await response.json();
-                
-                console.log('API Response:', data);
-                
-                if (data.success) {
-                    currentInterviewData = data;
-                    
-                    // Initialize arrays
-                    pdsaAnswers = new Array(data.pdsaQuestions.questions.length).fill(null);
-                    codingSubmissions = new Array(data.codingQuestions.questions.length).fill(null);
-                    
-                    // Update question count
-                    document.getElementById('questionCount').textContent = 
-                        data.pdsaQuestions.questions.length + data.codingQuestions.questions.length;
-                    
-                    // Load first PDSA question (sequential)
-                    loadCurrentPDSAQuestion();
-                    
-                    // Initialize navigation (but hide coding navigation initially)
-                    initializeNavigation();
-                    
-                    // Hide coding section initially
-                    document.querySelector('.coding-section').style.display = 'none';
-                    document.querySelector('.pdsa-section').style.display = 'block';
-                    
-                    // Start timer
-                    startTimer();
-                    
-                    // Update progress displays
-                    updateProgressDisplays();
-                } else {
-                    showError('Failed to load interview questions');
-                }
-            } catch (error) {
-                console.error('Error initializing interview:', error);
-                showError('Failed to connect to server. Please try again.');
-            }
-        }
-        
-        // Fetch user session data
-        async function fetchUserSession() {
-            try {
-                const response = await fetch(`${apiBaseUrl}/session-info`, {
-                    credentials: 'include' // Important for cookies/session
-                });
-                
-                if (response.status === 401) {
-                    // Redirect to login if not authenticated
-                    window.location.href = '/login';
-                    return;
-                }
-                
-                const data = await response.json();
-                userData = data;
-                
-                // Update UI with user info
-                document.getElementById('usernameDisplay').textContent = data.username || 'User';
-                document.getElementById('userAvatar').textContent = data.username ? data.username.charAt(0).toUpperCase() : 'U';
-                
-                console.log('User session loaded:', data);
-            } catch (error) {
-                console.error('Error fetching user session:', error);
-                showError('Please login to continue');
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 2000);
-            }
-        }
-        
-        // Initialize Pyodide
-        async function initializePyodide() {
-            try {
-                console.log('Loading Pyodide...');
-                outputConsole.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Initializing Python runtime...</div>';
-                
-                pyodide = await loadPyodide({
-                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
-                });
-                
-                // Load micropip for Python packages
-                await pyodide.loadPackage("micropip");
-                const micropip = pyodide.pyimport("micropip");
-                
-                console.log('Pyodide loaded successfully');
-                outputConsole.innerHTML = '<div class="output-placeholder">Python runtime ready. Click "Run Code" to execute your solution.</div>';
-                
-            } catch (error) {
-                console.error('Error loading Pyodide:', error);
-                outputConsole.innerHTML = '<div class="error-message">Failed to load Python runtime. Using simulated execution instead.</div>';
-                showError('Python runtime failed to load. Code execution will be simulated.');
-            }
-        }
-        
-        // ============ FIXED PYOIDE CODE EXECUTION ============
-        // FIXED Pyodide execution with CodeMirror
-async function runCodeWithPyodide() {
-    const code = getCodeFromEditor(); // Get from CodeMirror
-    const language = document.getElementById('languageSelect').value;
-    const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-    const question = codingQuestions[currentCodingQuestionIndex];
-    
-    // Clear previous output
-    outputConsole.innerHTML = '';
-    
-    // Show loading with better UI
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'output-loading';
-    loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing code with Pyodide...';
-    outputConsole.appendChild(loadingDiv);
-    
-    // Disable run button during execution
-    const runBtn = document.querySelector('.btn-run');
-    if (runBtn) {
-        runBtn.disabled = true;
-        runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
-    }
-    
-    try {
-        if (language !== 'python') {
-            throw new Error('Currently only Python is supported with Pyodide. Other languages are coming soon!');
-        }
-        
-        if (!pyodide) {
-            throw new Error('Python runtime not loaded. Please wait or refresh the page.');
-        }
-        
-        // Get test cases
-        const testCases = question?.testCases || [];
-        
-        // Clear Pyodide's stdout/stderr
-        await pyodide.runPythonAsync(`
-import sys
-import io
-sys.stdout = io.StringIO()
-sys.stderr = io.StringIO()
-        `);
-        
-        // Execute the user's code first
-        try {
-            await pyodide.runPythonAsync(code);
-        } catch (codeError) {
-            // If there's an error in the user's function definition, show it
-            throw new Error(`Code error: ${codeError.message}`);
-        }
-        
-        // In runCodeWithPyodide() function, replace the function call building section:
+    <div class="hdr-right">
+        <div class="timer-hdr"><i class="fas fa-clock"></i> <span id="timerHdr">45:00</span></div>
+        <button class="btn-end" onclick="endInterview()">
+            <i class="fas fa-stop-circle"></i> End
+        </button>
+        <div class="avatar" id="userAvatar">U</div>
+    </div>
+</header>
 
-        // Prepare test cases
-        let testResults = [];
-        const functionName = question?.functionName || 'solution';
+<!-- ═══ WORKSPACE ═══ -->
+<div class="workspace">
 
-        for (let i = 0; i < testCases.length; i++) {
-            const testCase = testCases[i];
-            
-            try {
-                // FIXED: Handle different input types correctly
-                let callCode;
-                let inputArgs = testCase.input;
-                
-                if (Array.isArray(inputArgs)) {
-                    // Multiple arguments - pass them directly
-                    callCode = `${functionName}(${inputArgs.map(arg => {
-                        if (typeof arg === 'string') return `'${arg}'`;
-                        return arg;
-                    }).join(', ')})`;
-                } else {
-                    // Single argument - handle based on type
-                    if (typeof inputArgs === 'string') {
-                        callCode = `${functionName}('${inputArgs}')`;
-                    } else {
-                        // For numbers, booleans, etc. - pass directly without stringify
-                        callCode = `${functionName}(${inputArgs})`;
-                    }
-                }
-                
-                // Execute the function with test input
-                const result = await pyodide.runPythonAsync(callCode);
-                
-                // Compare with expected output
-                const expected = testCase.expected;
-                
-                // Better comparison that handles lists with tuples
-                const passed = comparePythonResults(result, expected);
-                
-                testResults.push({
-                    testCase: i + 1,
-                    input: inputArgs,
-                    expected: expected,
-                    output: result,
-                    passed: passed,
-                    error: null
-                });
-                
-            } catch (testError) {
-                testResults.push({
-                    testCase: i + 1,
-                    input: testCase.input,
-                    expected: testCase.expected,
-                    output: null,
-                    passed: false,
-                    error: testError.message
-                });
-            }
-        }
+    <!-- ════ THEORY PHASE ════ -->
+    <div id="theory-phase">
+        <!-- Sidebar -->
+        <aside class="theory-left">
+            <div>
+                <div class="sidebar-label">Progress</div>
+                <div class="q-steps" id="sidebarSteps"></div>
+            </div>
 
-        // Add this helper function for better comparison
-        function comparePythonResults(result, expected) {
-            try {
-                // Convert Pyodide Python objects to JS
-                let actual = result;
-                if (result && typeof result === 'object' && result.toJs) {
-                    actual = result.toJs();
-                }
-                
-                // Handle tuple conversion - Python tuples become JS arrays
-                if (Array.isArray(actual) && Array.isArray(expected)) {
-                    return JSON.stringify(actual) === JSON.stringify(expected);
-                }
-                
-                // Direct comparison for primitives
-                return actual === expected;
-            } catch (e) {
-                return false;
-            }
-        }
-        // Get stdout output
-        const stdout = pyodide.runPython("sys.stdout.getvalue()");
-        const stderr = pyodide.runPython("sys.stderr.getvalue()");
-        
-        // Clear loading
-        outputConsole.innerHTML = '';
-        
-        // Display any print statements
-        if (stdout && stdout.trim()) {
-            const stdoutDiv = document.createElement('div');
-            stdoutDiv.className = 'code-output';
-            stdoutDiv.style.background = '#1e1e1e';
-            stdoutDiv.style.color = '#d4d4d4';
-            stdoutDiv.style.padding = '10px';
-            stdoutDiv.style.margin = '10px 0';
-            stdoutDiv.style.borderRadius = '4px';
-            stdoutDiv.style.fontFamily = 'Consolas, monospace';
-            stdoutDiv.innerHTML = `<strong>Output:</strong><br><pre style="margin: 5px 0 0 0;">${stdout}</pre>`;
-            outputConsole.appendChild(stdoutDiv);
-        }
-        
-        if (stderr && stderr.trim()) {
-            const stderrDiv = document.createElement('div');
-            stderrDiv.className = 'error-message';
-            stderrDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${stderr}`;
-            outputConsole.appendChild(stderrDiv);
-        }
-        
-        // Display test results
-        let passedCount = 0;
-        testResults.forEach((result, index) => {
-            const testDiv = document.createElement('div');
-            testDiv.className = `test-result ${result.passed ? 'passed' : 'failed'}`;
-            
-            const icon = result.passed ? '✓' : '✗';
-            const iconColor = result.passed ? '#4caf50' : '#f44336';
-            
-            testDiv.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: ${iconColor}; font-weight: bold;">${icon}</span>
-                    <span style="font-weight: 600;">Test ${index + 1}:</span>
-                    <span>${result.passed ? 'Passed' : 'Failed'}</span>
-                </div>
-                <div style="margin-left: 25px; font-size: 13px; color: #b0b0b0;">
-                    <div>Input: ${JSON.stringify(result.input)}</div>
-                    <div>Expected: ${JSON.stringify(result.expected)}</div>
-                    <div>Got: ${JSON.stringify(result.output) || 'Error'}</div>
-                    ${result.error ? `<div style="color: #ff6b6b;">Error: ${result.error}</div>` : ''}
-                </div>
-            `;
-            
-            outputConsole.appendChild(testDiv);
-            if (result.passed) passedCount++;
-        });
-        
-        // Calculate score
-        const totalTests = testResults.length;
-        const maxScore = question?.maxScore || 10;
-        const score = totalTests > 0 ? Math.round((passedCount / totalTests) * maxScore) : 0;
-        
-        // Add execution summary
-        const summaryDiv = document.createElement('div');
-        summaryDiv.className = 'execution-summary';
-        summaryDiv.style.marginTop = '15px';
-        summaryDiv.style.padding = '10px';
-        summaryDiv.style.background = '#252526';
-        summaryDiv.style.borderRadius = '4px';
-        summaryDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <strong>Test Results:</strong> ${passedCount}/${totalTests} passed
-                </div>
-                <div>
-                    <strong>Score:</strong> ${score}/${maxScore}
-                    <span class="score-indicator ${getScoreClass(passedCount/totalTests)}" style="margin-left: 10px;">
-                        ${Math.round((passedCount/totalTests)*100)}%
-                    </span>
+            <div class="timer-block">
+                <div class="sidebar-label">Time Remaining</div>
+                <div class="timer-big" id="timerBig">45:00</div>
+                <div style="margin-top:10px;">
+                    <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+                        <div id="timerBar" style="height:100%;background:linear-gradient(90deg,var(--green),var(--accent));width:100%;transition:width 1s linear;border-radius:2px;"></div>
+                    </div>
                 </div>
             </div>
-        `;
-        outputConsole.appendChild(summaryDiv);
-        
-        // Store the test results in submission
-        if (!codingSubmissions[currentCodingQuestionIndex]) {
-            codingSubmissions[currentCodingQuestionIndex] = {};
-        }
-        codingSubmissions[currentCodingQuestionIndex].testResults = testResults;
-        codingSubmissions[currentCodingQuestionIndex].score = score;
-        codingSubmissions[currentCodingQuestionIndex].maxScore = maxScore;
-        codingSubmissions[currentCodingQuestionIndex].passedTests = passedCount;
-        codingSubmissions[currentCodingQuestionIndex].totalTests = totalTests;
-        codingSubmissions[currentCodingQuestionIndex].code = code;
-        codingSubmissions[currentCodingQuestionIndex].timestamp = new Date();
-        
-        // Update test case status in tests tab
-        updateTestStatus(testResults);
-        
-        // Update progress
-        updateProgressDisplays();
-        
-        showNotification(`Code executed! ${passedCount}/${totalTests} tests passed. Score: ${score}/${maxScore}`);
-        
-    } catch (error) {
-        console.error('Execution error:', error);
-        outputConsole.innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-triangle"></i> ${error.message}
-                <div style="margin-top: 10px; font-size: 12px; color: #999;">
-                    <strong>Tips:</strong>
-                    <ul style="margin-top: 5px;">
-                        <li>Make sure your function is defined correctly</li>
-                        <li>Check that your function name matches "${question?.functionName || 'solution'}"</li>
-                        <li>Ensure your function returns the expected output format</li>
-                    </ul>
-                </div>
-            </div>
-        `;
-        
-        // Fallback to simulation if Pyodide fails
-        if (error.message.includes('Python runtime') || error.message.includes('not loaded')) {
-            runCodeSimulated();
-        }
-    } finally {
-        // Re-enable run button
-        if (runBtn) {
-            runBtn.disabled = false;
-            runBtn.innerHTML = '<i class="fas fa-play"></i> Run Code';
-        }
-    }
-}
-        // Create SIMPLIFIED Python test wrapper that definitely works
-        function createSimplePythonTestWrapper(code, functionName, testCases) {
-            const functionNameSafe = functionName || 'solution';
-            
-            // SIMPLIFIED test wrapper that's less error-prone
-            return `
-${code}
 
-import json
-import traceback
-
-def run_tests():
-    results = []
-    
-    # Helper function to compare outputs
-    def compare_outputs(actual, expected):
-        try:
-            # Try direct comparison first
-            if actual == expected:
-                return True
-            # Try JSON string comparison for complex objects
-            if json.dumps(actual) == json.dumps(expected):
-                return True
-            # Try string representation comparison
-            if str(actual) == str(expected):
-                return True
-            return False
-        except:
-            return False
-    
-    ${testCases.map((testCase, index) => `
-    # Test Case ${index + 1}
-    try:
-        input_data = ${JSON.stringify(testCase.input)}
-        expected_output = ${JSON.stringify(testCase.expected)}
-        
-        # Execute the function
-        if isinstance(input_data, tuple):
-            # Handle tuple inputs
-            actual_output = ${functionNameSafe}(*input_data)
-        elif isinstance(input_data, list) and len(input_data) > 0 and isinstance(input_data[0], (list, tuple)):
-            # Handle nested lists/tuples
-            actual_output = ${functionNameSafe}(*input_data)
-        else:
-            # Handle single argument
-            actual_output = ${functionNameSafe}(input_data)
-        
-        # Compare results
-        passed = compare_outputs(actual_output, expected_output)
-        
-        results.append({
-            "testCase": ${index + 1},
-            "input": input_data,
-            "expected": expected_output,
-            "output": actual_output,
-            "passed": passed,
-            "error": None
-        })
-    except Exception as e:
-        results.append({
-            "testCase": ${index + 1},
-            "input": ${JSON.stringify(testCase.input)},
-            "expected": ${JSON.stringify(testCase.expected)},
-            "output": None,
-            "passed": False,
-            "error": str(e)
-        })
-    `).join('\n')}
-    
-    return results
-
-# Execute and print results
-try:
-    test_results = run_tests()
-    print(json.dumps(test_results, indent=2))
-except Exception as e:
-    error_result = [{
-        "testCase": 0,
-        "input": "N/A",
-        "expected": "N/A",
-        "output": None,
-        "passed": False,
-        "error": f"Test runner error: {str(e)}"
-    }]
-    print(json.dumps(error_result, indent=2))
-`;
-        }
-
-        // Alternative: Even simpler test wrapper for debugging
-        function createDebugPythonTestWrapper(code, functionName, testCases) {
-            const functionNameSafe = functionName || 'solution';
-            
-            return `
-${code}
-
-import json
-
-# Simple test execution
-results = []
-
-${testCases.map((testCase, index) => `
-try:
-    # Test ${index + 1}
-    input_data = ${JSON.stringify(testCase.input)}
-    expected = ${JSON.stringify(testCase.expected)}
-    
-    # Simple function call
-    result = ${functionNameSafe}(*input_data) if isinstance(input_data, (list, tuple)) else ${functionNameSafe}(input_data)
-    
-    # Simple comparison
-    passed = str(result) == str(expected) or result == expected
-    
-    results.append({
-        "testCase": ${index + 1},
-        "input": input_data,
-        "expected": expected,
-        "output": result,
-        "passed": bool(passed),
-        "error": None
-    })
-except Exception as e:
-    results.append({
-        "testCase": ${index + 1},
-        "input": ${JSON.stringify(testCase.input)},
-        "expected": ${JSON.stringify(testCase.expected)},
-        "output": None,
-        "passed": False,
-        "error": str(e)
-    })
-`).join('\n')}
-
-print(json.dumps(results))
-`;
-        }
-
-        // Get score CSS class
-        function getScoreClass(percentage) {
-            if (percentage >= 0.8) return 'score-good';
-            if (percentage >= 0.5) return 'score-average';
-            return 'score-poor';
-        }
-        
-        // Fallback simulated execution
-        function runCodeSimulated() {
-            const code = codeEditor.textContent;
-            const language = document.getElementById('languageSelect').value;
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-            const question = codingQuestions[currentCodingQuestionIndex];
-            
-            outputConsole.innerHTML = '';
-            
-            // Show loading
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'output-loading';
-            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Simulating execution...';
-            outputConsole.appendChild(loadingDiv);
-            
-            // Simulate execution
-            setTimeout(() => {
-                outputConsole.innerHTML = '';
-                
-                const testCases = question?.testCases || [];
-                const testResults = [];
-                
-                if (testCases.length > 0) {
-                    testCases.forEach((testCase, index) => {
-                        // More realistic simulation with 80% pass rate
-                        const passed = Math.random() > 0.2;
-                        testResults.push({
-                            testCase: index + 1,
-                            input: testCase.input,
-                            expected: testCase.expected,
-                            output: passed ? testCase.expected : `wrong_output_${index}`,
-                            passed: passed,
-                            error: passed ? null : 'Simulated failure'
-                        });
-                        
-                        const testDiv = document.createElement('div');
-                        testDiv.className = `test-result ${passed ? 'passed' : 'failed'}`;
-                        
-                        const icon = passed ? '✓' : '✗';
-                        testDiv.innerHTML = `
-                            Test ${index + 1}: ${passed ? 'Passed' : 'Failed'}
-                            <span class="test-status-indicator">${icon}</span>
-                        `;
-                        
-                        outputConsole.appendChild(testDiv);
-                    });
-                    
-                    // Calculate score
-                    const passedCount = testResults.filter(r => r.passed).length;
-                    const totalTests = testResults.length;
-                    const maxScore = question.maxScore || 10;
-                    const score = Math.round((passedCount / totalTests) * maxScore);
-                    
-                    // Store simulated results
-                    if (!codingSubmissions[currentCodingQuestionIndex]) {
-                        codingSubmissions[currentCodingQuestionIndex] = {};
-                    }
-                    codingSubmissions[currentCodingQuestionIndex].testResults = testResults;
-                    codingSubmissions[currentCodingQuestionIndex].score = score;
-                    codingSubmissions[currentCodingQuestionIndex].maxScore = maxScore;
-                    codingSubmissions[currentCodingQuestionIndex].passedTests = passedCount;
-                    codingSubmissions[currentCodingQuestionIndex].totalTests = totalTests;
-                    codingSubmissions[currentCodingQuestionIndex].code = code;
-                    codingSubmissions[currentCodingQuestionIndex].timestamp = new Date();
-                    
-                    // Update test case status
-                    updateTestStatus(testResults);
-                    
-                    // Add execution summary
-                    const summaryDiv = document.createElement('div');
-                    summaryDiv.className = 'execution-summary';
-                    summaryDiv.innerHTML = `
-                        Execution time: 125ms | 
-                        Tests passed: ${passedCount}/${totalTests} | 
-                        Score: ${score}/${maxScore}
-                        <span class="score-indicator ${getScoreClass(passedCount/totalTests)}">
-                            ${Math.round((passedCount/totalTests)*100)}%
-                        </span>
-                        <div style="color: #ff9800; font-size: 12px; margin-top: 5px;">
-                            <i class="fas fa-info-circle"></i> Simulated execution (Pyodide not available)
-                        </div>
-                    `;
-                    outputConsole.appendChild(summaryDiv);
-                }
-                
-                updateProgressDisplays();
-                
-            }, 800);
-        }
-        
-        // Load current PDSA question (sequential, one at a time)
-        function loadCurrentPDSAQuestion() {
-            chatMessages.innerHTML = '';
-            
-            const pdsaQuestions = currentInterviewData?.pdsaQuestions?.questions || [];
-            
-            if (!pdsaQuestions || pdsaQuestions.length === 0) {
-                chatMessages.innerHTML = '<div class="error-message">No interview questions available</div>';
-                return;
-            }
-            
-            // Update progress indicator
-            pdsaProgress.textContent = `PDSA Question ${currentPDSAQuestionIndex + 1} of ${pdsaQuestions.length}`;
-            
-            const question = pdsaQuestions[currentPDSAQuestionIndex];
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            let questionHTML = '';
-            
-            if (question.type === 'mcq-single' || question.type === 'mcq-multiple') {
-                // MCQ question
-                questionHTML = `
-                    <div class="msg-sender">Interviewer</div>
-                    <div class="msg-content">
-                        <div class="pdsa-question">
-                            <strong>${question.title}</strong>
-                            <p>${question.description || ''}</p>
-                            <div class="mcq-options">
-                                ${question.options.map((option, optIndex) => `
-                                    <div class="mcq-option" onclick="selectPDSAAnswer(${optIndex})" id="option-${optIndex}">
-                                        ${String.fromCharCode(65 + optIndex)}. ${option}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="msg-time">${time}</div>
-                `;
-            } else {
-                // Interview/numerical question
-                questionHTML = `
-                    <div class="msg-sender">Interviewer</div>
-                    <div class="msg-content">
-                        <div class="pdsa-question">
-                            <strong>${question.title}</strong>
-                            <p>${question.description || ''}</p>
-                        </div>
-                    </div>
-                    <div class="msg-time">${time}</div>
-                `;
-            }
-            
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'chat-message msg-interviewer';
-            questionDiv.innerHTML = questionHTML;
-            chatMessages.appendChild(questionDiv);
-            
-            // Clear chat input
-            chatInput.value = '';
-            
-            // Show/hide buttons based on question type
-            if (question.type === 'mcq-single' || question.type === 'mcq-multiple') {
-                chatInput.style.display = 'none';
-                sendBtn.style.display = 'none';
-                nextBtn.style.display = 'inline-flex';
-            } else {
-                chatInput.style.display = 'block';
-                sendBtn.style.display = 'inline-flex';
-                nextBtn.style.display = 'none';
-            }
-            
-            // Show previous answers if any
-            if (pdsaAnswers[currentPDSAQuestionIndex] !== null) {
-                showPDSAAnswerFeedback();
-            }
-            
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Select MCQ answer
-        function selectPDSAAnswer(optionIndex) {
-            const pdsaQuestions = currentInterviewData?.pdsaQuestions?.questions || [];
-            const question = pdsaQuestions[currentPDSAQuestionIndex];
-            
-            // Clear previous selections
-            document.querySelectorAll('.mcq-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            
-            // Select this option
-            document.getElementById(`option-${optionIndex}`).classList.add('selected');
-            
-            // Store answer
-            pdsaAnswers[currentPDSAQuestionIndex] = optionIndex;
-            
-            // Show next button
-            nextBtn.style.display = 'inline-flex';
-            
-            updateProgressDisplays();
-        }
-        
-        // Send PDSA answer (for non-MCQ questions)
-        function sendPDSAAnswer() {
-            const answer = chatInput.value.trim();
-            
-            if (!answer) {
-                alert('Please enter your answer');
-                return;
-            }
-            
-            // Store answer
-            pdsaAnswers[currentPDSAQuestionIndex] = answer;
-            
-            // Show answer in chat
-            addChatMessage(answer, 'user');
-            
-            // Show feedback
-            showPDSAAnswerFeedback();
-            
-            // Clear input
-            chatInput.value = '';
-            
-            // Show next button
-            nextBtn.style.display = 'inline-flex';
-            sendBtn.style.display = 'none';
-            
-            updateProgressDisplays();
-        }
-        
-        // Show PDSA answer feedback
-        function showPDSAAnswerFeedback() {
-            const pdsaQuestions = currentInterviewData?.pdsaQuestions?.questions || [];
-            const question = pdsaQuestions[currentPDSAQuestionIndex];
-            const answer = pdsaAnswers[currentPDSAQuestionIndex];
-            
-            let feedbackHTML = '';
-            
-            if (question.type === 'mcq-single' || question.type === 'mcq-multiple') {
-                feedbackHTML = `
-                    <div class="msg-sender">You</div>
-                    <div class="msg-content">
-                        <div class="question-complete">
-                            Selected: Option ${String.fromCharCode(65 + answer)}
-                        </div>
-                    </div>
-                    <div class="msg-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                `;
-            } else {
-                feedbackHTML = `
-                    <div class="msg-sender">You</div>
-                    <div class="msg-content">
-                        <div class="question-complete">
-                            Answer submitted successfully!
-                        </div>
-                    </div>
-                    <div class="msg-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                `;
-            }
-            
-            const feedbackDiv = document.createElement('div');
-            feedbackDiv.className = 'chat-message msg-user';
-            feedbackDiv.innerHTML = feedbackHTML;
-            chatMessages.appendChild(feedbackDiv);
-            
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // NEW FUNCTION: Show coding questions after PDSA is complete
-        function showCodingQuestions() {
-            // Hide PDSA section
-            document.querySelector('.pdsa-section').style.display = 'none';
-            
-            // Show coding section
-            document.querySelector('.coding-section').style.display = 'block';
-            
-            // Load first coding question
-            loadCodingQuestion(0);
-            
-            // Update header
-            document.querySelector('.pdsa-section .chat-header h4').innerHTML = '<i class="fas fa-check-circle" style="color: #4caf50;"></i> PDSA Questions Completed';
-            
-            // Show notification
-            addChatMessage("Great! Now let's move on to the coding questions. You'll have 2 coding problems to solve.", 'interviewer');
-            
-            // Update navigation to show coding questions
-            updateNavigation();
-        }
-        
-        // Move to next PDSA question
-        function nextPDSAQuestion() {
-            const pdsaQuestions = currentInterviewData?.pdsaQuestions?.questions || [];
-            
-            if (currentPDSAQuestionIndex < pdsaQuestions.length - 1) {
-                currentPDSAQuestionIndex++;
-                loadCurrentPDSAQuestion();
-                
-                // Reset button states
-                nextBtn.style.display = 'none';
-                sendBtn.style.display = 'inline-flex';
-                chatInput.style.display = 'block';
-            } else {
-                // All PDSA questions completed - SHOW CODING QUESTIONS
-                pdsaCompleted = true;
-                addChatMessage("All PDSA questions completed! Now moving to coding questions...", 'interviewer');
-                document.getElementById('pdsaProgress').innerHTML = '<i class="fas fa-check-circle"></i> All PDSA Questions Completed';
-                nextBtn.style.display = 'none';
-                sendBtn.style.display = 'none';
-                chatInput.style.display = 'none';
-                
-                // Show coding questions after a short delay
-                setTimeout(showCodingQuestions, 2000);
-            }
-            
-            updateProgressDisplays();
-        }
-        
-       // Load coding question
-function loadCodingQuestion(index) {
-    // Only load coding questions if PDSA is completed
-    if (!pdsaCompleted) {
-        return;
-    }
-    
-    const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-    
-    if (!codingQuestions || codingQuestions.length === 0) {
-        showError('No coding questions available');
-        return;
-    }
-    
-    if (index >= codingQuestions.length) {
-        index = 0;
-    }
-    
-    currentCodingQuestionIndex = index;
-    const question = codingQuestions[index];
-    
-    // Show loading
-    problemContent.style.display = 'none';
-    problemLoading.style.display = 'flex';
-    
-    setTimeout(() => {
-        // Update title and metadata
-        document.getElementById('problemTitle').textContent = question.title || 'Coding Question';
-        document.getElementById('problemDifficulty').textContent = question.difficulty || 'Medium';
-        document.getElementById('problemScore').textContent = `${question.maxScore || 10} points`;
-        document.getElementById('codingProgress').textContent = `Coding Question ${currentCodingQuestionIndex + 1} of ${codingQuestions.length}`;
-        
-        // FIX: Build the description HTML properly - REMOVE the placeholder "..."
-        const descriptionHTML = `
-            ${question.prompt ? `<div class="problem-prompt">
-                <h3>Prompt:</h3>
-                <p>${question.prompt}</p>
-            </div>` : ''}
-            
-            ${question.description ? `<div class="problem-description">
-                <p>${question.description}</p>
-            </div>` : ''}
-            
-            ${question.testCases && question.testCases.length > 0 ? `
-                <div class="example-box">
-                    <h4><i class="fas fa-list-ol"></i> Examples</h4>
-                    ${question.testCases.map((testCase, i) => `
-                        <div class="example-content">
-                            <p><strong>Example ${i + 1}:</strong></p>
-                            <p><strong>Input:</strong> <code>${JSON.stringify(testCase.input)}</code></p>
-                            <p><strong>Expected Output:</strong> <code>${JSON.stringify(testCase.expected)}</code></p>
-                            ${testCase.description ? `<p><em>${testCase.description}</em></p>` : ''}
-                        </div>
-                    `).join('')}
-                </div>
-            ` : ''}
-            
-            <div class="constraints-box">
-                <h4><i class="fas fa-exclamation-circle"></i> Constraints</h4>
+            <div class="tips-box">
+                <h4><i class="fas fa-lightbulb"></i> Tips</h4>
                 <ul>
-                    <li><code>Time Limit: ${question.timeLimit || 600} seconds</code></li>
-                    <li><code>Memory Limit: 256 MB</code></li>
+                    <li>Think out loud while answering</li>
+                    <li>Be concise but complete</li>
+                    <li>Use examples to explain</li>
+                    <li>Structure your answer clearly</li>
                 </ul>
             </div>
-            
-            ${question.followUp ? `
-                <div class="follow-up-box">
-                    <h4><i class="fas fa-lightbulb"></i> Follow-up</h4>
-                    <p>${question.followUp}</p>
+        </aside>
+
+        <!-- Main theory area -->
+        <main class="theory-main">
+            <div class="phase-header">
+                <div class="phase-badge"><i class="fas fa-comments"></i> Theoretical Questions</div>
+                <div>
+                    <div class="phase-title" id="theoryPhaseTitle">Interview Questions</div>
+                    <div class="phase-sub" id="theoryPhaseSub">Answer each question carefully</div>
                 </div>
-            ` : ''}
-        `;
-        
-        document.getElementById('problemDescription').innerHTML = descriptionHTML;
-        
-        // Update code editor with starter code using CodeMirror
-        if (codeMirrorEditor) {
-            if (question.starterCode) {
-                codeMirrorEditor.setValue(question.starterCode);
-            } else {
-                const functionName = question.functionName || 'solution';
-                const params = question.parameters ? question.parameters.join(', ') : '';
-                const defaultCode = `def ${functionName}(${params}):
-    # Implement your solution here
-    pass
+            </div>
 
-# Test your function
-if __name__ == "__main__":
-    # Example test
-    result = ${functionName}(${question.testCases && question.testCases[0] ? 
-        JSON.stringify(question.testCases[0].input) : ''})
-    print(result)`;
-                codeMirrorEditor.setValue(defaultCode);
-            }
-            
-            // Update language mode
-            updateLanguageMode();
-        }
-        
-        // Update test cases
-        loadTestCases(question);
-        
-        // Hide loading, show content
-        problemLoading.style.display = 'none';
-        problemContent.style.display = 'block';
-        
-        // Update navigation
-        updateNavigation();
-        
-        // Update progress
-        updateProgressDisplays();
-        
-    }, 500);
-}
-        
-        // Load test cases
-        function loadTestCases(question) {
-            testCasesContainer.innerHTML = '';
-            
-            if (!question.testCases || question.testCases.length === 0) {
-                testCasesContainer.innerHTML = '<div class="error-message">No test cases available</div>';
-                return;
-            }
-            
-            question.testCases.forEach((testCase, index) => {
-                const testDiv = document.createElement('div');
-                testDiv.className = 'test-case';
-                testDiv.innerHTML = `
-                    <div class="test-header">
-                        <span class="test-name">Test Case ${index + 1}</span>
-                        <span class="test-status pending">Pending</span>
-                    </div>
-                    <div class="test-content">
-                        <p><strong>Input:</strong> <code>${JSON.stringify(testCase.input)}</code></p>
-                        <p><strong>Expected Output:</strong> <code>${JSON.stringify(testCase.expected)}</code></p>
-                        ${testCase.description ? `<p><em>${testCase.description}</em></p>` : ''}
-                    </div>
-                `;
-                testCasesContainer.appendChild(testDiv);
-            });
-        }
-        
-        // Initialize navigation
-        function initializeNavigation() {
-            if (!currentInterviewData) return;
-            
-            const codingQuestions = currentInterviewData.codingQuestions?.questions || [];
-            
-            // Update question progress
-            questionProgress.innerHTML = '';
-            
-            codingQuestions.forEach((question, index) => {
-                const stepDiv = document.createElement('div');
-                stepDiv.className = `question-step ${index === 0 ? 'active' : ''}`;
-                stepDiv.innerHTML = `
-                    <div class="step-circle">${index + 1}</div>
-                    <div class="step-label">Coding ${index + 1}</div>
-                `;
-                stepDiv.addEventListener('click', () => {
-                    if (pdsaCompleted) {
-                        loadCodingQuestion(index);
-                    }
-                });
-                questionProgress.appendChild(stepDiv);
-                
-                if (index < codingQuestions.length - 1) {
-                    const lineDiv = document.createElement('div');
-                    lineDiv.className = 'progress-line';
-                    questionProgress.appendChild(lineDiv);
-                }
-            });
-        }
-        
-        // Update navigation
-        function updateNavigation() {
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-            const submitBtn = document.getElementById('submitInterviewBtn');
-            const nextBtnNav = document.getElementById('nextCodingBtn');
-            const prevBtn = document.querySelector('.btn-prev');
-            
-            // Update active question in progress
-            document.querySelectorAll('.question-step').forEach((step, index) => {
-                step.classList.toggle('active', index === currentCodingQuestionIndex);
-            });
-            
-            prevBtn.disabled = currentCodingQuestionIndex === 0;
-            
-            if (currentCodingQuestionIndex === codingQuestions.length - 1) {
-                // Last coding question - show submit button
-                nextBtnNav.style.display = 'none';
-                submitBtn.style.display = 'inline-flex';
-            } else {
-                nextBtnNav.style.display = 'inline-flex';
-                submitBtn.style.display = 'none';
-            }
-            
-            // Hide navigation completely if PDSA not completed
-            if (!pdsaCompleted) {
-                document.querySelector('.question-navigation').style.display = 'none';
-            } else {
-                document.querySelector('.question-navigation').style.display = 'block';
-            }
-        }
-        
-        // Timer functions
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                elapsedTime++;
-                updateTimerDisplay();
-                
-                // End interview when time is up
-                if (elapsedTime >= totalTime) {
-                    endInterview();
-                }
-            }, 1000);
-        }
-        
-        function updateTimerDisplay() {
-            const remainingTime = totalTime - elapsedTime;
-            const minutes = Math.floor(remainingTime / 60);
-            const seconds = remainingTime % 60;
-            
-            const timeStr = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            document.getElementById('timerDisplay').textContent = timeStr;
-            document.getElementById('timerDisplayHeader').textContent = timeStr;
-            
-            const progressPercent = (elapsedTime / totalTime) * 100;
-            document.getElementById('progressFill').style.width = `${progressPercent}%`;
-            
-            // Change progress bar color based on time
-            if (progressPercent > 80) {
-                document.getElementById('progressFill').style.background = 'linear-gradient(90deg, #ff5252, #ff1744)';
-            } else if (progressPercent > 60) {
-                document.getElementById('progressFill').style.background = 'linear-gradient(90deg, #ff9800, #ff5722)';
-            }
-        }
-        
-        // Update progress displays - MODIFIED
-        function updateProgressDisplays() {
-            const pdsaQuestions = currentInterviewData?.pdsaQuestions?.questions || [];
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-            
-            // Calculate PDSA progress
-            const answeredPDSA = pdsaAnswers.filter(a => a !== null).length;
-            const pdsaPercent = pdsaQuestions.length > 0 ? Math.round((answeredPDSA / pdsaQuestions.length) * 100) : 0;
-            
-            // Calculate coding progress
-            const completedCoding = codingSubmissions.filter(s => s !== null && s.testResults).length;
-            const codingPercent = codingQuestions.length > 0 ? Math.round((completedCoding / codingQuestions.length) * 100) : 0;
-            
-            // Update combined progress section
-            document.getElementById('pdsaTime').textContent = `${answeredPDSA}/${pdsaQuestions.length} answered`;
-            document.getElementById('codingTime').textContent = `${completedCoding}/${codingQuestions.length} completed`;
-            
-            
-        }
-        
-        // Submit coding question
-        function submitCodingQuestion() {
-            // Only allow if PDSA is completed
-            if (!pdsaCompleted) {
-                alert('Please complete all PDSA questions first.');
-                return;
-            }
-            
-            const code = codeEditor.textContent;
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-            const question = codingQuestions[currentCodingQuestionIndex];
-            
-            // Check if code has been run
-            const submission = codingSubmissions[currentCodingQuestionIndex];
-            if (!submission || !submission.testResults) {
-                if (!confirm("You haven't run your code yet. Run it first to see test results, then submit?")) {
-                    return;
-                }
-                // Force a run first
-                runCodeWithPyodide();
-                setTimeout(() => {
-                    if (codingSubmissions[currentCodingQuestionIndex]?.testResults) {
-                        submitCodingQuestion();
-                    }
-                }, 2000);
-                return;
-            }
-            
-            // Store submission
-            codingSubmissions[currentCodingQuestionIndex] = {
-                ...submission,
-                code: code,
-                timestamp: new Date(),
-                submitted: true
-            };
-            
-            // Calculate score
-            const passedTests = submission.passedTests || 0;
-            const totalTests = submission.totalTests || 1;
-            const score = submission.score || 0;
-            const maxScore = question.maxScore || 10;
-            
-            // Show success message
-            addChatMessage(`Submitted solution for coding question ${currentCodingQuestionIndex + 1} - Score: ${score}/${maxScore} (${passedTests}/${totalTests} tests passed)`, 'user');
-            
-            // Update progress
-            updateProgressDisplays();
-            
-            // Check if all coding questions are done
-            const completed = codingSubmissions.filter(s => s !== null && s.submitted).length;
-            
-            if (completed === codingQuestions.length) {
-                addChatMessage("All coding questions submitted! Great job!", 'interviewer');
-            }
-            
-            showNotification(`Solution submitted! Score: ${score}/${maxScore} (${passedTests}/${totalTests} tests passed)`);
-        }
-        
-        function resetCode() {
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-            const question = codingQuestions[currentCodingQuestionIndex];
-            
-            if (question && question.starterCode) {
-                codeEditor.textContent = question.starterCode;
-            } else {
-                codeEditor.textContent = `def ${question.functionName || 'solution'}(...):
-    # Implement your solution here
-    pass`;
-            }
-            updateLineNumbers();
-        }
-        
-        function clearOutput() {
-            outputConsole.innerHTML = '<div class="output-placeholder">Click "Run Code" to see output here...</div>';
-        }
-        
-        function updateTestStatus(testResults) {
-            const testStatusElements = document.querySelectorAll('.test-status');
-            testResults.forEach((result, index) => {
-                if (index < testStatusElements.length) {
-                    testStatusElements[index].textContent = result.passed ? 'Passed' : 'Failed';
-                    testStatusElements[index].className = `test-status ${result.passed ? 'passed' : 'failed'}`;
-                }
-            });
-        }
-        
-        // Tab switching
-        function switchTab(tabName) {
-            // Only allow tab switching if PDSA is completed
-            if (!pdsaCompleted) {
-                alert('Please complete all PDSA questions first.');
-                return;
-            }
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            // Add active class to clicked tab
-            document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
-            document.getElementById(`${tabName}-tab`).classList.add('active');
-        }
-        
-        // Line numbers for editor
-        function updateLineNumbers() {
-            const lines = codeEditor.textContent.split('\n').length;
-            let lineNumbersHTML = '';
-            for (let i = 1; i <= lines; i++) {
-                lineNumbersHTML += `<span>${i}</span>`;
-            }
-            document.getElementById('lineNumbers').innerHTML = lineNumbersHTML;
-        }
-        
-        // Navigation functions
-        function prevCodingQuestion() {
-            // Only allow if PDSA is completed
-            if (!pdsaCompleted) {
-                alert('Please complete all PDSA questions first.');
-                return;
-            }
-            
-            if (currentCodingQuestionIndex > 0) {
-                loadCodingQuestion(currentCodingQuestionIndex - 1);
-            }
-        }
-        
-        function nextCodingQuestion() {
-            // Only allow if PDSA is completed
-            if (!pdsaCompleted) {
-                alert('Please complete all PDSA questions first.');
-                return;
-            }
-            
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-            
-            if (currentCodingQuestionIndex < codingQuestions.length - 1) {
-                loadCodingQuestion(currentCodingQuestionIndex + 1);
-            } else {
-                // Submit the interview
-                submitEntireInterview();
-            }
-        }
-        
-        // Submit entire interview function
-        async function submitEntireInterview() {
-            // Only allow if PDSA is completed
-            if (!pdsaCompleted) {
-                alert('Please complete all PDSA questions first.');
-                return;
-            }
-            
-            if (!confirm('Are you sure you want to submit the entire interview? This will end the session and send your answers for review.')) {
-                return;
-            }
-            
-            // Show loading state on submit button
-            const submitBtn = document.getElementById('submitInterviewBtn');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            submitBtn.disabled = true;
-            
-            try {
-                await endInterview();
-            } finally {
-                // Reset button state
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        }
-        
-        // Add chat message
-        function addChatMessage(content, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message msg-${sender}`;
-            
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            messageDiv.innerHTML = `
-                <div class="msg-sender">${sender === 'user' ? 'You' : 'Interviewer'}</div>
-                <div class="msg-content">${content}</div>
-                <div class="msg-time">${time}</div>
-            `;
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // ============ MODIFIED END INTERVIEW FUNCTION ============
-        async function endInterview() {
-            clearInterval(timerInterval);
-            
-            // Show modal with loading state
-            document.getElementById('completionModal').style.display = 'flex';
-            
-            // Reset modal sections
-            document.getElementById('submissionStatus').style.display = 'block';
-            document.getElementById('scoreSummary').style.display = 'none';
-            document.getElementById('reviewMessage').style.display = 'none';
-            document.getElementById('practiceSection').style.display = 'none';
-            document.getElementById('modalFooter').style.display = 'none';
-            
-            try {
-                // 1. Prepare interview submission data with REAL test results
-                const submissionData = prepareInterviewSubmission();
-                
-                // Update submission status message
-                document.getElementById('submissionStatus').innerHTML = `
-                    <h3><i class="fas fa-paper-plane"></i> Submitting Your Interview...</h3>
-                    <p>Please wait while we save your responses to our database.</p>
-                    <div class="loading-indicator" style="text-align: center; margin: 20px 0;">
-                        <i class="fas fa-spinner fa-spin fa-2x"></i>
-                    </div>
-                `;
-                
-                // 2. Submit to backend
-                console.log('📤 Submitting interview data to:', `${apiBaseUrl}/interview-submissions`);
-                console.log('📝 Submission data:', submissionData);
-                
-                const response = await fetch(`${apiBaseUrl}/interview-submissions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(submissionData)
-                });
-                
-                const result = await response.json();
-                console.log('📥 Submission response:', result);
-                
-                if (result.success) {
-                    // 3. Show success message with pending review status
-                    document.getElementById('submissionStatus').style.display = 'none';
-                    document.getElementById('scoreSummary').style.display = 'flex';
-                    document.getElementById('reviewMessage').style.display = 'block';
-                    document.getElementById('practiceSection').style.display = 'block';
-                    document.getElementById('modalFooter').style.display = 'flex';
-                    
-                    // Calculate overall coding score from test results
-                    const totalCodingScore = codingSubmissions.reduce((sum, s) => sum + (s?.score || 0), 0);
-                    const totalCodingMaxScore = codingSubmissions.reduce((sum, s) => sum + (s?.maxScore || 0), 0);
-                    const codingPercentage = totalCodingMaxScore > 0 ? Math.round((totalCodingScore / totalCodingMaxScore) * 100) : 0;
-                    
-                    // Update scores to show ACTUAL coding scores (from test execution)
-                    document.getElementById('overallScore').innerHTML = `
-                        <div style="text-align: center;">
-                            <div style="font-size: 48px; font-weight: bold; color: #ff9800;">Submitted!</div>
-                            <div style="font-size: 14px; color: #666; margin-top: 10px;">
-                                Coding: ${totalCodingScore}/${totalCodingMaxScore} (${codingPercentage}%)
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Show actual coding score (from Pyodide execution)
-                    document.getElementById('codingScore').textContent = `${codingPercentage}% (Auto-graded)`;
-                    document.getElementById('pdsaScore').textContent = "⏳ Pending Review";
-                    document.getElementById('communicationScore').textContent = "⏳ Pending Review";
-                    
-                
-                    
-                    // Update practice links
-                    const practiceLinks = document.getElementById('practiceLinks');
-                    if (currentInterviewData) {
-                        practiceLinks.innerHTML = `
-                            <a href="#" class="practice-link" onclick="practiceTopic('${currentInterviewData.topic}')">
-                                <i class="fas fa-book"></i> More ${currentInterviewData.topic} problems
-                            </a>
-                            <a href="#" class="practice-link" onclick="practiceType('${currentInterviewData.type}')">
-                                <i class="fas fa-microphone"></i> More ${currentInterviewData.type} questions
-                            </a>
-                        `;
-                    }
-                    
-                    // Add success notification
-                    setTimeout(() => {
-                        showNotification('✅ Interview submitted successfully! Coding results are auto-graded. PDSA answers pending review.');
-                    }, 1000);
-                    
-                } else {
-                    throw new Error(result.message || 'Submission failed');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error submitting interview:', error);
-                
-                // Show error state
-                document.getElementById('submissionStatus').innerHTML = `
-                    <h3><i class="fas fa-exclamation-triangle"></i> Submission Failed</h3>
-                    <p>Failed to submit your interview: ${error.message}</p>
-                    <p>Please try again or contact support if the problem persists.</p>
-                    <button class="btn" onclick="endInterview()" style="margin-top: 15px; background: #f44336; color: white;">
-                        <i class="fas fa-redo"></i> Try Again
+            <div class="q-display" id="qDisplay"></div>
+
+            <div class="ans-input-wrap" id="ansInputWrap">
+                <textarea id="ansTextarea" placeholder="Type your answer here…" rows="3"></textarea>
+                <div class="input-actions">
+                    <span class="input-hint"><i class="fas fa-keyboard"></i> Press Ctrl+Enter to submit</span>
+                    <button class="btn-submit-ans" id="btnSubmitAns" onclick="submitAnswer()">
+                        <i class="fas fa-paper-plane"></i> Submit Answer
                     </button>
-                `;
-            }
-        }
-        
-        // Function to prepare submission data with REAL test results
-        function prepareInterviewSubmission() {
-            const pdsaQuestions = currentInterviewData?.pdsaQuestions?.questions || [];
-            const codingQuestions = currentInterviewData?.codingQuestions?.questions || [];
-            
-            // Create questions array with user answers
-            const questions = [];
-            
-            // Add PDSA questions
-            pdsaQuestions.forEach((question, index) => {
-                const userAnswer = pdsaAnswers[index];
-                
-                questions.push({
-                    questionId: question.questionId || question._id,
-                    title: question.title,
-                    type: question.type || 'interview',
-                    userAnswer: userAnswer,
-                    correctAnswer: null, // Will be set by admin
-                    options: question.options || [],
-                    score: 0, // Will be set by admin
-                    maxScore: question.maxScore || 20,
-                    explanation: "Pending review by interviewer",
-                    timeTaken: Math.floor(Math.random() * 300) + 60
-                });
-            });
-            
-            // Add coding questions with ACTUAL test results from Pyodide
-            codingQuestions.forEach((question, index) => {
-                const submission = codingSubmissions[index] || {};
-                
-                questions.push({
-                    questionId: question.questionId || question._id,
-                    title: question.title,
-                    type: 'coding',
-                    userCode: submission.code || '',
-                    functionName: question.functionName,
-                    testResults: submission.testResults || [], // Real test results from Pyodide
-                    userAnswer: submission.code, // For consistency
-                    correctAnswer: null, // Will be set by admin
-                    score: submission.score || 0, // Actual score from test execution
-                    maxScore: submission.maxScore || question.maxScore || 15,
-                    explanation: submission.testResults ? 
-                        `Auto-graded: ${submission.passedTests || 0}/${submission.totalTests || 0} tests passed` : 
-                        "No test results available",
-                    timeTaken: Math.floor(Math.random() * 600) + 120
-                });
-            });
-            
-            // Calculate totals using ACTUAL coding scores
-            const codingTotalScore = codingSubmissions.reduce((sum, s) => sum + (s?.score || 0), 0);
-            const codingMaxScore = codingSubmissions.reduce((sum, s) => sum + (s?.maxScore || 0), 0);
-            const totalScore = codingTotalScore; // Only coding is auto-graded
-            const totalMaxScore = questions.reduce((sum, q) => sum + (q.maxScore || 0), 0);
-            const percentage = totalMaxScore > 0 ? Math.round((totalScore / totalMaxScore) * 100) : 0;
-            
-            return {
-                username: userData?.username || "anonymous",
-                email: userData?.email || "anonymous@example.com",
-                userid: userData?.userid || userData?.username || "anonymous",
-                topic: currentInterviewData?.topic || 'Unknown',
-                type: currentInterviewData?.type || 'interview',
-                score: totalScore,
-                maxScore: totalMaxScore,
-                percentage: percentage,
-                codingScore: codingTotalScore,
-                codingMaxScore: codingMaxScore,
-                mcqScore: 0, // Will be set by admin
-                mcqMaxScore: pdsaQuestions.reduce((sum, q) => sum + (q.maxScore || 0), 0),
-                timestamp: new Date(),
-                questions: questions,
-                feedback: "Coding questions auto-graded. PDSA answers pending interviewer review. You will receive detailed feedback within 24-48 hours.",
-                duration: Math.round(elapsedTime / 60)
-            };
-        }
-        
-        function closeModal() {
-            document.getElementById('completionModal').style.display = 'none';
-        }
-        
-        function reviewSession() {
-            alert('Review feature would show detailed analytics in a real application.');
-        }
-        
-        function practiceMore() {
-            const topic = currentInterviewData?.topic || 'algorithms';
-            window.location.href = `/practice?topic=${encodeURIComponent(topic)}`;
-        }
-        
-        function nextInterview() {
-            window.location.reload();
-        }
-        
-        function practiceTopic(topic) {
-            alert(`Redirecting to ${topic || 'interview'} practice problems...`);
-        }
-        
-        function practiceType(type) {
-            alert(`Redirecting to more ${type || 'interview'} questions...`);
-        }
-        
-        function reviewTopics() {
-            alert('Redirecting to interview performance tips...');
-        }
-        
-        function addCustomTest() {
-            alert('Custom test functionality would be implemented here.');
-        }
-        
-        // Utility functions
-        function showError(message) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
-            document.querySelector('.interview-container').prepend(errorDiv);
-        }
-        
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #4caf50;
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                z-index: 1000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                animation: slideIn 0.3s;
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 5000);
-        }
+                </div>
+            </div>
+        </main>
+    </div>
 
+    <!-- ════ CODING PHASE ════ -->
+    <div id="coding-phase">
 
+        <!-- Coding workspace -->
+        <div class="coding-workspace">
+            <!-- LEFT: Problem panel -->
+            <div class="prob-panel">
+                <div class="panel-tabs">
+                    <div class="ptab active" onclick="switchProbTab('problem', this)">
+                        <i class="fas fa-file-alt"></i> Problem
+                    </div>
+                    <div class="ptab" onclick="switchProbTab('tests', this)">
+                        <i class="fas fa-vial"></i> Test Cases
+                    </div>
+                </div>
 
-// Format code with proper indentation
-function formatCode() {
-    if (!codeMirrorEditor) return;
-    
-    const code = codeMirrorEditor.getValue();
-    const language = document.getElementById('languageSelect').value;
-    
-    // Basic formatting - reindent lines
-    const lines = code.split('\n');
-    let indentLevel = 0;
-    const formattedLines = [];
-    
-    lines.forEach(line => {
-        const trimmedLine = line.trim();
-        
-        // Decrease indent for closing braces/brackets
-        if (trimmedLine.startsWith('}') || trimmedLine.startsWith(')') || trimmedLine.startsWith(']')) {
-            indentLevel = Math.max(0, indentLevel - 1);
-        }
-        
-        // Add indentation
-        const indentation = '    '.repeat(indentLevel);
-        formattedLines.push(indentation + trimmedLine);
-        
-        // Increase indent for opening braces/brackets and colons (Python)
-        if (trimmedLine.endsWith('{') || 
-            trimmedLine.endsWith('(') || 
-            trimmedLine.endsWith('[') ||
-            (language === 'python' && trimmedLine.endsWith(':'))) {
-            indentLevel++;
-        }
+                <div class="panel-body" id="probTabContent">
+                    <!-- filled by JS -->
+                </div>
+            </div>
+
+            <!-- RIGHT: Editor panel -->
+            <div class="editor-panel">
+                <div class="editor-topbar">
+                    <select id="langSelect" onchange="updateLangMode()">
+                        <option value="python">Python 3</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="java">Java</option>
+                        <option value="cpp">C++</option>
+                    </select>
+                    <div class="editor-btns">
+                        <button class="ebtn run" id="btnRun" onclick="runCode()"><i class="fas fa-play"></i> Run</button>
+                        <button class="ebtn submit" onclick="submitCodingQ()"><i class="fas fa-check"></i> Submit</button>
+                        <button class="ebtn reset" onclick="resetEditor()"><i class="fas fa-undo"></i> Reset</button>
+                    </div>
+                </div>
+
+                <div class="editor-body">
+                    <div class="cm-wrap" id="cmWrap">
+                        <textarea id="codeEditor"></textarea>
+                    </div>
+
+                    <div class="output-pane">
+                        <div class="output-head">
+                            <h4><i class="fas fa-terminal"></i> Console Output</h4>
+                            <button class="btn-clear" onclick="clearOutput()">Clear</button>
+                        </div>
+                        <div class="output-scroll" id="outputScroll">
+                            <span class="out-placeholder">Run your code to see output here…</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coding footer -->
+        <footer class="coding-footer">
+            <div class="footer-steps" id="footerSteps"></div>
+            <div class="footer-actions">
+                <button class="btn-footer prev" id="btnPrev" onclick="prevQ()" disabled>
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="btn-footer next" id="btnNext" onclick="nextQ()">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn-footer submit-all" id="btnSubmitAll" style="display:none" onclick="submitAll()">
+                    <i class="fas fa-paper-plane"></i> Submit Interview
+                </button>
+            </div>
+        </footer>
+    </div>
+
+</div><!-- /workspace -->
+
+<!-- ═══ COMPLETION MODAL ═══ -->
+<div class="modal-bg" id="completionModal">
+    <div class="modal-box">
+        <div class="modal-box-head">
+            <div class="icon-wrap"><i class="fas fa-trophy"></i></div>
+            <div>
+                <h2>Interview Submitted!</h2>
+                <p>Your answers have been recorded successfully.</p>
+            </div>
+        </div>
+        <div class="modal-box-body">
+            <div class="status-msg">
+                <i class="fas fa-check-circle" style="font-size:20px;flex-shrink:0"></i>
+                Interview submitted. Coding scores are auto-graded; theoretical answers are pending interviewer review.
+            </div>
+            <div class="result-row">
+                <span class="rk">Theoretical Questions</span>
+                <span class="rv pending" id="mrTheory">⏳ Pending Review</span>
+            </div>
+            <div class="result-row">
+                <span class="rk">Coding Score</span>
+                <span class="rv auto" id="mrCoding">Calculating...</span>
+            </div>
+            <div class="result-row">
+                <span class="rk">Time Taken</span>
+                <span class="rv" id="mrTime">—</span>
+            </div>
+        </div>
+        <div class="modal-footer-btns">
+            <button class="mfb secondary" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
+            <button class="mfb primary" onclick="window.location.reload()"><i class="fas fa-redo"></i> New Session</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════════════
+let API = 'https://sanghamitra-learnworld.vercel.app/api';
+let interviewData = null;
+let userData = null;
+let pyodide = null;
+
+// Phase tracking
+let pdsaIdx = 0;        // current theory question index
+let pdsaDone = false;   // all theory questions answered
+let codingIdx = 0;      // current coding question index
+
+// Answers
+let pdsaAnswers   = [];
+let codingSubmits = [];
+
+// Timer
+let totalSec = 45 * 60;
+let elapsed  = 0;
+let timerInt = null;
+
+// CodeMirror
+let cm = null;
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    initCM();
+    boot();
+
+    document.getElementById('ansTextarea').addEventListener('keydown', e => {
+        if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); submitAnswer(); }
     });
-    
-    codeMirrorEditor.setValue(formattedLines.join('\n'));
+});
+
+async function boot() {
+    try {
+        await loadSession();
+        const params = new URLSearchParams(location.search);
+        const topic  = params.get('topic') || 'Python Basics';
+        const type   = params.get('type')  || 'interview';
+
+        document.getElementById('pageTitle').textContent   = topic + ' Mock Interview';
+        document.getElementById('topicDisplay').textContent = topic;
+
+        // Load questions
+        const r = await fetch(`${API}/interview?topic=${encodeURIComponent(topic)}&type=${type}&codingCount=2&pdsaCount=3`);
+        const d = await r.json();
+        if (!d.success) throw new Error('API returned failure');
+
+        interviewData  = d;
+        pdsaAnswers    = new Array(d.pdsaQuestions.questions.length).fill(null);
+        codingSubmits  = new Array(d.codingQuestions.questions.length).fill(null);
+
+        document.getElementById('totalQDisplay').textContent =
+            d.pdsaQuestions.questions.length + d.codingQuestions.questions.length;
+
+        buildSidebar();
+        renderTheoryQuestion();
+        startTimer();
+
+        // Init Pyodide in background
+        initPyodide();
+
+    } catch(err) {
+        console.error(err);
+        // Demo mode with fake data
+        loadDemoData();
+    }
 }
 
+async function loadSession() {
+    try {
+        const r = await fetch(`${API}/session-info`, { credentials: 'include' });
+        if (r.status === 401) return;
+        userData = await r.json();
+        const u = userData.username || 'U';
+        document.getElementById('userAvatar').textContent = u.charAt(0).toUpperCase();
+    } catch(e) {
+        // silent fail — demo
+    }
+}
 
-// Initialize CodeMirror editor with syntax highlighting and auto-indentation
-let codeMirrorEditor = null;
+function loadDemoData() {
+    interviewData = {
+        topic: 'Python Basics',
+        type: 'interview',
+        pdsaQuestions: { questions: [
+            { title: 'What is a list comprehension in Python?', description: 'Explain the syntax and when you would prefer it over a regular loop.', type: 'interview', maxScore: 10, questionId: 'q1' },
+            { title: 'Explain the difference between `is` and `==` in Python.', description: 'Give an example where they behave differently.', type: 'interview', maxScore: 10, questionId: 'q2' },
+            { title: 'What are Python decorators?', description: 'Describe a use case where you would use a decorator in production code.', type: 'mcq-single', options: ['A way to add metadata to functions', 'A wrapper that extends function behaviour without modifying it', 'A Python 3-only feature for async code', 'Syntactic sugar for multiple inheritance'], maxScore: 10, questionId: 'q3' }
+        ]},
+        codingQuestions: { questions: [
+            { title: 'Two Sum', difficulty: 'Easy', maxScore: 15, functionName: 'two_sum',
+              description: 'Given an array of integers <code>nums</code> and an integer <code>target</code>, return the indices of the two numbers that add up to <code>target</code>.',
+              starterCode: 'def two_sum(nums, target):\n    # Your solution here\n    pass',
+              testCases: [
+                { input: [[2,7,11,15], 9], expected: [0,1], description: 'Basic case' },
+                { input: [[3,2,4], 6], expected: [1,2], description: 'Answer at end' },
+                { input: [[3,3], 6], expected: [0,1], description: 'Duplicates' }
+              ], questionId: 'cq1' },
+            { title: 'Palindrome Check', difficulty: 'Easy', maxScore: 15, functionName: 'is_palindrome',
+              description: 'Given a string <code>s</code>, return <code>True</code> if it is a palindrome, or <code>False</code> otherwise. Consider only alphanumeric characters and ignore case.',
+              starterCode: 'def is_palindrome(s):\n    # Your solution here\n    pass',
+              testCases: [
+                { input: 'racecar', expected: true },
+                { input: 'hello',   expected: false },
+                { input: 'A man a plan a canal Panama', expected: true }
+              ], questionId: 'cq2' }
+        ]}
+    };
+    pdsaAnswers   = new Array(3).fill(null);
+    codingSubmits = new Array(2).fill(null);
+    document.getElementById('totalQDisplay').textContent = 5;
+    document.getElementById('pageTitle').textContent = 'Python Basics Mock Interview';
+    document.getElementById('topicDisplay').textContent = 'Python Basics';
 
-function initializeCodeMirror() {
-    const textarea = document.getElementById('codeEditor');
-    
-    codeMirrorEditor = CodeMirror.fromTextArea(textarea, {
-        mode: "python",
-        theme: "dracula",
+    buildSidebar();
+    renderTheoryQuestion();
+    startTimer();
+    initPyodide();
+}
+
+// ═══════════════════════════════════════════════
+// PYODIDE
+// ═══════════════════════════════════════════════
+async function initPyodide() {
+    try {
+        pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
+        document.getElementById('pyLoading').style.display = 'none';
+    } catch(e) {
+        document.getElementById('pyLoading').style.display = 'none';
+        console.warn('Pyodide failed to load:', e);
+    }
+}
+
+// ═══════════════════════════════════════════════
+// CODEMIRROR
+// ═══════════════════════════════════════════════
+function initCM() {
+    cm = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+        mode: 'python',
+        theme: 'dracula',
         lineNumbers: true,
         indentUnit: 4,
         tabSize: 4,
@@ -3305,185 +1228,732 @@ function initializeCodeMirror() {
         smartIndent: true,
         autoCloseBrackets: true,
         matchBrackets: true,
-        lineWrapping: true,
-        viewportMargin: Infinity,
+        lineWrapping: false,
         extraKeys: {
-            "Tab": function(cm) {
-                if (cm.somethingSelected()) {
-                    cm.indentSelection("add");
+            'Tab': cm => cm.somethingSelected() ? cm.indentSelection('add') : cm.replaceSelection('    '),
+            'Shift-Tab': cm => cm.indentSelection('subtract')
+        }
+    });
+    // Make cm fill its container
+    cm.setSize('100%', '100%');
+}
+
+function updateLangMode() {
+    const v = document.getElementById('langSelect').value;
+    const modes = { python:'python', javascript:'javascript', java:'text/x-java', cpp:'text/x-c++src' };
+    if (cm) cm.setOption('mode', modes[v] || 'python');
+}
+
+// ═══════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════
+function startTimer() {
+    timerInt = setInterval(() => {
+        elapsed++;
+        const rem  = Math.max(0, totalSec - elapsed);
+        const m    = String(Math.floor(rem / 60)).padStart(2,'0');
+        const s    = String(rem % 60).padStart(2,'0');
+        const str  = `${m}:${s}`;
+        document.getElementById('timerHdr').textContent  = str;
+        document.getElementById('timerBig').textContent  = str;
+        const pct = (elapsed / totalSec) * 100;
+        document.getElementById('timerBar').style.width = (100 - pct) + '%';
+        if (rem === 0) endInterview();
+    }, 1000);
+}
+
+// ═══════════════════════════════════════════════
+// SIDEBAR (theory)
+// ═══════════════════════════════════════════════
+function buildSidebar() {
+    const qs   = interviewData.pdsaQuestions.questions;
+    const wrap = document.getElementById('sidebarSteps');
+    wrap.innerHTML = '';
+    qs.forEach((q, i) => {
+        const cls = i === 0 ? 'active' : 'future';
+        const el  = document.createElement('div');
+        el.className = `q-step ${cls}`;
+        el.id = `side-${i}`;
+        el.innerHTML = `
+            <div class="step-num">${i + 1}</div>
+            <div class="step-info">
+                <div class="step-title">Question ${i + 1}</div>
+                <div class="step-status">${cls === 'active' ? 'In progress' : 'Not reached'}</div>
+            </div>`;
+        wrap.appendChild(el);
+    });
+}
+
+function updateSidebar() {
+    const qs = interviewData.pdsaQuestions.questions;
+    qs.forEach((_, i) => {
+        const el = document.getElementById(`side-${i}`);
+        if (!el) return;
+        let cls = 'future';
+        if (pdsaAnswers[i] !== null) cls = 'answered';
+        else if (i === pdsaIdx)      cls = 'active';
+        el.className = `q-step ${cls}`;
+        const statusEl = el.querySelector('.step-status');
+        if (cls === 'answered')  statusEl.textContent = '✓ Answered';
+        else if (cls === 'active') statusEl.textContent = 'In progress';
+        else statusEl.textContent = 'Not reached';
+    });
+}
+
+// ═══════════════════════════════════════════════
+// THEORY RENDERING
+// ═══════════════════════════════════════════════
+function renderTheoryQuestion() {
+    const qs = interviewData.pdsaQuestions.questions;
+    const q  = qs[pdsaIdx];
+
+    document.getElementById('theoryPhaseSub').textContent =
+        `Question ${pdsaIdx + 1} of ${qs.length}`;
+
+    const display = document.getElementById('qDisplay');
+    // Only show questions answered so far + current
+    display.innerHTML = '';
+
+    // Re-render all previous answered
+    for (let i = 0; i < pdsaIdx; i++) {
+        renderPastQ(i, display);
+    }
+    // Render current
+    renderCurrentQ(q, pdsaIdx, display);
+
+    display.scrollTop = display.scrollHeight;
+    updateSidebar();
+
+    // Handle input area
+    const isMCQ = q.type === 'mcq-single' || q.type === 'mcq-multiple';
+    document.getElementById('ansInputWrap').style.display = isMCQ ? 'none' : 'block';
+    document.getElementById('ansTextarea').value = '';
+    if (!isMCQ) setTimeout(() => document.getElementById('ansTextarea').focus(), 100);
+}
+
+function renderPastQ(i, container) {
+    const qs  = interviewData.pdsaQuestions.questions;
+    const q   = qs[i];
+    const ans = pdsaAnswers[i];
+
+    // Q bubble
+    const qb = document.createElement('div');
+    qb.className = 'q-bubble';
+    qb.innerHTML = `
+        <div class="bot-avatar"><i class="fas fa-robot" style="font-size:14px;color:#fff"></i></div>
+        <div class="bubble-body">
+            <div class="bubble-who">Interviewer</div>
+            <div class="bubble-card">
+                <div class="q-num">Question ${i + 1}</div>
+                <div class="q-text">${q.title}</div>
+                ${q.description ? `<div class="q-desc">${q.description}</div>` : ''}
+            </div>
+        </div>`;
+    container.appendChild(qb);
+
+    // Answer bubble
+    let ansText = '';
+    if (q.type === 'mcq-single' || q.type === 'mcq-multiple') {
+        ansText = `Selected: <strong>${String.fromCharCode(65 + ans)}. ${q.options[ans]}</strong>`;
+    } else {
+        ansText = ans;
+    }
+
+    const ab = document.createElement('div');
+    ab.className = 'ans-bubble';
+    ab.innerHTML = `
+        <div class="ans-inner">
+            <div class="ans-who">You</div>
+            <div class="ans-card">${ansText}</div>
+            <div><span class="ans-badge"><i class="fas fa-check"></i> Submitted</span></div>
+        </div>`;
+    container.appendChild(ab);
+}
+
+function renderCurrentQ(q, idx, container) {
+    const isMCQ = q.type === 'mcq-single' || q.type === 'mcq-multiple';
+
+    const qb = document.createElement('div');
+    qb.className = 'q-bubble';
+    qb.id = 'current-q-bubble';
+
+    let optionsHTML = '';
+    if (isMCQ) {
+        optionsHTML = `<div class="mcq-grid">` +
+            q.options.map((o, i) => `
+                <div class="mcq-opt" id="mcqopt-${i}" onclick="selectMCQ(${i})">
+                    <div class="opt-letter">${String.fromCharCode(65 + i)}</div>
+                    ${o}
+                </div>`).join('') +
+            `</div>
+            <div class="mcq-submit-bar" id="mcqSubmitBar" style="display:none">
+                <button class="btn-submit-ans" onclick="submitAnswer()">
+                    <i class="fas fa-paper-plane"></i> Confirm Selection
+                </button>
+            </div>`;
+    }
+
+    qb.innerHTML = `
+        <div class="bot-avatar"><i class="fas fa-robot" style="font-size:14px;color:#fff"></i></div>
+        <div class="bubble-body">
+            <div class="bubble-who">Interviewer</div>
+            <div class="bubble-card">
+                <div class="q-num">Question ${idx + 1} of ${interviewData.pdsaQuestions.questions.length}</div>
+                <div class="q-text">${q.title}</div>
+                ${q.description ? `<div class="q-desc">${q.description}</div>` : ''}
+                ${optionsHTML}
+            </div>
+        </div>`;
+    container.appendChild(qb);
+    container.scrollTop = container.scrollHeight;
+}
+
+let selectedMCQIdx = null;
+function selectMCQ(i) {
+    selectedMCQIdx = i;
+    document.querySelectorAll('.mcq-opt').forEach((el, j) => {
+        el.classList.toggle('selected', j === i);
+    });
+    const bar = document.getElementById('mcqSubmitBar');
+    if (bar) bar.style.display = 'flex';
+}
+
+function submitAnswer() {
+    const qs  = interviewData.pdsaQuestions.questions;
+    const q   = qs[pdsaIdx];
+    const isMCQ = q.type === 'mcq-single' || q.type === 'mcq-multiple';
+
+    if (isMCQ) {
+        if (selectedMCQIdx === null) { toast('Please select an option.', 'error'); return; }
+        pdsaAnswers[pdsaIdx] = selectedMCQIdx;
+        selectedMCQIdx = null;
+    } else {
+        const txt = document.getElementById('ansTextarea').value.trim();
+        if (!txt) { toast('Please enter your answer.', 'error'); return; }
+        pdsaAnswers[pdsaIdx] = txt;
+    }
+
+    // Advance
+    pdsaIdx++;
+
+    if (pdsaIdx >= qs.length) {
+        // All theory done — transition to coding
+        pdsaDone = true;
+        transitionToCoding();
+    } else {
+        renderTheoryQuestion();
+    }
+}
+
+// ═══════════════════════════════════════════════
+// TRANSITION TO CODING
+// ═══════════════════════════════════════════════
+function transitionToCoding() {
+    const tp = document.getElementById('theory-phase');
+    tp.classList.add('phase-fade-out');
+    setTimeout(() => {
+        tp.style.display = 'none';
+        const cp = document.getElementById('coding-phase');
+        cp.style.display = 'flex';
+        cp.style.flexDirection = 'column';
+        cp.classList.add('phase-fade-in');
+        buildFooterSteps();
+        loadCodingQuestion(0);
+        toast('Great! Now solve the coding questions.', 'info');
+    }, 300);
+}
+
+// ═══════════════════════════════════════════════
+// CODING QUESTIONS
+// ═══════════════════════════════════════════════
+function buildFooterSteps() {
+    const qs   = interviewData.codingQuestions.questions;
+    const wrap = document.getElementById('footerSteps');
+    wrap.innerHTML = '';
+    qs.forEach((q, i) => {
+        if (i > 0) {
+            const conn = document.createElement('div');
+            conn.className = 'footer-connector';
+            conn.id = `conn-${i}`;
+            wrap.appendChild(conn);
+        }
+        const step = document.createElement('div');
+        step.className = `footer-step ${i === 0 ? 'active' : ''}`;
+        step.id = `fstep-${i}`;
+        step.onclick = () => loadCodingQuestion(i);
+        step.innerHTML = `
+            <div class="fs-circle">${i + 1}</div>
+            <div class="fs-label">Coding ${i + 1}</div>`;
+        wrap.appendChild(step);
+    });
+}
+
+function updateFooterSteps() {
+    const qs = interviewData.codingQuestions.questions;
+    qs.forEach((_, i) => {
+        const el = document.getElementById(`fstep-${i}`);
+        if (!el) return;
+        let cls = 'footer-step';
+        if (codingSubmits[i] && codingSubmits[i].submitted) cls += ' done';
+        else if (i === codingIdx) cls += ' active';
+        el.className = cls;
+
+        const conn = document.getElementById(`conn-${i}`);
+        if (conn && codingSubmits[i-1]?.submitted) conn.classList.add('done');
+    });
+
+    // Nav buttons
+    const btnNext = document.getElementById('btnNext');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnAll  = document.getElementById('btnSubmitAll');
+
+    btnPrev.disabled = codingIdx === 0;
+
+    if (codingIdx === qs.length - 1) {
+        btnNext.style.display = 'none';
+        btnAll.style.display  = 'flex';
+    } else {
+        btnNext.style.display = 'flex';
+        btnAll.style.display  = 'none';
+    }
+}
+
+function loadCodingQuestion(idx) {
+    const qs = interviewData.codingQuestions.questions;
+    codingIdx = idx;
+    const q   = qs[idx];
+
+    // Load problem panel
+    renderProblemTab(q);
+    clearOutput();
+
+    // Load code
+    const code = codingSubmits[idx]?.code || q.starterCode ||
+        `def ${q.functionName || 'solution'}():\n    # Your solution here\n    pass`;
+    cm.setValue(code);
+    cm.setOption('mode', 'python');
+
+    updateFooterSteps();
+}
+
+function renderProblemTab(q) {
+    const body = document.getElementById('probTabContent');
+    body.innerHTML = `
+        <div class="prob-title">${q.title}</div>
+        <div class="prob-tags">
+            <span class="prob-tag tag-${(q.difficulty||'medium').toLowerCase()}">${q.difficulty || 'Medium'}</span>
+            <span class="prob-tag tag-pts">${q.maxScore || 10} pts</span>
+        </div>
+        <div class="section-head">Description</div>
+        <div class="prob-desc">${q.description || q.prompt || 'Solve the problem below.'}</div>
+        ${q.testCases && q.testCases.length ? `
+            <div class="section-head">Examples</div>
+            ${q.testCases.map((tc, i) => `
+                <div class="example-card">
+                    <div class="ex-label">Example ${i+1}</div>
+                    <div class="ex-row"><span class="ex-key">Input:</span><span class="ex-val">${JSON.stringify(tc.input)}</span></div>
+                    <div class="ex-row"><span class="ex-key">Expected:</span><span class="ex-val">${JSON.stringify(tc.expected)}</span></div>
+                    ${tc.description ? `<div class="ex-row"><span class="ex-key">Note:</span><span class="ex-val" style="font-family:var(--font);color:var(--text3)">${tc.description}</span></div>` : ''}
+                </div>`).join('')}
+        ` : ''}
+        <div class="section-head">Constraints</div>
+        <ul class="constraint-list">
+            <li>Time limit: ${q.timeLimit || 5} seconds</li>
+            <li>Memory limit: 256 MB</li>
+        </ul>
+        ${q.followUp ? `<div class="section-head">Follow-up</div><div class="prob-desc"><p>${q.followUp}</p></div>` : ''}`;
+}
+
+function renderTestsTab(q) {
+    const body = document.getElementById('probTabContent');
+    body.innerHTML = '';
+    (q.testCases || []).forEach((tc, i) => {
+        const sub = codingSubmits[codingIdx];
+        const res = sub?.testResults?.[i];
+        let statusCls = 'pending', statusTxt = 'Pending';
+        if (res) { statusCls = res.passed ? 'passed' : 'failed'; statusTxt = res.passed ? 'Passed' : 'Failed'; }
+
+        const card = document.createElement('div');
+        card.className = 'test-card';
+        card.id = `tc-${i}`;
+        card.innerHTML = `
+            <div class="test-card-head">
+                <span class="tc-name">Test Case ${i+1}</span>
+                <span class="tc-status ${statusCls}">${statusTxt}</span>
+            </div>
+            <div class="test-card-body">
+                <div class="tr"><span class="tk">Input:</span><span class="tv">${JSON.stringify(tc.input)}</span></div>
+                <div class="tr"><span class="tk">Expected:</span><span class="tv">${JSON.stringify(tc.expected)}</span></div>
+                ${res ? `<div class="tr"><span class="tk">Got:</span><span class="tv" style="color:${res.passed ? 'var(--green)' : 'var(--red)'}">${JSON.stringify(res.output)}</span></div>` : ''}
+                ${res?.error ? `<div class="tr"><span class="tk">Error:</span><span class="tv" style="color:var(--red)">${res.error}</span></div>` : ''}
+            </div>`;
+        body.appendChild(card);
+    });
+}
+
+function switchProbTab(tab, el) {
+    document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const q = interviewData.codingQuestions.questions[codingIdx];
+    if (tab === 'problem') renderProblemTab(q);
+    else renderTestsTab(q);
+}
+
+function prevQ() { if (codingIdx > 0) loadCodingQuestion(codingIdx - 1); }
+function nextQ() {
+    const qs = interviewData.codingQuestions.questions;
+    if (codingIdx < qs.length - 1) loadCodingQuestion(codingIdx + 1);
+}
+
+// ═══════════════════════════════════════════════
+// CODE EXECUTION (Pyodide)
+// ═══════════════════════════════════════════════
+async function runCode() {
+    const code = cm.getValue();
+    const lang = document.getElementById('langSelect').value;
+    const q    = interviewData.codingQuestions.questions[codingIdx];
+    const btn  = document.getElementById('btnRun');
+
+    clearOutput();
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-circle-notch spin"></i> Running…';
+
+    if (lang !== 'python') {
+        appendOut(`⚠ Only Python execution is supported in this environment.\n   Other languages will be available soon.`, 'warn');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-play"></i> Run';
+        return;
+    }
+
+    if (!pyodide) {
+        appendOut('⚠ Python runtime not ready. Please wait and try again.', 'warn');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-play"></i> Run';
+        return;
+    }
+
+    const tcs = q.testCases || [];
+    const fn  = q.functionName || 'solution';
+
+    try {
+        // Reset stdio
+        await pyodide.runPythonAsync(`
+import sys, io
+_stdout = io.StringIO()
+_stderr = io.StringIO()
+sys.stdout = _stdout
+sys.stderr = _stderr
+`);
+
+        // Run user code
+        try {
+            await pyodide.runPythonAsync(code);
+        } catch(defErr) {
+            const stderr = pyodide.runPython('sys.stderr.getvalue()');
+            const msg = formatPyError(defErr.message || '', stderr, code);
+            appendOut('── Syntax / Definition Error ──────────────────', 'sep');
+            msg.forEach(l => appendOut(l.text, l.cls));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Run';
+            return;
+        }
+
+        // Print stdout from user code
+        const stdout = pyodide.runPython('sys.stdout.getvalue()');
+        if (stdout.trim()) {
+            appendOut('── Program Output ──────────────────────────────', 'sep');
+            stdout.split('\n').forEach(l => { if (l !== undefined) appendOut(l, 'out-line'); });
+        }
+
+        // Run test cases
+        const results = [];
+        appendOut('── Test Results ────────────────────────────────', 'sep');
+
+        for (let i = 0; i < tcs.length; i++) {
+            const tc = tcs[i];
+            try {
+                // Reset stdout for each test
+                await pyodide.runPythonAsync(`_stdout.truncate(0); _stdout.seek(0)`);
+
+                // Build call
+                let call;
+                if (Array.isArray(tc.input)) {
+                    call = `${fn}(${tc.input.map(a => typeof a === 'string' ? `'${a.replace(/'/g,"\\'")}' ` : JSON.stringify(a)).join(', ')})`;
+                } else if (typeof tc.input === 'string') {
+                    call = `${fn}('${tc.input.replace(/'/g,"\\'")}')`;
                 } else {
-                    cm.replaceSelection("    ", "end");
+                    call = `${fn}(${JSON.stringify(tc.input)})`;
                 }
-            },
-            "Shift-Tab": function(cm) {
-                cm.indentSelection("subtract");
-            },
-            "Ctrl-/": "toggleComment",
-            "Cmd-/": "toggleComment",
-            "Ctrl-]": "indentMore",
-            "Ctrl-[": "indentLess"
+
+                const raw    = await pyodide.runPythonAsync(call);
+                const actual = pyToCJS(raw);
+                const passed = deepEqual(actual, tc.expected);
+
+                results.push({ testCase: i+1, input: tc.input, expected: tc.expected, output: actual, passed, error: null });
+                renderTestResult(i+1, tc, actual, null, passed);
+
+            } catch(tcErr) {
+                const errLines = formatPyError(tcErr.message || '', '', code);
+                results.push({ testCase: i+1, input: tc.input, expected: tc.expected, output: null, passed: false, error: tcErr.message });
+                renderTestResult(i+1, tc, null, errLines, false);
+            }
         }
+
+        // Summary
+        const passed  = results.filter(r => r.passed).length;
+        const maxSc   = q.maxScore || 10;
+        const score   = tcs.length ? Math.round((passed / tcs.length) * maxSc) : 0;
+        const pct     = tcs.length ? passed / tcs.length : 0;
+
+        appendOut('', 'sep');
+        const sumEl = document.createElement('div');
+        sumEl.className = 'run-summary';
+        sumEl.innerHTML = `
+            <span class="rs-label">Tests: <strong>${passed}/${tcs.length} passed</strong></span>
+            <span class="rs-val ${pct >= .8 ? 'good' : pct >= .5 ? 'avg' : 'bad'}">${score}/${maxSc} pts (${Math.round(pct*100)}%)</span>`;
+        document.getElementById('outputScroll').appendChild(sumEl);
+
+        // Store
+        if (!codingSubmits[codingIdx]) codingSubmits[codingIdx] = {};
+        Object.assign(codingSubmits[codingIdx], {
+            code, testResults: results, score, maxScore: maxSc,
+            passedTests: passed, totalTests: tcs.length
+        });
+
+        updateTestCardsStatus(results);
+
+    } catch(err) {
+        appendOut('── Unexpected Error ────────────────────────────', 'sep');
+        const lines = formatPyError(err.message || String(err), '', code);
+        lines.forEach(l => appendOut(l.text, l.cls));
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-play"></i> Run';
+}
+
+// Format Python traceback into line-by-line objects
+function formatPyError(msg, stderr, userCode) {
+    const combined = (stderr + '\n' + msg).trim();
+    const lines    = combined.split('\n').filter(l => l.trim());
+    const out      = [];
+
+    for (const line of lines) {
+        if (!line.trim()) continue;
+        // Classify
+        if (line.startsWith('Traceback')) {
+            out.push({ text: line, cls: 'info' });
+        } else if (line.trim().startsWith('File ')) {
+            out.push({ text: '  ' + line.trim(), cls: 'info' });
+        } else if (line.trim().startsWith('^') || line.trim().startsWith('~')) {
+            out.push({ text: '  ' + line.trim(), cls: 'warn' });
+        } else if (/^\s*(SyntaxError|TypeError|ValueError|NameError|AttributeError|IndexError|KeyError|ZeroDivisionError|RuntimeError|StopIteration|ImportError|ModuleNotFoundError|IndentationError|RecursionError)/.test(line)) {
+            out.push({ text: line, cls: 'err' });
+        } else if (line.trim().startsWith('During handling')) {
+            out.push({ text: line, cls: 'warn' });
+        } else {
+            out.push({ text: line, cls: 'out-line' });
+        }
+    }
+    return out.length ? out : [{ text: msg || 'Unknown error', cls: 'err' }];
+}
+
+function renderTestResult(num, tc, actual, errLines, passed) {
+    const scroll = document.getElementById('outputScroll');
+    const block  = document.createElement('div');
+    block.className = 'tr-block';
+
+    const head = document.createElement('div');
+    head.className = `tr-head ${passed ? 'pass' : 'fail'}`;
+    head.innerHTML = `${passed ? '✓' : '✗'} Test ${num}: ${passed ? 'Passed' : 'Failed'}`;
+    block.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'tr-body';
+
+    if (errLines) {
+        body.innerHTML = `<div class="tr-row"><span class="trk">Input:</span><span class="trv">${JSON.stringify(tc.input)}</span></div>`;
+        errLines.forEach(l => {
+            const row = document.createElement('div');
+            row.className = 'tr-row err-row';
+            row.innerHTML = `<span class="trk"></span><span class="trv">${escHtml(l.text)}</span>`;
+            body.appendChild(row);
+        });
+    } else {
+        body.innerHTML = `
+            <div class="tr-row"><span class="trk">Input:</span><span class="trv">${escHtml(JSON.stringify(tc.input))}</span></div>
+            <div class="tr-row"><span class="trk">Expected:</span><span class="trv">${escHtml(JSON.stringify(tc.expected))}</span></div>
+            <div class="tr-row" style="color:${passed ? 'var(--green)' : 'var(--red)'}"><span class="trk">Got:</span><span class="trv">${escHtml(JSON.stringify(actual))}</span></div>`;
+    }
+    block.appendChild(body);
+    scroll.appendChild(block);
+    scroll.scrollTop = scroll.scrollHeight;
+}
+
+function updateTestCardsStatus(results) {
+    results.forEach((r, i) => {
+        const card = document.getElementById(`tc-${i}`);
+        if (!card) return;
+        const st = card.querySelector('.tc-status');
+        if (!st) return;
+        st.className = `tc-status ${r.passed ? 'passed' : 'failed'}`;
+        st.textContent = r.passed ? 'Passed' : 'Failed';
+    });
+}
+
+function pyToCJS(val) {
+    if (val === null || val === undefined) return val;
+    if (typeof val === 'boolean' || typeof val === 'number' || typeof val === 'string') return val;
+    if (val && typeof val.toJs === 'function') {
+        const js = val.toJs();
+        if (js instanceof Map) return Object.fromEntries(js);
+        return js;
+    }
+    return val;
+}
+
+function deepEqual(a, b) {
+    if (a === b) return true;
+    if (Array.isArray(a) && Array.isArray(b)) {
+        if (a.length !== b.length) return false;
+        return a.every((v, i) => deepEqual(v, b[i]));
+    }
+    if (typeof a === 'boolean' && typeof b === 'boolean') return a === b;
+    if (typeof a === 'number'  && typeof b === 'number')  return a === b;
+    if (typeof a === 'string'  && typeof b === 'string')  return a === b;
+    // Compare stringified as fallback
+    try { return JSON.stringify(a) === JSON.stringify(b); } catch { return false; }
+}
+
+function appendOut(text, cls) {
+    const scroll = document.getElementById('outputScroll');
+    const el     = document.createElement('span');
+    el.className = `out-line ${cls || ''}`;
+    el.textContent = text;
+    scroll.appendChild(el);
+    const br = document.createElement('br');
+    scroll.appendChild(br);
+    scroll.scrollTop = scroll.scrollHeight;
+}
+
+function clearOutput() {
+    document.getElementById('outputScroll').innerHTML =
+        '<span class="out-placeholder">Run your code to see output here…</span>';
+}
+
+// ═══════════════════════════════════════════════
+// SUBMIT CODING QUESTION
+// ═══════════════════════════════════════════════
+function submitCodingQ() {
+    const sub = codingSubmits[codingIdx];
+    if (!sub || !sub.testResults) {
+        if (!confirm("You haven't run your code yet. Submit anyway?")) return;
+        codingSubmits[codingIdx] = { code: cm.getValue(), testResults: [], score: 0, maxScore: interviewData.codingQuestions.questions[codingIdx].maxScore || 10, passedTests: 0, totalTests: 0, submitted: true };
+    } else {
+        codingSubmits[codingIdx].code = cm.getValue();
+        codingSubmits[codingIdx].submitted = true;
+    }
+    updateFooterSteps();
+    toast(`Question ${codingIdx + 1} submitted! Score: ${codingSubmits[codingIdx].score}/${codingSubmits[codingIdx].maxScore}`, 'success');
+}
+
+function resetEditor() {
+    const q = interviewData.codingQuestions.questions[codingIdx];
+    const code = q.starterCode || `def ${q.functionName || 'solution'}():\n    # Your solution here\n    pass`;
+    cm.setValue(code);
+}
+
+// ═══════════════════════════════════════════════
+// SUBMIT ALL
+// ═══════════════════════════════════════════════
+async function submitAll() {
+    if (!confirm('Submit the entire interview? This will end your session.')) return;
+    await endInterview();
+}
+
+async function endInterview() {
+    clearInterval(timerInt);
+    document.getElementById('completionModal').style.display = 'flex';
+
+    const codingScore    = codingSubmits.reduce((s, c) => s + (c?.score    || 0), 0);
+    const codingMaxScore = codingSubmits.reduce((s, c) => s + (c?.maxScore || 0), 0);
+    const pct = codingMaxScore ? Math.round((codingScore / codingMaxScore) * 100) : 0;
+
+    document.getElementById('mrCoding').textContent = `${codingScore}/${codingMaxScore} (${pct}%)`;
+    document.getElementById('mrTime').textContent   = formatTime(elapsed);
+
+    // Submit to backend (best effort)
+    try {
+        const payload = buildPayload();
+        await fetch(`${API}/interview-submissions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+    } catch(e) { console.warn('Submission backend error:', e); }
+}
+
+function buildPayload() {
+    const qs   = interviewData.pdsaQuestions.questions;
+    const cqs  = interviewData.codingQuestions.questions;
+    const questions = [];
+
+    qs.forEach((q, i) => {
+        questions.push({
+            questionId: q.questionId, title: q.title, type: q.type,
+            userAnswer: pdsaAnswers[i], score: 0, maxScore: q.maxScore || 10
+        });
+    });
+    cqs.forEach((q, i) => {
+        const s = codingSubmits[i] || {};
+        questions.push({
+            questionId: q.questionId, title: q.title, type: 'coding',
+            userCode: s.code || '', testResults: s.testResults || [],
+            score: s.score || 0, maxScore: s.maxScore || q.maxScore || 15
+        });
     });
 
-    // Set initial height
-    codeMirrorEditor.setSize("100%", "400px");
-    
-    // Auto-resize based on content
-    codeMirrorEditor.on("change", function() {
-        const lineCount = codeMirrorEditor.lineCount();
-        const newHeight = Math.max(300, Math.min(600, lineCount * 20));
-        codeMirrorEditor.setSize("100%", newHeight + "px");
-    });
+    const cs  = codingSubmits.reduce((a, s) => a + (s?.score    || 0), 0);
+    const cms = codingSubmits.reduce((a, s) => a + (s?.maxScore || 0), 0);
 
-    // Add resize handle
-    addResizeHandle(codeMirrorEditor);
+    return {
+        username: userData?.username || 'anonymous',
+        email:    userData?.email    || 'anonymous@example.com',
+        userid:   userData?.userid   || 'anonymous',
+        topic: interviewData.topic, type: interviewData.type,
+        score: cs, maxScore: cms, percentage: cms ? Math.round((cs/cms)*100) : 0,
+        questions, duration: Math.round(elapsed / 60),
+        timestamp: new Date()
+    };
 }
 
+function closeModal() { document.getElementById('completionModal').style.display = 'none'; }
 
-
-
-// Add resize functionality
-function addResizeHandle(editor) {
-    const wrapper = editor.getWrapperElement();
-    
-    const resizeHandle = document.createElement('div');
-    resizeHandle.className = 'editor-resize-handle';
-    resizeHandle.style.cssText = `
-        height: 10px;
-        background: #2d2d2d;
-        cursor: ns-resize;
-        border-top: 1px solid #3e3e42;
-        border-bottom: 1px solid #3e3e42;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #858585;
-        font-size: 12px;
-    `;
-    resizeHandle.innerHTML = '⋮';
-    
-    wrapper.parentNode.insertBefore(resizeHandle, wrapper.nextSibling);
-    
-    let startY, startHeight;
-    
-    function dragStart(e) {
-        startY = e.clientY;
-        startHeight = wrapper.clientHeight;
-        document.addEventListener('mousemove', dragMove);
-        document.addEventListener('mouseup', dragEnd);
-        e.preventDefault();
-    }
-    
-    function dragMove(e) {
-        const newHeight = startHeight + (e.clientY - startY);
-        if (newHeight > 200) {
-            editor.setSize("100%", newHeight + "px");
-        }
-    }
-    
-    function dragEnd() {
-        document.removeEventListener('mousemove', dragMove);
-        document.removeEventListener('mouseup', dragEnd);
-    }
-    
-    resizeHandle.addEventListener('mousedown', dragStart);
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function formatTime(sec) {
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return `${m}m ${s}s`;
 }
 
-// Update language mode in CodeMirror
-function updateLanguageMode() {
-    const language = document.getElementById('languageSelect').value;
-    let mode;
-    
-    switch(language) {
-        case 'python':
-            mode = 'python';
-            break;
-        case 'javascript':
-            mode = 'javascript';
-            break;
-        case 'java':
-            mode = 'text/x-java';
-            break;
-        case 'cpp':
-            mode = 'text/x-c++src';
-            break;
-        default:
-            mode = 'python';
-    }
-    
-    if (codeMirrorEditor) {
-        codeMirrorEditor.setOption('mode', mode);
-    }
+function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// Get code from CodeMirror
-function getCodeFromEditor() {
-    return codeMirrorEditor ? codeMirrorEditor.getValue() : '';
-}
+let toastTimer = null;
+function toast(msg, type = 'info') {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
 
-// Set code in CodeMirror
-function setCodeInEditor(code) {
-    if (codeMirrorEditor) {
-        codeMirrorEditor.setValue(code);
-    }
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    const icons = { success: 'fas fa-check-circle', error: 'fas fa-times-circle', info: 'fas fa-info-circle' };
+    el.innerHTML = `<i class="${icons[type] || icons.info} ti"></i> ${msg}`;
+    document.body.appendChild(el);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { if (el.parentNode) el.remove(); }, 4000);
 }
-        
-        // Initialize when page loads
-        // Initialize when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    initializeInterview();
-    initializeCodeMirror(); // Add this line
-    updateLineNumbers(); // Remove this if you keep it
-    
-    // Add language change listener
-    document.getElementById('languageSelect').addEventListener('change', updateLanguageMode);
-    
-    // Add CSS animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        .CodeMirror {
-            height: auto;
-            min-height: 300px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .CodeMirror pre {
-            padding: 0 10px;
-        }
-        .editor-resize-handle {
-            user-select: none;
-            transition: background 0.2s;
-        }
-        .editor-resize-handle:hover {
-            background: #3e3e42 !important;
-        }
-        .test-result {
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            background: #2d2d2d;
-            border-left: 4px solid;
-            animation: fadeIn 0.3s;
-        }
-        .test-result.passed {
-            border-left-color: #4caf50;
-        }
-        .test-result.failed {
-            border-left-color: #f44336;
-        }
-    `;
-    document.head.appendChild(style);
-});
-
-    </script>
+</script>
 </body>
 </html>
