@@ -33,6 +33,32 @@
             background-color: #6b7280;
             color: white;
         }
+        .explanation-box {
+            background-color: #f3f4f6;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        .toggle-explanation {
+            cursor: pointer;
+            color: #3b82f6;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        .toggle-explanation:hover {
+            color: #1d4ed8;
+        }
+        .explanation-content {
+            display: none;
+            margin-top: 12px;
+        }
+        .explanation-content.show {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -236,6 +262,7 @@
                                              (q.userAnswer ? [q.userAnswer.toString()] : ['No answer provided']),
                                 correctAnswers: Array.isArray(q.correctAnswer) ? q.correctAnswer : 
                                                (q.correctAnswer ? [q.correctAnswer.toString()] : ['']),
+                                explanation: q.explanation || q.explanationText || 'No explanation available for this question.',
                                 isCorrect: q.isCorrect || false,
                                 marksAwarded: q.isCorrect ? 1 : 0
                             }))
@@ -393,6 +420,19 @@
             `;
         }
 
+        function toggleExplanation(questionId) {
+            const explanationDiv = document.getElementById(`explanation-${questionId}`);
+            const toggleText = document.getElementById(`toggle-text-${questionId}`);
+            
+            if (explanationDiv.classList.contains('show')) {
+                explanationDiv.classList.remove('show');
+                toggleText.textContent = 'Show Explanation';
+            } else {
+                explanationDiv.classList.add('show');
+                toggleText.textContent = 'Hide Explanation';
+            }
+        }
+
         function displayDetailedReview(weekData) {
             const detailedReview = document.getElementById('detailedReview');
             
@@ -413,10 +453,14 @@
             weekData.responses.forEach((response, index) => {
                 const isCorrect = response.isCorrect;
                 const cardClass = isCorrect ? 'correct-answer' : 'incorrect-answer';
+                const questionId = `q-${index}-${Date.now()}`;
                 
                 // Ensure arrays exist
                 const userResponses = Array.isArray(response.userResponse) ? response.userResponse : [response.userResponse || ''];
                 const correctAnswers = Array.isArray(response.correctAnswers) ? response.correctAnswers : [response.correctAnswers || ''];
+                
+                // Get explanation (with fallback)
+                const explanation = response.explanation || 'No explanation available for this question.';
                 
                 html += `
                     <div class="${cardClass} rounded-lg p-6 mb-6">
@@ -452,6 +496,19 @@
                             
                             <div class="text-sm text-gray-600">
                                 Marks Awarded: <span class="font-semibold">${response.marksAwarded}</span>
+                            </div>
+
+                            <!-- Explanation Section -->
+                            <div class="mt-4">
+                                <div class="toggle-explanation" onclick="toggleExplanation('${questionId}')">
+                                    <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span id="toggle-text-${questionId}">Show Explanation</span>
+                                </div>
+                                <div id="explanation-${questionId}" class="explanation-content explanation-box">
+                                    <p class="text-gray-700">${explanation}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
