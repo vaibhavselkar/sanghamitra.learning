@@ -850,7 +850,7 @@
 
         async function fetchSessionInfo() {
             try {
-                const response = await fetch('http://localhost:4000/api/session-info', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                     credentials: 'include'
                 });
                 if (response.ok) {
@@ -882,7 +882,7 @@
         async function loadQuestions() {
             try {
                 // TEMPORARY: Using Week 2 data until Quiz 1 Midterm is added
-                let url = 'http://localhost:4000/api/iitm-ct-questions?topic=Quiz1_Midterm';
+                let url = 'https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=Quiz1_Midterm';
                 let response = await fetch(url);
                 
                 if (!response.ok) {
@@ -1230,7 +1230,7 @@
                 submitBtn.textContent = 'Submitting...';
 
                 console.log('Sending POST request...');
-                const response = await fetch('http://localhost:4000/api/iitm_ct_scores', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1279,7 +1279,7 @@
                 
                 console.log('Retrying with attempt number:', payload.attempt_number);
                 
-                const response = await fetch('http://localhost:4000/api/iitm_ct_scores', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
