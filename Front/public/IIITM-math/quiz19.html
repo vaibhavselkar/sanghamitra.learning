@@ -6,19 +6,7 @@
     <title>Sequence Quiz</title>
     
     <!-- MathJax for LaTeX rendering -->
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true,
-                processEnvironments: true
-            },
-            options: {
-                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-            }
-        };
-    </script>
+    
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
    
     <style>
@@ -1578,22 +1566,12 @@
             
             // Process question text for LaTeX
             let questionText = question.question_text || 'Question text not available';
-            
-            // Check if question text contains LaTeX or math expressions
-            if (questionText.includes('$') || questionText.includes('\\') || 
-                questionText.includes('sqrt') || questionText.includes('^') ||
-                questionText.includes('_')) {
-                questionText = answerFormatter.formatForMathJax(questionText);
-            }
+          
             
             if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
                 optionsHtml = question.options.map((option, optIndex) => {
-                    // Format option text for display
-                    let optionText = option;
-                    if (option.includes('inf') || option.includes('sqrt') || option.includes('^') ||
-                        option.includes('_')) {
-                        optionText = answerFormatter.formatForMathJax(option);
-                    }
+                    // REMOVE LaTeX conversion - use option text as-is
+                    let optionText = option; // No conversion
                     
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
@@ -1603,8 +1581,8 @@
                         </div>
                     `;
                 }).join('');
-            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
+            }else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+                            optionsHtml = question.options.map((option, optIndex) => {
                     let optionText = option;
                     if (option.includes('inf') || option.includes('sqrt') || option.includes('^') ||
                         option.includes('_')) {
@@ -1691,11 +1669,7 @@
             `;
 
             container.appendChild(questionDiv);
-            
-            // Process MathJax for question text
-            if (window.MathJax) {
-                MathJax.typesetPromise([questionDiv]).catch(err => console.log('MathJax error:', err));
-            }
+           
             
             restoreAnswer();
             updateAnswerStatus();
@@ -1898,12 +1872,12 @@
             
             if (!previewData) return;
             
-            // Update formatted view with LaTeX for display
+            // Update formatted view with plain text
             const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
             if (formattedEl) {
-                formattedEl.innerHTML = previewData.latex;
+                formattedEl.textContent = answer; // Show plain text, not HTML/LaTeX
             }
-            
+                        
             // Update hint section
             const hintEl = document.getElementById(`previewHint-${questionIndex}`);
             let hint = '';
@@ -1924,11 +1898,7 @@
             }
 
             hintEl.textContent = hint;
-            
-            // Process MathJax for formatted preview
-            if (window.MathJax) {
-                MathJax.typesetPromise([formattedEl]).catch(err => console.log('MathJax error:', err));
-            }
+          
             
             // Show warning for invalid characters
             if (warning) {
