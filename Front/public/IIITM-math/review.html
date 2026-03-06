@@ -192,7 +192,14 @@
                 .map(r => r.questionId || (r.questionNumber ? r.questionNumber.toString() : ''))
                 .filter(Boolean);
 
-            if (ids.length === 0) return responses;
+            console.log('=== EXPLANATION DEBUG ===');
+            console.log('Total responses:', responses.length);
+            console.log('Question IDs found:', ids.length, ids);
+
+            if (ids.length === 0) {
+                console.log('NO IDs to look up — check questionId is saved in quiz results');
+                return responses;
+            }
 
             try {
                 setLoadingText('Fetching explanations...');
@@ -203,8 +210,16 @@
                     body: JSON.stringify({ questionIds: ids })
                 });
 
-                if (!res.ok) return responses;
+                console.log('API response status:', res.status);
+
+                if (!res.ok) {
+                    console.log('API call failed with status:', res.status);
+                    return responses;
+                }
                 const data = await res.json();
+                console.log('API response data:', data);
+                console.log('explanationMap keys:', data.explanationMap ? Object.keys(data.explanationMap).length : 'NONE');
+
                 if (!data.success || !data.explanationMap) return responses;
 
                 const map = data.explanationMap;
@@ -212,6 +227,7 @@
                 return responses.map(r => {
                     const key = r.questionId || (r.questionNumber ? r.questionNumber.toString() : '');
                     const info = map[key] || {};
+                    console.log(`Q key="${key}" → explanation="${info.explanation ? info.explanation.substring(0,40)+'...' : 'NOT FOUND'}"`);
                     return {
                         ...r,
                         explanation: r.explanation || info.explanation || '',
