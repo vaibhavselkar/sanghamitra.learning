@@ -2762,6 +2762,51 @@ router.post('/iitmmath_scores', async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────────────────────────
+// ADD THIS ROUTE to your existing router file
+// It fetches explanation, difficulty, points from the questions
+// collection so the review page can show them for ALL past quizzes
+// ─────────────────────────────────────────────────────────────
+
+router.post('/get-question-explanations', async (req, res) => {
+  try {
+    const { questionIds } = req.body;
+
+    if (!questionIds || !Array.isArray(questionIds) || questionIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'questionIds array is required' });
+    }
+
+    // Query by _id (ObjectId) OR by question_number stored as string
+    const questions = await IITMathQuestion.find({
+      $or: [
+        { _id: { $in: questionIds } },
+        { question_number: { $in: questionIds.map(id => parseInt(id)).filter(n => !isNaN(n)) } }
+      ]
+    }).select('_id question_number explanation difficulty points');
+
+    // Build a lookup map: questionId -> { explanation, difficulty, points }
+    const explanationMap = {};
+    questions.forEach(q => {
+      const data = {
+        explanation: q.explanation || '',
+        difficulty:  q.difficulty  || '',
+        points:      q.points      || 1
+      };
+      // Map by both _id string and question_number so frontend can match either
+      explanationMap[q._id.toString()] = data;
+      if (q.question_number) {
+        explanationMap[q.question_number.toString()] = data;
+      }
+    });
+
+    res.json({ success: true, explanationMap });
+
+  } catch (error) {
+    console.error('Error fetching explanations:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 
 // Maths2
 
@@ -3611,6 +3656,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
