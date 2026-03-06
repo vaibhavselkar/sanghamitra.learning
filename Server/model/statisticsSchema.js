@@ -2,16 +2,16 @@ const mongoose = require('mongoose');
 
 // Individual Question Result Schema
 const questionResultSchema = new mongoose.Schema({
-  questionId: { type: String, required: false }, // Changed to String like Math
-  questionNumber: { type: Number, required: false },
-  questionText: { type: String, required: false },
-  userAnswer: { type: String, required: false }, // Changed to String like Math
-  correctAnswer: { type: String, required: false }, // Changed to String like Math
-  isCorrect: { type: Boolean, required: false },
-  timeTaken: { type: Number, default: 0 },
-  explanation: q.explanation,         // ✅ save at submit time
-  difficulty: q.difficulty,           // ✅ save at submit time
-  points: q.points || 1 
+  questionId:     { type: String,  required: false },
+  questionNumber: { type: Number,  required: false },
+  questionText:   { type: String,  required: false },
+  userAnswer:     { type: String,  required: false },
+  correctAnswer:  { type: String,  required: false },
+  isCorrect:      { type: Boolean, required: false },
+  timeTaken:      { type: Number,  default: 0 },
+  explanation:    { type: String,  default: '' },   
+  difficulty:     { type: String,  default: '' },   
+  points:         { type: Number,  default: 1 }     
 }, { _id: false });
 
 // Topic Score Schema
@@ -37,3 +37,4 @@ const userSchema = new mongoose.Schema({
 // Export using the specific collection name
 
 module.exports = mongoose.model('Statistics_scores', userSchema, 'statistics_scores');
+
