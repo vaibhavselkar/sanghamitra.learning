@@ -2763,9 +2763,9 @@ router.post('/iitmmath_scores', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// ADD THIS ROUTE to your existing router file
-// It fetches explanation, difficulty, points from the questions
-// collection so the review page can show them for ALL past quizzes
+// REPLACE your existing /get-question-explanations route
+// with this fixed version that properly converts string IDs
+// to MongoDB ObjectIds
 // ─────────────────────────────────────────────────────────────
 
 router.post('/get-question-explanations', async (req, res) => {
@@ -2776,15 +2776,36 @@ router.post('/get-question-explanations', async (req, res) => {
       return res.status(400).json({ success: false, message: 'questionIds array is required' });
     }
 
-    // Query by _id (ObjectId) OR by question_number stored as string
+    console.log('Fetching explanations for questionIds:', questionIds);
+
+    // Convert string IDs to MongoDB ObjectIds safely
+    const objectIds = questionIds
+      .map(id => {
+        try {
+          return new mongoose.Types.ObjectId(id);
+        } catch (e) {
+          return null;
+        }
+      })
+      .filter(Boolean);
+
+    // Also try matching by question_number as fallback
+    const questionNumbers = questionIds
+      .map(id => parseInt(id))
+      .filter(n => !isNaN(n));
+
+    console.log(`Converted to ${objectIds.length} ObjectIds, ${questionNumbers.length} question numbers`);
+
     const questions = await IITMathQuestion.find({
       $or: [
-        { _id: { $in: questionIds } },
-        { question_number: { $in: questionIds.map(id => parseInt(id)).filter(n => !isNaN(n)) } }
+        ...(objectIds.length > 0   ? [{ _id: { $in: objectIds } }] : []),
+        ...(questionNumbers.length > 0 ? [{ question_number: { $in: questionNumbers } }] : [])
       ]
     }).select('_id question_number explanation difficulty points');
 
-    // Build a lookup map: questionId -> { explanation, difficulty, points }
+    console.log(`Found ${questions.length} questions with explanations`);
+
+    // Build lookup map: questionId string -> { explanation, difficulty, points }
     const explanationMap = {};
     questions.forEach(q => {
       const data = {
@@ -2792,12 +2813,15 @@ router.post('/get-question-explanations', async (req, res) => {
         difficulty:  q.difficulty  || '',
         points:      q.points      || 1
       };
-      // Map by both _id string and question_number so frontend can match either
+      // Map by _id string so frontend can match by questionId
       explanationMap[q._id.toString()] = data;
+      // Also map by question_number as fallback
       if (q.question_number) {
         explanationMap[q.question_number.toString()] = data;
       }
     });
+
+    console.log(`Returning explanationMap with ${Object.keys(explanationMap).length} entries`);
 
     res.json({ success: true, explanationMap });
 
@@ -3656,6 +3680,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
