@@ -8,7 +8,10 @@ const questionResultSchema = new mongoose.Schema({
   userAnswer: { type: String, required: false }, // Changed to String like Math
   correctAnswer: { type: String, required: false }, // Changed to String like Math
   isCorrect: { type: Boolean, required: false },
-  timeTaken: { type: Number, default: 0 } // in seconds
+  timeTaken: { type: Number, default: 0 },
+  explanation: q.explanation,         // ✅ save at submit time
+  difficulty: q.difficulty,           // ✅ save at submit time
+  points: q.points || 1 
 }, { _id: false });
 
 // Topic Score Schema
@@ -32,4 +35,5 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Export using the specific collection name
+
 module.exports = mongoose.model('Statistics_scores', userSchema, 'statistics_scores');
