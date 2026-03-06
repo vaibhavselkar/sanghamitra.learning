@@ -5,20 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Limit Quiz</title>
     
-    <!-- MathJax for LaTeX rendering -->
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true,
-                processEnvironments: true
-            },
-            options: {
-                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-            }
-        };
-    </script>
+   
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
    
     <style>
@@ -1537,19 +1524,12 @@
             
             let questionText = question.question_text || 'Question text not available';
             
-            if (questionText.includes('$') || questionText.includes('\\') || 
-                questionText.includes('sqrt') || questionText.includes('^') ||
-                questionText.includes('_')) {
-                questionText = answerFormatter.formatForMathJax(questionText);
             }
             
             if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
                 optionsHtml = question.options.map((option, optIndex) => {
-                    let optionText = option;
-                    if (option.includes('inf') || option.includes('sqrt') || option.includes('^') ||
-                        option.includes('_')) {
-                        optionText = answerFormatter.formatForMathJax(option);
-                    }
+                    // REMOVE LaTeX conversion - use option text as-is
+                    let optionText = option; // No conversion
                     
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
@@ -1646,10 +1626,6 @@
             `;
 
             container.appendChild(questionDiv);
-            
-            if (window.MathJax) {
-                MathJax.typesetPromise([questionDiv]).catch(err => console.log('MathJax error:', err));
-            }
             
             restoreAnswer();
             updateAnswerStatus();
@@ -1872,9 +1848,6 @@
 
             hintEl.textContent = hint;
             
-            if (window.MathJax) {
-                MathJax.typesetPromise([formattedEl]).catch(err => console.log('MathJax error:', err));
-            }
             
             if (warning) {
                 const invalidChars = answer.match(/[^0-9a-zA-Z\s.,+\-*/^(){}_|≠≤≥=≠∞√πθ\-\/\\\[\]\$\{\}\|]/);
