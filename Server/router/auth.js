@@ -2575,6 +2575,42 @@ router.get('/statistics-topics', async (req, res) => {
   }
 });
 
+router.post('/get-stats-question-explanations', async (req, res) => {
+  try {
+    const { questionIds } = req.body;
+
+    if (!questionIds || !Array.isArray(questionIds) || questionIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'questionIds array is required' });
+    }
+
+    const questions = await Statistics_questions.find({
+      $or: [
+        { _id: { $in: questionIds } },
+        { question_number: { $in: questionIds.map(id => parseInt(id)).filter(n => !isNaN(n)) } }
+      ]
+    }).select('_id question_number explanation difficulty points');
+
+    const explanationMap = {};
+    questions.forEach(q => {
+      const data = {
+        explanation: q.explanation || '',
+        difficulty:  q.difficulty  || '',
+        points:      q.points      || 1
+      };
+      explanationMap[q._id.toString()] = data;
+      if (q.question_number) {
+        explanationMap[q.question_number.toString()] = data;
+      }
+    });
+
+    res.json({ success: true, explanationMap });
+
+  } catch (error) {
+    console.error('Error fetching stats explanations:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // NEW: Missing cheating log endpoint
 router.post('/log-cheating', async (req, res) => {
   try {
@@ -3680,6 +3716,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
