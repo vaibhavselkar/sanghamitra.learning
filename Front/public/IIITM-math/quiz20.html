@@ -1524,7 +1524,6 @@
             
             let questionText = question.question_text || 'Question text not available';
             
-            }
             
             if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
                 optionsHtml = question.options.map((option, optIndex) => {
@@ -1541,11 +1540,8 @@
                 }).join('');
             } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
                 optionsHtml = question.options.map((option, optIndex) => {
-                    let optionText = option;
-                    if (option.includes('inf') || option.includes('sqrt') || option.includes('^') ||
-                        option.includes('_')) {
-                        optionText = answerFormatter.formatForMathJax(option);
-                    }
+                    // REMOVE LaTeX conversion - use option text as-is
+                    let optionText = option; // No conversion
                     
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
@@ -1824,10 +1820,10 @@
             if (!previewData) return;
             
             const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
-            if (formattedEl) {
-                formattedEl.innerHTML = previewData.latex;
-            }
-            
+                if (formattedEl) {
+                    formattedEl.textContent = answer; // Show plain text, not HTML/LaTeX
+                }
+                            
             const hintEl = document.getElementById(`previewHint-${questionIndex}`);
             let hint = '';
 
