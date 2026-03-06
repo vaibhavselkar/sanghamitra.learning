@@ -249,9 +249,12 @@
             if (isNaN(i) || !sortedTests[i]) return;
 
             showLoading(true, 'Loading question details...');
-            const test = sortedTests[i];
 
-            // Enrich responses with live explanations from questions DB
+            // Deep copy so we NEVER mutate the original sortedTests entry.
+            // This prevents one quiz's explanations from leaking into another.
+            const test = JSON.parse(JSON.stringify(sortedTests[i]));
+
+            // Fetch explanations fresh from DB for THIS quiz's question IDs only
             test.responses = await enrichWithExplanations(test.responses);
 
             showLoading(false);
