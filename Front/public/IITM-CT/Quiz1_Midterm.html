@@ -881,9 +881,9 @@
 
         async function loadQuestions() {
             try {
-                // TEMPORARY: Using Week 2 data until Quiz 1 Midterm is added
+                
                 const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions/Quiz1_Midterm?email=${encodeURIComponent(userEmail)}&count=50`;
-                let response = await fetch(url);
+                const response = await fetch(url);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
