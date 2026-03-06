@@ -9,7 +9,10 @@ const questionResultSchema = new mongoose.Schema({
   userAnswer: { type: String, required: false },
   correctAnswer: { type: String, required: false },
   isCorrect: { type: Boolean, required: false },
-  timeTaken: { type: Number, default: 0 } // in seconds
+  timeTaken: { type: Number, default: 0 }, // in seconds
+  explanation: { type: String, default: '' },
+  difficulty: { type: String, default: '' },
+  points: { type: Number, default: 1 }
 });
 
 // Topic Score Schema
@@ -35,5 +38,6 @@ const userSchema = new mongoose.Schema({
 
 // Export using the same model name
 module.exports = mongoose.model('iitm_math_scores', userSchema);;
+
 
 
