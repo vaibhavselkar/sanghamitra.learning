@@ -3,12 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Midterm - Mathematics - II</title>
+    <title>Quiz 1 Midterm</title>
 
-    <!-- Add KaTeX CSS and JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <!-- Add this in the <head> section of Quiz 1 Midterm, right after the title -->
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -232,7 +244,6 @@
             line-height: 1.6;
             color: #333;
             margin-bottom: 30px;
-            white-space: pre-line;
             flex-grow: 1;
         }
 
@@ -448,6 +459,239 @@
             font-weight: 600;
             margin-top: 15px;
         }
+
+        /* Add these CSS styles to Quiz 1 Midterm */
+.info-bubble {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 350px;
+    max-width: 90vw;
+    z-index: 10001;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    display: none;
+}
+
+.info-bubble.expanded {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+.info-bubble.collapsed {
+    display: none;
+}
+
+.info-bubble h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-bubble h3 .info-icon {
+    font-size: 1.5em;
+}
+
+.info-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.info-content ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.info-content li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.info-content code {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.info-content .math-example {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0;
+    font-family: monospace;
+}
+
+.info-bubble-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.info-bubble-close:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.help-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.help-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.help-button .help-icon {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Answer Preview Box */
+.answer-preview {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    display: none;
+}
+
+.answer-preview.visible {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.answer-preview h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.answer-preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.preview-label {
+    font-weight: 600;
+    color: #666;
+    min-width: 120px;
+    font-size: 14px;
+}
+
+.preview-value {
+    flex: 1;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    font-family: 'Courier New', monospace;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.preview-value.math {
+    font-family: inherit;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.preview-hint {
+    font-size: 12px;
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Warning for invalid input */
+.input-warning {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+.input-warning.visible {
+    display: block;
+}
+
+/* Better alignment for preview values */
+.preview-value.math {
+    font-family: inherit;
+    font-size: 16px;
+    color: #2c3e50;
+    line-height: 1.2;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+/* Ensure MathJax fractions display properly */
+.mjx-mfrac {
+    padding: 0 !important;
+    margin: 0 !important;
+}
 
         /* Mobile Responsive */
         @media (max-width: 1024px) {
@@ -770,7 +1014,7 @@
 <body>
     <div class="container">
        <div class="header">
-            <h1>Midterm - Mathematics - II</h1>
+            <h1>Quiz 1 Midterm</h1>
      </div>
 
         <div id="quizContainer" class="quiz-container" style="display: none;">
@@ -835,7 +1079,7 @@
 
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3>Loading Midterm Mathematics - II...</h3>
+            <h3>Loading Quiz 1 Midterm...</h3>
             <p>Fetching 10 questions from each of 5 topics</p>
         </div>
 
@@ -848,6 +1092,62 @@
         </div>
     </div>
 
+    <!-- Information Bubble -->
+        <div id="infoBubble" class="info-bubble">
+            <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
+            <h3><span class="info-icon">💡</span> Quick Help Guide</h3>
+            <div class="info-content">
+                <p><strong>Taking the Quiz:</strong></p>
+                
+                <ul>
+                    <li><strong>Navigation:</strong> Use "Previous" and "Next" buttons to move between questions</li>
+                    <li><strong>Answering:</strong> Click on options to select/deselect your answer</li>
+                    <li><strong>Calculator:</strong> Click the calculator button (bottom-right) for computations</li>
+                    <li><strong>Time:</strong> No time limit - take your time to answer carefully</li>
+                    <li><strong>Review:</strong> You can go back to any question before submitting</li>
+                </ul>
+                
+                <p><strong>For Numeric Answers:</strong></p>
+                
+                <ul>
+                    <li>Enter numbers directly: <code>5</code>, <code>-3.14</code>, <code>0.5</code></li>
+                    <li>Use decimals up to 3 places: <code>2.667</code></li>
+                    <li>For fractions, convert to decimal: <code>1/2 = 0.5</code></li>
+                    <li>Use calculator for complex calculations</li>
+                </ul>
+                
+                <p><strong>Common Math Notations:</strong></p>
+                
+                <div class="math-example">
+                    <div><strong>Matrices:</strong> Will be shown properly formatted in questions</div>
+                    <div><strong>Transpose:</strong> A<sup>T</sup> means transpose of matrix A</div>
+                    <div><strong>Determinant:</strong> det(A) or |A|</div>
+                    <div><strong>Inverse:</strong> A<sup>-1</sup></div>
+                </div>
+                
+                <p><strong>Before Submitting:</strong></p>
+                <ul>
+                    <li>✓ Check all questions are answered</li>
+                    <li>✓ Review your answers if unsure</li>
+                    <li>✓ Double-check numeric calculations</li>
+                    <li>✓ Submit when ready - you'll see detailed results immediately</li>
+                </ul>
+                
+                <p style="background: #e3f2fd; padding: 10px; border-radius: 6px; margin-top: 15px;">
+                    <strong>📊 Scoring:</strong> Each question has different points based on difficulty. 
+                    Easy = 1 point, Medium = 2 points, Hard = 3 points.
+                </p>
+                
+                <p style="text-align: center; margin-top: 15px; color: #667eea; font-weight: 600;">
+                    Good luck! 🎯
+                </p>
+            </div>
+        </div>
+
+    <!-- Help Button -->
+    <div id="helpButton" class="help-button" onclick="showInfoBubble()">
+        <span class="help-icon">?</span>
+    </div>
      <!-- ========== CALCULATOR CODE STARTS HERE ========== -->
     <div id="calculatorBtn" class="calculator-btn" onclick="toggleCalculator()">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -974,179 +1274,579 @@
     </div>
 
     <script>
-        // ============================================
-        // ENHANCED ANSWER NORMALIZATION UTILITY
-        // ============================================
-        const answerNormalizer = {
-            normalizeInterval: (answer) => {
-                return (answer || '').toString().trim()
-                    .replace(/\s+/g, '')
-                    .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
-                    .replace(/\+inf/gi, 'inf')
-                    .replace(/-\s*inf/gi, '-inf')
-                    .replace(/\[/g, '[')
-                    .replace(/\]/g, ']')
-                    .replace(/\(/g, '(')
-                    .replace(/\)/g, ')')
-                    .toLowerCase();
-            },
-            
-            normalizeCoordinate: (coord) => {
-                return (coord || '').toString().trim()
-                    .replace(/\s+/g, '')
-                    .replace(/[()]/g, '')
-                    .toLowerCase();
-            },
-            
-            normalizeEquation: (eq) => {
-                return (eq || '').toString()
-                    .replace(/\s+/g, '')
-                    .replace(/\*\*/g, '^')
-                    .replace(/\^/g, '^')
-                    .replace(/\+\-/g, '-')
-                    .replace(/\-\+/g, '-')
-                    .replace(/log/gi, 'log')
-                    .replace(/ln/gi, 'ln')
-                    .toLowerCase();
-            },
-            
-            normalizeNumeric: (num) => {
-                const str = (num || '').toString().trim().toLowerCase();
-                
-                if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
-                    return Infinity;
-                }
-                
-                if (str === '-inf' || str === '-infinity' || str === '-∞') {
-                    return -Infinity;
-                }
-                
-                const cleaned = str.replace(/[^\d.-]/g, '');
-                return cleaned ? parseFloat(cleaned) : NaN;
-            },
-            
-            normalizeAnswer: (answer, questionType) => {
-                if (!answer) return '';
-                
-                const str = answer.toString().trim();
-                
-                if (questionType === 'interval_input') {
-                    return answerNormalizer.normalizeInterval(str);
-                } else if (questionType === 'numeric' || questionType === 'numeric_input') {
-                    const normalized = answerNormalizer.normalizeNumeric(str);
-                    return isFinite(normalized) ? normalized.toString() : 
-                           normalized === Infinity ? 'inf' : 
-                           normalized === -Infinity ? '-inf' : str;
-                } else if (questionType === 'coordinate_input') {
-                    return answerNormalizer.normalizeCoordinate(str);
-                } else if (questionType === 'equation_input') {
-                    return answerNormalizer.normalizeEquation(str);
-                } else {
-                    return str.toLowerCase();
-                }
-            }
-        };
+       
 
-        function renderMathContent(element) {
-            if (typeof renderMathInElement !== 'undefined') {
-                setTimeout(() => {
-                    renderMathInElement(element, {
-                        delimiters: [
-                            {left: '$', right: '$', display: false}
-                        ],
-                        throwOnError: false,
-                        trust: true,
-                        strict: false
-                    });
-                }, 100);
-            }
+        // ============================================
+// ENHANCED ANSWER FORMATTING AND DISPLAY
+// ============================================
+
+let infoBubbleShown = false;
+let infoBubbleTimer = null;
+
+// Initialize information bubble
+function initializeInfoBubble() {
+    const infoBubble = document.getElementById('infoBubble');
+    const helpButton = document.getElementById('helpButton');
+    
+    // Show bubble for first 20 seconds
+    setTimeout(() => {
+        showInfoBubble();
+        infoBubbleShown = true;
+        
+        // Auto-hide after 20 seconds
+        infoBubbleTimer = setTimeout(() => {
+            hideInfoBubble();
+        }, 20000);
+    }, 1000); // Show after 1 second delay
+    
+    // Handle window resize
+    window.addEventListener('resize', positionInfoBubble);
+}
+
+function showInfoBubble() {
+    const infoBubble = document.getElementById('infoBubble');
+    const helpButton = document.getElementById('helpButton');
+    
+    infoBubble.classList.remove('collapsed');
+    infoBubble.classList.add('expanded');
+    helpButton.style.display = 'none';
+    positionInfoBubble();
+    
+    // Process any MathJax in the bubble
+    if (window.MathJax) {
+        MathJax.typesetPromise([infoBubble]).catch(err => console.log('MathJax error:', err));
+    }
+}
+
+function hideInfoBubble() {
+    const infoBubble = document.getElementById('infoBubble');
+    const helpButton = document.getElementById('helpButton');
+    
+    infoBubble.classList.remove('expanded');
+    infoBubble.classList.add('collapsed');
+    helpButton.style.display = 'flex';
+    
+    if (infoBubbleTimer) {
+        clearTimeout(infoBubbleTimer);
+    }
+}
+
+function positionInfoBubble() {
+    const infoBubble = document.getElementById('infoBubble');
+    const helpButton = document.getElementById('helpButton');
+    
+    if (infoBubble.classList.contains('expanded')) {
+        const bubbleWidth = infoBubble.offsetWidth;
+        const bubbleHeight = infoBubble.offsetHeight;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        let top = 20;
+        let right = 20;
+        
+        // Ensure bubble stays within viewport
+        if (top + bubbleHeight > viewportHeight - 20) {
+            top = viewportHeight - bubbleHeight - 20;
         }
+        
+        if (right + bubbleWidth > viewportWidth - 20) {
+            right = viewportWidth - bubbleWidth - 20;
+        }
+        
+        infoBubble.style.top = top + 'px';
+        infoBubble.style.right = right + 'px';
+    } else {
+        helpButton.style.top = '20px';
+        helpButton.style.right = '20px';
+    }
+}
 
-        function formatMathText(text) {
-            if (!text) return text;
-            
-            let result = text;
-            
-            // Step 1: Handle matrices and protect them
-            const matrices = [];
-            result = result.replace(/\[\s*\[([\s\S]*?)\]\s*\]/g, (match) => {
-                try {
-                    let inner = match.slice(1, -1).trim();
-                    let rowsRaw = inner.split(/\]\s*,\s*\[/);
-                    let rows = rowsRaw.map(row => {
-                        let cleaned = row.replace(/^\[|\]$/g, '').trim();
-                        return cleaned.split(',').map(x => x.trim()).join(' & ');
-                    });
-                    const matrixCode = `\\begin{bmatrix} ${rows.join(' \\\\ ')} \\end{bmatrix}`;
-                    matrices.push(matrixCode);
-                    return ` __MATRIX${matrices.length - 1}__ `;
-                } catch (e) {
-                    return match;
-                }
+// Enhanced answer formatting utilities
+const answerFormatter = {
+    formatForDisplay: (text) => {
+        if (!text) return '';
+        
+        let formatted = text.toString()
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        // Handle fractions properly
+        if (!formatted.includes('\\frac')) {
+            formatted = formatted.replace(/(\d+)\/(\d+)/g, function(match, num, den) {
+                return `\\frac{${num}}{${den}}`;
             });
             
-            // Step 2: Fix detdet
-            result = result.replace(/detdet/g, 'det');
-            
-            // Step 3: Process mathematical functions FIRST
-            result = result.replace(/det\(/g, '__DET__(');
-            result = result.replace(/trace\(/g, '__TRACE__(');
-            
-            // Step 4: Handle ALL superscript patterns BEFORE splitting
-            result = result.replace(/\(([^)]*,[^)]*)\)\^([A-Za-z])/g, '__PARENCOMMA_$1_EXP_$2__');
-            result = result.replace(/\(([A-Za-z\s\+\-\*\/]+)\)\^([A-Za-z])/g, '__PARENEXPR_$1_EXP_$2__');
-            result = result.replace(/\(([A-Za-z]{2,})\)\^([A-Za-z])/g, '__PARENVAR_$1_EXP_$2__');
-            result = result.replace(/\(([A-Za-z\s\+\-\*\/]+)\)\^(\d+)/g, '__PARENEXPR_$1_EXP_$2__');
-            result = result.replace(/\(([^)]+)\)\^(\d+)/g, '__PAREN_$1_EXP_$2__');
-            result = result.replace(/([A-Za-z])\^([A-Za-z])/g, '__VAR_$1_EXP_$2__');
-            result = result.replace(/([A-Za-z])\^(-?\d+)/g, '__VAR_$1_EXP_$2__');
-            result = result.replace(/([A-Za-z])\^\{([^}]+)\}/g, '__VAR_$1_EXP_$2__');
-            result = result.replace(/([A-Za-z])\^\(([^)]+)\)/g, '__VAR_$1_EXP_$2__');
-            
-            // Step 5: Split by spaces and process
-            const words = result.split(/(\s+)/);
-            const processedWords = words.map(word => {
-                if (/^\s+$/.test(word)) return word;
-                
-                if (word.includes('__MATRIX') || word.includes('__DET__') || 
-                    word.includes('__TRACE__') || word.includes('__VAR_') || 
-                    word.includes('__PAREN')) {
-                    return word;
-                }
-                
-                if (/^[A-Z]$/.test(word)) return `$${word}$`;
-                if (/^[a-z]$/.test(word) && word !== 'a') return `$${word}$`;
-                if (/^\([A-Za-z0-9\s\+\-]+\)$/.test(word)) return `$${word}$`;
-                
-                return word;
+            formatted = formatted.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+            formatted = formatted.replace(/\(([^)]+)\)\s*\/\s*([^\s)]+)/g, '\\frac{$1}{$2}');
+            formatted = formatted.replace(/([^\s)]+)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+        }
+        
+        // Convert inf to infinity symbol
+        formatted = formatted.replace(/inf(inity)?/gi, '∞');
+        formatted = formatted.replace(/-∞/g, '-∞');
+        
+        // Convert sqrt() to √
+        formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
+        
+        // Convert exponents
+        formatted = formatted.replace(/(\w+)\^(\d+)/g, '$1^{$2}');
+        
+        // Convert != to ≠
+        formatted = formatted.replace(/!=/g, '≠');
+        
+        // Convert <= and >=
+        formatted = formatted.replace(/<=/g, '≤').replace(/>=/g, '≥');
+        
+        return formatted;
+    },
+    
+    formatForMathJax: (text) => {
+        if (!text) return '';
+        
+        let latex = text.toString()
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        // Infinity symbols
+        latex = latex.replace(/inf(inity)?/gi, '\\infty');
+        latex = latex.replace(/-\\infty/g, '-\\infty');
+        
+        // Square roots
+        latex = latex.replace(/sqrt\(([^)]+)\)/g, '\\sqrt{$1}');
+        
+        // Fractions
+        if (!latex.includes('\\frac')) {
+            latex = latex.replace(/(\d+)\/(\d+)/g, '\\frac{$1}{$2}');
+            latex = latex.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+            latex = latex.replace(/\(([^)]+)\)\s*\/\s*([^\s)]+)/g, '\\frac{$1}{$2}');
+            latex = latex.replace(/([^\s)]+)\s*\/\s*\(([^)]+)\)/g, '\\frac{$1}{$2}');
+        }
+        
+        // Exponents
+        latex = latex.replace(/(\w+)\^(\d+)/g, '{$1}^{$2}');
+        
+        // Inequalities
+        latex = latex.replace(/!=/g, '\\neq');
+        latex = latex.replace(/<=/g, '\\le').replace(/>=/g, '\\ge');
+        
+        // Sets - only escape if not already escaped
+        if (!latex.includes('\\sqrt{') && !latex.includes('\\frac{') && !latex.includes('\\{') && !latex.includes('\\}')) {
+            latex = latex.replace(/{/g, '\\{').replace(/}/g, '\\}');
+        }
+        latex = latex.replace(/\|/g, '\\mid');
+        
+        // Greek letters
+        latex = latex.replace(/pi/gi, '\\pi');
+        latex = latex.replace(/theta/gi, '\\theta');
+        
+        return `\\(${latex}\\)`;
+    },
+    
+    storeAnswerExactly: (text) => {
+        if (!text) return '';
+        
+        let formatted = text.toString().trim();
+        
+        // Convert sqrt() to √ symbol for storage
+        formatted = formatted.replace(/sqrt\(([^)]+)\)/g, '√$1');
+        
+        // Convert inf to ∞ symbol for storage
+        formatted = formatted.replace(/\binf\b/gi, '∞');
+        formatted = formatted.replace(/-∞/g, '-∞');
+        
+        return formatted;
+    },
+    
+    formatForNormalization: (text) => {
+        if (!text) return '';
+        
+        return text.toString()
+            .replace(/\s+/g, '')
+            .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+            .replace(/√(\d+)/g, 'sqrt($1)')
+            .replace(/√\(([^)]+)\)/g, 'sqrt($1)')
+            .replace(/≠/g, '!=')
+            .replace(/≤/g, '<=')
+            .replace(/≥/g, '>=')
+            .toLowerCase();
+    },
+    
+    createAnswerPreview: (answer, questionType) => {
+        if (!answer) return null;
+        
+        const normalized = answerNormalizer.normalizeAnswer(answer, questionType);
+        const displayText = answerFormatter.formatForDisplay(answer);
+        const latexText = answerFormatter.formatForMathJax(answer);
+        
+        return {
+            original: answer,
+            normalized: normalized,
+            display: displayText,
+            latex: latexText
+        };
+    },
+    
+    roundDecimals: (num, decimals = 3) => {
+        if (typeof num === 'number') {
+            return parseFloat(num.toFixed(decimals));
+        }
+        
+        const str = num.toString();
+        const numbers = str.match(/-?\d+\.\d+/g);
+        
+        if (numbers) {
+            let result = str;
+            numbers.forEach(n => {
+                const rounded = parseFloat(n).toFixed(decimals);
+                result = result.replace(n, rounded);
             });
-            
-            result = processedWords.join('');
-            
-            // Step 6: Restore protected elements
-            result = result.replace(/__DET__/g, '$\\det$');
-            result = result.replace(/__TRACE__/g, '$\\text{trace}$');
-            result = result.replace(/__PARENCOMMA_([^_]+)_EXP_([A-Za-z])__/g, '$$($1)^{$2}$$');
-            result = result.replace(/__PARENEXPR_([^_]+)_EXP_([A-Za-z0-9]+)__/g, '$$($1)^{$2}$$');
-            result = result.replace(/__PARENVAR_([^_]+)_EXP_([A-Za-z])__/g, '$$($1)^{$2}$$');
-            result = result.replace(/__PAREN_([^_]+)_EXP_(\d+)__/g, '$$($1)^{$2}$$');
-            result = result.replace(/__VAR_([A-Za-z])_EXP_([A-Za-z0-9\-]+)__/g, '$$$1^{$2}$$');
-            
-            matrices.forEach((matrix, i) => {
-                result = result.replace(`__MATRIX${i}__`, `$$${matrix}$$`);
-            });
-            
-            // Step 7: Clean up
-            result = result.replace(/\$\$\s*\$\$/g, ' ');
-            result = result.replace(/\$\s+\$/g, ' ');
-            
             return result;
         }
+        
+        return num;
+    }
+};
 
-        let userAnswers = {};
-        let currentUser = {};
-        let username = null;
-        let email = null;
+// Enhanced answer normalization utility
+const answerNormalizer = {
+    normalizeInterval: (answer) => {
+        return (answer || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+            .replace(/\+inf/gi, 'inf')
+            .replace(/-\s*inf/gi, '-inf')
+            .replace(/\[/g, '[')
+            .replace(/\]/g, ']')
+            .replace(/\(/g, '(')
+            .replace(/\)/g, ')')
+            .replace(/union|\∪|\|/gi, '∪')
+            .toLowerCase();
+    },
+    
+    normalizeSetNotation: (answer) => {
+        return (answer || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/[{}]/g, '')
+            .replace(/x∈R|x∈ℝ/gi, 'ℝ')
+            .replace(/R|ℝ/gi, 'ℝ')
+            .replace(/[|:]/g, ',')
+            .replace(/suchthat/gi, '|')
+            .toLowerCase();
+    },
+    
+    normalizeCoordinate: (coord) => {
+        return (coord || '').toString().trim()
+            .replace(/\s+/g, '')
+            .replace(/[()]/g, '')
+            .toLowerCase();
+    },
+    
+    normalizeDomainRange: (answer, type) => {
+        let normalized = (answer || '').toString().trim();
+        
+        normalized = normalized
+            .replace(/\s+/g, '')
+            .replace(/D\s*[:=]\s*/gi, '')
+            .replace(/R\s*[:=]\s*/gi, '')
+            .replace(/domain\s*[:=]\s*/gi, '')
+            .replace(/range\s*[:=]\s*/gi, '')
+            .replace(/allrealnumbers/gi, 'ℝ')
+            .replace(/allreals/gi, 'ℝ')
+            .replace(/[{}]/g, '')
+            .toLowerCase();
+        
+        if (type === 'interval_input') {
+            normalized = normalized
+                .replace(/infinity|Infinity|INFINITY|∞/gi, 'inf')
+                .replace(/\(-\s*inf,\s*inf\)/g, '(-inf,inf)')
+                .replace(/\[\s*-\s*inf,\s*inf\s*\]/g, '[-inf,inf]');
+        }
+        
+        return normalized;
+    },
+    
+    normalizeNumeric: (num) => {
+        const str = (num || '').toString().trim().toLowerCase();
+        
+        if (str === 'inf' || str === 'infinity' || str === '+inf' || str === '+infinity' || str === '∞' || str === '+∞') {
+            return Infinity;
+        }
+        
+        if (str === '-inf' || str === '-infinity' || str === '-∞') {
+            return -Infinity;
+        }
+        
+        const cleaned = str.replace(/[^\d.-]/g, '');
+        return cleaned ? parseFloat(cleaned) : NaN;
+    },
+    
+    normalizeAnswer: (answer, questionType) => {
+        if (!answer) return '';
+        
+        const str = answer.toString().trim();
+        const formatted = answerFormatter.formatForNormalization(str);
+        
+        if (questionType === 'interval_input') {
+            return answerNormalizer.normalizeDomainRange(formatted, 'interval');
+        } else if (questionType === 'set_notation') {
+            return answerNormalizer.normalizeSetNotation(formatted);
+        } else if (questionType === 'numeric' || questionType === 'numeric_input') {
+            const normalized = answerNormalizer.normalizeNumeric(formatted);
+            return isFinite(normalized) ? normalized.toString() : 
+                   normalized === Infinity ? 'inf' : 
+                   normalized === -Infinity ? '-inf' : formatted;
+        } else if (questionType === 'coordinate_input') {
+            return answerNormalizer.normalizeCoordinate(formatted);
+        } else {
+            return formatted.toLowerCase();
+        }
+    }
+};
+
+// Add answer preview functionality
+function updateAnswerPreview(questionIndex, answer) {
+    const preview = document.getElementById(`answerPreview-${questionIndex}`);
+    const warning = document.getElementById(`inputWarning-${questionIndex}`);
+    
+    if (!preview || !answer.trim()) {
+        if (preview) preview.classList.remove('visible');
+        if (warning) {
+            warning.classList.remove('visible');
+            warning.textContent = '';
+        }
+        return;
+    }
+    
+    const question = questions[questionIndex];
+    const previewData = answerFormatter.createAnswerPreview(answer, question.type);
+    
+    if (!previewData) return;
+    
+    // Update formatted view with LaTeX only
+    const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
+    if (formattedEl) {
+        formattedEl.innerHTML = previewData.latex;
+    }
+    
+    // Update hint section
+    const hintEl = document.getElementById(`previewHint-${questionIndex}`);
+    let hint = '';
+    
+    const rounded = answerFormatter.roundDecimals(answer);
+    if (rounded && rounded !== answer) {
+        hint = `Will be rounded to 3 decimal places: ${rounded}`;
+    } else if (answer.includes('inf')) {
+        hint = '"inf" is displayed as ∞';
+    } else if (answer.includes('sqrt')) {
+        hint = '"sqrt(x)" is displayed as √x';
+    } else if (answer.match(/\d+\/\d+/)) {
+        hint = 'Fractions are displayed properly';
+    } else if (answer.includes('{') || answer.includes('}')) {
+        hint = 'Curly braces are formatted for display';
+    }
+    
+    hintEl.textContent = hint;
+    
+    // Process MathJax for formatted preview
+    if (window.MathJax) {
+        MathJax.typesetPromise([formattedEl]).catch(err => console.log('MathJax error:', err));
+    }
+    
+    // Show warning for invalid characters
+    if (warning) {
+        const invalidChars = answer.match(/[^0-9a-zA-Z\s.,+\-*/^(){}|≠≤≥=≠∞√πθ\-\/\\\[\]\$\{\}\|]/);
+        if (invalidChars) {
+            warning.textContent = `Warning: Unusual character "${invalidChars[0]}" detected`;
+            warning.classList.add('visible');
+        } else {
+            warning.classList.remove('visible');
+        }
+    }
+    
+    preview.classList.add('visible');
+}
+
+// New function to handle input with preview
+function handleNumericInputWithPreview(questionIndex, value) {
+    handleNumericInput(questionIndex, value);
+    updateAnswerPreview(questionIndex, value);
+    
+    if (value.trim()) {
+        const validation = validateAnswerFormat(questionIndex, value.trim());
+        showValidationFeedback(questionIndex, validation.feedback, validation.suggestion);
+    } else {
+        showValidationFeedback(questionIndex, '', '');
+    }
+}
+
+function handleNumericInput(questionIndex, value) {
+    const trimmedValue = value.trim();
+    
+    if (trimmedValue) {
+        userAnswers[questionIndex] = answerFormatter.storeAnswerExactly(trimmedValue);
+    } else {
+        delete userAnswers[questionIndex];
+    }
+    
+    updateAnswerStatus();
+}
+
+function validateAnswerFormat(questionIndex, userAnswer) {
+    const question = questions[currentQuestionIndex];
+    let feedback = '';
+    let suggestion = '';
+    let isValidFormat = true;
+    
+    if (question.type === 'interval_input') {
+        const normalized = answerNormalizer.normalizeInterval(userAnswer);
+        const intervalRegex = /^[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]$/;
+        const unionRegex = /^[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]\s*∪\s*[(\[](?:-?\d+|-\s*inf|inf)(?:\.\d+)?\s*,\s*(?:-?\d+|inf)(?:\.\d+)?[)\]]$/;
+        
+        if (intervalRegex.test(normalized) || unionRegex.test(normalized)) {
+            feedback = '✓ Valid interval notation';
+        } else {
+            feedback = '⚠ Check interval format';
+        }
+        suggestion = 'Examples: (-∞, 5], [1, 10), (-3, 3), [0,∞)∪(2,5)';
+        
+    } else if (question.type === 'set_notation') {
+        feedback = '✓ Any set notation accepted';
+        suggestion = 'Examples: ℝ, {x ∈ ℝ | x ≠ 2}, {x | x > 0}';
+        isValidFormat = true;
+        
+    } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+        const normalized = answerNormalizer.normalizeNumeric(userAnswer);
+        if (!isNaN(normalized) || ['inf', '-inf', '∞', '-∞'].includes(userAnswer.toLowerCase())) {
+            feedback = '✓ Valid number';
+        } else {
+            feedback = '⚠ Enter a valid number';
+        }
+        suggestion = 'Examples: 3.14, -5, 0, inf, -infinity';
+        
+    } else {
+        feedback = '✓ Answer recorded';
+        isValidFormat = true;
+    }
+    
+    return { isValidFormat, feedback, suggestion };
+}
+
+function showValidationFeedback(questionIndex, feedback, suggestion) {
+    const questionDiv = document.querySelector('.question-card');
+    let feedbackDiv = document.getElementById(`feedback-${questionIndex}`);
+    
+    if (!feedbackDiv) {
+        feedbackDiv = document.createElement('div');
+        feedbackDiv.id = `feedback-${questionIndex}`;
+        questionDiv.appendChild(feedbackDiv);
+    }
+    
+    if (!feedback) {
+        feedbackDiv.innerHTML = '';
+        return;
+    }
+    
+    const isValid = feedback.includes('✓');
+    feedbackDiv.style.cssText = `
+        background: ${isValid ? '#d4edda' : '#fff3cd'};
+        border: 1px solid ${isValid ? '#c3e6cb' : '#ffeaa7'};
+        border-radius: 6px;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.5;
+    `;
+    
+    feedbackDiv.innerHTML = `
+        <div style="color: ${isValid ? '#155724' : '#856404'}; font-weight: 600; margin-bottom: 4px;">
+            ${feedback}
+        </div>
+        ${suggestion ? `<div style="color: #666; font-size: 13px;">${suggestion}</div>` : ''}
+    `;
+}
+
+function formatMathText(text) {
+    if (!text) return text;
+    
+    let result = text;
+    
+    // Step 1: Handle matrices and protect them
+    const matrices = [];
+    result = result.replace(/\[\s*\[([\s\S]*?)\]\s*\]/g, (match) => {
+        try {
+            let inner = match.slice(1, -1).trim();
+            let rowsRaw = inner.split(/\]\s*,\s*\[/);
+            let rows = rowsRaw.map(row => {
+                let cleaned = row.replace(/^\[|\]$/g, '').trim();
+                return cleaned.split(',').map(x => x.trim()).join(' & ');
+            });
+            const matrixCode = `\\begin{bmatrix} ${rows.join(' \\\\ ')} \\end{bmatrix}`;
+            matrices.push(matrixCode);
+            return ` __MATRIX${matrices.length - 1}__ `;
+        } catch (e) {
+            return match;
+        }
+    });
+    
+    // Step 2: Fix detdet
+    result = result.replace(/detdet/g, 'det');
+    
+    // Step 3: Protect mathematical functions
+    result = result.replace(/det\(/g, '__DET__(');
+    result = result.replace(/trace\(/g, '__TRACE__(');
+    
+    // Step 4: Handle superscript patterns (most specific first)
+    result = result.replace(/\(([^)]*,[^)]*)\)\^([A-Za-z])/g, '__PARENCOMMA_$1_EXP_$2__');
+    result = result.replace(/\(([A-Za-z\s\+\-\*\/]+)\)\^([A-Za-z])/g, '__PARENEXPR_$1_EXP_$2__');
+    result = result.replace(/\(([A-Za-z]{2,})\)\^([A-Za-z])/g, '__PARENVAR_$1_EXP_$2__');
+    result = result.replace(/\(([A-Za-z\s\+\-\*\/]+)\)\^(\d+)/g, '__PARENEXPR_$1_EXP_$2__');
+    result = result.replace(/\(([^)]+)\)\^(\d+)/g, '__PAREN_$1_EXP_$2__');
+    result = result.replace(/([A-Za-z])\^([A-Za-z])/g, '__VAR_$1_EXP_$2__');
+    result = result.replace(/([A-Za-z])\^(-?\d+)/g, '__VAR_$1_EXP_$2__');
+    result = result.replace(/([A-Za-z])\^\{([^}]+)\}/g, '__VAR_$1_EXP_$2__');
+    result = result.replace(/([A-Za-z])\^\(([^)]+)\)/g, '__VAR_$1_EXP_$2__');
+    
+    // Step 5: Split by spaces and wrap lone variables
+    const words = result.split(/(\s+)/);
+    const processedWords = words.map(word => {
+        if (/^\s+$/.test(word)) return word;
+        if (word.includes('__MATRIX') || word.includes('__DET__') || 
+            word.includes('__TRACE__') || word.includes('__VAR_') || 
+            word.includes('__PAREN')) {
+            return word;
+        }
+        if (/^[A-Z]$/.test(word)) return `$${word}$`;
+        if (/^[a-z]$/.test(word) && word !== 'a') return `$${word}$`;
+        if (/^\([A-Za-z0-9\s\+\-]+\)$/.test(word)) return `$${word}$`;
+        return word;
+    });
+    result = processedWords.join('');
+    
+    // Step 6: Restore all protected elements
+    result = result.replace(/__DET__/g, '$\\det$');
+    result = result.replace(/__TRACE__/g, '$\\text{trace}$');
+    result = result.replace(/__PARENCOMMA_([^_]+)_EXP_([A-Za-z])__/g, '$$($1)^{$2}$$');
+    result = result.replace(/__PARENEXPR_([^_]+)_EXP_([A-Za-z0-9]+)__/g, '$$($1)^{$2}$$');
+    result = result.replace(/__PARENVAR_([^_]+)_EXP_([A-Za-z])__/g, '$$($1)^{$2}$$');
+    result = result.replace(/__PAREN_([^_]+)_EXP_(\d+)__/g, '$$($1)^{$2}$$');
+    result = result.replace(/__VAR_([A-Za-z])_EXP_([A-Za-z0-9\-]+)__/g, '$$$1^{$2}$$');
+    matrices.forEach((matrix, i) => {
+        result = result.replace(`__MATRIX${i}__`, `$$${matrix}$$`);
+    });
+    
+    // Step 7: Clean up duplicate/adjacent dollar signs
+    result = result.replace(/\$\$\s*\$\$/g, ' ');
+    result = result.replace(/\$\s+\$/g, ' ');
+    
+    return result;
+}
+
+
+
+// Modify the renderCurrentQuestion function to include answer preview
+// Update the optionsHtml section in renderCurrentQuestion function:
+
+      
         let currentQuestionIndex = 0;
         let quizStartTime = null;
         let questionStartTime = null;
@@ -1156,6 +1856,9 @@
         let isQuizActive = false;
         let devToolsWarned = false;
         let topicDistribution = {}; // Track questions per topic
+        let userAnswers = {};
+        let currentUser = {};
+        let username = null;
 
         // ============================================
         // MAIN CHANGES: EQUAL DISTRIBUTION FROM 5 TOPICS
@@ -1381,134 +2084,200 @@
         }
 
         async function initializeQuiz() {
-            try {
-                initializeAntiCheating();
-                
-                const sessionValid = await fetchSessionInfo();
-                if (!sessionValid) return;
-                
-                // CHANGED: Use multi-topic loading instead of single topic
-                const questionsLoaded = await loadQuestionsFromAllTopics();
-                if (!questionsLoaded) {
-                    alert('Failed to load questions. Please try again.');
-                    return;
-                }
-                
-                currentUser = { username, email };
-                
-                initializeQuizTiming();
-                isQuizActive = true;
-                
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('quizContainer').style.display = 'block';
-                
-                renderCurrentQuestion();
-                initializeQuestionNavigator();
-                updateProgress();
-                
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen().catch(err => {
-                        console.log('Fullscreen request failed:', err);
-                    });
-                }
-            } catch (error) {
-                console.error('Error initializing quiz:', error);
-                alert('Error initializing quiz. Please refresh and try again.');
-            }
+    try {
+        initializeAntiCheating();
+        initializeInfoBubble(); // Add this line
+        
+        const sessionValid = await fetchSessionInfo();
+        if (!sessionValid) return;
+        
+        // CHANGED: Use multi-topic loading instead of single topic
+        const questionsLoaded = await loadQuestionsFromAllTopics();
+        if (!questionsLoaded) {
+            alert('Failed to load questions. Please try again.');
+            return;
         }
+        
+        currentUser = { username, email };
+        
+        initializeQuizTiming();
+        isQuizActive = true;
+        
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+        
+        renderCurrentQuestion();
+        initializeQuestionNavigator();
+        updateProgress();
+        
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log('Fullscreen request failed:', err);
+            });
+        }
+    } catch (error) {
+        console.error('Error initializing quiz:', error);
+        alert('Error initializing quiz. Please refresh and try again.');
+    }
+}
 
         function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            console.log('Rendering question:', currentQuestionIndex + 1, question);
-            
-            container.innerHTML = '';
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
+    
+    console.log('Rendering question:', currentQuestionIndex + 1, question);
+    
+    container.innerHTML = '';
 
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
 
-            let optionsHtml = '';
+    let optionsHtml = '';
+    let answerPreviewHtml = '';
+    
+    // Process question text for LaTeX using full formatter
+    let questionText = formatMathText(question.question_text || 'Question text not available');
+    
+    
+    
+    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            // Format option text for display
+            let optionText = formatMathText(option);
             
-            if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${formatMathText(option)}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
-                            <label for="q${currentQuestionIndex}_${optIndex}">${formatMathText(option)}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-                let specificPlaceholder = "Enter your answer";
-                if (question.type === 'coordinate_input') {
-                    specificPlaceholder = "Enter coordinates as (x, y)";
-                } else if (question.type === 'equation_input') {
-                    specificPlaceholder = "Enter equation (e.g., y = mx + b)";
-                } else if (question.type === 'interval_input') {
-                    specificPlaceholder = "Enter interval notation [a,b] or (a,b)";
-                } else if (question.type === 'numeric' || question.type === 'numeric_input') {
-                    specificPlaceholder = "Enter a number";
-                }
-                
-                optionsHtml = `
-                    <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${specificPlaceholder}" 
-                           onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
-                           oninput="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false">
-                `;
-            } else {
-                console.warn('Unknown question type or missing options:', question.type, question);
-                optionsHtml = `
-                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                        <strong>Error:</strong> Unable to display question options. Please contact administrator.
-                    </div>
-                `;
-            }
-
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107', 
-                'hard': '#dc3545'
-            };
             
-            const difficulty = question.difficulty || 'medium';
-            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-            
-            // Get topic name for display
-            const topicName = question.originalTopic || question.topic || 'General';
-            const topicColor = getTopicColor(topicName);
-
-            let processedQuestionText = formatMathText(question.question_text || 'Question text not available');
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
                 </div>
-                <div class="question-text" id="question-text-${currentQuestionIndex}">${processedQuestionText}</div>
-                <div class="options">${optionsHtml}</div>
             `;
-
-            container.appendChild(questionDiv);
+        }).join('');
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            let optionText = formatMathText(option);
             
-            restoreAnswer();
-            updateAnswerStatus();
-            renderMathContent(questionDiv);
+            
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}">
+                    <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input', 'set_notation'].includes(question.type)) {
+        let placeholder = "Enter your answer";
+        if (question.type === 'interval_input') {
+            placeholder = "e.g., (-∞, 3], [1,5)∪(5,∞), or type: (-inf, 3]";
+        } else if (question.type === 'set_notation') {
+            placeholder = "e.g., {x ∈ ℝ | x ≠ 0}, or type: {x | x != 0}";
+        } else if (question.type === 'coordinate_input') {
+            placeholder = "e.g., (2, 3), (-1/2, sqrt(2))";
+        } else if (question.type === 'equation_input') {
+            placeholder = "e.g., f(x) = x^2 + 1, y = 2x - 3";
+        } else if (question.type === 'numeric' || question.type === 'numeric_input') {
+            placeholder = "e.g., 3.14159, -5, sqrt(2), 1/3";
+        } else {
+            placeholder = "Type your answer here";
         }
+        
+        optionsHtml = `
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${placeholder}" 
+                   onchange="handleNumericInputWithValidation(${currentQuestionIndex}, this.value)"
+                   oninput="handleNumericInputWithPreview(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false"
+                   id="answerInput-${currentQuestionIndex}">
+            <div class="input-warning" id="inputWarning-${currentQuestionIndex}"></div>
+        `;
+        
+        // Add answer preview box
+        answerPreviewHtml = `
+        <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
+            <h4>Answer Preview</h4>
+            <div class="answer-preview-content">
+                <div class="preview-row">
+                    <span class="preview-label">Formatted view:</span>
+                    <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div>
+                </div>
+            </div>
+            <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
+        </div>
+    `;
+    } else {
+        console.warn('Unknown question type:', question.type);
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options.
+            </div>
+        `;
+    }
+
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107',
+        'hard': '#dc3545'
+    };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+    
+    // Get topic name for display
+    const topicName = question.originalTopic || question.topic || 'General';
+    const topicColor = getTopicColor(topicName);
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
+                </span>
+                <span style="background: ${topicColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-transform: uppercase;">
+                    ${topicName}
+                </span>
+            </div>
+        </div>
+        <div class="question-text" id="question-text-${currentQuestionIndex}">${questionText}</div>
+        <div class="options">${optionsHtml}</div>
+        ${answerPreviewHtml}
+    `;
+
+    container.appendChild(questionDiv);
+    
+    // Process MathJax for question text and options
+    if (window.MathJax) {
+        MathJax.typesetPromise([questionDiv]).catch(err => console.log('MathJax error:', err));
+    }
+    
+    restoreAnswer();
+    updateAnswerStatus();
+    
+    // Add event listener for input focus to show preview
+    const input = document.getElementById(`answerInput-${currentQuestionIndex}`);
+    if (input) {
+        input.addEventListener('focus', () => {
+            const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+            if (preview) {
+                preview.classList.add('visible');
+            }
+        });
+        
+        input.addEventListener('blur', () => {
+            setTimeout(() => {
+                const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+                const activeElement = document.activeElement;
+                if (preview && !preview.contains(activeElement)) {
+                    preview.classList.remove('visible');
+                }
+            }, 100);
+        });
+    }
+}    
 
         function getTopicColor(topicName) {
             const topicColors = {
@@ -1522,33 +2291,44 @@
             return topicColors[topicName] || '#6c757d';
         }
 
-        function restoreAnswer() {
-            const question = questions[currentQuestionIndex];
-            const savedAnswer = userAnswers[currentQuestionIndex];
-            
-            if (!savedAnswer) return;
+              function restoreAnswer() {
+                const question = questions[currentQuestionIndex];
+                const savedAnswer = userAnswers[currentQuestionIndex];
+                
+                if (!savedAnswer) return;
 
-            if (question.type === 'multiple_choice') {
-                const option = document.querySelector(`input[value="${savedAnswer}"]`);
-                if (option) {
-                    option.checked = true;
-                    option.closest('.option').classList.add('selected');
-                }
-            } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
-                savedAnswer.forEach(answer => {
-                    const option = document.querySelector(`input[value="${answer}"]`);
+                if (question.type === 'multiple_choice') {
+                    const option = document.querySelector(`input[value="${savedAnswer}"]`);
                     if (option) {
                         option.checked = true;
                         option.closest('.option').classList.add('selected');
                     }
-                });
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-                const input = document.querySelector('.numeric-input');
-                if (input) {
-                    input.value = savedAnswer;
+                } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+                    savedAnswer.forEach(answer => {
+                        const option = document.querySelector(`input[value="${answer}"]`);
+                        if (option) {
+                            option.checked = true;
+                            option.closest('.option').classList.add('selected');
+                        }
+                    });
+                } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'set_notation', 'text_input', 'equation_input'].includes(question.type)) {
+                    const input = document.getElementById(`answerInput-${currentQuestionIndex}`);
+                    if (input) {
+                        input.value = savedAnswer;
+                        
+                        // Update preview if there's an answer
+                        if (savedAnswer.trim()) {
+                            updateAnswerPreview(currentQuestionIndex, savedAnswer);
+                            
+                            // Show the preview panel
+                            const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
+                            if (preview) {
+                                preview.classList.add('visible');
+                            }
+                        }
+                    }
                 }
             }
-        }
 
         function updateProgress() {
             const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
@@ -1975,41 +2755,33 @@
                 padding: 20px;
                 box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             `;
+            reviewDiv.innerHTML = `<h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question-by-Question Review</h3>`;
 
-            reviewDiv.innerHTML = `
-                <h3 style="text-align: center; margin-bottom: 25px; color: #333;">Question-by-Question Review</h3>
-            `;
-
-            quizData.questionResults.forEach((result, index) => {
+            quizData.questionResults.forEach((result) => {
                 const formattedQuestion = formatMathText(result.questionText);
                 const formattedUserAnswer = formatMathText(result.userAnswer || 'No answer provided');
                 const formattedCorrectAnswer = formatMathText(result.correctAnswer);
-                const formattedExplanation = formatMathText(result.explanation || 'No explanation provided');
-                const topicColor = getTopicColor(result.topic);
+                const formattedExplanation = formatMathText(result.explanation || '');
 
-                const questionReviewDiv = document.createElement('div');
-                questionReviewDiv.style.cssText = `
+                const cardDiv = document.createElement('div');
+                cardDiv.style.cssText = `
                     border: 2px solid ${result.isCorrect ? '#28a745' : '#dc3545'}; 
                     border-radius: 8px; 
                     padding: 15px; 
                     margin-bottom: 15px; 
                     background: ${result.isCorrect ? '#f8fff9' : '#fff8f8'};
                 `;
-
-                questionReviewDiv.innerHTML = `
+                cardDiv.innerHTML = `
                     <div style="display: flex; align-items: center; margin-bottom: 10px;">
                         <span style="background: ${result.isCorrect ? '#28a745' : '#dc3545'}; 
-                                    color: white; 
-                                    padding: 4px 8px; 
-                                    border-radius: 50%; 
-                                    margin-right: 10px; 
-                                    font-weight: bold;">
+                                    color: white; padding: 4px 8px; border-radius: 50%; 
+                                    margin-right: 10px; font-weight: bold;">
                             ${result.questionNumber}
                         </span>
                         <span style="font-weight: bold; color: ${result.isCorrect ? '#28a745' : '#dc3545'};">
                             ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
                         </span>
-                        <span class="topic-tag" style="margin-left: auto; background: ${topicColor};">
+                        <span class="topic-tag" style="margin-left: auto; background: ${getTopicColor(result.topic)};">
                             ${result.topic}
                         </span>
                     </div>
@@ -2024,27 +2796,28 @@
                     </div>
                     <div style="margin-bottom: 8px;">
                         <strong>Correct Answer:</strong> 
-                        <span style="color: #28a745; font-weight: bold;">
-                            ${formattedCorrectAnswer}
-                        </span>
+                        <span style="color: #28a745; font-weight: bold;">${formattedCorrectAnswer}</span>
                     </div>
                     <div style="margin-bottom: 8px;">
                         <strong>Explanation:</strong> 
-                        <span style="color: #555;">
-                            ${formattedExplanation}
-                        </span>
+                        <span style="color: #555;">${formattedExplanation}</span>
                     </div>
                     <div style="font-size: 0.9em; color: #666;">
                         Time taken: ${result.timeTaken}s • Difficulty: ${result.difficulty}
                     </div>
                 `;
+                reviewDiv.appendChild(cardDiv);
 
-                reviewDiv.appendChild(questionReviewDiv);
-                renderMathContent(questionReviewDiv);
+                // Render MathJax for each card individually so matrices display correctly
+                if (window.MathJax) {
+                    MathJax.typesetPromise([cardDiv]).catch(err => console.log('MathJax error:', err));
+                }
             });
 
-        resultsContainer.appendChild(reviewDiv);
+            resultsContainer.appendChild(reviewDiv);
+            
         }
+
         async function resetUserProgress(topic) {
             try {
                 const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
@@ -2074,7 +2847,7 @@
         function goback() {
             userAnswers = {};
             questionTimes = {};
-            window.location.href = 'iitm_math2.html';
+            window.location.href = 'iitm_math_2.html';
         }
 
         // ============================================
@@ -2486,8 +3259,14 @@ document.addEventListener('DOMContentLoaded', function() {
             initializeQuiz();
         }
     </script>
+   
+
+   
+</div>
 </body>
 </html>
+
+
 
 
 
