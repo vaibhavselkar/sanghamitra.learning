@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
  
 <head> 
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>IITM STATS 2</title>
+  <title>IITM Statisitcs 2</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -259,10 +258,35 @@
         {
             id: 'Multiple Random Variable ',
             name: 'Multiple Random Variable ',
-            displayName: ' Multiple Random Variable',
+            displayName: ' Week 1 - Multiple Random Variable',
             description: 'Assessment on IITM Stats 2 - Multiple Random Variable',
             icon: 'bi-cpu',
             url: 'quiz1.html'
+        },
+
+         {
+            id: 'Independence and Variable Functions',
+            name: 'Independence and Variable Functions',
+            displayName: ' Week 2 - Independence and Variable Functions',
+            description: 'Assessment on IITM Stats 2 - Independence and Variable Functions',
+            icon: 'bi-cpu',
+            url: 'quiz2.html'
+        },
+        {
+            id: 'Expectations, Variance, and Bivariate Data',
+            name: 'Expectations, Variance, and Bivariate Data',
+            displayName: ' Week 3 - Expectations, Variance, and Bivariate Data',
+            description: 'Assessment on IITM Stats 2 - Expectations, Variance, and Bivariate Data',
+            icon: 'bi-cpu',
+            url: 'quiz3.html'
+        },
+        {
+            id: ' Discrete vs continuous Random Variables',
+            name: 'Discrete vs continuous Random Variables',
+            displayName: ' Week 4 - Discrete vs continuous Random Variables',
+            description: 'Assessment on IITM Stats 2 - Discrete vs continuous Random Variables',
+            icon: 'bi-cpu',
+            url: 'quiz4.html'
         },
        
    
@@ -282,10 +306,24 @@
         }
     }
 
+    // helper to compute login page URL depending on where the static
+    // assets are being served from (5500 live server vs backend port 5000).
+    function getLoginUrl() {
+        // always send user to the backend login page so that a valid session
+        // cookie is established; this avoids "Cannot GET /user_login.html"
+        // errors from static servers (port 5500 etc).
+        const backend = `${window.location.protocol}//${window.location.hostname}:5000`;
+        return backend + '/user_login.html';
+    }
+
     // Fetch user session information
     async function fetchSessionInfo() {
         try {
-            const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+            // always call backend directly so cookies are included; when
+            // viewing the page via live server the origin differs from the
+            // API host.
+            const backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
+            const response = await fetch(backendOrigin + '/api/session-info', {
                 credentials: 'include'
             });
 
@@ -302,7 +340,9 @@
             console.log('Session info fetched:', currentUser);
         } catch (error) {
             console.error('Session error:', error);
-            currentUser = { email: 'test@example.com', username: 'Test User' };
+            // redirect to the appropriate login page for the current origin
+            window.location.href = getLoginUrl() + '?redirectPath=' +
+                encodeURIComponent(location.pathname);
         }
     }
 
@@ -667,4 +707,3 @@ function createCourseHTML(topic, assessment) {
 </script>
 </body>
 </html>
-
