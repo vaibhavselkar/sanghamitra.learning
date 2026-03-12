@@ -890,6 +890,75 @@
         </div>
     </div>
 
+    <!-- Information Bubble -->
+<div id="infoBubble" class="info-bubble">
+    <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
+    <h3><span class="info-icon">ℹ️</span> Quadratic Functions Answer Guide</h3>
+    <div class="info-content">
+        <p><strong>How to format your answers:</strong></p>
+        
+        <ul>
+            <li><strong>Quadratic Equations:</strong> 
+                <code>x = 2, -3</code> = $x = 2, -3$, 
+                <code>y = a(x-h)² + k</code> = $y = a(x-h)^2 + k$
+            </li>
+            <li><strong>Math Symbols:</strong> 
+                <code>inf</code> = ∞, 
+                <code>sqrt(x)</code> = √x, 
+                <code>^</code> = exponent,
+                <code>±</code> = plus-minus
+            </li>
+            <li><strong>Discriminant:</strong> 
+                <code>b² - 4ac</code> = $b^2 - 4ac$,
+                <code>D > 0</code> = $D > 0$
+            </li>
+            <li><strong>Vertex Form:</strong> 
+                <code>(h, k)</code> = vertex coordinates,
+                <code>y = 2(x-3)² + 1</code> = $y = 2(x-3)^2 + 1$
+            </li>
+            <li><strong>Intervals:</strong> 
+                <code>(-inf, 3]</code> = $(-\infty, 3]$,
+                <code>(-∞, ∞)</code> = $(-\infty, \infty)$
+            </li>
+        </ul>
+        
+        <p><strong>Quadratic Formula Examples:</strong></p>
+        
+        <div class="math-example">
+            <div><code>x = (-b ± sqrt(b² - 4ac))/(2a)</code></div>
+            <div>→ $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>y = 2(x-3)² - 5</code> → $y = 2(x-3)^2 - 5$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>Vertex: (h, k) = (2, -3)</code></div>
+            <div>→ Vertex: $(h, k) = (2, -3)$</div>
+        </div>
+        
+        <div class="math-example">
+            <div><code>Roots: x = -1/2, sqrt(3)</code></div>
+            <div>→ Roots: $x = -\frac{1}{2}, \sqrt{3}$</div>
+        </div>
+        
+        <p><strong>Important:</strong></p>
+        <ul>
+            <li>For fractions: Use <code>1/2</code> or <code>(x+1)/(x-1)</code></li>
+            <li>For exponents: Use <code>x^2</code> or <code>(x+1)^3</code></li>
+            <li>For square roots: Use <code>sqrt(2)</code> or <code>sqrt(x+1)</code></li>
+            <li>Multiple answers separated by commas</li>
+            <li>Check preview below input box</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Help Button -->
+<div id="helpButton" class="help-button" onclick="showInfoBubble()">
+    <span class="help-icon">?</span>
+</div>
+
     <script>
         // ============================================
         // ENHANCED ANSWER NORMALIZATION UTILITY
@@ -980,14 +1049,32 @@
         let questionStartTime = null;
         let questionTimes = {};
         let questions = [];
+        
+        // Enhanced cheating detection variables
         let cheatingAttempts = 0;
+        let weightedCheatingScore = 0; // Weighted score for different violation types
         let isQuizActive = false;
         let devToolsWarned = false;
+        
+        // New variables for screen-off/sleep mode handling
+        let screenOffTimer = null;
+        let isNaturalScreenOff = false;
+        let lastScreenOffTime = 0;
+        let screenOffCount = 0;
+        let screenOffCooldown = false;
+        let cooldownTimer = null;
+        let userActivity = false;
+        let isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Cooldown periods (in milliseconds)
+        const SCREEN_OFF_COOLDOWN = 30000; // 30 seconds cooldown between screen-off counts
+        const SCREEN_OFF_DETECTION_DELAY = 5000; // 5 second delay before counting as cheating
+        const ACTIVITY_TIMEOUT = 1000; // Reset activity flag after 1 second of no activity
 
         function initializeAntiCheating() {
             document.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
-                recordCheatingAttempt('right_click');
+                recordCheatingAttempt('right_click', 3); // Weight: 3 (high)
                 return false;
             });
             
@@ -998,13 +1085,13 @@
                     (e.ctrlKey && e.keyCode === 83) || 
                     e.keyCode === 44) {
                     e.preventDefault();
-                    recordCheatingAttempt('keyboard_shortcut');
+                    recordCheatingAttempt('keyboard_shortcut', 5); // Weight: 5 (very high)
                     return false;
                 }
                 
                 if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
                     e.preventDefault();
-                    recordCheatingAttempt('copy_attempt');
+                    recordCheatingAttempt('copy_attempt', 2); // Weight: 2 (moderate)
                     return false;
                 }
             });
@@ -1017,7 +1104,7 @@
                     window.outerWidth - window.innerWidth > threshold) {
                     if (!devtools.open) {
                         devtools.open = true;
-                        recordCheatingAttempt('developer_tools');
+                        recordCheatingAttempt('developer_tools', 5); // Weight: 5 (very high)
                         if (!devToolsWarned) {
                             alert('Developer tools detected! This attempt has been logged.');
                             devToolsWarned = true;
@@ -1036,76 +1123,165 @@
                     (e.keyCode === 44) ||
                     (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
                     (e.metaKey && e.shiftKey && e.keyCode === 83)) {
-                    recordCheatingAttempt('screenshot_attempt');
+                    recordCheatingAttempt('screenshot_attempt', 4); // Weight: 4 (high)
                     alert('Screenshot detected! This activity has been logged.');
                 }
             });
             
             // Clipboard screenshot detection (Windows Snipping Tool)
             document.addEventListener('copy', function(e) {
-                recordCheatingAttempt('clipboard_copy');
+                recordCheatingAttempt('clipboard_copy', 2); // Weight: 2 (moderate)
             });
             
-            // Detect if window loses focus (potential screenshot tool usage)
+            // Track user activity
+            document.addEventListener('mousemove', () => userActivity = true);
+            document.addEventListener('keydown', () => userActivity = true);
+            document.addEventListener('touchstart', () => userActivity = true);
+            document.addEventListener('scroll', () => userActivity = true);
+            
+            // Reset activity flag periodically
+            setInterval(() => {
+                userActivity = false;
+            }, ACTIVITY_TIMEOUT);
+            
+            // ENHANCED: Detect if window loses focus with better screen-off detection
             let lastBlurTime = 0;
             window.addEventListener('blur', function() {
                 lastBlurTime = Date.now();
                 if (isQuizActive) {
-                    recordCheatingAttempt('window_focus_lost');
+                    // Don't immediately record - wait to see if it's a screen off
+                    handlePotentialScreenOff();
                 }
             });
 
-            // Page visibility detection (tab switching, minimizing)
+            // ENHANCED: Page visibility detection with screen-off handling
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden && isQuizActive) {
-                    recordCheatingAttempt('tab_switched');
-                    document.getElementById('warningOverlay').style.display = 'flex';
+                    handlePotentialScreenOff();
+                } else {
+                    // Screen on/return
+                    if (isNaturalScreenOff) {
+                        clearTimeout(screenOffTimer);
+                        const timeOff = Date.now() - lastScreenOffTime;
+                        
+                        // Show warning but don't count as cheating for natural screen off
+                        document.getElementById('warningOverlay').style.display = 'flex';
+                        setTimeout(() => {
+                            document.getElementById('warningOverlay').style.display = 'none';
+                        }, 2000);
+                        
+                        isNaturalScreenOff = false;
+                        
+                        // Log as informational, not cheating
+                        console.log(`Screen was off for ${Math.round(timeOff/1000)} seconds`);
+                    }
                 }
             });
             
-            // Enhanced window blur tracking with warning
+            // ENHANCED: Improved window blur tracking with screen-off differentiation
             window.addEventListener('blur', function() {
                 if (isQuizActive) {
                     document.body.classList.add('blurred');
-                    document.getElementById('warningOverlay').style.display = 'flex';
+                    handlePotentialScreenOff();
                 }
             });
             
-           window.addEventListener('focus', function() {
+            window.addEventListener('focus', function() {
                 document.body.classList.remove('blurred');
                 if (isQuizActive) {
                     setTimeout(() => {
                         document.getElementById('warningOverlay').style.display = 'none';
-                    }, 1000); // Show warning for 1 second after returning
+                    }, 1000);
                 }
             });
 
-           
-            
-            
             // Detect if user tries to open new tabs/windows
             window.addEventListener('beforeunload', function(e) {
                 if (isQuizActive && !confirm('Are you sure you want to leave? Your progress may be lost.')) {
                     e.preventDefault();
-                    recordCheatingAttempt('attempted_page_leave');
+                    recordCheatingAttempt('attempted_page_leave', 4); // Weight: 4 (high)
                     return '';
                 }
             });
             
             document.onselectstart = function() {
-                recordCheatingAttempt('text_selection');
+                recordCheatingAttempt('text_selection', 1); // Weight: 1 (low)
                 return false;
             };
         }
         
-        function recordCheatingAttempt(type) {
-            cheatingAttempts++;
-            const timestamp = new Date().toISOString();
-            console.warn(`🚨 Cheating attempt #${cheatingAttempts}: ${type} at ${timestamp}`);
+        // ENHANCED: New function to handle potential screen-off events intelligently
+        function handlePotentialScreenOff() {
+            const now = Date.now();
             
-            // Visual warning for specific actions
-            const highRiskActions = ['screenshot_attempt', 'tab_switched', 'window_focus_lost', 'attempted_page_leave'];
-            if (highRiskActions.includes(type)) {
+            // Check if this might be natural screen off (no recent user activity)
+            if (!userActivity) {
+                isNaturalScreenOff = true;
+                lastScreenOffTime = now;
+                
+                // Clear any existing timer
+                if (screenOffTimer) {
+                    clearTimeout(screenOffTimer);
+                }
+                
+                // Set a delay before counting as cheating
+                screenOffTimer = setTimeout(() => {
+                    if (document.hidden && !document.hasFocus() && isNaturalScreenOff && isQuizActive) {
+                        // Still hidden after delay - likely real screen off
+                        recordScreenOffEvent();
+                    }
+                }, SCREEN_OFF_DETECTION_DELAY);
+            } else {
+                // User was active - likely deliberate tab switch
+                recordCheatingAttempt('tab_switched', 2); // Weight: 2 (moderate)
+            }
+        }
+        
+        // ENHANCED: New function to record screen-off events with cooldown
+        function recordScreenOffEvent() {
+            const now = Date.now();
+            
+            // Check cooldown
+            if (screenOffCooldown) {
+                console.log('Screen-off in cooldown period - not counting');
+                return;
+            }
+            
+            // Increment screen-off count
+            screenOffCount++;
+            
+            // Apply cooldown for multiple screen-offs
+            screenOffCooldown = true;
+            if (cooldownTimer) {
+                clearTimeout(cooldownTimer);
+            }
+            cooldownTimer = setTimeout(() => {
+                screenOffCooldown = false;
+            }, SCREEN_OFF_COOLDOWN);
+            
+            // Weight screen-offs based on frequency
+            let weight = 1; // Base weight for first screen-off
+            if (screenOffCount > 3) {
+                weight = 3; // High weight for frequent screen-offs
+            } else if (screenOffCount > 1) {
+                weight = 2; // Medium weight for multiple screen-offs
+            }
+            
+            // Record as screen-off specific type
+            recordCheatingAttempt('screen_off_sleep_mode', weight);
+        }
+        
+        // ENHANCED: Updated recordCheatingAttempt with weighted scoring
+        function recordCheatingAttempt(type, weight = 1) {
+            cheatingAttempts++;
+            weightedCheatingScore += weight;
+            
+            const timestamp = new Date().toISOString();
+            console.warn(`🚨 Cheating attempt #${cheatingAttempts} (weight: ${weight}, total score: ${weightedCheatingScore}): ${type} at ${timestamp}`);
+            
+            // Visual warning for specific actions (only for higher weighted events)
+            const highRiskActions = ['screenshot_attempt', 'tab_switched', 'attempted_page_leave', 'developer_tools', 'keyboard_shortcut'];
+            if (highRiskActions.includes(type) && weight >= 3) {
                 const overlay = document.getElementById('warningOverlay');
                 overlay.style.display = 'flex';
                 setTimeout(() => {
@@ -1124,19 +1300,25 @@
                         username: username,
                         email: email,
                         cheatingType: type,
+                        weight: weight,
+                        totalWeightedScore: weightedCheatingScore,
                         timestamp: timestamp,
                         currentQuestion: currentQuestionIndex + 1,
                         totalAttempts: cheatingAttempts,
+                        screenOffCount: screenOffCount,
+                        isMobile: isMobileDevice,
                         userAgent: navigator.userAgent,
                         screenResolution: `${window.screen.width}x${window.screen.height}`
                     })
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
             
-            // Progressive warnings
-            if (cheatingAttempts === 3) {
+            // Progressive warnings based on weighted score
+            if (weightedCheatingScore >= 8) {
                 alert('⚠️ WARNING: Suspicious activity detected!\nFurther violations will result in automatic submission.');
-            } else if (cheatingAttempts >= 5) {
+            } else if (weightedCheatingScore >= 15) {
+                alert('⚠️ FINAL WARNING: Multiple violations detected.\nOne more violation will auto-submit your quiz.');
+            } else if (weightedCheatingScore >= 20) {
                 alert('🚫 Too many suspicious activities detected.\nQuiz will be auto-submitted for review.');
                 submitQuiz();
             }
@@ -1764,6 +1946,12 @@
                 endTime: quizEndTime,
                 totalTimeTaken: totalTimeTaken,
                 isCompleted: true,
+                cheatingStats: {
+                    totalAttempts: cheatingAttempts,
+                    weightedScore: weightedCheatingScore,
+                    screenOffCount: screenOffCount,
+                    isMobile: isMobileDevice
+                },
                 adaptiveData: {
                     startingDifficulty: 'easy',
                     finalDifficulty: questions[questions.length - 1]?.difficulty || 'easy',
@@ -2239,95 +2427,15 @@
         } else {
             initializeQuiz();
         }
-    </script>
-    <!-- Information Bubble -->
-<div id="infoBubble" class="info-bubble">
-    <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
-    <h3><span class="info-icon">ℹ️</span> Quadratic Functions Answer Guide</h3>
-    <div class="info-content">
-        <p><strong>How to format your answers:</strong></p>
-        
-        <ul>
-            <li><strong>Quadratic Equations:</strong> 
-                <code>x = 2, -3</code> = $x = 2, -3$, 
-                <code>y = a(x-h)² + k</code> = $y = a(x-h)^2 + k$
-            </li>
-            <li><strong>Math Symbols:</strong> 
-                <code>inf</code> = ∞, 
-                <code>sqrt(x)</code> = √x, 
-                <code>^</code> = exponent,
-                <code>±</code> = plus-minus
-            </li>
-            <li><strong>Discriminant:</strong> 
-                <code>b² - 4ac</code> = $b^2 - 4ac$,
-                <code>D > 0</code> = $D > 0$
-            </li>
-            <li><strong>Vertex Form:</strong> 
-                <code>(h, k)</code> = vertex coordinates,
-                <code>y = 2(x-3)² + 1</code> = $y = 2(x-3)^2 + 1$
-            </li>
-            <li><strong>Intervals:</strong> 
-                <code>(-inf, 3]</code> = $(-\infty, 3]$,
-                <code>(-∞, ∞)</code> = $(-\infty, \infty)$
-            </li>
-        </ul>
-        
-        <p><strong>Quadratic Formula Examples:</strong></p>
-        
-        <div class="math-example">
-            <div><code>x = (-b ± sqrt(b² - 4ac))/(2a)</code></div>
-            <div>→ $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$</div>
-        </div>
-        
-        <div class="math-example">
-            <div><code>y = 2(x-3)² - 5</code> → $y = 2(x-3)^2 - 5$</div>
-        </div>
-        
-        <div class="math-example">
-            <div><code>Vertex: (h, k) = (2, -3)</code></div>
-            <div>→ Vertex: $(h, k) = (2, -3)$</div>
-        </div>
-        
-        <div class="math-example">
-            <div><code>Roots: x = -1/2, sqrt(3)</code></div>
-            <div>→ Roots: $x = -\frac{1}{2}, \sqrt{3}$</div>
-        </div>
-        
-        <p><strong>Important:</strong></p>
-        <ul>
-            <li>For fractions: Use <code>1/2</code> or <code>(x+1)/(x-1)</code></li>
-            <li>For exponents: Use <code>x^2</code> or <code>(x+1)^3</code></li>
-            <li>For square roots: Use <code>sqrt(2)</code> or <code>sqrt(x+1)</code></li>
-            <li>Multiple answers separated by commas</li>
-            <li>Check preview below input box</li>
-        </ul>
-    </div>
-</div>
 
-<!-- Help Button -->
-<div id="helpButton" class="help-button" onclick="showInfoBubble()">
-    <span class="help-icon">?</span>
-</div>
+        // Info bubble functions
+        function showInfoBubble() {
+            document.getElementById('infoBubble').style.display = 'block';
+        }
+
+        function hideInfoBubble() {
+            document.getElementById('infoBubble').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
