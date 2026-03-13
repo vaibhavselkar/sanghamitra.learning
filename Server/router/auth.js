@@ -2403,73 +2403,73 @@ router.post('/reset-ct-progress', async (req, res) => {
 
 
 
-// MODIFIED Statistics GET endpoint to filter out completed questions
+// GET Statistics Questions by Topic - Single route like math
 router.get('/iitm-stats-questions/:topic', async (req, res) => {
   try {
     const { topic } = req.params;
     const { email, count = 50 } = req.query;
     
-    if (!email || !topic) {
-      return res.status(400).json({ error: 'Email and topic are required' });
-    }
-
-    // Get user's completed questions
-    const user = await Statistics_scores.findOne({ email });
-    const completedIds = user?.completedQuestionIds || [];
-    
-    console.log(`User ${email} has completed ${completedIds.length} questions for ${topic}`);
-
-    // Get questions NOT in completedIds
-    let allQuestions = await Statistics_questions.find({
-      topic: topic,
-      _id: { $nin: completedIds }  // Exclude completed questions
-    });
-
-    console.log(`Found ${allQuestions.length} unanswered questions for ${topic}`);
-    
-    // If no unanswered questions left, reset or handle differently
-    if (allQuestions.length === 0) {
-      // Option 1: Reset completed questions
-      // user.completedQuestionIds = [];
-      // await user.save();
-      // allQuestions = await Statistics_questions.find({ topic: topic });
-      
-      // Option 2: Return message that all questions are completed
-      return res.status(200).json({
-        questions: [],
-        metadata: {
-          message: "You've completed all questions!",
-          totalQuestionsInPool: await Statistics_questions.countDocuments({ topic }),
-          completedCount: completedIds.length,
-          allCompleted: true
-        }
+    if (!email) {
+      return res.status(400).json({
+        error: 'Email is required'
       });
     }
 
-    // Shuffle and select
+    if (!topic) {
+      return res.status(400).json({
+        error: 'Topic is required'
+      });
+    }
+
+    // Get all questions for the topic (NO FILTERING by completed questions)
+    let allQuestions = await Statistics_questions.find({
+      topic: topic
+    });
+
+    console.log(`📊 Found ${allQuestions.length} total questions for topic: ${topic}`);
+    
+    // Check if we have enough questions in the pool
+    const totalQuestionsInPool = allQuestions.length;
+    
+    if (totalQuestionsInPool < 50) {
+      console.warn(`⚠️ WARNING: Only ${totalQuestionsInPool} questions in pool for ${topic}, requested ${count}`);
+    }
+
+    // Enhanced shuffle for better randomness
     const shuffledQuestions = [...allQuestions];
+    
+    // Fisher-Yates shuffle
     for (let i = shuffledQuestions.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
     }
 
+    // Take exactly the requested count
     const selectedQuestions = shuffledQuestions.slice(0, parseInt(count));
+    
+    // Optional: Sort by question_number for consistent display
+    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+
+    console.log(`✅ Returning ${selectedQuestions.length} random questions for ${topic} to ${email}`);
 
     res.json({
       questions: selectedQuestions,
       metadata: {
-        totalAvailable: allQuestions.length,
+        totalQuestionsInPool: totalQuestionsInPool,
         selectedCount: selectedQuestions.length,
         requestedCount: parseInt(count),
         topic: topic,
-        completedCount: completedIds.length,
+        isRandom: true, // Indicate this is pure random selection
         timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
-    console.error(`Error fetching ${req.params.topic} questions:`, error);
-    res.status(500).json({ error: error.message });
+    console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
+    res.status(500).json({ 
+      error: `Failed to fetch ${req.params.topic} questions`,
+      details: error.message 
+    });
   }
 });
 
@@ -3716,8 +3716,6 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
-
-
 
 
 
