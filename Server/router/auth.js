@@ -2412,23 +2412,18 @@ router.get('/iitm-stats-questions/:topic', async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
 
-    // Get all questions for the topic
+    // ===========================================
+    // Get ALL questions - NO filtering by completed
+    // ===========================================
     let allQuestions = await Statistics_questions.find({
       topic: topic
     });
 
     console.log(`📊 Found ${allQuestions.length} total questions for topic: ${topic}`);
-    
-    // Check if we have enough unique questions
-    const totalQuestionsInPool = allQuestions.length;
-    const requestedCount = parseInt(count);
-    
-    if (totalQuestionsInPool < requestedCount) {
-      console.warn(`⚠️ WARNING: Only ${totalQuestionsInPool} unique questions available, but requested ${requestedCount}`);
-      // Return all available questions instead of trying to get 50
-    }
 
-    // ✅ CRITICAL FIX: Remove duplicates by using a Set based on _id
+    // ===========================================
+    // Remove duplicates within this pool only
+    // ===========================================
     const uniqueQuestions = [];
     const seenIds = new Set();
     
@@ -2439,57 +2434,60 @@ router.get('/iitm-stats-questions/:topic', async (req, res) => {
       }
     }
     
-    console.log(`✅ After deduplication: ${uniqueQuestions.length} unique questions`);
+    console.log(`✅ After deduplication: ${uniqueQuestions.length} unique questions in pool`);
 
-    // Enhanced shuffle for better randomness
-    const shuffledQuestions = [...uniqueQuestions];
+    // ===========================================
+    // Random selection ensuring uniqueness
+    // ===========================================
+    const requestedCount = parseInt(count);
     
-    // Fisher-Yates shuffle
+    // Shuffle
+    const shuffledQuestions = [...uniqueQuestions];
     for (let i = shuffledQuestions.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
     }
 
-    // Take only up to the requested count (or all if less)
+    // Select questions
     const questionsToReturn = Math.min(requestedCount, shuffledQuestions.length);
     const selectedQuestions = shuffledQuestions.slice(0, questionsToReturn);
     
-    // ✅ FINAL CHECK: Verify no duplicates in selected questions
+    // Final uniqueness check
     const finalIds = new Set(selectedQuestions.map(q => q._id.toString()));
+    
     if (finalIds.size !== selectedQuestions.length) {
-      console.error('❌ Duplicates still present! This should not happen.');
-      // Fallback: manually remove any duplicates
-      const finalUnique = [];
-      const finalSeen = new Set();
+      console.error('❌ Duplicates found! Fixing...');
+      // Fallback deduplication
+      const fixed = [];
+      const seen = new Set();
       for (const q of selectedQuestions) {
-        if (!finalSeen.has(q._id.toString())) {
-          finalSeen.add(q._id.toString());
-          finalUnique.push(q);
+        if (!seen.has(q._id.toString())) {
+          seen.add(q._id.toString());
+          fixed.push(q);
         }
       }
-      selectedQuestions = finalUnique;
+      selectedQuestions = fixed;
     }
 
-    console.log(`✅ Returning ${selectedQuestions.length} unique questions for ${topic}`);
+    console.log(`✅ Returning ${selectedQuestions.length} unique questions for this test`);
 
     res.json({
       questions: selectedQuestions,
       metadata: {
-        totalQuestionsInPool: totalQuestionsInPool,
-        uniqueQuestionsAvailable: uniqueQuestions.length,
+        totalQuestionsInPool: allQuestions.length,
+        uniqueQuestionsInPool: uniqueQuestions.length,
         selectedCount: selectedQuestions.length,
         requestedCount: requestedCount,
         topic: topic,
-        isRandom: true,
-        allUnique: finalIds.size === selectedQuestions.length,
+        allUniqueInThisTest: finalIds.size === selectedQuestions.length,
         timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
-    console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
+    console.error(`❌ Error fetching stats questions:`, error);
     res.status(500).json({ 
-      error: `Failed to fetch ${req.params.topic} questions`,
+      error: `Failed to fetch questions`,
       details: error.message 
     });
   }
@@ -2700,34 +2698,49 @@ router.get('/iitm-math-questions/:topic', async (req, res) => {
     const { email, count = 50 } = req.query;
     
     if (!email) {
-      return res.status(400).json({
-        error: 'Email is required'
-      });
+      return res.status(400).json({ error: 'Email is required' });
     }
 
-    if (!topic) {
-      return res.status(400).json({
-        error: 'Topic is required'
-      });
-    }
-
-    // Get all questions for the topic (NO FILTERING by completed questions)
+    // ===========================================
+    // STEP 1: Get ALL questions for the topic
+    // ❌ NO filtering by completedQuestionIds
+    // ===========================================
     let allQuestions = await IITMathQuestion.find({
       topic: topic
     });
 
     console.log(`📊 Found ${allQuestions.length} total questions for topic: ${topic}`);
+
+    // ===========================================
+    // STEP 2: Remove duplicates within this pool
+    // (Based on _id to ensure uniqueness)
+    // ===========================================
+    const uniqueQuestions = [];
+    const seenIds = new Set();
     
-    // Check if we have enough questions in the pool
-    const totalQuestionsInPool = allQuestions.length;
+    for (const q of allQuestions) {
+      if (!seenIds.has(q._id.toString())) {
+        seenIds.add(q._id.toString());
+        uniqueQuestions.push(q);
+      }
+    }
     
-    if (totalQuestionsInPool < 50) {
-      console.warn(`⚠️ WARNING: Only ${totalQuestionsInPool} questions in pool for ${topic}, requested ${count}`);
-      // You might want to alert the admin about this
+    console.log(`✅ After deduplication: ${uniqueQuestions.length} unique questions in pool`);
+
+    // ===========================================
+    // STEP 3: Check if we have enough unique questions
+    // ===========================================
+    const requestedCount = parseInt(count);
+    
+    if (uniqueQuestions.length < requestedCount) {
+      console.warn(`⚠️ Only ${uniqueQuestions.length} unique questions available, but requested ${requestedCount}`);
+      // Return all available unique questions
     }
 
-    // Enhanced shuffle for better randomness
-    const shuffledQuestions = [...allQuestions];
+    // ===========================================
+    // STEP 4: Random selection from unique pool
+    // ===========================================
+    const shuffledQuestions = [...uniqueQuestions];
     
     // Fisher-Yates shuffle
     for (let i = shuffledQuestions.length - 1; i > 0; i--) {
@@ -2735,30 +2748,56 @@ router.get('/iitm-math-questions/:topic', async (req, res) => {
       [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
     }
 
-    // Take exactly the requested count
-    const selectedQuestions = shuffledQuestions.slice(0, parseInt(count));
+    // Take only up to the requested count (or all if less)
+    const questionsToReturn = Math.min(requestedCount, shuffledQuestions.length);
+    let selectedQuestions = shuffledQuestions.slice(0, questionsToReturn);
     
-    // Optional: Sort by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+    // ===========================================
+    // STEP 5: FINAL CHECK - Ensure NO duplicates in this test
+    // ===========================================
+    const finalIds = new Set(selectedQuestions.map(q => q._id.toString()));
+    
+    if (finalIds.size !== selectedQuestions.length) {
+      console.error('❌ Duplicates detected! Forcing removal...');
+      
+      // Manual deduplication as fallback
+      const finalUnique = [];
+      const finalSeen = new Set();
+      
+      for (const q of selectedQuestions) {
+        if (!finalSeen.has(q._id.toString())) {
+          finalSeen.add(q._id.toString());
+          finalUnique.push(q);
+        }
+      }
+      
+      selectedQuestions = finalUnique;
+      console.log(`✅ After forced deduplication: ${selectedQuestions.length} unique questions`);
+    }
 
-    console.log(`✅ Returning ${selectedQuestions.length} random questions for ${topic} to ${email}`);
+    // ===========================================
+    // STEP 6: Send response
+    // ===========================================
+    console.log(`✅ Returning ${selectedQuestions.length} unique questions for this test`);
+    console.log(`📝 Questions in this test: ${selectedQuestions.map(q => q._id).join(', ')}`);
 
     res.json({
       questions: selectedQuestions,
       metadata: {
-        totalQuestionsInPool: totalQuestionsInPool,
+        totalQuestionsInPool: allQuestions.length,
+        uniqueQuestionsInPool: uniqueQuestions.length,
         selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count),
+        requestedCount: requestedCount,
         topic: topic,
-        isRandom: true, // Indicate this is pure random selection
+        allUniqueInThisTest: finalIds.size === selectedQuestions.length,
         timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
-    console.error(`❌ Error fetching ${req.params.topic} questions:`, error);
+    console.error(`❌ Error fetching math questions:`, error);
     res.status(500).json({ 
-      error: `Failed to fetch ${req.params.topic} questions`,
+      error: `Failed to fetch math questions`,
       details: error.message 
     });
   }
@@ -3738,6 +3777,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
