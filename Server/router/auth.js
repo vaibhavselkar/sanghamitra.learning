@@ -2403,40 +2403,46 @@ router.post('/reset-ct-progress', async (req, res) => {
 
 
 
-// GET Statistics Questions by Topic - Single route like math
 router.get('/iitm-stats-questions/:topic', async (req, res) => {
   try {
     const { topic } = req.params;
     const { email, count = 50 } = req.query;
     
     if (!email) {
-      return res.status(400).json({
-        error: 'Email is required'
-      });
+      return res.status(400).json({ error: 'Email is required' });
     }
 
-    if (!topic) {
-      return res.status(400).json({
-        error: 'Topic is required'
-      });
-    }
-
-    // Get all questions for the topic (NO FILTERING by completed questions)
+    // Get all questions for the topic
     let allQuestions = await Statistics_questions.find({
       topic: topic
     });
 
     console.log(`📊 Found ${allQuestions.length} total questions for topic: ${topic}`);
     
-    // Check if we have enough questions in the pool
+    // Check if we have enough unique questions
     const totalQuestionsInPool = allQuestions.length;
+    const requestedCount = parseInt(count);
     
-    if (totalQuestionsInPool < 50) {
-      console.warn(`⚠️ WARNING: Only ${totalQuestionsInPool} questions in pool for ${topic}, requested ${count}`);
+    if (totalQuestionsInPool < requestedCount) {
+      console.warn(`⚠️ WARNING: Only ${totalQuestionsInPool} unique questions available, but requested ${requestedCount}`);
+      // Return all available questions instead of trying to get 50
     }
 
+    // ✅ CRITICAL FIX: Remove duplicates by using a Set based on _id
+    const uniqueQuestions = [];
+    const seenIds = new Set();
+    
+    for (const q of allQuestions) {
+      if (!seenIds.has(q._id.toString())) {
+        seenIds.add(q._id.toString());
+        uniqueQuestions.push(q);
+      }
+    }
+    
+    console.log(`✅ After deduplication: ${uniqueQuestions.length} unique questions`);
+
     // Enhanced shuffle for better randomness
-    const shuffledQuestions = [...allQuestions];
+    const shuffledQuestions = [...uniqueQuestions];
     
     // Fisher-Yates shuffle
     for (let i = shuffledQuestions.length - 1; i > 0; i--) {
@@ -2444,22 +2450,38 @@ router.get('/iitm-stats-questions/:topic', async (req, res) => {
       [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
     }
 
-    // Take exactly the requested count
-    const selectedQuestions = shuffledQuestions.slice(0, parseInt(count));
+    // Take only up to the requested count (or all if less)
+    const questionsToReturn = Math.min(requestedCount, shuffledQuestions.length);
+    const selectedQuestions = shuffledQuestions.slice(0, questionsToReturn);
     
-    // Optional: Sort by question_number for consistent display
-    selectedQuestions.sort((a, b) => a.question_number - b.question_number);
+    // ✅ FINAL CHECK: Verify no duplicates in selected questions
+    const finalIds = new Set(selectedQuestions.map(q => q._id.toString()));
+    if (finalIds.size !== selectedQuestions.length) {
+      console.error('❌ Duplicates still present! This should not happen.');
+      // Fallback: manually remove any duplicates
+      const finalUnique = [];
+      const finalSeen = new Set();
+      for (const q of selectedQuestions) {
+        if (!finalSeen.has(q._id.toString())) {
+          finalSeen.add(q._id.toString());
+          finalUnique.push(q);
+        }
+      }
+      selectedQuestions = finalUnique;
+    }
 
-    console.log(`✅ Returning ${selectedQuestions.length} random questions for ${topic} to ${email}`);
+    console.log(`✅ Returning ${selectedQuestions.length} unique questions for ${topic}`);
 
     res.json({
       questions: selectedQuestions,
       metadata: {
         totalQuestionsInPool: totalQuestionsInPool,
+        uniqueQuestionsAvailable: uniqueQuestions.length,
         selectedCount: selectedQuestions.length,
-        requestedCount: parseInt(count),
+        requestedCount: requestedCount,
         topic: topic,
-        isRandom: true, // Indicate this is pure random selection
+        isRandom: true,
+        allUnique: finalIds.size === selectedQuestions.length,
         timestamp: new Date().toISOString()
       }
     });
@@ -3716,6 +3738,7 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
+
 
 
 
