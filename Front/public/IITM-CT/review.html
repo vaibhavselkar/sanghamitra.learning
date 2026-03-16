@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Review - Test Results</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .correct-answer {
+            background-color: #f8fff9;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+        }
+        .incorrect-answer {
+            background-color: #fff8f8;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+        }
+        .explanation-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 14px 16px;
+            border-radius: 6px;
+            margin-top: 12px;
+            color: #374151;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .explanation-label {
+            font-weight: 700;
+            color: #1d4ed8;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .difficulty-badge { color: white; padding: 2px 10px; border-radius: 50px; font-size: 12px; text-transform: capitalize; }
+        .difficulty-easy   { background: #28a745; }
+        .difficulty-medium { background: #ffc107; color: #333; }
+        .difficulty-hard   { background: #dc3545; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-3xl font-bold text-gray-800">📊 Exam Performance Review</h1>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">Welcome back,</p>
+                    <p class="text-lg font-semibold text-gray-800" id="userName">Loading...</p>
+                </div>
+            </div>
+            <button onclick="loadResults()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                Refresh Results
+            </button>
+        </div>
+
+        <div id="loading" class="hidden text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="mt-4 text-gray-600" id="loadingText">Loading your results...</p>
+        </div>
+
+        <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+            <strong>Error:</strong> <span id="errorText"></span>
+        </div>
+
+        <div id="resultsContainer" class="hidden">
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Test to Review:</label>
+                <select id="testSelect" onchange="onTestSelect()"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Select a test...</option>
+                </select>
+            </div>
+            <div id="summaryCards" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"></div>
+            <div id="detailedReview" class="bg-white rounded-lg shadow-md p-6"></div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'https://sanghamitra-learnworld.vercel.app/api';
+
+        let sortedTests = [];
+        let username = '';
+        let email = '';
+
+        // ── Session ──────────────────────────────────────────────────────
+        async function fetchSessionInfo() {
+            try {
+                const res = await fetch(`${API}/session-info`);
+                if (!res.ok) { window.location.href = 'user_login.html'; return; }
+                const data = await res.json();
+                username = data.username;
+                email = data.email;
+                document.getElementById('userName').textContent = username;
+                await loadResults();
+            } catch (e) {
+                window.location.href = 'user_login.html';
+            }
+        }
+
+        // ── Load scores from DB ──────────────────────────────────────────
+        async function loadResults() {
+            if (!email) { showError('Please login to view your results'); return; }
+            showLoading(true, 'Loading your results...');
+            hideError();
+            hideResults();
+
+            try {
+                // Updated to use the MongoDB connection from the image: platform.tzqhhat.mongodb.net > sanghamitralearn > iitm_ct_scores
+                const res = await fetch(`${API}/iitmmath_scores?email=${encodeURIComponent(email)}`);
+                if (!res.ok) throw new Error('Failed to fetch results.');
+                const result = await res.json();
+                if (result.success === false) throw new Error(result.message || 'No results found');
+
+                const userData = result.data;
+                if (!userData || !userData.quizScores || userData.quizScores.length === 0) {
+                    throw new Error('No quiz results found for your account.');
+                }
+
+                sortedTests = userData.quizScores.map((quiz) => {
+                    const topic = quiz.topic || 'Quiz';
+                    const questionResults = quiz.questionResults || [];
+                    const correctAnswers = quiz.correctAnswers !== undefined
+                        ? quiz.correctAnswers
+                        : questionResults.filter(q => q.isCorrect).length;
+                    const totalQuestions = quiz.totalQuestions !== undefined
+                        ? quiz.totalQuestions
+                        : questionResults.length;
+
+                    return {
+                        originalTopic: topic,
+                        displayName: topic,
+                        totalQuestions,
+                        correctAnswers,
+                        timestamp: quiz.timestamp || null,
+                        responses: questionResults.map(q => ({
+                            questionId:     q.questionId     || '',
+                            questionNumber: q.questionNumber || '',
+                            questionText:   q.questionText   || 'Question not available',
+                            userAnswer:     q.userAnswer     !== undefined ? q.userAnswer : 'No answer provided',
+                            correctAnswer:  q.correctAnswer  !== undefined ? q.correctAnswer : '',
+                            isCorrect:      q.isCorrect      || false,
+                            timeTaken:      q.timeTaken      || 0,
+                            points:         q.points         || 1,
+                            difficulty:     q.difficulty     || '',
+                            explanation:    q.explanation    || ''
+                        }))
+                    };
+                });
+
+                // Sort latest first
+                sortedTests.sort((a, b) => {
+                    if (a.timestamp && b.timestamp) return new Date(b.timestamp) - new Date(a.timestamp);
+                    return 0;
+                });
+
+                populateTestDropdown();
+                showLoading(false);
+                showResults();
+
+            } catch (e) {
+                showLoading(false);
+                showError(e.message);
+            }
+        }
+
+        // ── Fetch explanations LIVE ──────────────────────
+        async function enrichWithExplanations(responses) {
+            const ids = responses
+                .map(r => r.questionId || (r.questionNumber ? r.questionNumber.toString() : ''))
+                .filter(Boolean);
+
+            if (ids.length === 0) {
+                return responses;
+            }
+
+            try {
+                setLoadingText('Fetching explanations...');
+                const res = await fetch(`${API}/get-question-explanations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ questionIds: ids })
+                });
+
+                if (!res.ok) {
+                    return responses;
+                }
+                const data = await res.json();
+
+                if (!data.success || !data.explanationMap) return responses;
+
+                const map = data.explanationMap;
+
+                return responses.map(r => {
+                    const key = r.questionId || (r.questionNumber ? r.questionNumber.toString() : '');
+                    const info = map[key] || {};
+                    return {
+                        ...r,
+                        explanation: r.explanation || info.explanation || '',
+                        difficulty:  r.difficulty  || info.difficulty  || '',
+                        points:      r.points      || info.points      || 1
+                    };
+                });
+            } catch (e) {
+                console.warn('Could not fetch explanations:', e);
+                return responses;
+            }
+        }
+
+        // ── Dropdown ─────────────────────────────────────────────────────
+        function populateTestDropdown() {
+            const sel = document.getElementById('testSelect');
+            sel.innerHTML = '<option value="">Select a test...</option>';
+            sortedTests.forEach((test, i) => {
+                let label = test.displayName;
+                if (test.timestamp) {
+                    const d = new Date(test.timestamp);
+                    label += ` (${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })})`;
+                }
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = label;
+                sel.appendChild(opt);
+            });
+            if (sortedTests.length > 0) { sel.value = 0; onTestSelect(); }
+        }
+
+        async function onTestSelect() {
+            const sel = document.getElementById('testSelect');
+            const i = parseInt(sel.value);
+            if (isNaN(i) || !sortedTests[i]) return;
+
+            showLoading(true, 'Loading question details...');
+
+            // Deep copy so we NEVER mutate the original sortedTests entry.
+            const test = JSON.parse(JSON.stringify(sortedTests[i]));
+
+            // Fetch explanations fresh from DB for THIS quiz's question IDs only
+            test.responses = await enrichWithExplanations(test.responses);
+
+            showLoading(false);
+            displaySummaryCards(test);
+            displayDetailedReview(test);
+        }
+
+        // ── Summary cards ─────────────────────────────────────────────────
+        function displaySummaryCards(test) {
+            const pct = test.totalQuestions > 0
+                ? ((test.correctAnswers / test.totalQuestions) * 100).toFixed(1) : 0;
+            const incorrect = test.totalQuestions - test.correctAnswers;
+            let dateText = '';
+            if (test.timestamp) {
+                dateText = new Date(test.timestamp).toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            }
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">${test.displayName}</h3>
+                    ${dateText ? `<p class="text-xs opacity-75 mt-1">${dateText}</p>` : ''}
+                </div>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">Score</h3>
+                    <p class="text-4xl font-bold">${pct}%</p>
+                    <p class="text-sm mt-2">${test.correctAnswers} / ${test.totalQuestions} correct</p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-2">Performance</h3>
+                    <div class="flex justify-between items-center mt-2">
+                        <div><p class="text-sm">Correct</p><p class="text-2xl font-bold">${test.correctAnswers}</p></div>
+                        <div><p class="text-sm">Incorrect</p><p class="text-2xl font-bold">${incorrect}</p></div>
+                    </div>
+                </div>`;
+        }
+
+        // ── Question-by-question review ───────────────────────────────────
+        function displayDetailedReview(test) {
+            const container = document.getElementById('detailedReview');
+            if (!test.responses || test.responses.length === 0) {
+                container.innerHTML = `<div class="text-center py-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Question-by-Question Review</h2>
+                    <p class="text-gray-600">No question data available for this test.</p></div>`;
+                return;
+            }
+
+            function fmt(ans) {
+                if (ans === undefined || ans === null || ans === '') return 'No answer provided';
+                if (Array.isArray(ans)) return ans.join(', ') || 'No answer provided';
+                return ans.toString();
+            }
+
+            let html = `<h2 class="text-2xl font-bold text-gray-800 mb-6">Question-by-Question Review</h2>`;
+
+            test.responses.forEach((r, i) => {
+                const color      = r.isCorrect ? '#28a745' : '#dc3545';
+                const badgeText  = r.isCorrect ? '✓ Correct' : '✗ Incorrect';
+                const cardClass  = r.isCorrect ? 'correct-answer' : 'incorrect-answer';
+                const diffClass  = `difficulty-${(r.difficulty || '').toLowerCase()}`;
+                const explanation = (r.explanation || '').trim();
+
+                html += `
+                <div class="${cardClass} p-5 mb-5">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                        <span style="background:${color};color:white;width:32px;height:32px;border-radius:50%;
+                                     display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">
+                            ${i + 1}
+                        </span>
+                        <span style="background:${color};color:white;padding:4px 14px;border-radius:50px;font-size:13px;font-weight:600;">
+                            ${badgeText}
+                        </span>
+                        ${r.difficulty
+                            ? `<span class="difficulty-badge ${diffClass}" style="margin-left:auto;">${r.difficulty}</span>`
+                            : ''}
+                    </div>
+
+                    <div style="margin-bottom:12px;line-height:1.6;color:#222;">
+                        <strong>Question:</strong> ${r.questionText}
+                    </div>
+
+                    <div style="margin-bottom:8px;">
+                        <strong>Your Answer:</strong>
+                        <span style="color:${color};font-weight:700;margin-left:6px;">${fmt(r.userAnswer)}</span>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <strong>Correct Answer:</strong>
+                        <span style="color:#28a745;font-weight:700;margin-left:6px;">${fmt(r.correctAnswer)}</span>
+                    </div>
+
+                    <div class="explanation-box">
+                        <span class="explanation-label">Explanation:</span>
+                        ${explanation
+                            ? explanation
+                            : '<em style="color:#9ca3af;">No explanation available for this question.</em>'}
+                    </div>
+
+                    <div style="font-size:0.82rem;color:#9ca3af;margin-top:10px;">
+                        ${r.timeTaken ? `Time: ${r.timeTaken}s &nbsp;|&nbsp;` : ''}
+                        Points: ${r.isCorrect ? r.points : 0} / ${r.points}
+                    </div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ── Utils ─────────────────────────────────────────────────────────
+        function showLoading(show, text) {
+            document.getElementById('loading').classList.toggle('hidden', !show);
+            if (text) setLoadingText(text);
+        }
+        function setLoadingText(t) {
+            const el = document.getElementById('loadingText');
+            if (el) el.textContent = t;
+        }
+        function showError(msg) {
+            document.getElementById('errorText').textContent = msg;
+            document.getElementById('errorMessage').classList.remove('hidden');
+        }
+        function hideError()   { document.getElementById('errorMessage').classList.add('hidden'); }
+        function showResults() { document.getElementById('resultsContainer').classList.remove('hidden'); }
+        function hideResults() { document.getElementById('resultsContainer').classList.add('hidden'); }
+
+        window.addEventListener('DOMContentLoaded', fetchSessionInfo);
+    </script>
+</body>
+</html>
