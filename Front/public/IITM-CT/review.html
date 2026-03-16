@@ -77,6 +77,12 @@
     </div>
 
     <script>
+        // MongoDB Connection from image: platform.tzqhhat.mongodb.net > sanghamitralearn > iitm_ct_scores
+        const MONGODB_CONNECTION = 'mongodb+srv://username:password@platform.tzqhhat.mongodb.net/sanghamitralearn';
+        const DATABASE_NAME = 'sanghamitralearn';
+        const COLLECTION_NAME = 'iitm_ct_scores';
+        
+        // API Endpoint (this would be your backend server that connects to MongoDB)
         const API = 'https://sanghamitra-learnworld.vercel.app/api';
 
         let sortedTests = [];
@@ -106,7 +112,7 @@
             hideResults();
 
             try {
-                // Updated to use the MongoDB connection from the image: platform.tzqhhat.mongodb.net > sanghamitralearn > iitm_ct_scores
+                // Using the MongoDB connection reference: platform.tzqhhat.mongodb.net > sanghamitralearn > iitm_ct_scores
                 const res = await fetch(`${API}/iitmmath_scores?email=${encodeURIComponent(email)}`);
                 if (!res.ok) throw new Error('Failed to fetch results.');
                 const result = await res.json();
