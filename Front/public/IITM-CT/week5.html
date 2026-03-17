@@ -289,13 +289,6 @@
             text-align: center;
         }
 
-        .error-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
         .results-container {
             padding: 40px;
             display: none;
@@ -449,7 +442,7 @@
             color: white;
             padding: 12px 20px;
             border-radius: 50px;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 10px;
             cursor: pointer;
@@ -641,18 +634,6 @@
             background: #f0f0f0;
         }
 
-        .debug-info {
-            background: #f0f0f0;
-            padding: 15px;
-            margin: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #ff6b6b;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
         @media (max-width: 1024px) {
             .question-split {
                 grid-template-columns: 1fr;
@@ -676,19 +657,13 @@
         <div id="loadingScreen" class="loading">
             <div class="spinner"></div>
             <h3 style="margin-top: 20px;">Loading Quiz...</h3>
-            <p>Verifying your session and loading questions</p>
-            <div id="loadingDebug" class="debug-info" style="display: none;"></div>
+            <p>Verifying your session</p>
         </div>
 
         <div id="errorScreen" style="display: none;" class="error">
-            <h3>⚠️ Failed to Load Quiz</h3>
+            <h3>Failed to load quiz</h3>
             <p id="errorMessage"></p>
-            <div id="errorDetails" class="debug-info"></div>
-            <div class="error-actions">
-                <button class="btn btn-next" onclick="retryLoad()">🔄 Retry</button>
-                <button class="btn btn-prev" onclick="goToDashboard()">🏠 Dashboard</button>
-                <button class="btn" onclick="showDebugInfo()">🔍 Show Debug</button>
-            </div>
+            <button class="btn btn-next" onclick="location.reload()">Retry</button>
         </div>
 
         <div id="quizScreen" style="display: none;">
@@ -792,7 +767,7 @@
     <div id="calculatorModal" class="calculator-modal">
         <div class="calculator-header">
             <h3>Scientific Calculator</h3>
-            <button class="help-btn" onclick="showCalculatorHelp()">Help</button>
+            <button class="help-btn">Help</button>
             <button class="minimize-btn" onclick="minimizeCalculator()">―</button>
             <button class="calculator-close" onclick="toggleCalculator()">×</button>
         </div>
@@ -804,7 +779,7 @@
             <label for="radMode">Rad</label>
         </div>
         <div class="calculator-display">
-            <input type="text" id="calcDisplay" readonly placeholder="Expression">
+            <input type="text" id="calcDisplay" readonly>
             <input type="text" id="resultDisplay" readonly value="0">
         </div>
         <div class="calculator-buttons">
@@ -892,20 +867,6 @@
     </div>
 
     <script>
-        // ============================================
-        // CONFIGURATION
-        // ============================================
-        const API_BASE_URL = (() => {
-            // Check if we're in production (Vercel) or localhost
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                return 'https://sanghamitra-learnworld.vercel.app';
-            } else {
-                return 'https://sanghamitra-learnworld.vercel.app';
-            }
-        })();
-        
-        console.log('🌐 API Base URL:', API_BASE_URL);
-        
         let questions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
@@ -914,8 +875,6 @@
         let quizStartTime = null;
         let userName = '';
         let userEmail = '';
-        let retryCount = 0;
-        const MAX_RETRIES = 3;
 
         // ============================================
         // CALCULATOR FUNCTIONS
@@ -1069,21 +1028,6 @@
             }
         }
 
-        function showCalculatorHelp() {
-            alert(
-                'Scientific Calculator Help:\n\n' +
-                '• Basic operations: + - * / %\n' +
-                '• Trigonometric functions: sin, cos, tan\n' +
-                '• Inverse trig: sin⁻¹, cos⁻¹, tan⁻¹\n' +
-                '• Hyperbolic: sinh, cosh, tanh\n' +
-                '• Logarithms: ln (natural), log (base 10)\n' +
-                '• Powers: x², x³, xʸ, √, ³√, ⁿ√x\n' +
-                '• Constants: π, e\n' +
-                '• Memory functions: MC, MR, MS, M+, M-\n' +
-                '• Use Deg/Rad mode for trig functions'
-            );
-        }
-
         function initializeDrag() {
             const modal = document.getElementById('calculatorModal');
             const header = modal.querySelector('.calculator-header');
@@ -1221,219 +1165,74 @@
             }
         });
 
-        // ============================================
-        // ANTI-CHEATING
-        // ============================================
-        function loadAntiCheating() {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = '../IITM-PDSA/anti-cheating.js';
-                script.onload = () => {
-                    console.log('✅ Anti-cheating script loaded');
-                    if (window.AntiCheating) {
-                        window.AntiCheating.initialize({
-                            quizName: 'CT Week 5',
-                            requestFullscreen: true,
-                            user: { username: userName, email: userEmail }
-                        });
-                        
-                        document.addEventListener('cheatingAutoSubmit', function(e) {
-                            console.log('⚠️ Auto-submit triggered:', e.detail);
-                            submitQuiz();
-                        });
-                    }
-                    resolve();
-                };
-                script.onerror = (err) => {
-                    console.warn('⚠️ Anti-cheating script failed to load:', err);
-                    // Don't reject - continue without anti-cheating
-                    resolve();
-                };
-                document.head.appendChild(script);
-            });
-        }
-
-        // ============================================
-        // QUIZ FUNCTIONS
-        // ============================================
         async function fetchSessionInfo() {
             try {
-                console.log('🔍 Fetching session info from:', `${API_BASE_URL}/api/session-info`);
-                
-                const response = await fetch(`${API_BASE_URL}/api/session-info`, {
-                    credentials: 'include',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                    credentials: 'include'
                 });
-                
-                console.log('📡 Session response status:', response.status);
-                
-                if (response.status === 404) {
-                    throw new Error('Session endpoint not found. Please check server configuration.');
+                if (response.ok) {
+                    const data = await response.json();
+                    userName = data.username;
+                    userEmail = data.email;
+                    console.log('Logged-in user:', userName, userEmail);
+                    return true;
+                } else {
+                    alert('Please login to take the assessment');
+                    window.location.href = '/login.html';
+                    return false;
                 }
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('👤 Session data:', data);
-                
-                userName = data.username;
-                userEmail = data.email;
-                
-                if (!userName || !userEmail) {
-                    throw new Error('Invalid session data received');
-                }
-                
-                return true;
             } catch (error) {
-                console.error('❌ Error fetching session info:', error);
-                
-                // Update error screen
-                document.getElementById('errorMessage').innerHTML = `
-                    Failed to connect to server.<br>
-                    <small style="font-size: 14px;">${error.message}</small>
-                `;
-                
-                document.getElementById('errorDetails').innerHTML = `
-                    <strong>Debug Info:</strong><br>
-                    API URL: ${API_BASE_URL}<br>
-                    Error: ${error.message}<br>
-                    Status: ${error.status || 'N/A'}<br>
-                    Time: ${new Date().toLocaleTimeString()}
-                `;
-                
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('errorScreen').style.display = 'block';
+                console.error('Error fetching session info:', error);
+                alert('Error connecting to server. Please try again.');
                 return false;
             }
         }
 
+        async function initQuiz() {
+            const sessionValid = await fetchSessionInfo();
+            if (!sessionValid) return;
+            
+            quizStartTime = Date.now();
+            loadQuestions();
+        }
+
         async function loadQuestions() {
             try {
-                if (!userEmail) {
-                    throw new Error('User email not available. Please login again.');
-                }
+                const url = `https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions/Week%205?email=${encodeURIComponent(userEmail)}&count=50`;
+                const response = await fetch(url);
                 
-                const url = `${API_BASE_URL}/api/iitm-ct-questions/Week%205?email=${encodeURIComponent(userEmail)}&count=50`;
-                console.log('📚 Loading questions from:', url);
-                
-                // Update loading debug
-                const loadingDebug = document.getElementById('loadingDebug');
-                loadingDebug.style.display = 'block';
-                loadingDebug.innerHTML = `Loading: ${url}`;
-                
-                const response = await fetch(url, {
-                    credentials: 'include',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                console.log('📡 Questions response status:', response.status);
-                
-                if (response.status === 404) {
-                    // Try fallback endpoint
-                    console.log('🔄 Trying fallback endpoint...');
-                    const fallbackUrl = `${API_BASE_URL}/api/iitm-ct-questions?topic=Week%205`;
-                    const fallbackResponse = await fetch(fallbackUrl, {
-                        credentials: 'include',
-                        mode: 'cors'
-                    });
-                    
-                    if (fallbackResponse.ok) {
-                        const fallbackData = await fallbackResponse.json();
-                        if (fallbackData.success && fallbackData.data) {
-                            questions = fallbackData.data;
-                        } else if (Array.isArray(fallbackData)) {
-                            questions = fallbackData;
-                        }
-                    }
-                } else if (response.ok) {
-                    const data = await response.json();
-                    console.log('📊 Questions data:', data);
-                    
-                    if (data.success && data.data && Array.isArray(data.data)) {
-                        questions = data.data;
-                    } else if (Array.isArray(data.questions)) {
-                        questions = data.questions;
-                    } else if (Array.isArray(data)) {
-                        questions = data;
-                    } else {
-                        throw new Error('Invalid data format received from API');
-                    }
-                } else {
+                if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-
-                if (!questions || questions.length === 0) {
-                    throw new Error('No questions found for Week 5. Please check back later.');
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && Array.isArray(data.data)) {
+                    questions = data.data;
+                } else if (Array.isArray(data.questions)) {
+                    questions = data.questions;
+                } else if (Array.isArray(data)) {
+                    questions = data;
+                } else {
+                    throw new Error('Invalid data format received from API');
                 }
 
-                console.log(`✅ Loaded ${questions.length} questions`);
-                
-                // Show calculator button after questions load
+                if (questions.length === 0) {
+                    throw new Error('No questions found in the dataset');
+                }
+
+                // Show calculator button
                 document.getElementById('calculatorBtn').style.display = 'flex';
 
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('quizScreen').style.display = 'block';
                 questionStartTimes[0] = Date.now();
                 renderQuestion();
-                
             } catch (error) {
-                console.error('❌ Error loading questions:', error);
-                
-                retryCount++;
-                
-                if (retryCount <= MAX_RETRIES) {
-                    document.getElementById('loadingDebug').innerHTML += `<br>Retry ${retryCount}/${MAX_RETRIES}...`;
-                    setTimeout(loadQuestions, 2000 * retryCount);
-                } else {
-                    showError(error);
-                }
-            }
-        }
-
-        function showError(error) {
-            document.getElementById('errorMessage').innerHTML = `
-                Failed to load questions.<br>
-                <small style="font-size: 14px;">${error.message}</small>
-            `;
-            
-            document.getElementById('errorDetails').innerHTML = `
-                <strong>Debug Info:</strong><br>
-                API URL: ${API_BASE_URL}<br>
-                Error: ${error.message}<br>
-                Retries: ${retryCount}/${MAX_RETRIES}<br>
-                Time: ${new Date().toLocaleTimeString()}
-            `;
-            
-            document.getElementById('loadingScreen').style.display = 'none';
-            document.getElementById('errorScreen').style.display = 'block';
-        }
-
-        function retryLoad() {
-            retryCount = 0;
-            document.getElementById('errorScreen').style.display = 'none';
-            document.getElementById('loadingScreen').style.display = 'block';
-            document.getElementById('loadingDebug').style.display = 'none';
-            initQuiz();
-        }
-
-        function goToDashboard() {
-            window.location.href = '/dashboard.html';
-        }
-
-        function showDebugInfo() {
-            const details = document.getElementById('errorDetails');
-            if (details.style.display === 'none') {
-                details.style.display = 'block';
-            } else {
-                details.style.display = 'none';
+                console.error('Error loading questions:', error);
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('errorScreen').style.display = 'block';
+                document.getElementById('errorMessage').textContent = error.message;
             }
         }
 
@@ -1453,7 +1252,7 @@
             document.getElementById('difficultyBadge').textContent = q.difficulty || 'medium';
             document.getElementById('difficultyBadge').className = `difficulty-badge difficulty-${q.difficulty || 'medium'}`;
             
-            if (q.dataset && q.dataset !== 'None') {
+            if (q.dataset) {
                 document.getElementById('datasetBadge').textContent = `Dataset: ${q.dataset}`;
                 document.getElementById('datasetBadge').style.display = 'inline-block';
             } else {
@@ -1685,7 +1484,7 @@
                 }
 
                 questionResults.push({
-                    questionId: q._id || `q${i}`,
+                    questionId: q._id,
                     questionNumber: q.question_number || (i + 1),
                     questionText: q.question_text,
                     userAnswer: userAns,
@@ -1703,7 +1502,7 @@
                 user_id: userEmail,
                 email: userEmail,
                 username: userName,
-                question_id: questions[currentQuestionIndex]?._id || `quiz_${Date.now()}`,
+                question_id: questions[currentQuestionIndex]?._id || 'default_question_id',
                 attempt_number: 1,
                 topic: "Week 5",
                 percentage: parseFloat(percentage),
@@ -1729,41 +1528,43 @@
                 }
             };
 
-            // Remove null/undefined values
             Object.keys(payload).forEach(key => {
                 if (payload[key] === null || payload[key] === undefined) {
                     delete payload[key];
                 }
             });
 
+            console.log('=== FINAL PAYLOAD ===');
+            console.log('User ID:', payload.user_id);
+            console.log('Email:', payload.email);
+            console.log('Question ID:', payload.question_id);
+            console.log('Attempt Number:', payload.attempt_number);
+            console.log('All required fields present:', 
+                payload.user_id && payload.email && payload.question_id && payload.attempt_number);
+            console.log('Full payload:', JSON.stringify(payload, null, 2));
+
             try {
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Submitting...';
 
-                console.log('📤 Sending submission to:', `${API_BASE_URL}/api/iitm_ct_scores`);
-                const response = await fetch(`${API_BASE_URL}/api/iitm_ct_scores`, {
+                console.log('Sending POST request...');
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     credentials: 'include',
-                    mode: 'cors',
                     body: JSON.stringify(payload)
                 });
 
-                console.log('📡 Submission response status:', response.status);
-                
-                if (response.status === 404) {
-                    throw new Error('Submission endpoint not found. Please contact support.');
-                }
-
+                console.log('Response status:', response.status);
                 const responseText = await response.text();
                 console.log('Response body:', responseText);
 
                 if (response.ok) {
                     const result = JSON.parse(responseText);
-                    console.log('✅ Quiz submitted successfully:', result);
+                    console.log('✓ Quiz submitted successfully:', result);
                     showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
                 } else {
                     let errorData;
@@ -1772,18 +1573,19 @@
                     } catch (e) {
                         errorData = { error: responseText };
                     }
+                    console.error('❌ Server returned error:', errorData);
                     
                     if (responseText.includes('duplicate key') || responseText.includes('E11000')) {
-                        console.log('🔄 Retrying with different attempt number...');
+                        console.log('Retrying with different attempt number...');
                         payload.attempt_number = 2;
                         await retrySubmission(payload);
                     } else {
-                        throw new Error(errorData.error || `Server error: ${response.status}`);
+                        throw new Error(errorData.error || 'Failed to submit quiz');
                     }
                 }
             } catch (error) {
                 console.error('❌ Submit error:', error);
-                alert('Error submitting quiz: ' + error.message);
+                alert('Error submitting quiz: ' + error.message + '\n\nCheck console for details.');
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = false;
                 submitBtn.textContent = '📝 Submit Quiz';
@@ -1794,15 +1596,14 @@
             try {
                 payload.attempt_number = (payload.attempt_number || 1) + 1;
                 
-                console.log('🔄 Retrying with attempt number:', payload.attempt_number);
+                console.log('Retrying with attempt number:', payload.attempt_number);
                 
-                const response = await fetch(`${API_BASE_URL}/api/iitm_ct_scores`, {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     credentials: 'include',
-                    mode: 'cors',
                     body: JSON.stringify(payload)
                 });
 
@@ -1811,7 +1612,7 @@
 
                 if (response.ok) {
                     const result = JSON.parse(responseText);
-                    console.log('✅ Quiz submitted successfully on retry:', result);
+                    console.log('✓ Quiz submitted successfully on retry:', result);
                     showResults(
                         payload.quizData.correctAnswers, 
                         payload.quizData.earnedPoints, 
@@ -1831,12 +1632,6 @@
         function showResults(correct, earned, total, percentage, results) {
             document.getElementById('quizScreen').style.display = 'none';
             document.getElementById('resultsScreen').style.display = 'block';
-            
-            // Hide calculator
-            document.getElementById('calculatorBtn').style.display = 'none';
-            if (calculatorOpen) {
-                toggleCalculator();
-            }
 
             document.getElementById('finalPercentage').textContent = percentage + '%';
             document.getElementById('finalScoreText').textContent = `${earned}/${total} Points`;
@@ -1896,23 +1691,6 @@
             });
         }
 
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        async function initQuiz() {
-            console.log('🚀 Initializing Week 5 Quiz...');
-            
-            // Load anti-cheating (non-blocking)
-            loadAntiCheating().catch(err => console.warn('Anti-cheating warning:', err));
-            
-            const sessionValid = await fetchSessionInfo();
-            if (!sessionValid) return;
-            
-            quizStartTime = Date.now();
-            await loadQuestions();
-        }
-
-        // Initialize everything when DOM is ready
         window.addEventListener('DOMContentLoaded', function() {
             initQuiz();
             
@@ -1931,4 +1709,5 @@
         });
     </script>
 </body>
+
 </html>
