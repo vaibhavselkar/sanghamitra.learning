@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exam Review - IITM Mathematics II</title>
+    <!-- Add after existing <style> block, before </head> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -84,6 +88,101 @@
     </div>
 
     <script>
+        function renderMathContent(element) {
+            if (typeof renderMathInElement !== 'undefined') {
+                setTimeout(() => {
+                    renderMathInElement(element, {
+                        delimiters: [{ left: '$', right: '$', display: false }],
+                        throwOnError: false,
+                        trust: true,
+                        strict: false
+                    });
+                }, 100);
+            }
+        }
+        
+        function formatMathText(text) {
+            if (!text) return text;
+            let result = text;
+        
+            const matrices = [];
+            result = result.replace(/\[\s*\[([\s\S]*?)\]\s*\]/g, (match) => {
+                try {
+                    let inner = match.slice(1, -1).trim();
+                    let rowsRaw = inner.split(/\]\s*,\s*\[/);
+                    let rows = rowsRaw.map(row => {
+                        let cleaned = row.replace(/^\[|\]$/g, '').trim();
+                        return cleaned.split(',').map(x => x.trim()).join(' & ');
+                    });
+                    const matrixCode = `\\begin{bmatrix} ${rows.join(' \\\\ ')} \\end{bmatrix}`;
+                    matrices.push(matrixCode);
+                    return ` __MATRIX${matrices.length - 1}__ `;
+                } catch (e) { return match; }
+            });
+        
+            result = result.replace(/detdet/g, 'det');
+            result = result.replace(/det\(/g, '__DET__(');
+            result = result.replace(/trace\(/g, '__TRACE__(');
+        
+            result = result.replace(/\(([^)]*,[^)]*)\)\^([A-Za-z])/g, '__PARENCOMMA_$1_EXP_$2__');
+            result = result.replace(/\(([A-Za-z\s\+\-\*\/]+)\)\^([A-Za-z])/g, '__PARENEXPR_$1_EXP_$2__');
+            result = result.replace(/\(([A-Za-z]{2,})\)\^([A-Za-z])/g, '__PARENVAR_$1_EXP_$2__');
+            result = result.replace(/\(([A-Za-z\s\+\-\*\/]+)\)\^(\d+)/g, '__PARENEXPR_$1_EXP_$2__');
+            result = result.replace(/\(([^)]+)\)\^(\d+)/g, '__PAREN_$1_EXP_$2__');
+            result = result.replace(/([A-Za-z])\^([A-Za-z])/g, '__VAR_$1_EXP_$2__');
+            result = result.replace(/([A-Za-z])\^(-?\d+)/g, '__VAR_$1_EXP_$2__');
+            result = result.replace(/([A-Za-z])\^\{([^}]+)\}/g, '__VAR_$1_EXP_$2__');
+            result = result.replace(/([A-Za-z])\^\(([^)]+)\)/g, '__VAR_$1_EXP_$2__');
+        
+            const words = result.split(/(\s+)/);
+            const processedWords = words.map(word => {
+                if (/^\s+$/.test(word)) return word;
+                if (word.includes('__MATRIX') || word.includes('__DET__') ||
+                    word.includes('__TRACE__') || word.includes('__VAR_') ||
+                    word.includes('__PAREN')) return word;
+                if (/^[A-Z]$/.test(word)) return `$${word}$`;
+                if (/^[a-z]$/.test(word) && word !== 'a') return `$${word}$`;
+                if (/^\([A-Za-z0-9\s\+\-]+\)$/.test(word)) return `$${word}$`;
+                return word;
+            });
+            result = processedWords.join('');
+        
+            result = result.replace(/__DET__/g, '$\\det$');
+            result = result.replace(/__TRACE__/g, '$\\text{trace}$');
+            result = result.replace(/__PARENCOMMA_([^_]+)_EXP_([A-Za-z])__/g, '$$($1)^{$2}$$');
+            result = result.replace(/__PARENEXPR_([^_]+)_EXP_([A-Za-z0-9]+)__/g, '$$($1)^{$2}$$');
+            result = result.replace(/__PARENVAR_([^_]+)_EXP_([A-Za-z])__/g, '$$($1)^{$2}$$');
+            result = result.replace(/__PAREN_([^_]+)_EXP_(\d+)__/g, '$$($1)^{$2}$$');
+            result = result.replace(/__VAR_([A-Za-z])_EXP_([A-Za-z0-9\-]+)__/g, '$$$1^{$2}$$');
+            matrices.forEach((matrix, i) => {
+                result = result.replace(`__MATRIX${i}__`, `$$${matrix}$$`);
+            });
+        
+            result = result.replace(/\$\$\s*\$\$/g, ' ');
+            result = result.replace(/\$\s+\$/g, ' ');
+            return result;
+        }
+
+        async function fetchExplanationsForTopic(topic, questionIds) {
+            try {
+                const idsParam = questionIds.join(',');
+                const url = `https://sanghamitra-learnworld.vercel.app/api/iitm_maths2_questions_databases/${encodeURIComponent(topic)}?ids=${encodeURIComponent(idsParam)}`;
+                const response = await fetch(url);
+                if (!response.ok) return {};
+                const data = await response.json();
+                const questions = data.questions || data;
+                // Build a map: _id -> explanation
+                const map = {};
+                questions.forEach(q => {
+                    if (q._id && q.explanation) map[q._id] = q.explanation;
+                });
+                return map;
+            } catch (e) {
+                console.error('Failed to fetch explanations:', e);
+                return {};
+            }
+        }
+        
         let currentData = null;
         let sortedTests = [];
         let username = '';
@@ -328,7 +427,7 @@
 
         function displayTestResults(testData) {
             displaySummaryCards(currentData, testData);
-            displayDetailedReview(testData);
+            displayDetailedReview(testData); // async, runs in background
         }
 
         function displaySummaryCards(userData, weekData) {
@@ -394,73 +493,107 @@
             `;
         }
 
-        function displayDetailedReview(weekData) {
+        async function displayDetailedReview(weekData) {
             const detailedReview = document.getElementById('detailedReview');
-            
+        
             if (!weekData.responses || weekData.responses.length === 0) {
                 detailedReview.innerHTML = `
                     <div class="text-center py-8">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">Question-by-Question Review</h2>
                         <p class="text-gray-600">No question data available for this test.</p>
-                    </div>
-                `;
+                    </div>`;
                 return;
             }
-            
-            let html = `
+        
+            // Show loading state while fetching explanations
+            detailedReview.innerHTML = `
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Question-by-Question Review</h2>
-            `;
-
+                <p class="text-gray-500 text-sm mb-4">Loading explanations...</p>`;
+        
+            // Collect question IDs and fetch explanations
+            const questionIds = weekData.responses
+                .map(r => r.questionId)
+                .filter(Boolean);
+        
+            let explanationMap = {};
+            if (questionIds.length > 0 && weekData.originalTopic) {
+                explanationMap = await fetchExplanationsForTopic(weekData.originalTopic, questionIds);
+            }
+        
+            let html = `<h2 class="text-2xl font-bold text-gray-800 mb-6">Question-by-Question Review</h2>`;
+        
             weekData.responses.forEach((response, index) => {
                 const isCorrect = response.isCorrect;
                 const cardClass = isCorrect ? 'correct-answer' : 'incorrect-answer';
-                
-                // Ensure arrays exist
-                const userResponses = Array.isArray(response.userResponse) ? response.userResponse : [response.userResponse || ''];
-                const correctAnswers = Array.isArray(response.correctAnswers) ? response.correctAnswers : [response.correctAnswers || ''];
-                
+        
+                const userResponses = Array.isArray(response.userResponse)
+                    ? response.userResponse : [response.userResponse || ''];
+                const correctAnswers = Array.isArray(response.correctAnswers)
+                    ? response.correctAnswers : [response.correctAnswers || ''];
+        
+                const explanation = explanationMap[response.questionId] || response.explanation || '';
+        
+                // Format all text with math
+                const formattedQuestion = formatMathText(response.questionText || 'Question text not available');
+                const formattedUserAnswers = userResponses.map(a => formatMathText(a));
+                const formattedCorrectAnswers = correctAnswers.map(a => formatMathText(a));
+                const formattedExplanation = explanation ? formatMathText(explanation) : '';
+        
                 html += `
-                    <div class="${cardClass} rounded-lg p-6 mb-6">
+                    <div class="${cardClass} rounded-lg p-6 mb-6" id="review-card-${index}">
                         <div class="flex items-start justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-800">Question ${index + 1}</h3>
                             <span class="answer-chip ${isCorrect ? 'correct-chip' : 'incorrect-chip'}">
                                 ${isCorrect ? '✓ Correct' : '✗ Incorrect'}
                             </span>
                         </div>
-                        
-                        <p class="text-gray-700 mb-4">${response.questionText}</p>
-                        
+        
+                        <p class="text-gray-700 mb-4">${formattedQuestion}</p>
+        
                         <div class="space-y-3">
                             <div>
                                 <p class="font-semibold text-gray-700 mb-2">Your Answer:</p>
                                 <div class="flex flex-wrap">
-                                    ${userResponses.map(ans => 
+                                    ${formattedUserAnswers.map(ans =>
                                         `<span class="answer-chip ${isCorrect ? 'correct-chip' : 'incorrect-chip'}">${ans}</span>`
                                     ).join('')}
                                 </div>
                             </div>
-                            
+        
                             ${!isCorrect ? `
                                 <div>
                                     <p class="font-semibold text-green-700 mb-2">Correct Answer:</p>
                                     <div class="flex flex-wrap">
-                                        ${correctAnswers.map(ans => 
+                                        ${formattedCorrectAnswers.map(ans =>
                                             `<span class="answer-chip correct-chip">${ans}</span>`
                                         ).join('')}
                                     </div>
-                                </div>
-                            ` : ''}
-                            
+                                </div>` : ''}
+        
+                            ${formattedExplanation ? `
+                                <div class="mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                                    <p class="font-semibold text-blue-800 mb-1">📖 Explanation:</p>
+                                    <p class="text-blue-900 text-sm leading-relaxed">${formattedExplanation}</p>
+                                </div>` : ''}
+        
                             <div class="text-sm text-gray-600">
                                 Marks Awarded: <span class="font-semibold">${response.marksAwarded}</span>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
-
+        
             detailedReview.innerHTML = html;
+        
+            // Render math for each card after DOM is updated
+            weekData.responses.forEach((_, index) => {
+                const card = document.getElementById(`review-card-${index}`);
+                if (card) renderMathContent(card);
+            });
         }
+
+        
+
 
         function showLoading(show) {
             document.getElementById('loading').classList.toggle('hidden', !show);
