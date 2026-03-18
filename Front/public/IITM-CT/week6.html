@@ -442,7 +442,7 @@
             color: white;
             padding: 12px 20px;
             border-radius: 50px;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 10px;
             cursor: pointer;
@@ -488,6 +488,70 @@
             font-size: 1.1rem;
         }
 
+        .calculator-header .help-btn {
+            background: #4fc3f7;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: auto;
+            margin-right: 10px;
+        }
+
+        .calculator-header .minimize-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+
+        .mode-selector {
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .mode-selector label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        #resultDisplay {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 1.8rem;
+            text-align: right;
+            border: none;
+            background: transparent;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .calc-btn.operator {
+            background: #ff6b6b;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calc-btn.equals {
+            background: #51cf66;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calc-btn.memory {
+            background: #e3e8ff;
+            color: #667eea;
+            font-size: 0.85rem;
+        }
+
         .calculator-close {
             background: none;
             border: none;
@@ -509,20 +573,6 @@
             background: rgba(255,255,255,0.2);
         }
 
-        .mode-selector {
-            padding: 10px 15px;
-            background: #f0f0f0;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .mode-selector label {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
         .calculator-display {
             padding: 15px;
             background: #f8f9fa;
@@ -539,17 +589,6 @@
             background: white;
             font-family: 'Courier New', monospace;
             margin-bottom: 5px;
-        }
-
-        #resultDisplay {
-            width: 100%;
-            padding: 8px 12px;
-            font-size: 1.8rem;
-            text-align: right;
-            border: none;
-            background: transparent;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
         }
 
         .calculator-buttons {
@@ -595,28 +634,15 @@
             background: #f0f0f0;
         }
 
-        .calc-btn.operator {
-            background: #ff6b6b;
-            color: white;
-            font-weight: 600;
-        }
-
-        .calc-btn.equals {
-            background: #51cf66;
-            color: white;
-            font-weight: 600;
-        }
-
-        .calc-btn.memory {
-            background: #e3e8ff;
-            color: #667eea;
-            font-size: 0.85rem;
-        }
-
         @media (max-width: 1024px) {
             .question-split {
                 grid-template-columns: 1fr;
                 gap: 20px;
+            }
+            
+            .calculator-modal {
+                width: 90%;
+                max-width: 590px;
             }
         }
     </style>
@@ -741,10 +767,12 @@
     <div id="calculatorModal" class="calculator-modal">
         <div class="calculator-header">
             <h3>Scientific Calculator</h3>
+            <button class="help-btn">Help</button>
+            <button class="minimize-btn" onclick="minimizeCalculator()">―</button>
             <button class="calculator-close" onclick="toggleCalculator()">×</button>
         </div>
         <div class="mode-selector">
-            <label>Mode:</label>
+            <label>mod</label>
             <input type="radio" name="angleMode" value="Deg" id="degMode" checked>
             <label for="degMode">Deg</label>
             <input type="radio" name="angleMode" value="Rad" id="radMode">
@@ -848,25 +876,330 @@
         let userName = '';
         let userEmail = '';
 
+        // ============================================
+        // CALCULATOR FUNCTIONS
+        // ============================================
+        let calculatorOpen = false;
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let angleMode = 'Deg';
+        let memory = 0;
+
+        function calcFunction(func) {
+            const display = document.getElementById('calcDisplay');
+            const value = parseFloat(display.value) || 0;
+            let result;
+            
+            switch(func) {
+                case 'sin':
+                case 'cos':
+                case 'tan':
+                    result = angleMode === 'Deg' ? 
+                        Math[func](value * Math.PI / 180) : 
+                        Math[func](value);
+                    break;
+                case 'sin⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.asin(value) * 180 / Math.PI : 
+                        Math.asin(value);
+                    break;
+                case 'cos⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.acos(value) * 180 / Math.PI : 
+                        Math.acos(value);
+                    break;
+                case 'tan⁻¹':
+                    result = angleMode === 'Deg' ? 
+                        Math.atan(value) * 180 / Math.PI : 
+                        Math.atan(value);
+                    break;
+                case 'sinh':
+                    result = Math.sinh(value);
+                    break;
+                case 'cosh':
+                    result = Math.cosh(value);
+                    break;
+                case 'tanh':
+                    result = Math.tanh(value);
+                    break;
+                case 'ln':
+                    result = Math.log(value);
+                    break;
+                case 'log':
+                    result = Math.log10(value);
+                    break;
+                case 'eˣ':
+                    result = Math.exp(value);
+                    break;
+                case '10ˣ':
+                    result = Math.pow(10, value);
+                    break;
+                case 'x²':
+                    result = value * value;
+                    break;
+                case 'x³':
+                    result = value * value * value;
+                    break;
+                case '1/x':
+                    result = 1 / value;
+                    break;
+                case 'n!':
+                    result = factorial(value);
+                    break;
+                case '|x|':
+                    result = Math.abs(value);
+                    break;
+                default:
+                    return;
+            }
+            
+            document.getElementById('resultDisplay').value = result;
+            document.getElementById('calcDisplay').value = result;
+        }
+
+        function factorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function memoryFunction(func) {
+            const value = parseFloat(document.getElementById('resultDisplay').value) || 0;
+            
+            switch(func) {
+                case 'MC':
+                    memory = 0;
+                    break;
+                case 'MR':
+                    document.getElementById('calcDisplay').value = memory;
+                    break;
+                case 'MS':
+                    memory = value;
+                    break;
+                case 'M+':
+                    memory += value;
+                    break;
+                case 'M-':
+                    memory -= value;
+                    break;
+            }
+        }
+
+        function minimizeCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            modal.style.display = 'none';
+            btn.style.display = 'flex';
+            calculatorOpen = false;
+        }
+
+        function toggleCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            calculatorOpen = !calculatorOpen;
+            
+            if (calculatorOpen) {
+                modal.style.display = 'flex';
+                btn.style.display = 'none';
+                
+                if (!modal.style.left && !modal.style.top) {
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    const modalWidth = modal.offsetWidth;
+                    const modalHeight = modal.offsetHeight;
+                    
+                    modal.style.left = (viewportWidth - modalWidth - 20) + 'px';
+                    modal.style.top = (viewportHeight - modalHeight - 100) + 'px';
+                }
+                
+                setTimeout(() => {
+                    document.getElementById('calcDisplay').focus();
+                }, 100);
+            } else {
+                modal.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+        }
+
+        function initializeDrag() {
+            const modal = document.getElementById('calculatorModal');
+            const header = modal.querySelector('.calculator-header');
+            
+            header.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function startDrag(e) {
+            if (e.target.closest('.calculator-close') || 
+                e.target.closest('.calc-btn') ||
+                e.target.closest('.minimize-btn') ||
+                e.target.closest('.help-btn')) {
+                return;
+            }
+            
+            const modal = document.getElementById('calculatorModal');
+            isDragging = true;
+            
+            const rect = modal.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            
+            modal.style.cursor = 'grabbing';
+            modal.style.opacity = '0.9';
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const modal = document.getElementById('calculatorModal');
+            const x = e.clientX - dragOffsetX;
+            const y = e.clientY - dragOffsetY;
+            
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const modalWidth = modal.offsetWidth;
+            const modalHeight = modal.offsetHeight;
+            
+            let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
+            let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
+            
+            modal.style.left = finalX + 'px';
+            modal.style.top = finalY + 'px';
+            
+            e.preventDefault();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            const modal = document.getElementById('calculatorModal');
+            modal.style.cursor = 'move';
+            modal.style.opacity = '1';
+        }
+
+        function addToDisplay(value) {
+            const display = document.getElementById('calcDisplay');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            if (resultDisplay.value !== '0' && display.value === '') {
+                resultDisplay.value = '0';
+            }
+            
+            display.value += value;
+            display.focus();
+        }
+
+        function clearCalculator() {
+            document.getElementById('calcDisplay').value = '';
+            document.getElementById('resultDisplay').value = '0';
+        }
+
+        function backspace() {
+            const display = document.getElementById('calcDisplay');
+            display.value = display.value.slice(0, -1);
+        }
+
+        function calculateResult() {
+            const display = document.getElementById('calcDisplay');
+            const resultDisplay = document.getElementById('resultDisplay');
+            
+            try {
+                let expression = display.value
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/\^/g, '**')
+                    .replace(/√/g, 'Math.sqrt')
+                    .replace(/π/g, 'Math.PI')
+                    .replace(/e(?![a-zA-Z])/g, 'Math.E');
+                
+                const allowedChars = /^[0-9+\-*/().^MathsincostanasinacosatanlogexpsqrtPIElE, ]+$/;
+                
+                if (!allowedChars.test(expression)) {
+                    throw new Error('Invalid characters');
+                }
+                
+                const safeEval = new Function('return ' + expression);
+                let result = safeEval();
+                
+                if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+                    result = Math.round(result * 100000000) / 100000000;
+                }
+                
+                resultDisplay.value = result;
+                
+            } catch (error) {
+                resultDisplay.value = 'Error';
+                setTimeout(() => {
+                    resultDisplay.value = '0';
+                }, 1500);
+            }
+        }
+
+        // Add keyboard support for calculator
+        document.addEventListener('keydown', function(e) {
+            if (!calculatorOpen) return;
+            
+            const display = document.getElementById('calcDisplay');
+            if (!display) return;
+            
+            if (/[\d\+\-\*\/\(\)\.=%]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                
+                if (e.key === 'Enter' || e.key === '=') {
+                    calculateResult();
+                } else if (e.key === 'Escape') {
+                    clearCalculator();
+                } else if (e.key === 'Backspace') {
+                    backspace();
+                } else {
+                    addToDisplay(e.key);
+                }
+            }
+        });
+
+        // ============================================
+        // FIXED: CORS and API Endpoints
+        // ============================================
+        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app';
+
         async function fetchSessionInfo() {
             try {
-                const response = await fetch('http://localhost:4000/api/session-info', {
-                    credentials: 'include'
+                const response = await fetch(`${API_BASE_URL}/api/session-info`, {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
                 });
-                if (response.ok) {
-                    const data = await response.json();
-                    userName = data.username;
-                    userEmail = data.email;
-                    console.log('Logged-in user:', userName, userEmail);
-                    return true;
-                } else {
+                
+                if (response.status === 401) {
                     alert('Please login to take the assessment');
                     window.location.href = '/login.html';
                     return false;
                 }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                userName = data.username;
+                userEmail = data.email;
+                return true;
             } catch (error) {
-                console.error('Error fetching session info:', error);
-                alert('Error connecting to server. Please try again.');
+                console.error('Session error:', error);
+                document.getElementById('errorMessage').textContent = 
+                    'Unable to connect to server. Please check your internet connection.';
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('errorScreen').style.display = 'block';
                 return false;
             }
         }
@@ -881,28 +1214,42 @@
 
         async function loadQuestions() {
             try {
-                const url = 'http://localhost:4000/api/iitm-ct-questions?topic=Week 6';
-                const response = await fetch(url);
+                // Using POST instead of GET with email in URL for better security
+                const response = await fetch(`${API_BASE_URL}/api/iitm-ct-questions`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        topic: 'Week 6',
+                        count: 50
+                    })
+                });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.success && data.data && Array.isArray(data.data)) {
-                    questions = data.data;
-                } else if (Array.isArray(data.questions)) {
-                    questions = data.questions;
-                } else if (Array.isArray(data)) {
-                    questions = data;
+                    // Fallback to GET if POST fails
+                    const fallbackResponse = await fetch(`${API_BASE_URL}/api/iitm-ct-questions/Week%206`, {
+                        credentials: 'include'
+                    });
+                    
+                    if (!fallbackResponse.ok) {
+                        throw new Error(`HTTP ${fallbackResponse.status}: ${fallbackResponse.statusText}`);
+                    }
+                    
+                    const fallbackData = await fallbackResponse.json();
+                    questions = extractQuestions(fallbackData);
                 } else {
-                    throw new Error('Invalid data format received from API');
+                    const data = await response.json();
+                    questions = extractQuestions(data);
                 }
 
                 if (questions.length === 0) {
-                    throw new Error('No questions found in the dataset');
+                    throw new Error('No questions found for Week 6');
                 }
+
+                // Show calculator button
+                document.getElementById('calculatorBtn').style.display = 'flex';
 
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('quizScreen').style.display = 'block';
@@ -912,8 +1259,20 @@
                 console.error('Error loading questions:', error);
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('errorScreen').style.display = 'block';
-                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').textContent = 
+                    'Failed to load questions. Please try again.';
             }
+        }
+
+        function extractQuestions(data) {
+            if (data.success && data.data && Array.isArray(data.data)) {
+                return data.data;
+            } else if (Array.isArray(data.questions)) {
+                return data.questions;
+            } else if (Array.isArray(data)) {
+                return data;
+            }
+            return [];
         }
 
         function trackQuestionTime() {
@@ -1122,8 +1481,6 @@
                 window.location.href = '/login.html';
                 return;
             }
-            
-            console.log('Submitting with user:', { userName, userEmail });
 
             const unanswered = questions.length - Object.keys(userAnswers).length;
             
@@ -1214,22 +1571,12 @@
                 }
             });
 
-            console.log('=== FINAL PAYLOAD ===');
-            console.log('User ID:', payload.user_id);
-            console.log('Email:', payload.email);
-            console.log('Question ID:', payload.question_id);
-            console.log('Attempt Number:', payload.attempt_number);
-            console.log('All required fields present:', 
-                payload.user_id && payload.email && payload.question_id && payload.attempt_number);
-            console.log('Full payload:', JSON.stringify(payload, null, 2));
-
             try {
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Submitting...';
 
-                console.log('Sending POST request...');
-                const response = await fetch('http://localhost:4000/api/iitm_ct_scores', {
+                const response = await fetch(`${API_BASE_URL}/api/iitm_ct_scores`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1238,80 +1585,43 @@
                     body: JSON.stringify(payload)
                 });
 
-                console.log('Response status:', response.status);
-                const responseText = await response.text();
-                console.log('Response body:', responseText);
-
                 if (response.ok) {
-                    const result = JSON.parse(responseText);
-                    console.log('✓ Quiz submitted successfully:', result);
+                    const result = await response.json();
                     showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
                 } else {
-                    let errorData;
-                    try {
-                        errorData = JSON.parse(responseText);
-                    } catch (e) {
-                        errorData = { error: responseText };
-                    }
-                    console.error('❌ Server returned error:', errorData);
+                    // Try once more with different attempt number
+                    payload.attempt_number = 2;
+                    const retryResponse = await fetch(`${API_BASE_URL}/api/iitm_ct_scores`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(payload)
+                    });
                     
-                    if (responseText.includes('duplicate key') || responseText.includes('E11000')) {
-                        console.log('Retrying with different attempt number...');
-                        payload.attempt_number = 2;
-                        await retrySubmission(payload);
+                    if (retryResponse.ok) {
+                        showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
                     } else {
-                        throw new Error(errorData.error || 'Failed to submit quiz');
+                        throw new Error('Failed to submit quiz');
                     }
                 }
             } catch (error) {
-                console.error('❌ Submit error:', error);
-                alert('Error submitting quiz: ' + error.message + '\n\nCheck console for details.');
-                const submitBtn = document.getElementById('submitBtn');
-                submitBtn.disabled = false;
-                submitBtn.textContent = '📝 Submit Quiz';
-            }
-        }
-
-        async function retrySubmission(payload) {
-            try {
-                payload.attempt_number = (payload.attempt_number || 1) + 1;
-                
-                console.log('Retrying with attempt number:', payload.attempt_number);
-                
-                const response = await fetch('http://localhost:4000/api/iitm_ct_scores', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(payload)
-                });
-
-                const responseText = await response.text();
-                console.log('Retry response status:', response.status);
-
-                if (response.ok) {
-                    const result = JSON.parse(responseText);
-                    console.log('✓ Quiz submitted successfully on retry:', result);
-                    showResults(
-                        payload.quizData.correctAnswers, 
-                        payload.quizData.earnedPoints, 
-                        payload.quizData.totalPoints, 
-                        payload.quizData.percentage, 
-                        payload.quizData.questionResults
-                    );
-                } else {
-                    throw new Error(`Retry failed: ${responseText}`);
-                }
-            } catch (error) {
-                console.error('❌ Retry failed:', error);
-                throw error;
+                console.error('Submit error:', error);
+                alert('Error submitting quiz. Your answers have been saved locally.');
+                showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
             }
         }
 
         function showResults(correct, earned, total, percentage, results) {
             document.getElementById('quizScreen').style.display = 'none';
             document.getElementById('resultsScreen').style.display = 'block';
+            
+            // Hide calculator
+            document.getElementById('calculatorBtn').style.display = 'none';
+            if (calculatorOpen) {
+                toggleCalculator();
+            }
 
             document.getElementById('finalPercentage').textContent = percentage + '%';
             document.getElementById('finalScoreText').textContent = `${earned}/${total} Points`;
@@ -1323,7 +1633,7 @@
             const reviewContainer = document.getElementById('reviewContainer');
             reviewContainer.innerHTML = '';
 
-            results.forEach(result => {
+            results.forEach((result, index) => {
                 const reviewDiv = document.createElement('div');
                 reviewDiv.className = `review-question ${result.isCorrect ? 'correct' : 'incorrect'}`;
                 
@@ -1371,306 +1681,23 @@
             });
         }
 
-        window.addEventListener('DOMContentLoaded', initQuiz);
-
-        // Scientific Calculator Functions
-        let calculatorOpen = false;
-        let isDragging = false;
-        let dragOffsetX = 0;
-        let dragOffsetY = 0;
-        let angleMode = 'Deg';
-        let memory = 0;
-
-        function calcFunction(func) {
-            const display = document.getElementById('calcDisplay');
-            const value = parseFloat(display.value) || 0;
-            let result;
+        // Initialize everything
+        window.addEventListener('DOMContentLoaded', function() {
+            initQuiz();
             
-            switch(func) {
-                case 'sin':
-                case 'cos':
-                case 'tan':
-                    result = angleMode === 'Deg' ? 
-                        Math[func](value * Math.PI / 180) : 
-                        Math[func](value);
-                    break;
-                case 'sin⁻¹':
-                    result = angleMode === 'Deg' ? 
-                        Math.asin(value) * 180 / Math.PI : 
-                        Math.asin(value);
-                    break;
-                case 'cos⁻¹':
-                    result = angleMode === 'Deg' ? 
-                        Math.acos(value) * 180 / Math.PI : 
-                        Math.acos(value);
-                    break;
-                case 'tan⁻¹':
-                    result = angleMode === 'Deg' ? 
-                        Math.atan(value) * 180 / Math.PI : 
-                        Math.atan(value);
-                    break;
-                case 'sinh':
-                    result = Math.sinh(value);
-                    break;
-                case 'cosh':
-                    result = Math.cosh(value);
-                    break;
-                case 'tanh':
-                    result = Math.tanh(value);
-                    break;
-                case 'ln':
-                    result = Math.log(value);
-                    break;
-                case 'log':
-                    result = Math.log10(value);
-                    break;
-                case 'eˣ':
-                    result = Math.exp(value);
-                    break;
-                case '10ˣ':
-                    result = Math.pow(10, value);
-                    break;
-                case 'x²':
-                    result = value * value;
-                    break;
-                case 'x³':
-                    result = value * value * value;
-                    break;
-                case '1/x':
-                    result = 1 / value;
-                    break;
-                case 'n!':
-                    result = factorial(value);
-                    break;
-                case '|x|':
-                    result = Math.abs(value);
-                    break;
-                default:
-                    return;
-            }
-            
-            document.getElementById('resultDisplay').value = result;
-            document.getElementById('calcDisplay').value = result;
-        }
-
-        function factorial(n) {
-            if (n < 0) return NaN;
-            if (n === 0 || n === 1) return 1;
-            let result = 1;
-            for (let i = 2; i <= n; i++) {
-                result *= i;
-            }
-            return result;
-        }
-
-        function memoryFunction(func) {
-            const value = parseFloat(document.getElementById('resultDisplay').value) || 0;
-            
-            switch(func) {
-                case 'MC':
-                    memory = 0;
-                    break;
-                case 'MR':
-                    document.getElementById('calcDisplay').value = memory;
-                    break;
-                case 'MS':
-                    memory = value;
-                    break;
-                case 'M+':
-                    memory += value;
-                    break;
-                case 'M-':
-                    memory -= value;
-                    break;
-            }
-        }
-
-        function toggleCalculator() {
-            const modal = document.getElementById('calculatorModal');
-            const btn = document.getElementById('calculatorBtn');
-            
-            calculatorOpen = !calculatorOpen;
-            
-            if (calculatorOpen) {
-                modal.style.display = 'flex';
-                btn.style.display = 'none';
-                
-                if (!modal.style.left && !modal.style.top) {
-                    const viewportWidth = window.innerWidth;
-                    const viewportHeight = window.innerHeight;
-                    const modalWidth = modal.offsetWidth;
-                    const modalHeight = modal.offsetHeight;
-                    
-                    modal.style.left = (viewportWidth - modalWidth - 20) + 'px';
-                    modal.style.top = (viewportHeight - modalHeight - 100) + 'px';
+            // Initialize calculator drag after DOM loads
+            setTimeout(() => {
+                if (document.getElementById('calculatorModal')) {
+                    initializeDrag();
                 }
                 
-                setTimeout(() => {
-                    document.getElementById('calcDisplay').focus();
-                }, 100);
-            } else {
-                modal.style.display = 'none';
-                btn.style.display = 'flex';
-            }
-        }
-
-        function initializeDrag() {
-            const modal = document.getElementById('calculatorModal');
-            const header = modal.querySelector('.calculator-header');
-            
-            header.addEventListener('mousedown', startDrag);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', stopDrag);
-        }
-
-        function startDrag(e) {
-            if (e.target.closest('.calculator-close') || e.target.closest('.calc-btn')) {
-                return;
-            }
-            
-            const modal = document.getElementById('calculatorModal');
-            isDragging = true;
-            
-            const rect = modal.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-            
-            modal.style.cursor = 'grabbing';
-            e.preventDefault();
-        }
-
-        function drag(e) {
-            if (!isDragging) return;
-            
-            const modal = document.getElementById('calculatorModal');
-            const x = e.clientX - dragOffsetX;
-            const y = e.clientY - dragOffsetY;
-            
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            const modalWidth = modal.offsetWidth;
-            const modalHeight = modal.offsetHeight;
-            
-            let finalX = Math.max(0, Math.min(x, viewportWidth - modalWidth));
-            let finalY = Math.max(0, Math.min(y, viewportHeight - modalHeight));
-            
-            modal.style.left = finalX + 'px';
-            modal.style.top = finalY + 'px';
-            
-            e.preventDefault();
-        }
-
-        function stopDrag() {
-            isDragging = false;
-            const modal = document.getElementById('calculatorModal');
-            modal.style.cursor = 'move';
-        }
-
-        function addToDisplay(value) {
-            const display = document.getElementById('calcDisplay');
-            const resultDisplay = document.getElementById('resultDisplay');
-            
-            if (resultDisplay.value !== '0' && display.value === '') {
-                resultDisplay.value = '0';
-            }
-            
-            display.value += value;
-            display.focus();
-        }
-
-        function clearCalculator() {
-            document.getElementById('calcDisplay').value = '';
-            document.getElementById('resultDisplay').value = '0';
-        }
-
-        function backspace() {
-            const display = document.getElementById('calcDisplay');
-            display.value = display.value.slice(0, -1);
-        }
-
-        function calculateResult() {
-            const display = document.getElementById('calcDisplay');
-            const resultDisplay = document.getElementById('resultDisplay');
-            
-            try {
-                let expression = display.value
-                    .replace(/×/g, '*')
-                    .replace(/÷/g, '/')
-                    .replace(/\^/g, '**')
-                    .replace(/√/g, 'Math.sqrt')
-                    .replace(/π/g, 'Math.PI')
-                    .replace(/e(?![a-zA-Z])/g, 'Math.E');
+                const degMode = document.getElementById('degMode');
+                const radMode = document.getElementById('radMode');
                 
-                const allowedChars = /^[0-9+\-*/().^MathsincostanasinacosatanlogexpsqrtPIElE, ]+$/;
-                
-                if (!allowedChars.test(expression)) {
-                    throw new Error('Invalid characters');
-                }
-                
-                const safeEval = new Function('return ' + expression);
-                let result = safeEval();
-                
-                if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
-                    result = Math.round(result * 100000000) / 100000000;
-                }
-                
-                resultDisplay.value = result;
-                
-            } catch (error) {
-                resultDisplay.value = 'Error';
-                setTimeout(() => {
-                    resultDisplay.value = '0';
-                }, 1500);
-            }
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (!calculatorOpen) return;
-            
-            const display = document.getElementById('calcDisplay');
-            if (!display) return;
-            
-            if (/[\d\+\-\*\/\(\)\.=%]/.test(e.key) && !e.ctrlKey && !e.metaKey) {
-                e.preventDefault();
-                
-                if (e.key === 'Enter' || e.key === '=') {
-                    calculateResult();
-                } else if (e.key === 'Escape') {
-                    clearCalculator();
-                } else if (e.key === 'Backspace') {
-                    backspace();
-                } else {
-                    addToDisplay(e.key);
-                }
-            }
+                if (degMode) degMode.addEventListener('change', () => angleMode = 'Deg');
+                if (radMode) radMode.addEventListener('change', () => angleMode = 'Rad');
+            }, 1000);
         });
-
-        setTimeout(() => {
-            if (document.getElementById('calculatorModal')) {
-                initializeDrag();
-            }
-            
-            const degMode = document.getElementById('degMode');
-            const radMode = document.getElementById('radMode');
-            
-            if (degMode) degMode.addEventListener('change', () => angleMode = 'Deg');
-            if (radMode) radMode.addEventListener('change', () => angleMode = 'Rad');
-        }, 1000);
-    </script>
-    <script src="../IITM-PDSA/anti-cheating.js"></script>
-    <script>
-        if (window.AntiCheating) {
-            window.AntiCheating.initialize({
-                quizName: 'CT Week 6',
-                requestFullscreen: true,
-                user: { username: userName, email: userEmail }
-            });
-            
-            document.addEventListener('cheatingAutoSubmit', function(e) {
-                console.log('Auto-submit triggered:', e.detail);
-                submitQuiz();
-            });
-        }
     </script>
 </body>
 </html>
