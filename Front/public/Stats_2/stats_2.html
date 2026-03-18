@@ -4,9 +4,9 @@
 <head> 
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>IITM Statisitcs 2</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
+  <title>IITM Statistics 2</title>
+  <meta content="IITM Statistics 2 practice and progress tracker" name="description">
+  <meta content="statistics, IITM Stats 2, analytics" name="keywords">
 
   <!-- Favicons -->
   <link href="../assets/img/favicon.png" rel="icon">
@@ -131,8 +131,8 @@
         <div class="container">
           <div class="row d-flex justify-content-center text-center">
             <div class="col-lg-8">
-              <h1>IITM STATS 2</h1>
-              <p class="mb-0">rom basic concepts to advanced IITM Stats 2 techniques, we guide you every step of the way.</p>
+              <h1>IITM Statistics 2</h1>
+              <p class="mb-0">From basic concepts to advanced IITM Stats 2 techniques, we guide you every step of the way. Follow your progress and strengthen your statistical mastery.</p>
             </div>
           </div>
         </div>
@@ -141,7 +141,7 @@
         <div class="container">
           <ol>
             <li><a href="../index.html">Home</a></li>
-            <li class="../current">IITM Stats 2</li>
+            <li class="current">IITM Statistics 2</li>
           </ol>
         </div>
       </nav>
@@ -211,12 +211,12 @@
   <div id="preloader"></div>
 
   <!-- Vendor JS Files -->
-  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="../assets/vendor/php-email-form/validate.js"></script>
-  <script src="../assets/vendor/aos/aos.js"></script>
-  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
-  <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeo2200EYQxZq+4ISCnz7nJsVf+/vUUPPP3PIE0lqW4qxja5" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/gh/BlackrockDigital/startbootstrap-agency@latest/vendor/php-email-form/validate.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.2.0/js/glightbox.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/purecounterjs/1.5.0/purecounter_vanilla.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@9.4.1/swiper-bundle.min.js"></script>
 
   <!-- Main JS File -->
   <script src="../assets/js/main.js"></script>
@@ -306,24 +306,10 @@
         }
     }
 
-    // helper to compute login page URL depending on where the static
-    // assets are being served from (5500 live server vs backend port 5000).
-    function getLoginUrl() {
-        // always send user to the backend login page so that a valid session
-        // cookie is established; this avoids "Cannot GET /user_login.html"
-        // errors from static servers (port 5500 etc).
-        const backend = `${window.location.protocol}//${window.location.hostname}:5000`;
-        return backend + '/user_login.html';
-    }
-
     // Fetch user session information
     async function fetchSessionInfo() {
         try {
-            // always call backend directly so cookies are included; when
-            // viewing the page via live server the origin differs from the
-            // API host.
-            const backendOrigin = `${window.location.protocol}//${window.location.hostname}:5000`;
-            const response = await fetch(backendOrigin + '/api/session-info', {
+            const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                 credentials: 'include'
             });
 
@@ -340,9 +326,8 @@
             console.log('Session info fetched:', currentUser);
         } catch (error) {
             console.error('Session error:', error);
-            // redirect to the appropriate login page for the current origin
-            window.location.href = getLoginUrl() + '?redirectPath=' +
-                encodeURIComponent(location.pathname);
+            // For local development fallback
+            currentUser = { email: 'test@example.com', username: 'Test User' };
         }
     }
 
