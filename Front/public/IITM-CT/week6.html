@@ -1166,7 +1166,7 @@
         });
 
         // ============================================
-        // FIXED: CORS and API Endpoints
+        // FIXED: Using production URL instead of localhost
         // ============================================
         const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app';
 
@@ -1193,6 +1193,7 @@
                 const data = await response.json();
                 userName = data.username;
                 userEmail = data.email;
+                console.log('Session verified for:', userName);
                 return true;
             } catch (error) {
                 console.error('Session error:', error);
@@ -1214,7 +1215,7 @@
 
         async function loadQuestions() {
             try {
-                // Using POST instead of GET with email in URL for better security
+                // Try POST first (more secure)
                 const response = await fetch(`${API_BASE_URL}/api/iitm-ct-questions`, {
                     method: 'POST',
                     credentials: 'include',
@@ -1229,8 +1230,12 @@
                 
                 if (!response.ok) {
                     // Fallback to GET if POST fails
+                    console.log('POST failed, trying GET fallback...');
                     const fallbackResponse = await fetch(`${API_BASE_URL}/api/iitm-ct-questions/Week%206`, {
-                        credentials: 'include'
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
                     });
                     
                     if (!fallbackResponse.ok) {
@@ -1247,6 +1252,8 @@
                 if (questions.length === 0) {
                     throw new Error('No questions found for Week 6');
                 }
+
+                console.log(`Loaded ${questions.length} questions for Week 6`);
 
                 // Show calculator button
                 document.getElementById('calculatorBtn').style.display = 'flex';
