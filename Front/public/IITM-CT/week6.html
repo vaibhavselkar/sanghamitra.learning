@@ -289,6 +289,13 @@
             text-align: center;
         }
 
+        .error-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
         .results-container {
             padding: 40px;
             display: none;
@@ -661,9 +668,12 @@
         </div>
 
         <div id="errorScreen" style="display: none;" class="error">
-            <h3>Failed to load quiz</h3>
+            <h3>⚠️ Failed to Load Quiz</h3>
             <p id="errorMessage"></p>
-            <button class="btn btn-next" onclick="location.reload()">Retry</button>
+            <div class="error-actions">
+                <button class="btn btn-next" onclick="retryLoad()">🔄 Retry</button>
+                <button class="btn btn-prev" onclick="goToDashboard()">🏠 Dashboard</button>
+            </div>
         </div>
 
         <div id="quizScreen" style="display: none;">
@@ -875,6 +885,8 @@
         let quizStartTime = null;
         let userName = '';
         let userEmail = '';
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
 
         // ============================================
         // CALCULATOR FUNCTIONS
@@ -1166,7 +1178,37 @@
         });
 
         // ============================================
-        // FIXED: Using production URL instead of localhost
+        // ANTI-CHEATING
+        // ============================================
+        function loadAntiCheating() {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = '../IITM-PDSA/anti-cheating.js';
+                script.onload = () => {
+                    console.log('Anti-cheating script loaded');
+                    if (window.AntiCheating) {
+                        window.AntiCheating.initialize({
+                            quizName: 'CT Week 6',
+                            requestFullscreen: true,
+                            user: { username: userName, email: userEmail }
+                        });
+                        
+                        document.addEventListener('cheatingAutoSubmit', function() {
+                            submitQuiz();
+                        });
+                    }
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.warn('Anti-cheating script failed to load');
+                    resolve(); // Don't block quiz loading
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // ============================================
+        // API FUNCTIONS - Using same endpoints as Week 5
         // ============================================
         const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app';
 
@@ -1209,29 +1251,28 @@
             const sessionValid = await fetchSessionInfo();
             if (!sessionValid) return;
             
+            // Load anti-cheating (non-blocking)
+            loadAntiCheating();
+            
             quizStartTime = Date.now();
             loadQuestions();
         }
 
         async function loadQuestions() {
             try {
-                // Try POST first (more secure)
-                const response = await fetch(`${API_BASE_URL}/api/iitm-ct-questions`, {
-                    method: 'POST',
+                // Try the same endpoint format as Week 5
+                const url = `${API_BASE_URL}/api/iitm-ct-questions/Week%206?email=${encodeURIComponent(userEmail)}&count=50`;
+                const response = await fetch(url, {
                     credentials: 'include',
                     headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        topic: 'Week 6',
-                        count: 50
-                    })
+                        'Accept': 'application/json'
+                    }
                 });
                 
                 if (!response.ok) {
-                    // Fallback to GET if POST fails
-                    console.log('POST failed, trying GET fallback...');
-                    const fallbackResponse = await fetch(`${API_BASE_URL}/api/iitm-ct-questions/Week%206`, {
+                    // If Week 6 endpoint fails, try generic endpoint with topic parameter
+                    const fallbackUrl = `${API_BASE_URL}/api/iitm-ct-questions?topic=Week%206`;
+                    const fallbackResponse = await fetch(fallbackUrl, {
                         credentials: 'include',
                         headers: {
                             'Accept': 'application/json'
@@ -1239,7 +1280,7 @@
                     });
                     
                     if (!fallbackResponse.ok) {
-                        throw new Error(`HTTP ${fallbackResponse.status}: ${fallbackResponse.statusText}`);
+                        throw new Error(`Failed to load questions: ${fallbackResponse.status}`);
                     }
                     
                     const fallbackData = await fallbackResponse.json();
@@ -1264,10 +1305,16 @@
                 renderQuestion();
             } catch (error) {
                 console.error('Error loading questions:', error);
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('errorScreen').style.display = 'block';
-                document.getElementById('errorMessage').textContent = 
-                    'Failed to load questions. Please try again.';
+                retryCount++;
+                
+                if (retryCount <= MAX_RETRIES) {
+                    setTimeout(loadQuestions, 2000);
+                } else {
+                    document.getElementById('errorMessage').textContent = 
+                        'Failed to load questions. Please try again later.';
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('errorScreen').style.display = 'block';
+                }
             }
         }
 
@@ -1280,6 +1327,17 @@
                 return data;
             }
             return [];
+        }
+
+        function retryLoad() {
+            retryCount = 0;
+            document.getElementById('errorScreen').style.display = 'none';
+            document.getElementById('loadingScreen').style.display = 'block';
+            initQuiz();
+        }
+
+        function goToDashboard() {
+            window.location.href = '/dashboard.html';
         }
 
         function trackQuestionTime() {
