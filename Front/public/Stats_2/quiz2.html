@@ -765,7 +765,7 @@
                 // target backend directly since static server may not proxy
                 const backendOrigin = getBackendOrigin();
                 const topic = encodeURIComponent('Independence and Variable Functions');
-                const apiUrl = `$https://sanghamitra-learnworld.vercel.app/api/iitm_stats2_questions_databases/${topic}?email=${encodeURIComponent(email)}&count=50`;
+                const apiUrl = `${backendOrigin}/api/api/iitm_stats2_questions_databases/${topic}?email=${encodeURIComponent(email)}&count=50`;
                 console.log('API URL:', apiUrl);
                 
                 const response = await fetch(apiUrl, {
