@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Multiple random variables</title>
+    <title>Multiple Random Variable Week 1 Quiz</title>
    
      <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -562,8 +562,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Multiple random variables Quiz</h1>
-            <p>Test your Statistical knowledge with 50 comprehensive questions</p>
+            <h1>Multiple Random Variable Week 1 Quiz</h1>
+            <p>Basics of Data - Test your statistical knowledge with 50 questions</p>
         </div>
 
         <!-- Quiz Container -->
@@ -590,7 +590,7 @@
             
             <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
                 <button class="btn" onclick="submitQuiz()" id="submitBtn">
-                    <span id="submitText">Submit Multiple random variables Quiz</span>
+                    <span id="submitText">Submit Statistics Week 1 Quiz</span>
                     <span id="submitLoading" class="loading" style="display: none;"></span>
                 </button>
             </div>
@@ -599,7 +599,7 @@
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
-            <h3 id="loadingTitle">Loading Multiple random variables Quiz...</h3>
+            <h3 id="loadingTitle">Loading Statistics Week 1 Quiz...</h3>
             <p id="loadingMessage">Verifying your session and preparing questions</p>
             <p style="font-size: 0.9em; color: #666; margin-top: 20px;">If this takes too long, please <a href="user_login.html?redirectPath=quiz1.html" style="color: #667eea;">login again</a></p>
         </div>
@@ -610,7 +610,8 @@
                 <h2 id="finalScore">0/50</h2>
                 <p>Quiz Completed Successfully!</p>
             </div>
-            <button class="btn" onclick="goback()">Home Page</button>
+            <button class="btn" onclick="goback()">Back to Statistics Home</button>
+            
         </div>
     </div>
 
@@ -1656,7 +1657,7 @@ function handleNumericInputWithValidation(questionIndex, value) {
         // FIXED: Updated submit function with correct request structure
         async function submitQuiz() {
             // Show polite confirmation popup
-            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Sets and Relations Quiz?`);
+            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Statistics Week 1 Quiz?`);
             
             if (!confirmSubmit) {
                 return; // User clicked Cancel, don't submit
@@ -2295,3 +2296,14 @@ const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
