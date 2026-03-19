@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph Theory Quiz</title>
+    <title>Midterm 2 Quiz</title>
     <!-- Load Anti-Cheating Library -->
     <script src="anti-cheating.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,8 +26,7 @@
         .explanation-section,
         .question-card h4,
         .question-card p,
-        .btn,
-        .question-image {
+        .btn {
             -webkit-user-select: text !important;
             -moz-user-select: text !important;
             -ms-user-select: text !important;
@@ -213,8 +213,8 @@
             margin: 15px 0;
             overflow-x: auto;
         }
-        
-        /* Image styling */
+
+
         .question-image {
             max-width: 100%;
             height: auto;
@@ -223,19 +223,10 @@
             margin: 15px 0;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        
         .image-container {
             text-align: center;
             margin: 20px 0;
         }
-        
-        .image-caption {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 8px;
-            font-style: italic;
-        }
-
         .loading-spinner {
             display: inline-block;
             width: 40px;
@@ -379,7 +370,7 @@
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading-spinner"></div>
-            <h3>Loading Midterm-2 Quiz...</h3>
+            <h3>Loading Midterm 2 Quiz...</h3>
             <p>Preparing your test environment</p>
             <small style="opacity: 0.8;">Anti-cheating measures will be activated</small>
         </div>
@@ -387,9 +378,9 @@
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
             <div class="topic-header">
-                <h3>Midterm-2</h3>
-                <p></p>
-                <p id="questionCount">25 Questions</p>
+                <h3>🐍 Python Programming Quiz</h3>
+                <p>Test your knowledge of Python programming concepts, functions, and logic</p>
+                <p id="questionCount">50 Questions</p>
                 <small style="opacity: 0.8; display: block; margin-top: 10px;">
                     ⚠️ Anti-cheating measures are active. Do not switch tabs or windows.
                 </small>
@@ -420,10 +411,10 @@
         <!-- Results -->
         <div id="resultsContainer" class="results-container" style="display: none;">
             <div class="score-display">
-                <h2 id="finalScore">0/25</h2>
+                <h2 id="finalScore">0/50</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
-                <p class="mt-2"><strong>Topic:</strong> Midterm-2</p>
+                <p class="mt-2"><strong>Topic:</strong> Midterm 2 </p>
                 <p id="cheatingLog" style="font-size: 0.9rem; opacity: 0.8;"></p>
             </div>
             <div id="detailedResults"></div>
@@ -465,7 +456,7 @@
 
         // Initialize quiz when page loads
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🔒 Initializing Graph Theory Quiz with anti-cheating...');
+            console.log('🔒 Initializing Midterm 2 Quiz with anti-cheating...');
             
             try {
                 // First, get user session if available
@@ -542,25 +533,26 @@
         });
 
         async function initializeQuiz() {
-            console.log('🚀 Initializing Graph Theory Quiz...');
+            console.log('🚀 Initializing Midterm 2 Quiz...');
             
             // Set default user
             userAnswers = {};
             
-            // Fetch random questions for Midterm-2
+            // Fetch random questions for Sorting Algorithms
             await fetchRandomQuestions();
             
             // Initialize anti-cheating AFTER getting questions
             if (window.AntiCheating && questions.length > 0) {
                 antiCheating = window.AntiCheating.initialize({
-                    quizName: "Graph Theory Quiz",
+                    quizName: "Midterm 2 Quiz",
                     requestFullscreen: false, // CHANGED: Disable fullscreen to avoid errors
-                    user: currentUser
+                    user: currentUser,
+                    autoSubmitThreshold: 5
                 });
 
                 // Allow text selection for ALL quiz elements BEFORE initializing
                 // This is the CRITICAL FIX - allow selection before any events are bound
-                const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn, .question-image';
+                const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
                 
                 if (window.AntiCheating.allowSelection) {
                     window.AntiCheating.allowSelection(allQuizElements);
@@ -584,7 +576,7 @@
 
         async function fetchRandomQuestions() {
             try {
-                console.log('📡 Fetching random Graph Theory questions...');
+                console.log('📡 Fetching random Sorting Algorithms questions...');
                 const response = await fetch(QUESTIONS_API);
                 
                 if (response.ok) {
@@ -603,7 +595,7 @@
                         renderCurrentQuestion();
                         updateProgress();
                     } else {
-                        throw new Error(data.message || 'No questions found for Graph Theory');
+                        throw new Error(data.message || 'No questions found for Midterm 2');
                     }
                 } else {
                     throw new Error('Failed to fetch questions from server');
@@ -646,16 +638,14 @@
                 questionHTML += `<p class="mb-3 allow-select">${question.description}</p>`;
             }
 
-            // Display image if exists
+            // Add this after displaying description (around line 350)
             if (question.images && question.images.trim() !== '') {
                 questionHTML += `
                     <div class="image-container">
                         <img src="${question.images}" 
-                             alt="Graph diagram for question ${currentQuestionIndex + 1}" 
+                             alt="Question image ${currentQuestionIndex + 1}" 
                              class="question-image allow-select"
                              onerror="this.src='https://via.placeholder.com/600x400?text=Image+Not+Found'">
-                        ${question.description && question.description.includes('graph') ? 
-                          `<div class="image-caption">Graph diagram for reference</div>` : ''}
                     </div>
                 `;
             }
@@ -883,7 +873,7 @@
             const quizData = {
                 username: currentUser.username,
                 email: currentUser.email,
-                topic: "Midterm-2",
+                topic: "Midterm 2",
                 score: score,
                 maxScore: totalPossible,
                 percentage: percentage,
@@ -1057,12 +1047,13 @@
             fetchRandomQuestions().then(() => {
                 if (window.AntiCheating && questions.length > 0) {
                     antiCheating = window.AntiCheating.initialize({
-                        quizName: "Graph Theory Quiz - Retake",
+                        quizName: "Midterm 2 Quiz - Retake",
                         requestFullscreen: false, // Keep disabled
-                        user: currentUser
+                        user: currentUser,
+                        autoSubmitThreshold: 5
                     });
 
-                    const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn, .question-image';
+                    const allQuizElements = '.code-block pre, .option-label, .numerical-input, .explanation-section, .question-card h4, .question-card p, .btn, .btn-secondary, .btn-success, .btn-primary, #prevBtn, #nextBtn, #submitBtn';
                     
                     if (window.AntiCheating.allowSelection) {
                         window.AntiCheating.allowSelection(allQuizElements);
