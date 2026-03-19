@@ -632,6 +632,18 @@
                 questionHTML += `<p class="mb-3 allow-select">${question.description}</p>`;
             }
 
+            // Add this after displaying description (around line 350)
+            if (question.images && question.images.trim() !== '') {
+                questionHTML += `
+                    <div class="image-container">
+                        <img src="${question.images}" 
+                             alt="Question image ${currentQuestionIndex + 1}" 
+                             class="question-image allow-select"
+                             onerror="this.src='https://via.placeholder.com/600x400?text=Image+Not+Found'">
+                    </div>
+                `;
+            }
+
             if (question.code) {
                 questionHTML += `
                     <div class="code-block">
