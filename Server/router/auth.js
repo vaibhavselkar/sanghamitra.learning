@@ -2695,32 +2695,70 @@ router.get('/api/test-iitm-questions', async (req, res) => {
 router.get('/iitm-math-questions/:topic', async (req, res) => {
   try {
     const { topic } = req.params;
-    const { email, count = 50 } = req.query;
+    const { email, count = 50, random = 'true' } = req.query;
     
+    // Enhanced validation
     if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+      return res.status(400).json({ 
+        error: 'Email is required',
+        message: 'Please provide email in query parameters'
+      });
     }
+
+    if (!topic) {
+      return res.status(400).json({ 
+        error: 'Topic is required',
+        message: 'Please provide topic in URL path'
+      });
+    }
+
+    // Decode topic if it's URL encoded
+    const decodedTopic = decodeURIComponent(topic);
+    
+    console.log(`📊 Fetching questions - Topic: "${decodedTopic}", Email: ${email}, Count: ${count}`);
 
     // ===========================================
     // STEP 1: Get ALL questions for the topic
-    // ❌ NO filtering by completedQuestionIds
     // ===========================================
     let allQuestions = await IITMathQuestion.find({
-      topic: topic
-    });
+      topic: decodedTopic
+    }).lean(); // Use .lean() for better performance
 
-    console.log(`📊 Found ${allQuestions.length} total questions for topic: ${topic}`);
+    console.log(`📊 Found ${allQuestions.length} total questions for topic: "${decodedTopic}"`);
+
+    // Check if no questions found
+    if (allQuestions.length === 0) {
+      // Try case-insensitive search as fallback
+      console.log(`⚠️ No exact matches, trying case-insensitive search...`);
+      allQuestions = await IITMathQuestion.find({
+        topic: { $regex: new RegExp(`^${decodedTopic}$`, 'i') }
+      }).lean();
+      
+      console.log(`📊 Found ${allQuestions.length} questions with case-insensitive search`);
+      
+      if (allQuestions.length === 0) {
+        // Get available topics for helpful error message
+        const availableTopics = await IITMathQuestion.distinct('topic');
+        console.log('📋 Available topics in database:', availableTopics);
+        
+        return res.status(404).json({ 
+          error: `No questions found for topic: "${decodedTopic}"`,
+          message: `Topic "${decodedTopic}" not found. Available topics: ${availableTopics.join(', ')}`,
+          availableTopics: availableTopics
+        });
+      }
+    }
 
     // ===========================================
     // STEP 2: Remove duplicates within this pool
-    // (Based on _id to ensure uniqueness)
     // ===========================================
     const uniqueQuestions = [];
     const seenIds = new Set();
     
     for (const q of allQuestions) {
-      if (!seenIds.has(q._id.toString())) {
-        seenIds.add(q._id.toString());
+      const id = q._id ? q._id.toString() : null;
+      if (id && !seenIds.has(id)) {
+        seenIds.add(id);
         uniqueQuestions.push(q);
       }
     }
@@ -2728,77 +2766,82 @@ router.get('/iitm-math-questions/:topic', async (req, res) => {
     console.log(`✅ After deduplication: ${uniqueQuestions.length} unique questions in pool`);
 
     // ===========================================
-    // STEP 3: Check if we have enough unique questions
+    // STEP 3: Random selection if requested
+    // ===========================================
+    let selectedQuestions = [...uniqueQuestions];
+    
+    if (random === 'true' || random === true) {
+      // Fisher-Yates shuffle
+      for (let i = selectedQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [selectedQuestions[i], selectedQuestions[j]] = [selectedQuestions[j], selectedQuestions[i]];
+      }
+    }
+
+    // ===========================================
+    // STEP 4: Limit to requested count
     // ===========================================
     const requestedCount = parseInt(count);
-    
-    if (uniqueQuestions.length < requestedCount) {
-      console.warn(`⚠️ Only ${uniqueQuestions.length} unique questions available, but requested ${requestedCount}`);
-      // Return all available unique questions
-    }
-
-    // ===========================================
-    // STEP 4: Random selection from unique pool
-    // ===========================================
-    const shuffledQuestions = [...uniqueQuestions];
-    
-    // Fisher-Yates shuffle
-    for (let i = shuffledQuestions.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
-    }
-
-    // Take only up to the requested count (or all if less)
-    const questionsToReturn = Math.min(requestedCount, shuffledQuestions.length);
-    let selectedQuestions = shuffledQuestions.slice(0, questionsToReturn);
+    const questionsToReturn = Math.min(requestedCount, selectedQuestions.length);
+    const finalQuestions = selectedQuestions.slice(0, questionsToReturn);
     
     // ===========================================
-    // STEP 5: FINAL CHECK - Ensure NO duplicates in this test
+    // STEP 5: FINAL CHECK - Ensure NO duplicates
     // ===========================================
-    const finalIds = new Set(selectedQuestions.map(q => q._id.toString()));
+    const finalIds = new Set(finalQuestions.map(q => q._id?.toString()).filter(Boolean));
     
-    if (finalIds.size !== selectedQuestions.length) {
+    if (finalIds.size !== finalQuestions.length) {
       console.error('❌ Duplicates detected! Forcing removal...');
       
       // Manual deduplication as fallback
       const finalUnique = [];
       const finalSeen = new Set();
       
-      for (const q of selectedQuestions) {
-        if (!finalSeen.has(q._id.toString())) {
-          finalSeen.add(q._id.toString());
+      for (const q of finalQuestions) {
+        const id = q._id?.toString();
+        if (id && !finalSeen.has(id)) {
+          finalSeen.add(id);
           finalUnique.push(q);
         }
       }
       
-      selectedQuestions = finalUnique;
-      console.log(`✅ After forced deduplication: ${selectedQuestions.length} unique questions`);
+      finalQuestions.length = 0;
+      finalQuestions.push(...finalUnique);
+      console.log(`✅ After forced deduplication: ${finalQuestions.length} unique questions`);
     }
 
     // ===========================================
-    // STEP 6: Send response
+    // STEP 6: Sort by question_number for consistency
     // ===========================================
-    console.log(`✅ Returning ${selectedQuestions.length} unique questions for this test`);
-    console.log(`📝 Questions in this test: ${selectedQuestions.map(q => q._id).join(', ')}`);
+    finalQuestions.sort((a, b) => (a.question_number || 0) - (b.question_number || 0));
 
+    // ===========================================
+    // STEP 7: Send response
+    // ===========================================
+    console.log(`✅ Returning ${finalQuestions.length} unique questions for ${decodedTopic}`);
+    
     res.json({
-      questions: selectedQuestions,
+      questions: finalQuestions,
       metadata: {
         totalQuestionsInPool: allQuestions.length,
         uniqueQuestionsInPool: uniqueQuestions.length,
-        selectedCount: selectedQuestions.length,
+        selectedCount: finalQuestions.length,
         requestedCount: requestedCount,
-        topic: topic,
-        allUniqueInThisTest: finalIds.size === selectedQuestions.length,
+        topic: decodedTopic,
+        isRandom: random === 'true' || random === true,
+        allUniqueInThisTest: finalIds.size === finalQuestions.length,
         timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
     console.error(`❌ Error fetching math questions:`, error);
+    console.error(`Error stack:`, error.stack);
+    
     res.status(500).json({ 
       error: `Failed to fetch math questions`,
-      details: error.message 
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
