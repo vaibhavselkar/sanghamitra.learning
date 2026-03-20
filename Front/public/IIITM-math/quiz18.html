@@ -1190,50 +1190,39 @@
         }
 
         async function testImageExists(filename) {
-        if (!filename) return null;
-        
-        const base = filename.replace(/\.[^/.]+$/, '');  // "8.2"
-        const ext = filename.split('.').pop();             // "PNG" or "png"
-        
-        // Try every variation
-        const variations = [
-            filename,                    // Exact as stored in DB
-            `${base}.PNG`,              // Uppercase extension
-            `${base}.png`,              // Lowercase extension
-            `${base}.JPG`,              // Just in case
-            `${base}.jpg`,
-            `${base}.JPEG`,
-            `${base}.jpeg`,
-            filename.toLowerCase(),      // Full lowercase: 8.2.png
-            filename.toUpperCase(),      // Full uppercase: 8.2.PNG
-        ];
-        
-        // Remove duplicates
-        const uniqueVariations = [...new Set(variations)];
-        
-        console.log(`🔍 Testing ${uniqueVariations.length} variations for: ${filename}`);
-        
-        // Test all in parallel for speed
-        const results = await Promise.allSettled(
-            uniqueVariations.map(async (testFile) => {
-                const testUrl = `/Graph-questions/${testFile}`;
-                const response = await fetch(testUrl, { method: 'HEAD' });
-                if (response.ok) return testFile;
-                throw new Error('not found');
-            })
-        );
-        
-        // Return first successful result
-        for (const result of results) {
-            if (result.status === 'fulfilled') {
-                console.log(`✅ Found: ${result.value}`);
-                return result.value;
+    if (!filename) return null;
+    
+    const base = filename.replace(/\.[^/.]+$/, '');
+    
+    // Try uppercase FIRST since files are stored as .PNG on Vercel
+    const variations = [
+        `${base}.PNG`,   // ← Try this first
+        `${base}.png`,
+        filename,        // Exact as in DB
+    ];
+    
+    const seen = new Set();
+    const uniqueVariations = variations.filter(v => {
+        if (seen.has(v)) return false;
+        seen.add(v);
+        return true;
+    });
+    
+    for (const testFile of uniqueVariations) {
+        try {
+            const response = await fetch(`/Graph-questions/${testFile}`, { method: 'HEAD' });
+            if (response.ok) {
+                console.log(`✅ Found image: ${testFile}`);
+                return testFile;
             }
+        } catch (e) {
+            continue;
         }
-        
-        console.log(`❌ No variation found for: ${filename}`);
-        return null;
     }
+    
+    console.log(`❌ No variation found for: ${filename}`);
+    return null;
+}
 
         // Handle image loading errors with fallback paths
         let imageErrorAttempts = {};
