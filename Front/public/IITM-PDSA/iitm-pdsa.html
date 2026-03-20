@@ -813,15 +813,15 @@
          badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
        }
        
-       // Coding assessment button
-       const codingButton = `<a href="${isAuthenticated ? topic.url : 'javascript:void(0)'}" 
-         class="btn ${hasCoding ? 'btn-primary' : 'btn-outline-primary'} btn-sm ${!isAuthenticated ? 'btn-disabled' : ''}" 
-         style="min-width: 200px;"
-         ${!isAuthenticated ? 'onclick="showAuthMessage()"' : ''}>
-         <span>${hasCoding ? `Coding: ${codingPercentage}%` : 'Start Coding'}</span>
-         <i class="bi ${hasCoding ? 'bi-code-square ms-2' : 'bi-arrow-right ms-2'}"></i>
-       </a>`;
-       
+       // Coding assessment button - only show if topic.url exists
+      const codingButton = topic.url ? `<a href="${isAuthenticated ? topic.url : 'javascript:void(0)'}" 
+        class="btn ${hasCoding ? 'btn-primary' : 'btn-outline-primary'} btn-sm ${!isAuthenticated ? 'btn-disabled' : ''}" 
+        style="min-width: 200px;"
+        ${!isAuthenticated ? 'onclick="showAuthMessage()"' : ''}>
+        <span>${hasCoding ? `Coding: ${codingPercentage}%` : 'Start Coding'}</span>
+        <i class="bi ${hasCoding ? 'bi-code-square ms-2' : 'bi-arrow-right ms-2'}"></i>
+      </a>` : '';
+             
        // MCQ/Quiz-Test button
        const mcqButton = topic.testUrl 
          ? `<a href="${isAuthenticated ? topic.testUrl : 'javascript:void(0)'}" 
