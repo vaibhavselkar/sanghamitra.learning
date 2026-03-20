@@ -1731,147 +1731,141 @@
         }
 
         async function loadQuestions() {
-            try {
-                if (!email) {
-                    alert('Please login to take the assessment');
+    try {
+        if (!email) {
+            alert('Please login to take the assessment');
+            return false;
+        }
+        
+        console.log('🔍 Loading questions for email:', email);
+        console.log('📚 Using topic:', QUIZ_CONFIG.topic);
+        
+        // CORRECTED URL FORMAT - using query parameter instead of path parameter
+        const url = `${QUIZ_CONFIG.questionsApi}?topic=${encodeURIComponent(QUIZ_CONFIG.topic)}&email=${encodeURIComponent(email)}&count=${QUIZ_CONFIG.maxQuestions}&random=true`;
+        
+        console.log('🌐 Fetching from URL:', url);
+        
+        const response = await fetch(url, {
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ API Error:', response.status, errorText);
+            throw new Error(`API returned ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('📥 Raw API response:', data);
+        
+        let allQuestions = data.questions || data;
+        
+        if (!allQuestions || allQuestions.length === 0) {
+            console.error('❌ No questions in response:', data);
+            throw new Error('No questions found in database');
+        }
+        
+        console.log(`📚 Total questions in database: ${allQuestions.length}`);
+        
+        // Filter out questions that don't match the topic exactly (just to be safe)
+        allQuestions = allQuestions.filter(q => q.topic === QUIZ_CONFIG.topic);
+        console.log(`📚 Questions with topic "${QUIZ_CONFIG.topic}": ${allQuestions.length}`);
+        
+        // Get answered question IDs
+        const answeredQuestionIds = await getAnsweredQuestionIds();
+        console.log('📝 Already answered question IDs:', answeredQuestionIds);
+        
+        // Filter out answered questions
+        const unansweredQuestions = allQuestions.filter(q => {
+            const qId = q._id?.toString() || q.question_number?.toString();
+            return !answeredQuestionIds.includes(qId);
+        });
+        
+        console.log('🆕 Unanswered questions:', unansweredQuestions.length);
+        
+        // Handle case where all questions are completed
+        if (unansweredQuestions.length === 0) {
+            const resetConfirm = confirm(
+                `🎉 Congratulations! You have completed all ${allQuestions.length} questions!\n\n` +
+                `Questions completed: ${answeredQuestionIds.length}\n` +
+                `Total questions in pool: ${allQuestions.length}\n\n` +
+                `Would you like to reset your progress and start over?`
+            );
+            
+            if (resetConfirm) {
+                const resetSuccess = await resetUserProgress();
+                if (resetSuccess) {
+                    return loadQuestions(); // Retry after reset
+                } else {
+                    alert('Failed to reset progress. Please try again or contact support.');
+                    window.location.href = 'iitm_math.html';
                     return false;
                 }
-                
-                // Try multiple topic variations if the first one fails
-                const topicVariations = [
-                    QUIZ_CONFIG.topic,
-                    'Quiz1_midterm',
-                    'midterm_quiz_1',
-                    'Midterm Quiz 1',
-                    'Quiz1',
-                    'quiz1_midterm'
-                ];
-                
-                let response = null;
-                let successfulTopic = null;
-                
-                for (const topic of topicVariations) {
-                    const url = `${QUIZ_CONFIG.questionsApi}/${encodeURIComponent(topic)}?email=${encodeURIComponent(email)}&count=${QUIZ_CONFIG.maxQuestions}&random=true`;
-                    console.log(`Trying topic: ${topic}`);
-                    
-                    try {
-                        const testResponse = await fetch(url, {
-                            credentials: 'include'
-                        });
-                        
-                        if (testResponse.ok) {
-                            response = testResponse;
-                            successfulTopic = topic;
-                            console.log(`✅ Found working topic: ${topic}`);
-                            break;
-                        } else {
-                            console.log(`❌ Topic failed: ${topic} (${testResponse.status})`);
-                        }
-                    } catch (e) {
-                        console.log(`Error with topic ${topic}:`, e);
-                    }
-                }
-                
-                if (!response) {
-                    throw new Error('No questions found for any topic variation');
-                }
-                
-                const data = await response.json();
-                let allQuestions = data.questions || data;
-                
-                if (!allQuestions || allQuestions.length === 0) {
-                    throw new Error('No questions found in database');
-                }
-                
-                console.log(`📚 Total questions in database: ${allQuestions.length}`);
-                
-                // Get answered question IDs
-                const answeredQuestionIds = await getAnsweredQuestionIds();
-                console.log('📝 Already answered question IDs:', answeredQuestionIds);
-                
-                // Filter out answered questions
-                const unansweredQuestions = allQuestions.filter(q => {
-                    const qId = q._id?.toString() || q.question_number?.toString();
-                    return !answeredQuestionIds.includes(qId);
-                });
-                
-                console.log('🆕 Unanswered questions:', unansweredQuestions.length);
-                
-                // Handle case where all questions are completed
-                if (unansweredQuestions.length === 0) {
-                    const resetConfirm = confirm(
-                        `🎉 Congratulations! You have completed all ${allQuestions.length} questions!\n\n` +
-                        `Questions completed: ${answeredQuestionIds.length}\n` +
-                        `Total questions in pool: ${allQuestions.length}\n\n` +
-                        `Would you like to reset your progress and start over?`
-                    );
-                    
-                    if (resetConfirm) {
-                        const resetSuccess = await resetUserProgress();
-                        if (resetSuccess) {
-                            return loadQuestions(); // Retry after reset
-                        } else {
-                            alert('Failed to reset progress. Please try again or contact support.');
-                            window.location.href = 'iitm_math.html';
-                            return false;
-                        }
-                    } else {
-                        alert('No new questions available. Returning to home page.');
-                        window.location.href = 'iitm_math.html';
-                        return false;
-                    }
-                }
-                
-                // Select random subset
-                const questionsToShow = Math.min(QUIZ_CONFIG.maxQuestions, unansweredQuestions.length);
-                questions = unansweredQuestions.slice(0, questionsToShow);
-                
-                console.log(`✨ Loaded ${questions.length} NEW (never-seen) questions`);
-                return true;
-                
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                showError('Failed to load questions. Please check your connection and try again.');
+            } else {
+                alert('No new questions available. Returning to home page.');
+                window.location.href = 'iitm_math.html';
                 return false;
             }
         }
         
-        // Get all question IDs user has already answered
+        // Select random subset
+        const questionsToShow = Math.min(QUIZ_CONFIG.maxQuestions, unansweredQuestions.length);
+        questions = unansweredQuestions.slice(0, questionsToShow);
+        
+        console.log(`✨ Loaded ${questions.length} NEW (never-seen) questions`);
+        console.log('📋 First question:', questions[0]);
+        
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Error loading questions:', error);
+        showError('Failed to load questions: ' + error.message);
+        return false;
+    }
+}
+        
         async function getAnsweredQuestionIds() {
-            try {
-                const response = await fetch(`${QUIZ_CONFIG.scoresApi}?email=${encodeURIComponent(email)}&topic=${encodeURIComponent(QUIZ_CONFIG.topic)}`, {
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    console.log('No previous quiz history found');
-                    return [];
-                }
-                
-                const scores = await response.json();
-                const answeredIds = new Set();
-                
-                if (Array.isArray(scores)) {
-                    scores.forEach(score => {
-                        if (score.quizData && score.quizData.questionResults) {
-                            score.quizData.questionResults.forEach(result => {
-                                if (result.questionId) {
-                                    answeredIds.add(result.questionId.toString());
-                                }
-                                if (result.questionNumber) {
-                                    answeredIds.add(result.questionNumber.toString());
-                                }
-                            });
+    try {
+        // Use query parameter format here too
+        const url = `${QUIZ_CONFIG.scoresApi}?email=${encodeURIComponent(email)}&topic=${encodeURIComponent(QUIZ_CONFIG.topic)}`;
+        console.log('📊 Fetching scores from:', url);
+        
+        const response = await fetch(url, {
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            console.log('No previous quiz history found');
+            return [];
+        }
+        
+        const scores = await response.json();
+        const answeredIds = new Set();
+        
+        if (Array.isArray(scores)) {
+            scores.forEach(score => {
+                if (score.quizData && score.quizData.questionResults) {
+                    score.quizData.questionResults.forEach(result => {
+                        if (result.questionId) {
+                            answeredIds.add(result.questionId.toString());
+                        }
+                        if (result.questionNumber) {
+                            answeredIds.add(result.questionNumber.toString());
                         }
                     });
                 }
-                
-                return Array.from(answeredIds);
-            } catch (error) {
-                console.error('Error fetching answered questions:', error);
-                return [];
-            }
+            });
         }
+        
+        return Array.from(answeredIds);
+    } catch (error) {
+        console.error('Error fetching answered questions:', error);
+        return [];
+    }
+}
 
         async function resetUserProgress() {
             try {
