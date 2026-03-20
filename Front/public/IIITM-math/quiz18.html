@@ -1189,33 +1189,51 @@
             return exactPath;
         }
 
-        // NEW: Function to test image with multiple extensions
         async function testImageExists(filename) {
-            if (!filename) return null;
-            
-            const extensions = [
-                filename,                     // Original: 8.2.PNG
-                filename.toLowerCase(),       // Lowercase: 8.2.png
-                filename.replace(/\.PNG$/i, '.png'),  // Force .png
-                filename.replace(/\.png$/i, '.PNG')   // Force .PNG
-            ];
-            
-            for (const testFile of extensions) {
+        if (!filename) return null;
+        
+        const base = filename.replace(/\.[^/.]+$/, '');  // "8.2"
+        const ext = filename.split('.').pop();             // "PNG" or "png"
+        
+        // Try every variation
+        const variations = [
+            filename,                    // Exact as stored in DB
+            `${base}.PNG`,              // Uppercase extension
+            `${base}.png`,              // Lowercase extension
+            `${base}.JPG`,              // Just in case
+            `${base}.jpg`,
+            `${base}.JPEG`,
+            `${base}.jpeg`,
+            filename.toLowerCase(),      // Full lowercase: 8.2.png
+            filename.toUpperCase(),      // Full uppercase: 8.2.PNG
+        ];
+        
+        // Remove duplicates
+        const uniqueVariations = [...new Set(variations)];
+        
+        console.log(`🔍 Testing ${uniqueVariations.length} variations for: ${filename}`);
+        
+        // Test all in parallel for speed
+        const results = await Promise.allSettled(
+            uniqueVariations.map(async (testFile) => {
                 const testUrl = `/Graph-questions/${testFile}`;
-                try {
-                    const response = await fetch(testUrl, { method: 'HEAD' });
-                    if (response.ok) {
-                        console.log(`✅ Found: ${testFile} (tried ${filename})`);
-                        return testFile; // Return the working filename
-                    }
-                } catch (error) {
-                    // Continue to next extension
-                }
+                const response = await fetch(testUrl, { method: 'HEAD' });
+                if (response.ok) return testFile;
+                throw new Error('not found');
+            })
+        );
+        
+        // Return first successful result
+        for (const result of results) {
+            if (result.status === 'fulfilled') {
+                console.log(`✅ Found: ${result.value}`);
+                return result.value;
             }
-            
-            console.log(`❌ No variation found for: ${filename}`);
-            return null;
         }
+        
+        console.log(`❌ No variation found for: ${filename}`);
+        return null;
+    }
 
         // Handle image loading errors with fallback paths
         let imageErrorAttempts = {};
