@@ -1741,7 +1741,7 @@
         console.log('📚 Using topic:', QUIZ_CONFIG.topic);
         
         // CORRECTED URL FORMAT - using query parameter instead of path parameter
-        const url = `${QUIZ_CONFIG.questionsApi}?topic=${encodeURIComponent(QUIZ_CONFIG.topic)}&email=${encodeURIComponent(email)}&count=${QUIZ_CONFIG.maxQuestions}&random=true`;
+       const url = `${QUIZ_CONFIG.questionsApi}/Quiz1_midterm?email=${encodeURIComponent(email)}&count=${QUIZ_CONFIG.maxQuestions}&random=true`;
         
         console.log('🌐 Fetching from URL:', url);
         
