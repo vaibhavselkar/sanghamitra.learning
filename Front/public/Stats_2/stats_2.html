@@ -1,21 +1,26 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
  
-<head> 
+<head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>IITM Statistics 2</title>
   <meta content="IITM Statistics 2 practice and progress tracker" name="description">
   <meta content="statistics, IITM Stats 2, analytics" name="keywords">
 
+
   <!-- Favicons -->
   <link href="../assets/img/favicon.png" rel="icon">
   <link href="../assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+
 
   <!-- Vendor CSS Files -->
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -24,8 +29,10 @@
   <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
+
   <!-- Main CSS File -->
   <link href="../assets/css/main.css" rel="stylesheet">
+
 
   <style>
     .course-list {
@@ -34,9 +41,11 @@
       padding: 0 15px;
     }
 
+
     .course-item {
       margin-bottom: 2rem !important;
     }
+
 
     .course-card {
       max-width: 100%;
@@ -44,10 +53,12 @@
       transition: all 0.3s ease;
     }
 
+
     .course-card:hover {
       transform: translateY(-3px);
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
+
 
     .icon-box {
       width: 40px !important;
@@ -57,14 +68,17 @@
       justify-content: center;
     }
 
+
     .progress {
       height: 6px !important;
       background-color: #f0f0f0;
     }
 
+
     .fs-7 {
       font-size: 0.85rem !important;
     }
+
 
     .course-card .btn {
       min-width: 120px;
@@ -75,6 +89,7 @@
       justify-content: space-between;
     }
 
+
     .percentage-badge {
       background: linear-gradient(45deg, #007bff, #0056b3);
       color: white;
@@ -84,6 +99,7 @@
       border-radius: 20px;
       box-shadow: 0 2px 4px rgba(0,123,255,0.3);
     }
+
 
     .completed-badge {
       background: linear-gradient(45deg, #28a745, #20c997);
@@ -97,10 +113,12 @@
       align-items: center;
     }
 
+
     .loading {
       opacity: 0.6;
       pointer-events: none;
     }
+
 
     .error-message {
       color: #dc3545;
@@ -109,6 +127,7 @@
     }
   </style>
 </head>
+
 
 <body>
   <header id="header" class="header d-flex align-items-center sticky-top">
@@ -123,6 +142,7 @@
       </nav>
     </div>
   </header>
+
 
   <main class="main">
     <!-- Page Title -->
@@ -147,6 +167,7 @@
       </nav>
     </div><!-- End Page Title -->
 
+
     <main id="main" class="main">
       <div class="container">
         <div class="course-list" id="courseList">
@@ -157,18 +178,20 @@
             </div>
             <p class="mt-2">Loading course data...</p>
           </div>
-          
+         
           <!-- Error message -->
           <div id="errorMessage" class="alert alert-danger d-none">
             <i class="bi bi-exclamation-triangle me-2"></i>
             <span id="errorText">Failed to load course data. Please try refreshing the page.</span>
           </div>
 
+
           <!-- Course items will be dynamically generated here -->
         </div>
       </div>
     </main>
   </main>
+
 
   <footer id="footer" class="footer position-relative">
     <div class="container footer-top">
@@ -191,10 +214,12 @@
           </div>
         </div>
 
+
         <div class="col-lg-4 col-md-12 footer-newsletter">
         </div>
       </div>
     </div>
+
 
     <div class="container copyright text-center mt-4">
       <p>© <span>Copyright</span> <strong class="px-1">Sanghamitra Learning</strong> <span>All Rights Reserved</span></p>
@@ -204,11 +229,14 @@
     </div>
   </footer>
 
+
   <!-- Scroll Top -->
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
+
   <!-- Preloader -->
   <div id="preloader"></div>
+
 
   <!-- Vendor JS Files -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeo2200EYQxZq+4ISCnz7nJsVf+/vUUPPP3PIE0lqW4qxja5" crossorigin="anonymous"></script>
@@ -218,13 +246,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/purecounterjs/1.5.0/purecounter_vanilla.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@9.4.1/swiper-bundle.min.js"></script>
 
+
   <!-- Main JS File -->
   <script src="../assets/js/main.js"></script>
   <script src="../navbar.js"></script>
-  
+ 
   <!-- Script to fetch and display course data from API -->
   <script>
     let currentUser = null;
+
 
     // Define topic groups to map all variations to a single display topic
     const topicGroups = {
@@ -244,6 +274,7 @@
         'Graph Properties (Week 11)': ['Quiz14', 'graph_properties', 'Graph Properties', 'Graph_Properties']
     };
 
+
     const availableTopics = [
         {
             id: 'review_page',
@@ -254,7 +285,8 @@
             url: 'review.html'
         },
 
-        
+
+       
         {
             id: 'Multiple Random Variable ',
             name: 'Multiple Random Variable ',
@@ -263,6 +295,7 @@
             icon: 'bi-cpu',
             url: 'quiz1.html'
         },
+
 
          {
             id: 'Independence and Variable Functions',
@@ -289,8 +322,26 @@
             url: 'quiz4.html'
         },
        
+        {
+            id: 'Jointly Gaussian Random Variables',
+            name: 'Jointly Gaussian Random Variables',
+            displayName: ' Week 5 - Jointly Gaussian Random Variables',
+            description: 'Assessment on IITM Stats 2 - Jointly Gaussian Random Variables',
+            icon: 'bi-cpu',
+            url: 'quiz5.html'
+        },
+         {
+            id: 'Marginal and Conditional Densities',
+            name: 'Marginal and Conditional Densities',
+            displayName: ' Week 6 - Marginal and Conditional Densities',
+            description: 'Assessment on IITM Stats 2 - Marginal and Conditional Densities',
+            icon: 'bi-cpu',
+            url: 'quiz6.html'
+        },
+   
    
     ];
+
 
     // Initialize the application
     async function initializeApp() {
@@ -306,6 +357,7 @@
         }
     }
 
+
     // Fetch user session information
     async function fetchSessionInfo() {
         try {
@@ -313,16 +365,17 @@
                 credentials: 'include'
             });
 
+
             if (!response.ok) {
                 throw new Error('Session expired or invalid');
             }
-            
+           
             const data = await response.json();
             currentUser = {
                 email: data.email,
                 username: data.username
             };
-            
+           
             console.log('Session info fetched:', currentUser);
         } catch (error) {
             console.error('Session error:', error);
@@ -331,40 +384,42 @@
         }
     }
 
+
     // Update your getDisplayTopic() function to be more flexible
 function getDisplayTopic(topicName) {
     if (!topicName) return null;
-    
+   
     // Convert to lowercase for case-insensitive matching
     const searchName = topicName.toLowerCase().trim();
-    
+   
     console.log(`🔍 Searching for display topic for: "${topicName}" (normalized: "${searchName}")`);
-    
+   
     // Special handling for specific patterns
     if (searchName === 'graph_properties') {
         return 'Graph Properties (Quiz 14)';
     }
-    
+   
     // General matching logic
     for (const [displayTopic, variations] of Object.entries(topicGroups)) {
         for (const variation of variations) {
             const variationLower = variation.toLowerCase();
-            
+           
             // Check multiple matching strategies
             if (variationLower === searchName ||
                 searchName.includes(variationLower) ||
                 variationLower.includes(searchName) ||
                 searchName.replace(/_/g, ' ') === variationLower.replace(/_/g, ' ')) {
-                
+               
                 console.log(`✅ Matched "${topicName}" to display topic: "${displayTopic}" via variation: "${variation}"`);
                 return displayTopic;
             }
         }
     }
-    
+   
     console.log(`❌ No match found for: "${topicName}"`);
     return topicName; // Return original if no match
 }
+
 
 async function loadCourseData() {
     try {
@@ -374,34 +429,35 @@ async function loadCourseData() {
             return;
         }
 
-        const apiUrl = `https://sanghamitra-learnworld.vercel.app/api/iitm_stats2_scores_databases?email=${encodeURIComponent(currentUser.email)}`;
+
+        const apiUrl = `${window.location.origin}/api/iitm_stats2_scores_databases?email=${encodeURIComponent(currentUser.email)}`;
         console.log('📡 Fetching from:', apiUrl);
-        
+       
         const response = await fetch(apiUrl, { credentials: 'include' });
-        
+       
         console.log('📡 Response Status:', response.status, response.statusText);
-        
+       
         if (!response.ok) {
             throw new Error(`API returned ${response.status}: ${response.statusText}`);
         }
-        
+       
         const data = await response.json();
         console.log('📦 API Response keys:', Object.keys(data));
-        
+       
         // CORRECTED: Extract quizScores from the correct location
         let scores = [];
-        
+       
         if (data.success && data.data) {
             console.log('📊 User data structure:', {
                 hasQuizScores: 'quizScores' in data.data,
                 quizScoresLength: data.data.quizScores?.length || 0,
                 allKeys: Object.keys(data.data)
             });
-            
+           
             if (data.data.quizScores && Array.isArray(data.data.quizScores)) {
                 scores = data.data.quizScores;
                 console.log(`✅ Found ${scores.length} quiz scores`);
-                
+               
                 // Log each score for debugging
                 scores.forEach((score, i) => {
                     console.log(`Score ${i + 1}: topic="${score.topic}", percentage=${score.percentage}%`);
@@ -413,12 +469,12 @@ async function loadCourseData() {
         } else {
             console.log('⚠️ Unexpected response structure:', data);
         }
-        
+       
         console.log(`📊 Total scores to render: ${scores.length}`);
-        
+       
         // Pass the scores to render function
         renderCourses({ scores: scores });
-        
+       
     } catch (error) {
         console.error('❌ Failed to load course data:', error);
         showError(`Failed to load assessment data: ${error.message}`);
@@ -426,22 +482,23 @@ async function loadCourseData() {
     }
 }
 
+
     // Debug topic grouping
     function debugTopicGrouping(userScoreData) {
         console.log('=== TOPIC GROUPING DEBUG ===');
-        
+       
         if (!userScoreData?.scores) return;
-        
+       
         // Group scores by display topic
         const groupedScores = {};
-        
+       
         userScoreData.scores.forEach(score => {
             const displayTopic = getDisplayTopic(score.topic);
-            
+           
             if (!groupedScores[displayTopic]) {
                 groupedScores[displayTopic] = [];
             }
-            
+           
             groupedScores[displayTopic].push({
                 topic: score.topic,
                 percentage: score.percentage,
@@ -450,21 +507,22 @@ async function loadCourseData() {
                 timestamp: score.timestamp
             });
         });
-        
+       
         // Log the grouped results
         Object.entries(groupedScores).forEach(([displayTopic, scores]) => {
             console.log(`\n📊 ${displayTopic}: ${scores.length} attempt(s)`);
             scores.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
+           
             scores.forEach((score, i) => {
                 const date = new Date(score.timestamp).toLocaleString();
                 console.log(`  ${i+1}. ${score.topic} - ${score.percentage}% (${score.score}/${score.totalQuestions}) - ${date}`);
             });
-            
+           
             const latest = scores[0];
             console.log(`  ✅ Latest percentage: ${latest.percentage}%`);
         });
     }
+
 
     // Find assessment data for a specific topic - Groups all variations and shows latest percentage
     function findTopicAssessment(userScoreData, topicName) {
@@ -473,30 +531,32 @@ async function loadCourseData() {
             return null;
         }
 
+
         // Get the display topic name for this topic
         const displayTopic = getDisplayTopic(topicName);
         console.log(`Looking for display topic: "${displayTopic}" for topic name: "${topicName}"`);
 
+
         // Find all variations for this display topic
         const variations = topicGroups[displayTopic] || [topicName];
-        
+       
         // Collect all scores that match any variation of this topic
         let allTopicScores = [];
-        
+       
         userScoreData.scores.forEach(score => {
             if (!score.topic) return;
-            
+           
             const scoreTopic = score.topic.trim();
             const scoreTopicLower = scoreTopic.toLowerCase();
-            
+           
             // Check if this score belongs to any variation of our display topic
             for (const variation of variations) {
                 const variationLower = variation.toLowerCase();
-                
+               
                 if (scoreTopicLower === variationLower ||
                     scoreTopicLower.includes(variationLower) ||
                     variationLower.includes(scoreTopicLower)) {
-                    
+                   
                     // Validate we have a percentage value
                     if (score.percentage !== undefined && score.percentage !== null) {
                         allTopicScores.push({
@@ -510,13 +570,16 @@ async function loadCourseData() {
             }
         });
 
+
         if (allTopicScores.length === 0) {
             console.log(`No assessment found for topic group: ${displayTopic} (variations: ${variations.join(', ')})`);
             return null;
         }
 
-        console.log(`Found ${allTopicScores.length} scores for ${displayTopic}:`, 
+
+        console.log(`Found ${allTopicScores.length} scores for ${displayTopic}:`,
             allTopicScores.map(s => ({ topic: s.topic, percentage: s.percentage, timestamp: s.timestamp })));
+
 
         // Sort by timestamp (most recent first) and take the latest
         const latestScore = allTopicScores.sort((a, b) => {
@@ -524,7 +587,7 @@ async function loadCourseData() {
             const dateB = new Date(b.timestamp || 0);
             return dateB - dateA; // Most recent first
         })[0];
-        
+       
         // Calculate percentage (use stored percentage or calculate from score)
         let percentage = 0;
         if (latestScore.percentage !== undefined && latestScore.percentage !== null) {
@@ -532,9 +595,9 @@ async function loadCourseData() {
         } else if (latestScore.score !== undefined && latestScore.totalQuestions) {
             percentage = Math.round((latestScore.score / latestScore.totalQuestions) * 100);
         }
-        
+       
         console.log(`Latest assessment for ${displayTopic}: ${percentage}% from ${latestScore.topic}`);
-        
+       
         return {
             displayName: displayTopic,
             score: percentage,
@@ -549,10 +612,12 @@ async function loadCourseData() {
         };
     }
 
+
     // Render courses based on available topics and assessment data
     function renderCourses(userScoreData) {
         const courseList = document.getElementById('courseList');
         courseList.innerHTML = '';
+
 
         availableTopics.forEach(topic => {
             const topicAssessment = findTopicAssessment(userScoreData, topic.name);
@@ -560,6 +625,7 @@ async function loadCourseData() {
             courseList.insertAdjacentHTML('beforeend', courseHTML);
         });
     }
+
 
     // Create HTML for a course item
 function createCourseHTML(topic, assessment) {
@@ -569,14 +635,14 @@ function createCourseHTML(topic, assessment) {
     const totalQuestions = assessment ? assessment.totalQuestions : 15;
     const lastAttempted = assessment ? assessment.timestamp : null;
     const attemptCount = assessment ? assessment.attemptCount : 0;
-    
+   
     // Use display name from assessment if available, otherwise from topic
     const displayName = assessment?.displayName || topic.displayName;
-    
-    // Determine progress bar color based on score 
+   
+    // Determine progress bar color based on score
     let progressBarClass = 'bg-primary';
     let badgeStyle = 'background: linear-gradient(45deg, #007bff, #0056b3);';
-    
+   
     if (score >= 80) {
         progressBarClass = 'bg-success';
         badgeStyle = 'background: linear-gradient(45deg, #28a745, #20c997);';
@@ -591,8 +657,9 @@ function createCourseHTML(topic, assessment) {
         badgeStyle = 'background: linear-gradient(45deg, #dc3545, #c82333);';
     }
 
+
     // Updated action button logic with Retest button
-    const actionButton = isCompleted 
+    const actionButton = isCompleted
         ? `<a href="${topic.url}" class="btn btn-primary btn-sm">
             <span>Retest</span>
             <i class="bi bi-arrow-clockwise ms-2"></i>
@@ -606,8 +673,10 @@ function createCourseHTML(topic, assessment) {
             <i class="bi bi-arrow-right ms-2"></i>
         </a>`;
 
+
     // Set progress bar width
     const progressWidth = isCompleted ? score : 0;
+
 
     return `
         <div class="course-item mb-3" data-topic="${topic.id}">
@@ -623,19 +692,19 @@ function createCourseHTML(topic, assessment) {
                             <h4 class="mb-1 fs-5">${displayName}</h4>
                             <p class="text-muted mb-2 fs-6">${topic.description}</p>
                             <div class="progress" style="height: 6px;">
-                                <div class="progress-bar ${progressBarClass}" role="progressbar" 
+                                <div class="progress-bar ${progressBarClass}" role="progressbar"
                                     style="width: ${progressWidth}%"
                                     aria-valuenow="${score}" aria-valuemin="0" aria-valuemax="100">
                                 </div>
                             </div>
-                            ${lastAttempted ? 
-                                `<small class="text-muted">Last attempt: ${new Date(lastAttempted).toLocaleDateString('en-US', { 
-                                    year: 'numeric', 
-                                    month: 'short', 
+                            ${lastAttempted ?
+                                `<small class="text-muted">Last attempt: ${new Date(lastAttempted).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
                                     day: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit'
-                                })}</small>` 
+                                })}</small>`
                                 : '<small class="text-muted">Not attempted yet</small>'}
                         </div>
                         <div class="col-lg-2 col-md-2 text-center">
@@ -651,6 +720,7 @@ function createCourseHTML(topic, assessment) {
     `;
 }
 
+
     // Show/hide loading indicator
     function showLoading(show) {
         const loadingMessage = document.getElementById('loadingMessage');
@@ -659,16 +729,18 @@ function createCourseHTML(topic, assessment) {
         }
     }
 
+
     // Show error message
     function showError(message) {
         const errorMessage = document.getElementById('errorMessage');
         const errorText = document.getElementById('errorText');
-        
+       
         if (errorMessage && errorText) {
             errorText.textContent = message;
             errorMessage.classList.remove('d-none');
         }
     }
+
 
     // Hide error message
     function hideError() {
@@ -678,11 +750,13 @@ function createCourseHTML(topic, assessment) {
         }
     }
 
+
     // Initialize when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
         console.log('DOM loaded, initializing application...');
         initializeApp();
     });
+
 
     // Add refresh functionality
     function refreshCourseData() {
@@ -692,3 +766,8 @@ function createCourseHTML(topic, assessment) {
 </script>
 </body>
 </html>
+
+
+
+
+
