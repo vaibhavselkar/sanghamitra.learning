@@ -214,7 +214,7 @@
             overflow-x: auto;
         }
 
-
+         /* Image styling */
         .question-image {
             max-width: 100%;
             height: auto;
@@ -223,10 +223,19 @@
             margin: 15px 0;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+        
         .image-container {
             text-align: center;
             margin: 20px 0;
         }
+        
+        .image-caption {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
         .loading-spinner {
             display: inline-block;
             width: 40px;
@@ -638,17 +647,19 @@
                 questionHTML += `<p class="mb-3 allow-select">${question.description}</p>`;
             }
 
-            // Add this after displaying description (around line 350)
-            if (question.images && question.images.trim() !== '') {
+            // Display image if exists - supports both 'image' and 'images' fields
+            const imageField = question.image || question.images;
+            if (imageField && imageField.trim() !== '') {
                 questionHTML += `
                     <div class="image-container">
-                        <img src="${question.images}" 
+                        <img src="${imageField}" 
                              alt="Question image ${currentQuestionIndex + 1}" 
                              class="question-image allow-select"
                              onerror="this.src='https://via.placeholder.com/600x400?text=Image+Not+Found'">
                     </div>
                 `;
             }
+
 
             if (question.code) {
                 questionHTML += `
