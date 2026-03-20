@@ -17,10 +17,6 @@
       "dest": "/Server/app.js"
     },
     {
-      "src": "/Graph-questions/(.*)",
-      "dest": "/Front/public/Graph-questions/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "/Front/public/$1"
     }
