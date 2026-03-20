@@ -1189,22 +1189,43 @@
             return exactPath;
         }
 
-       async function testImageExists(filename) {
+      async function testImageExists(filename) {
     if (!filename) return null;
     
     const base = filename.replace(/\.[^/.]+$/, '');
-    const baseLower = base.toLowerCase();
     
-    // Try all variations - lowercase first, then uppercase, then exact
-    const variations = [
-        `${baseLower}.png`,        // all lowercase (most common on Linux/Vercel)
-        `${baseLower}.PNG`,        // lowercase base, uppercase extension
-        `${base}.png`,             // original base, lowercase extension
-        `${base}.PNG`,             // original base, uppercase extension
-        filename,                  // exact as stored in DB
-        filename.toLowerCase(),    // full filename lowercase
-        filename.toUpperCase(),    // full filename uppercase
-    ];
+    // Generate ALL case variations of the base name
+    function getAllCaseVariations(str) {
+        const lower = str.toLowerCase();
+        const upper = str.toUpperCase();
+        const exact = str;
+        
+        // Title case: First_Letter_Of_Each_Word
+        const titleCase = str.replace(/(?:^|_)([a-zA-Z])/g, (match, letter) => 
+            match.replace(letter, letter.toUpperCase())
+        );
+        
+        // camelCase from underscore: qeDeg4NegBounceMiddle
+        const camelCase = lower.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+        
+        return [...new Set([lower, upper, exact, titleCase, camelCase])];
+    }
+    
+    const extensions = ['.png', '.PNG', '.jpg', '.JPG', '.jpeg', '.JPEG'];
+    const baseVariations = getAllCaseVariations(base);
+    
+    // Build all combinations of base × extension
+    const variations = [];
+    for (const b of baseVariations) {
+        for (const ext of extensions) {
+            variations.push(`${b}${ext}`);
+        }
+    }
+    
+    // Also add the original filename as-is and fully lowercased
+    variations.push(filename);
+    variations.push(filename.toLowerCase());
+    variations.push(filename.toUpperCase());
     
     // Deduplicate while preserving order
     const seen = new Set();
@@ -1214,11 +1235,13 @@
         return true;
     });
     
+    console.log(`🔍 Testing ${uniqueVariations.length} variations for: ${filename}`);
+    
     for (const testFile of uniqueVariations) {
         try {
             const response = await fetch(`/Graph-questions/${testFile}`, { method: 'HEAD' });
             if (response.ok) {
-                console.log(`✅ Found image: ${testFile} (tried as: ${filename})`);
+                console.log(`✅ Found: ${testFile}`);
                 return testFile;
             }
         } catch (e) {
@@ -1226,7 +1249,7 @@
         }
     }
     
-    console.log(`❌ No variation found for: ${filename}`);
+    console.log(`💔 All ${uniqueVariations.length} variations exhausted for: ${filename}`);
     return null;
 }
 
