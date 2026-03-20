@@ -1189,18 +1189,24 @@
             return exactPath;
         }
 
-        async function testImageExists(filename) {
+       async function testImageExists(filename) {
     if (!filename) return null;
     
     const base = filename.replace(/\.[^/.]+$/, '');
+    const baseLower = base.toLowerCase();
     
-    // Try uppercase FIRST since files are stored as .PNG on Vercel
+    // Try all variations - lowercase first, then uppercase, then exact
     const variations = [
-        `${base}.PNG`,   // ← Try this first
-        `${base}.png`,
-        filename,        // Exact as in DB
+        `${baseLower}.png`,        // all lowercase (most common on Linux/Vercel)
+        `${baseLower}.PNG`,        // lowercase base, uppercase extension
+        `${base}.png`,             // original base, lowercase extension
+        `${base}.PNG`,             // original base, uppercase extension
+        filename,                  // exact as stored in DB
+        filename.toLowerCase(),    // full filename lowercase
+        filename.toUpperCase(),    // full filename uppercase
     ];
     
+    // Deduplicate while preserving order
     const seen = new Set();
     const uniqueVariations = variations.filter(v => {
         if (seen.has(v)) return false;
@@ -1212,7 +1218,7 @@
         try {
             const response = await fetch(`/Graph-questions/${testFile}`, { method: 'HEAD' });
             if (response.ok) {
-                console.log(`✅ Found image: ${testFile}`);
+                console.log(`✅ Found image: ${testFile} (tried as: ${filename})`);
                 return testFile;
             }
         } catch (e) {
