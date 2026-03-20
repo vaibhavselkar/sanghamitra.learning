@@ -986,17 +986,17 @@
             },
             
             normalizeEquation: (eq) => {
-                return (eq || '').toString()
-                    .replace(/\s+/g, '')  // Remove all spaces
-                    .replace(/\*\*/g, '^')  // ** → ^
-                    .replace(/\^/g, '^')
+                 return (eq || '').toString()
+                    .replace(/\s+/g, '')
+                    .replace(/\*\*/g, '^')
+                    .replace(/²/g, '^2')
+                    .replace(/³/g, '^3')
                     .replace(/\+\-/g, '-')
                     .replace(/\-\+/g, '-')
                     .replace(/log/gi, 'log')
                     .replace(/ln/gi, 'ln')
                     .toLowerCase();
             },
-            
             normalizeNumeric: (num) => {
                 const str = (num || '').toString().trim().toLowerCase();
                 
@@ -1033,8 +1033,26 @@
                 } else if (questionType === 'equation_input') {
                     return answerNormalizer.normalizeEquation(str);
                 } else {
-                    return str.toLowerCase();
+                // Normalize root answers like "x=-2,x=2" vs "x = 2, x = -2"
+                let normalized = str
+                    .replace(/\s+/g, '')
+                    .replace(/²/g, '^2')
+                    .replace(/³/g, '^3')
+                    .replace(/\*\*/g, '^')
+                    .toLowerCase();
+            
+                // If it looks like comma-separated x= roots, sort them for order-independence
+                // e.g. "x=-2,x=2" and "x=2,x=-2" should both match
+                if (/^(x=[^,]+)(,x=[^,]+)+$/.test(normalized)) {
+                    normalized = normalized.split(',').sort().join(',');
                 }
+                // Also handle plain comma-separated values like "-2,2" or "2,-2"
+                if (/^-?[\d.]+(?:,-?[\d.]+)+$/.test(normalized)) {
+                    normalized = normalized.split(',').map(v => v.trim()).sort().join(',');
+                }
+            
+                return normalized;
+            }
             }
         };
 
@@ -1894,18 +1912,25 @@
                             });
                         }
                     } else if (question.type === 'equation_input') {
-                        isCorrect = normalizedUser === normalizedCorrect;
+                            isCorrect = normalizedUser === normalizedCorrect;
                         
-                        if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
-                            isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
-                                return normalizedAlt === normalizedUser;
-                            });
+                            if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+                                isCorrect = question.alternative_answers.some(alt => {
+                                    const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                    return normalizedAlt === normalizedUser;
+                                });
+                            }
+                        } else {
+                            // For text input and other types — includes root answers like "x=-2,x=2"
+                            isCorrect = normalizedUser === normalizedCorrect;
+                        
+                            if (!isCorrect && question.alternative_answers && Array.isArray(question.alternative_answers)) {
+                                isCorrect = question.alternative_answers.some(alt => {
+                                    const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                                    return normalizedAlt === normalizedUser;
+                                });
+                            }
                         }
-                    } else {
-                        // For text input and other types
-                        isCorrect = normalizedUser === normalizedCorrect;
-                    }
                 }
                 
                 if (isCorrect) {
