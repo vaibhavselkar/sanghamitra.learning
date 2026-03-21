@@ -1585,21 +1585,13 @@
             // Process question text for LaTeX
             let questionText = question.question_text || 'Question text not available';
             
-            // Check if question text contains LaTeX or math expressions
-            if (questionText.includes('$') || questionText.includes('\\') || 
-                questionText.includes('sqrt') || questionText.includes('^') ||
-                questionText.includes('⁻¹') || questionText.includes('^-1')) {
-                questionText = answerFormatter.formatForMathJax(questionText);
-            }
+           
             
             if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
                 optionsHtml = question.options.map((option, optIndex) => {
                     // Format option text for display
                     let optionText = option;
-                    if (option.includes('inf') || option.includes('sqrt') || option.includes('^') ||
-                        option.includes('⁻¹') || option.includes('^-1')) {
-                        optionText = answerFormatter.formatForMathJax(option);
-                    }
+                   
                     
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     return `
@@ -1905,9 +1897,11 @@
             if (!previewData) return;
             
             // Update formatted view with LaTeX for display
+                        
             const formattedEl = document.getElementById(`previewFormatted-${questionIndex}`);
-            if (formattedEl) {
-                formattedEl.innerHTML = previewData.latex;
+           if (formattedEl) {
+                formattedEl.innerHTML = trimmedValue; // Show raw input
+                formattedEl.style.fontFamily = 'monospace';
             }
             
             // Update hint section
