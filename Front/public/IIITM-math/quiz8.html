@@ -115,14 +115,14 @@
             border-bottom: 1px solid #e9ecef;
         }
 
-        /* Total Time Display - Styled like first code */
+        /* Total Time Display - Styled exactly like first code with icon and premium look */
         .total-time-container {
             background: #f1f3f5;
             border-radius: 30px;
             padding: 8px 18px;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-family: 'Courier New', monospace;
             font-weight: 700;
             font-size: 1.1rem;
@@ -134,19 +134,21 @@
             font-size: 1rem;
             font-weight: 600;
             color: #667eea;
+            letter-spacing: 0.5px;
         }
         #totalTimerDisplay {
             letter-spacing: 1px;
             background: white;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 40px;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: bold;
             color: #764ba2;
             min-width: 130px;
             display: inline-block;
             text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            font-variant-numeric: tabular-nums;
         }
 
         .progress-bar {
@@ -565,14 +567,15 @@
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
             <div class="progress-container">
-                <!-- Total Timer Display (like first code) -->
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 15px;">
-                    
-                    <div class="progress-text" id="questionCounterSpan">Question 1 of 50</div>
+                <!-- Total Timer Display - exactly like first code (prominent timer) -->
+                <div class="total-time-container">
+                    <span>⏱ TOTAL TIME</span>
+                    <span id="totalTimerDisplay">0s</span>
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
+                <div class="progress-text" id="questionCounterSpan" style="margin-top: 8px;">Question 1 of 50</div>
             </div>
 
             <div id="questionContainer"></div>
@@ -721,10 +724,16 @@
         // TOTAL TIME IMPLEMENTATION (like first code)
         // ============================================
         let totalElapsedSeconds = 0;
+        let isQuizActive = false;
 
+        // Live timer that updates every second
         setInterval(() => {
             if (isQuizActive) {
                 totalElapsedSeconds++;
+                const timerElement = document.getElementById('totalTimerDisplay');
+                if (timerElement) {
+                    timerElement.textContent = formatDuration(totalElapsedSeconds);
+                }
             }
         }, 1000);
 
@@ -853,7 +862,6 @@
 
         function initializeQuizTiming() { 
             questionStartTime = new Date(); 
-            
         }
         
         function trackQuestionTime() { 
@@ -923,14 +931,6 @@
             if (window.MathJax) MathJax.typesetPromise([div]).catch(() => {});
             restoreAnswer();
             updateAnswerStatus();
-            
-            const input = document.getElementById(`answerInput-${currentQuestionIndex}`);
-            if (input) {
-                input.addEventListener('focus', () => {
-                    const preview = document.getElementById(`answerPreview-${currentQuestionIndex}`);
-                    if (preview) preview.classList.add('visible');
-                });
-            }
         }
 
         function restoreAnswer() {
@@ -1012,7 +1012,7 @@
             if (!confirmSubmit) return;
             
             trackQuestionTime();
-         
+            isQuizActive = false;
             
             let score = 0;
             let totalPossiblePoints = 0;
@@ -1225,6 +1225,7 @@
                 const questionsLoaded = await loadQuestions();
                 if (questionsLoaded && questions.length > 0) {
                     initializeQuizTiming();
+                    isQuizActive = true;
                     document.getElementById('loadingScreen').style.display = 'none';
                     document.getElementById('quizContainer').style.display = 'block';
                     renderCurrentQuestion();
