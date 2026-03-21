@@ -567,10 +567,7 @@
             <div class="progress-container">
                 <!-- Total Timer Display (like first code) -->
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 15px;">
-                    <div class="total-time-container">
-                        <span>⏱️ TOTAL TIME</span>
-                        <span id="totalTimerDisplay">00:00:00</span>
-                    </div>
+                    
                     <div class="progress-text" id="questionCounterSpan">Question 1 of 50</div>
                 </div>
                 <div class="progress-bar">
@@ -723,33 +720,13 @@
         // ============================================
         // TOTAL TIME IMPLEMENTATION (like first code)
         // ============================================
-        let totalTimerInterval = null;
         let totalElapsedSeconds = 0;
 
-        function startTotalTimer() {
-            if (totalTimerInterval) clearInterval(totalTimerInterval);
-            totalTimerInterval = setInterval(() => {
+        setInterval(() => {
+            if (isQuizActive) {
                 totalElapsedSeconds++;
-                updateTotalTimerDisplay();
-            }, 1000);
-        }
-
-        function stopTotalTimer() {
-            if (totalTimerInterval) {
-                clearInterval(totalTimerInterval);
-                totalTimerInterval = null;
             }
-        }
-
-        function updateTotalTimerDisplay() {
-            const hrs = Math.floor(totalElapsedSeconds / 3600);
-            const mins = Math.floor((totalElapsedSeconds % 3600) / 60);
-            const secs = totalElapsedSeconds % 60;
-            const display = document.getElementById('totalTimerDisplay');
-            if (display) {
-                display.textContent = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-            }
-        }
+        }, 1000);
 
         function formatDuration(seconds) {
             const h = Math.floor(seconds / 3600);
@@ -876,7 +853,7 @@
 
         function initializeQuizTiming() { 
             questionStartTime = new Date(); 
-            startTotalTimer();
+            
         }
         
         function trackQuestionTime() { 
@@ -1035,7 +1012,7 @@
             if (!confirmSubmit) return;
             
             trackQuestionTime();
-            stopTotalTimer();
+         
             
             let score = 0;
             let totalPossiblePoints = 0;
