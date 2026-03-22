@@ -201,6 +201,7 @@
             cursor: pointer;
             flex: 1;
             font-size: 1rem;
+            color: #333;
         }
 
         .numeric-input {
@@ -227,88 +228,51 @@
             border-top: 2px solid #e9ecef;
         }
 
-        .nav-btn {
+        .btn {
             padding: 12px 25px;
+            border-radius: 6px;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
             cursor: pointer;
+            font-size: 15px;
             transition: all 0.2s ease;
         }
 
-        .nav-btn:disabled {
+        .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .nav-btn.primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .nav-btn.primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .nav-btn.secondary {
+        .btn-prev {
             background: #6c757d;
             color: white;
         }
 
-        .nav-btn.secondary:hover:not(:disabled) {
-            background: #5a6268;
-        }
-
-        .nav-btn.success {
-            background: #28a745;
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
-        .nav-btn.success:hover:not(:disabled) {
-            background: #218838;
+        .btn-submit {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            margin-top: 20px;
         }
 
-        .timer {
-            display: none;
-        }
-
-        .timer-icon {
-            width: 16px;
-            height: 16px;
-        }
-
-        .loading-screen, .error-screen, .results-screen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-content, .error-content, .results-content {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
+        .loading {
             text-align: center;
-            max-width: 500px;
-            width: 90%;
+            padding: 60px;
         }
 
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
             border: 4px solid #f3f3f3;
             border-top: 4px solid #667eea;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -316,33 +280,22 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error-content h2 {
-            color: #dc3545;
-            margin-bottom: 15px;
-        }
-
-        .error-content p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .retry-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
             border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
+            margin: 20px;
+            text-align: center;
         }
 
-        .results-content {
-            max-width: 800px;
-            text-align: left;
+        .results-container {
+            padding: 40px;
+            display: none;
         }
 
         .score-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
             padding: 40px;
             border-radius: 15px;
@@ -445,69 +398,39 @@
         .review-text {
             margin-bottom: 15px;
             color: #333;
-            font-size: 1rem;
             line-height: 1.6;
         }
 
         .answer-comparison {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
         }
 
         .answer-row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .answer-row:last-child {
-            border-bottom: none;
+            align-items: baseline;
+            margin-bottom: 8px;
         }
 
         .answer-label {
             font-weight: 600;
-            color: #666;
             min-width: 120px;
+            color: #666;
         }
 
         .answer-value {
-            flex: 1;
-            text-align: right;
-            font-weight: 500;
+            color: #333;
         }
 
         .answer-value.correct {
             color: #28a745;
+            font-weight: 600;
         }
 
         .answer-value.incorrect {
             color: #dc3545;
-        }
-
-        .results-actions {
-            text-align: center;
-            margin-top: 30px;
-        }
-
-        .action-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-size: 1rem;
             font-weight: 600;
-            cursor: pointer;
-            margin: 0 10px;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         /* Calculator Styles */
@@ -519,7 +442,7 @@
             color: white;
             padding: 12px 20px;
             border-radius: 50px;
-            display: flex;
+            display: none;
             align-items: center;
             gap: 10px;
             cursor: pointer;
@@ -565,6 +488,70 @@
             font-size: 1.1rem;
         }
 
+        .calculator-header .help-btn {
+            background: #4fc3f7;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: auto;
+            margin-right: 10px;
+        }
+
+        .calculator-header .minimize-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+
+        .mode-selector {
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .mode-selector label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        #resultDisplay {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 1.8rem;
+            text-align: right;
+            border: none;
+            background: transparent;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .calc-btn.operator {
+            background: #ff6b6b;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calc-btn.equals {
+            background: #51cf66;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calc-btn.memory {
+            background: #e3e8ff;
+            color: #667eea;
+            font-size: 0.85rem;
+        }
+
         .calculator-close {
             background: none;
             border: none;
@@ -586,20 +573,6 @@
             background: rgba(255,255,255,0.2);
         }
 
-        .mode-selector {
-            padding: 10px 15px;
-            background: #f0f0f0;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .mode-selector label {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
         .calculator-display {
             padding: 15px;
             background: #f8f9fa;
@@ -616,17 +589,6 @@
             background: white;
             font-family: 'Courier New', monospace;
             margin-bottom: 5px;
-        }
-
-        #resultDisplay {
-            width: 100%;
-            padding: 8px 12px;
-            font-size: 1.8rem;
-            text-align: right;
-            border: none;
-            background: transparent;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
         }
 
         .calculator-buttons {
@@ -672,84 +634,45 @@
             background: #f0f0f0;
         }
 
-        .calc-btn.operator {
-            background: #ff6b6b;
-            color: white;
-            font-weight: 600;
-        }
-
-        .calc-btn.equals {
-            background: #51cf66;
-            color: white;
-            font-weight: 600;
-        }
-
-        .calc-btn.memory {
-            background: #e3e8ff;
-            color: #667eea;
-            font-size: 0.85rem;
-        }
-
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .question-split {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
             
-            .calculator {
-                width: 280px;
-                right: 10px;
-            }
-            
-            .container {
-                margin: 10px;
-                padding: 0;
-            }
-            
-            .quiz-container {
-                padding: 20px;
-            }
-            
-            .header {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
+            .calculator-modal {
+                width: 90%;
+                max-width: 590px;
             }
         }
     </style>
 </head>
 <body>
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h2>Loading CT Week 7 Quiz...</h2>
-            <p>Please wait while we prepare your questions.</p>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 CT Week 7 Quiz</h1>
+            <p>Week 7 Assessment</p>
         </div>
-    </div>
 
-    <div id="errorScreen" class="error-screen">
-        <div class="error-content">
-            <h2>❌ Error Loading Quiz</h2>
-            <p id="errorMessage">Something went wrong. Please try again.</p>
-            <button class="retry-btn" onclick="location.reload()">Retry</button>
+        <div id="loadingScreen" class="loading">
+            <div class="spinner"></div>
+            <h3 style="margin-top: 20px;">Loading Quiz...</h3>
+            <p>Verifying your session</p>
         </div>
-    </div>
 
-    <div id="quizScreen">
-        <div class="container">
-            <div class="header">
-                <h1>CT Week 7 Quiz</h1>
-                <p>Test your computational thinking skills</p>
-            </div>
+        <div id="errorScreen" style="display: none;" class="error">
+            <h3>Failed to load quiz</h3>
+            <p id="errorMessage"></p>
+            <button class="btn btn-next" onclick="location.reload()">Retry</button>
+        </div>
 
+        <div id="quizScreen" style="display: none;">
             <div class="progress-container">
                 <div class="progress-bar">
-                    <div id="progressFill" class="progress-fill"></div>
+                    <div class="progress-fill" id="progressFill"></div>
                 </div>
                 <div class="progress-text">
-                    <span id="progressText">Question 1 of 10</span>
+                    <span id="progressText">Question 1 of 0</span>
                     <span id="answeredStatus" class="status-badge status-unanswered">Unanswered</span>
                 </div>
             </div>
@@ -759,73 +682,73 @@
                     <div class="question-side">
                         <div class="question-header">
                             <div class="question-number" id="questionNum">1</div>
-                            <span id="difficultyBadge" class="difficulty-badge difficulty-medium">MEDIUM</span>
+                            <span class="difficulty-badge" id="difficultyBadge">Medium</span>
                         </div>
-                        <div id="questionText" class="question-text">
-                            Loading question...
-                        </div>
-                        <div id="datasetBadge" class="dataset-badge" style="display: none;"></div>
+                        <div class="question-text" id="questionText"></div>
+                        <span class="dataset-badge" id="datasetBadge" style="display: none;"></span>
                     </div>
 
                     <div class="answer-side">
                         <div class="answer-header">
-                            <h3 id="answerInstruction">Select one answer</h3>
+                            <h3>Your Answer</h3>
+                            <p class="answer-instruction" id="answerInstruction">Select your answer below</p>
                         </div>
-                        <div id="answerContainer">
-                            Loading options...
-                        </div>
+                        <div id="answerContainer"></div>
                     </div>
                 </div>
 
                 <div class="navigation">
-                    <button id="prevBtn" class="nav-btn secondary" onclick="previousQuestion()" disabled>← Previous</button>
+                    <button class="btn btn-prev" id="prevBtn" onclick="previousQuestion()" disabled>
+                        ← Previous
+                    </button>
                     <span id="questionStatus">Question 1 of 0</span>
-                    <button id="nextBtn" class="nav-btn primary" onclick="nextQuestion()">Next →</button>
+                    <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">
+                        Next →
+                    </button>
                 </div>
 
                 <div style="text-align: center;">
-                    <button class="nav-btn success" id="submitBtn" onclick="submitQuiz()" style="display: none;">📝 Submit Quiz</button>
+                    <button class="btn btn-submit" id="submitBtn" onclick="submitQuiz()" style="display: none;">
+                        📝 Submit Quiz
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="resultsScreen" class="results-screen">
-        <div class="results-content">
+        <div id="resultsScreen" class="results-container">
             <div class="score-card">
-                <h2 id="finalPercentage">85%</h2>
-                <p id="finalScoreText">17/20 Points</p>
+                <h2 id="finalPercentage">0%</h2>
+                <p id="finalScoreText">0/0 Points</p>
             </div>
 
             <div class="score-stats">
                 <div class="stat-box">
                     <h4>Total Questions</h4>
-                    <p id="statTotal">10</p>
+                    <p id="statTotal">0</p>
                 </div>
                 <div class="stat-box">
-                    <h4>Correct</h4>
-                    <p id="statCorrect">8</p>
+                    <h4>Correct Answers</h4>
+                    <p id="statCorrect" style="color: #28a745;">0</p>
                 </div>
                 <div class="stat-box">
-                    <h4>Incorrect</h4>
-                    <p id="statIncorrect">2</p>
+                    <h4>Incorrect Answers</h4>
+                    <p id="statIncorrect" style="color: #dc3545;">0</p>
                 </div>
                 <div class="stat-box">
                     <h4>Points Earned</h4>
-                    <p id="statEarned">17/20</p>
+                    <p id="statEarned">0</p>
                 </div>
             </div>
 
             <div class="review-section">
-                <h3>Question Review</h3>
-                <div id="reviewContainer">
-                    <!-- Review items will be populated here -->
-                </div>
+                <h3>📋 Answer Review</h3>
+                <div id="reviewContainer"></div>
             </div>
 
-            <div class="results-actions">
-                <button class="action-btn" onclick="location.reload()">Retake Quiz</button>
-                <button class="action-btn" onclick="window.location.href='../dashboard.html'">Back to Dashboard</button>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-submit" onclick="location.reload()">
+                    🔄 Take Another Quiz
+                </button>
             </div>
         </div>
     </div>
@@ -844,10 +767,12 @@
     <div id="calculatorModal" class="calculator-modal">
         <div class="calculator-header">
             <h3>Scientific Calculator</h3>
+            <button class="help-btn">Help</button>
+            <button class="minimize-btn" onclick="minimizeCalculator()">―</button>
             <button class="calculator-close" onclick="toggleCalculator()">×</button>
         </div>
         <div class="mode-selector">
-            <label>Mode:</label>
+            <label>mod</label>
             <input type="radio" name="angleMode" value="Deg" id="degMode" checked>
             <label for="degMode">Deg</label>
             <input type="radio" name="angleMode" value="Rad" id="radMode">
@@ -944,453 +869,16 @@
     <script>
         let questions = [];
         let currentQuestionIndex = 0;
-        let userAnswers = [];
-        let questionStartTimes = [];
-        let questionTimes = [];
+        let userAnswers = {};
+        let questionStartTimes = {};
+        let questionTimes = {};
         let quizStartTime = null;
-        let timerInterval = null;
         let userName = '';
         let userEmail = '';
 
-        async function fetchSessionInfo() {
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    userName = data.username;
-                    userEmail = data.email;
-                    console.log('Logged-in user:', userName, userEmail);
-                    return true;
-                } else {
-                    alert('Please login to take the assessment');
-                    window.location.href = '/user_login.html';
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error fetching session info:', error);
-                alert('Error connecting to server. Please try again.');
-                return false;
-            }
-        }
-
-        async function initQuiz() {
-            const sessionValid = await fetchSessionInfo();
-            if (!sessionValid) return;
-            
-            try {
-                document.getElementById('loadingScreen').style.display = 'flex';
-                
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm-ct-questions?topic=Week 7');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                questions = data.data || [];
-                
-                if (questions.length === 0) {
-                    throw new Error('No questions found in the dataset');
-                }
-
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('quizScreen').style.display = 'block';
-                quizStartTime = Date.now();
-                questionStartTimes[0] = Date.now();
-                renderQuestion();
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('errorScreen').style.display = 'block';
-                document.getElementById('errorMessage').textContent = error.message;
-            }
-        }
-
-        function startTimer() {
-            // Timer disabled - matches week4 template
-            return;
-        }
-
-        function trackQuestionTime() {
-            if (questionStartTimes[currentQuestionIndex]) {
-                const timeTaken = Math.floor((Date.now() - questionStartTimes[currentQuestionIndex]) / 1000);
-                questionTimes[currentQuestionIndex] = timeTaken;
-            }
-        }
-
-        function renderQuestion() {
-            const q = questions[currentQuestionIndex];
-            const total = questions.length;
-
-            document.getElementById('questionNum').textContent = q.question_number || (currentQuestionIndex + 1);
-            document.getElementById('questionText').textContent = q.question_text;
-            document.getElementById('difficultyBadge').textContent = q.difficulty || 'medium';
-            document.getElementById('difficultyBadge').className = `difficulty-badge difficulty-${q.difficulty || 'medium'}`;
-            
-            if (q.dataset) {
-                document.getElementById('datasetBadge').textContent = `Dataset: ${q.dataset}`;
-                document.getElementById('datasetBadge').style.display = 'inline-block';
-            } else {
-                document.getElementById('datasetBadge').style.display = 'none';
-            }
-
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${total}`;
-            document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${total}`;
-            
-            const progress = ((currentQuestionIndex + 1) / total) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-
-            const answerContainer = document.getElementById('answerContainer');
-            answerContainer.innerHTML = '';
-
-            if (q.type === 'mcq' && q.options) {
-                document.getElementById('answerInstruction').textContent = 'Select one answer';
-                const optionsDiv = document.createElement('div');
-                optionsDiv.className = 'options';
-                
-                q.options.forEach((opt, i) => {
-                    const optDiv = document.createElement('div');
-                    optDiv.className = 'option';
-                    if (userAnswers[currentQuestionIndex] === opt) {
-                        optDiv.classList.add('selected');
-                    }
-                    
-                    optDiv.innerHTML = `
-                        <input type="radio" name="q${currentQuestionIndex}" id="opt${i}" value="${opt}" 
-                            ${userAnswers[currentQuestionIndex] === opt ? 'checked' : ''}>
-                        <label for="opt${i}">${opt}</label>
-                    `;
-                    
-                    optDiv.onclick = () => {
-                        userAnswers[currentQuestionIndex] = opt;
-                        renderQuestion();
-                    };
-                    
-                    optionsDiv.appendChild(optDiv);
-                });
-                
-                answerContainer.appendChild(optionsDiv);
-            } else if (q.type === 'msq' && q.options) {
-                document.getElementById('answerInstruction').textContent = 'Select all that apply';
-                const optionsDiv = document.createElement('div');
-                optionsDiv.className = 'options';
-                
-                if (!Array.isArray(userAnswers[currentQuestionIndex])) {
-                    userAnswers[currentQuestionIndex] = [];
-                }
-                
-                q.options.forEach((opt, i) => {
-                    const optDiv = document.createElement('div');
-                    optDiv.className = 'option';
-                    if (userAnswers[currentQuestionIndex].includes(opt)) {
-                        optDiv.classList.add('selected');
-                    }
-                    
-                    optDiv.innerHTML = `
-                        <input type="checkbox" name="q${currentQuestionIndex}" id="opt${i}" value="${opt}"
-                            ${userAnswers[currentQuestionIndex].includes(opt) ? 'checked' : ''}>
-                        <label for="opt${i}">${opt}</label>
-                    `;
-                    
-                    optDiv.onclick = (e) => {
-                        if (e.target.type !== 'checkbox') {
-                            const checkbox = optDiv.querySelector('input[type="checkbox"]');
-                            checkbox.checked = !checkbox.checked;
-                        }
-                        
-                        if (optDiv.querySelector('input').checked) {
-                            if (!userAnswers[currentQuestionIndex].includes(opt)) {
-                                userAnswers[currentQuestionIndex].push(opt);
-                            }
-                        } else {
-                            userAnswers[currentQuestionIndex] = userAnswers[currentQuestionIndex].filter(a => a !== opt);
-                        }
-                        
-                        renderQuestion();
-                    };
-                    
-                    optionsDiv.appendChild(optDiv);
-                });
-                
-                answerContainer.appendChild(optionsDiv);
-            } else if (q.type === 'numeric') {
-                document.getElementById('answerInstruction').textContent = 'Enter a numeric answer';
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.className = 'numeric-input';
-                input.placeholder = 'Enter your answer';
-                input.value = userAnswers[currentQuestionIndex] || '';
-                input.oninput = (e) => {
-                    userAnswers[currentQuestionIndex] = e.target.value;
-                };
-                answerContainer.appendChild(input);
-            }
-
-            updateAnsweredStatus();
-            updateNavigationButtons();
-        }
-
-        function updateAnsweredStatus() {
-            const answered = userAnswers[currentQuestionIndex] !== undefined && 
-                           userAnswers[currentQuestionIndex] !== '' &&
-                           userAnswers[currentQuestionIndex] !== null;
-            
-            const badge = document.getElementById('answeredStatus');
-            if (answered) {
-                badge.textContent = 'Answered';
-                badge.className = 'status-badge status-answered';
-            } else {
-                badge.textContent = 'Unanswered';
-                badge.className = 'status-badge status-unanswered';
-            }
-        }
-
-        function updateNavigationButtons() {
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            prevBtn.disabled = currentQuestionIndex === 0;
-            
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.style.display = 'none';
-                submitBtn.style.display = 'inline-block';
-            } else {
-                nextBtn.style.display = 'inline-block';
-                submitBtn.style.display = 'none';
-            }
-        }
-
-        function nextQuestion() {
-            trackQuestionTime();
-            
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                questionStartTimes[currentQuestionIndex] = Date.now();
-                renderQuestion();
-            }
-        }
-
-        function previousQuestion() {
-            trackQuestionTime();
-            
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                questionStartTimes[currentQuestionIndex] = Date.now();
-                renderQuestion();
-            }
-        }
-
-        async function submitQuiz() {
-            trackQuestionTime();
-            
-            if (!userName || !userEmail) {
-                alert('Session expired. Please login again.');
-                window.location.href = '/user_login.html';
-                return;
-            }
-            
-            try {
-                document.getElementById('loadingScreen').style.display = 'flex';
-                document.getElementById('loadingScreen').querySelector('h2').textContent = 'Submitting Quiz...';
-                
-                const payload = {
-                    email: userEmail,
-                    username: userName,
-                    quizData: {
-                        week: 7,
-                        answers: userAnswers,
-                        questionTimes: questionTimes,
-                        totalTime: Math.floor((Date.now() - quizStartTime) / 1000)
-                    }
-                };
-
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    showResults(
-                        result.correctAnswers,
-                        result.totalPoints,
-                        result.maxPoints,
-                        result.percentage,
-                        result.questionResults
-                    );
-                } else {
-                    throw new Error(result.message || 'Submission failed');
-                }
-            } catch (error) {
-                console.error('❌ Submission failed:', error);
-                
-                // Retry logic
-                if (confirm('Submission failed. Would you like to retry?')) {
-                    await submitQuizWithRetry();
-                } else {
-                    // Show results with local calculation as fallback
-                    const correct = userAnswers.filter((answer, index) => {
-                        const q = questions[index];
-                        if (q.type === 'mcq') {
-                            return answer === q.correct_answer;
-                        } else if (q.type === 'msq') {
-                            return Array.isArray(answer) && 
-                                   answer.length === q.correct_answer.length && 
-                                   answer.every(a => q.correct_answer.includes(a));
-                        }
-                        return false;
-                    }).length;
-                    
-                    const total = questions.length;
-                    const percentage = Math.round((correct / total) * 100);
-                    
-                    showResults(correct, correct * 2, total * 2, percentage + '%', []);
-                }
-            }
-        }
-
-        async function submitQuizWithRetry() {
-            try {
-                const payload = {
-                    email: userEmail,
-                    username: userName,
-                    quizData: {
-                        week: 7,
-                        answers: userAnswers,
-                        questionTimes: questionTimes,
-                        totalTime: Math.floor((Date.now() - quizStartTime) / 1000)
-                    }
-                };
-
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_ct_scores', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    const responseText = await response.text();
-                    console.error('❌ Submission failed with status:', response.status, responseText);
-                    
-                    if (response.status === 500 && responseText.includes('duplicate key')) {
-                        // Handle duplicate submission
-                        alert('This quiz has already been submitted. Results may not be saved.');
-                        showResults(
-                            userAnswers.filter((answer, index) => {
-                                const q = questions[index];
-                                return q.type === 'mcq' ? answer === q.correct_answer :
-                                       Array.isArray(answer) && answer.length === q.correct_answer.length && 
-                                       answer.every(a => q.correct_answer.includes(a));
-                            }).length,
-                            0, // No points for duplicate
-                            questions.length * 2,
-                            'N/A',
-                            []
-                        );
-                        return;
-                    } else if (response.status >= 500) {
-                        throw new Error(`Server error: ${response.status}`);
-                    } else {
-                        throw new Error(`Retry failed: ${responseText}`);
-                    }
-                }
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    showResults(
-                        result.correctAnswers,
-                        result.totalPoints,
-                        result.maxPoints,
-                        result.percentage,
-                        result.questionResults
-                    );
-                } else {
-                    throw new Error(result.message || 'Retry failed');
-                }
-            } catch (error) {
-                console.error('❌ Retry failed:', error);
-                throw error;
-            }
-        }
-
-        function showResults(correct, earned, total, percentage, results) {
-            document.getElementById('quizScreen').style.display = 'none';
-            document.getElementById('resultsScreen').style.display = 'block';
-
-            document.getElementById('finalPercentage').textContent = percentage + '%';
-            document.getElementById('finalScoreText').textContent = `${earned}/${total} Points`;
-            document.getElementById('statTotal').textContent = questions.length;
-            document.getElementById('statCorrect').textContent = correct;
-            document.getElementById('statIncorrect').textContent = questions.length - correct;
-            document.getElementById('statEarned').textContent = `${earned}/${total}`;
-
-            const reviewContainer = document.getElementById('reviewContainer');
-            reviewContainer.innerHTML = '';
-
-            results.forEach(result => {
-                const reviewDiv = document.createElement('div');
-                reviewDiv.className = `review-question ${result.isCorrect ? 'correct' : 'incorrect'}`;
-                
-                let userAnswerDisplay = result.userAnswer;
-                let correctAnswerDisplay = result.correctAnswer;
-
-                if (Array.isArray(result.userAnswer)) {
-                    userAnswerDisplay = result.userAnswer.join(', ') || 'No answer';
-                }
-                if (Array.isArray(result.correctAnswer)) {
-                    correctAnswerDisplay = result.correctAnswer.join(', ');
-                }
-
-                reviewDiv.innerHTML = `
-                    <div class="review-header">
-                        <strong>Question ${result.questionNumber}</strong>
-                        <span class="review-badge ${result.isCorrect ? 'correct' : 'incorrect'}">
-                            ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
-                        </span>
-                    </div>
-                    <div class="review-text">${result.questionText}</div>
-                    <div class="answer-comparison">
-                        <div class="answer-row">
-                            <span class="answer-label">Your Answer:</span>
-                            <span class="answer-value ${result.isCorrect ? 'correct' : 'incorrect'}">
-                                ${userAnswerDisplay || 'Not answered'}
-                            </span>
-                        </div>
-                        <div class="answer-row">
-                            <span class="answer-label">Correct Answer:</span>
-                            <span class="answer-value correct">${correctAnswerDisplay}</span>
-                        </div>
-                        <div class="answer-row">
-                            <span class="answer-label">Points:</span>
-                            <span class="answer-value">${result.pointsAwarded}/${result.maxPoints}</span>
-                        </div>
-                        <div class="answer-row">
-                            <span class="answer-label">Time Taken:</span>
-                            <span class="answer-value">${result.timeTaken}s</span>
-                        </div>
-                    </div>
-                `;
-                
-                reviewContainer.appendChild(reviewDiv);
-            });
-        }
-
-        window.addEventListener('DOMContentLoaded', initQuiz);
-
-        // Scientific Calculator Functions
+        // ============================================
+        // CALCULATOR FUNCTIONS
+        // ============================================
         let calculatorOpen = false;
         let isDragging = false;
         let dragOffsetX = 0;
@@ -1502,6 +990,15 @@
             }
         }
 
+        function minimizeCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            const btn = document.getElementById('calculatorBtn');
+            
+            modal.style.display = 'none';
+            btn.style.display = 'flex';
+            calculatorOpen = false;
+        }
+
         function toggleCalculator() {
             const modal = document.getElementById('calculatorModal');
             const btn = document.getElementById('calculatorBtn');
@@ -1541,7 +1038,10 @@
         }
 
         function startDrag(e) {
-            if (e.target.closest('.calculator-close') || e.target.closest('.calc-btn')) {
+            if (e.target.closest('.calculator-close') || 
+                e.target.closest('.calc-btn') ||
+                e.target.closest('.minimize-btn') ||
+                e.target.closest('.help-btn')) {
                 return;
             }
             
@@ -1553,6 +1053,7 @@
             dragOffsetY = e.clientY - rect.top;
             
             modal.style.cursor = 'grabbing';
+            modal.style.opacity = '0.9';
             e.preventDefault();
         }
 
@@ -1581,6 +1082,7 @@
             isDragging = false;
             const modal = document.getElementById('calculatorModal');
             modal.style.cursor = 'move';
+            modal.style.opacity = '1';
         }
 
         function addToDisplay(value) {
@@ -1641,6 +1143,7 @@
             }
         }
 
+        // Add keyboard support for calculator
         document.addEventListener('keydown', function(e) {
             if (!calculatorOpen) return;
             
@@ -1662,32 +1165,518 @@
             }
         });
 
-        setTimeout(() => {
-            if (document.getElementById('calculatorModal')) {
-                initializeDrag();
+        // ============================================
+        // API FUNCTIONS - EXACT SAME AS WEEK 5/6
+        // ============================================
+        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app';
+
+        async function fetchSessionInfo() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/session-info`, {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.status === 401) {
+                    alert('Please login to take the assessment');
+                    window.location.href = '/login.html';
+                    return false;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                userName = data.username;
+                userEmail = data.email;
+                console.log('Session verified for:', userName);
+                return true;
+            } catch (error) {
+                console.error('Session error:', error);
+                document.getElementById('errorMessage').textContent = 
+                    'Unable to connect to server. Please check your internet connection.';
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('errorScreen').style.display = 'block';
+                return false;
             }
+        }
+
+        async function initQuiz() {
+            const sessionValid = await fetchSessionInfo();
+            if (!sessionValid) return;
             
-            const degMode = document.getElementById('degMode');
-            const radMode = document.getElementById('radMode');
+            quizStartTime = Date.now();
+            loadQuestions();
+        }
+
+        async function loadQuestions() {
+            try {
+                // EXACT SAME URL PATTERN AS WEEK 5 AND WEEK 6
+                const url = `${API_BASE_URL}/api/iitm-ct-questions/Week%207?email=${encodeURIComponent(userEmail)}&count=50`;
+                console.log('Loading questions from:', url);
+                
+                const response = await fetch(url, {
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    // Fallback to topic parameter if specific week endpoint fails
+                    const fallbackUrl = `${API_BASE_URL}/api/iitm-ct-questions?topic=Week%207`;
+                    console.log('Trying fallback URL:', fallbackUrl);
+                    
+                    const fallbackResponse = await fetch(fallbackUrl, {
+                        credentials: 'include',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (!fallbackResponse.ok) {
+                        throw new Error(`Failed to load questions: ${fallbackResponse.status}`);
+                    }
+                    
+                    const fallbackData = await fallbackResponse.json();
+                    questions = extractQuestions(fallbackData);
+                } else {
+                    const data = await response.json();
+                    questions = extractQuestions(data);
+                }
+
+                if (questions.length === 0) {
+                    throw new Error('No questions found for Week 7');
+                }
+
+                console.log(`Loaded ${questions.length} questions for Week 7`);
+
+                // Show calculator button
+                document.getElementById('calculatorBtn').style.display = 'flex';
+
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('quizScreen').style.display = 'block';
+                questionStartTimes[0] = Date.now();
+                renderQuestion();
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                document.getElementById('errorMessage').textContent = 
+                    'Failed to load Week 7 questions. Please make sure questions are added to the database.';
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('errorScreen').style.display = 'block';
+            }
+        }
+
+        function extractQuestions(data) {
+            if (data.success && data.data && Array.isArray(data.data)) {
+                return data.data;
+            } else if (Array.isArray(data.questions)) {
+                return data.questions;
+            } else if (Array.isArray(data)) {
+                return data;
+            }
+            return [];
+        }
+
+        function trackQuestionTime() {
+            if (questionStartTimes[currentQuestionIndex]) {
+                const timeTaken = Math.floor((Date.now() - questionStartTimes[currentQuestionIndex]) / 1000);
+                questionTimes[currentQuestionIndex] = timeTaken;
+            }
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestionIndex];
+            const total = questions.length;
+
+            document.getElementById('questionNum').textContent = q.question_number || (currentQuestionIndex + 1);
+            document.getElementById('questionText').textContent = q.question_text;
+            document.getElementById('difficultyBadge').textContent = q.difficulty || 'medium';
+            document.getElementById('difficultyBadge').className = `difficulty-badge difficulty-${q.difficulty || 'medium'}`;
             
-            if (degMode) degMode.addEventListener('change', () => angleMode = 'Deg');
-            if (radMode) radMode.addEventListener('change', () => angleMode = 'Rad');
-        }, 1000);
-    </script>
-    <script src="../IITM-PDSA/anti-cheating.js"></script>
-    <script>
-        if (window.AntiCheating) {
-            window.AntiCheating.initialize({
-                quizName: 'CT Week 7',
-                requestFullscreen: true,
-                user: { username: userName, email: userEmail }
+            if (q.dataset && q.dataset !== 'None') {
+                document.getElementById('datasetBadge').textContent = `Dataset: ${q.dataset}`;
+                document.getElementById('datasetBadge').style.display = 'inline-block';
+            } else {
+                document.getElementById('datasetBadge').style.display = 'none';
+            }
+
+            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${total}`;
+            document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${total}`;
+            
+            const progress = ((currentQuestionIndex + 1) / total) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+
+            const answerContainer = document.getElementById('answerContainer');
+            answerContainer.innerHTML = '';
+
+            if (q.type === 'mcq' && q.options) {
+                document.getElementById('answerInstruction').textContent = 'Select one answer';
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                
+                q.options.forEach((opt, i) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'option';
+                    if (userAnswers[currentQuestionIndex] === opt) {
+                        optDiv.classList.add('selected');
+                    }
+                    
+                    optDiv.innerHTML = `
+                        <input type="radio" name="q${currentQuestionIndex}" id="opt${i}" value="${opt}" 
+                            ${userAnswers[currentQuestionIndex] === opt ? 'checked' : ''}>
+                        <label for="opt${i}">${opt}</label>
+                    `;
+                    
+                    optDiv.onclick = () => {
+                        userAnswers[currentQuestionIndex] = opt;
+                        renderQuestion();
+                    };
+                    
+                    optionsDiv.appendChild(optDiv);
+                });
+                
+                answerContainer.appendChild(optionsDiv);
+            } else if (q.type === 'msq' && q.options) {
+                document.getElementById('answerInstruction').textContent = 'Select all that apply';
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                
+                if (!Array.isArray(userAnswers[currentQuestionIndex])) {
+                    userAnswers[currentQuestionIndex] = [];
+                }
+                
+                q.options.forEach((opt, i) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'option';
+                    if (userAnswers[currentQuestionIndex].includes(opt)) {
+                        optDiv.classList.add('selected');
+                    }
+                    
+                    optDiv.innerHTML = `
+                        <input type="checkbox" name="q${currentQuestionIndex}" id="opt${i}" value="${opt}"
+                            ${userAnswers[currentQuestionIndex].includes(opt) ? 'checked' : ''}>
+                        <label for="opt${i}">${opt}</label>
+                    `;
+                    
+                    optDiv.onclick = (e) => {
+                        if (e.target.tagName !== 'INPUT') {
+                            const checkbox = optDiv.querySelector('input');
+                            checkbox.checked = !checkbox.checked;
+                        }
+                        
+                        if (!Array.isArray(userAnswers[currentQuestionIndex])) {
+                            userAnswers[currentQuestionIndex] = [];
+                        }
+                        
+                        const idx = userAnswers[currentQuestionIndex].indexOf(opt);
+                        if (optDiv.querySelector('input').checked) {
+                            if (idx === -1) userAnswers[currentQuestionIndex].push(opt);
+                        } else {
+                            if (idx > -1) userAnswers[currentQuestionIndex].splice(idx, 1);
+                        }
+                        
+                        renderQuestion();
+                    };
+                    
+                    optionsDiv.appendChild(optDiv);
+                });
+                
+                answerContainer.appendChild(optionsDiv);
+            } else if (q.type === 'numeric') {
+                document.getElementById('answerInstruction').textContent = 'Enter a numeric answer';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'numeric-input';
+                input.placeholder = 'Enter your answer';
+                input.value = userAnswers[currentQuestionIndex] || '';
+                input.oninput = (e) => {
+                    userAnswers[currentQuestionIndex] = e.target.value;
+                };
+                answerContainer.appendChild(input);
+            }
+
+            updateAnsweredStatus();
+            updateButtons();
+        }
+
+        function updateAnsweredStatus() {
+            const answered = userAnswers[currentQuestionIndex] !== undefined && 
+                           userAnswers[currentQuestionIndex] !== '' &&
+                           userAnswers[currentQuestionIndex] !== null;
+            
+            const badge = document.getElementById('answeredStatus');
+            if (answered) {
+                badge.textContent = 'Answered';
+                badge.className = 'status-badge status-answered';
+            } else {
+                badge.textContent = 'Unanswered';
+                badge.className = 'status-badge status-unanswered';
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
+
+        function nextQuestion() {
+            trackQuestionTime();
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                if (!questionStartTimes[currentQuestionIndex]) {
+                    questionStartTimes[currentQuestionIndex] = Date.now();
+                }
+                renderQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            trackQuestionTime();
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                if (!questionStartTimes[currentQuestionIndex]) {
+                    questionStartTimes[currentQuestionIndex] = Date.now();
+                }
+                renderQuestion();
+            }
+        }
+
+        async function submitQuiz() {
+            trackQuestionTime();
+
+            if (!userName || !userEmail) {
+                alert('Session expired. Please login again.');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            const unanswered = questions.length - Object.keys(userAnswers).length;
+            
+            if (unanswered > 0) {
+                if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) {
+                    return;
+                }
+            }
+
+            let correctAnswers = 0;
+            let totalPoints = 0;
+            let earnedPoints = 0;
+            const questionResults = [];
+
+            questions.forEach((q, i) => {
+                const maxPoints = q.points || 1;
+                totalPoints += maxPoints;
+                const userAns = userAnswers[i];
+                let isCorrect = false;
+                let pointsAwarded = 0;
+                
+                if (q.type === 'numeric') {
+                    isCorrect = parseFloat(userAns) === parseFloat(q.correct_answer);
+                } else if (q.type === 'mcq') {
+                    isCorrect = userAns === q.correct_answer;
+                } else if (q.type === 'msq') {
+                    const userSet = new Set((userAns || []).map(a => String(a).toLowerCase().trim()));
+                    const correctSet = new Set((Array.isArray(q.correct_answer) ? q.correct_answer : [q.correct_answer]).map(a => String(a).toLowerCase().trim()));
+                    
+                    isCorrect = userSet.size === correctSet.size && 
+                        [...userSet].every(a => correctSet.has(a));
+                }
+
+                if (isCorrect) {
+                    correctAnswers++;
+                    pointsAwarded = maxPoints;
+                    earnedPoints += maxPoints;
+                }
+
+                questionResults.push({
+                    questionId: q._id,
+                    questionNumber: q.question_number || (i + 1),
+                    questionText: q.question_text,
+                    userAnswer: userAns,
+                    correctAnswer: q.correct_answer,
+                    isCorrect: isCorrect,
+                    timeTaken: questionTimes[i] || 0,
+                    pointsAwarded: pointsAwarded,
+                    maxPoints: maxPoints
+                });
             });
+
+            const percentage = ((earnedPoints / totalPoints) * 100).toFixed(2);
+
+            const payload = {
+                user_id: userEmail,
+                email: userEmail,
+                username: userName,
+                question_id: questions[currentQuestionIndex]?._id || 'default_question_id',
+                attempt_number: 1,
+                topic: "Week 7",
+                percentage: parseFloat(percentage),
+                score: correctAnswers,
+                totalQuestions: questions.length,
+                correctAnswers: correctAnswers,
+                totalPoints: totalPoints,
+                earnedPoints: earnedPoints,
+                timestamp: new Date().toISOString(),
+                questionResults: questionResults,
+                completedQuestionIds: questions.map(q => q._id).filter(id => id),
+                quizData: {
+                    topic: "Week 7",
+                    percentage: parseFloat(percentage),
+                    score: correctAnswers,
+                    totalQuestions: questions.length,
+                    correctAnswers: correctAnswers,
+                    totalPoints: totalPoints,
+                    earnedPoints: earnedPoints,
+                    attemptNumber: 1,
+                    timestamp: new Date().toISOString(),
+                    questionResults: questionResults
+                }
+            };
+
+            Object.keys(payload).forEach(key => {
+                if (payload[key] === null || payload[key] === undefined) {
+                    delete payload[key];
+                }
+            });
+
+            try {
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+
+                const response = await fetch(`${API_BASE_URL}/api/iitm_ct_scores`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
+                } else {
+                    // Try once more with different attempt number
+                    payload.attempt_number = 2;
+                    const retryResponse = await fetch(`${API_BASE_URL}/api/iitm_ct_scores`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (retryResponse.ok) {
+                        showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
+                    } else {
+                        throw new Error('Failed to submit quiz');
+                    }
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert('Error submitting quiz. Your answers have been saved locally.');
+                showResults(correctAnswers, earnedPoints, totalPoints, percentage, questionResults);
+            }
+        }
+
+        function showResults(correct, earned, total, percentage, results) {
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
             
-            document.addEventListener('cheatingAutoSubmit', function(e) {
-                console.log('Auto-submit triggered:', e.detail);
-                submitQuiz();
+            // Hide calculator
+            document.getElementById('calculatorBtn').style.display = 'none';
+            if (calculatorOpen) {
+                toggleCalculator();
+            }
+
+            document.getElementById('finalPercentage').textContent = percentage + '%';
+            document.getElementById('finalScoreText').textContent = `${earned}/${total} Points`;
+            document.getElementById('statTotal').textContent = questions.length;
+            document.getElementById('statCorrect').textContent = correct;
+            document.getElementById('statIncorrect').textContent = questions.length - correct;
+            document.getElementById('statEarned').textContent = `${earned}/${total}`;
+
+            const reviewContainer = document.getElementById('reviewContainer');
+            reviewContainer.innerHTML = '';
+
+            results.forEach(result => {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.className = `review-question ${result.isCorrect ? 'correct' : 'incorrect'}`;
+                
+                let userAnswerDisplay = result.userAnswer;
+                let correctAnswerDisplay = result.correctAnswer;
+
+                if (Array.isArray(result.userAnswer)) {
+                    userAnswerDisplay = result.userAnswer.join(', ') || 'No answer';
+                }
+                if (Array.isArray(result.correctAnswer)) {
+                    correctAnswerDisplay = result.correctAnswer.join(', ');
+                }
+
+                reviewDiv.innerHTML = `
+                    <div class="review-header">
+                        <strong>Question ${result.questionNumber}</strong>
+                        <span class="review-badge ${result.isCorrect ? 'correct' : 'incorrect'}">
+                            ${result.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                        </span>
+                    </div>
+                    <div class="review-text">${result.questionText}</div>
+                    <div class="answer-comparison">
+                        <div class="answer-row">
+                            <span class="answer-label">Your Answer:</span>
+                            <span class="answer-value ${result.isCorrect ? 'correct' : 'incorrect'}">
+                                ${userAnswerDisplay || 'Not answered'}
+                            </span>
+                        </div>
+                        <div class="answer-row">
+                            <span class="answer-label">Correct Answer:</span>
+                            <span class="answer-value correct">${correctAnswerDisplay}</span>
+                        </div>
+                        <div class="answer-row">
+                            <span class="answer-label">Points:</span>
+                            <span class="answer-value">${result.pointsAwarded}/${result.maxPoints}</span>
+                        </div>
+                        <div class="answer-row">
+                            <span class="answer-label">Time Taken:</span>
+                            <span class="answer-value">${result.timeTaken}s</span>
+                        </div>
+                    </div>
+                `;
+                
+                reviewContainer.appendChild(reviewDiv);
             });
         }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            initQuiz();
+            
+            // Initialize calculator drag after DOM loads
+            setTimeout(() => {
+                if (document.getElementById('calculatorModal')) {
+                    initializeDrag();
+                }
+                
+                const degMode = document.getElementById('degMode');
+                const radMode = document.getElementById('radMode');
+                
+                if (degMode) degMode.addEventListener('change', () => angleMode = 'Deg');
+                if (radMode) radMode.addEventListener('change', () => angleMode = 'Rad');
+            }, 1000);
+        });
     </script>
 </body>
 </html>
