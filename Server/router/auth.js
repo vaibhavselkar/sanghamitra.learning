@@ -2856,6 +2856,10 @@ router.post('/iitmmath_scores', async (req, res) => {
     if (!email || !username || !quizData) {
       return res.status(400).json({ error: 'Email, username and quizData are required' });
     }
+
+    if (!quizData.timestamp) {
+      quizData.timestamp = new Date().toISOString();
+    }
     
     // Extract question IDs from the quiz results
     const completedQuestionIds = quizData.questionResults
