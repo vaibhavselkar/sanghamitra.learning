@@ -1001,7 +1001,7 @@
                 topic: 'exponential_function', quizType: 'practice', score, maxPossibleScore: totalPossible,
                 totalQuestions: questions.length, correctAnswers: results.filter(r=>r.isCorrect).length,
                 percentage: Math.round((score/totalPossible)*100), questionResults: results,
-                startTime: quizStartTime, endTime: quizEnd, totalTimeTaken: totalSeconds, isCompleted: true
+                startTime: quizStartTime, endTime: quizEnd, totalTimeTaken: totalSeconds, timestamp: new Date().toISOString(), isCompleted: true
             };
             try {
                 await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
