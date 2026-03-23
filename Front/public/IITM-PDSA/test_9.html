@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic programming Quiz</title>
+    <title>Dynamic Programming Quiz</title>
     <!-- Load Anti-Cheating Library -->
     <script src="anti-cheating.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -356,7 +356,7 @@
         <!-- Loading Screen -->
         <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
             <div class="loading-spinner"></div>
-            <h3>Loading Dynamic programming Quiz...</h3>
+            <h3>Loading Dynamic Programming Quiz...</h3>
             <p>Preparing your test environment</p>
             <small style="opacity: 0.8;">Anti-cheating measures will be activated</small>
         </div>
@@ -364,8 +364,8 @@
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
             <div class="topic-header">
-                <h3>Dynamic programming Quiz</h3>
-                <p>Test your knowledge of Dynamic programming concepts, functions, and logic</p>
+                <h3>Dynamic Programming Quiz</h3>
+                <p>Test your knowledge of Dynamic Programming concepts, functions, and logic</p>
                 <p id="questionCount">50 Questions</p>
                 <small style="opacity: 0.8; display: block; margin-top: 10px;">
                     ⚠️ Anti-cheating measures are active. Do not switch tabs or windows.
@@ -400,7 +400,7 @@
                 <h2 id="finalScore">0/50</h2>
                 <h3 id="finalPercentage">0%</h3>
                 <p>Quiz Completed!</p>
-                <p class="mt-2"><strong>Topic:</strong> Dynamic programming </p>
+                <p class="mt-2"><strong>Topic:</strong> Dynamic Programming </p>
                 <p id="cheatingLog" style="font-size: 0.9rem; opacity: 0.8;"></p>
             </div>
             <div id="detailedResults"></div>
@@ -435,14 +435,14 @@
         
         // API Configuration
         const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
-        const QUESTIONS_API = `${API_BASE_URL}/questions/Dynamic%20programming?limit=50`;
+        const QUESTIONS_API = `${API_BASE_URL}/questions/Dynamic%20Programming?limit=50`;
         const SESSION_API = `${API_BASE_URL}/session-info`;
         const SUBMISSION_API = `${API_BASE_URL}/pdsa-submission`;
         const CHEATING_LOG_API = `${API_BASE_URL}/log-cheating`;
 
         // Initialize quiz when page loads
         document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🔒 Initializing Dynamic programming Quiz with anti-cheating...');
+            console.log('🔒 Initializing Dynamic Programming Quiz with anti-cheating...');
             
             try {
                 // First, get user session if available
@@ -519,7 +519,7 @@
         });
 
         async function initializeQuiz() {
-            console.log('🚀 Initializing Dynamic programming Quiz...');
+            console.log('🚀 Initializing Dynamic Programming Quiz...');
             
             // Set default user
             userAnswers = {};
@@ -530,7 +530,7 @@
             // Initialize anti-cheating AFTER getting questions
             if (window.AntiCheating && questions.length > 0) {
                 antiCheating = window.AntiCheating.initialize({
-                    quizName: "Dynamic programming Quiz",
+                    quizName: "Dynamic Programming Quiz",
                     requestFullscreen: false, // CHANGED: Disable fullscreen to avoid errors
                     user: currentUser,
                     autoSubmitThreshold: 5
@@ -581,7 +581,7 @@
                         renderCurrentQuestion();
                         updateProgress();
                     } else {
-                        throw new Error(data.message || 'No questions found for Dynamic programming');
+                        throw new Error(data.message || 'No questions found for Dynamic Programming');
                     }
                 } else {
                     throw new Error('Failed to fetch questions from server');
@@ -861,7 +861,7 @@
             const quizData = {
                 username: currentUser.username,
                 email: currentUser.email,
-                topic: "Dynamic programming",
+                topic: "Dynamic Programming",
                 score: score,
                 maxScore: totalPossible,
                 percentage: percentage,
@@ -1035,7 +1035,7 @@
             fetchRandomQuestions().then(() => {
                 if (window.AntiCheating && questions.length > 0) {
                     antiCheating = window.AntiCheating.initialize({
-                        quizName: "Dynamic programming Quiz - Retake",
+                        quizName: "Dynamic Programming Quiz - Retake",
                         requestFullscreen: false, // Keep disabled
                         user: currentUser,
                         autoSubmitThreshold: 5
