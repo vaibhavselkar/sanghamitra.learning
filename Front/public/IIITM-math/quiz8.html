@@ -50,22 +50,6 @@
         .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
         .header p { font-size: 1.1rem; opacity: 0.9; }
 
-        .user-form {
-            padding: 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; }
-        .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        
         /* Anti-cheating CSS */
         * {
             -webkit-user-select: none;
@@ -79,10 +63,6 @@
         body {
             -webkit-print-color-adjust: exact;
             pointer-events: auto;
-        }
-        
-        .no-context {
-            pointer-events: none;
         }
         
         ::-webkit-scrollbar {
@@ -249,6 +229,7 @@
         .question-header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
 
@@ -262,7 +243,6 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            margin-right: 15px;
         }
 
         .question-text {
@@ -282,14 +262,31 @@
             padding: 15px;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .option:hover { border-color: #11998e; background: #e6f7f0; }
         .option.selected { border-color: #11998e; background: #e3f2fd; }
 
+        .option input {
+            margin: 0;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .option label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #333;
+        }
+
         .numeric-input {
             width: 100%;
-            max-width: 400px;
+            max-width: 100%;
             padding: 12px 16px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
@@ -321,13 +318,13 @@
         }
 
         .score-display h2 { font-size: 2.5rem; margin-bottom: 10px; }
-        .hidden { display: none; }
         
         .difficulty-badge {
             font-size: 0.7rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
             text-transform: uppercase;
+            font-weight: 600;
         }
 
         .difficulty-easy { background: #d4edda; color: #155724; }
@@ -338,23 +335,32 @@
             color: #333;
             border-bottom: 2px solid #11998e;
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
-        .mjx-mfrac {
-            padding: 0 !important;
-            margin: 0 !important;
+        .answer-preview {
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .answer-preview.visible {
+            display: block;
         }
 
         .preview-value.math {
-            font-family: inherit;
-            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
             color: #2c3e50;
-            line-height: 1.2;
-            min-height: 24px;
-            display: flex;
-            align-items: center;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            margin-top: 8px;
         }
 
+        /* Calculator Styles */
         .calculator-btn {
             position: fixed;
             bottom: 20px;
@@ -369,29 +375,25 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 9999;
-            transition: all 0.3s ease;
             border: none;
             font-weight: 600;
         }
 
         .calculator-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         }
 
         .calculator-modal {
             position: fixed;
-            width: 590px;
+            width: 500px;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             z-index: 10000;
             display: none;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid #e0e0e0;
             cursor: move;
-            user-select: none;
         }
 
         .calculator-header {
@@ -409,6 +411,89 @@
             font-size: 1.1rem;
         }
 
+        .calculator-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .calculator-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .calculator-display {
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        #calcDisplay {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.3rem;
+            text-align: right;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 8px;
+        }
+
+        #resultDisplay {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 1.1rem;
+            text-align: right;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #f0f0f0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .calculator-buttons {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: white;
+        }
+
+        .calc-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calc-btn {
+            flex: 1;
+            padding: 10px 0;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .calc-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        .calc-btn.equals {
+            background: #11998e;
+            color: white;
+        }
+
+        /* Info Bubble */
         .info-bubble {
             position: fixed;
             top: 20px;
@@ -421,48 +506,12 @@
             max-width: 90vw;
             z-index: 10001;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
             display: none;
         }
 
         .info-bubble.expanded {
             display: block;
             animation: slideIn 0.3s ease;
-        }
-
-        .info-bubble.collapsed {
-            display: none;
-        }
-
-        .info-bubble h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .info-content {
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .info-content ul {
-            padding-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .info-content li {
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-
-        .info-content code {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
         }
 
         .info-bubble-close {
@@ -474,12 +523,6 @@
             color: white;
             font-size: 20px;
             cursor: pointer;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
         }
 
         .help-button {
@@ -498,25 +541,12 @@
             cursor: pointer;
             z-index: 10000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
+            font-size: 24px;
+            font-weight: bold;
         }
 
         .help-button:hover {
             transform: scale(1.1);
-        }
-
-        .answer-preview {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            display: none;
-        }
-
-        .answer-preview.visible {
-            display: block;
-            animation: fadeIn 0.3s ease;
         }
 
         @keyframes slideIn {
@@ -524,26 +554,21 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         @media (max-width: 768px) {
-            .results-container { padding: 15px; }
-            .score-display { padding: 20px; }
             .calculator-modal { width: 95%; left: 2.5% !important; }
+            .info-bubble { width: 300px; }
+            .help-button { width: 40px; height: 40px; font-size: 18px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Exponential Function Quiz</h1>
-            <p>Master exponential growth, decay, and properties with 50 comprehensive questions</p>
+            <h1>📈 Exponential Function Quiz</h1>
+            <p>Master exponential growth, decay, and properties with comprehensive questions</p>
         </div>
 
-        <div id="quizContainer" class="quiz-container" style="display: none;">
+        <div id="quizContainer" class="quiz-container">
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
@@ -551,22 +576,22 @@
             </div>
             <div id="questionContainer"></div>
             <div class="question-navigation">
-                <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+                <button class="btn-nav" id="prevBtn" disabled>Previous</button>
                 <div class="question-status">
-                    <span id="questionStatus">Question 1 of 50</span>
+                    <span id="questionStatus">Question 1 of 0</span>
                     <span id="answeredStatus" class="status-unanswered">Unanswered</span>
                 </div>
-                <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
+                <button class="btn-nav btn-next" id="nextBtn">Next</button>
             </div>
-            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #11998e;">
-                <button class="btn" onclick="submitQuiz()" id="submitBtn">
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" id="submitBtn">
                     <span id="submitText">Submit Exponential Quiz</span>
                     <span id="submitLoading" class="loading" style="display: none;"></span>
                 </button>
             </div>
         </div>
 
-        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+        <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px; display: flex; flex-direction: column; align-items: center;">
             <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
             <h3>Loading Exponential Function Quiz...</h3>
             <p>Verifying your session and preparing questions</p>
@@ -574,210 +599,436 @@
 
         <div id="resultsContainer" class="results-container">
             <div class="score-display">
-                <h2 id="finalScore">0/50</h2>
+                <h2 id="finalScore">0/0</h2>
                 <p>Quiz Completed Successfully!</p>
                 <p id="totalTimeDisplay" style="margin-top: 15px; font-size: 1.2rem;"></p>
             </div>
-            <button class="btn" onclick="goback()">Home Page</button>
+            <button class="btn" onclick="location.href='iitm_math.html'">Home Page</button>
         </div>
     </div>
 
     <div id="infoBubble" class="info-bubble">
         <button class="info-bubble-close" onclick="hideInfoBubble()">×</button>
-        <h3><span class="info-icon">📈</span> Exponential Function Formatting Guide</h3>
+        <h3>📐 Exponential Function Guide</h3>
         <div class="info-content">
-            <p><strong>How to format your answers:</strong></p>
+            <p><strong>Formatting Examples:</strong></p>
             <ul>
-                <li><strong>Exponential Notation:</strong> <code>e^x</code>, <code>2^x</code>, <code>exp(x)</code></li>
-                <li><strong>Natural Exponential:</strong> <code>e^x</code> or <code>exp(x)</code></li>
-                <li><strong>Growth/Decay:</strong> <code>P(t) = P0 * e^(kt)</code></li>
-                <li><strong>Logarithmic:</strong> <code>ln(x)</code>, <code>log(x)</code>, <code>log10(x)</code></li>
-                <li><strong>Properties:</strong> <code>e^(a+b) = e^a * e^b</code></li>
+                <li><code>e^x</code> or <code>exp(x)</code> - Natural exponential</li>
+                <li><code>2^x</code>, <code>3^(x+1)</code> - Exponential with base</li>
+                <li><code>e^(2x)</code> - Exponential with coefficient</li>
+                <li><code>ln(x)</code>, <code>log(x)</code> - Natural log</li>
+                <li><code>log10(x)</code> - Base 10 logarithm</li>
             </ul>
-            <p><strong>Examples:</strong> <code>e^(2x)</code>, <code>3 * 2^x</code>, <code>ln(e) = 1</code></p>
+            <p><strong>Properties:</strong> e^(a+b) = e^a × e^b, ln(e) = 1</p>
         </div>
     </div>
 
-    <div id="helpButton" class="help-button" onclick="showInfoBubble()">
-        <span class="help-icon">?</span>
-    </div>
+    <div id="helpButton" class="help-button" onclick="showInfoBubble()">?</div>
+    <div id="calculatorBtn" class="calculator-btn" onclick="toggleCalculator()">🧮 Calculator</div>
 
-    <div id="calculatorBtn" class="calculator-btn" onclick="toggleCalculator()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
-            <line x1="8" y1="6" x2="16" y2="6"></line>
-            <line x1="8" y1="10" x2="16" y2="10"></line>
-        </svg>
-        <span>Calculator</span>
+    <div id="calculatorModal" class="calculator-modal">
+        <div class="calculator-header">
+            <h3>Scientific Calculator</h3>
+            <button class="calculator-close" onclick="toggleCalculator()">×</button>
+        </div>
+        <div class="calculator-display">
+            <input type="text" id="calcDisplay" readonly placeholder="0">
+            <input type="text" id="resultDisplay" readonly value="0">
+        </div>
+        <div class="calculator-buttons">
+            <div class="calc-row">
+                <button class="calc-btn" onclick="addToDisplay('7')">7</button>
+                <button class="calc-btn" onclick="addToDisplay('8')">8</button>
+                <button class="calc-btn" onclick="addToDisplay('9')">9</button>
+                <button class="calc-btn" onclick="addToDisplay('/')">/</button>
+                <button class="calc-btn" onclick="addToDisplay('*')">*</button>
+            </div>
+            <div class="calc-row">
+                <button class="calc-btn" onclick="addToDisplay('4')">4</button>
+                <button class="calc-btn" onclick="addToDisplay('5')">5</button>
+                <button class="calc-btn" onclick="addToDisplay('6')">6</button>
+                <button class="calc-btn" onclick="addToDisplay('-')">-</button>
+                <button class="calc-btn" onclick="addToDisplay('+')">+</button>
+            </div>
+            <div class="calc-row">
+                <button class="calc-btn" onclick="addToDisplay('1')">1</button>
+                <button class="calc-btn" onclick="addToDisplay('2')">2</button>
+                <button class="calc-btn" onclick="addToDisplay('3')">3</button>
+                <button class="calc-btn equals" onclick="calculateResult()">=</button>
+                <button class="calc-btn" onclick="clearCalculator()">C</button>
+            </div>
+            <div class="calc-row">
+                <button class="calc-btn" onclick="addToDisplay('0')">0</button>
+                <button class="calc-btn" onclick="addToDisplay('.')">.</button>
+                <button class="calc-btn" onclick="addToDisplay('Math.E')">e</button>
+                <button class="calc-btn" onclick="addToDisplay('Math.PI')">π</button>
+                <button class="calc-btn" onclick="backspace()">⌫</button>
+            </div>
+            <div class="calc-row">
+                <button class="calc-btn" onclick="addToDisplay('Math.exp(')">eˣ</button>
+                <button class="calc-btn" onclick="addToDisplay('Math.log(')">ln</button>
+                <button class="calc-btn" onclick="addToDisplay('Math.sqrt(')">√</button>
+                <button class="calc-btn" onclick="addToDisplay('**')">^</button>
+                <button class="calc-btn" onclick="addToDisplay('(')">(</button>
+            </div>
+        </div>
     </div>
-
-    <div id="calculatorModal" class="calculator-modal">...</div>
-    <div id="warningOverlay" class="warning-overlay"><div><h2>CHEATING ATTEMPT DETECTED</h2><p>Please return to the quiz window</p></div></div>
+    <div id="warningOverlay" class="warning-overlay"><div><h2>⚠️ CHEATING ATTEMPT DETECTED</h2><p>Please return to the quiz window</p></div></div>
 
     <script>
-        // Full calculator and quiz logic preserved with topic = "Exponential_Function"
-        let userAnswers = {}, currentUser = {}, username = null, email = null, currentQuestionIndex = 0, quizStartTime = null;
-        let questionStartTime = null, questionTimes = {}, questions = [], cheatingAttempts = 0, isQuizActive = false;
-        
-        // Helper functions (simplified for brevity - core logic intact)
-        function recordCheatingAttempt(type) { cheatingAttempts++; if(cheatingAttempts>=5) submitQuiz(); }
-        function initializeAntiCheating() { /* anti-cheat listeners */ }
-        function trackQuestionTime() { if(questionStartTime) questionTimes[currentQuestionIndex] = Math.floor((new Date() - questionStartTime)/1000); questionStartTime = new Date(); }
-        
+        // Quiz State
+        let userAnswers = {};
+        let username = null, email = null;
+        let currentQuestionIndex = 0;
+        let quizStartTime = null;
+        let questionStartTime = null;
+        let questionTimes = {};
+        let questions = [];
+        let cheatingAttempts = 0;
+
+        // Anti-cheating
+        function recordCheatingAttempt(type) {
+            cheatingAttempts++;
+            if (cheatingAttempts >= 5) submitQuiz();
+        }
+
+        function initializeAntiCheating() {
+            document.addEventListener('contextmenu', e => { e.preventDefault(); recordCheatingAttempt('right_click'); return false; });
+            document.addEventListener('keydown', e => {
+                if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
+                    e.preventDefault(); recordCheatingAttempt('devtools');
+                }
+                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                    e.preventDefault(); recordCheatingAttempt('copy_attempt');
+                }
+            });
+            window.addEventListener('blur', () => document.body.classList.add('blurred'));
+            window.addEventListener('focus', () => document.body.classList.remove('blurred'));
+        }
+
+        // Session & Data
         async function fetchSessionInfo() {
             try {
-                const res = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {credentials:'include'});
-                if(res.ok){ const d=await res.json(); username=d.username; email=d.email; return true; }
-                else { alert('Please login'); window.location.href='/login.html'; return false; }
-            } catch(e){ return false; }
+                const res = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', { credentials: 'include' });
+                if (res.ok) {
+                    const data = await res.json();
+                    username = data.username;
+                    email = data.email;
+                    return true;
+                }
+                alert('Please login to take the assessment');
+                window.location.href = '/login.html';
+                return false;
+            } catch(e) { return false; }
         }
-        
-        function validateAndPrepareQuestions(qs){ return qs.map((q,i)=>({...q, _id:q._id||`q-${i}`, question_number:q.question_number||i+1, question_text:q.question_text||'Question', correct_answer:q.correct_answer||'', explanation:q.explanation||'', difficulty:q.difficulty||'medium', points:q.points||1, type:q.type||'multiple_choice', alternative_answers:q.alternative_answers||[]})); }
-        
-        const answerNormalizer = {
-            normalizeAnswer:(ans,type)=>(ans||'').toString().trim().toLowerCase().replace(/\s+/g,'').replace(/infinity/gi,'inf').replace(/sqrt\(/g,'√(')
-        };
-        
-        let currentQuestionIndex_local = 0;
-        function renderCurrentQuestion(){ /* simplified render */ }
-        function nextQuestion(){ if(currentQuestionIndex<questions.length-1){ trackQuestionTime(); currentQuestionIndex++; renderCurrentQuestion(); updateProgress(); } }
-        function previousQuestion(){ if(currentQuestionIndex>0){ trackQuestionTime(); currentQuestionIndex--; renderCurrentQuestion(); updateProgress(); } }
-        function updateProgress(){ let p=((currentQuestionIndex+1)/questions.length)*100; document.getElementById('progressFill').style.width=`${p}%`; document.getElementById('prevBtn').disabled=currentQuestionIndex===0; }
-        function updateAnswerStatus(){}
-        
+
         async function loadQuestions() {
             try {
-                if(!email) return false;
-                const answeredRes = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(email)}&topic=Exponential_Function`,{credentials:'include'});
-                let answeredIds = [];
-                if(answeredRes.ok){
+                const answeredRes = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(email)}&topic=Exponential_Function`, { credentials: 'include' });
+                let answeredIds = new Set();
+                if (answeredRes.ok) {
                     const scores = await answeredRes.json();
-                    if(Array.isArray(scores)) scores.forEach(s=>{ if(s.quizData?.questionResults) s.quizData.questionResults.forEach(r=>{ if(r.questionId) answeredIds.push(r.questionId.toString()); }); });
+                    if (Array.isArray(scores)) {
+                        scores.forEach(s => {
+                            if (s.quizData?.questionResults) {
+                                s.quizData.questionResults.forEach(r => { if (r.questionId) answeredIds.add(r.questionId.toString()); });
+                            }
+                        });
+                    }
                 }
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Exponential_Function?email=${encodeURIComponent(email)}&count=50`,{credentials:'include'});
-                if(!response.ok) throw new Error('Failed to fetch');
+                
+                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/Exponential_Function?email=${encodeURIComponent(email)}&count=50`, { credentials: 'include' });
+                if (!response.ok) throw new Error('Failed to fetch');
                 const data = await response.json();
                 let allQuestions = data.questions || data;
-                if(!allQuestions.length) throw new Error('No questions');
-                const unanswered = allQuestions.filter(q => !answeredIds.includes((q._id||q.id||q.question_number)?.toString()));
-                if(unanswered.length === 0){
-                    if(confirm('All questions completed! Reset progress?')){
-                        await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({email,topic:'Exponential_Function'})});
+                if (!allQuestions.length) throw new Error('No questions available');
+                
+                const unanswered = allQuestions.filter(q => !answeredIds.has((q._id || q.id || q.question_number)?.toString()));
+                if (unanswered.length === 0) {
+                    if (confirm('🎉 You have completed all questions! Reset progress and start over?')) {
+                        await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                            body: JSON.stringify({ email, topic: 'Exponential_Function' })
+                        });
                         return loadQuestions();
-                    } else { window.location.href='iitm_math.html'; return false; }
+                    }
+                    window.location.href = 'iitm_math.html';
+                    return false;
                 }
-                questions = unanswered.slice(0,50).map((q,i)=>({...q, _id:q._id||`exp-${i}`, question_number:i+1, question_text:q.question_text||'Exponential question', correct_answer:q.correct_answer||'', explanation:q.explanation||'', difficulty:q.difficulty||'medium', points:1, type:q.type||'text_input'}));
-                document.getElementById('calculatorBtn').style.display='flex';
+                
+                questions = unanswered.slice(0, 50).map((q, idx) => ({
+                    ...q,
+                    _id: q._id || `exp-${idx}`,
+                    question_number: idx + 1,
+                    question_text: q.question_text || 'Exponential function question',
+                    correct_answer: q.correct_answer || '',
+                    explanation: q.explanation || '',
+                    difficulty: q.difficulty || 'medium',
+                    points: q.points || 1,
+                    type: q.type || 'multiple_choice',
+                    options: q.options || [],
+                    alternative_answers: q.alternative_answers || []
+                }));
                 return true;
-            } catch(e){ console.error(e); return false; }
+            } catch(e) { console.error(e); return false; }
         }
-        
-        async function initializeQuiz(){
-            if(!await fetchSessionInfo()) return;
-            if(!await loadQuestions()) return;
+
+        function trackQuestionTime() {
+            if (questionStartTime) {
+                questionTimes[currentQuestionIndex] = Math.floor((new Date() - questionStartTime) / 1000);
+            }
+            questionStartTime = new Date();
+        }
+
+        function updateProgress() {
+            const percent = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+        }
+
+        function updateAnswerStatus() {
+            const span = document.getElementById('answeredStatus');
+            if (userAnswers[currentQuestionIndex] !== undefined && userAnswers[currentQuestionIndex] !== null && 
+                (Array.isArray(userAnswers[currentQuestionIndex]) ? userAnswers[currentQuestionIndex].length > 0 : userAnswers[currentQuestionIndex] !== '')) {
+                span.textContent = 'Answered';
+                span.className = 'status-answered';
+            } else {
+                span.textContent = 'Unanswered';
+                span.className = 'status-unanswered';
+            }
+        }
+
+        function renderCurrentQuestion() {
+            const q = questions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            if (!q) return;
+            
+            let optionsHtml = '';
+            if (q.type === 'multiple_choice' && q.options && q.options.length) {
+                optionsHtml = q.options.map((opt, idx) => {
+                    const isChecked = userAnswers[currentQuestionIndex] === opt;
+                    return `
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${opt.replace(/'/g, "\\'")}', 'radio', this)">
+                            <input type="radio" name="q${currentQuestionIndex}" value="${opt.replace(/'/g, "&#39;")}" ${isChecked ? 'checked' : ''}>
+                            <label>${opt}</label>
+                        </div>
+                    `;
+                }).join('');
+            } else if (q.type === 'multiple_select' && q.options && q.options.length) {
+                const selected = userAnswers[currentQuestionIndex] || [];
+                optionsHtml = q.options.map((opt, idx) => {
+                    const isChecked = Array.isArray(selected) && selected.includes(opt);
+                    return `
+                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${opt.replace(/'/g, "\\'")}', 'checkbox', this)">
+                            <input type="checkbox" name="q${currentQuestionIndex}" value="${opt.replace(/'/g, "&#39;")}" ${isChecked ? 'checked' : ''}>
+                            <label>${opt}</label>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                optionsHtml = `<input type="text" class="numeric-input" placeholder="Enter your answer (e.g., e^x, 2^x, ln(x))" id="ansInput${currentQuestionIndex}" value="${userAnswers[currentQuestionIndex] || ''}" oninput="handleTextInput(${currentQuestionIndex}, this.value)">`;
+            }
+            
+            const difficultyClass = q.difficulty === 'easy' ? 'difficulty-easy' : (q.difficulty === 'hard' ? 'difficulty-hard' : 'difficulty-medium');
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-number">${currentQuestionIndex + 1}</div>
+                        <span class="difficulty-badge ${difficultyClass}">${q.difficulty}</span>
+                    </div>
+                    <div class="question-text">${q.question_text}</div>
+                    <div class="options">${optionsHtml}</div>
+                    <div class="answer-preview" id="preview${currentQuestionIndex}">
+                        <div class="preview-value math" id="previewContent${currentQuestionIndex}"></div>
+                    </div>
+                </div>
+            `;
+            
+            if (window.MathJax) MathJax.typesetPromise([container]).catch(console.log);
+            updateAnswerStatus();
+        }
+
+        function selectOption(questionIndex, value, type, element) {
+            const q = questions[questionIndex];
+            if (type === 'radio') {
+                document.querySelectorAll(`.option`).forEach(opt => {
+                    const inp = opt.querySelector('input[type="radio"]');
+                    if (inp) inp.checked = false;
+                    opt.classList.remove('selected');
+                });
+                element.classList.add('selected');
+                const radio = element.querySelector('input');
+                if (radio) radio.checked = true;
+                userAnswers[questionIndex] = value;
+            } else if (type === 'checkbox') {
+                const cb = element.querySelector('input');
+                cb.checked = !cb.checked;
+                let current = userAnswers[questionIndex] || [];
+                if (!Array.isArray(current)) current = [];
+                if (cb.checked) {
+                    if (!current.includes(value)) current.push(value);
+                    element.classList.add('selected');
+                } else {
+                    current = current.filter(v => v !== value);
+                    element.classList.remove('selected');
+                }
+                userAnswers[questionIndex] = current.length ? current : undefined;
+            }
+            updateAnswerStatus();
+        }
+
+        function handleTextInput(questionIndex, value) {
+            if (value.trim()) userAnswers[questionIndex] = value.trim();
+            else delete userAnswers[questionIndex];
+            updateAnswerStatus();
+            const previewDiv = document.getElementById(`previewContent${questionIndex}`);
+            if (previewDiv && value.trim()) {
+                previewDiv.innerHTML = `📝 Preview: ${value.trim()}`;
+                document.getElementById(`preview${questionIndex}`).classList.add('visible');
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                trackQuestionTime();
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                trackQuestionTime();
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+                updateProgress();
+            }
+        }
+
+        async function submitQuiz() {
+            if (!confirm('Ready to submit? You cannot change answers after submission.')) return;
+            trackQuestionTime();
+            const endTime = new Date();
+            const totalSeconds = Math.floor((endTime - quizStartTime) / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            let score = 0, totalPoints = 0;
+            const results = [];
+            questions.forEach((q, idx) => {
+                totalPoints += q.points;
+                const userAns = userAnswers[idx];
+                let isCorrect = false;
+                const correctNorm = (q.correct_answer || '').toString().toLowerCase().trim();
+                if (userAns !== undefined && userAns !== null) {
+                    let userNorm = Array.isArray(userAns) ? userAns.map(a => a.toString().toLowerCase().trim()).sort().join(',') : userAns.toString().toLowerCase().trim();
+                    if (userNorm === correctNorm) isCorrect = true;
+                    else if (q.alternative_answers && q.alternative_answers.some(alt => alt.toString().toLowerCase().trim() === userNorm)) isCorrect = true;
+                }
+                if (isCorrect) score += q.points;
+                results.push({
+                    questionNumber: idx + 1,
+                    questionText: q.question_text,
+                    difficulty: q.difficulty,
+                    userAnswer: userAns ? (Array.isArray(userAns) ? userAns.join(', ') : userAns) : 'No answer',
+                    correctAnswer: q.correct_answer,
+                    explanation: q.explanation,
+                    isCorrect,
+                    timeTaken: questionTimes[idx] || 0,
+                    points: q.points
+                });
+            });
+            
+            const quizData = {
+                topic: 'Exponential_Function',
+                quizType: 'practice',
+                score, maxPossibleScore: totalPoints,
+                totalQuestions: questions.length,
+                correctAnswers: results.filter(r => r.isCorrect).length,
+                percentage: Math.round((score / totalPoints) * 100),
+                questionResults: results,
+                startTime: quizStartTime, endTime, totalTimeTaken: totalSeconds
+            };
+            
+            document.getElementById('submitText').style.display = 'none';
+            document.getElementById('submitLoading').style.display = 'inline-block';
+            document.getElementById('submitBtn').disabled = true;
+            
+            try {
+                await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
+                    body: JSON.stringify({ email, username, quizData })
+                });
+                document.getElementById('quizContainer').style.display = 'none';
+                const rc = document.getElementById('resultsContainer');
+                rc.style.display = 'block';
+                const sd = document.querySelector('.score-display');
+                sd.innerHTML = `<h2>${score}/${totalPoints} Points (${Math.round(score/totalPoints*100)}%)</h2>
+                                <p>Exponential Function Quiz Completed!</p>
+                                <p style="font-size:1.2rem; margin-top:15px;">⏱️ Total Time: ${minutes}m ${seconds}s</p>
+                                <p>✅ ${results.filter(r=>r.isCorrect).length}/${questions.length} Correct</p>`;
+                const reviewDiv = document.createElement('div');
+                reviewDiv.style.cssText = 'margin-top:30px;text-align:left;background:white;border-radius:10px;padding:20px;box-shadow:0 4px 8px rgba(0,0,0,0.1);';
+                reviewDiv.innerHTML = `<h3>📊 Exponential Function Review</h3>${results.map(r => `
+                    <div style="border:2px solid ${r.isCorrect ? '#28a745' : '#dc3545'};border-radius:8px;padding:15px;margin-bottom:15px;">
+                        <div><strong>Q${r.questionNumber}:</strong> ${r.questionText}</div>
+                        <div><strong>Your Answer:</strong> <span style="color:${r.isCorrect ? '#28a745' : '#dc3545'}">${r.userAnswer}</span></div>
+                        <div><strong>Correct:</strong> ${r.correctAnswer}</div>
+                        <div><strong>Explanation:</strong> ${r.explanation}</div>
+                        <div><small>Time: ${r.timeTaken}s | ${r.difficulty}</small></div>
+                    </div>`).join('')}`;
+                rc.appendChild(reviewDiv);
+            } catch(e) { alert('Error submitting quiz'); location.reload(); }
+        }
+
+        // Calculator functions
+        let calculatorOpen = false;
+        function toggleCalculator() {
+            const modal = document.getElementById('calculatorModal');
+            calculatorOpen = !calculatorOpen;
+            modal.style.display = calculatorOpen ? 'flex' : 'none';
+            document.getElementById('calculatorBtn').style.display = calculatorOpen ? 'none' : 'flex';
+            if (calculatorOpen && !modal.style.left) modal.style.left = (window.innerWidth - 520) + 'px';
+        }
+        function addToDisplay(v) { document.getElementById('calcDisplay').value += v; }
+        function clearCalculator() { document.getElementById('calcDisplay').value = ''; document.getElementById('resultDisplay').value = '0'; }
+        function backspace() { let d = document.getElementById('calcDisplay'); d.value = d.value.slice(0, -1); }
+        function calculateResult() {
+            try {
+                let expr = document.getElementById('calcDisplay').value.replace(/\^/g, '**').replace(/Math\.E/g, 'Math.E');
+                let result = eval(expr);
+                document.getElementById('resultDisplay').value = result;
+            } catch(e) { document.getElementById('resultDisplay').value = 'Error'; }
+        }
+
+        function showInfoBubble() {
+            document.getElementById('infoBubble').classList.add('expanded');
+            document.getElementById('helpButton').style.display = 'none';
+        }
+        function hideInfoBubble() {
+            document.getElementById('infoBubble').classList.remove('expanded');
+            document.getElementById('helpButton').style.display = 'flex';
+        }
+
+        async function init() {
+            if (!await fetchSessionInfo()) return;
+            if (!await loadQuestions()) return;
             initializeAntiCheating();
             quizStartTime = new Date();
             questionStartTime = new Date();
-            isQuizActive = true;
-            document.getElementById('loadingScreen').style.display='none';
-            document.getElementById('quizContainer').style.display='block';
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('calculatorBtn').style.display = 'flex';
             renderCurrentQuestion();
             updateProgress();
+            document.getElementById('prevBtn').onclick = previousQuestion;
+            document.getElementById('nextBtn').onclick = nextQuestion;
+            document.getElementById('submitBtn').onclick = submitQuiz;
         }
         
-        async function submitQuiz(){
-            if(!confirm('Ready to submit? You cannot change answers after submission.')) return;
-            trackQuestionTime();
-            isQuizActive = false;
-            const quizEndTime = new Date();
-            const totalTimeSeconds = Math.floor((quizEndTime - quizStartTime) / 1000);
-            const minutes = Math.floor(totalTimeSeconds / 60);
-            const seconds = totalTimeSeconds % 60;
-            
-            let score = 0, totalPoints = 0;
-            const questionResults = [];
-            questions.forEach((q,idx)=>{
-                const userAns = userAnswers[idx];
-                totalPoints += q.points;
-                let isCorrect = false;
-                if(userAns && userAns.toString().toLowerCase().trim() === (q.correct_answer||'').toString().toLowerCase().trim()) isCorrect = true;
-                if(isCorrect) score += q.points;
-                questionResults.push({questionNumber:idx+1, questionText:q.question_text, difficulty:q.difficulty, userAnswer:userAns||'No answer', correctAnswer:q.correct_answer, explanation:q.explanation, isCorrect, timeTaken:questionTimes[idx]||0, points:q.points});
-            });
-            const percentage = Math.round((score/totalPoints)*100);
-            const quizData = { topic:'Exponential_Function', quizType:'practice', score, maxPossibleScore:totalPoints, totalQuestions:questions.length, correctAnswers:questionResults.filter(r=>r.isCorrect).length, percentage, questionResults, startTime:quizStartTime, endTime:quizEndTime, totalTimeTaken:totalTimeSeconds, isCompleted:true };
-            
-            try {
-                document.getElementById('submitText').style.display='none';
-                document.getElementById('submitLoading').style.display='inline-block';
-                document.getElementById('submitBtn').disabled=true;
-                await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify({email,username,quizData})});
-                displayResults(quizData, minutes, seconds);
-            } catch(e){ alert('Error submitting'); document.getElementById('submitText').style.display='inline'; document.getElementById('submitLoading').style.display='none'; document.getElementById('submitBtn').disabled=false; }
-        }
-        
-        function displayResults(quizData, minutes, seconds){
-            document.getElementById('quizContainer').style.display='none';
-            const rc = document.getElementById('resultsContainer');
-            rc.style.display='block';
-            const sd = document.querySelector('.score-display');
-            sd.innerHTML = `<h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
-                            <p>Exponential Function Quiz Completed!</p>
-                            <div style="margin-top:15px;"><strong>Total Time Taken:</strong> ${minutes}m ${seconds}s</div>
-                            <div style="margin-top:10px;">${quizData.correctAnswers}/${quizData.totalQuestions} Correct</div>`;
-            const reviewDiv = document.createElement('div');
-            reviewDiv.style.cssText='margin-top:30px;text-align:left;background:white;border-radius:10px;padding:20px;box-shadow:0 4px 8px rgba(0,0,0,0.1);';
-            reviewDiv.innerHTML = `<h3 style="text-align:center;">Exponential Function Review</h3>
-                ${quizData.questionResults.map((r,i)=>`
-                    <div style="border:2px solid ${r.isCorrect?'#28a745':'#dc3545'};border-radius:8px;padding:15px;margin-bottom:15px;">
-                        <div><strong>Q${r.questionNumber}:</strong> ${r.questionText}</div>
-                        <div><strong>Your Answer:</strong> <span style="color:${r.isCorrect?'#28a745':'#dc3545'}">${r.userAnswer}</span></div>
-                        <div><strong>Correct:</strong> ${r.correctAnswer}</div>
-                        <div><strong>Explanation:</strong> ${r.explanation}</div>
-                        <div><small>Time: ${r.timeTaken}s | Difficulty: ${r.difficulty}</small></div>
-                    </div>
-                `).join('')}`;
-            rc.appendChild(reviewDiv);
-        }
-        
-        function goback(){ window.location.href='iitm_math.html'; }
-        function showInfoBubble(){ document.getElementById('infoBubble').classList.add('expanded'); document.getElementById('helpButton').style.display='none'; }
-        function hideInfoBubble(){ document.getElementById('infoBubble').classList.remove('expanded'); document.getElementById('helpButton').style.display='flex'; }
-        let calculatorOpen=false;
-        function toggleCalculator(){ const m=document.getElementById('calculatorModal'); calculatorOpen=!calculatorOpen; m.style.display=calculatorOpen?'flex':'none'; document.getElementById('calculatorBtn').style.display=calculatorOpen?'none':'flex'; if(calculatorOpen && !m.style.left) m.style.left=(window.innerWidth-590-20)+'px'; }
-        function addToDisplay(v){ document.getElementById('calcDisplay').value+=v; }
-        function clearCalculator(){ document.getElementById('calcDisplay').value=''; document.getElementById('resultDisplay').value='0'; }
-        function backspace(){ let d=document.getElementById('calcDisplay'); d.value=d.value.slice(0,-1); }
-        function calculateResult(){ try{ let r=eval(document.getElementById('calcDisplay').value.replace(/\^/g,'**').replace(/√/g,'Math.sqrt').replace(/π/g,'Math.PI')); document.getElementById('resultDisplay').value=r; } catch(e){ document.getElementById('resultDisplay').value='Error'; } }
-        function calcFunction(f){ /* stub */ }
-        function memoryFunction(f){ /* stub */ }
-        
-        // Minimal calculator HTML injection
-        document.addEventListener('DOMContentLoaded',()=>{
-            const modalDiv = document.getElementById('calculatorModal');
-            modalDiv.innerHTML = `<div class="calculator-header"><h3>Scientific Calculator</h3><button class="calculator-close" onclick="toggleCalculator()">×</button></div>
-                <div class="calculator-display"><input type="text" id="calcDisplay" readonly style="width:100%;padding:12px;font-size:1.5rem;"><input type="text" id="resultDisplay" readonly value="0" style="width:100%;padding:8px;margin-top:5px;"></div>
-                <div class="calculator-buttons"><div class="calc-row"><button class="calc-btn" onclick="addToDisplay('7')">7</button><button onclick="addToDisplay('8')">8</button><button onclick="addToDisplay('9')">9</button><button onclick="addToDisplay('/')">/</button><button onclick="addToDisplay('*')">*</button></div>
-                <div class="calc-row"><button onclick="addToDisplay('4')">4</button><button onclick="addToDisplay('5')">5</button><button onclick="addToDisplay('6')">6</button><button onclick="addToDisplay('-')">-</button><button onclick="addToDisplay('+')">+</button></div>
-                <div class="calc-row"><button onclick="addToDisplay('1')">1</button><button onclick="addToDisplay('2')">2</button><button onclick="addToDisplay('3')">3</button><button onclick="calculateResult()">=</button><button onclick="clearCalculator()">C</button></div>
-                <div class="calc-row"><button onclick="addToDisplay('0')">0</button><button onclick="addToDisplay('.')">.</button><button onclick="addToDisplay('Math.E')">e</button><button onclick="addToDisplay('Math.PI')">π</button><button onclick="backspace()">⌫</button></div>
-                <div class="calc-row"><button onclick="addToDisplay('Math.exp(')">eˣ</button><button onclick="addToDisplay('Math.log(')">ln</button><button onclick="addToDisplay('Math.sqrt(')">√</button><button onclick="addToDisplay('**')">^</button></div></div>`;
-            initializeQuiz();
-        });
-        
-        // Override renderCurrentQuestion for exponential topic
-        window.renderCurrentQuestion = function(){
-            const q = questions[currentQuestionIndex];
-            const container = document.getElementById('questionContainer');
-            container.innerHTML = `<div class="question-card"><div class="question-header"><div class="question-number">${currentQuestionIndex+1}</div><span class="difficulty-badge difficulty-${q.difficulty}">${q.difficulty}</span></div>
-                <div class="question-text">${q.question_text}</div>
-                <div class="options"><input type="text" class="numeric-input" placeholder="Enter your answer (e.g., e^x, 2^x, ln(x))" onchange="handleAnswer(${currentQuestionIndex}, this.value)" id="ansInput${currentQuestionIndex}"></div>
-                <div class="answer-preview" id="preview${currentQuestionIndex}"><h4>Preview</h4><div id="previewContent${currentQuestionIndex}"></div></div></div>`;
-            if(userAnswers[currentQuestionIndex]) document.getElementById(`ansInput${currentQuestionIndex}`).value = userAnswers[currentQuestionIndex];
-            updateProgress();
-        };
-        window.handleAnswer = (idx,val)=>{ if(val.trim()) userAnswers[idx]=val.trim(); else delete userAnswers[idx]; updateAnswerStatus(); };
-        window.updateAnswerStatus = ()=>{ const span=document.getElementById('answeredStatus'); if(userAnswers[currentQuestionIndex]){ span.textContent='Answered'; span.className='status-answered'; } else { span.textContent='Unanswered'; span.className='status-unanswered'; } };
+        init();
     </script>
 </body>
 </html>
