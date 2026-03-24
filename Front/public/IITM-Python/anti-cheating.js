@@ -494,7 +494,7 @@
         
         // Try to log to multiple endpoints for reliability
         const endpoints = [
-            'https://127.0.0.1:5500/api/log-cheating',
+            `https://sanghamitra-learnworld.vercel.app/api/log-cheating',
         ];
         
         endpoints.forEach(endpoint => {
