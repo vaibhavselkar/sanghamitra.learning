@@ -5,21 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exponential Function Quiz</title>
     
-    <!-- MathJax for LaTeX rendering -->
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true,
-                processEnvironments: true
-            },
-            options: {
-                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-            }
-        };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1299,17 +1284,12 @@
             
             let questionText = question.question_text || 'Question text not available';
             
-            if (questionText.includes('$') || questionText.includes('\\') || 
-                questionText.includes('sqrt') || questionText.includes('^') || questionText.includes('e^')) {
-                questionText = answerFormatter.formatForMathJax(questionText);
-            }
+            
             
             if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
                 optionsHtml = question.options.map((option, optIndex) => {
                     let optionText = option;
-                    if (option.includes('e^') || option.includes('ln')) {
-                        optionText = answerFormatter.formatForMathJax(option);
-                    }
+                    
                     const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                     const isChecked = userAnswers[currentQuestionIndex] === option;
                     return `
@@ -1393,10 +1373,6 @@
             `;
 
             container.appendChild(questionDiv);
-            
-            if (window.MathJax) {
-                MathJax.typesetPromise([questionDiv]).catch(err => console.log('MathJax error:', err));
-            }
             
             if (userAnswers[currentQuestionIndex] && document.getElementById(`answerInput-${currentQuestionIndex}`)) {
                 updateAnswerPreview(currentQuestionIndex, userAnswers[currentQuestionIndex]);
