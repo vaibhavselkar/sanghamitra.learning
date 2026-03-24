@@ -339,7 +339,16 @@
 
   <script>
     // ===== Configuration =====
-    const API_BASE_URL = `https://sanghamitra-learnworld.vercel.app/api'; // Local backend server
+    // Use relative API path that works in both local and deployed environments
+    const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
+
+    // Fetch with timeout to prevent indefinite loading
+    function fetchWithTimeout(url, options = {}, timeout = 8000) {
+      return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), timeout))
+      ]);
+    }
 
     // ===== Helpers =====
     function escapeHtmlAttr(str) {
@@ -459,7 +468,7 @@
       console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
 
       if (username && email) {
-        fetch(`${API_BASE_URL}/log-cheating`, {
+        fetchWithTimeout(`${API_BASE_URL}/log-cheating`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -471,7 +480,7 @@
             currentQuestion: currentQuestionIndex + 1,
             totalAttempts: cheatingAttempts
           })
-        }).catch(err => console.error('Failed to log cheating attempt:', err));
+        }, 5000).catch(err => console.warn('Failed to log cheating attempt:', err.message));
       }
 
       if (cheatingAttempts >= 10) {
@@ -497,9 +506,9 @@
 
     async function fetchSessionInfo() {
       try {
-        const response = await fetch(`${API_BASE_URL}/session-info`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}/session-info`, {
           credentials: 'include'
-        });
+        }, 5000);
 
         if (response.ok) {
           const data = await response.json();
@@ -512,7 +521,7 @@
           return false;
         }
       } catch (error) {
-        console.error('Error fetching session info:', error);
+        console.warn('Error fetching session info:', error.message);
         alert('❌ Error connecting to server. Please try again.');
         return false;
       }
@@ -555,7 +564,7 @@
         console.log('📝 Already answered Python question IDs:', answeredQuestionIds);
 
         // ✅ CORRECTED: Fetch from MongoDB using the correct endpoint and topic name
-        const response = await fetch(
+        const response = await fetchWithTimeout(
           `${API_BASE_URL}/python-questions?email=${encodeURIComponent(email)}&topic=WEEK-1&limit=50`,
           { 
             method: 'GET',
@@ -563,7 +572,8 @@
             headers: {
               'Content-Type': 'application/json'
             }
-          }
+          },
+          8000
         );
 
         if (!response.ok) {
@@ -620,7 +630,7 @@
 
         return true;
       } catch (error) {
-        console.error('❌ Error loading Python questions:', error);
+        console.warn('❌ Error loading Python questions:', error.message);
         alert('Failed to load Python quiz questions. Please refresh and try again.\n\nError: ' + error.message);
         return false;
       }
@@ -629,7 +639,7 @@
     async function getAnsweredQuestionIds() {
       try {
         // ✅ Fetch user's scores from MongoDB
-        const response = await fetch(
+        const response = await fetchWithTimeout(
           `${API_BASE_URL}/python-scores?email=${encodeURIComponent(email)}&topic=WEEK-1`,
           { 
             method: 'GET',
@@ -637,7 +647,8 @@
             headers: {
               'Content-Type': 'application/json'
             }
-          }
+          },
+          8000
         );
 
         if (!response.ok) return [];
@@ -676,7 +687,7 @@
     async function resetUserProgress() {
       try {
         // ✅ CORRECTED: Reset progress endpoint
-        const response = await fetch(`${API_BASE_URL}/reset-python-progress`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}/reset-python-progress`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -684,7 +695,7 @@
             email,
             topic: 'WEEK-1'
           })
-        });
+        }, 8000);
 
         const data = await response.json();
 
@@ -695,7 +706,7 @@
           throw new Error(data.message || 'Failed to reset Python progress');
         }
       } catch (error) {
-        console.error('Error resetting Python progress:', error);
+        console.warn('Error resetting Python progress:', error.message);
         alert('❌ Failed to reset Python progress.');
         return false;
       }
@@ -1031,7 +1042,7 @@
 
         console.log('Submitting quiz data:', { email, username, topic: 'WEEK-1', score, maxScore: totalPossiblePoints, percentage });
 
-        const response = await fetch(`${API_BASE_URL}/python-scores`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}/python-scores`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -1053,7 +1064,7 @@
               explanation: r.explanation
             }))
           })
-        });
+        }, 10000);
 
         console.log('Response status:', response.status);
         const responseText = await response.text();
