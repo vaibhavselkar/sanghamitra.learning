@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Python Week 1 Quiz - v3</title>
+
+  <style>
+    /* Keep your existing CSS exactly as is */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    .header p { font-size: 1.1rem; opacity: 0.9; }
+
+    * {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      -webkit-print-color-adjust: exact;
+      pointer-events: auto;
+    }
+
+    .option, .option * {
+      pointer-events: auto;
+      user-select: none;
+    }
+
+    ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+    body.blurred { filter: blur(5px); pointer-events: none; }
+
+    .warning-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(220, 53, 69, 0.95);
+      color: white;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .progress-container {
+      background: #f8f9fa;
+      padding: 20px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .progress-text {
+      text-align: center;
+      color: #666;
+      font-weight: 600;
+    }
+
+    .quiz-container { padding: 30px; display: none; }
+
+    .question-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      border-left: 5px solid #667eea;
+    }
+
+    .question-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .question-number {
+      background: #667eea;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-right: 15px;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+
+    .options { display: flex; flex-direction: column; gap: 12px; }
+
+    .option {
+      background: white;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option:hover { border-color: #667eea; background: #f3f0ff; }
+
+    .option.selected {
+      border-color: #764ba2;
+      background: #f3f0ff;
+      box-shadow: 0 0 0 2px rgba(102,126,234,0.2);
+    }
+
+    .answer-input {
+      width: 100%;
+      max-width: 450px;
+      padding: 12px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .question-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .btn-nav {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-next {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .question-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .status-answered {
+      background: #28a745;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .status-unanswered {
+      background: #dc3545;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .results-container {
+      display: none;
+      padding: 30px;
+      text-align: center;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .score-display {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .results-container { padding: 15px; }
+      .score-display { padding: 20px; }
+      .score-display h2 { font-size: 2rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🐍 Python Week 1 Quiz</h1>
+      <p>Test your knowledge of Python fundamentals with questions from MongoDB</p>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quizContainer" class="quiz-container" style="display: none;">
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Question 1 of 30</div>
+      </div>
+
+      <div id="questionContainer"></div>
+
+      <div class="question-navigation">
+        <button class="btn-nav" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+        <div class="question-status">
+          <span id="questionStatus">Question 1 of 30</span>
+          <span id="answeredStatus" class="status-unanswered">Unanswered</span>
+        </div>
+        <button class="btn-nav btn-next" id="nextBtn" onclick="nextQuestion()">Next</button>
+      </div>
+
+      <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #667eea;">
+        <button class="btn" onclick="submitQuiz()" id="submitBtn">
+          <span id="submitText">Submit Quiz</span>
+          <span id="submitLoading" class="loading" style="display: none;"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="quiz-container" style="text-align: center; padding: 60px;">
+      <div class="loading" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+      <h3>Loading Python Week 1 Quiz from MongoDB...</h3>
+      <p>Fetching questions and verifying your session</p>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsContainer" class="results-container">
+      <div class="score-display">
+        <h2 id="finalScore">0/30</h2>
+        <p>Quiz Completed Successfully!</p>
+      </div>
+      <button class="btn" onclick="goback()">Back to Home</button>
+    </div>
+  </div>
+
+  <!-- Anti-cheating warning overlay -->
+  <div id="warningOverlay" class="warning-overlay">
+    <div>
+      <h2>⚠️ CHEATING ATTEMPT DETECTED</h2>
+      <p>Please return to the quiz window</p>
+      <p>Your activity is being monitored</p>
+    </div>
+  </div>
+
+  <script>
+    // ===== Configuration =====
+    const API_BASE_URL = 'http://127.0.0.1:4000/api'; // Local backend server
+
+    // ===== Helpers =====
+    function escapeHtmlAttr(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    // ===== Answer Normalizer =====
+    const answerNormalizer = {
+      normalizeText: (t) => (t ?? '').toString().trim().replace(/\s+/g, ' ').toLowerCase(),
+      normalizeNumber: (n) => {
+        const x = Number((n ?? '').toString().trim());
+        return Number.isFinite(x) ? x : NaN;
+      },
+      normalizeAnswer: (answer, questionType) => {
+        if (answer === undefined || answer === null) return "";
+        if (questionType === "numeric" || questionType === "numeric_input") {
+          return answerNormalizer.normalizeNumber(answer);
+        }
+        return answerNormalizer.normalizeText(answer);
+      }
+    };
+
+    let userAnswers = {};
+    let currentUser = {};
+    let username = null;
+    let email = null;
+    let currentQuestionIndex = 0;
+    let quizStartTime = null;
+    let questionStartTime = null;
+    let questionTimes = {};
+    let questions = [];
+
+    // ===== Anti-cheating variables =====
+    let cheatingAttempts = 0;
+    let isQuizActive = false;
+    let devToolsWarned = false;
+
+    function initializeAntiCheating() {
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        recordCheatingAttempt('right_click');
+        return false;
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.keyCode === 123 ||
+            (e.ctrlKey && e.shiftKey && e.keyCode === 73) ||
+            (e.ctrlKey && e.keyCode === 85) ||
+            (e.ctrlKey && e.keyCode === 83) ||
+            e.keyCode === 44) {
+          e.preventDefault();
+          recordCheatingAttempt('keyboard_shortcut');
+          return false;
+        }
+
+        if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+          e.preventDefault();
+          recordCheatingAttempt('copy_attempt');
+          return false;
+        }
+      });
+
+      const threshold = 160;
+      let devtools = { open: false };
+
+      setInterval(function() {
+        if (window.outerHeight - window.innerHeight > threshold ||
+            window.outerWidth - window.innerWidth > threshold) {
+          if (!devtools.open) {
+            devtools.open = true;
+            recordCheatingAttempt('developer_tools');
+            if (!devToolsWarned) {
+              alert('⚠️ Developer tools detected! This attempt has been logged.');
+              devToolsWarned = true;
+            }
+          }
+        } else {
+          devtools.open = false;
+        }
+      }, 500);
+
+      window.addEventListener('blur', function() {
+        if (isQuizActive) {
+          document.body.classList.add('blurred');
+          document.getElementById('warningOverlay').style.display = 'flex';
+          recordCheatingAttempt('window_blur');
+        }
+      });
+
+      window.addEventListener('focus', function() {
+        document.body.classList.remove('blurred');
+        document.getElementById('warningOverlay').style.display = 'none';
+      });
+
+      document.onselectstart = function(e) {
+        if (!e.target.closest('.answer-input')) {
+          recordCheatingAttempt('text_selection');
+          return false;
+        }
+      };
+
+      document.addEventListener('keyup', function(e) {
+        if (e.keyCode === 44) {
+          recordCheatingAttempt('screenshot_attempt');
+          alert('⚠️ Screenshot attempt detected and logged!');
+        }
+      });
+    }
+
+    function recordCheatingAttempt(type) {
+      cheatingAttempts++;
+      console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+
+      if (username && email) {
+        fetch(`${API_BASE_URL}/log-cheating`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            username,
+            email,
+            cheatingType: type,
+            timestamp: new Date(),
+            currentQuestion: currentQuestionIndex + 1,
+            totalAttempts: cheatingAttempts
+          })
+        }).catch(err => console.error('Failed to log cheating attempt:', err));
+      }
+
+      if (cheatingAttempts >= 10) {
+        alert('⚠️ Too many suspicious activities detected! Quiz will be auto-submitted.');
+        submitQuiz();
+      } else if (cheatingAttempts >= 5) {
+        alert(`⚠️ Warning: ${cheatingAttempts} suspicious activities detected!`);
+      }
+    }
+
+    function initializeQuizTiming() {
+      quizStartTime = new Date();
+      questionStartTime = new Date();
+    }
+
+    function trackQuestionTime() {
+      if (questionStartTime) {
+        const timeSpent = Math.floor((new Date() - questionStartTime) / 1000);
+        questionTimes[currentQuestionIndex] = timeSpent;
+      }
+      questionStartTime = new Date();
+    }
+
+    async function fetchSessionInfo() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/session-info`, {
+          credentials: 'include'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          username = data.username;
+          email = data.email;
+          return true;
+        } else {
+          alert('⚠️ Please login to take the assessment');
+          window.location.href = '/login.html';
+          return false;
+        }
+      } catch (error) {
+        console.error('Error fetching session info:', error);
+        alert('❌ Error connecting to server. Please try again.');
+        return false;
+      }
+    }
+
+    async function initializeQuiz() {
+      try {
+        initializeAntiCheating();
+
+        const sessionValid = await fetchSessionInfo();
+        if (!sessionValid) return;
+
+        const questionsLoaded = await loadQuestionsFromMongoDB();
+        if (!questionsLoaded) return;
+
+        currentUser = { username, email };
+        initializeQuizTiming();
+        isQuizActive = true;
+
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+
+        renderCurrentQuestion();
+        updateProgress();
+      } catch (error) {
+        console.error('Error initializing quiz:', error);
+        alert('❌ Error starting quiz. Please try again.');
+      }
+    }
+
+    // ===== LOAD QUESTIONS FROM MONGODB =====
+    async function loadQuestionsFromMongoDB() {
+      try {
+        if (!email) {
+          alert('Please login to take the assessment');
+          return false;
+        }
+
+        const answeredQuestionIds = await getAnsweredQuestionIds();
+        console.log('📝 Already answered Python question IDs:', answeredQuestionIds);
+
+        // ✅ CORRECTED: Fetch from MongoDB using the correct endpoint and topic name
+        const response = await fetch(
+          `${API_BASE_URL}/python-questions?email=${encodeURIComponent(email)}&topic=WEEK-1&limit=50`,
+          { 
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('📚 Questions loaded from MongoDB:', data);
+
+        // Handle different response formats
+        let allQuestions = [];
+        if (data.questions && Array.isArray(data.questions)) {
+          allQuestions = data.questions;
+        } else if (Array.isArray(data)) {
+          allQuestions = data;
+        } else {
+          throw new Error('Invalid questions format from server');
+        }
+
+        if (allQuestions.length === 0) {
+          throw new Error('No Python questions found in database');
+        }
+
+        // Filter out answered questions
+        const unansweredQuestions = allQuestions.filter(q => {
+          const questionId = q._id || q.id || q.question_number?.toString();
+          return !answeredQuestionIds.includes(questionId?.toString());
+        });
+
+        if (unansweredQuestions.length === 0) {
+          const resetConfirm = confirm(
+            `🎉 You've completed all available Python questions!\n\n` +
+            `Completed: ${answeredQuestionIds.length}\n` +
+            `Total: ${allQuestions.length}\n\n` +
+            `Would you like to reset your progress and start over?`
+          );
+
+          if (resetConfirm) {
+            const resetSuccess = await resetUserProgress();
+            if (resetSuccess) return loadQuestionsFromMongoDB();
+            alert('Failed to reset progress.');
+            window.location.href = 'iitm-python.html';
+            return false;
+          } else {
+            alert('No new Python questions available. Returning to home page.');
+            window.location.href = 'iitm-python.html';
+            return false;
+          }
+        }
+
+        // Show up to 30 questions
+        const questionsToShow = Math.min(50, unansweredQuestions.length);
+        questions = shuffleArray(unansweredQuestions).slice(0, questionsToShow);
+
+        return true;
+      } catch (error) {
+        console.error('❌ Error loading Python questions:', error);
+        alert('Failed to load Python quiz questions. Please refresh and try again.\n\nError: ' + error.message);
+        return false;
+      }
+    }
+
+    async function getAnsweredQuestionIds() {
+      try {
+        // ✅ Fetch user's scores from MongoDB
+        const response = await fetch(
+          `${API_BASE_URL}/python-scores?email=${encodeURIComponent(email)}&topic=WEEK-1`,
+          { 
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (!response.ok) return [];
+
+        const scores = await response.json();
+        console.log('📊 Previous scores:', scores);
+
+        const answeredIds = new Set();
+
+        if (Array.isArray(scores)) {
+          scores.forEach(score => {
+            if (score.quizData?.questionResults) {
+              score.quizData.questionResults.forEach(result => {
+                if (result.questionId) answeredIds.add(result.questionId.toString());
+              });
+            }
+          });
+        }
+
+        return Array.from(answeredIds);
+      } catch (error) {
+        console.error('Error fetching answered Python questions:', error);
+        return [];
+      }
+    }
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    async function resetUserProgress() {
+      try {
+        // ✅ CORRECTED: Reset progress endpoint
+        const response = await fetch(`${API_BASE_URL}/reset-python-progress`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            email,
+            topic: 'WEEK-1'
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert('✅ Python progress reset successfully!');
+          return true;
+        } else {
+          throw new Error(data.message || 'Failed to reset Python progress');
+        }
+      } catch (error) {
+        console.error('Error resetting Python progress:', error);
+        alert('❌ Failed to reset Python progress.');
+        return false;
+      }
+    }
+
+    // ===== RENDERING FUNCTIONS =====
+    function renderCurrentQuestion() {
+      const container = document.getElementById('questionContainer');
+      const question = questions[currentQuestionIndex];
+      container.innerHTML = '';
+
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'question-card';
+
+      let optionsHtml = '';
+
+      const qType = (question.type || '').trim().toLowerCase();
+      console.log('🔍 Question type:', JSON.stringify(question.type), '→ qType:', qType, '| options:', question.options);
+      if ((qType === 'multiple_choice' || qType === 'mcq-single' || qType === 'mcq' || qType === 'msq') && Array.isArray(question.options) && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+          const safeAttr = escapeHtmlAttr(option);
+          return `
+            <div class="option" onclick="selectOptionByIndex(${currentQuestionIndex}, ${optIndex}, 'radio')">
+              <input type="radio" name="q${currentQuestionIndex}" value="${safeAttr}" id="q${currentQuestionIndex}_${optIndex}">
+              <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+            </div>
+          `;
+        }).join('');
+      } else if ((qType === 'multiple_select' || qType === 'mcq-multiple') && question.options?.length) {
+        optionsHtml = question.options.map((option, optIndex) => {
+          const safeAttr = escapeHtmlAttr(option);
+          return `
+            <div class="option" onclick="selectOptionByIndex(${currentQuestionIndex}, ${optIndex}, 'checkbox')">
+              <input type="checkbox" name="q${currentQuestionIndex}" value="${safeAttr}" id="q${currentQuestionIndex}_${optIndex}">
+              <label for="q${currentQuestionIndex}_${optIndex}">${option}</label>
+            </div>
+          `;
+        }).join('');
+      } else if (qType === 'numeric_input' || qType === 'numeric' || qType === 'numerical') {
+        optionsHtml = `
+          <input type="number"
+                 class="answer-input"
+                 placeholder="Enter a number"
+                 onchange="handleInput(${currentQuestionIndex}, this.value)"
+                 oninput="handleInput(${currentQuestionIndex}, this.value)"
+                 autocomplete="off">
+        `;
+      } else if (qType === 'text_input' || qType === 'interview') {
+        optionsHtml = `
+          <input type="text"
+                 class="answer-input"
+                 placeholder="${question.format_hint || 'Type your answer'}"
+                 onchange="handleInput(${currentQuestionIndex}, this.value)"
+                 oninput="handleInput(${currentQuestionIndex}, this.value)"
+                 autocomplete="off"
+                 spellcheck="false">
+        `;
+      } else if ((qType === 'multiple_choice' || qType === 'mcq-single' || qType === 'mcq' || qType === 'msq') && (!Array.isArray(question.options) || question.options.length === 0)) {
+        // mcq type but options missing — show input fallback
+        optionsHtml = `
+          <input type="text"
+                 class="answer-input"
+                 placeholder="Type your answer"
+                 onchange="handleInput(${currentQuestionIndex}, this.value)"
+                 oninput="handleInput(${currentQuestionIndex}, this.value)"
+                 autocomplete="off"
+                 spellcheck="false">
+          <small style="color:#888; margin-top:6px; display:block;">⚠️ Options not available — type your answer</small>
+        `;
+      } else {
+        optionsHtml = `
+          <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+            <strong>Error:</strong> Unsupported question type: ${question.type}
+          </div>
+        `;
+      }
+
+      const difficultyColor = { easy: '#28a745', medium: '#ffc107', hard: '#dc3545' };
+      const difficulty = question.difficulty || 'medium';
+      const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+      questionDiv.innerHTML = `
+        <div class="question-header">
+          <div class="question-number">${currentQuestionIndex + 1}</div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="background:${difficultyColor[difficulty]}; color:white; padding:4px 8px; border-radius:12px; font-size:12px; text-transform:uppercase;">
+              ${difficultyText}
+            </span>
+          </div>
+        </div>
+        <div class="question-text">${question.title || question.question_text || 'Question text not available'}</div>
+        <div class="options">${optionsHtml}</div>
+      `;
+
+      container.appendChild(questionDiv);
+      restoreAnswer();
+      updateAnswerStatus();
+    }
+
+    function selectOptionByIndex(questionIndex, optionIndex, type) {
+      const question = questions[questionIndex];
+      if (!question?.options?.[optionIndex]) return;
+      const value = question.options[optionIndex];
+      const optionDiv = document.querySelector(`#q${questionIndex}_${optionIndex}`)?.closest('.option');
+      if (optionDiv) selectOption(optionDiv, questionIndex, value, type);
+    }
+
+    function selectOption(optionDiv, questionIndex, value, type) {
+      if (type === 'radio') {
+        userAnswers[questionIndex] = String(value).trim();
+
+        document.querySelectorAll(`input[name="q${questionIndex}"]`).forEach(inp => {
+          inp.checked = false;
+          inp.closest('.option')?.classList.remove('selected');
+        });
+
+        optionDiv.classList.add('selected');
+        optionDiv.querySelector('input').checked = true;
+      }
+
+      if (type === 'checkbox') {
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+        const checkbox = optionDiv.querySelector('input');
+        checkbox.checked = !checkbox.checked;
+
+        const v = String(value).trim();
+        if (checkbox.checked) {
+          optionDiv.classList.add('selected');
+          if (!userAnswers[questionIndex].includes(v)) userAnswers[questionIndex].push(v);
+        } else {
+          optionDiv.classList.remove('selected');
+          userAnswers[questionIndex] = userAnswers[questionIndex].filter(x => x !== v);
+          if (userAnswers[questionIndex].length === 0) delete userAnswers[questionIndex];
+        }
+      }
+
+      updateAnswerStatus();
+    }
+
+    function handleInput(questionIndex, value) {
+      const trimmedValue = String(value ?? '').trim();
+      if (trimmedValue) userAnswers[questionIndex] = trimmedValue;
+      else delete userAnswers[questionIndex];
+      updateAnswerStatus();
+    }
+
+    function restoreAnswer() {
+      const question = questions[currentQuestionIndex];
+      const savedAnswer = userAnswers[currentQuestionIndex];
+      if (savedAnswer === undefined) return;
+
+      if (question.type === 'multiple_choice' || question.type === 'mcq-single' || question.type === 'mcq') {
+        document.querySelectorAll('.option').forEach(div => {
+          const label = div.querySelector('label');
+          if (label && label.textContent.trim() === String(savedAnswer).trim()) {
+            div.classList.add('selected');
+            div.querySelector('input').checked = true;
+          }
+        });
+      } else if (question.type === 'multiple_select' && Array.isArray(savedAnswer)) {
+        document.querySelectorAll('.option').forEach(div => {
+          const label = div.querySelector('label');
+          if (label && savedAnswer.includes(label.textContent.trim())) {
+            div.classList.add('selected');
+            div.querySelector('input').checked = true;
+          }
+        });
+      } else {
+        const input = document.querySelector('.answer-input');
+        if (input) input.value = savedAnswer;
+      }
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      document.getElementById('progressFill').style.width = `${progress}%`;
+      document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+      document.getElementById('questionStatus').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+      document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+
+      const nextBtn = document.getElementById('nextBtn');
+      if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.textContent = 'Finish';
+        nextBtn.onclick = () => document.getElementById('quizContainer').scrollIntoView({ behavior: 'smooth', block: 'end' });
+      } else {
+        nextBtn.textContent = 'Next';
+        nextBtn.onclick = nextQuestion;
+      }
+    }
+
+    function updateAnswerStatus() {
+      const statusSpan = document.getElementById('answeredStatus');
+      const hasAnswer = userAnswers[currentQuestionIndex] !== undefined;
+
+      if (hasAnswer) {
+        statusSpan.textContent = 'Answered';
+        statusSpan.className = 'status-answered';
+      } else {
+        statusSpan.textContent = 'Unanswered';
+        statusSpan.className = 'status-unanswered';
+      }
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        trackQuestionTime();
+        currentQuestionIndex++;
+        renderCurrentQuestion();
+        updateProgress();
+      }
+    }
+
+    function previousQuestion() {
+      if (currentQuestionIndex > 0) {
+        trackQuestionTime();
+        currentQuestionIndex--;
+        renderCurrentQuestion();
+        updateProgress();
+      }
+    }
+
+    // ===== SUBMIT QUIZ =====
+    async function submitQuiz() {
+      const confirmSubmit = confirm(
+        `Ready to Submit?\n\nReview your answers before submitting.\n\nSubmit Python Week 1 Quiz now?`
+      );
+      if (!confirmSubmit) return;
+
+      if (!username || !email) {
+        alert("Error: User session data not found. Please log in.");
+        return;
+      }
+
+      trackQuestionTime();
+      isQuizActive = false;
+
+      const quizEndTime = new Date();
+      const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
+
+      let score = 0;
+      let totalPossiblePoints = 0;
+
+      const questionResults = [];
+      const difficultyBreakdown = {
+        easy: { attempted: 0, correct: 0, points: 0 },
+        medium: { attempted: 0, correct: 0, points: 0 },
+        hard: { attempted: 0, correct: 0, points: 0 }
+      };
+
+      questions.forEach((question, index) => {
+        const userAnswer = userAnswers[index];
+        totalPossiblePoints += (question.maxScore ?? question.points ?? 1);
+
+        let isCorrect = false;
+
+        if (userAnswer !== undefined && userAnswer !== null) {
+          if (question.type === "numeric" || question.type === "numeric_input" || question.type === "numerical") {
+            const u = answerNormalizer.normalizeAnswer(userAnswer, question.type);
+            const c = answerNormalizer.normalizeAnswer(question.correctAnswer, question.type);
+            isCorrect = Number.isFinite(u) && Number.isFinite(c) && u === c;
+          } else if (question.type === "multiple_choice" || question.type === "mcq-single" || question.type === "mcq") {
+            const u = answerNormalizer.normalizeAnswer(userAnswer, "text_input");
+            const c = answerNormalizer.normalizeAnswer(question.correctAnswer, "text_input");
+            isCorrect = u === c;
+          } else if (question.type === "multiple_select" || question.type === "mcq-multiple") {
+            if (Array.isArray(userAnswer) && Array.isArray(question.correctAnswer)) {
+              const normArr = (arr) => arr.map(x => answerNormalizer.normalizeAnswer(x, "text_input")).sort();
+              const u = normArr(userAnswer);
+              const c = normArr(question.correctAnswer);
+              isCorrect = u.length === c.length && u.every((v, i) => v === c[i]);
+            }
+          } else if (question.type === "text_input" || question.type === "interview") {
+            const u = answerNormalizer.normalizeAnswer(userAnswer, question.type);
+            const c = answerNormalizer.normalizeAnswer(question.correctAnswer, question.type);
+            isCorrect = u === c;
+
+            if (!isCorrect && Array.isArray(question.alternative_answers)) {
+              isCorrect = question.alternative_answers.some(alt => {
+                return answerNormalizer.normalizeAnswer(alt, question.type) === u;
+              });
+            }
+          }
+        }
+
+        if (isCorrect) score += (question.maxScore ?? 1);
+
+        const diff = question.difficulty || "medium";
+        difficultyBreakdown[diff].attempted++;
+        if (isCorrect) {
+          difficultyBreakdown[diff].correct++;
+          difficultyBreakdown[diff].points += (question.points ?? 1);
+        }
+
+        questionResults.push({
+          questionId: question._id || question.questionId,
+          questionNumber: question.questionNumber || question.questionId || (index + 1),
+          questionText: question.title || question.question_text,
+          difficulty: question.difficulty,
+          points: question.maxScore ?? 1,
+          userAnswer: userAnswer ? userAnswer.toString() : 'No answer provided',
+          correctAnswer: Array.isArray(question.correctAnswer)
+            ? question.correctAnswer.join(", ")
+            : (question.correctAnswer ?? '').toString(),
+          explanation: question.explanation || '',
+          isCorrect,
+          timeTaken: questionTimes[index] || 0
+        });
+      });
+
+      const quizData = {
+        topic: 'WEEK-1',
+        quizType: 'practice',
+        score,
+        maxScore: totalPossiblePoints,
+        percentage: totalPossiblePoints ? Math.round((score / totalPossiblePoints) * 100) : 0,
+        totalQuestions: questions.length,
+        correctAnswers: questionResults.filter(q => q.isCorrect).length,
+        difficultyBreakdown,
+        questionResults,
+        startTime: quizStartTime,
+        endTime: quizEndTime,
+        totalTimeTaken,
+        isCompleted: true,
+        cheatingAttempts: cheatingAttempts
+      };
+
+      try {
+        document.getElementById('submitText').style.display = 'none';
+        document.getElementById('submitLoading').style.display = 'inline-block';
+        document.getElementById('submitBtn').disabled = true;
+
+        const percentage = totalPossiblePoints ? Math.round((score / totalPossiblePoints) * 100) : 0;
+
+        console.log('Submitting quiz data:', { email, username, topic: 'WEEK-1', score, maxScore: totalPossiblePoints, percentage });
+
+        const response = await fetch(`${API_BASE_URL}/python-scores`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            username,
+            email,
+            topic: 'WEEK-1',
+            score,
+            maxScore: totalPossiblePoints,
+            percentage,
+            questions: questionResults.map(r => ({
+              questionId: r.questionId,
+              title: r.questionText,
+              type: (questions.find(q => (q._id || q.questionId) === r.questionId)?.type || 'mcq').trim().toLowerCase(),
+              userAnswer: r.userAnswer,
+              correctAnswer: r.correctAnswer,
+              score: r.isCorrect ? (r.points || 1) : 0,
+              maxScore: r.points || 1,
+              explanation: r.explanation
+            }))
+          })
+        });
+
+        console.log('Response status:', response.status);
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+
+        if (response.ok) {
+          displayDetailedResults(quizData);
+        } else {
+          console.error('Failed to submit quiz:', responseText);
+          alert(`Failed to submit quiz: ${responseText}`);
+
+          document.getElementById('submitText').style.display = 'inline';
+          document.getElementById('submitLoading').style.display = 'none';
+          document.getElementById('submitBtn').disabled = false;
+        }
+      } catch (error) {
+        console.error('Error submitting quiz:', error);
+        alert('Error submitting quiz: ' + error.message);
+        document.getElementById('submitText').style.display = 'inline';
+        document.getElementById('submitLoading').style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+      }
+    }
+
+    function displayDetailedResults(quizData) {
+      document.getElementById('quizContainer').style.display = 'none';
+      const resultsContainer = document.getElementById('resultsContainer');
+      resultsContainer.style.display = 'block';
+
+      const scoreDisplay = document.querySelector('.score-display');
+      scoreDisplay.innerHTML = `
+        <h2>${quizData.score}/${quizData.maxScore} Points (${quizData.percentage}%)</h2>
+        <p>Python Week 1 Quiz Completed Successfully!</p>
+        <p style="font-size: 1.2em; margin-top: 15px;">✅ ${quizData.correctAnswers} Correct | ❌ ${quizData.totalQuestions - quizData.correctAnswers} Incorrect</p>
+        ${quizData.cheatingAttempts > 0 ? `
+          <div style="background: #ffc107; color: #333; padding: 10px; border-radius: 5px; margin: 10px 0;">
+            ⚠️ ${quizData.cheatingAttempts} suspicious activities detected
+          </div>
+        ` : ''}
+        <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
+          <div><strong>Easy</strong><br>${quizData.difficultyBreakdown.easy.correct}/${quizData.difficultyBreakdown.easy.attempted}</div>
+          <div><strong>Medium</strong><br>${quizData.difficultyBreakdown.medium.correct}/${quizData.difficultyBreakdown.medium.attempted}</div>
+          <div><strong>Hard</strong><br>${quizData.difficultyBreakdown.hard.correct}/${quizData.difficultyBreakdown.hard.attempted}</div>
+        </div>
+        <p style="margin-top: 15px; font-size: 0.9em;">
+          Time Taken: ${Math.floor(quizData.totalTimeTaken / 60)}m ${quizData.totalTimeTaken % 60}s
+        </p>
+      `;
+
+      const reviewDiv = document.createElement('div');
+      reviewDiv.style.cssText = `
+        margin-top: 30px;
+        text-align: left;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      `;
+
+      reviewDiv.innerHTML = `
+        <h3 style="text-align:center; margin-bottom:25px; color:#333; border-bottom:2px solid #667eea; padding-bottom:10px;">
+          📝 Question Review
+        </h3>
+        ${quizData.questionResults.map((r, idx) => `
+          <div style="border:2px solid ${r.isCorrect ? '#28a745' : '#dc3545'}; border-radius:8px; padding:15px; margin-bottom:15px;
+                      background:${r.isCorrect ? '#f8fff9' : '#fff8f8'};">
+            <div style="display:flex; align-items:center; margin-bottom:10px;">
+              <span style="background:${r.isCorrect ? '#28a745' : '#dc3545'}; color:white; padding:4px 12px; border-radius:50%;
+                           margin-right:10px; font-weight:bold; font-size:16px;">${idx + 1}</span>
+              <span style="font-weight:bold; font-size:18px; color:${r.isCorrect ? '#28a745' : '#dc3545'};">
+                ${r.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+              </span>
+              <span style="margin-left:auto; background:#ffc107; color:#333; padding:4px 8px; border-radius:12px; font-size:12px; text-transform:uppercase;">
+                ${r.difficulty || 'medium'}
+              </span>
+            </div>
+            <div style="margin-bottom:10px; line-height:1.6; font-size:16px;"><strong>Question:</strong> ${r.questionText}</div>
+            <div style="margin-bottom:8px; padding:10px; background:${r.isCorrect ? '#e8f5e9' : '#ffebee'}; border-radius:5px;">
+              <strong>Your Answer:</strong>
+              <span style="color:${r.isCorrect ? '#28a745' : '#dc3545'}; font-weight:bold; margin-left:5px;">${r.userAnswer}</span>
+            </div>
+            <div style="margin-bottom:8px; padding:10px; background:#e8f5e9; border-radius:5px;">
+              <strong>Correct Answer:</strong>
+              <span style="color:#28a745; font-weight:bold; margin-left:5px;">${r.correctAnswer}</span>
+            </div>
+            ${r.explanation ? `
+              <div style="margin-top:12px; padding:12px; background:#f3f0ff; border-left:4px solid #667eea; border-radius:5px;">
+                <strong style="color:#667eea;">💡 Explanation:</strong>
+                <p style="margin:8px 0 0 0; color:#333; line-height:1.6;">${r.explanation}</p>
+              </div>
+            ` : ''}
+            <div style="font-size:0.85em; color:#666; margin-top:10px; text-align:right;">⏱️ Time: ${r.timeTaken}s</div>
+          </div>
+        `).join('')}
+      `;
+
+      resultsContainer.appendChild(reviewDiv);
+    }
+
+    function goback() {
+      userAnswers = {};
+      questionTimes = {};
+      window.location.href = './iitm-python.html';
+    }
+
+    // Start the quiz when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initializeQuiz);
+  </script>
+</body>
+</html>
