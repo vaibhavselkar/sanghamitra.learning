@@ -21,7 +21,7 @@
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <!-- <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet"> -->
   <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
   <!-- Main CSS File -->
@@ -236,8 +236,8 @@
   <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="../assets/vendor/php-email-form/validate.js"></script>
   <script src="../assets/vendor/aos/aos.js"></script>
-  <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <!-- <script src="../assets/vendor/glightbox/js/glightbox.min.js"></script> -->
+  <!-- <script src="../assets/vendor/purecounter/purecounter_vanilla.js"></script> -->
   <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
 
   <!-- Main JS File -->
@@ -246,6 +246,14 @@
 
   <script>
     let currentUser = null;
+
+    // Fetch with timeout to prevent indefinite loading
+    function fetchWithTimeout(url, options = {}, timeout = 5000) {
+      return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), timeout))
+      ]);
+    }
 
     // ✅ Python topics (Weeks)
     const availableTopics = [
@@ -335,11 +343,9 @@
     async function initializeApp() {
       try {
         showLoading(true);
-        await fetchSessionInfo();
-        await loadCourseData();
+        await Promise.all([fetchSessionInfo(), loadCourseData()]);
       } catch (error) {
-        console.error('Initialization error:', error);
-        showError('Failed to initialize the application. Please try refreshing the page.');
+        console.warn('Initialization warning:', error);
       } finally {
         showLoading(false);
       }
@@ -348,9 +354,9 @@
     // ✅ Use your session route (recommended)
     async function fetchSessionInfo() {
       try {
-        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/session-info', {
+        const response = await fetchWithTimeout('`https://sanghamitra-learnworld.vercel.app/api/session-info', {
           credentials: 'include'
-        });
+        }, 5000);
 
         if (!response.ok) throw new Error('Session expired or invalid');
 
@@ -358,8 +364,8 @@
         currentUser = { email: data.email, username: data.username };
         console.log('Session info fetched:', currentUser);
       } catch (error) {
-        console.error('Session error:', error);
-        currentUser = { email: 'test@example.com', username: 'Test User' };
+        console.warn('Session fetch failed:', error.message);
+        currentUser = { email: 'guest@example.com', username: 'Guest User' };
       }
     }
 
@@ -367,9 +373,10 @@
       try {
         if (!currentUser) { renderCourses({}); return; }
 
-        const response = await fetch(
-          `https://sanghamitra-learnworld.vercel.app/api/python-scores?email=${encodeURIComponent(currentUser.email)}`,
-          { credentials: 'include' }
+        const response = await fetchWithTimeout(
+          `/api/python-scores?email=${encodeURIComponent(currentUser.email)}`,
+          { credentials: 'include' },
+          5000
         );
 
         let attemptsByTopic = {};
@@ -386,8 +393,7 @@
 
         renderCourses(attemptsByTopic);
       } catch (error) {
-        console.error('Failed to load course data:', error);
-        showError('Failed to load course data. Please try again.');
+        console.warn('Failed to load course data:', error.message);
         renderCourses({});
       }
     }
