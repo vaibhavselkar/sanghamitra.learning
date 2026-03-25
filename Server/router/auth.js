@@ -2408,28 +2408,68 @@ router.get('/iitm-stats-questions/:topic', async (req, res) => {
     const { topic } = req.params;
     const { email, count = 50 } = req.query;
     
+    // Enhanced validation
     if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+      return res.status(400).json({ 
+        error: 'Email is required',
+        message: 'Please provide email in query parameters'
+      });
+    }
+
+    if (!topic) {
+      return res.status(400).json({ 
+        error: 'Topic is required',
+        message: 'Please provide topic in URL path'
+      });
+    }
+
+    // Decode topic if it's URL encoded
+    const decodedTopic = decodeURIComponent(topic);
+    
+    console.log(`📊 Fetching questions - Topic: "${decodedTopic}", Email: ${email}, Count: ${count}`);
+
+    // ===========================================
+    // STEP 1: Get ALL questions for the topic
+    // ===========================================
+    let allQuestions = await Statistics_questions.find({
+      topic: decodedTopic
+    }).lean(); // Use .lean() for better performance
+
+    console.log(`📊 Found ${allQuestions.length} total questions for topic: "${decodedTopic}"`);
+
+    // Check if no questions found
+    if (allQuestions.length === 0) {
+      // Try case-insensitive search as fallback
+      console.log(`⚠️ No exact matches, trying case-insensitive search...`);
+      allQuestions = await Statistics_questions.find({
+        topic: { $regex: new RegExp(`^${decodedTopic}$`, 'i') }
+      }).lean();
+      
+      console.log(`📊 Found ${allQuestions.length} questions with case-insensitive search`);
+      
+      if (allQuestions.length === 0) {
+        // Get available topics for helpful error message
+        const availableTopics = await Statistics_questions.distinct('topic');
+        console.log('📋 Available topics in database:', availableTopics);
+        
+        return res.status(404).json({ 
+          error: `No questions found for topic: "${decodedTopic}"`,
+          message: `Topic "${decodedTopic}" not found. Available topics: ${availableTopics.join(', ')}`,
+          availableTopics: availableTopics
+        });
+      }
     }
 
     // ===========================================
-    // Get ALL questions - NO filtering by completed
-    // ===========================================
-    let allQuestions = await Statistics_questions.find({
-      topic: topic
-    });
-
-    console.log(`📊 Found ${allQuestions.length} total questions for topic: ${topic}`);
-
-    // ===========================================
-    // Remove duplicates within this pool only
+    // STEP 2: Remove duplicates within this pool
     // ===========================================
     const uniqueQuestions = [];
     const seenIds = new Set();
     
     for (const q of allQuestions) {
-      if (!seenIds.has(q._id.toString())) {
-        seenIds.add(q._id.toString());
+      const id = q._id ? q._id.toString() : null;
+      if (id && !seenIds.has(id)) {
+        seenIds.add(id);
         uniqueQuestions.push(q);
       }
     }
@@ -2437,58 +2477,109 @@ router.get('/iitm-stats-questions/:topic', async (req, res) => {
     console.log(`✅ After deduplication: ${uniqueQuestions.length} unique questions in pool`);
 
     // ===========================================
-    // Random selection ensuring uniqueness
+    // STEP 3: Random selection
+    // ===========================================
+    let selectedQuestions = [...uniqueQuestions];
+    
+    // Fisher-Yates shuffle
+    for (let i = selectedQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [selectedQuestions[i], selectedQuestions[j]] = [selectedQuestions[j], selectedQuestions[i]];
+    }
+
+    // ===========================================
+    // STEP 4: Limit to requested count
     // ===========================================
     const requestedCount = parseInt(count);
+    const questionsToReturn = Math.min(requestedCount, selectedQuestions.length);
+    const finalQuestions = selectedQuestions.slice(0, questionsToReturn);
     
-    // Shuffle
-    const shuffledQuestions = [...uniqueQuestions];
-    for (let i = shuffledQuestions.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
-    }
-
-    // Select questions
-    const questionsToReturn = Math.min(requestedCount, shuffledQuestions.length);
-    const selectedQuestions = shuffledQuestions.slice(0, questionsToReturn);
+    // ===========================================
+    // STEP 5: FINAL CHECK - Ensure NO duplicates
+    // ===========================================
+    const finalIds = new Set(finalQuestions.map(q => q._id?.toString()).filter(Boolean));
     
-    // Final uniqueness check
-    const finalIds = new Set(selectedQuestions.map(q => q._id.toString()));
-    
-    if (finalIds.size !== selectedQuestions.length) {
-      console.error('❌ Duplicates found! Fixing...');
-      // Fallback deduplication
-      const fixed = [];
-      const seen = new Set();
-      for (const q of selectedQuestions) {
-        if (!seen.has(q._id.toString())) {
-          seen.add(q._id.toString());
-          fixed.push(q);
+    if (finalIds.size !== finalQuestions.length) {
+      console.error('❌ Duplicates detected! Forcing removal...');
+      
+      // Manual deduplication as fallback
+      const finalUnique = [];
+      const finalSeen = new Set();
+      
+      for (const q of finalQuestions) {
+        const id = q._id?.toString();
+        if (id && !finalSeen.has(id)) {
+          finalSeen.add(id);
+          finalUnique.push(q);
         }
       }
-      selectedQuestions = fixed;
+      
+      finalQuestions.length = 0;
+      finalQuestions.push(...finalUnique);
+      console.log(`✅ After forced deduplication: ${finalQuestions.length} unique questions`);
     }
 
-    console.log(`✅ Returning ${selectedQuestions.length} unique questions for this test`);
+    // ===========================================
+    // STEP 6: Sort by question_number for consistency
+    // ===========================================
+    finalQuestions.sort((a, b) => (a.question_number || 0) - (b.question_number || 0));
 
+    // ===========================================
+    // STEP 7: Check if user has completed questions
+    // ===========================================
+    let completedIds = [];
+    let resetAvailable = false;
+    
+    if (email) {
+      try {
+        const user = await Statistics_scores.findOne({ email });
+        if (user && user.completedQuestionIds) {
+          completedIds = user.completedQuestionIds;
+          console.log(`📊 User has completed ${completedIds.length} questions`);
+          
+          // Check if user has completed all available questions
+          if (completedIds.length >= uniqueQuestions.length && uniqueQuestions.length > 0) {
+            resetAvailable = true;
+            console.log(`⚠️ User has completed all ${uniqueQuestions.length} questions!`);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user progress:', err);
+        // Continue without user filtering - don't block the quiz
+      }
+    }
+
+    // ===========================================
+    // STEP 8: Send response with metadata
+    // ===========================================
+    console.log(`✅ Returning ${finalQuestions.length} unique questions for ${decodedTopic}`);
+    
     res.json({
-      questions: selectedQuestions,
+      questions: finalQuestions,
+      resetAvailable: resetAvailable,
+      totalQuestionsInPool: uniqueQuestions.length,
       metadata: {
         totalQuestionsInPool: allQuestions.length,
         uniqueQuestionsInPool: uniqueQuestions.length,
-        selectedCount: selectedQuestions.length,
+        selectedCount: finalQuestions.length,
         requestedCount: requestedCount,
-        topic: topic,
-        allUniqueInThisTest: finalIds.size === selectedQuestions.length,
+        topic: decodedTopic,
+        isRandom: true,
+        completedCount: completedIds.length,
+        resetAvailable: resetAvailable,
+        allUniqueInThisTest: finalIds.size === finalQuestions.length,
         timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
-    console.error(`❌ Error fetching stats questions:`, error);
+    console.error(`❌ Error fetching statistics questions:`, error);
+    console.error(`Error stack:`, error.stack);
+    
     res.status(500).json({ 
-      error: `Failed to fetch questions`,
-      details: error.message 
+      error: `Failed to fetch statistics questions`,
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
