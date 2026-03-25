@@ -2686,6 +2686,37 @@ router.get('/statistics-topics', async (req, res) => {
   }
 });
 
+// Add this endpoint if it doesn't exist
+router.post('/reset-stats-progress', async (req, res) => {
+  try {
+    const { email, week } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    const user = await Statistics_scores.findOne({ email });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    user.completedQuestionIds = [];
+    await user.save();
+    
+    console.log(`✅ Reset progress for ${email}`);
+    
+    res.status(200).json({ 
+      message: 'Statistics progress reset successfully',
+      email: email
+    });
+    
+  } catch (error) {
+    console.error('Error resetting statistics progress:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.post('/get-stats-question-explanations', async (req, res) => {
   try {
     const { questionIds } = req.body;
