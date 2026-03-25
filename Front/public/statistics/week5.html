@@ -955,53 +955,64 @@
         }
 
         async function loadQuestions() {
-            try {
-                if (!email) {
-                    alert('Please login to take the assessment');
-                    return false;
-                }
-                
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/week-5%20-%20Counting_and_Factorial?email=${encodeURIComponent(email)}&count=50`, {
-                credentials: 'include'
-            });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.resetAvailable) {
-                    const resetConfirm = confirm(
-                        `You have completed all available questions!\n\n` +
-                        `Total questions in pool: ${data.totalQuestionsInPool}\n\n` +
-                        `Would you like to reset your progress to start over?`
-                    );
-                    
-                    if (resetConfirm) {
-                        await resetUserProgress();
-                        return loadQuestions();
-                    } else {
-                        alert('No new questions available. Please contact admin or try again later.');
-                        window.location.href = 'iitm_statistics.html';
-                        return false;
-                    }
-                }
-                
-                questions = data.questions || data;
-                
-                if (!questions || questions.length === 0) {
-                    throw new Error('No questions found for Statistics Week 5');
-                }
-                
-                document.getElementById('calculatorBtn').style.display = 'flex';
-                return true;
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                alert('Failed to load quiz questions. Please refresh and try again.');
+    try {
+        if (!email) {
+            alert('Please login to take the assessment');
+            return false;
+        }
+        
+        // FIX: Properly encode the topic name with spaces
+        const encodedTopic = encodeURIComponent("week-5 - Counting_and_Factorial");
+        const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-stats-questions/${encodedTopic}?email=${encodeURIComponent(email)}&count=50`, {
+            credentials: 'include'
+        });
+            
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.resetAvailable) {
+            const resetConfirm = confirm(
+                `You have completed all available questions!\n\n` +
+                `Total questions in pool: ${data.totalQuestionsInPool}\n\n` +
+                `Would you like to reset your progress to start over?`
+            );
+            
+            if (resetConfirm) {
+                await resetUserProgress();
+                return loadQuestions();
+            } else {
+                alert('No new questions available. Please contact admin or try again later.');
+                window.location.href = 'iitm_statistics.html';
                 return false;
             }
         }
+        
+        // Check if the response has the questions array correctly
+        if (data.questions && Array.isArray(data.questions)) {
+            questions = data.questions;
+        } else if (Array.isArray(data)) {
+            questions = data;
+        } else {
+            console.error('Unexpected response format:', data);
+            throw new Error('Invalid response format from server');
+        }
+        
+        if (!questions || questions.length === 0) {
+            throw new Error('No questions found for Statistics Week 5');
+        }
+        
+        console.log(`✅ Loaded ${questions.length} questions successfully`);
+        document.getElementById('calculatorBtn').style.display = 'flex';
+        return true;
+    } catch (error) {
+        console.error('Error loading questions:', error);
+        alert(`Failed to load quiz questions: ${error.message}\n\nPlease refresh and try again.`);
+        return false;
+    }
+}
 
         function initializeQuizTiming() {
             quizStartTime = new Date();
@@ -1643,27 +1654,28 @@
         // UTILITY FUNCTIONS
         // ============================================
 
-        async function resetUserProgress() {
-            try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-stats-progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ email: email, week: 'week5' })
-                });
-                
-                if (response.ok) {
-                    alert('Progress reset successfully! You can now retake all questions.');
-                    return true;
-                } else {
-                    throw new Error('Failed to reset progress');
-                }
-            } catch (error) {
-                console.error('Error resetting progress:', error);
-                alert('Failed to reset progress. Please try again.');
-                return false;
-            }
+       async function resetUserProgress() {
+    try {
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email: email })
+        });
+        
+        if (response.ok) {
+            alert('Progress reset successfully! You can now retake all questions.');
+            return true;
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to reset progress');
         }
+    } catch (error) {
+        console.error('Error resetting progress:', error);
+        alert('Failed to reset progress. Please try again.');
+        return false;
+    }
+}
 
         function goback() {
             userAnswers = {};
