@@ -2585,25 +2585,25 @@ router.get('/iitm-stats-questions/:topic', async (req, res) => {
 });
 
 
-// POST Statistics Quiz Scores
 router.post('/statistics_scores', async (req, res) => {
   try {
     const { email, username, quizData } = req.body;
     
-    console.log('Received statistics score request:', { email, username, topic: quizData?.topic });
+    console.log('📊 Saving statistics quiz score:', { email, username, topic: quizData?.topic });
     
+    // Validation
     if (!email || !username || !quizData) {
       return res.status(400).json({ error: 'Email, username and quizData are required' });
     }
     
-    // Extract question IDs from the quiz results
+    // Extract question IDs from quiz results (like math route)
     const completedQuestionIds = quizData.questionResults
       ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
       : [];
     
-    console.log(`Statistics quiz completed with ${completedQuestionIds.length} question IDs`);
+    console.log(`📊 Quiz completed with ${completedQuestionIds.length} question IDs`);
     
-    // Find existing user or create new one
+    // Find existing user or create new one (like math route)
     let user = await Statistics_scores.findOne({ email });
     
     if (!user) {
@@ -2614,18 +2614,19 @@ router.post('/statistics_scores', async (req, res) => {
         completedQuestionIds: completedQuestionIds,
         quizScores: [quizData]
       });
+      console.log('✅ Created new user record');
     } else {
       // Update existing user
       user.username = username;
       user.quizScores.push(quizData);
       
-      // Add new completed questions to the array (avoid duplicates)
+      // Add new completed questions (avoid duplicates)
       const newCompletedIds = completedQuestionIds.filter(
         id => !user.completedQuestionIds.includes(id)
       );
       user.completedQuestionIds.push(...newCompletedIds);
       
-      console.log(`Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`);
+      console.log(`✅ Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`);
     }
     
     await user.save();
@@ -2637,7 +2638,7 @@ router.post('/statistics_scores', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error saving statistics quiz result:', error);
+    console.error('❌ Error saving statistics quiz result:', error);
     res.status(500).json({ error: 'Internal server error: ' + error.message });
   }
 });
