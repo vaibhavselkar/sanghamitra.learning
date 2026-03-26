@@ -2822,39 +2822,51 @@ router.get('/iitmmath_scores', async (req, res) => {
     const { email } = req.query;
 
     if (email) {
-      // Single user — only fetch what's needed
+      // Single user query - stays the same
       const user = await iitm_math_score
         .findOne({ email })
-        .select('username email quizScores')   // exclude completedQuestionIds
-        .lean();
+        .select('username email quizScores')
+        .lean()
+        .maxTimeMS(5000); // 5 second timeout
 
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // Slice in JS (already in memory for single doc — fast)
-      user.quizScores = (user.quizScores || []).slice(-20);
+      // Only return last 10 quizzes to keep response small
+      user.quizScores = (user.quizScores || []).slice(-10);
       return res.json({ success: true, data: user });
     }
 
-    // All users — project away the heavy array, hard limit the result set
+    // IMPORTANT: Add LIMIT to prevent timeout
     const users = await iitm_math_score
       .find({})
-      .select('username email quizScores')     // exclude completedQuestionIds
-      .limit(200)                              // safety ceiling
+      .select('username email quizScores')
+      .sort({ updatedAt: -1 }) // Get most recent first
+      .limit(50) // ← HARD LIMIT - this prevents timeout
       .lean()
-      .maxTimeMS(8000);                        // fail fast before Vercel kills it
+      .maxTimeMS(5000); // 5 second timeout
 
-    // Trim each user's quizScores to last 20
+    // Trim each user's quizScores to last 5
     const trimmed = users.map(u => ({
       ...u,
-      quizScores: (u.quizScores || []).slice(-20)
+      quizScores: (u.quizScores || []).slice(-5)
     }));
 
-    res.json({ success: true, data: trimmed });
+    res.json({ 
+      success: true, 
+      data: trimmed,
+      total: trimmed.length,
+      note: "Showing last 50 users only. Use ?email=user@example.com for specific user."
+    });
 
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Error fetching math scores:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch scores',
+      message: error.message 
+    });
   }
 });
 
