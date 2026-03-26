@@ -2782,15 +2782,18 @@ router.get('/iitmmath_scores', async (req, res) => {
     const { email } = req.query;
 
     if (email) {
-      const user = await iitm_math_score.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-      res.json({ success: true, data: user });
-    } else {
-      const users = await iitm_math_score.find({});
-      res.json({ success: true, data: users });
+      const user = await iitm_math_score.findOne({ email }).lean();
+      if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+      return res.json({ success: true, data: user });
     }
+
+    const users = await iitm_math_score.find({})
+      .lean()
+      .select('username email quizScores completedQuestionIds')
+      .limit(500);
+
+    res.json({ success: true, data: users });
+
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
