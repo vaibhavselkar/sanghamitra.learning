@@ -1103,6 +1103,47 @@ router.get('/pdsa-submissions', async (req, res) => { // Changed to plural for c
     });
   }
 });
+router.get('/pdsa-submissions', async (req, res) => {
+  try {
+    const { username, email, topic, date, limit = 20 } = req.query;
+    
+    const filter = {};
+    if (username) filter.username = username;
+    if (email) filter.email = email;
+    if (topic) filter.topic = topic;
+    
+    if (date) {
+      const startDate = new Date(date);
+      const endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 1);
+      filter.timestamp = { $gte: startDate, $lt: endDate };
+    }
+    
+    // Most aggressive optimization - just get what you need
+    const submissions = await pdsaSubmission
+      .find(filter)
+      .sort({ timestamp: -1 })
+      .limit(parseInt(limit)) // Hard limit to prevent large responses
+      .select('-__v') // Exclude version field if not needed
+      .lean()
+      .maxTimeMS(5000);
+    
+    res.status(200).json({
+      success: true,
+      count: submissions.length,
+      submissions
+    });
+    
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server Error',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal error'
+    });
+  }
+});
+
 
 // GET interview submissions - ADDED date filter
 router.get('/interview-submissions', async (req, res) => { // Changed to plural
