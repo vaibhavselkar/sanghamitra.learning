@@ -2821,51 +2821,42 @@ router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
 
+    // CASE 1: Specific user - fast query with index
     if (email) {
-      // Single user query - stays the same
       const user = await iitm_math_score
         .findOne({ email })
         .select('username email quizScores')
-        .lean()
-        .maxTimeMS(5000); // 5 second timeout
+        .lean();
 
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // Only return last 10 quizzes to keep response small
-      user.quizScores = (user.quizScores || []).slice(-10);
+      // Only return last 5 quizzes
+      user.quizScores = (user.quizScores || []).slice(-5);
       return res.json({ success: true, data: user });
     }
 
-    // IMPORTANT: Add LIMIT to prevent timeout
+    // CASE 2: All users - return MINIMAL data immediately
+    // Only get usernames and emails, NO quiz scores
     const users = await iitm_math_score
-      .find({})
-      .select('username email quizScores')
-      .sort({ updatedAt: -1 }) // Get most recent first
-      .limit(50) // ← HARD LIMIT - this prevents timeout
-      .lean()
-      .maxTimeMS(5000); // 5 second timeout
+      .find({}, { username: 1, email: 1, _id: 1 }) // Only these fields
+      .limit(100)
+      .lean();
 
-    // Trim each user's quizScores to last 5
-    const trimmed = users.map(u => ({
-      ...u,
-      quizScores: (u.quizScores || []).slice(-5)
-    }));
-
-    res.json({ 
+    return res.json({ 
       success: true, 
-      data: trimmed,
-      total: trimmed.length,
-      note: "Showing last 50 users only. Use ?email=user@example.com for specific user."
+      data: users,
+      message: "For detailed scores, query with ?email=user@example.com"
     });
 
   } catch (error) {
-    console.error('Error fetching math scores:', error);
-    res.status(500).json({ 
+    console.error('Error:', error);
+    // Always return a response, even on error
+    res.status(200).json({ 
       success: false, 
-      error: 'Failed to fetch scores',
-      message: error.message 
+      error: error.message,
+      suggestion: "Use ?email parameter for specific user data"
     });
   }
 });
