@@ -2823,15 +2823,23 @@ router.get('/iitmmath_scores', async (req, res) => {
     const { email } = req.query;
 
     if (email) {
-      const user = await iitm_math_score.findOne({ email });
+      const user = await iitm_math_score.findOne({ email }).lean();
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
-      res.json({ success: true, data: user });
-    } else {
-      const users = await iitm_math_score.find({});
-      res.json({ success: true, data: users });
+      // Return only latest 20 quizScores for single user too
+      user.quizScores = (user.quizScores || []).slice(-20);
+      return res.json({ success: true, data: user });
     }
+
+    // Fetch all users but only basic fields + latest 20 quizScores
+    const users = await iitm_math_score.find(
+      {},
+      { username: 1, email: 1, 'quizScores': { $slice: -20 } }
+    ).lean();
+
+    res.json({ success: true, data: users });
+
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
