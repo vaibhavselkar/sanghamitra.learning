@@ -2819,9 +2819,9 @@ router.post('/log-cheating', async (req, res) => {
 
 router.get('/iitmmath_scores', async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, page = 1, limit = 20 } = req.query;
 
-    // CASE 1: Specific user - fast and reliable
+    // CASE 1: Specific user - with scores only (no question details)
     if (email) {
       const user = await iitm_math_score
         .findOne({ email })
@@ -2832,52 +2832,51 @@ router.get('/iitmmath_scores', async (req, res) => {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      return res.json({ success: true, data: user });
+      // Remove question details, keep only scores
+      const simplifiedUser = {
+        username: user.username,
+        email: user.email,
+        quizScores: (user.quizScores || []).map(quiz => ({
+          topic: quiz.topic,
+          percentage: quiz.percentage,
+          score: quiz.score,
+          totalQuestions: quiz.totalQuestions,
+          timestamp: quiz.timestamp
+          // REMOVED: questionResults
+        })),
+        totalQuizzes: (user.quizScores || []).length,
+        totalQuestionsCompleted: (user.completedQuestionIds || []).length
+      };
+
+      return res.json({ success: true, data: simplifiedUser });
     }
 
-    // CASE 2: All users with timeout protection
-    // Set a response timeout
-    const timeout = setTimeout(() => {
-      if (!res.headersSent) {
-        return res.status(200).json({
-          success: false,
-          error: 'Query taking too long',
-          data: [],
-          message: 'Try using ?email=user@example.com for specific user'
-        });
-      }
-    }, 9000); // 9 second timeout
+    // CASE 2: All users - lightweight list
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const [users, totalCount] = await Promise.all([
+      iitm_math_score
+        .find({})
+        .select('username email quizScores completedQuestionIds')
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean()
+        .maxTimeMS(8000),
+      iitm_math_score.countDocuments().maxTimeMS(3000)
+    ]);
 
-    // Only fetch essential fields first
-    const users = await iitm_math_score
-      .find({})
-      .select('username email quizScores completedQuestionIds') // Explicit fields
-      .limit(50) // Reduced to 50 users for safety
-      .lean()
-      .maxTimeMS(8000); // 8 second database timeout
-
-    clearTimeout(timeout);
-
-    // Process users - limit quiz data per user
+    // Process users - remove question details from ALL quizzes
     const processedUsers = users.map(user => ({
       _id: user._id,
       username: user.username,
       email: user.email,
-      // Only show last 3 quiz attempts per user to keep response small
-      quizScores: (user.quizScores || []).slice(-3).map(quiz => ({
+      quizScores: (user.quizScores || []).map(quiz => ({
         topic: quiz.topic,
         percentage: quiz.percentage,
         score: quiz.score,
         totalQuestions: quiz.totalQuestions,
-        timestamp: quiz.timestamp,
-        // Only show last 5 questions per quiz
-        questionResults: (quiz.questionResults || []).slice(-5).map(q => ({
-          questionNumber: q.questionNumber,
-          userAnswer: q.userAnswer,
-          correctAnswer: q.correctAnswer,
-          isCorrect: q.isCorrect,
-          timeTaken: q.timeTaken
-        }))
+        timestamp: quiz.timestamp
+        // REMOVED: questionResults
       })),
       totalQuizzes: (user.quizScores || []).length,
       totalQuestionsCompleted: (user.completedQuestionIds || []).length
@@ -2886,19 +2885,20 @@ router.get('/iitmmath_scores', async (req, res) => {
     return res.json({ 
       success: true, 
       data: processedUsers,
-      total: processedUsers.length,
-      limit: 50,
-      message: "Showing last 3 quizzes and last 5 questions per user. Use ?email=xxx for complete data."
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(totalCount / parseInt(limit)),
+        totalUsers: totalCount,
+        limit: parseInt(limit)
+      }
     });
 
   } catch (error) {
     console.error('Error:', error);
-    // Always return a response, never hang
-    return res.status(200).json({ 
+    res.status(500).json({ 
       success: false, 
       error: error.message,
-      data: [],
-      suggestion: "Try using ?email=user@example.com for specific user"
+      data: []
     });
   }
 });
