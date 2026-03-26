@@ -2821,18 +2821,18 @@ router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
 
-    // CASE 1: Specific user - full details (like old route)
+    // CASE 1: Specific user - full details
     if (email) {
       const user = await iitm_math_score
         .findOne({ email })
         .lean()
-        .maxTimeMS(5000); // 5 second timeout
+        .maxTimeMS(8000);
 
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // Keep full data but limit quizScores to last 10
+      // Limit quiz scores to last 10
       if (user.quizScores && user.quizScores.length > 10) {
         user.quizScores = user.quizScores.slice(-10);
       }
@@ -2840,34 +2840,27 @@ router.get('/iitmmath_scores', async (req, res) => {
       return res.json({ success: true, data: user });
     }
 
-    // CASE 2: All users - HARD LIMIT to prevent timeout
+    // CASE 2: All users - ONLY usernames and emails (NO quiz scores!)
     const users = await iitm_math_score
-      .find({})
-      .select('username email quizScores completedQuestionIds')
-      .limit(100) // ← KEY FIX: Only 100 users max
-      .lean()
-      .maxTimeMS(8000); // 8 second timeout
+      .find({}, { username: 1, email: 1, _id: 1 }) // Only these 3 fields
+      .limit(100)
+      .lean();
 
-    // For each user, limit quizScores to last 3 attempts
-    const processedUsers = users.map(user => ({
-      ...user,
-      quizScores: (user.quizScores || []).slice(-3),
-      completedQuestionIds: (user.completedQuestionIds || []).length // Just show count
-    }));
-
-    res.json({ 
+    return res.json({ 
       success: true, 
-      data: processedUsers,
-      total: processedUsers.length,
-      message: "Use ?email=user@example.com for full details"
+      data: users,
+      total: users.length,
+      message: "To see quiz answers, use: ?email=user@example.com"
     });
 
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ 
+    // Always return something, even on error
+    return res.status(200).json({ 
       success: false, 
       error: error.message,
-      suggestion: "Try with ?email parameter for specific user"
+      data: [],
+      message: "Try with ?email=user@example.com"
     });
   }
 });
