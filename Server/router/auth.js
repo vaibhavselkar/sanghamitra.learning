@@ -2816,20 +2816,21 @@ router.post('/log-cheating', async (req, res) => {
   }
 });
 
-
-
 router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
 
     if (email) {
-      const user = await iitm_math_score.findOne({ email });
+      const user = await iitm_math_score.findOne({ email }).lean();
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
       res.json({ success: true, data: user });
     } else {
-      const users = await iitm_math_score.find({});
+      const users = await iitm_math_score.find({})
+        .lean()
+        .select('username email quizScores.topic quizScores.score quizScores.correctAnswers quizScores.totalQuestions quizScores.percentage quizScores.timestamp quizScores.totalTimeTaken')
+        .limit(1000);
       res.json({ success: true, data: users });
     }
   } catch (error) {
