@@ -900,102 +900,102 @@ router.get('/readingcomprehensionscore', async (req, res) => {
     }
   });
 
-  router.post('/algorithm-submissions', async (req, res) => {
-  try {    
-    const {
-      username,
-      email,
-      topic,
-      score,
-      maxScore,
-      percentage,
-      questions,
-      timestamp
-    } = req.body;
+//   router.post('/algorithm-submissions', async (req, res) => {
+//   try {    
+//     const {
+//       username,
+//       email,
+//       topic,
+//       score,
+//       maxScore,
+//       percentage,
+//       questions,
+//       timestamp
+//     } = req.body;
 
-    // Basic validation
-    if (!username || !email) {
-      return res.status(400).json({
-        success: false,
-        error: 'Username and email are required'
-      });
-    }
+//     // Basic validation
+//     if (!username || !email) {
+//       return res.status(400).json({
+//         success: false,
+//         error: 'Username and email are required'
+//       });
+//     }
 
-    // Create submission object with defaults
-    const submissionData = {
-      username: username,
-      email: email,
-      topic: topic || 'Algorithms & Programming',
-      score: score || 0,
-      maxScore: maxScore || 100,
-      percentage: percentage || 0,
-      questions: questions || [],
-      timestamp: timestamp ? new Date(timestamp) : new Date()
-    };
+//     // Create submission object with defaults
+//     const submissionData = {
+//       username: username,
+//       email: email,
+//       topic: topic || 'Algorithms & Programming',
+//       score: score || 0,
+//       maxScore: maxScore || 100,
+//       percentage: percentage || 0,
+//       questions: questions || [],
+//       timestamp: timestamp ? new Date(timestamp) : new Date()
+//     };
 
-    console.log('💾 Saving submission for:', email);
+//     console.log('💾 Saving submission for:', email);
 
-    // Validate if model is properly connected
-    if (!AlgorithmSubmission) {
-      throw new Error('AlgorithmSubmission model not found');
-    }
+//     // Validate if model is properly connected
+//     if (!AlgorithmSubmission) {
+//       throw new Error('AlgorithmSubmission model not found');
+//     }
 
-    // Create and save submission
-    const newSubmission = new AlgorithmSubmission(submissionData);
-    const savedSubmission = await newSubmission.save();
+//     // Create and save submission
+//     const newSubmission = new AlgorithmSubmission(submissionData);
+//     const savedSubmission = await newSubmission.save();
 
-    console.log('✅ Submission saved successfully with ID:', savedSubmission._id);
+//     console.log('✅ Submission saved successfully with ID:', savedSubmission._id);
 
-    res.status(201).json({
-      success: true,
-      message: 'Algorithm quiz submitted successfully!',
-      submissionId: savedSubmission._id,
-      data: {
-        username: savedSubmission.username,
-        email: savedSubmission.email,
-        score: savedSubmission.score,
-        percentage: savedSubmission.percentage
-      }
-    });
+//     res.status(201).json({
+//       success: true,
+//       message: 'Algorithm quiz submitted successfully!',
+//       submissionId: savedSubmission._id,
+//       data: {
+//         username: savedSubmission.username,
+//         email: savedSubmission.email,
+//         score: savedSubmission.score,
+//         percentage: savedSubmission.percentage
+//       }
+//     });
 
-  } catch (error) {
-    console.error('❌ Error saving algorithm submission:', error);
+//   } catch (error) {
+//     console.error('❌ Error saving algorithm submission:', error);
     
-    res.status(500).json({
-      success: false,
-      error: errorMessage,
-      message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
-  }
-});
+//     res.status(500).json({
+//       success: false,
+//       error: errorMessage,
+//       message: error.message,
+//       details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+//     });
+//   }
+// });
 
-router.get('/algorithm-submissions', async (req, res) => {
-      try {
-        const { username, email } = req.query;
+// router.get('/algorithm-submissions', async (req, res) => {
+//       try {
+//         const { username, email } = req.query;
     
-        // Build dynamic filter object
-        const filter = {};
-        if (username) filter.username = username;
-        if (email) filter.email = email;
+//         // Build dynamic filter object
+//         const filter = {};
+//         if (username) filter.username = username;
+//         if (email) filter.email = email;
     
-        // Fetch based on filter (empty filter = all data)
-        const submissions = await AlgorithmSubmission.find(filter);
+//         // Fetch based on filter (empty filter = all data)
+//         const submissions = await AlgorithmSubmission.find(filter);
     
-        // Handle empty results
-        if (!submissions.length) {
-          return res.status(404).json({
-            message: 'No submissions found for provided parameters.',
-            filterUsed: filter
-          });
-        }
+//         // Handle empty results
+//         if (!submissions.length) {
+//           return res.status(404).json({
+//             message: 'No submissions found for provided parameters.',
+//             filterUsed: filter
+//           });
+//         }
     
-        res.status(200).json(submissions);
-      } catch (error) {
-        console.error('Error fetching algorithm submissions:', error);
-        res.status(500).json({ message: 'Server Error', error });
-      }
-  });
+//         res.status(200).json(submissions);
+//       } catch (error) {
+//         console.error('Error fetching algorithm submissions:', error);
+//         res.status(500).json({ message: 'Server Error', error });
+//       }
+//   });
 
 
 
