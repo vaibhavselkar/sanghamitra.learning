@@ -2817,28 +2817,41 @@ router.post('/log-cheating', async (req, res) => {
 });
 
 
-
 router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
 
     if (email) {
-      const user = await iitm_math_score.findOne({ email }).lean();
+      // Single user — only fetch what's needed
+      const user = await iitm_math_score
+        .findOne({ email })
+        .select('username email quizScores')   // exclude completedQuestionIds
+        .lean();
+
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
-      // Return only latest 20 quizScores for single user too
+
+      // Slice in JS (already in memory for single doc — fast)
       user.quizScores = (user.quizScores || []).slice(-20);
       return res.json({ success: true, data: user });
     }
 
-    // Fetch all users but only basic fields + latest 20 quizScores
-    const users = await iitm_math_score.find(
-      {},
-      { username: 1, email: 1, 'quizScores': { $slice: -20 } }
-    ).lean();
+    // All users — project away the heavy array, hard limit the result set
+    const users = await iitm_math_score
+      .find({})
+      .select('username email quizScores')     // exclude completedQuestionIds
+      .limit(200)                              // safety ceiling
+      .lean()
+      .maxTimeMS(8000);                        // fail fast before Vercel kills it
 
-    res.json({ success: true, data: users });
+    // Trim each user's quizScores to last 20
+    const trimmed = users.map(u => ({
+      ...u,
+      quizScores: (u.quizScores || []).slice(-20)
+    }));
+
+    res.json({ success: true, data: trimmed });
 
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
