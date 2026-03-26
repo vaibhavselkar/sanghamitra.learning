@@ -2821,46 +2821,84 @@ router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
 
-    // CASE 1: Specific user - full details
+    // CASE 1: Specific user - fast and reliable
     if (email) {
       const user = await iitm_math_score
         .findOne({ email })
         .lean()
-        .maxTimeMS(8000);
+        .maxTimeMS(5000);
 
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // Limit quiz scores to last 10
-      if (user.quizScores && user.quizScores.length > 10) {
-        user.quizScores = user.quizScores.slice(-10);
-      }
-
       return res.json({ success: true, data: user });
     }
 
-    // CASE 2: All users - ONLY usernames and emails (NO quiz scores!)
+    // CASE 2: All users with timeout protection
+    // Set a response timeout
+    const timeout = setTimeout(() => {
+      if (!res.headersSent) {
+        return res.status(200).json({
+          success: false,
+          error: 'Query taking too long',
+          data: [],
+          message: 'Try using ?email=user@example.com for specific user'
+        });
+      }
+    }, 9000); // 9 second timeout
+
+    // Only fetch essential fields first
     const users = await iitm_math_score
-      .find({}, { username: 1, email: 1, _id: 1 }) // Only these 3 fields
-      .limit(100)
-      .lean();
+      .find({})
+      .select('username email quizScores completedQuestionIds') // Explicit fields
+      .limit(50) // Reduced to 50 users for safety
+      .lean()
+      .maxTimeMS(8000); // 8 second database timeout
+
+    clearTimeout(timeout);
+
+    // Process users - limit quiz data per user
+    const processedUsers = users.map(user => ({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      // Only show last 3 quiz attempts per user to keep response small
+      quizScores: (user.quizScores || []).slice(-3).map(quiz => ({
+        topic: quiz.topic,
+        percentage: quiz.percentage,
+        score: quiz.score,
+        totalQuestions: quiz.totalQuestions,
+        timestamp: quiz.timestamp,
+        // Only show last 5 questions per quiz
+        questionResults: (quiz.questionResults || []).slice(-5).map(q => ({
+          questionNumber: q.questionNumber,
+          userAnswer: q.userAnswer,
+          correctAnswer: q.correctAnswer,
+          isCorrect: q.isCorrect,
+          timeTaken: q.timeTaken
+        }))
+      })),
+      totalQuizzes: (user.quizScores || []).length,
+      totalQuestionsCompleted: (user.completedQuestionIds || []).length
+    }));
 
     return res.json({ 
       success: true, 
-      data: users,
-      total: users.length,
-      message: "To see quiz answers, use: ?email=user@example.com"
+      data: processedUsers,
+      total: processedUsers.length,
+      limit: 50,
+      message: "Showing last 3 quizzes and last 5 questions per user. Use ?email=xxx for complete data."
     });
 
   } catch (error) {
     console.error('Error:', error);
-    // Always return something, even on error
+    // Always return a response, never hang
     return res.status(200).json({ 
       success: false, 
       error: error.message,
       data: [],
-      message: "Try with ?email=user@example.com"
+      suggestion: "Try using ?email=user@example.com for specific user"
     });
   }
 });
