@@ -1054,6 +1054,55 @@ router.get('/coding-submissions', async (req, res) => {
 });
 
 // GET PDSA submissions - FIXED model name
+router.get('/pdsa-submissions', async (req, res) => { // Changed to plural for consistency
+  try {
+    const { username, email, topic, date } = req.query;
+
+    // Build dynamic filter object
+    const filter = {};
+    if (username) filter.username = username;
+    if (email) filter.email = email;
+    if (topic) filter.topic = topic;
+    
+    // Date filtering
+    if (date) {
+      const startDate = new Date(date);
+      const endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 1);
+      
+      filter.timestamp = {
+        $gte: startDate,
+        $lt: endDate
+      };
+    }
+
+    // Use correct model name: pdsaSubmission (not PDSA_Submission)
+    const submissions = await pdsaSubmission.find(filter)
+      .sort({ timestamp: -1 });
+
+    // Handle empty results
+    if (!submissions.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No PDSA submissions found for provided parameters.',
+        filterUsed: filter
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: submissions.length,
+      submissions
+    });
+  } catch (error) {
+    console.error('Error fetching PDSA submissions:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server Error', 
+      error: error.message 
+    });
+  }
+});
 router.get('/pdsa-submissions', async (req, res) => {
   try {
     const { username, email, topic, date, limit = 20 } = req.query;
@@ -2767,32 +2816,42 @@ router.post('/log-cheating', async (req, res) => {
   }
 });
 
+
+
 router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
 
     if (email) {
-      const user = await iitm_math_score.findOne({ email }).lean();
+      const user = await iitm_math_score.findOne({ email });
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
       res.json({ success: true, data: user });
     } else {
-      const users = await iitm_math_score.aggregate([
-        {
-          $project: {
-            username: 1,
-            email: 1,
-            quizScores: {
-              $slice: ['$quizScores', -20]
-            }
-          }
-        }
-      ]);
+      const users = await iitm_math_score.find({});
       res.json({ success: true, data: users });
     }
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Test route to check what's in your database
+router.get('/api/test-iitm-questions', async (req, res) => {
+  try {
+    const count = await IITMathQuestion.countDocuments();
+    const topics = await IITMathQuestion.distinct('topic');
+    const sampleQuestions = await IITMathQuestion.find().limit(3);
+    
+    res.json({ 
+      totalQuestions: count,
+      availableTopics: topics,
+      sampleQuestions: sampleQuestions
+    });
+  } catch (error) {
+    console.error('Database test error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -3929,7 +3988,6 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
-
 
 
 
