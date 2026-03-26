@@ -2768,22 +2768,31 @@ router.post('/log-cheating', async (req, res) => {
 });
 
 router.get('/iitmmath_scores', async (req, res) => {
-
-// Test route to check what's in your database
-router.get('/api/test-iitm-questions', async (req, res) => {
   try {
-    const count = await IITMathQuestion.countDocuments();
-    const topics = await IITMathQuestion.distinct('topic');
-    const sampleQuestions = await IITMathQuestion.find().limit(3);
-    
-    res.json({ 
-      totalQuestions: count,
-      availableTopics: topics,
-      sampleQuestions: sampleQuestions
-    });
+    const { email } = req.query;
+
+    if (email) {
+      const user = await iitm_math_score.findOne({ email }).lean();
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      res.json({ success: true, data: user });
+    } else {
+      const users = await iitm_math_score.aggregate([
+        {
+          $project: {
+            username: 1,
+            email: 1,
+            quizScores: {
+              $slice: ['$quizScores', -20]
+            }
+          }
+        }
+      ]);
+      res.json({ success: true, data: users });
+    }
   } catch (error) {
-    console.error('Database test error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
