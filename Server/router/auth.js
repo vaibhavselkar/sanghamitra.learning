@@ -2817,47 +2817,80 @@ router.post('/log-cheating', async (req, res) => {
 });
 
 
+// ROUTE 1: Get ALL users (LIST VIEW - FAST)
 router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
 
-    // CASE 1: Specific user - full details
+    // If email provided, redirect to detailed route
     if (email) {
-      const user = await iitm_math_score
-        .findOne({ email })
-        .lean();
-
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-
-      // Only return last 5 quizzes to keep response manageable
-      if (user.quizScores) {
-        user.quizScores = user.quizScores.slice(-5);
-      }
-
-      return res.json({ success: true, data: user });
+      // Just redirect to the detailed endpoint
+      return res.redirect(`/iitmmath_scores/detail?email=${email}`);
     }
 
-    // CASE 2: All users - include scores but limit fields
+    // LIST VIEW: Only get usernames and emails - NO quiz scores
     const users = await iitm_math_score
-      .find({})
-      .select('username email quizScores completedQuestionIds')
-      .limit(50)  // Limit to 50 users
-      .lean();
-
-    // For each user, limit quizScores to last 3 to keep response small
-    const processedUsers = users.map(user => ({
-      ...user,
-      quizScores: (user.quizScores || []).slice(-3),
-      completedQuestionIds: (user.completedQuestionIds || []).length // Just count, not all IDs
-    }));
+      .find({}, { username: 1, email: 1, _id: 1 })
+      .limit(100)
+      .lean()
+      .maxTimeMS(5000); // 5 second timeout
 
     return res.json({ 
       success: true, 
-      data: processedUsers,
-      total: processedUsers.length,
-      message: "Showing last 3 quiz attempts per user"
+      data: users,
+      total: users.length,
+      message: "Click on a user to see their detailed answers"
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      suggestion: "Try using ?email parameter"
+    });
+  }
+});
+
+// ROUTE 2: Get DETAILED answers for a specific user
+router.get('/iitmmath_scores/detail', async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email parameter is required' 
+      });
+    }
+
+    const user = await iitm_math_score
+      .findOne({ email })
+      .lean()
+      .maxTimeMS(5000); // 5 second timeout
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+
+    // Only return last 5 quizzes
+    if (user.quizScores && user.quizScores.length > 5) {
+      user.quizScores = user.quizScores.slice(-5);
+    }
+
+    return res.json({ 
+      success: true, 
+      data: {
+        username: user.username,
+        email: user.email,
+        totalQuizzes: user.quizScores?.length || 0,
+        totalQuestionsCompleted: user.completedQuestionIds?.length || 0,
+        quizScores: user.quizScores || [],
+        completedQuestionIds: user.completedQuestionIds || []
+      }
     });
 
   } catch (error) {
