@@ -2821,42 +2821,50 @@ router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email } = req.query;
 
-    // CASE 1: Specific user - fast query with index
+    // CASE 1: Specific user - full details
     if (email) {
       const user = await iitm_math_score
         .findOne({ email })
-        .select('username email quizScores')
         .lean();
 
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // Only return last 5 quizzes
-      user.quizScores = (user.quizScores || []).slice(-5);
+      // Only return last 5 quizzes to keep response manageable
+      if (user.quizScores) {
+        user.quizScores = user.quizScores.slice(-5);
+      }
+
       return res.json({ success: true, data: user });
     }
 
-    // CASE 2: All users - return MINIMAL data immediately
-    // Only get usernames and emails, NO quiz scores
+    // CASE 2: All users - include scores but limit fields
     const users = await iitm_math_score
-      .find({}, { username: 1, email: 1, _id: 1 }) // Only these fields
-      .limit(100)
+      .find({})
+      .select('username email quizScores completedQuestionIds')
+      .limit(50)  // Limit to 50 users
       .lean();
+
+    // For each user, limit quizScores to last 3 to keep response small
+    const processedUsers = users.map(user => ({
+      ...user,
+      quizScores: (user.quizScores || []).slice(-3),
+      completedQuestionIds: (user.completedQuestionIds || []).length // Just count, not all IDs
+    }));
 
     return res.json({ 
       success: true, 
-      data: users,
-      message: "For detailed scores, query with ?email=user@example.com"
+      data: processedUsers,
+      total: processedUsers.length,
+      message: "Showing last 3 quiz attempts per user"
     });
 
   } catch (error) {
     console.error('Error:', error);
-    // Always return a response, even on error
-    res.status(200).json({ 
+    res.status(500).json({ 
       success: false, 
-      error: error.message,
-      suggestion: "Use ?email parameter for specific user data"
+      error: error.message 
     });
   }
 });
