@@ -2773,10 +2773,11 @@ router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email, page = 1, limit = 20 } = req.query;
 
-    // CASE 1: Specific user - with scores only (no question details)
+    // CASE 1: Specific user - fast query
     if (email) {
       const user = await iitm_math_score
         .findOne({ email })
+        .select('username email quizScores completedQuestionIds')
         .lean()
         .maxTimeMS(5000);
 
@@ -2784,7 +2785,7 @@ router.get('/iitmmath_scores', async (req, res) => {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // Remove question details, keep only scores
+      // Process user data without heavy details
       const simplifiedUser = {
         username: user.username,
         email: user.email,
@@ -2793,8 +2794,9 @@ router.get('/iitmmath_scores', async (req, res) => {
           percentage: quiz.percentage,
           score: quiz.score,
           totalQuestions: quiz.totalQuestions,
-          timestamp: quiz.timestamp
-          // REMOVED: questionResults
+          timestamp: quiz.timestamp,
+          totalTimeTaken: quiz.totalTimeTaken,
+          questionResults: quiz.questionResults // Keep for detailed view
         })),
         totalQuizzes: (user.quizScores || []).length,
         totalQuestionsCompleted: (user.completedQuestionIds || []).length
@@ -2803,21 +2805,25 @@ router.get('/iitmmath_scores', async (req, res) => {
       return res.json({ success: true, data: simplifiedUser });
     }
 
-    // CASE 2: All users - lightweight list
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    const [users, totalCount] = await Promise.all([
-      iitm_math_score
-        .find({})
-        .select('username email quizScores completedQuestionIds')
-        .skip(skip)
-        .limit(parseInt(limit))
-        .lean()
-        .maxTimeMS(8000),
-      iitm_math_score.countDocuments().maxTimeMS(3000)
-    ]);
+    // CASE 2: All users - WITH PAGINATION
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
 
-    // Process users - remove question details from ALL quizzes
+    // Get total count first
+    const totalCount = await iitm_math_score.countDocuments().maxTimeMS(3000);
+    
+    // Fetch paginated users
+    const users = await iitm_math_score
+      .find({})
+      .select('username email quizScores completedQuestionIds')
+      .sort({ _id: -1 }) // Newest first
+      .skip(skip)
+      .limit(limitNum)
+      .lean()
+      .maxTimeMS(8000);
+
+    // Process users - remove heavy data
     const processedUsers = users.map(user => ({
       _id: user._id,
       username: user.username,
@@ -2827,8 +2833,9 @@ router.get('/iitmmath_scores', async (req, res) => {
         percentage: quiz.percentage,
         score: quiz.score,
         totalQuestions: quiz.totalQuestions,
-        timestamp: quiz.timestamp
-        // REMOVED: questionResults
+        timestamp: quiz.timestamp,
+        totalTimeTaken: quiz.totalTimeTaken
+        // REMOVED: questionResults to keep response light
       })),
       totalQuizzes: (user.quizScores || []).length,
       totalQuestionsCompleted: (user.completedQuestionIds || []).length
@@ -2838,15 +2845,17 @@ router.get('/iitmmath_scores', async (req, res) => {
       success: true, 
       data: processedUsers,
       pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(totalCount / parseInt(limit)),
+        currentPage: pageNum,
+        totalPages: Math.ceil(totalCount / limitNum),
         totalUsers: totalCount,
-        limit: parseInt(limit)
+        limit: limitNum,
+        hasNextPage: pageNum * limitNum < totalCount,
+        hasPrevPage: pageNum > 1
       }
     });
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error fetching scores:', error);
     res.status(500).json({ 
       success: false, 
       error: error.message,
