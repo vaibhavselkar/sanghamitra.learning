@@ -1071,7 +1071,22 @@
             let optionsHtml = '', answerPreviewHtml = '';
             if (question.type === 'multiple_choice' && question.options?.length) {
                 optionsHtml = question.options.map((opt, idx) => { const isChecked = userAnswers[currentQuestionIndex] === opt; return `<div class="option" onclick="selectOption(${currentQuestionIndex}, '${opt.replace(/'/g, "\\'")}', 'radio', this)"><input type="radio" name="q${currentQuestionIndex}" value="${opt.replace(/"/g, '&quot;')}" id="q${currentQuestionIndex}_${idx}" ${isChecked ? 'checked' : ''}><label for="q${currentQuestionIndex}_${idx}">${opt}</label></div>`; }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'text_input'].includes(question.type)) {
+            } 
+             else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        const selectedAnswers = userAnswers[currentQuestionIndex] || [];
+        optionsHtml = question.options.map((option, optIndex) => {
+            let optionText = option;
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            const isChecked = Array.isArray(selectedAnswers) && selectedAnswers.includes(option);
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}" ${isChecked ? 'checked' : ''}>
+                    <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
+                </div>
+            `;
+        }).join('');
+    }
+            else if (['numeric', 'interval_input', 'numeric_input', 'text_input'].includes(question.type)) {
                 optionsHtml = `<input type="text" class="numeric-input" placeholder="Enter your answer (e.g., f'(x)=2x, differentiable at x=1)" onchange="handleNumericInput(${currentQuestionIndex}, this.value)" autocomplete="off" id="answerInput-${currentQuestionIndex}" value="${userAnswers[currentQuestionIndex] || ''}"><div class="input-warning" id="inputWarning-${currentQuestionIndex}"></div>`;
                 answerPreviewHtml = `<div class="answer-preview" id="answerPreview-${currentQuestionIndex}"><h4>Answer Preview</h4><div class="answer-preview-content"><div class="preview-row"><span class="preview-label">Formatted view:</span><div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div></div></div><div class="preview-hint"></div></div>`;
             }
