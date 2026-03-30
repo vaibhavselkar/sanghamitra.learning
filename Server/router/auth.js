@@ -2813,33 +2813,36 @@ router.get('/iitmmath_scores', async (req, res) => {
     // Get total count first
     const totalCount = await iitm_math_score.countDocuments().maxTimeMS(3000);
     
-    // Fetch paginated users
-    const users = await iitm_math_score
-      .find({})
-      .select('username email quizScores completedQuestionIds')
-      .sort({ _id: -1 }) // Newest first
-      .skip(skip)
-      .limit(limitNum)
-      .lean()
-      .maxTimeMS(8000);
+   const processedUsers = users.map(user => {
+  const allQuizScores = user.quizScores || [];
 
-    // Process users - remove heavy data
-    const processedUsers = users.map(user => ({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      quizScores: (user.quizScores || []).map(quiz => ({
-        topic: quiz.topic,
-        percentage: quiz.percentage,
-        score: quiz.score,
-        totalQuestions: quiz.totalQuestions,
-        timestamp: quiz.timestamp,
-        totalTimeTaken: quiz.totalTimeTaken
-        // REMOVED: questionResults to keep response light
-      })),
-      totalQuizzes: (user.quizScores || []).length,
-      totalQuestionsCompleted: (user.completedQuestionIds || []).length
-    }));
+  // Group by topic, keep only latest 2 per topic (with questionResults)
+  const topicMap = {};
+  allQuizScores.forEach(quiz => {
+    const t = quiz.topic || 'unknown';
+    if (!topicMap[t]) topicMap[t] = [];
+    topicMap[t].push(quiz);
+  });
+
+  const trimmedScores = [];
+  Object.values(topicMap).forEach(attempts => {
+    // Sort newest first, take latest 2
+    const latest2 = attempts
+      .slice()
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      .slice(0, 2);
+    trimmedScores.push(...latest2);
+  });
+
+  return {
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    quizScores: trimmedScores,          // latest 2 per topic, full data
+    totalQuizzes: allQuizScores.length, // original total, not trimmed
+    totalQuestionsCompleted: (user.completedQuestionIds || []).length
+  };
+});
 
     return res.json({ 
       success: true, 
