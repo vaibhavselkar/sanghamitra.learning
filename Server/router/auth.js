@@ -2777,7 +2777,6 @@ router.get('/iitmmath_scores', async (req, res) => {
     if (email) {
       const user = await iitm_math_score
         .findOne({ email })
-        .select('username email quizScores completedQuestionIds')
         .lean()
         .maxTimeMS(5000);
 
@@ -2785,67 +2784,82 @@ router.get('/iitmmath_scores', async (req, res) => {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // Process user data without heavy details
-      const simplifiedUser = {
-        username: user.username,
-        email: user.email,
-        quizScores: (user.quizScores || []).map(quiz => ({
-          topic: quiz.topic,
-          percentage: quiz.percentage,
-          score: quiz.score,
-          totalQuestions: quiz.totalQuestions,
-          timestamp: quiz.timestamp,
-          totalTimeTaken: quiz.totalTimeTaken,
-          questionResults: quiz.questionResults // Keep for detailed view
-        })),
-        totalQuizzes: (user.quizScores || []).length,
-        totalQuestionsCompleted: (user.completedQuestionIds || []).length
-      };
+      const allQuizScores = user.quizScores || [];
 
-      return res.json({ success: true, data: simplifiedUser });
+      // Group by topic, keep latest 2 per topic
+      const topicMap = {};
+      allQuizScores.forEach(quiz => {
+        const t = quiz.topic || 'unknown';
+        if (!topicMap[t]) topicMap[t] = [];
+        topicMap[t].push(quiz);
+      });
+
+      const trimmedScores = [];
+      Object.values(topicMap).forEach(attempts => {
+        attempts
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, 2)
+          .forEach(q => trimmedScores.push(q));
+      });
+
+      return res.json({
+        success: true,
+        data: {
+          username: user.username,
+          email: user.email,
+          quizScores: trimmedScores,
+          totalQuizzes: allQuizScores.length,
+          totalQuestionsCompleted: (user.completedQuestionIds || []).length
+        }
+      });
     }
 
-    // CASE 2: All users - WITH PAGINATION
-    const pageNum = parseInt(page);
+    // CASE 2: All users with pagination
+    const pageNum  = parseInt(page);
     const limitNum = parseInt(limit);
-    const skip = (pageNum - 1) * limitNum;
+    const skip     = (pageNum - 1) * limitNum;
 
-    // Get total count first
     const totalCount = await iitm_math_score.countDocuments().maxTimeMS(3000);
-    
-   const processedUsers = users.map(user => {
-  const allQuizScores = user.quizScores || [];
 
-  // Group by topic, keep only latest 2 per topic (with questionResults)
-  const topicMap = {};
-  allQuizScores.forEach(quiz => {
-    const t = quiz.topic || 'unknown';
-    if (!topicMap[t]) topicMap[t] = [];
-    topicMap[t].push(quiz);
-  });
+    const users = await iitm_math_score
+      .find({})
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean()
+      .maxTimeMS(15000);
 
-  const trimmedScores = [];
-  Object.values(topicMap).forEach(attempts => {
-    // Sort newest first, take latest 2
-    const latest2 = attempts
-      .slice()
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-      .slice(0, 2);
-    trimmedScores.push(...latest2);
-  });
+    const processedUsers = users.map(user => {
+      const allQuizScores = user.quizScores || [];
 
-  return {
-    _id: user._id,
-    username: user.username,
-    email: user.email,
-    quizScores: trimmedScores,          // latest 2 per topic, full data
-    totalQuizzes: allQuizScores.length, // original total, not trimmed
-    totalQuestionsCompleted: (user.completedQuestionIds || []).length
-  };
-});
+      // Group by topic, keep latest 2 per topic (with full questionResults)
+      const topicMap = {};
+      allQuizScores.forEach(quiz => {
+        const t = quiz.topic || 'unknown';
+        if (!topicMap[t]) topicMap[t] = [];
+        topicMap[t].push(quiz);
+      });
 
-    return res.json({ 
-      success: true, 
+      const trimmedScores = [];
+      Object.values(topicMap).forEach(attempts => {
+        attempts
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, 2)
+          .forEach(q => trimmedScores.push(q));
+      });
+
+      return {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        quizScores: trimmedScores,
+        totalQuizzes: allQuizScores.length,
+        totalQuestionsCompleted: (user.completedQuestionIds || []).length
+      };
+    });
+
+    return res.json({
+      success: true,
       data: processedUsers,
       pagination: {
         currentPage: pageNum,
@@ -2859,8 +2873,8 @@ router.get('/iitmmath_scores', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching scores:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message,
       data: []
     });
