@@ -268,6 +268,13 @@
         'sequence_limits':       'Week 7 - Sequence, Limits and Continuity',
         'limits_continuity':     'Week 8 - Limits, Continuity and Differentiation',
         'derivatives_integrals': 'Week 9 - Derivatives and Integrals',
+        'continuity':            'Week 8 - Continuity',
+        'differentiability':     'Week 8 - Differentiability',
+        'Limit':                 'Week 8 - Limits',
+        'sequences':             'Week 7 - Sequences',
+        'inverse_function':      'Week 6 - Inverse Functions',
+        'composite_function':    'Week 5 - Composite Functions',
+        'logarithmic_functions': 'Week 6 - Logarithmic Functions'
       };
       return map[topic] || topic || 'Other';
     }
@@ -277,6 +284,13 @@
       if (pct >= 60) return 'score-good';
       if (pct >= 40) return 'score-average';
       return 'score-poor';
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     /* ── Load paginated data (lightweight — no questionResults) ── */
@@ -309,21 +323,23 @@
           const attemptCounter = {};
 
           result.data.forEach(student => {
-            (student.quizScores || []).forEach(q => {
+            const quizScores = student.quizScores || [];
+            
+            quizScores.forEach(q => {
               const key = `${student.email}__${q.topic}`;
               attemptCounter[key] = (attemptCounter[key] || 0) + 1;
 
               allData.push({
-                username:       student.username,
-                email:          student.email,
-                topic:          q.topic,
-                score:          q.score || 0,
-                totalQuestions: q.totalQuestions,
-                correctAnswers: q.score || 0,
-                percentage:     parseFloat(q.percentage || 0),
-                timestamp:      q.timestamp,
-                totalTimeTaken: q.totalTimeTaken || null,
-                attemptNumber:  attemptCounter[key],
+                username:        student.username,
+                email:           student.email,
+                topic:           q.topic,
+                score:           q.score || 0,
+                totalQuestions:  q.totalQuestions || q.totalQuestions || 0,
+                correctAnswers:  q.correctAnswers || q.score || 0,
+                percentage:      parseFloat(q.percentage || 0),
+                timestamp:       q.timestamp || q.endTime,
+                totalTimeTaken:  q.totalTimeTaken || null,
+                attemptNumber:   attemptCounter[key],
                 questionResults: q.questionResults || [],
               });
             });
@@ -339,6 +355,7 @@
           throw new Error('Invalid response format');
         }
       } catch (error) {
+        console.error('Load error:', error);
         document.getElementById('loadingState').innerHTML = `
           <div class="text-center py-5">
             <i class="bi bi-exclamation-triangle display-1 text-danger"></i>
@@ -359,7 +376,7 @@
       const infoDiv = document.getElementById('paginationInfo');
       if (!pagDiv) return;
 
-      infoDiv.innerHTML = `Showing ${allData.length} records from ${totalUsers} total users`;
+      infoDiv.innerHTML = `Showing ${filteredData.length} records from ${totalUsers} total users`;
 
       let html = `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
         <a class="page-link" onclick="changePage(${currentPage - 1})">Previous</a></li>`;
@@ -474,8 +491,8 @@
         html += `
           <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
             <td><i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i></td>
-            <td><strong>${item.username}</strong></td>
-            <td><span class="badge bg-light text-dark">${getDisplayTopicName(item.topic)}</span></td>
+            <td><strong>${escapeHtml(item.username)}</strong></td>
+            <td><span class="badge bg-light text-dark">${escapeHtml(getDisplayTopicName(item.topic))}</span></td>
             <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
             <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
             <td><span class="attempt-badge bg-info text-white">#${item.attemptNumber}</span></td>
@@ -521,7 +538,7 @@
 
       const item = filteredData[index];
 
-      // If questionResults already available (per-email search result)
+      // If questionResults already available
       if (item.questionResults && item.questionResults.length > 0) {
         contentDiv.innerHTML = generateStudentDetail(item, item.questionResults);
         return;
@@ -531,7 +548,7 @@
       contentDiv.innerHTML = `
         <div class="detail-loading">
           <div class="spinner-border spinner-border-sm text-primary me-2"></div>
-          Loading answers for <strong>${item.username}</strong>...
+          Loading answers for <strong>${escapeHtml(item.username)}</strong>...
         </div>`;
 
       try {
@@ -550,8 +567,7 @@
 
         // Match by topic + attempt number
         const topicAttempts = quizScores.filter(q => q.topic === item.topic);
-        const targetQuiz    = topicAttempts[item.attemptNumber - 1]
-                           || topicAttempts[topicAttempts.length - 1];
+        const targetQuiz    = topicAttempts[item.attemptNumber - 1] || topicAttempts[topicAttempts.length - 1];
         const results       = targetQuiz?.questionResults || [];
 
         if (!results.length) {
@@ -560,7 +576,7 @@
           contentDiv.innerHTML = generateStudentDetail(item, results);
         }
       } catch (e) {
-        contentDiv.innerHTML = `<div class="alert alert-danger m-2 mb-0">Failed to load: ${e.message}</div>`;
+        contentDiv.innerHTML = `<div class="alert alert-danger m-2 mb-0">Failed to load: ${escapeHtml(e.message)}</div>`;
       }
     }
 
@@ -573,7 +589,7 @@
       let html = `
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h6 class="mb-0">
-            <i class="bi bi-person-badge me-2"></i>${item.username} - Detailed Answer Analysis
+            <i class="bi bi-person-badge me-2"></i>${escapeHtml(item.username)} - Detailed Answer Analysis
             <span class="attempt-badge bg-secondary text-white ms-2">Attempt #${item.attemptNumber}</span>
           </h6>
           <small class="text-muted">
@@ -596,18 +612,18 @@
                   ${ok ? '✓ CORRECT' : '✗ INCORRECT'}
                 </span>
               </div>
-              ${result.questionText ? `<div class="mb-2"><small class="text-muted">${result.questionText}</small></div>` : ''}
+              ${result.questionText ? `<div class="mb-2"><small class="text-muted">${escapeHtml(result.questionText)}</small></div>` : ''}
               <div class="mb-2">
-                <strong>Correct Answer:</strong> <span>${result.correctAnswer || 'N/A'}</span>
+                <strong>Correct Answer:</strong> <span>${escapeHtml(result.correctAnswer || 'N/A')}</span>
               </div>
               <div class="mb-2">
                 <strong>Student Answer:</strong>
-                <span class="${ok ? 'text-success' : 'text-danger'}">${result.userAnswer || 'No answer provided'}</span>
+                <span class="${ok ? 'text-success' : 'text-danger'}">${escapeHtml(result.userAnswer || 'No answer provided')}</span>
               </div>
               ${result.explanation ? `
                 <div class="bg-light p-2 rounded mt-2">
                   <strong><i class="bi bi-lightbulb me-1"></i>Explanation:</strong>
-                  <div class="mt-1 small">${result.explanation}</div>
+                  <div class="mt-1 small">${escapeHtml(result.explanation)}</div>
                 </div>` : ''}
               ${result.timeTaken > 0 ? `
                 <div class="mt-2 small text-muted">
@@ -622,7 +638,7 @@
         <div class="mt-3">
           <small class="text-muted">
             <i class="bi bi-info-circle me-1"></i>
-            Scroll to view all questions. This is attempt #${item.attemptNumber} for ${getDisplayTopicName(item.topic)}.
+            Scroll to view all questions. This is attempt #${item.attemptNumber} for ${escapeHtml(getDisplayTopicName(item.topic))}.
           </small>
         </div>`;
 
@@ -636,8 +652,8 @@
       filteredData.forEach(item => {
         const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
         csv += [
-          `"${item.username}"`,
-          `"${getDisplayTopicName(item.topic)}"`,
+          `"${item.username.replace(/"/g, '""')}"`,
+          `"${getDisplayTopicName(item.topic).replace(/"/g, '""')}"`,
           `${item.correctAnswers}`,
           `${item.totalQuestions}`,
           `${item.percentage}%`,
