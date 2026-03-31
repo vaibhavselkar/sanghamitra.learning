@@ -2773,27 +2773,36 @@ router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email, page = 1, limit = 20 } = req.query;
 
-    // CASE 1: Specific user - fast query
+    // CASE 1: Specific user - fast query (OPTIMIZED)
     if (email) {
-      const user = await iitm_math_score
-        .findOne({ email })
-        .lean()
-        .maxTimeMS(5000);
+      // Use aggregation pipeline for better performance
+      const user = await iitm_math_score.aggregate([
+        { $match: { email: email } },
+        { $project: {
+            username: 1,
+            email: 1,
+            completedQuestionIds: 1,
+            // Only get last 20 quiz scores, sorted by timestamp
+            quizScores: {
+              $slice: [
+                { $sortArray: { input: "$quizScores", sortBy: { timestamp: -1 } } },
+                20
+              ]
+            }
+          }
+        }
+      ]).maxTimeMS(5000);
 
-      if (!user) {
+      if (!user || user.length === 0) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      const allQuizScores = user.quizScores || [];
-      
-      // 🔥 NEW: Only get the latest 20 submissions total
-      const latestScores = [...allQuizScores]
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 20); // ← ONLY LATEST 20 SUBMISSIONS
+      const userData = user[0];
+      const allQuizScores = userData.quizScores || [];
 
-      // Group by topic, keep latest 2 per topic from the latest 20
+      // Further limit to latest 2 per topic (for display)
       const topicMap = {};
-      latestScores.forEach(quiz => {
+      allQuizScores.forEach(quiz => {
         const t = quiz.topic || 'unknown';
         if (!topicMap[t]) topicMap[t] = [];
         topicMap[t].push(quiz);
@@ -2810,42 +2819,48 @@ router.get('/iitmmath_scores', async (req, res) => {
       return res.json({
         success: true,
         data: {
-          username: user.username,
-          email: user.email,
+          username: userData.username,
+          email: userData.email,
           quizScores: trimmedScores,
-          totalQuizzes: allQuizScores.length,
-          recentQuizzesCount: latestScores.length, // ← Show how many recent
-          totalQuestionsCompleted: (user.completedQuestionIds || []).length
+          totalQuizzes: userData.quizScores?.length || 0,
+          totalQuestionsCompleted: (userData.completedQuestionIds || []).length
         }
       });
     }
 
-    // CASE 2: All users with pagination
-    const pageNum  = parseInt(page);
+    // CASE 2: All users with pagination (OPTIMIZED)
+    const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
-    const skip     = (pageNum - 1) * limitNum;
+    const skip = (pageNum - 1) * limitNum;
 
-    const totalCount = await iitm_math_score.countDocuments().maxTimeMS(3000);
-
-    const users = await iitm_math_score
-      .find({})
-      .sort({ _id: -1 })
-      .skip(skip)
-      .limit(limitNum)
-      .lean()
-      .maxTimeMS(15000);
+    // Use aggregation for better performance
+    const [totalCount, users] = await Promise.all([
+      iitm_math_score.countDocuments().maxTimeMS(3000),
+      iitm_math_score.aggregate([
+        { $sort: { _id: -1 } },
+        { $skip: skip },
+        { $limit: limitNum },
+        { $project: {
+            _id: 1,
+            username: 1,
+            email: 1,
+            completedQuestionIds: 1,
+            quizScores: {
+              $slice: [
+                { $sortArray: { input: "$quizScores", sortBy: { timestamp: -1 } } },
+                20
+              ]
+            }
+          }
+        }
+      ]).maxTimeMS(15000)
+    ]);
 
     const processedUsers = users.map(user => {
       const allQuizScores = user.quizScores || [];
-      
-      // 🔥 NEW: Only get the latest 20 submissions per user
-      const latestScores = [...allQuizScores]
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 20);
 
-      // Group by topic, keep latest 2 per topic
       const topicMap = {};
-      latestScores.forEach(quiz => {
+      allQuizScores.forEach(quiz => {
         const t = quiz.topic || 'unknown';
         if (!topicMap[t]) topicMap[t] = [];
         topicMap[t].push(quiz);
@@ -2864,8 +2879,7 @@ router.get('/iitmmath_scores', async (req, res) => {
         username: user.username,
         email: user.email,
         quizScores: trimmedScores,
-        totalQuizzes: allQuizScores.length,
-        recentQuizzesCount: latestScores.length,
+        totalQuizzes: user.quizScores?.length || 0,
         totalQuestionsCompleted: (user.completedQuestionIds || []).length
       };
     });
@@ -3071,42 +3085,63 @@ router.post('/iitmmath_scores', async (req, res) => {
   try {
     const { email, username, quizData } = req.body;
     
-    // ... existing validation code ...
-    
-    let user = await iitm_math_score.findOne({ email });
-    
-    if (!user) {
-      user = new iitm_math_score({ 
-        username, 
-        email, 
-        completedQuestionIds: completedQuestionIds,
-        quizScores: [quizData]
-      });
-    } else {
-      user.username = username;
-      user.quizScores.push(quizData);
-      
-      // 🔥 NEW: Keep only the latest 20 submissions
-      if (user.quizScores.length > 20) {
-        user.quizScores = user.quizScores
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-          .slice(0, 20);
-      }
-      
-      // Add new completed questions to the array (avoid duplicates)
-      const newCompletedIds = completedQuestionIds.filter(
-        id => !user.completedQuestionIds.includes(id)
-      );
-      user.completedQuestionIds.push(...newCompletedIds);
+    if (!email || !username || !quizData) {
+      return res.status(400).json({ error: 'Email, username and quizData are required' });
+    }
+
+    if (!quizData.timestamp) {
+      quizData.timestamp = new Date().toISOString();
     }
     
-    await user.save();
+    // Extract question IDs
+    const completedQuestionIds = quizData.questionResults
+      ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
+      : [];
+    
+    // Use update with aggregation for better performance
+    const result = await iitm_math_score.updateOne(
+      { email: email },
+      [
+        {
+          $set: {
+            username: username,
+            // Add new quiz score
+            quizScores: {
+              $concatArrays: [
+                "$quizScores",
+                [quizData]
+              ]
+            },
+            // Add new completed question IDs (avoid duplicates)
+            completedQuestionIds: {
+              $setUnion: ["$completedQuestionIds", completedQuestionIds]
+            }
+          }
+        },
+        {
+          $set: {
+            // Keep only latest 20 quiz scores
+            quizScores: {
+              $slice: [
+                { $sortArray: { input: "$quizScores", sortBy: { timestamp: -1 } } },
+                20
+              ]
+            }
+          }
+        }
+      ],
+      { upsert: true }
+    );
+
+    // Get updated user for response
+    const updatedUser = await iitm_math_score.findOne({ email });
+    
+    console.log(`Quiz saved for ${email}. Total submissions: ${updatedUser?.quizScores?.length || 0}`);
     
     res.status(201).json({ 
       message: 'Quiz result saved successfully', 
-      completedQuestionsCount: user.completedQuestionIds.length,
-      storedSubmissionsCount: user.quizScores.length, // ← Show how many stored
-      user 
+      completedQuestionsCount: updatedUser?.completedQuestionIds?.length || 0,
+      storedSubmissionsCount: updatedUser?.quizScores?.length || 0
     });
     
   } catch (error) {
