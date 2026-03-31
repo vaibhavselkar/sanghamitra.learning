@@ -1263,112 +1263,111 @@
         };
 
         function renderCurrentQuestion() {
-            const container = document.getElementById('questionContainer');
-            const question = questions[currentQuestionIndex];
-            
-            if (!question) return;
-            
-            container.innerHTML = '';
+    const container = document.getElementById('questionContainer');
+    const question = questions[currentQuestionIndex];
+    
+    if (!question) return;
+    
+    container.innerHTML = '';
 
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-card';
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-card';
 
-            let optionsHtml = '';
-            let answerPreviewHtml = '';
-            
-            
-          
-            
-            if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
-                optionsHtml = question.options.map((option, optIndex) => {
-                    let optionText = option; // Just use raw option text, no conversion
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    const isChecked = userAnswers[currentQuestionIndex] === option;
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
-                            <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}" ${isChecked ? 'checked' : ''}>
-                            <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
-                const selectedAnswers = userAnswers[currentQuestionIndex] || [];
-                optionsHtml = question.options.map((option, optIndex) => {
-                    let optionText = option; // Just use raw option text
-                    const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                    const isChecked = Array.isArray(selectedAnswers) && selectedAnswers.includes(option);
-                    return `
-                        <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
-                            <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}" ${isChecked ? 'checked' : ''}>
-                            <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
-                        </div>
-                    `;
-                }).join('');
-            } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
-                let placeholder = "Enter your answer (e.g., log_2(8)=3, ln(e)=1, log(100)=2)";
-                optionsHtml = `
-                    <input type="text" 
-                           class="numeric-input" 
-                           placeholder="${placeholder}" 
-                           onchange="handleNumericInput(${currentQuestionIndex}, this.value)"
-                           autocomplete="off"
-                           spellcheck="false"
-                           id="answerInput-${currentQuestionIndex}"
-                           value="${userAnswers[currentQuestionIndex] || ''}">
-                    <div class="input-warning" id="inputWarning-${currentQuestionIndex}"></div>
-                `;
-                
-                answerPreviewHtml = `
-                <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
-                    <h4>Answer Preview</h4>
-                    <div class="answer-preview-content">
-                        <div class="preview-row">
-                            <span class="preview-label">Formatted view:</span>
-                            <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div>
-                        </div>
-                    </div>
-                    <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
+    let optionsHtml = '';
+    let answerPreviewHtml = '';
+    
+    // FIX: Define questionText properly
+    const questionText = question.question_text || 'Question text not available';
+    
+    if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+        optionsHtml = question.options.map((option, optIndex) => {
+            let optionText = option;
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            const isChecked = userAnswers[currentQuestionIndex] === option;
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'radio', this)">
+                    <input type="radio" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}" ${isChecked ? 'checked' : ''}>
+                    <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
                 </div>
             `;
-            } else {
-                optionsHtml = `
-                    <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
-                        <strong>Error:</strong> Unable to display question options.
-                    </div>
-                `;
-            }
-
-            const difficultyColor = {
-                'easy': '#28a745',
-                'medium': '#ffc107',
-                'hard': '#dc3545'
-            };
-            
-            const difficulty = question.difficulty || 'medium';
-            const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <div class="question-number">${currentQuestionIndex + 1}</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
-                            ${difficultyText}
-                        </span>
+        }).join('');
+    } else if (question.type === 'multiple_select' && question.options && question.options.length > 0) {
+        const selectedAnswers = userAnswers[currentQuestionIndex] || [];
+        optionsHtml = question.options.map((option, optIndex) => {
+            let optionText = option;
+            const safeOption = String(option).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            const isChecked = Array.isArray(selectedAnswers) && selectedAnswers.includes(option);
+            return `
+                <div class="option" onclick="selectOption(${currentQuestionIndex}, '${option.replace(/'/g, "\\'")}', 'checkbox', this)">
+                    <input type="checkbox" name="q${currentQuestionIndex}" value="${safeOption}" id="q${currentQuestionIndex}_${optIndex}" ${isChecked ? 'checked' : ''}>
+                    <label for="q${currentQuestionIndex}_${optIndex}">${optionText}</label>
+                </div>
+            `;
+        }).join('');
+    } else if (['numeric', 'interval_input', 'numeric_input', 'coordinate_input', 'equation_input', 'text_input'].includes(question.type)) {
+        let placeholder = "Enter your answer (e.g., log_2(8)=3, ln(e)=1, log(100)=2)";
+        optionsHtml = `
+            <input type="text" 
+                   class="numeric-input" 
+                   placeholder="${placeholder}" 
+                   onchange="handleNumericInput(${currentQuestionIndex}, this.value)"
+                   autocomplete="off"
+                   spellcheck="false"
+                   id="answerInput-${currentQuestionIndex}"
+                   value="${userAnswers[currentQuestionIndex] || ''}">
+            <div class="input-warning" id="inputWarning-${currentQuestionIndex}"></div>
+        `;
+        
+        answerPreviewHtml = `
+            <div class="answer-preview" id="answerPreview-${currentQuestionIndex}">
+                <h4>Answer Preview</h4>
+                <div class="answer-preview-content">
+                    <div class="preview-row">
+                        <span class="preview-label">Formatted view:</span>
+                        <div class="preview-value math" id="previewFormatted-${currentQuestionIndex}"></div>
                     </div>
                 </div>
-                <div class="question-text" id="question-text-${currentQuestionIndex}">${questionText}</div>
-                <div class="options">${optionsHtml}</div>
-                ${answerPreviewHtml}
-            `;
+                <div class="preview-hint" id="previewHint-${currentQuestionIndex}"></div>
+            </div>
+        `;
+    } else {
+        optionsHtml = `
+            <div style="color: #dc3545; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                <strong>Error:</strong> Unable to display question options.
+            </div>
+        `;
+    }
 
-            container.appendChild(questionDiv);
-          
-            
-            if (userAnswers[currentQuestionIndex] && document.getElementById(`answerInput-${currentQuestionIndex}`)) {
-                updateAnswerPreview(currentQuestionIndex, userAnswers[currentQuestionIndex]);
-            }
-            updateAnswerStatus();
-        }
+    const difficultyColor = {
+        'easy': '#28a745',
+        'medium': '#ffc107',
+        'hard': '#dc3545'
+    };
+    
+    const difficulty = question.difficulty || 'medium';
+    const difficultyText = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+
+    questionDiv.innerHTML = `
+        <div class="question-header">
+            <div class="question-number">${currentQuestionIndex + 1}</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: ${difficultyColor[difficulty]}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; text-transform: uppercase;">
+                    ${difficultyText}
+                </span>
+            </div>
+        </div>
+        <div class="question-text" id="question-text-${currentQuestionIndex}">${questionText}</div>
+        <div class="options">${optionsHtml}</div>
+        ${answerPreviewHtml}
+    `;
+
+    container.appendChild(questionDiv);
+    
+    if (userAnswers[currentQuestionIndex] && document.getElementById(`answerInput-${currentQuestionIndex}`)) {
+        updateAnswerPreview(currentQuestionIndex, userAnswers[currentQuestionIndex]);
+    }
+    updateAnswerStatus();
+}
 
         function updateAnswerPreview(questionIndex, answer) {
             const preview = document.getElementById(`answerPreview-${questionIndex}`);
