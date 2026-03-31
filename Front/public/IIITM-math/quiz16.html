@@ -1539,8 +1539,27 @@
         
         if (scoresResponse.ok) {
             const scores = await scoresResponse.json();
-            const scoresData = Array.isArray(scores) ? scores : (scores.data || []);
+            console.log('Scores response structure:', scores);
             
+            // Handle different response structures
+            let scoresData = [];
+            
+            // Case 1: scores is an array directly
+            if (Array.isArray(scores)) {
+                scoresData = scores;
+            }
+            // Case 2: scores has a data property that's an array
+            else if (scores.data && Array.isArray(scores.data)) {
+                scoresData = scores.data;
+            }
+            // Case 3: scores is a single object (not array)
+            else if (scores && typeof scores === 'object' && !Array.isArray(scores)) {
+                scoresData = [scores];
+            }
+            
+            console.log('Processed scoresData:', scoresData.length, 'items');
+            
+            // Extract answered question IDs
             scoresData.forEach(score => {
                 const quizData = score.quizData || score;
                 if (quizData && quizData.questionResults) {
