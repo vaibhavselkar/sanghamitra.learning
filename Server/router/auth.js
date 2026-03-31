@@ -2771,122 +2771,56 @@ router.post('/log-cheating', async (req, res) => {
 
 router.get('/iitmmath_scores', async (req, res) => {
   try {
-    const { email, page = 1, limit = 20 } = req.query;
+    const { email } = req.query;
 
-    // CASE 1: Specific user - fast query (OPTIMIZED)
+    // For specific user - MOST OPTIMIZED
     if (email) {
-      // Use findOne instead of aggregate for simplicity and compatibility
+      // Use lean() and only select what's needed
       const user = await iitm_math_score
         .findOne({ email })
+        .select('username email completedQuestionIds quizScores')
         .lean()
-        .maxTimeMS(5000);
+        .exec(); // Remove maxTimeMS to avoid issues
 
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
 
-      // Get quiz scores and limit to latest 20 in JavaScript (fast enough)
-      const allQuizScores = user.quizScores || [];
-      const latestScores = [...allQuizScores]
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 20);
-
-      // Group by topic, keep latest 2 per topic
-      const topicMap = {};
-      latestScores.forEach(quiz => {
-        const t = quiz.topic || 'unknown';
-        if (!topicMap[t]) topicMap[t] = [];
-        topicMap[t].push(quiz);
-      });
-
-      const trimmedScores = [];
-      Object.values(topicMap).forEach(attempts => {
-        attempts
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-          .slice(0, 2)
-          .forEach(q => trimmedScores.push(q));
-      });
+      // Get only the last 5 submissions (reduce from 20 to 5 for speed)
+      const allScores = user.quizScores || [];
+      const last5Scores = allScores.slice(-5).reverse(); // Get most recent 5
+      
+      // Minimal response - no heavy processing
+      const minimalScores = last5Scores.map(score => ({
+        topic: score.topic,
+        score: score.score,
+        percentage: score.percentage,
+        timestamp: score.timestamp,
+        totalQuestions: score.totalQuestions
+      }));
 
       return res.json({
         success: true,
         data: {
           username: user.username,
           email: user.email,
-          quizScores: trimmedScores,
-          totalQuizzes: allQuizScores.length,
-          totalQuestionsCompleted: (user.completedQuestionIds || []).length
+          quizScores: minimalScores,
+          totalQuizzes: allScores.length,
+          completedQuestions: (user.completedQuestionIds || []).length
         }
       });
     }
 
-    // CASE 2: All users with pagination
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-    const skip = (pageNum - 1) * limitNum;
-
-    const totalCount = await iitm_math_score.countDocuments().maxTimeMS(3000);
-
-    const users = await iitm_math_score
-      .find({})
-      .sort({ _id: -1 })
-      .skip(skip)
-      .limit(limitNum)
-      .lean()
-      .maxTimeMS(15000);
-
-    const processedUsers = users.map(user => {
-      const allQuizScores = user.quizScores || [];
-      
-      // Limit to latest 20 per user
-      const latestScores = [...allQuizScores]
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 20);
-
-      const topicMap = {};
-      latestScores.forEach(quiz => {
-        const t = quiz.topic || 'unknown';
-        if (!topicMap[t]) topicMap[t] = [];
-        topicMap[t].push(quiz);
-      });
-
-      const trimmedScores = [];
-      Object.values(topicMap).forEach(attempts => {
-        attempts
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-          .slice(0, 2)
-          .forEach(q => trimmedScores.push(q));
-      });
-
-      return {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        quizScores: trimmedScores,
-        totalQuizzes: allQuizScores.length,
-        totalQuestionsCompleted: (user.completedQuestionIds || []).length
-      };
-    });
-
+    // For all users - return empty array quickly
     return res.json({
       success: true,
-      data: processedUsers,
-      pagination: {
-        currentPage: pageNum,
-        totalPages: Math.ceil(totalCount / limitNum),
-        totalUsers: totalCount,
-        limit: limitNum,
-        hasNextPage: pageNum * limitNum < totalCount,
-        hasPrevPage: pageNum > 1
-      }
+      data: [],
+      message: 'Provide email parameter for user-specific scores'
     });
 
   } catch (error) {
-    console.error('Error fetching scores:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      data: []
-    });
+    console.error('Error:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
@@ -3069,59 +3003,48 @@ router.post('/iitmmath_scores', async (req, res) => {
     const { email, username, quizData } = req.body;
     
     if (!email || !username || !quizData) {
-      return res.status(400).json({ error: 'Email, username and quizData are required' });
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // Add timestamp if not present
     if (!quizData.timestamp) {
       quizData.timestamp = new Date().toISOString();
     }
     
     // Extract question IDs
-    const completedQuestionIds = quizData.questionResults
-      ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
-      : [];
+    const completedQuestionIds = (quizData.questionResults || [])
+      .map(result => result.questionId)
+      .filter(Boolean);
     
-    // Find existing user
-    let user = await iitm_math_score.findOne({ email });
+    // Use updateOne with $push and $slice for atomic operation
+    const result = await iitm_math_score.updateOne(
+      { email: email },
+      {
+        $set: { username: username },
+        $push: { 
+          quizScores: {
+            $each: [quizData],
+            $slice: -20  // Keep only last 20
+          }
+        },
+        $addToSet: { 
+          completedQuestionIds: { $each: completedQuestionIds }
+        }
+      },
+      { upsert: true }
+    );
     
-    if (!user) {
-      // Create new user
-      user = new iitm_math_score({ 
-        username, 
-        email, 
-        completedQuestionIds: completedQuestionIds,
-        quizScores: [quizData]
-      });
-    } else {
-      // Update existing user
-      user.username = username;
-      user.quizScores.push(quizData);
-      
-      // Keep only latest 20 submissions
-      if (user.quizScores.length > 20) {
-        user.quizScores = user.quizScores
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-          .slice(0, 20);
-      }
-      
-      // Add new completed questions (avoid duplicates)
-      const newCompletedIds = completedQuestionIds.filter(
-        id => !user.completedQuestionIds.includes(id)
-      );
-      user.completedQuestionIds.push(...newCompletedIds);
-    }
-    
-    await user.save();
+    console.log(`Quiz saved for ${email}`);
     
     res.status(201).json({ 
-      message: 'Quiz result saved successfully', 
-      completedQuestionsCount: user.completedQuestionIds.length,
-      storedSubmissionsCount: user.quizScores.length
+      success: true,
+      message: 'Quiz submitted successfully',
+      completedCount: completedQuestionIds.length
     });
     
   } catch (error) {
-    console.error('Error saving quiz result:', error);
-    res.status(500).json({ error: 'Internal server error: ' + error.message });
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to save quiz: ' + error.message });
   }
 });
 
