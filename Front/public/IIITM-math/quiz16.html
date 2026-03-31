@@ -1505,74 +1505,125 @@
         }
 
         async function loadQuestions() {
-            try {
-                if (!email) {
-                    alert('Please login to take the assessment');
+    try {
+        if (!email) {
+            alert('Please login to take the assessment');
+            return false;
+        }
+        
+        // OPTIMIZATION: Fetch questions and scores in PARALLEL
+        const [questionsResponse, scoresResponse] = await Promise.all([
+            fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/composite_function?email=${encodeURIComponent(email)}&count=50`, {
+                credentials: 'include'
+            }),
+            fetch(`https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores?email=${encodeURIComponent(email)}&topic=composite_function`, {
+                credentials: 'include'
+            }).catch(() => ({ ok: false })) // Don't fail if no scores
+        ]);
+        
+        if (!questionsResponse.ok) {
+            throw new Error(`HTTP error! status: ${questionsResponse.status}`);
+        }
+        
+        const data = await questionsResponse.json();
+        let allQuestions = data.questions || data;
+        
+        if (!allQuestions || allQuestions.length === 0) {
+            throw new Error('No questions found in database');
+        }
+        
+        console.log('Total questions in database:', allQuestions.length);
+        
+        // OPTIMIZATION: Process answered IDs efficiently
+        let answeredIds = new Set();
+        
+        if (scoresResponse.ok) {
+            const scores = await scoresResponse.json();
+            const scoresData = Array.isArray(scores) ? scores : (scores.data || []);
+            
+            scoresData.forEach(score => {
+                const quizData = score.quizData || score;
+                if (quizData && quizData.questionResults) {
+                    quizData.questionResults.forEach(result => {
+                        if (result.questionId) {
+                            answeredIds.add(result.questionId.toString());
+                        }
+                        if (result.questionNumber) {
+                            answeredIds.add(result.questionNumber.toString());
+                        }
+                    });
+                }
+            });
+        }
+        
+        console.log('Already answered questions:', answeredIds.size);
+        
+        // Filter unanswered questions
+        const unansweredQuestions = allQuestions.filter(q => {
+            const questionId = (q._id || q.id || q.question_number)?.toString();
+            return !answeredIds.has(questionId);
+        });
+        
+        console.log('Unanswered questions available:', unansweredQuestions.length);
+        
+        // Handle no unanswered questions
+        if (unansweredQuestions.length === 0) {
+            const resetConfirm = confirm(
+                `🎉 Congratulations! You have completed all ${allQuestions.length} questions!\n\n` +
+                `Would you like to reset your progress and start over?`
+            );
+            
+            if (resetConfirm) {
+                const resetSuccess = await resetUserProgress();
+                if (resetSuccess) {
+                    return loadQuestions();
+                } else {
+                    alert('Failed to reset progress. Please try again.');
+                    window.location.href = 'iitm_math.html';
                     return false;
                 }
-                
-                const answeredQuestionIds = await getAnsweredQuestionIds();
-                console.log('Already answered question IDs:', answeredQuestionIds);
-                
-                const response = await fetch(`https://sanghamitra-learnworld.vercel.app/api/iitm-math-questions/composite_function?email=${encodeURIComponent(email)}&count=50`, {
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                let allQuestions = data.questions || data;
-                
-                if (!allQuestions || allQuestions.length === 0) {
-                    throw new Error('No questions found in database');
-                }
-                
-                console.log('Total questions in database:', allQuestions.length);
-                
-                const unansweredQuestions = allQuestions.filter(q => {
-                    const questionId = q._id || q.id || q.question_number;
-                    return !answeredQuestionIds.includes(questionId?.toString());
-                });
-                
-                console.log('Unanswered questions available:', unansweredQuestions.length);
-                
-                if (unansweredQuestions.length === 0) {
-                    const resetConfirm = confirm(
-                        `🎉 Congratulations! You have completed all ${allQuestions.length} questions!\n\n` +
-                        `Would you like to reset your progress and start over?`
-                    );
-                    
-                    if (resetConfirm) {
-                        const resetSuccess = await resetUserProgress();
-                        if (resetSuccess) {
-                            return loadQuestions();
-                        } else {
-                            alert('Failed to reset progress. Please try again.');
-                            window.location.href = 'iitm_math.html';
-                            return false;
-                        }
-                    } else {
-                        alert('No new questions available. Returning to home page.');
-                        window.location.href = 'iitm_math.html';
-                        return false;
-                    }
-                }
-                
-                const questionsToShow = Math.min(50, unansweredQuestions.length);
-                questions = shuffleArray(unansweredQuestions).slice(0, questionsToShow);
-                questions = validateAndPrepareQuestions(questions);
-                
-                console.log(`Loaded ${questions.length} NEW questions for Composite Function`);
-                
-                return true;
-            } catch (error) {
-                console.error('Error loading questions:', error);
-                alert('Failed to load questions. Please try again.');
+            } else {
+                alert('No new questions available. Returning to home page.');
+                window.location.href = 'iitm_math.html';
                 return false;
             }
         }
+        
+        // Shuffle and select questions
+        const questionsToShow = Math.min(50, unansweredQuestions.length);
+        const shuffled = [...unansweredQuestions];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        
+        const selectedQuestions = shuffled.slice(0, questionsToShow);
+        
+        // Prepare questions with proper IDs
+        questions = selectedQuestions.map((q, index) => ({
+            ...q,
+            _id: q._id || q.id,  // Preserve original MongoDB ID
+            question_number: q.question_number || (index + 1),
+            question_text: q.question_text || 'Question text not available',
+            correct_answer: q.correct_answer !== undefined ? q.correct_answer : '',
+            explanation: q.explanation || '',
+            difficulty: q.difficulty || 'medium',
+            points: q.points || 1,
+            type: q.type || 'multiple_choice',
+            options: q.options || [],
+            alternative_answers: q.alternative_answers || []
+        }));
+        
+        console.log(`✅ Loaded ${questions.length} questions in ${Math.round(performance.now())}ms`);
+        
+        return true;
+        
+    } catch (error) {
+        console.error('Error loading questions:', error);
+        alert('Failed to load questions. Please try again.\nError: ' + error.message);
+        return false;
+    }
+}
         
         async function getAnsweredQuestionIds() {
             try {
@@ -1639,144 +1690,151 @@
         }
 
         async function submitQuiz() {
-            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Composite Function Quiz?`);
-            
-            if (!confirmSubmit) return;
+    const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Composite Function Quiz?`);
+    
+    if (!confirmSubmit) return;
+
+    if (!username || !email) {
+        alert("Error: User session data not found. Please log in.");
+        return;
+    }
+
+    trackQuestionTime();
+    isQuizActive = false;
+    const quizEndTime = new Date();
+    const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
+    const minutes = Math.floor(totalTimeTaken / 60);
+    const seconds = totalTimeTaken % 60;
+
+    let score = 0;
+    let totalPossiblePoints = 0;
+    const questionResults = [];
+    const difficultyBreakdown = {
+        easy: { attempted: 0, correct: 0, points: 0 },
+        medium: { attempted: 0, correct: 0, points: 0 },
+        hard: { attempted: 0, correct: 0, points: 0 }
+    };
+    
+    for (let index = 0; index < questions.length; index++) {
+        const question = questions[index];
+        const userAnswer = userAnswers[index];
+        totalPossiblePoints += (question.points || 1);
         
-            if (!username || !email) {
-                alert("Error: User session data not found. Please log in.");
-                return;
-            }
-
-            trackQuestionTime();
-            isQuizActive = false;
-            const quizEndTime = new Date();
-            const totalTimeTaken = Math.floor((quizEndTime - quizStartTime) / 1000);
-            const minutes = Math.floor(totalTimeTaken / 60);
-            const seconds = totalTimeTaken % 60;
-
-            let score = 0;
-            let totalPossiblePoints = 0;
-            const questionResults = [];
-            const difficultyBreakdown = {
-                easy: { attempted: 0, correct: 0, points: 0 },
-                medium: { attempted: 0, correct: 0, points: 0 },
-                hard: { attempted: 0, correct: 0, points: 0 }
-            };
+        let isCorrect = false;
+        
+        if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
+            const normalizedUser = answerNormalizer.normalizeAnswer(userAnswer, question.type);
+            const normalizedCorrect = answerNormalizer.normalizeAnswer(question.correct_answer, question.type);
             
-            questions.forEach((question, index) => {
-                const userAnswer = userAnswers[index];
-                totalPossiblePoints += question.points;
-                
-                let isCorrect = false;
-                
-                if (userAnswer !== undefined && userAnswer !== null) {
-                    const normalizedUser = answerNormalizer.normalizeAnswer(userAnswer, question.type);
-                    const normalizedCorrect = answerNormalizer.normalizeAnswer(question.correct_answer, question.type);
-                    
-                    if (question.type === 'multiple_choice') {
-                        isCorrect = normalizedUser === normalizedCorrect;
-                    } else if (question.type === 'multiple_select') {
-                        if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
-                            const normalizeArray = (arr) => arr.map(item => 
-                                    answerNormalizer.normalizeAnswer(item, question.type)).sort();
-                            const userNorm = normalizeArray(userAnswer);
-                            const correctNorm = normalizeArray(question.correct_answer);
-                            isCorrect = userNorm.length === correctNorm.length &&
-                                    userNorm.every((ans, idx) => ans === correctNorm[idx]);
-                        }
-                    } else {
-                        isCorrect = normalizedUser === normalizedCorrect;
-                        
-                        if (!isCorrect && question.alternative_answers) {
-                            isCorrect = question.alternative_answers.some(alt => {
-                                const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
-                                return normalizedAlt === normalizedUser;
-                            });
-                        }
-                    }
+            if (question.type === 'multiple_choice') {
+                isCorrect = normalizedUser === normalizedCorrect;
+            } else if (question.type === 'multiple_select') {
+                if (Array.isArray(userAnswer) && Array.isArray(question.correct_answer)) {
+                    const normalizeArray = (arr) => arr.map(item => 
+                            answerNormalizer.normalizeAnswer(item, question.type)).sort();
+                    const userNorm = normalizeArray(userAnswer);
+                    const correctNorm = normalizeArray(question.correct_answer);
+                    isCorrect = userNorm.length === correctNorm.length &&
+                            userNorm.every((ans, idx) => ans === correctNorm[idx]);
                 }
+            } else {
+                isCorrect = normalizedUser === normalizedCorrect;
                 
-                if (isCorrect) {
-                    score += question.points;
+                if (!isCorrect && question.alternative_answers) {
+                    isCorrect = question.alternative_answers.some(alt => {
+                        const normalizedAlt = answerNormalizer.normalizeAnswer(alt, question.type);
+                        return normalizedAlt === normalizedUser;
+                    });
                 }
-                
-                difficultyBreakdown[question.difficulty].attempted++;
-                if (isCorrect) {
-                    difficultyBreakdown[question.difficulty].correct++;
-                    difficultyBreakdown[question.difficulty].points += question.points;
-                }
-                
-                questionResults.push({
-                    questionId: question._id,
-                    questionNumber: question.question_number,
-                    questionText: question.question_text,
-                    difficulty: question.difficulty,
-                    points: question.points,
-                    userAnswer: userAnswer ? (Array.isArray(userAnswer) ? userAnswer.join(', ') : userAnswer.toString()) : 'No answer provided',
-                    correctAnswer: question.correct_answer.toString(),
-                    explanation: question.explanation || '',
-                    isCorrect: isCorrect,
-                    timeTaken: questionTimes[index] || 0
-                });
-            });
-
-            const quizData = {
-                topic: 'composite_function',
-                quizType: 'practice',
-                score: score,
-                maxPossibleScore: totalPossiblePoints,
-                totalQuestions: questions.length,
-                correctAnswers: questionResults.filter(q => q.isCorrect).length,
-                percentage: Math.round((score / totalPossiblePoints) * 100),
-                difficultyBreakdown: difficultyBreakdown,
-                questionResults: questionResults,
-                startTime: quizStartTime,
-                endTime: quizEndTime,
-                totalTimeTaken: totalTimeTaken,
-                isCompleted: true
-            };
-
-            try {
-                document.getElementById('submitText').style.display = 'none';
-                document.getElementById('submitLoading').style.display = 'inline-block';
-                document.getElementById('submitBtn').disabled = true;
-
-                console.log('Submitting Composite Function quiz data:', quizData);
-                
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        email: email,
-                        username: username,
-                        quizData: quizData
-                    })
-                });
-
-                if (response.ok) {
-                    console.log('Composite Function quiz submitted successfully');
-                    displayDetailedResults(quizData, minutes, seconds);
-                } else {
-                    const errorText = await response.text();
-                    console.error('Failed to submit quiz:', errorText);
-                    alert('Failed to submit quiz. Please try again.');
-                    
-                    document.getElementById('submitText').style.display = 'inline';
-                    document.getElementById('submitLoading').style.display = 'none';
-                    document.getElementById('submitBtn').disabled = false;
-                    return;
-                }
-            } catch (error) {
-                console.error('Error submitting quiz:', error);
-                alert('Error submitting quiz. Please check your connection and try again.');
-                document.getElementById('submitText').style.display = 'inline';
-                document.getElementById('submitLoading').style.display = 'none';
-                document.getElementById('submitBtn').disabled = false;
-                return;
             }
         }
+        
+        if (isCorrect) {
+            score += (question.points || 1);
+        }
+        
+        // FIX: Use proper question ID
+        const questionId = question._id || question.id || `question-${index}`;
+        const difficulty = question.difficulty || 'medium';
+        
+        difficultyBreakdown[difficulty].attempted++;
+        if (isCorrect) {
+            difficultyBreakdown[difficulty].correct++;
+            difficultyBreakdown[difficulty].points += (question.points || 1);
+        }
+        
+        questionResults.push({
+            questionId: questionId,
+            questionNumber: question.question_number || (index + 1),
+            questionText: question.question_text || 'Question text not available',
+            difficulty: difficulty,
+            points: question.points || 1,
+            userAnswer: userAnswer ? (Array.isArray(userAnswer) ? userAnswer.join(', ') : userAnswer.toString()) : 'No answer provided',
+            correctAnswer: question.correct_answer ? question.correct_answer.toString() : 'Not provided',
+            explanation: question.explanation || '',
+            isCorrect: isCorrect,
+            timeTaken: questionTimes[index] || 0
+        });
+    }
+
+    const quizData = {
+        topic: 'composite_function',
+        quizType: 'practice',
+        score: score,
+        maxPossibleScore: totalPossiblePoints,
+        totalQuestions: questions.length,
+        correctAnswers: questionResults.filter(q => q.isCorrect).length,
+        percentage: Math.round((score / totalPossiblePoints) * 100),
+        difficultyBreakdown: difficultyBreakdown,
+        questionResults: questionResults,
+        startTime: quizStartTime,
+        endTime: quizEndTime,
+        totalTimeTaken: totalTimeTaken,
+        isCompleted: true,
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        document.getElementById('submitText').style.display = 'none';
+        document.getElementById('submitLoading').style.display = 'inline-block';
+        document.getElementById('submitBtn').disabled = true;
+
+        console.log('Submitting Composite Function quiz data:', quizData);
+        
+        const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitmmath_scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                email: email,
+                username: username,
+                quizData: quizData
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Composite Function quiz submitted successfully', result);
+            displayDetailedResults(quizData, minutes, seconds);
+        } else {
+            const errorText = await response.text();
+            console.error('Failed to submit quiz:', errorText);
+            alert('Failed to submit quiz. Please try again.\nError: ' + errorText);
+            
+            document.getElementById('submitText').style.display = 'inline';
+            document.getElementById('submitLoading').style.display = 'none';
+            document.getElementById('submitBtn').disabled = false;
+            return;
+        }
+    } catch (error) {
+        console.error('Error submitting quiz:', error);
+        alert('Error submitting quiz. Please check your connection and try again.\nError: ' + error.message);
+        document.getElementById('submitText').style.display = 'inline';
+        document.getElementById('submitLoading').style.display = 'none';
+        document.getElementById('submitBtn').disabled = false;
+        return;
+    }
+}
 
         function displayDetailedResults(quizData, minutes, seconds) {
             document.getElementById('quizContainer').style.display = 'none';
