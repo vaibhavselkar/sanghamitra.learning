@@ -2785,10 +2785,15 @@ router.get('/iitmmath_scores', async (req, res) => {
       }
 
       const allQuizScores = user.quizScores || [];
+      
+      // 🔥 NEW: Only get the latest 20 submissions total
+      const latestScores = [...allQuizScores]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 20); // ← ONLY LATEST 20 SUBMISSIONS
 
-      // Group by topic, keep latest 2 per topic
+      // Group by topic, keep latest 2 per topic from the latest 20
       const topicMap = {};
-      allQuizScores.forEach(quiz => {
+      latestScores.forEach(quiz => {
         const t = quiz.topic || 'unknown';
         if (!topicMap[t]) topicMap[t] = [];
         topicMap[t].push(quiz);
@@ -2809,6 +2814,7 @@ router.get('/iitmmath_scores', async (req, res) => {
           email: user.email,
           quizScores: trimmedScores,
           totalQuizzes: allQuizScores.length,
+          recentQuizzesCount: latestScores.length, // ← Show how many recent
           totalQuestionsCompleted: (user.completedQuestionIds || []).length
         }
       });
@@ -2831,10 +2837,15 @@ router.get('/iitmmath_scores', async (req, res) => {
 
     const processedUsers = users.map(user => {
       const allQuizScores = user.quizScores || [];
+      
+      // 🔥 NEW: Only get the latest 20 submissions per user
+      const latestScores = [...allQuizScores]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 20);
 
-      // Group by topic, keep latest 2 per topic (with full questionResults)
+      // Group by topic, keep latest 2 per topic
       const topicMap = {};
-      allQuizScores.forEach(quiz => {
+      latestScores.forEach(quiz => {
         const t = quiz.topic || 'unknown';
         if (!topicMap[t]) topicMap[t] = [];
         topicMap[t].push(quiz);
@@ -2854,6 +2865,7 @@ router.get('/iitmmath_scores', async (req, res) => {
         email: user.email,
         quizScores: trimmedScores,
         totalQuizzes: allQuizScores.length,
+        recentQuizzesCount: latestScores.length,
         totalQuestionsCompleted: (user.completedQuestionIds || []).length
       };
     });
@@ -3059,45 +3071,33 @@ router.post('/iitmmath_scores', async (req, res) => {
   try {
     const { email, username, quizData } = req.body;
     
-    console.log('Received request body:', JSON.stringify(req.body, null, 2));
+    // ... existing validation code ...
     
-    if (!email || !username || !quizData) {
-      return res.status(400).json({ error: 'Email, username and quizData are required' });
-    }
-
-    if (!quizData.timestamp) {
-      quizData.timestamp = new Date().toISOString();
-    }
-    
-    // Extract question IDs from the quiz results
-    const completedQuestionIds = quizData.questionResults
-      ? quizData.questionResults.map(result => result.questionId).filter(Boolean)
-      : [];
-    
-    console.log(`Quiz completed with ${completedQuestionIds.length} question IDs:`, completedQuestionIds);
-    
-    // FIXED: Use iitm_math_score instead of Statistics_score
     let user = await iitm_math_score.findOne({ email });
     
     if (!user) {
-      // Create new user with completed questions and score
       user = new iitm_math_score({ 
         username, 
         email, 
         completedQuestionIds: completedQuestionIds,
-        quizScores: [quizData] // Use quizScores to match your iitm schema
+        quizScores: [quizData]
       });
     } else {
       user.username = username;
-      user.quizScores.push(quizData); // Use quizScores to match your iitm schema
+      user.quizScores.push(quizData);
+      
+      // 🔥 NEW: Keep only the latest 20 submissions
+      if (user.quizScores.length > 20) {
+        user.quizScores = user.quizScores
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, 20);
+      }
       
       // Add new completed questions to the array (avoid duplicates)
       const newCompletedIds = completedQuestionIds.filter(
         id => !user.completedQuestionIds.includes(id)
       );
       user.completedQuestionIds.push(...newCompletedIds);
-      
-      console.log(`Added ${newCompletedIds.length} new completed questions. Total: ${user.completedQuestionIds.length}`);
     }
     
     await user.save();
@@ -3105,6 +3105,7 @@ router.post('/iitmmath_scores', async (req, res) => {
     res.status(201).json({ 
       message: 'Quiz result saved successfully', 
       completedQuestionsCount: user.completedQuestionIds.length,
+      storedSubmissionsCount: user.quizScores.length, // ← Show how many stored
       user 
     });
     
