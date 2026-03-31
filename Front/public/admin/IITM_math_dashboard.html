@@ -1,693 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>  
-  <meta charset="utf-8">  
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>IITM Math 1 Dashboard - Enhanced Student Analytics</title>
- 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-
-  <style>
-    body { background-color: #f8f9fa; }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 1rem 0;
-      margin-bottom: 2rem;
-    }
-    .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-    .stat-card:hover { transform: translateY(-2px); }
-    .stat-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    .icon-students { background: #e3f2fd; color: #1976d2; }
-    .icon-average  { background: #f3e5f5; color: #7b1fa2; }
-    .icon-highest  { background: #e8f5e8; color: #388e3c; }
-    .icon-lowest   { background: #fff3e0; color: #f57c00; }
-    .table-container {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .score-badge {
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-    .score-excellent { background: #d4edda; color: #155724; }
-    .score-good      { background: #d1ecf1; color: #0c5460; }
-    .score-average   { background: #fff3cd; color: #856404; }
-    .score-poor      { background: #f8d7da; color: #721c24; }
-    .student-row { cursor: pointer; transition: background-color 0.2s; }
-    .student-row:hover { background-color: #f8f9fa; }
-    .student-detail {
-      background: #f8f9fa;
-      border-left: 4px solid #667eea;
-      margin-top: 0.5rem;
-      border-radius: 8px;
-    }
-    .question-detail {
-      background: white;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 0.5rem;
-      border: 1px solid #e9ecef;
-    }
-    .expand-icon { transition: transform 0.3s; }
-    .expand-icon.rotated { transform: rotate(90deg); }
-    .pagination { margin-top: 1rem; }
-    .pagination .page-link { cursor: pointer; }
-    .time-badge { color: #6c757d; white-space: nowrap; }
-    .scrollable-answers {
-      max-height: 400px;
-      overflow-y: auto;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      padding: 15px;
-      background: white;
-    }
-    .attempt-badge {
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 12px;
-      margin-left: 0.5rem;
-    }
-    .detail-loading {
-      color: #6c757d;
-      font-style: italic;
-      padding: 1rem;
-    }
-  </style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IITM Math 1 Dashboard - Optimized</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        body { background-color: #f8f9fa; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .icon-students { background: #e3f2fd; color: #1976d2; }
+        .icon-average  { background: #f3e5f5; color: #7b1fa2; }
+        .icon-highest  { background: #e8f5e8; color: #388e3c; }
+        .icon-lowest   { background: #fff3e0; color: #f57c00; }
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .score-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .score-excellent { background: #d4edda; color: #155724; }
+        .score-good      { background: #d1ecf1; color: #0c5460; }
+        .score-average   { background: #fff3cd; color: #856404; }
+        .score-poor      { background: #f8d7da; color: #721c24; }
+        .student-row { cursor: pointer; transition: background-color 0.2s; }
+        .student-row:hover { background-color: #f8f9fa; }
+        .student-detail {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            margin-top: 0.5rem;
+            border-radius: 8px;
+        }
+        .question-detail {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #e9ecef;
+        }
+        .expand-icon { transition: transform 0.3s; }
+        .expand-icon.rotated { transform: rotate(90deg); }
+        .time-badge { color: #6c757d; white-space: nowrap; }
+        .scrollable-answers {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .pagination .page-link { cursor: pointer; }
+    </style>
 </head>
-
 <body>
-  <div class="header">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center">
-        <h1 class="mb-0"><i class="bi bi-graph-up me-2"></i>IITM Math 1 Dashboard</h1>
-        <div>
-          <button class="btn btn-light me-2" onclick="exportData()">
-            <i class="bi bi-download me-1"></i>Export Data
-          </button>
-          <button class="btn btn-light" onclick="refreshData()">
-            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- Statistics Cards -->
-    <div class="row stats-cards">
-      <div class="col-md-3 mb-3">
-        <div class="stat-card">
-          <div class="stat-icon icon-students"><i class="bi bi-people"></i></div>
-          <h3 class="mb-1" id="totalStudents">0</h3>
-          <p class="text-muted mb-0">Total Students</p>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="stat-card">
-          <div class="stat-icon icon-average"><i class="bi bi-bar-chart"></i></div>
-          <h3 class="mb-1" id="averageScore">0%</h3>
-          <p class="text-muted mb-0">Average Score</p>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="stat-card">
-          <div class="stat-icon icon-highest"><i class="bi bi-trophy"></i></div>
-          <h3 class="mb-1" id="highestScore">0%</h3>
-          <p class="text-muted mb-0">Highest Score</p>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="stat-card">
-          <div class="stat-icon icon-lowest"><i class="bi bi-exclamation-triangle"></i></div>
-          <h3 class="mb-1" id="lowestScore">0%</h3>
-          <p class="text-muted mb-0">Lowest Score</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Filters and Table -->
-    <div class="table-container">
-      <div class="row filter-row mb-3">
-        <div class="col-md-3 mb-2">
-          <input type="text" class="form-control" id="searchFilter" placeholder="Search by username...">
-        </div>
-        <div class="col-md-2 mb-2">
-          <select class="form-select" id="topicFilter">
-            <option value="">All Topics</option>
-          </select>
-        </div>
-        <div class="col-md-2 mb-2">
-          <select class="form-select" id="scoreFilter">
-            <option value="">All Scores</option>
-            <option value="80-100">80-100%</option>
-            <option value="60-79">60-79%</option>
-            <option value="40-59">40-59%</option>
-            <option value="1-39">1-39%</option>
-            <option value="0">0%</option>
-          </select>
-        </div>
-        <div class="col-md-2 mb-2">
-          <input type="date" class="form-control" id="dateFilter">
-        </div>
-        <div class="col-md-3 mb-2">
-          <button class="btn btn-primary" onclick="applyFilters()"><i class="bi bi-funnel me-1"></i>Filter</button>
-          <button class="btn btn-outline-secondary ms-2" onclick="clearFilters()"><i class="bi bi-x-circle me-1"></i>Clear</button>
-        </div>
-      </div>
-
-      <!-- Loading State -->
-      <div id="loadingState" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-3 text-muted">Loading IITM Math 1 data...</p>
-      </div>
-
-      <!-- Table -->
-      <div class="table-responsive" id="tableContainer" style="display: none;">
-        <table class="table table-hover">
-          <thead class="table-dark">
-            <tr>
-              <th width="30px"></th>
-              <th><i class="bi bi-person me-1"></i>Username</th>
-              <th><i class="bi bi-book me-1"></i>Topic</th>
-              <th><i class="bi bi-award me-1"></i>Score</th>
-              <th><i class="bi bi-percent me-1"></i>Percentage</th>
-              <th><i class="bi bi-hash me-1"></i>Attempt</th>
-              <th><i class="bi bi-stopwatch me-1"></i>Time Taken</th>
-              <th><i class="bi bi-calendar me-1"></i>Date</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-        
-        <!-- Pagination Controls -->
-        <div id="paginationControls" class="d-flex justify-content-between align-items-center mt-3">
-          <div id="paginationInfo" class="text-muted"></div>
-          <nav>
-            <ul class="pagination mb-0" id="pagination"></ul>
-          </nav>
-        </div>
-      </div>
-
-      <!-- No Data State -->
-      <div id="noDataState" class="text-center py-5" style="display: none;">
-        <i class="bi bi-inbox display-1 text-muted"></i>
-        <p class="mt-3 text-muted">No data found matching your filters</p>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    const API_BASE = 'https://sanghamitra-learnworld.vercel.app/api';
-
-    let allData      = [];
-    let filteredData = [];
-    let expandedRows = new Set();
-    let detailCache  = {};   // email -> quizScores array (with questionResults)
-    let currentPage  = 1;
-    let totalPages   = 1;
-    let totalUsers   = 0;
-    let isLoading    = false;
-
-    /* ── Helpers ─────────────────────────────────────────── */
-    function formatTimeTaken(seconds) {
-      if (!seconds) return '—';
-      seconds = Math.round(seconds);
-      const m = Math.floor(seconds / 60), s = seconds % 60;
-      return m > 0 ? `${m}m ${s}s` : `${s}s`;
-    }
-
-    async function fetchWithTimeout(url, ms = 20000) {
-      const ctrl = new AbortController();
-      const id   = setTimeout(() => ctrl.abort(), ms);
-      try {
-        const r = await fetch(url, { credentials: 'include', signal: ctrl.signal });
-        clearTimeout(id);
-        return r;
-      } catch (e) {
-        clearTimeout(id);
-        if (e.name === 'AbortError') throw new Error('Request timed out (504)');
-        throw e;
-      }
-    }
-
-    function getDisplayTopicName(topic) {
-      const map = {
-        'sets_relations':        'Week 1 - Sets and Relations',
-        'domain_range_quiz2':    'Week 1 - Domain and Range',
-        'linear_functions_2':    'Week 2 - Linear Functions',
-        'quadratic_functions':   'Week 3 - Quadratic Functions',
-        'polynomials':           'Week 4 - Polynomial Functions',
-        'exponential_functions': 'Week 5 - Exponential Functions',
-        'logarithmic_functions': 'Week 6 - Logarithmic Functions',
-        'sequence_limits':       'Week 7 - Sequence, Limits and Continuity',
-        'limits_continuity':     'Week 8 - Limits, Continuity and Differentiation',
-        'derivatives_integrals': 'Week 9 - Derivatives and Integrals',
-        'continuity':            'Week 8 - Continuity',
-        'differentiability':     'Week 8 - Differentiability',
-        'Limit':                 'Week 8 - Limits',
-        'sequences':             'Week 7 - Sequences',
-        'inverse_function':      'Week 6 - Inverse Functions',
-        'composite_function':    'Week 5 - Composite Functions',
-        'logarithmic_functions': 'Week 6 - Logarithmic Functions'
-      };
-      return map[topic] || topic || 'Other';
-    }
-
-    function getScoreClass(pct) {
-      if (pct >= 80) return 'score-excellent';
-      if (pct >= 60) return 'score-good';
-      if (pct >= 40) return 'score-average';
-      return 'score-poor';
-    }
-
-    function escapeHtml(text) {
-      if (!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    /* ── Load paginated data (lightweight — no questionResults) ── */
-    async function loadData(page = 1) {
-      if (isLoading) return;
-      isLoading = true;
-
-      document.getElementById('loadingState').style.display = 'block';
-      document.getElementById('loadingState').innerHTML = `
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="mt-3 text-muted">Loading IITM Math 1 data (page ${page})...</p>`;
-      document.getElementById('tableContainer').style.display = 'none';
-      document.getElementById('noDataState').style.display    = 'none';
-
-      try {
-        const response = await fetchWithTimeout(
-          `${API_BASE}/iitmmath_scores?page=${page}&limit=20`, 25000
-        );
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const result = await response.json();
-
-        if (result.success && result.data) {
-          if (result.pagination) {
-            currentPage = result.pagination.currentPage;
-            totalPages  = result.pagination.totalPages;
-            totalUsers  = result.pagination.totalUsers;
-          }
-
-          allData = [];
-          const attemptCounter = {};
-
-          result.data.forEach(student => {
-            const quizScores = student.quizScores || [];
-            
-            quizScores.forEach(q => {
-              const key = `${student.email}__${q.topic}`;
-              attemptCounter[key] = (attemptCounter[key] || 0) + 1;
-
-              allData.push({
-                username:        student.username,
-                email:           student.email,
-                topic:           q.topic,
-                score:           q.score || 0,
-                totalQuestions:  q.totalQuestions || q.totalQuestions || 0,
-                correctAnswers:  q.correctAnswers || q.score || 0,
-                percentage:      parseFloat(q.percentage || 0),
-                timestamp:       q.timestamp || q.endTime,
-                totalTimeTaken:  q.totalTimeTaken || null,
-                attemptNumber:   attemptCounter[key],
-                questionResults: q.questionResults || [],
-              });
-            });
-          });
-
-          filteredData = [...allData];
-          calculateStatistics();
-          populateFilters();
-          populateTable();
-          updatePaginationControls();
-          showTable();
-        } else {
-          throw new Error('Invalid response format');
-        }
-      } catch (error) {
-        console.error('Load error:', error);
-        document.getElementById('loadingState').innerHTML = `
-          <div class="text-center py-5">
-            <i class="bi bi-exclamation-triangle display-1 text-danger"></i>
-            <p class="mt-3 text-danger fw-bold">Failed to load data</p>
-            <p class="text-muted">${error.message}</p>
-            <button class="btn btn-primary mt-3" onclick="loadData(${page})">
-              <i class="bi bi-arrow-clockwise me-1"></i>Retry
-            </button>
-          </div>`;
-      } finally {
-        isLoading = false;
-      }
-    }
-
-    /* ── Pagination ──────────────────────────────────────── */
-    function updatePaginationControls() {
-      const pagDiv = document.getElementById('pagination');
-      const infoDiv = document.getElementById('paginationInfo');
-      if (!pagDiv) return;
-
-      infoDiv.innerHTML = `Showing ${filteredData.length} records from ${totalUsers} total users`;
-
-      let html = `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-        <a class="page-link" onclick="changePage(${currentPage - 1})">Previous</a></li>`;
-
-      const start = Math.max(1, currentPage - 2);
-      const end   = Math.min(totalPages, currentPage + 2);
-      for (let i = start; i <= end; i++) {
-        html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-          <a class="page-link" onclick="changePage(${i})">${i}</a></li>`;
-      }
-
-      html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-        <a class="page-link" onclick="changePage(${currentPage + 1})">Next</a></li>`;
-
-      pagDiv.innerHTML = html;
-    }
-
-    function changePage(page) {
-      if (page < 1 || page > totalPages || page === currentPage) return;
-      currentPage = page;
-      loadData(currentPage);
-    }
-
-    /* ── Statistics ──────────────────────────────────────── */
-    function calculateStatistics() {
-      if (!filteredData.length) {
-        ['totalStudents','averageScore','highestScore','lowestScore'].forEach(id =>
-          document.getElementById(id).textContent = id === 'totalStudents' ? '0' : '0%'
-        );
-        return;
-      }
-      const uniqueStudents = new Set(filteredData.map(d => d.email)).size;
-      const percentages    = filteredData.map(d => parseFloat(d.percentage));
-      const avg            = Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length);
-
-      document.getElementById('totalStudents').textContent = uniqueStudents;
-      document.getElementById('averageScore').textContent  = avg + '%';
-      document.getElementById('highestScore').textContent  = Math.max(...percentages) + '%';
-      document.getElementById('lowestScore').textContent   = Math.min(...percentages) + '%';
-    }
-
-    /* ── Filters ─────────────────────────────────────────── */
-    function populateFilters() {
-      const sel    = document.getElementById('topicFilter');
-      const topics = new Set();
-      allData.forEach(d => { if (d.topic) topics.add(getDisplayTopicName(d.topic)); });
-      sel.innerHTML = '<option value="">All Topics</option>';
-      Array.from(topics).sort().forEach(t => {
-        sel.innerHTML += `<option value="${t}">${t}</option>`;
-      });
-    }
-
-    function applyFilters() {
-      const search = document.getElementById('searchFilter').value.toLowerCase();
-      const topic  = document.getElementById('topicFilter').value;
-      const score  = document.getElementById('scoreFilter').value;
-      const date   = document.getElementById('dateFilter').value;
-
-      filteredData = allData.filter(item => {
-        if (search && !item.username.toLowerCase().includes(search)) return false;
-        if (topic  && getDisplayTopicName(item.topic) !== topic) return false;
-        if (score) {
-          if (score === '0' && item.percentage !== 0) return false;
-          if (score !== '0') {
-            const [min, max] = score.split('-').map(Number);
-            if (item.percentage < min || item.percentage > max) return false;
-          }
-        }
-        if (date && item.timestamp) {
-          if (new Date(item.timestamp).toDateString() !== new Date(date).toDateString()) return false;
-        }
-        return true;
-      });
-
-      expandedRows.clear();
-      calculateStatistics();
-      populateTable(filteredData);
-    }
-
-    function clearFilters() {
-      ['searchFilter','topicFilter','scoreFilter','dateFilter'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
-      expandedRows.clear();
-      filteredData = [...allData];
-      calculateStatistics();
-      populateTable(filteredData);
-    }
-
-    /* ── Table render ────────────────────────────────────── */
-    function populateTable(dataToShow = filteredData) {
-      const tbody          = document.getElementById('tableBody');
-      const noDataState    = document.getElementById('noDataState');
-      const tableContainer = document.getElementById('tableContainer');
-
-      if (!dataToShow.length) {
-        tableContainer.style.display = 'none';
-        noDataState.style.display    = 'block';
-        tbody.innerHTML = '';
-        return;
-      }
-
-      tableContainer.style.display = 'block';
-      noDataState.style.display    = 'none';
-
-      let html = '';
-      dataToShow.forEach((item, index) => {
-        const scoreClass = getScoreClass(item.percentage);
-        const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
-        const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
-
-        html += `
-          <tr class="student-row" onclick="toggleStudentDetail(${index})" data-index="${index}">
-            <td><i class="bi bi-chevron-right expand-icon" id="icon-${index}"></i></td>
-            <td><strong>${escapeHtml(item.username)}</strong></td>
-            <td><span class="badge bg-light text-dark">${escapeHtml(getDisplayTopicName(item.topic))}</span></td>
-            <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
-            <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
-            <td><span class="attempt-badge bg-info text-white">#${item.attemptNumber}</span></td>
-            <td><span class="time-badge"><i class="bi bi-stopwatch me-1"></i>${formatTimeTaken(item.totalTimeTaken)}</span></td>
-            <td>
-              <div>${date}</div>
-              ${time ? `<small class="text-muted">${time}</small>` : ''}
-            </td>
-          </tr>
-          <tr id="detail-${index}" style="display: none;">
-            <td colspan="8">
-              <div class="student-detail p-3">
-                <div id="detail-content-${index}"></div>
-              </div>
-            </td>
-          </tr>`;
-      });
-
-      tbody.innerHTML = html;
-    }
-
-    /* ── Toggle detail — lazy loads per-email on first open ── */
-    async function toggleStudentDetail(index) {
-      const detailRow  = document.getElementById(`detail-${index}`);
-      const icon       = document.getElementById(`icon-${index}`);
-      const contentDiv = document.getElementById(`detail-content-${index}`);
-
-      if (!detailRow || !icon) return;
-
-      if (expandedRows.has(index)) {
-        detailRow.style.display = 'none';
-        icon.classList.remove('rotated');
-        expandedRows.delete(index);
-        return;
-      }
-
-      detailRow.style.display = 'table-row';
-      icon.classList.add('rotated');
-      expandedRows.add(index);
-
-      // Already rendered
-      if (contentDiv.innerHTML.trim() !== '') return;
-
-      const item = filteredData[index];
-
-      // If questionResults already available
-      if (item.questionResults && item.questionResults.length > 0) {
-        contentDiv.innerHTML = generateStudentDetail(item, item.questionResults);
-        return;
-      }
-
-      // Lazy-fetch detail for this student only
-      contentDiv.innerHTML = `
-        <div class="detail-loading">
-          <div class="spinner-border spinner-border-sm text-primary me-2"></div>
-          Loading answers for <strong>${escapeHtml(item.username)}</strong>...
-        </div>`;
-
-      try {
-        let quizScores;
-        if (detailCache[item.email]) {
-          quizScores = detailCache[item.email];
-        } else {
-          const r = await fetchWithTimeout(
-            `${API_BASE}/iitmmath_scores?email=${encodeURIComponent(item.email)}`, 15000
-          );
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          const json = await r.json();
-          quizScores = json.data?.quizScores || [];
-          detailCache[item.email] = quizScores;
-        }
-
-        // Match by topic + attempt number
-        const topicAttempts = quizScores.filter(q => q.topic === item.topic);
-        const targetQuiz    = topicAttempts[item.attemptNumber - 1] || topicAttempts[topicAttempts.length - 1];
-        const results       = targetQuiz?.questionResults || [];
-
-        if (!results.length) {
-          contentDiv.innerHTML = `<p class="text-muted p-2 mb-0">No per-question data available for this attempt.</p>`;
-        } else {
-          contentDiv.innerHTML = generateStudentDetail(item, results);
-        }
-      } catch (e) {
-        contentDiv.innerHTML = `<div class="alert alert-danger m-2 mb-0">Failed to load: ${escapeHtml(e.message)}</div>`;
-      }
-    }
-
-    /* ── Detail HTML ─────────────────────────────────────── */
-    function generateStudentDetail(item, results) {
-      if (!results || !results.length) {
-        return '<p class="text-muted">No detailed answer data available.</p>';
-      }
-
-      let html = `
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h6 class="mb-0">
-            <i class="bi bi-person-badge me-2"></i>${escapeHtml(item.username)} - Detailed Answer Analysis
-            <span class="attempt-badge bg-secondary text-white ms-2">Attempt #${item.attemptNumber}</span>
-          </h6>
-          <small class="text-muted">
-            Score: ${item.correctAnswers}/${item.totalQuestions} (${item.percentage}%)
-            ${item.totalTimeTaken ? `&nbsp;|&nbsp;<i class="bi bi-stopwatch"></i> ${formatTimeTaken(item.totalTimeTaken)}` : ''}
-          </small>
-        </div>
-        <div class="scrollable-answers"><div class="row">`;
-
-      results.forEach(result => {
-        const ok = !!result.isCorrect;
-        html += `
-          <div class="col-md-6 mb-3">
-            <div class="question-detail h-100">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <h6 class="mb-1">
-                  <i class="bi bi-question-circle me-1"></i>Question ${result.questionNumber || 'N/A'}
-                </h6>
-                <span class="badge ${ok ? 'bg-success' : 'bg-danger'}">
-                  ${ok ? '✓ CORRECT' : '✗ INCORRECT'}
-                </span>
-              </div>
-              ${result.questionText ? `<div class="mb-2"><small class="text-muted">${escapeHtml(result.questionText)}</small></div>` : ''}
-              <div class="mb-2">
-                <strong>Correct Answer:</strong> <span>${escapeHtml(result.correctAnswer || 'N/A')}</span>
-              </div>
-              <div class="mb-2">
-                <strong>Student Answer:</strong>
-                <span class="${ok ? 'text-success' : 'text-danger'}">${escapeHtml(result.userAnswer || 'No answer provided')}</span>
-              </div>
-              ${result.explanation ? `
-                <div class="bg-light p-2 rounded mt-2">
-                  <strong><i class="bi bi-lightbulb me-1"></i>Explanation:</strong>
-                  <div class="mt-1 small">${escapeHtml(result.explanation)}</div>
-                </div>` : ''}
-              ${result.timeTaken > 0 ? `
-                <div class="mt-2 small text-muted">
-                  <i class="bi bi-clock me-1"></i>Time spent: ${result.timeTaken}s
-                </div>` : ''}
+    <div class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0"><i class="bi bi-graph-up me-2"></i>IITM Math 1 Dashboard</h1>
+                <div>
+                    <button class="btn btn-light me-2" onclick="exportData()">
+                        <i class="bi bi-download me-1"></i>Export Data
+                    </button>
+                    <button class="btn btn-light" onclick="refreshData()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                </div>
             </div>
-          </div>`;
-      });
+        </div>
+    </div>
 
-      html += `
-        </div></div>
-        <div class="mt-3">
-          <small class="text-muted">
-            <i class="bi bi-info-circle me-1"></i>
-            Scroll to view all questions. This is attempt #${item.attemptNumber} for ${escapeHtml(getDisplayTopicName(item.topic))}.
-          </small>
-        </div>`;
+    <div class="container">
+        <!-- Statistics Cards -->
+        <div class="row stats-cards mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon icon-students"><i class="bi bi-people"></i></div>
+                    <h3 class="mb-1" id="totalStudents">0</h3>
+                    <p class="text-muted mb-0">Total Students</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon icon-average"><i class="bi bi-bar-chart"></i></div>
+                    <h3 class="mb-1" id="averageScore">0%</h3>
+                    <p class="text-muted mb-0">Average Score</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon icon-highest"><i class="bi bi-trophy"></i></div>
+                    <h3 class="mb-1" id="highestScore">0%</h3>
+                    <p class="text-muted mb-0">Highest Score</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon icon-lowest"><i class="bi bi-exclamation-triangle"></i></div>
+                    <h3 class="mb-1" id="lowestScore">0%</h3>
+                    <p class="text-muted mb-0">Lowest Score</p>
+                </div>
+            </div>
+        </div>
 
-      return html;
-    }
+        <!-- Filters -->
+        <div class="table-container">
+            <div class="row mb-3">
+                <div class="col-md-4 mb-2">
+                    <input type="text" class="form-control" id="searchFilter" placeholder="Search by username or email...">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-select" id="scoreFilter">
+                        <option value="">All Scores</option>
+                        <option value="80-100">80-100% (Excellent)</option>
+                        <option value="60-79">60-79% (Good)</option>
+                        <option value="40-59">40-59% (Average)</option>
+                        <option value="1-39">1-39% (Poor)</option>
+                        <option value="0">0% (No Score)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <input type="date" class="form-control" id="dateFilter">
+                </div>
+                <div class="col-md-2 mb-2">
+                    <button class="btn btn-primary w-100" onclick="applyFilters()">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                </div>
+            </div>
 
-    /* ── Export ──────────────────────────────────────────── */
-    function exportData() {
-      const headers = ['Username','Topic','Score','Total Questions','Percentage','Attempt Number','Time Taken','Date'];
-      let csv = headers.join(',') + '\n';
-      filteredData.forEach(item => {
-        const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
-        csv += [
-          `"${item.username.replace(/"/g, '""')}"`,
-          `"${getDisplayTopicName(item.topic).replace(/"/g, '""')}"`,
-          `${item.correctAnswers}`,
-          `${item.totalQuestions}`,
-          `${item.percentage}%`,
-          `${item.attemptNumber}`,
-          `"${formatTimeTaken(item.totalTimeTaken)}"`,
-          `"${date}"`
-        ].join(',') + '\n';
-      });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-      a.download = `iitm_math1_results_${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-5">
+                <div class="loading-spinner"></div>
+                <p class="mt-3 text-muted">Loading student data...</p>
+            </div>
 
-    /* ── Refresh ─────────────────────────────────────────── */
-    async function refreshData() {
-      detailCache  = {};
-      expandedRows.clear();
-      currentPage  = 1;
-      await loadData(1);
-    }
+            <!-- Table -->
+            <div id="tableContainer" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th width="30px"></th>
+                                <th><i class="bi bi-person me-1"></i>Username</th>
+                                <th><i class="bi bi-envelope me-1"></i>Email</th>
+                                <th><i class="bi bi-book me-1"></i>Topic</th>
+                                <th><i class="bi bi-award me-1"></i>Score</th>
+                                <th><i class="bi bi-percent me-1"></i>Percentage</th>
+                                <th><i class="bi bi-stopwatch me-1"></i>Time</th>
+                                <th><i class="bi bi-calendar me-1"></i>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
 
-    function showTable() {
-      document.getElementById('loadingState').style.display  = 'none';
-      document.getElementById('tableContainer').style.display = 'block';
-    }
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div id="paginationInfo" class="text-muted"></div>
+                    <nav>
+                        <ul class="pagination mb-0" id="pagination"></ul>
+                    </nav>
+                </div>
+            </div>
 
-    /* ── Init ────────────────────────────────────────────── */
-    document.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('searchFilter').addEventListener('input', applyFilters);
-      loadData(1);
-    });
-  </script>
+            <!-- No Data State -->
+            <div id="noDataState" class="text-center py-5" style="display: none;">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <p class="mt-3 text-muted">No data found matching your filters</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const API_BASE = 'https://sanghamitra-learnworld.vercel.app/api';
+        
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        let itemsPerPage = 20;
+        let totalPages = 1;
+        let totalUsers = 0;
+        let isLoading = false;
+
+        // Helper functions
+        function formatTimeTaken(seconds) {
+            if (!seconds) return '—';
+            seconds = Math.round(seconds);
+            const m = Math.floor(seconds / 60), s = seconds % 60;
+            return m > 0 ? `${m}m ${s}s` : `${s}s`;
+        }
+
+        function getScoreClass(pct) {
+            if (pct >= 80) return 'score-excellent';
+            if (pct >= 60) return 'score-good';
+            if (pct >= 40) return 'score-average';
+            return 'score-poor';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getDisplayTopicName(topic) {
+            const map = {
+                'exponential_functions': 'Week 5 - Exponential Functions',
+                'logarithmic_functions': 'Week 6 - Logarithmic Functions',
+                'quadratic_functions': 'Week 3 - Quadratic Functions',
+                'linear_functions_2': 'Week 2 - Linear Functions',
+                'polynomials': 'Week 4 - Polynomial Functions',
+                'sequence_limits': 'Week 7 - Sequences & Limits',
+                'limits_continuity': 'Week 8 - Limits & Continuity',
+                'differentiability': 'Week 8 - Differentiability',
+                'Limit': 'Week 8 - Limits',
+                'continuity': 'Week 8 - Continuity',
+                'inverse_function': 'Week 6 - Inverse Functions',
+                'composite_function': 'Week 5 - Composite Functions'
+            };
+            return map[topic] || topic || 'Other';
+        }
+
+        // Main load function - paginated
+        async function loadData(page = 1) {
+            if (isLoading) return;
+            isLoading = true;
+
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('noDataState').style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/iitmmath_scores?page=${page}&limit=${itemsPerPage}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const result = await response.json();
+                console.log('API Response:', result);
+
+                if (result.success && result.data) {
+                    if (result.pagination) {
+                        currentPage = result.pagination.currentPage;
+                        totalPages = result.pagination.totalPages;
+                        totalUsers = result.pagination.totalUsers;
+                    }
+
+                    // Transform data for display
+                    allData = result.data.map(item => ({
+                        username: item.username || 'Unknown',
+                        email: item.email || '',
+                        topic: item.topic || 'Unknown',
+                        score: item.score || 0,
+                        totalQuestions: item.totalQuestions || 0,
+                        correctAnswers: item.correctAnswers || item.score || 0,
+                        percentage: item.percentage || 0,
+                        timestamp: item.timestamp,
+                        totalTimeTaken: item.totalTimeTaken || null
+                    }));
+
+                    filteredData = [...allData];
+                    
+                    // Update stats
+                    calculateStatistics();
+                    
+                    // Render table
+                    renderTable();
+                    updatePagination();
+                    
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('tableContainer').style.display = 'block';
+                } else {
+                    throw new Error('No data received');
+                }
+            } catch (error) {
+                console.error('Load error:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-exclamation-triangle display-1 text-danger"></i>
+                        <p class="mt-3 text-danger fw-bold">Failed to load data</p>
+                        <p class="text-muted">${error.message}</p>
+                        <button class="btn btn-primary mt-3" onclick="loadData(1)">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Retry
+                        </button>
+                    </div>
+                `;
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        function calculateStatistics() {
+            if (!filteredData.length) {
+                document.getElementById('totalStudents').textContent = '0';
+                document.getElementById('averageScore').textContent = '0%';
+                document.getElementById('highestScore').textContent = '0%';
+                document.getElementById('lowestScore').textContent = '0%';
+                return;
+            }
+
+            const uniqueStudents = new Set(filteredData.map(d => d.email)).size;
+            const percentages = filteredData.map(d => d.percentage);
+            const avg = Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length);
+            const highest = Math.max(...percentages);
+            const lowest = Math.min(...percentages);
+
+            document.getElementById('totalStudents').textContent = uniqueStudents;
+            document.getElementById('averageScore').textContent = avg + '%';
+            document.getElementById('highestScore').textContent = highest + '%';
+            document.getElementById('lowestScore').textContent = lowest + '%';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const startIndex = 0;
+            const endIndex = filteredData.length;
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5 text-muted">No data found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pageData.map((item, idx) => {
+                const scoreClass = getScoreClass(item.percentage);
+                const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
+                const time = item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : '';
+                
+                return `
+                    <tr>
+                        <td><i class="bi bi-chevron-right text-muted"></i></td>
+                        <td><strong>${escapeHtml(item.username)}</strong></td>
+                        <td><small class="text-muted">${escapeHtml(item.email)}</small></td>
+                        <td><span class="badge bg-light text-dark">${escapeHtml(getDisplayTopicName(item.topic))}</span></td>
+                        <td><strong>${item.correctAnswers}/${item.totalQuestions}</strong></td>
+                        <td><span class="score-badge ${scoreClass}">${item.percentage}%</span></td>
+                        <td><span class="time-badge"><i class="bi bi-stopwatch me-1"></i>${formatTimeTaken(item.totalTimeTaken)}</span></td>
+                        <td><div>${date}</div>${time ? `<small class="text-muted">${time}</small>` : ''}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const info = document.getElementById('paginationInfo');
+            
+            info.innerHTML = `Showing ${filteredData.length} records from ${totalUsers} total users | Page ${currentPage} of ${totalPages}`;
+            
+            let html = '';
+            
+            // Previous button
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" onclick="changePage(${currentPage - 1})">Previous</a>
+            </li>`;
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" onclick="changePage(${i})">${i}</a>
+                </li>`;
+            }
+            
+            // Next button
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" onclick="changePage(${currentPage + 1})">Next</a>
+            </li>`;
+            
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > totalPages || page === currentPage) return;
+            loadData(page);
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchFilter').value.toLowerCase();
+            const scoreRange = document.getElementById('scoreFilter').value;
+            const date = document.getElementById('dateFilter').value;
+
+            filteredData = allData.filter(item => {
+                if (search && !item.username.toLowerCase().includes(search) && !item.email.toLowerCase().includes(search)) {
+                    return false;
+                }
+                
+                if (scoreRange) {
+                    if (scoreRange === '0' && item.percentage !== 0) return false;
+                    if (scoreRange !== '0') {
+                        const [min, max] = scoreRange.split('-').map(Number);
+                        if (item.percentage < min || item.percentage > max) return false;
+                    }
+                }
+                
+                if (date && item.timestamp) {
+                    const itemDate = new Date(item.timestamp).toDateString();
+                    const filterDate = new Date(date).toDateString();
+                    if (itemDate !== filterDate) return false;
+                }
+                
+                return true;
+            });
+
+            calculateStatistics();
+            renderTable();
+        }
+
+        function clearFilters() {
+            document.getElementById('searchFilter').value = '';
+            document.getElementById('scoreFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            filteredData = [...allData];
+            calculateStatistics();
+            renderTable();
+        }
+
+        function exportData() {
+            const headers = ['Username', 'Email', 'Topic', 'Score', 'Total Questions', 'Percentage', 'Time Taken', 'Date'];
+            let csv = headers.join(',') + '\n';
+            
+            filteredData.forEach(item => {
+                const date = item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'N/A';
+                csv += [
+                    `"${item.username.replace(/"/g, '""')}"`,
+                    `"${item.email.replace(/"/g, '""')}"`,
+                    `"${getDisplayTopicName(item.topic).replace(/"/g, '""')}"`,
+                    `${item.correctAnswers}`,
+                    `${item.totalQuestions}`,
+                    `${item.percentage}%`,
+                    `"${formatTimeTaken(item.totalTimeTaken)}"`,
+                    `"${date}"`
+                ].join(',') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `iitm_math_dashboard_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        function refreshData() {
+            loadData(1);
+        }
+
+        // Event listeners
+        document.getElementById('searchFilter').addEventListener('input', applyFilters);
+        document.getElementById('scoreFilter').addEventListener('change', applyFilters);
+        document.getElementById('dateFilter').addEventListener('change', applyFilters);
+
+        // Initialize
+        loadData(1);
+    </script>
 </body>
 </html>
