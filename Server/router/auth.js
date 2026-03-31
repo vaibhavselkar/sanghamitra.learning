@@ -2773,7 +2773,7 @@ router.get('/iitmmath_scores', async (req, res) => {
   try {
     const { email, page = 1, limit = 20 } = req.query;
 
-    // CASE 1: Specific user - returns detailed data for that user
+    // CASE 1: Specific user - return detailed data
     if (email) {
       const user = await iitm_math_score
         .findOne({ email })
@@ -2786,21 +2786,14 @@ router.get('/iitmmath_scores', async (req, res) => {
       }
 
       const allScores = user.quizScores || [];
-      
-      // Sort by timestamp descending (newest first)
       const sortedScores = [...allScores].sort((a, b) => 
         new Date(b.timestamp) - new Date(a.timestamp)
       );
       
-      // Pagination for user's scores
-      const pageNum = parseInt(page);
-      const limitNum = parseInt(limit);
-      const startIndex = (pageNum - 1) * limitNum;
-      const endIndex = startIndex + limitNum;
-      const paginatedScores = sortedScores.slice(startIndex, endIndex);
+      // Return only last 10 scores for detailed view
+      const recentScores = sortedScores.slice(0, 10);
       
-      // Format scores for display
-      const formattedScores = paginatedScores.map(score => ({
+      const formattedScores = recentScores.map(score => ({
         topic: score.topic,
         score: score.score || 0,
         totalQuestions: score.totalQuestions || 0,
@@ -2808,7 +2801,7 @@ router.get('/iitmmath_scores', async (req, res) => {
         percentage: score.percentage || 0,
         timestamp: score.timestamp,
         totalTimeTaken: score.totalTimeTaken || null,
-        questionResults: score.questionResults || []
+        questionResults: (score.questionResults || []).slice(0, 10) // Limit question results
       }));
 
       return res.json({
@@ -2818,63 +2811,54 @@ router.get('/iitmmath_scores', async (req, res) => {
           email: user.email,
           quizScores: formattedScores,
           totalQuizzes: allScores.length,
-          completedQuestions: (user.completedQuestionIds || []).length,
-          pagination: {
-            currentPage: pageNum,
-            totalPages: Math.ceil(allScores.length / limitNum),
-            totalItems: allScores.length,
-            limit: limitNum
-          }
+          completedQuestions: (user.completedQuestionIds || []).length
         }
       });
     }
 
-    // CASE 2: All users with pagination (for dashboard)
+    // CASE 2: All users - LIGHTWEIGHT response for dashboard
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    // Get total count for pagination
-    const totalUsers = await iitm_math_score.countDocuments();
+    // Get total count (light query)
+    const totalUsers = await iitm_math_score.countDocuments().maxTimeMS(3000);
     
-    // Get paginated users
+    // Get only essential fields, no heavy arrays initially
     const users = await iitm_math_score
       .find({})
-      .select('username email quizScores completedQuestionIds')
+      .select('username email quizScores')
       .sort({ _id: -1 })
       .skip(skip)
       .limit(limitNum)
       .lean()
       .exec();
 
-    // Process each user's data
+    // Process each user - extract only what's needed for the table
     const processedUsers = users.map(user => {
       const allScores = user.quizScores || [];
       
-      // Get only last 5 scores per user for the list view (to keep response small)
-      const recentScores = [...allScores]
+      // Get only the LATEST score for each user (not all scores)
+      const latestScore = [...allScores]
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 5);
+        .slice(0, 1)[0]; // Only take the most recent score
       
-      const formattedScores = recentScores.map(score => ({
-        topic: score.topic,
-        score: score.score || 0,
-        totalQuestions: score.totalQuestions || 0,
-        correctAnswers: score.correctAnswers || score.score || 0,
-        percentage: score.percentage || 0,
-        timestamp: score.timestamp,
-        totalTimeTaken: score.totalTimeTaken || null
-      }));
-
+      if (!latestScore) {
+        return null; // Skip users with no scores
+      }
+      
       return {
-        _id: user._id,
         username: user.username,
         email: user.email,
-        quizScores: formattedScores,
-        totalQuizzes: allScores.length,
-        totalQuestionsCompleted: (user.completedQuestionIds || []).length
+        topic: latestScore.topic,
+        score: latestScore.score || 0,
+        totalQuestions: latestScore.totalQuestions || 0,
+        correctAnswers: latestScore.correctAnswers || latestScore.score || 0,
+        percentage: latestScore.percentage || 0,
+        timestamp: latestScore.timestamp,
+        totalTimeTaken: latestScore.totalTimeTaken || null
       };
-    });
+    }).filter(user => user !== null); // Remove null entries
 
     return res.json({
       success: true,
@@ -2883,14 +2867,12 @@ router.get('/iitmmath_scores', async (req, res) => {
         currentPage: pageNum,
         totalPages: Math.ceil(totalUsers / limitNum),
         totalUsers: totalUsers,
-        limit: limitNum,
-        hasNextPage: pageNum * limitNum < totalUsers,
-        hasPrevPage: pageNum > 1
+        limit: limitNum
       }
     });
 
   } catch (error) {
-    console.error('Error fetching scores:', error);
+    console.error('Error:', error);
     res.status(500).json({ 
       success: false, 
       error: error.message,
