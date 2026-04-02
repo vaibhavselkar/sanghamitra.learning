@@ -3063,33 +3063,42 @@ router.post('/iitmmath_scores', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Add timestamp if not present
     if (!quizData.timestamp) {
       quizData.timestamp = new Date().toISOString();
     }
     
-    // Extract question IDs
     const completedQuestionIds = (quizData.questionResults || [])
       .map(result => result.questionId)
       .filter(Boolean);
-    
-    // Use updateOne with $push and $slice for atomic operation
-    const result = await iitm_math_score.updateOne(
+
+    // 1. Update user profile (only small fields - no quizScores array!)
+    await iitm_math_score.updateOne(
       { email: email },
       {
         $set: { username: username },
-        $push: { 
-          quizScores: {
-            $each: [quizData],
-            $slice: -20  // Keep only last 20
-          }
-        },
         $addToSet: { 
           completedQuestionIds: { $each: completedQuestionIds }
         }
       },
       { upsert: true }
     );
+
+    // 2. Save quiz submission into separate collection
+    const mongoose = require('mongoose');
+    const db = mongoose.connection.db;
+    await db.collection('iitm_math_quiz_submissions').insertOne({
+      email,
+      username,
+      quizId: new mongoose.Types.ObjectId(),
+      timestamp: quizData.timestamp,
+      topic: quizData.topic,
+      score: quizData.score,
+      totalQuestions: quizData.totalQuestions,
+      correctAnswers: quizData.correctAnswers,
+      percentage: quizData.percentage,
+      totalTimeTaken: quizData.totalTimeTaken,
+      questionResults: quizData.questionResults || []
+    });
     
     console.log(`Quiz saved for ${email}`);
     
