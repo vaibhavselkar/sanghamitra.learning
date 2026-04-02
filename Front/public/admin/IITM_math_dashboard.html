@@ -277,7 +277,7 @@
             document.getElementById('noDataState').style.display = 'none';
 
             try {
-                const response = await fetch(`${API_BASE}/iitmmath_scores?page=${page}&limit=${itemsPerPage}`);
+                const response = await fetch(`${API_BASE}/iitm_math_submissions?page=${page}&limit=${itemsPerPage}`);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
                 const result = await response.json();
