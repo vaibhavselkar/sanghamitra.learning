@@ -15,7 +15,7 @@ dotenv.config({ path: './.env' });
 
 // Middleware setup
 app.use(cors({
-    origin: ['https://sanghamitra-learnworld.vercel.app/api/','https://iitm.sanghamitra.com',]
+    origin: ['https://sanghamitra-learnworld.vercel.app/api/','https://iitm.sanghamitra.com',],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
