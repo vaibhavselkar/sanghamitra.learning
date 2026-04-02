@@ -2768,6 +2768,54 @@ router.post('/log-cheating', async (req, res) => {
   }
 });
 
+// Add this new route to fetch all submissions for dashboard
+router.get('/iitm_math_submissions', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, email } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    const filter = email ? { email } : {};
+
+    const db = mongoose.connection.db;
+
+    const totalDocs = await db.collection('iitm_math_quiz_submissions').countDocuments(filter);
+
+    const submissions = await db.collection('iitm_math_quiz_submissions')
+      .find(filter)
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .toArray();
+
+    res.json({
+      success: true,
+      data: submissions.map(s => ({
+        username: s.username,
+        email: s.email,
+        topic: s.topic,
+        score: s.score || 0,
+        totalQuestions: s.totalQuestions || 0,
+        correctAnswers: s.correctAnswers || 0,
+        percentage: s.percentage || 0,
+        timestamp: s.timestamp,
+        totalTimeTaken: s.totalTimeTaken || null
+      })),
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(totalDocs / limitNum),
+        totalUsers: totalDocs,
+        limit: limitNum
+      }
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ success: false, error: error.message, data: [] });
+  }
+});
+
 
 router.get('/iitmmath_scores', async (req, res) => {
   try {
