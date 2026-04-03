@@ -1000,7 +1000,7 @@
                     userName: student.username || student.name || student.email || 'Unknown User',
                     subject: 'Statistics-2',
                     subjectKey: 'stats2',
-                    topic: quiz.topic || Quiz Attempt ${quiz.attemptNumber || 1},
+                    topic: quiz.topic || `Quiz Attempt ${quiz.attemptNumber || 1}`,
                     score: Math.round(percentage * 100) / 100, // Round to 2 decimal places
                     timestamp: quiz.timestamp || student.updatedAt || new Date().toISOString(),
                     icon: subjectDisplay.stats2.icon,
