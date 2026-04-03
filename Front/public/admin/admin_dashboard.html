@@ -976,24 +976,33 @@
     }
 
     // Fetch Statistics-2 Scores
-    async function fetchStats2Scores() {
+   async function fetchStats2Scores() {
       try {
         const response = await fetch(API_ENDPOINTS.stats2);
         const result = await response.json();
         
         let activities = [];
         
-        if (Array.isArray(result)) {
-          result.forEach(student => {
-            if (student.scores && student.scores.length > 0) {
-              student.scores.forEach(score => {
+        // Check if the response has success and data properties
+        if (result.success && Array.isArray(result.data)) {
+          // Process each student in the data array
+          result.data.forEach(student => {
+            // Check if the student has quizScores array
+            if (student.quizScores && Array.isArray(student.quizScores) && student.quizScores.length > 0) {
+              // Process each quiz attempt
+              student.quizScores.forEach(quiz => {
+                // Calculate percentage if not directly provided
+                const percentage = quiz.percentage || 
+                                  ((quiz.score / quiz.totalQuestions) * 100) || 
+                                  ((quiz.correctAnswers / quiz.totalQuestions) * 100) || 0;
+                
                 activities.push({
-                  userName: student.name || student.email,
+                  userName: student.username || student.name || student.email || 'Unknown User',
                   subject: 'Statistics-2',
                   subjectKey: 'stats2',
-                  topic: score.subtopic || `Week ${score.week}`,
-                  score: ((score.score / (score.totalQuestions || 1)) * 100) || 0,
-                  timestamp: score.dateAttempted || new Date().toISOString(),
+                  topic: quiz.topic || Quiz Attempt ${quiz.attemptNumber || 1},
+                  score: Math.round(percentage * 100) / 100, // Round to 2 decimal places
+                  timestamp: quiz.timestamp || student.updatedAt || new Date().toISOString(),
                   icon: subjectDisplay.stats2.icon,
                   iconClass: subjectDisplay.stats2.class
                 });
@@ -1001,7 +1010,6 @@
             }
           });
         }
-        
         return activities;
       } catch (error) {
         console.error('Error fetching Statistics-2 scores:', error);
