@@ -3106,7 +3106,7 @@ router.get('/iitm-math-questions/:topic', async (req, res) => {
 router.post('/iitmmath_scores', async (req, res) => {
   try {
     const { email, username, quizData } = req.body;
-
+    
     if (!email || !username || !quizData) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -3114,87 +3114,50 @@ router.post('/iitmmath_scores', async (req, res) => {
     if (!quizData.timestamp) {
       quizData.timestamp = new Date().toISOString();
     }
-
-    // Extract completed question IDs as strings (matches completedQuestionIds: [String])
+    
     const completedQuestionIds = (quizData.questionResults || [])
-      .map(result => result.questionId ? result.questionId.toString() : null)
+      .map(result => result.questionId)
       .filter(Boolean);
 
-    // Build quizScore entry that EXACTLY matches topicScoreSchema
-    const quizScoreEntry = {
-      topic: quizData.topic,                          // String, required
-      percentage: quizData.percentage || 0,           // Number
-      score: quizData.score || 0,                     // Number
-      totalQuestions: quizData.totalQuestions || 0,   // Number, required
-      correctAnswers: quizData.correctAnswers || 0,   // Number
-      attemptNumber: 1,                               // Number, default 1
-      timestamp: new Date(quizData.timestamp),        // Date, default Date.now
-
-      // Build questionResults that EXACTLY matches questionResultSchema
-      questionResults: (quizData.questionResults || []).map(r => ({
-        questionId:     r.questionId
-                          ? r.questionId.toString()
-                          : '',                        // String (not required)
-        questionNumber: r.questionNumber || 0,         // Number (not required)
-        questionText:   r.questionText   || '',        // String (not required)
-        userAnswer:     Array.isArray(r.userAnswer)
-                          ? r.userAnswer.join(', ')
-                          : (r.userAnswer || 'No answer provided'), // String (not required)
-        correctAnswer:  Array.isArray(r.correctAnswer)
-                          ? r.correctAnswer.join(', ')
-                          : (r.correctAnswer || ''),   // String (not required)
-        isCorrect:      r.isCorrect  || false,         // Boolean (not required)
-        timeTaken:      r.timeTaken  || 0,             // Number, default 0
-        explanation:    r.explanation || '',           // String, default ''
-        difficulty:     r.difficulty  || 'medium',    // String, default ''
-        points:         r.points      || 1            // Number, default 1
-      }))
-    };
-
-    // Calculate attemptNumber based on existing quizScores for this topic
-    const existingUser = await iitm_math_score.findOne({ email });
-    if (existingUser) {
-      const topicAttempts = (existingUser.quizScores || [])
-        .filter(s => s.topic === quizData.topic).length;
-      quizScoreEntry.attemptNumber = topicAttempts + 1;
-    }
-
-    // Single atomic update — writes to iitm_math_scores (the mongoose model)
-    await iitm_math_score.findOneAndUpdate(
-      { email },
+    // 1. Update user profile (only small fields - no quizScores array!)
+    await iitm_math_score.updateOne(
+      { email: email },
       {
-        $set:    { username },
-        $addToSet: { completedQuestionIds: { $each: completedQuestionIds } },
-        $push:   { quizScores: quizScoreEntry }  // matches quizScores: [topicScoreSchema]
+        $set: { username: username },
+        $addToSet: { 
+          completedQuestionIds: { $each: completedQuestionIds }
+        }
       },
-      { upsert: true, new: true }
+      { upsert: true }
     );
 
-    // Keep raw submissions collection as audit log only
+    // 2. Save quiz submission into separate collection
+    const mongoose = require('mongoose');
     const db = mongoose.connection.db;
     await db.collection('iitm_math_quiz_submissions').insertOne({
       email,
       username,
-      timestamp:       quizData.timestamp,
-      topic:           quizData.topic,
-      score:           quizData.score,
-      totalQuestions:  quizData.totalQuestions,
-      correctAnswers:  quizData.correctAnswers,
-      percentage:      quizData.percentage,
-      totalTimeTaken:  quizData.totalTimeTaken,
+      quizId: new mongoose.Types.ObjectId(),
+      timestamp: quizData.timestamp,
+      topic: quizData.topic,
+      score: quizData.score,
+      totalQuestions: quizData.totalQuestions,
+      correctAnswers: quizData.correctAnswers,
+      percentage: quizData.percentage,
+      totalTimeTaken: quizData.totalTimeTaken,
       questionResults: quizData.questionResults || []
     });
-
-    console.log(`✅ Quiz saved for ${email} | Topic: ${quizData.topic} | Score: ${quizData.score}`);
-
-    res.status(201).json({
+    
+    console.log(`Quiz saved for ${email}`);
+    
+    res.status(201).json({ 
       success: true,
       message: 'Quiz submitted successfully',
       completedCount: completedQuestionIds.length
     });
-
+    
   } catch (error) {
-    console.error('❌ Error saving quiz:', error);
+    console.error('Error:', error);
     res.status(500).json({ error: 'Failed to save quiz: ' + error.message });
   }
 });
@@ -4117,7 +4080,6 @@ router.get("/iitm_stats2_scores", async (req, res) => {
 });
 
 module.exports = router
-
 
 
 
