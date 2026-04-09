@@ -1283,7 +1283,7 @@
 
         // ============================================
         // ENHANCED ANSWER NORMALIZATION UTILITY
-        // Specialized for Domain and Range questions
+        // Specialized for Orthonormality_Projections_and_Gram_Schmidt questions
         // ============================================
         const answerNormalizer = {
             normalizeInterval: (answer) => {
@@ -1750,7 +1750,7 @@
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
             
-            console.log('Rendering Domain and Range question:', currentQuestionIndex + 1, question);
+            console.log('Rendering Orthonormality_Projections_and_Gram_Schmidt question:', currentQuestionIndex + 1, question);
             
             container.innerHTML = '';
 
@@ -2241,7 +2241,7 @@
         }
 
         async function submitQuiz() {
-            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Domain and Range Quiz?`);
+            const confirmSubmit = confirm(`Ready to Submit?\n\nPlease make sure you have reviewed all your answers before submitting.\nOnce submitted, you won't be able to make changes.\n\nAre you ready to submit your Orthonormality_Projections_and_Gram_Schmidt Quiz?`);
             
             if (!confirmSubmit) return;
         
@@ -2389,7 +2389,7 @@
                 });
 
                 if (response.ok) {
-                    console.log('Domain and Range quiz submitted successfully');
+                    console.log('Orthonormality_Projections_and_Gram_Schmidt quiz submitted successfully');
                     displayDetailedResults(quizData);
                 } else {
                     const errorText = await response.text();
@@ -2420,7 +2420,7 @@
             const scoreDisplay = document.querySelector('.score-display');
             scoreDisplay.innerHTML = `
                 <h2>${quizData.score}/${quizData.maxPossibleScore} Points (${quizData.percentage}%)</h2>
-                <p>Domain and Range Quiz Completed Successfully!</p>
+                <p>Orthonormality_Projections_and_Gram_Schmidt Quiz Completed Successfully!</p>
                 <div style="margin-top: 20px; display: flex; justify-content: space-around; text-align: center;">
                     <div>
                         <strong>Easy Questions</strong><br>
