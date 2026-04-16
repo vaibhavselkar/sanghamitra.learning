@@ -762,7 +762,7 @@
                 }
                 
                 console.log('🌐 Fetching questions from API...');
-                const apiUrl = `http://127.0.0.1:5000/api/iitm_stats2_questions_databases/Moment Generating Functions?email=${encodeURIComponent(email)}&count=50`;
+                const apiUrl = `https://sanghamitra-learnworld.vercel.app/api/iitm_stats2_questions_databases/Moment Generating Functions?email=${encodeURIComponent(email)}&count=50`;
                 console.log('API URL:', apiUrl);
                 
                 const response = await fetch(apiUrl, {
@@ -920,7 +920,7 @@
     
     // FIXED: Correct API endpoint for logging cheating
     if (username && email) {
-        fetch('http://127.0.0.1:5000/api/log-cheating', {
+        fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -984,7 +984,7 @@
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
                 
-                const response = await fetch('http://127.0.0.1:5000/api/session-info', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
                     credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1822,7 +1822,7 @@ if (question.type === 'interval_input') {
     quizData: quizData
 });
 
-const response = await fetch('http://127.0.0.1:5000/api/iitm_stats2_scores_databases', {
+const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/iitm_stats2_scores_databases', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -2267,7 +2267,7 @@ const response = await fetch('http://127.0.0.1:5000/api/iitm_stats2_scores_datab
         // Add function to reset user progress
         async function resetUserProgress() {
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/reset-user-progress', {
+                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/reset-user-progress', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
