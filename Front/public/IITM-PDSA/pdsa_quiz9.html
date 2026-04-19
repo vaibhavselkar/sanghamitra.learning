@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>    
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Programming Quiz</title>
@@ -32,7 +32,7 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, nghns-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -84,55 +84,6 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
-        }
-        
-        /* Answers Modal */
-        .answers-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10001;
-            padding: 20px;
-        }
-        
-        .answers-content {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .code-block {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .answers-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .answers-buttons .btn {
-            min-width: 150px;
         }
         
         .container {
@@ -277,6 +228,152 @@
             border-radius: 50%;
             background: white;
         }
+        
+        /* Answers Modal Styles */
+        .answers-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+        
+        .answers-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80%;
+            width: 800px;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        /* Button container for results */
+        .results-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        /* Level Selection Styles */
+        .level-container {
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .level-selection {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .level-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            width: 280px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #dee2e6;
+        }
+        
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .level-card.active {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        
+        .level-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .level-card.locked:after {
+            content: "🔒";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+        }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .level-easy { background: #d4edda; color: #155724; }
+        .level-medium { background: #fff3cd; color: #856404; }
+        .level-hard { background: #f8d7da; color: #721c24; }
+        
+        .level-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+        
+        .level-progress {
+            margin-top: 20px;
+        }
+        
+        .completion-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .results-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .results-buttons .btn {
+                width: 100%;
+            }
+            
+            .level-selection {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
         .btn-success {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
             color: white !important;
@@ -286,6 +383,49 @@
         .btn-success:hover {
             transform: translateY(-2px) scale(1.05);
             box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .btn-level {
+            margin-top: 20px;
+            padding: 12px 40px;
+            font-size: 18px;
+        }
+
+        /* Question navigation buttons container */
+        .question-navigation {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        /* Progress container without text */
+        .progress-container {
+            margin-bottom: 25px;
+        }
+        
+        /* Question number indicator in question card */
+        .question-number {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        /* Level progress text */
+        .level-progress-text {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        /* Remove the overall progress bar from level selection */
+        .level-container .progress {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -312,7 +452,7 @@
         <div class="loading-text">Loading Python Environment...</div>
         <small style="margin-top: 10px; opacity: 0.8;">This may take 10-15 seconds</small>
     </div>
-
+    
     <!-- Answers Modal -->
     <div id="answersModal" class="answers-modal">
         <div class="answers-content">
@@ -326,218 +466,123 @@
 
     <div class="container">
         <div class="header">
-            <h1>🔬 Dynamic Programming Quiz</h1>
-            <p>Solve dynamic programming problems by writing complete Python functions</p>
+            <h1>Dynamic Programming Quiz</h1>
+            <p>Solve algorithmic problems by writing complete Python functions</p>
             <small style="opacity: 0.8;">⚠️ Anti-cheating measures active</small>
+        </div>
+
+        <!-- Level Selection Container -->
+        <div id="levelContainer" class="level-container">
+            <h3>Select Difficulty Level</h3>
+            <p class="mb-4">Complete levels in sequence to unlock the next level</p>
+            
+            <div class="level-selection">
+                <!-- Level 1 -->
+                <div class="level-card active" id="level1Card" onclick="selectLevel(1)">
+                    <div class="level-badge level-easy">Level 1</div>
+                    <h4>Beginner</h4>
+                    <p><strong>Difficulty:</strong> Easy</p>
+                    <p><strong>Questions:</strong> 5 Problems</p>
+                    <p><strong>Topics:</strong> Basic Algorithms</p>
+                    <div class="level-info">
+                        <p>🎯 Score ≥ 60% to unlock Level 2</p>
+                    </div>
+                    <div id="level1Progress" class="level-progress">
+                        <div id="level1Status"></div>
+                        <button class="btn btn-success btn-level" onclick="startLevel(1)">Start Level 1</button>
+                    </div>
+                </div>
+                
+                <!-- Level 2 -->
+                <div class="level-card" id="level2Card">
+                    <div class="level-badge level-medium">Level 2</div>
+                    <h4>Intermediate</h4>
+                    <p><strong>Difficulty:</strong> Medium</p>
+                    <p><strong>Questions:</strong> 5 Problems</p>
+                    <p><strong>Topics:</strong> Advanced Concepts</p>
+                    <div class="level-info">
+                        <p>🔒 Complete Level 1 first</p>
+                    </div>
+                    <div id="level2Progress" class="level-progress">
+                        <div id="level2Status"></div>
+                        <button class="btn btn-secondary btn-level" onclick="startLevel(2)" disabled>Locked</button>
+                    </div>
+                </div>
+                
+                <!-- Level 3 -->
+                <div class="level-card" id="level3Card">
+                    <div class="level-badge level-hard">Level 3</div>
+                    <h4>Expert</h4>
+                    <p><strong>Difficulty:</strong> Hard</p>
+                    <p><strong>Questions:</strong> 5 Problems</p>
+                    <p><strong>Topics:</strong> Complex Algorithms</p>
+                    <div class="level-info">
+                        <p>🔒 Complete Level 2 first</p>
+                    </div>
+                    <div id="level3Progress" class="level-progress">
+                        <div id="level3Status"></div>
+                        <button class="btn btn-secondary btn-level" onclick="startLevel(3)" disabled>Locked</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 level-progress-text">
+                <p><strong>Progress:</strong> <span id="overallProgress">Loading...</span></p>
+            </div>
         </div>
 
         <!-- Quiz Container -->
         <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container mb-4">
-                <div class="d-flex justify-content-between mb-2">
-                    <span id="progressText">Question 1 of 5</span>
-                </div>
-                <div class="progress">
-                    <div class="progress-bar" id="progressFill" style="width: 20%;"></div>
-                </div>
-            </div>
-            
             <div id="questionContainer"></div>
-            
-            <div class="d-flex justify-content-between mt-4">
-                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
-                <div class="text-center">
-                    <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
-                </div>
-                <div>
-                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
-                    <button class="btn btn-success" onclick="submitQuiz()" id="submitBtn" style="display: none;">
-                        📊 Submit Quiz
-                    </button>
-                </div>
-            </div>
         </div>
 
         <!-- Results -->
-        <div id="resultsContainer" class="results-container">
+        <div id="resultsContainer" class="results-container" style="display: none;">
             <div class="score-display">
                 <h2 id="finalScore">0/100</h2>
                 <h3 id="finalPercentage">0%</h3>
-                <p>Quiz Completed!</p>
+                <p id="levelCompletionText">Level Completed!</p>
+                <div id="unlockMessage" style="margin-top: 20px;"></div>
             </div>
             <div id="detailedResults"></div>
             
-            <div class="answers-buttons">
-                <!-- Go Back button on left -->
-                <button class="btn btn-secondary" onclick="window.history.back()">← Go Back</button>
-                
-                <!-- View My Answers button in center -->
+            <!-- Fixed Button Layout -->
+            <div class="results-buttons">
+                <button class="btn btn-secondary" onclick="goToLevelSelection()">← Back to Levels</button>
                 <button class="btn btn-info" onclick="showMyAnswers()">📋 View My Answers</button>
-                
-                <!-- Retake button on right -->
-                <button class="btn" onclick="restartQuiz()">🔄 Retake Quiz</button>
+                <button class="btn btn-success" onclick="startNextLevel()" id="nextLevelBtn" style="display: none;">Next Level →</button>
+                <button class="btn btn-warning" onclick="retakeLevel()">🔄 Retake This Level</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Anti-cheating variables
+        // ===== GLOBAL VARIABLES =====
         let cheatingAttempts = 0;
         let isQuizActive = false;
         let devToolsWarned = false;
         let tabSwitchCount = 0;
         let lastActivityTime = Date.now();
-        
-        // Global Pyodide instance
         let pyodide = null;
         let pyodideReady = false;
-
-        const questions = [
-            {
-                id: 1,
-                title: "Fibonacci with Memoization",
-                description: "Implement Fibonacci sequence using memoization to avoid redundant calculations.",
-                prompt: `Write a function fibonacci(n) that returns the nth Fibonacci number using memoization.
-
-REQUIREMENTS:
-- Use memoization (caching) to store computed values
-- Handle base cases: fib(0) = 0, fib(1) = 1
-- Return the nth Fibonacci number`,
-                starterCode: `def fibonacci(n):
-    """Calculate nth Fibonacci number using memoization."""
-    # Your implementation here
-    pass
-
-# Test your function
-print(fibonacci(5))  # Should be 5`,
-                testCases: [
-                    { input: 0, expected: 0 },
-                    { input: 1, expected: 1 },
-                    { input: 5, expected: 5 },
-                    { input: 10, expected: 55 },
-                    { input: 15, expected: 610 }
-                ],
-                functionName: 'fibonacci',
-                points: 20
-            },
-            {
-                id: 2,
-                title: "Coin Change Problem",
-                description: "Find the minimum number of coins needed to make a given amount.",
-                prompt: `Write a function coin_change(coins, amount) that returns the minimum number of coins needed.
-
-REQUIREMENTS:
-- coins: List of available coin denominations
-- amount: Target amount to make
-- Return minimum number of coins, or -1 if not possible
-- Use dynamic programming approach`,
-                starterCode: `def coin_change(coins, amount):
-    """Find minimum coins needed to make amount."""
-    # Your implementation here
-    pass
-
-# Test your function
-print(coin_change([1, 2, 5], 11))  # Should be 3 (5+5+1)`,
-                testCases: [
-                    { input: [[1, 2, 5], 11], expected: 3 },
-                    { input: [[2], 3], expected: -1 },
-                    { input: [[1, 3, 4], 6], expected: 2 },
-                    { input: [[1], 0], expected: 0 },
-                    { input: [[1, 2, 5], 100], expected: 20 }
-                ],
-                functionName: 'coin_change',
-                points: 20
-            },
-            {
-                id: 3,
-                title: "Longest Increasing Subsequence",
-                description: "Find the length of the longest increasing subsequence in an array.",
-                prompt: `Write a function longest_increasing_subsequence(nums) that returns the length of LIS.
-
-REQUIREMENTS:
-- nums: List of integers
-- Return the length of longest strictly increasing subsequence
-- Use dynamic programming with O(n²) approach`,
-                starterCode: `def longest_increasing_subsequence(nums):
-    """Find length of longest increasing subsequence."""
-    # Your implementation here
-    pass
-
-# Test your function
-print(longest_increasing_subsequence([10, 9, 2, 5, 3, 7, 101, 18]))  # Should be 4`,
-                testCases: [
-                    { input: [[10, 9, 2, 5, 3, 7, 101, 18]], expected: 4 },
-                    { input: [[0, 1, 0, 3, 2, 3]], expected: 4 },
-                    { input: [[7, 7, 7, 7, 7, 7]], expected: 1 },
-                    { input: [[1]], expected: 1 },
-                    { input: [[1, 3, 6, 7, 9, 4, 10, 5, 6]], expected: 6 }
-                ],
-                functionName: 'longest_increasing_subsequence',
-                points: 20
-            },
-            {
-                id: 4,
-                title: "Climbing Stairs",
-                description: "Count the number of ways to climb n stairs taking 1 or 2 steps at a time.",
-                prompt: `Write a function climb_stairs(n) that returns number of ways to climb n stairs.
-
-REQUIREMENTS:
-- You can take 1 or 2 steps at a time
-- Return the number of distinct ways to climb to the top
-- Use dynamic programming approach`,
-                starterCode: `def climb_stairs(n):
-    """Count ways to climb n stairs (1 or 2 steps at a time)."""
-    # Your implementation here
-    pass
-
-# Test your function
-print(climb_stairs(3))  # Should be 3`,
-                testCases: [
-                    { input: 1, expected: 1 },
-                    { input: 2, expected: 2 },
-                    { input: 3, expected: 3 },
-                    { input: 4, expected: 5 },
-                    { input: 5, expected: 8 }
-                ],
-                functionName: 'climb_stairs',
-                points: 20
-            },
-            {
-                id: 5,
-                title: "Maximum Subarray Sum",
-                description: "Find the contiguous subarray with the largest sum (Kadane's Algorithm).",
-                prompt: `Write a function max_subarray(nums) that returns the maximum sum of contiguous subarray.
-
-REQUIREMENTS:
-- nums: List of integers (can contain negative numbers)
-- Return the maximum sum of any contiguous subarray
-- Use Kadane's algorithm for O(n) solution`,
-                starterCode: `def max_subarray(nums):
-    """Find maximum sum of contiguous subarray."""
-    # Your implementation here
-    pass
-
-# Test your function
-print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
-                testCases: [
-                    { input: [[-2, 1, -3, 4, -1, 2, 1, -5, 4]], expected: 6 },
-                    { input: [[1]], expected: 1 },
-                    { input: [[5, 4, -1, 7, 8]], expected: 23 },
-                    { input: [[-1, -2, -3]], expected: -1 },
-                    { input: [[-2, -3, 4, -1, -2, 1, 5, -3]], expected: 7 }
-                ],
-                functionName: 'max_subarray',
-                points: 20
-            }
-        ];
-
+        let submittedQuizData = null;
+        let questions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
         let currentUser = {};
         let editors = {};
-
-        // ===== ANTI-CHEATING SYSTEM =====
         
+        // Level system variables
+        let currentLevel = 1;
+        let userSubmissions = [];
+        
+        // API Configuration
+        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
+        const CODING_QUESTIONS_API = `${API_BASE_URL}/coding-questions`;
+        const SUBMISSIONS_API = `${API_BASE_URL}/coding-submission`;
+        const GET_SUBMISSIONS = `${API_BASE_URL}/coding-submissions`;
+        
+        // ===== ANTI-CHEATING SYSTEM =====
         function initializeAntiCheating() {
             // Disable right-click everywhere except code editor
             document.addEventListener('contextmenu', function(e) {
@@ -550,23 +595,20 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
             
             // Disable keyboard shortcuts (except in editor)
             document.addEventListener('keydown', function(e) {
-                // Allow all keys in Monaco editor
                 if (e.target.closest('.monaco-editor') || e.target.classList.contains('monaco-editor')) {
                     return true;
                 }
                 
-                // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S, Print Screen
-                if (e.keyCode === 123 || // F12
-                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
-                    (e.ctrlKey && e.keyCode === 85) || // Ctrl+U
-                    (e.ctrlKey && e.keyCode === 83) || // Ctrl+S
-                    e.keyCode === 44) { // Print Screen
+                if (e.keyCode === 123 || 
+                    (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
+                    (e.ctrlKey && e.keyCode === 85) || 
+                    (e.ctrlKey && e.keyCode === 83) || 
+                    e.keyCode === 44) {
                     e.preventDefault();
                     recordCheatingAttempt('keyboard_shortcut');
                     return false;
                 }
                 
-                // Disable Ctrl+A, Ctrl+C, Ctrl+V outside editor
                 if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
                     e.preventDefault();
                     recordCheatingAttempt('copy_attempt');
@@ -594,7 +636,7 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
                 }
             }, 500);
             
-            // Detect window focus changes (tab switching)
+            // Detect window focus changes
             window.addEventListener('blur', function() {
                 if (isQuizActive) {
                     tabSwitchCount++;
@@ -613,7 +655,7 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
             
             // Monitor for screenshot attempts
             document.addEventListener('keyup', function(e) {
-                if (e.keyCode === 44 && isQuizActive) { // Print Screen released
+                if (e.keyCode === 44 && isQuizActive) {
                     recordCheatingAttempt('screenshot_attempt');
                     alert('⚠️ Screenshot attempt detected and logged!');
                 }
@@ -645,18 +687,15 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
             });
         }
         
-        // Record cheating attempts
         function recordCheatingAttempt(type) {
             cheatingAttempts++;
             console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
-            
-            // Update UI
             document.getElementById('attemptCount').textContent = cheatingAttempts;
             updateSecurityIndicator(true);
             
             // Log to server
             if (currentUser.username && currentUser.email) {
-                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
+                fetch(`${API_BASE_URL}/log-cheating`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -666,12 +705,12 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
                         cheatingType: type,
                         timestamp: new Date(),
                         currentQuestion: currentQuestionIndex + 1,
-                        totalAttempts: cheatingAttempts
+                        totalAttempts: cheatingAttempts,
+                        level: currentLevel
                     })
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
             
-            // Auto-submit after too many attempts
             if (cheatingAttempts >= 10) {
                 alert('⚠️ Too many suspicious activities detected!\n\nYour quiz will be auto-submitted now.');
                 submitQuiz();
@@ -680,7 +719,6 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
             }
         }
         
-        // Update security indicator
         function updateSecurityIndicator(warning = false) {
             const indicator = document.getElementById('securityIndicator');
             const text = document.getElementById('securityText');
@@ -695,82 +733,473 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
             }
         }
 
-        // ===== QUIZ INITIALIZATION =====
 
-        async function initPyodide() {
-            const loadingText = document.querySelector('.loading-text');
+
+
+
+
+
+
+        // ===== LEVEL MANAGEMENT =====
+        // ===== LEVEL MANAGEMENT =====
+async function loadUserProgress() {
+    try {
+        // Get current user info
+        const sessionRes = await fetch(`${API_BASE_URL}/session-info`, {
+            credentials: 'include',
+            mode: 'cors'
+        });
+        
+        if (sessionRes.ok) {
+            const sessionData = await sessionRes.json();
+            currentUser = { 
+                username: sessionData.username || 'TestUser', 
+                email: sessionData.email || 'test@example.com' 
+            };
+            
+            // IMPORTANT: Fetch user submissions for THIS TOPIC
+            // Assuming current topic is 'Dynamic Programming' - you might want to make this dynamic
+            const currentTopic = 'Dynamic Programming';
+            const submissionsRes = await fetch(
+                `${GET_SUBMISSIONS}?email=${encodeURIComponent(currentUser.email)}&topic=${encodeURIComponent(currentTopic)}`, {
+                credentials: 'include',
+                mode: 'cors'
+            });
+            
+            if (submissionsRes.ok) {
+                const submissionsData = await submissionsRes.json();
+                if (submissionsData.success) {
+                    userSubmissions = submissionsData.submissions || [];
+                    console.log(`Loaded ${userSubmissions.length} submissions for topic: ${currentTopic}`);
+                }
+            }
+        }
+    } catch (error) {
+        console.log('Error loading progress:', error);
+        userSubmissions = [];
+    }
+    
+    updateLevelUI();
+}
+
+
+function getLevelScore(level, topic = 'Dynamic Programming') {
+    // Map level to difficulty
+    const difficultyMap = {1: 'easy', 2: 'medium', 3: 'hard'};
+    const targetDifficulty = difficultyMap[level];
+    
+    // Find submissions for this topic AND level
+    const levelSubmissions = userSubmissions.filter(sub => {
+        // Check if submission matches the topic
+        if (sub.topic !== topic) return false;
+        
+        // Check both old format (level field) and new format (difficulty in questions)
+        if (sub.level === level) return true;
+        
+        // If no level field, check questions difficulty
+        if (sub.questions && sub.questions.length > 0) {
+            // All questions should have same difficulty in a level
+            const question = sub.questions[0];
+            return question.difficulty === targetDifficulty;
+        }
+        return false;
+    });
+    
+    if (levelSubmissions.length === 0) return null;
+    
+    // Get the highest score for this level and topic
+    const bestSubmission = levelSubmissions.reduce((best, current) => 
+        current.percentage > best.percentage ? current : best
+    );
+    
+    return bestSubmission.percentage;
+}
+
+function isLevelCompleted(level, topic = 'Dynamic Programming') {
+    return getLevelScore(level, topic) !== null;
+}
+
+function updateLevelUI() {
+    // Get scores for each level FOR THIS TOPIC
+    const level1Score = getLevelScore(1, 'Dynamic Programming');
+    const level2Score = getLevelScore(2, 'Dynamic Programming');
+    const level3Score = getLevelScore(3, 'Dynamic Programming');
+    
+    // Update level 1
+    const level1Status = document.getElementById('level1Status');
+    if (level1Score !== null) {
+        level1Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level1Score}%</div>`;
+    } else {
+        level1Status.innerHTML = '';
+    }
+    
+    // Update level 2
+    const level2Card = document.getElementById('level2Card');
+    const level2Btn = level2Card.querySelector('button');
+    const level2Status = document.getElementById('level2Status');
+    
+    if (level1Score !== null && level1Score >= 60) {
+        level2Card.classList.remove('locked');
+        level2Btn.disabled = false;
+        level2Btn.className = 'btn btn-success btn-level';
+        level2Btn.textContent = 'Start Level 2';
+        level2Btn.onclick = () => startLevel(2);
+        
+        if (level2Score !== null) {
+            level2Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level2Score}%</div>`;
+        } else {
+            level2Status.innerHTML = '';
+        }
+    } else {
+        level2Card.classList.add('locked');
+        level2Btn.disabled = true;
+        level2Btn.className = 'btn btn-secondary btn-level';
+        level2Btn.textContent = 'Locked';
+        level2Status.innerHTML = '';
+    }
+    
+    // Update level 3
+    const level3Card = document.getElementById('level3Card');
+    const level3Btn = level3Card.querySelector('button');
+    const level3Status = document.getElementById('level3Status');
+    
+    if (level1Score !== null && level2Score !== null && level1Score >= 60 && level2Score >= 60) {
+        level3Card.classList.remove('locked');
+        level3Btn.disabled = false;
+        level3Btn.className = 'btn btn-success btn-level';
+        level3Btn.textContent = 'Start Level 3';
+        level3Btn.onclick = () => startLevel(3);
+        
+        if (level3Score !== null) {
+            level3Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level3Score}%</div>`;
+        } else {
+            level3Status.innerHTML = '';
+        }
+    } else {
+        level3Card.classList.add('locked');
+        level3Btn.disabled = true;
+        level3Btn.className = 'btn btn-secondary btn-level';
+        level3Btn.textContent = 'Locked';
+        level3Status.innerHTML = '';
+    }
+    
+    // Update overall progress FOR THIS TOPIC
+    const completedCount = [level1Score, level2Score, level3Score].filter(score => score !== null).length;
+    document.getElementById('overallProgress').textContent = `${completedCount}/3 levels completed`;
+}
+
+async function startLevel(level) {
+    currentLevel = level;
+    const currentTopic = 'Dynamic Programming'; // Define current topic
+    
+    // Check if level is unlocked FOR THIS TOPIC
+    const level1Score = getLevelScore(1, currentTopic);
+    const level2Score = getLevelScore(2, currentTopic);
+    
+    if (level === 2 && (level1Score === null || level1Score < 60)) {
+        alert('Please complete Level 1 with at least 60% score to unlock Level 2');
+        return;
+    }
+    
+    if (level === 3 && (level1Score === null || level2Score === null || level1Score < 60 || level2Score < 60)) {
+        alert('Please complete both Level 1 and Level 2 with at least 60% score to unlock Level 3');
+        return;
+    }
+    
+    // Hide level selection, show loading
+    document.getElementById('levelContainer').style.display = 'none';
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.querySelector('.loading-text').textContent = `Loading Level ${level} Questions...`;
+    
+    try {
+        // Fetch questions for this level
+        await fetchLevelQuestions(level);
+        
+        // Initialize quiz
+        initializeQuiz();
+        
+    } catch (error) {
+        console.error('Failed to start level:', error);
+        alert('Failed to load questions. Please try again.');
+        goToLevelSelection();
+    }
+}
+
+
+
+
+        function isLevelCompleted(level) {
+            return getLevelScore(level) !== null;
+        }
+        
+        function updateLevelUI() {
+            // Get scores for each level
+            const level1Score = getLevelScore(1);
+            const level2Score = getLevelScore(2);
+            const level3Score = getLevelScore(3);
+            
+            // Update level 1
+            const level1Status = document.getElementById('level1Status');
+            if (level1Score !== null) {
+                level1Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level1Score}%</div>`;
+            } else {
+                level1Status.innerHTML = '';
+            }
+            
+            // Update level 2
+            const level2Card = document.getElementById('level2Card');
+            const level2Btn = level2Card.querySelector('button');
+            const level2Status = document.getElementById('level2Status');
+            
+            if (level1Score !== null && level1Score >= 60) {
+                level2Card.classList.remove('locked');
+                level2Btn.disabled = false;
+                level2Btn.className = 'btn btn-success btn-level';
+                level2Btn.textContent = 'Start Level 2';
+                level2Btn.onclick = () => startLevel(2);
+                
+                if (level2Score !== null) {
+                    level2Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level2Score}%</div>`;
+                } else {
+                    level2Status.innerHTML = '';
+                }
+            } else {
+                level2Card.classList.add('locked');
+                level2Btn.disabled = true;
+                level2Btn.className = 'btn btn-secondary btn-level';
+                level2Btn.textContent = 'Locked';
+                level2Status.innerHTML = '';
+            }
+            
+            // Update level 3
+            const level3Card = document.getElementById('level3Card');
+            const level3Btn = level3Card.querySelector('button');
+            const level3Status = document.getElementById('level3Status');
+            
+            if (level1Score !== null && level2Score !== null && level1Score >= 60 && level2Score >= 60) {
+                level3Card.classList.remove('locked');
+                level3Btn.disabled = false;
+                level3Btn.className = 'btn btn-success btn-level';
+                level3Btn.textContent = 'Start Level 3';
+                level3Btn.onclick = () => startLevel(3);
+                
+                if (level3Score !== null) {
+                    level3Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level3Score}%</div>`;
+                } else {
+                    level3Status.innerHTML = '';
+                }
+            } else {
+                level3Card.classList.add('locked');
+                level3Btn.disabled = true;
+                level3Btn.className = 'btn btn-secondary btn-level';
+                level3Btn.textContent = 'Locked';
+                level3Status.innerHTML = '';
+            }
+            
+            // Update overall progress
+            const completedCount = [level1Score, level2Score, level3Score].filter(score => score !== null).length;
+            document.getElementById('overallProgress').textContent = `${completedCount}/3 levels completed`;
+        }
+        
+        function selectLevel(level) {
+            const levelScore = getLevelScore(level);
+            const isUnlocked = (level === 1) || 
+                (level === 2 && getLevelScore(1) !== null && getLevelScore(1) >= 60) ||
+                (level === 3 && getLevelScore(1) !== null && getLevelScore(2) !== null && 
+                 getLevelScore(1) >= 60 && getLevelScore(2) >= 60);
+            
+            if (isUnlocked) {
+                document.querySelectorAll('.level-card').forEach(card => card.classList.remove('active'));
+                document.getElementById(`level${level}Card`).classList.add('active');
+            }
+        }
+        
+        
+        async function fetchLevelQuestions(level) {
+            const difficultyMap = {1: 'easy', 2: 'medium', 3: 'hard'};
+            const difficulty = difficultyMap[level];
             
             try {
-                loadingText.textContent = 'Loading Python interpreter...';
+                const response = await fetch(`${CODING_QUESTIONS_API}?difficulty=${difficulty}&limit=5&topic=Dynamic%20Programming`);
                 
-                pyodide = await loadPyodide({
-                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
-                });
-                
-                loadingText.textContent = 'Python ready! Initializing quiz...';
-                pyodideReady = true;
-                
-                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-                require(['vs/editor/editor.main'], function() {
-                    setTimeout(() => initializeQuiz(), 500);
-                });
-                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.questions && data.questions.length > 0) {
+                        questions = data.questions.map(q => ({
+                            ...q,
+                            id: q.questionId,
+                            points: q.maxScore || 20,
+                            difficulty: q.difficulty || difficulty
+                        }));
+                        console.log(`✅ Loaded ${questions.length} questions for Level ${level} (${difficulty})`);
+                    } else {
+                        throw new Error('No questions found');
+                    }
+                } else {
+                    throw new Error('Failed to fetch questions');
+                }
             } catch (error) {
-                console.error('Failed to load Pyodide:', error);
-                loadingText.textContent = 'Error loading Python. Please refresh.';
-                alert('Failed to load Python environment. Please refresh the page.');
+                console.error('Error fetching questions:', error);
+                // Fallback to local questions if API fails
+                questions = getFallbackQuestions(level);
+            }
+        }
+        
+        function getFallbackQuestions(level) {
+            // Fallback questions for demo
+            const fallbackQuestions = [
+                {
+                    id: 1, questionId: 1, title: "Find Factors", 
+                    description: "Find all factors of a number", difficulty: "easy",
+                    prompt: "Write find_factors(n)", starterCode: "def find_factors(n):\n    pass",
+                    functionName: "find_factors", testCases: [{input: 12, expected: [1,2,3,4,6,12]}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 2, questionId: 2, title: "Reverse String", 
+                    description: "Reverse a string", difficulty: "easy",
+                    prompt: "Write reverse_string(s)", starterCode: "def reverse_string(s):\n    pass",
+                    functionName: "reverse_string", testCases: [{input: "hello", expected: "olleh"}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 3, questionId: 3, title: "Find Maximum", 
+                    description: "Find maximum in a list", difficulty: "easy",
+                    prompt: "Write find_maximum(lst)", starterCode: "def find_maximum(lst):\n    pass",
+                    functionName: "find_maximum", testCases: [{input: [1,5,3,9,2], expected: 9}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 4, questionId: 4, title: "Check Palindrome", 
+                    description: "Check if string is palindrome", difficulty: "easy",
+                    prompt: "Write is_palindrome(s)", starterCode: "def is_palindrome(s):\n    pass",
+                    functionName: "is_palindrome", testCases: [{input: "radar", expected: true}, {input: "hello", expected: false}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 5, questionId: 5, title: "Sum Even Numbers", 
+                    description: "Sum all even numbers in list", difficulty: "easy",
+                    prompt: "Write sum_even_numbers(lst)", starterCode: "def sum_even_numbers(lst):\n    pass",
+                    functionName: "sum_even_numbers", testCases: [{input: [1,2,3,4,5,6], expected: 12}],
+                    maxScore: 20, points: 20
+                }
+            ];
+            return fallbackQuestions.map(q => ({...q, difficulty: level === 1 ? 'easy' : level === 2 ? 'medium' : 'hard'}));
+        }
+        
+        function goToLevelSelection() {
+            // Reset quiz state
+            questions = [];
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            editors = {};
+            cheatingAttempts = 0;
+            tabSwitchCount = 0;
+            isQuizActive = false;
+            submittedQuizData = null;
+            
+            // Show level selection, hide other containers
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('levelContainer').style.display = 'block';
+            
+            // Reload progress from backend
+            loadUserProgress();
+            
+            // Exit fullscreen
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+        
+        function startNextLevel() {
+            const nextLevel = currentLevel + 1;
+            if (nextLevel <= 3) {
+                startLevel(nextLevel);
+            } else {
+                alert('🎉 Congratulations! You have completed all levels!');
+                goToLevelSelection();
+            }
+        }
+        
+        function retakeLevel() {
+            if (confirm(`Retake Level ${currentLevel}? Your previous score will be replaced.`)) {
+                startLevel(currentLevel);
             }
         }
 
+        // ===== QUIZ FUNCTIONS =====
+        async function initPyodide() {
+            const loadingText = document.querySelector('.loading-text');
+            try {
+                loadingText.textContent = 'Loading Python interpreter...';
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+                });
+                loadingText.textContent = 'Python ready!';
+                pyodideReady = true;
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+                require(['vs/editor/editor.main'], function() {
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').style.display = 'none';
+                        document.getElementById('quizContainer').style.display = 'block';
+                        renderCurrentQuestion();
+                    }, 500);
+                });
+            } catch (error) {
+                console.error('Failed to load Pyodide:', error);
+                alert('Failed to load Python environment. Please refresh the page.');
+            }
+        }
+        
         async function initializeQuiz() {
-            console.log('🚀 Initializing quiz...');
+            console.log(`🚀 Initializing Level ${currentLevel} quiz...`);
             
-            // Initialize anti-cheating FIRST
+            // Initialize anti-cheating
             initializeAntiCheating();
             
-            currentUser = { username: 'TestUser', email: 'test@example.com' };
-            userAnswers = {};
-            
+            // Get user session
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                const response = await fetch(`${API_BASE_URL}/session-info`, {
                     credentials: 'include',
                     mode: 'cors'
                 });
-                
                 if (response.ok) {
                     const data = await response.json();
                     if (data.username && data.email) {
                         currentUser = { username: data.username, email: data.email };
-                        console.log('✅ User logged in:', currentUser);
                     }
                 }
             } catch (error) {
-                console.log('ℹ️ Using test user for demo');
+                console.log('Using test user');
+            }
+            
+            // Start Pyodide if not already loaded
+            if (!pyodideReady) {
+                await initPyodide();
+            } else {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('quizContainer').style.display = 'block';
+                renderCurrentQuestion();
             }
             
             // Enable quiz monitoring
             isQuizActive = true;
-            
-            document.getElementById('loadingOverlay').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            
-            // Request fullscreen (optional, user can decline)
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen request declined:', err);
-                });
-            }
-            
-            renderCurrentQuestion();
-            updateProgress();
         }
-
+        
         function renderCurrentQuestion() {
+            if (!questions.length) return;
+            
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
             
             container.innerHTML = `
                 <div class="question-card">
+                    <!-- Question progress indicator -->
+                    <div class="question-number">
+                        Question ${currentQuestionIndex + 1} of ${questions.length} • Level ${currentLevel}
+                    </div>
+                    
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3>${question.title}</h3>
                         <span class="badge bg-primary">${question.points} points</span>
@@ -792,6 +1221,20 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
                         `).join('')}
                     </div>
                     <div id="testResults-${question.id}"></div>
+                    
+                    <!-- Question Navigation Buttons -->
+                    <div class="question-navigation d-flex justify-content-between mt-4">
+                        <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        <div class="text-center">
+                            <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
+                        </div>
+                        <div>
+                            ${currentQuestionIndex === questions.length - 1 ? 
+                                `<button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">📊 Submit Quiz</button>` :
+                                `<button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>`
+                            }
+                        </div>
+                    </div>
                 </div>
             `;
             
@@ -810,33 +1253,26 @@ print(max_subarray([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Should be 6`,
                 userAnswers[question.id] = editor.getValue();
             });
         }
-
+        
         function formatTestCase(test) {
             const input = Array.isArray(test.input) ? test.input.join(', ') : test.input;
             const expected = JSON.stringify(test.expected);
             return `Input: ${input} → Expected: ${expected}`;
         }
-
+        
         async function executePythonTests(code, question) {
-            if (!pyodideReady) {
-                throw new Error('Python environment not ready');
-            }
-
-            const results = [];
+            if (!pyodideReady) throw new Error('Python environment not ready');
             
+            const results = [];
             for (let i = 0; i < question.testCases.length; i++) {
                 const testCase = question.testCases[i];
-                
                 try {
-                    await pyodide.runPythonAsync(`
-import sys
-for name in list(globals().keys()):
+                    await pyodide.runPythonAsync(`for name in list(globals().keys()):
     if not name.startswith('__') and name not in ['sys']:
         try:
             del globals()[name]
         except:
-            pass
-                    `);
+            pass`);
                     
                     await pyodide.runPythonAsync(code);
                     
@@ -850,23 +1286,15 @@ for name in list(globals().keys()):
                     }
                     
                     const result = await pyodide.runPythonAsync(functionCall);
-                    
-                    let output;
-                    if (result && typeof result === 'object' && result.toJs) {
-                        output = result.toJs({ dict_converter: Object.fromEntries });
-                    } else {
-                        output = result;
-                    }
-                    
-                    const passed = deepEqual(output, testCase.expected);
+                    let output = result && typeof result === 'object' && result.toJs ? 
+                        result.toJs({ dict_converter: Object.fromEntries }) : result;
                     
                     results.push({
-                        passed,
+                        passed: deepEqual(output, testCase.expected),
                         output,
                         expected: testCase.expected,
                         error: null
                     });
-                    
                 } catch (error) {
                     results.push({
                         passed: false,
@@ -876,10 +1304,9 @@ for name in list(globals().keys()):
                     });
                 }
             }
-            
             return results;
         }
-
+        
         function deepEqual(a, b) {
             if (a === b) return true;
             if (a == null || b == null) return false;
@@ -905,28 +1332,25 @@ for name in list(globals().keys()):
             
             return false;
         }
-
+        
         async function runTests() {
             if (!pyodideReady) {
                 alert('Python environment is still loading. Please wait...');
                 return;
             }
-
+            
             const question = questions[currentQuestionIndex];
             const code = editors[question.id].getValue();
             const resultsDiv = document.getElementById(`testResults-${question.id}`);
-            
             resultsDiv.innerHTML = '<h6>🔧 Running tests...</h6>';
             
             try {
                 const testResults = await executePythonTests(code, question);
-                
-                let testHtml = '<h6>Test Results:</h6>';
                 let passedCount = 0;
+                let testHtml = '<h6>Test Results:</h6>';
                 
                 testResults.forEach((result, i) => {
                     if (result.passed) passedCount++;
-                    
                     testHtml += `
                         <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
                             Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
@@ -947,73 +1371,44 @@ for name in list(globals().keys()):
                 `;
                 
                 resultsDiv.innerHTML = testHtml;
-                
             } catch (error) {
                 console.error('Test execution error:', error);
-                resultsDiv.innerHTML = `
-                    <div class="test-result test-failed">
-                        ❌ Error: ${error.message}
-                    </div>
-                `;
+                resultsDiv.innerHTML = `<div class="test-result test-failed">❌ Error: ${error.message}</div>`;
             }
         }
-
+        
         function checkExplanations(code) {
             const comments = code.match(/#.+/g) || [];
             return comments.some(c => c.length > 20) && comments.length >= 2;
         }
-
+        
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 renderCurrentQuestion();
-                updateProgress();
             }
         }
-
+        
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
                 renderCurrentQuestion();
-                updateProgress();
             }
         }
-
-        function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
-            
-            const nextBtn = document.getElementById('nextBtn');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            // Hide/show appropriate buttons
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.style.display = 'none';  // Hide Next/Finish button
-                submitBtn.style.display = 'inline-block';  // Show Submit button
-            } else {
-                nextBtn.style.display = 'inline-block';  // Show Next button
-                submitBtn.style.display = 'none';  // Hide Submit button
-            }
-        }
-
+        
         async function submitQuiz() {
             if (!confirm('Submit your quiz? Make sure you\'ve tested all answers.')) return;
-
+            
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Submitting...';
-            
-            // Disable monitoring
             isQuizActive = false;
-
+            
             let totalScore = 0;
             const results = [];
             
             for (const question of questions) {
                 const code = userAnswers[question.id] || '';
-                
                 try {
                     const testResults = await executePythonTests(code, question);
                     const passedTests = testResults.filter(r => r.passed).length;
@@ -1023,29 +1418,34 @@ for name in list(globals().keys()):
                         Math.round((passedTests / testResults.length) * question.points) + bonus,
                         question.points
                     );
-                    
                     totalScore += score;
                     results.push({
                         questionId: question.id,
                         title: question.title,
+                        type: 'coding',
                         code,
                         score,
                         maxScore: question.points,
                         passedTests,
                         totalTests: testResults.length,
-                        hasExplanations
+                        hasExplanations,
+                        difficulty: question.difficulty,
+                        timeTaken: 0
                     });
                 } catch (error) {
                     results.push({
                         questionId: question.id,
                         title: question.title,
+                        type: 'coding',
                         code,
                         score: 0,
                         maxScore: question.points,
                         passedTests: 0,
                         totalTests: question.testCases.length,
                         hasExplanations: checkExplanations(code),
-                        error: error.message
+                        difficulty: question.difficulty,
+                        error: error.message,
+                        timeTaken: 0
                     });
                 }
             }
@@ -1060,47 +1460,68 @@ for name in list(globals().keys()):
                 score: totalScore,
                 maxScore,
                 percentage,
+                level: currentLevel,
                 questions: results,
                 timestamp: new Date().toISOString(),
-                cheatingAttempts: cheatingAttempts,
+                cheatingAttempts,
                 tabSwitches: tabSwitchCount
             };
             
-            // Store quiz data globally for the answers modal
-            window.submittedQuizData = quizData;
+            submittedQuizData = quizData;
             
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+                const response = await fetch(`${SUBMISSIONS_API}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
                     body: JSON.stringify(quizData)
                 });
                 
                 if (response.ok) {
-                    alert('✅ Quiz submitted successfully!');
+                    console.log('Quiz submitted successfully');
+                    // Refresh user progress
+                    await loadUserProgress();
                 } else {
-                    throw new Error(`Server error: ${response.status}`);
+                    console.error('Failed to submit quiz');
                 }
             } catch (error) {
                 console.error('Submission error:', error);
-                alert('⚠️ Could not submit to server, but showing results.');
             }
             
             showResults(quizData);
         }
-
+        
         function showResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
             document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
             document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            document.getElementById('levelCompletionText').textContent = `Level ${currentLevel} Completed!`;
+            
+            // Show unlock message
+            const unlockMessage = document.getElementById('unlockMessage');
+            const nextLevelBtn = document.getElementById('nextLevelBtn');
+            
+            if (currentLevel === 1 && quizData.percentage >= 60) {
+                unlockMessage.innerHTML = `<div class="alert alert-success">🎉 Level 2 Unlocked! Score ≥ 60% achieved.</div>`;
+                nextLevelBtn.style.display = 'inline-block';
+            } else if (currentLevel === 2 && quizData.percentage >= 60) {
+                unlockMessage.innerHTML = `<div class="alert alert-success">🎉 Level 3 Unlocked! Score ≥ 60% achieved.</div>`;
+                nextLevelBtn.style.display = 'inline-block';
+            } else if (currentLevel === 3) {
+                unlockMessage.innerHTML = `<div class="alert alert-success">🎊 All Levels Completed! Congratulations!</div>`;
+                nextLevelBtn.style.display = 'none';
+            } else {
+                unlockMessage.innerHTML = `<div class="alert alert-warning">⚠️ Score ${quizData.percentage}% - Need ≥ 60% to unlock next level</div>`;
+                nextLevelBtn.style.display = 'none';
+            }
             
             const detailedResults = document.getElementById('detailedResults');
             detailedResults.innerHTML = `
                 <h4>Detailed Results</h4>
                 ${quizData.cheatingAttempts > 0 ? `
                     <div class="alert alert-warning">
-                        ⚠️ Security Note: ${quizData.cheatingAttempts} suspicious activities were detected during this quiz.
+                        ⚠️ ${quizData.cheatingAttempts} suspicious activities were detected.
                     </div>
                 ` : ''}
                 ${quizData.questions.map(q => `
@@ -1116,39 +1537,19 @@ for name in list(globals().keys()):
                 `).join('')}
             `;
         }
-
-        function restartQuiz() {
-            currentQuestionIndex = 0;
-            userAnswers = {};
-            editors = {};
-            cheatingAttempts = 0;
-            tabSwitchCount = 0;
-            isQuizActive = true;
-            document.getElementById('resultsContainer').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            // Reset button visibility
-            document.getElementById('nextBtn').style.display = 'inline-block';
-            document.getElementById('submitBtn').style.display = 'none';
-            
-            renderCurrentQuestion();
-            updateProgress();
-        }
-
+        
         function showMyAnswers() {
-            // Access the globally stored quiz data
-            if (!window.submittedQuizData || !window.submittedQuizData.questions) {
-                alert('No quiz data found. Please submit the quiz first.');
+            if (!submittedQuizData) {
+                alert('No quiz data found.');
                 return;
             }
-            
             const answersList = document.getElementById('answersList');
-            answersList.innerHTML = window.submittedQuizData.questions.map((q, index) => `
-                <div class="mb-4 p-3 border rounded">
-                    <h5>Question ${index + 1}: ${q.title} (Score: ${q.score}/${q.maxScore})</h5>
-                    <pre class="bg-light p-3 rounded mt-2" style="max-height: 300px; overflow: auto;">${escapeHtml(q.code)}</pre>
+            answersList.innerHTML = submittedQuizData.questions.map(q => `
+                <div class="mb-4">
+                    <h5>${q.title} (Score: ${q.score}/${q.maxScore})</h5>
+                    <div class="code-block">${escapeHtml(q.code)}</div>
                 </div>
             `).join('');
-            
             document.getElementById('answersModal').style.display = 'flex';
         }
         
@@ -1162,8 +1563,22 @@ for name in list(globals().keys()):
             return div.innerHTML;
         }
         
-        // Start loading Pyodide immediately
-        window.addEventListener('DOMContentLoaded', initPyodide);
+        function goToHome() {
+            window.location.href = './iitm-pdsa.html';
+        }
+
+
+
+        // ===== INITIALIZATION =====
+        window.addEventListener('DOMContentLoaded', function() {
+            // Initialize level UI
+            loadUserProgress();
+            
+            // Start loading Pyodide in background
+            initPyodide().catch(console.error);
+        });
+
+
     </script>
 </body>
 </html>
