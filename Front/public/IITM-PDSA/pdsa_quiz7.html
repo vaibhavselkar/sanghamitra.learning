@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Algorithms Programming Quiz</title>
+    <title>Advanced Algorithms Quiz</title>
+    <!-- Pyodide for Python execution -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <!-- Monaco Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Anti-cheating CSS */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -16,6 +19,8 @@
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
         }
+        
+        /* Allow text selection ONLY in code editors */
         .monaco-editor,
         .monaco-editor *,
         .view-lines,
@@ -27,7 +32,7 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, nghns-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -35,6 +40,7 @@
             pointer-events: auto;
         }
         
+        /* Hide scrollbars to prevent inspection */
         ::-webkit-scrollbar {
             width: 8px;
             background: transparent;
@@ -45,11 +51,13 @@
             border-radius: 4px;
         }
         
+        /* Blur content when window loses focus */
         body.blurred {
             filter: blur(10px);
             pointer-events: none;
         }
         
+        /* Warning overlay */
         .warning-overlay {
             position: fixed;
             top: 0;
@@ -193,6 +201,7 @@
             margin-top: 20px;
         }
         
+        /* Security indicator */
         .security-indicator {
             position: fixed;
             top: 10px;
@@ -219,6 +228,151 @@
             border-radius: 50%;
             background: white;
         }
+        
+        /* Answers Modal Styles */
+        .answers-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+        
+        .answers-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80%;
+            width: 800px;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        /* Button container for results */
+        .results-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        /* Level Selection Styles */
+        .level-container {
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .level-selection {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .level-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            width: 280px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #dee2e6;
+        }
+        
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .level-card.active {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        
+        .level-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            position: relative;
+        }
+        
+        .level-card.locked:after {
+            content: "🔒";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+        }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .level-easy { background: #d4edda; color: #155724; }
+        .level-medium { background: #fff3cd; color: #856404; }
+        .level-hard { background: #f8d7da; color: #721c24; }
+        
+        .level-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+        
+        .level-progress {
+            margin-top: 20px;
+        }
+        
+        .completion-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .results-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .results-buttons .btn {
+                width: 100%;
+            }
+            
+            .level-selection {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
 
         .btn-success {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
@@ -231,76 +385,58 @@
             box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         }
         
-        /* Add missing modal styles */
-        .answers-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10001;
-        }
-        
-        .answers-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-            width: 90%;
-        }
-        
-        .code-block {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            overflow-x: auto;
-            margin: 10px 0;
-            border: 1px solid #dee2e6;
-            font-size: 12px;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 10px;
+        .btn-level {
             margin-top: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+            padding: 12px 40px;
+            font-size: 18px;
+        }
+
+        /* Question navigation buttons container */
+        .question-navigation {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
         }
         
-        @media (max-width: 768px) {
-            .btn-group {
-                flex-direction: column;
-            }
-            .btn-group button {
-                width: 100%;
-            }
+        /* Progress container without text */
+        .progress-container {
+            margin-bottom: 25px;
         }
         
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
-            color: white !important;
+        /* Question number indicator in question card */
+        .question-number {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
         }
         
-        .btn-info {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
-            color: white !important;
+        /* Level progress text */
+        .level-progress-text {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        /* Remove the overall progress bar from level selection */
+        .level-container .progress {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
+    <!-- Security Indicator -->
     <div id="securityIndicator" class="security-indicator">
         <div class="security-dot"></div>
         <span id="securityText">Monitoring Active</span>
     </div>
 
+    <!-- Warning overlay -->
     <div id="warningOverlay" class="warning-overlay">
         <div>
             <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
@@ -310,12 +446,14 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
         <div class="loading-text">Loading Python Environment...</div>
         <small style="margin-top: 10px; opacity: 0.8;">This may take 10-15 seconds</small>
     </div>
-
+    
+    <!-- Answers Modal -->
     <div id="answersModal" class="answers-modal">
         <div class="answers-content">
             <h3>📝 Your Submitted Answers</h3>
@@ -328,368 +466,125 @@
 
     <div class="container">
         <div class="header">
-            <h1>🔬 Advanced Algorithms Programming Quiz</h1>
-            <p>Solve advanced algorithmic problems on Balanced Search Trees, Scheduling, and Huffman Coding</p>
+            <h1>Advanced Algorithms Quiz</h1>
+            <p>Solve algorithmic problems by writing complete Python functions</p>
             <small style="opacity: 0.8;">⚠️ Anti-cheating measures active</small>
         </div>
 
-        <div id="quizContainer" class="quiz-container" style="display: none;">
-            <div class="progress-container mb-4">
-                <div class="d-flex justify-content-between mb-2">
-                    <span id="progressText">Question 1 of 6</span>
+        <!-- Level Selection Container -->
+        <div id="levelContainer" class="level-container">
+            <h3>Select Difficulty Level</h3>
+            <p class="mb-4">Complete levels in sequence to unlock the next level</p>
+            
+            <div class="level-selection">
+                <!-- Level 1 -->
+                <div class="level-card active" id="level1Card" onclick="selectLevel(1)">
+                    <div class="level-badge level-easy">Level 1</div>
+                    <h4>Beginner</h4>
+                    <p><strong>Difficulty:</strong> Easy</p>
+                    <p><strong>Questions:</strong> 5 Problems</p>
+                    <p><strong>Topics:</strong> Basic Algorithms</p>
+                    <div class="level-info">
+                        <p>🎯 Score ≥ 60% to unlock Level 2</p>
+                    </div>
+                    <div id="level1Progress" class="level-progress">
+                        <div id="level1Status"></div>
+                        <button class="btn btn-success btn-level" onclick="startLevel(1)">Start Level 1</button>
+                    </div>
                 </div>
-                <div class="progress">
-                    <div class="progress-bar" id="progressFill" style="width: 17%;"></div>
+                
+                <!-- Level 2 -->
+                <div class="level-card" id="level2Card">
+                    <div class="level-badge level-medium">Level 2</div>
+                    <h4>Intermediate</h4>
+                    <p><strong>Difficulty:</strong> Medium</p>
+                    <p><strong>Questions:</strong> 5 Problems</p>
+                    <p><strong>Topics:</strong> Advanced Concepts</p>
+                    <div class="level-info">
+                        <p>🔒 Complete Level 1 first</p>
+                    </div>
+                    <div id="level2Progress" class="level-progress">
+                        <div id="level2Status"></div>
+                        <button class="btn btn-secondary btn-level" onclick="startLevel(2)" disabled>Locked</button>
+                    </div>
+                </div>
+                
+                <!-- Level 3 -->
+                <div class="level-card" id="level3Card">
+                    <div class="level-badge level-hard">Level 3</div>
+                    <h4>Expert</h4>
+                    <p><strong>Difficulty:</strong> Hard</p>
+                    <p><strong>Questions:</strong> 5 Problems</p>
+                    <p><strong>Topics:</strong> Complex Algorithms</p>
+                    <div class="level-info">
+                        <p>🔒 Complete Level 2 first</p>
+                    </div>
+                    <div id="level3Progress" class="level-progress">
+                        <div id="level3Status"></div>
+                        <button class="btn btn-secondary btn-level" onclick="startLevel(3)" disabled>Locked</button>
+                    </div>
                 </div>
             </div>
             
-            <div id="questionContainer"></div>
-            
-            <!-- Navigation Buttons -->
-            <div class="btn-group mt-4">
-                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>← Previous</button>
-                <button class="btn btn-info" onclick="runTests()">▶ Run Tests</button>
-                <button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
-                <button class="btn btn-success" id="submitBtn" onclick="submitQuiz()" style="display: none;">Submit Quiz</button>
+            <div class="mt-4 level-progress-text">
+                <p><strong>Progress:</strong> <span id="overallProgress">Loading...</span></p>
             </div>
         </div>
 
-        <div id="resultsContainer" class="results-container">
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div id="questionContainer"></div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container" style="display: none;">
             <div class="score-display">
                 <h2 id="finalScore">0/100</h2>
                 <h3 id="finalPercentage">0%</h3>
-                <p>Quiz Completed!</p>
+                <p id="levelCompletionText">Level Completed!</p>
+                <div id="unlockMessage" style="margin-top: 20px;"></div>
             </div>
             <div id="detailedResults"></div>
-            <div class="row mt-4">
-                <div class="col-12 col-md-4 text-center text-md-start mb-2 mb-md-0">
-                    <button class="btn btn-secondary" onclick="window.history.back()">← Go Back</button>
-                </div>
-                <div class="col-12 col-md-4 text-center mb-2 mb-md-0">
-                    <button class="btn btn-info" onclick="showMyAnswers()">📋 View Your Answers</button>
-                </div>
-                <div class="col-12 col-md-4 text-center text-md-end">
-                    <button class="btn" onclick="restartQuiz()">🔄 Retake Quiz</button>
-                </div>
+            
+            <!-- Fixed Button Layout -->
+            <div class="results-buttons">
+                <button class="btn btn-secondary" onclick="goToLevelSelection()">← Back to Levels</button>
+                <button class="btn btn-info" onclick="showMyAnswers()">📋 View My Answers</button>
+                <button class="btn btn-success" onclick="startNextLevel()" id="nextLevelBtn" style="display: none;">Next Level →</button>
+                <button class="btn btn-warning" onclick="retakeLevel()">🔄 Retake This Level</button>
             </div>
         </div>
     </div>
 
     <script>
+        // ===== GLOBAL VARIABLES =====
         let cheatingAttempts = 0;
         let isQuizActive = false;
         let devToolsWarned = false;
         let tabSwitchCount = 0;
         let lastActivityTime = Date.now();
-        
         let pyodide = null;
         let pyodideReady = false;
         let submittedQuizData = null;
-
-        const questions = [
-            {
-                id: 1,
-                title: "Balanced Search Tree - AVL Tree Implementation",
-                description: "Implement AVL tree insertion with rotation operations",
-                prompt: `Implement an AVL tree with insertion and balancing operations.
-
-REQUIREMENTS:
-- Implement AVLNode class with value, left, right, height
-- Implement AVLTree class with insert method
-- Implement left_rotate, right_rotate, and get_balance methods
-- Maintain balance factor after each insertion`,
-                starterCode: `class AVLNode:
-    def __init__(self, key):
-        self.key = key
-        self.left = None
-        self.right = None
-        self.height = 1
-
-class AVLTree:
-    def insert(self, root, key):
-        # Implement AVL insertion with rotations
-        pass
-    
-    def left_rotate(self, z):
-        # Implement left rotation
-        pass
-    
-    def right_rotate(self, z):
-        # Implement right rotation
-        pass
-    
-    def get_balance(self, root):
-        # Return balance factor
-        pass
-    
-    def get_height(self, root):
-        # Return height of node
-        pass
-
-# Test your implementation
-avl = AVLTree()
-root = None
-for key in [10, 20, 30, 40, 50, 25]:
-    root = avl.insert(root, key)`,
-                testCases: [
-                    { input: [[10, 20, 30, 40, 50, 25]], expected: "balanced" },
-                    { input: [[5, 2, 8, 1, 3, 7, 9]], expected: "balanced" },
-                    { input: [[1, 2, 3, 4, 5]], expected: "balanced" }
-                ],
-                functionName: 'AVLTree',
-                points: 20
-            },
-            {
-                id: 2,
-                title: "Scheduling Algorithms - Round Robin",
-                description: "Implement Round Robin CPU scheduling algorithm",
-                prompt: `Implement Round Robin CPU scheduling algorithm.
-
-REQUIREMENTS:
-- Input: List of processes with [process_id, arrival_time, burst_time]
-- Time quantum: 2 units
-- Output: List of completion times in process order
-- Calculate average waiting time and turnaround time`,
-                starterCode: `def round_robin_scheduling(processes, time_quantum=2):
-    """
-    Implement Round Robin scheduling algorithm
-    
-    Args:
-        processes: List of [process_id, arrival_time, burst_time]
-        time_quantum: Time slice for each process
-    
-    Returns:
-        Dictionary with completion_times, waiting_times, turnaround_times
-    """
-    # Your implementation here
-    pass
-
-# Test your function
-processes = [
-    [1, 0, 5],
-    [2, 1, 3],
-    [3, 2, 8],
-    [4, 3, 6]
-]
-print(round_robin_scheduling(processes))`,
-                testCases: [
-                    { input: [[[1, 0, 5], [2, 1, 3], [3, 2, 8], [4, 3, 6]], 2], expected: "valid_schedule" },
-                    { input: [[[1, 0, 3], [2, 2, 4]], 2], expected: "valid_schedule" }
-                ],
-                functionName: 'round_robin_scheduling',
-                points: 15
-            },
-            {
-                id: 3,
-                title: "Huffman Coding - Tree Construction",
-                description: "Build Huffman coding tree from character frequencies",
-                prompt: `Implement Huffman coding tree construction.
-
-REQUIREMENTS:
-- Input: Dictionary of characters with their frequencies
-- Build Huffman tree using priority queue
-- Generate Huffman codes for each character
-- Return dictionary of character to code mappings`,
-                starterCode: `import heapq
-
-class HuffmanNode:
-    def __init__(self, char, freq):
-        self.char = char
-        self.freq = freq
-        self.left = None
-        self.right = None
-    
-    def __lt__(self, other):
-        return self.freq < other.freq
-
-def build_huffman_tree(freq_dict):
-    """
-    Build Huffman tree from frequency dictionary
-    
-    Args:
-        freq_dict: Dictionary {character: frequency}
-    
-    Returns:
-        Root node of Huffman tree
-    """
-    # Your implementation here
-    pass
-
-def generate_huffman_codes(root):
-    """
-    Generate Huffman codes from the tree
-    
-    Args:
-        root: Root node of Huffman tree
-    
-    Returns:
-        Dictionary {character: huffman_code}
-    """
-    # Your implementation here
-    pass
-
-# Test your implementation
-freq = {'a': 5, 'b': 9, 'c': 12, 'd': 13, 'e': 16, 'f': 45}
-root = build_huffman_tree(freq)
-codes = generate_huffman_codes(root)
-print(codes)`,
-                testCases: [
-                    { input: [{'a': 5, 'b': 9, 'c': 12, 'd': 13, 'e': 16, 'f': 45}], expected: "valid_codes" },
-                    { input: [{'x': 10, 'y': 15, 'z': 25}], expected: "valid_codes" }
-                ],
-                functionName: 'build_huffman_tree',
-                points: 20
-            },
-            {
-                id: 4,
-                title: "Balanced Search Tree - Red-Black Tree Insertion",
-                description: "Implement Red-Black tree insertion with color fixing",
-                prompt: `Implement Red-Black tree insertion operation.
-
-REQUIREMENTS:
-- Implement RBNode class with color (RED/BLACK)
-- Implement RBTree class with insert method
-- Handle color violations with rotations and recoloring
-- Maintain red-black properties after insertion`,
-                starterCode: `class Color:
-    RED = 1
-    BLACK = 2
-
-class RBNode:
-    def __init__(self, key, color=Color.RED):
-        self.key = key
-        self.color = color
-        self.left = None
-        self.right = None
-        self.parent = None
-
-class RBTree:
-    def __init__(self):
-        self.NIL = RBNode(0, Color.BLACK)
-        self.root = self.NIL
-    
-    def insert(self, key):
-        # Implement Red-Black tree insertion
-        pass
-    
-    def left_rotate(self, x):
-        # Implement left rotation
-        pass
-    
-    def right_rotate(self, x):
-        # Implement right rotation
-        pass
-    
-    def fix_insert(self, k):
-        # Fix Red-Black tree properties after insertion
-        pass
-
-# Test your implementation
-rbt = RBTree()
-for key in [7, 3, 18, 10, 22, 8, 11, 26]:
-    rbt.insert(key)`,
-                testCases: [
-                    { input: [[7, 3, 18, 10, 22, 8, 11, 26]], expected: "valid_rb_tree" },
-                    { input: [[1, 2, 3, 4, 5]], expected: "valid_rb_tree" }
-                ],
-                functionName: 'RBTree',
-                points: 20
-            },
-            {
-                id: 5,
-                title: "Scheduling Algorithms - Priority Scheduling",
-                description: "Implement Preemptive Priority CPU scheduling",
-                prompt: `Implement Preemptive Priority scheduling algorithm.
-
-REQUIREMENTS:
-- Input: List of processes with [process_id, arrival_time, burst_time, priority]
-- Lower priority number indicates higher priority
-- Output: Completion times, waiting times, turnaround times
-- Handle preemption when higher priority process arrives`,
-                starterCode: `def priority_scheduling(processes):
-    """
-    Implement Preemptive Priority scheduling
-    
-    Args:
-        processes: List of [process_id, arrival_time, burst_time, priority]
-    
-    Returns:
-        Dictionary with scheduling results
-    """
-    # Your implementation here
-    pass
-
-# Test your function
-processes = [
-    [1, 0, 10, 3],
-    [2, 0, 1, 1],
-    [3, 0, 2, 4],
-    [4, 0, 1, 5],
-    [5, 0, 5, 2]
-]
-print(priority_scheduling(processes))`,
-                testCases: [
-                    { input: [[[1, 0, 10, 3], [2, 0, 1, 1], [3, 0, 2, 4], [4, 0, 1, 5], [5, 0, 5, 2]]], expected: "valid_priority_schedule" },
-                    { input: [[[1, 0, 4, 2], [2, 1, 3, 1]]], expected: "valid_priority_schedule" }
-                ],
-                functionName: 'priority_scheduling',
-                points: 15
-            },
-            {
-                id: 6,
-                title: "Huffman Coding - Encoding and Decoding",
-                description: "Implement complete Huffman encoding and decoding system",
-                prompt: `Implement complete Huffman coding system with encoding and decoding.
-
-REQUIREMENTS:
-- Build Huffman tree from input text
-- Encode text using generated Huffman codes
-- Decode encoded text back to original
-- Handle special characters and edge cases`,
-                starterCode: `class HuffmanCoding:
-    def __init__(self):
-        self.codes = {}
-        self.reverse_mapping = {}
-    
-    def build_tree(self, text):
-        # Build Huffman tree from text
-        pass
-    
-    def build_codes(self, node, current_code):
-        # Build Huffman codes recursively
-        pass
-    
-    def encode(self, text):
-        # Encode text using Huffman codes
-        pass
-    
-    def decode(self, encoded_text):
-        # Decode encoded text back to original
-        pass
-
-# Test your implementation
-huffman = HuffmanCoding()
-text = "this is an example for huffman encoding"
-encoded = huffman.encode(text)
-decoded = huffman.decode(encoded)
-print("Original:", text)
-print("Encoded:", encoded)
-print("Decoded:", decoded)`,
-                testCases: [
-                    { input: ["this is an example for huffman encoding"], expected: "successful_encode_decode" },
-                    { input: ["aaaaabbbccd"], expected: "successful_encode_decode" }
-                ],
-                functionName: 'HuffmanCoding',
-                points: 10
-            }
-        ];
-
+        let questions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
         let currentUser = {};
         let editors = {};
-
+        
+        // Level system variables
+        let currentLevel = 1;
+        let userSubmissions = [];
+        
+        // API Configuration
+        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
+        const CODING_QUESTIONS_API = `${API_BASE_URL}/coding-questions`;
+        const SUBMISSIONS_API = `${API_BASE_URL}/coding-submission`;
+        const GET_SUBMISSIONS = `${API_BASE_URL}/coding-submissions`;
+        
+        // ===== ANTI-CHEATING SYSTEM =====
         function initializeAntiCheating() {
+            // Disable right-click everywhere except code editor
             document.addEventListener('contextmenu', function(e) {
                 if (!e.target.closest('.monaco-editor')) {
                     e.preventDefault();
@@ -698,6 +593,7 @@ print("Decoded:", decoded)`,
                 }
             });
             
+            // Disable keyboard shortcuts (except in editor)
             document.addEventListener('keydown', function(e) {
                 if (e.target.closest('.monaco-editor') || e.target.classList.contains('monaco-editor')) {
                     return true;
@@ -720,6 +616,7 @@ print("Decoded:", decoded)`,
                 }
             });
             
+            // Detect developer tools
             let devtools = {open: false, orientation: null};
             const threshold = 160;
             
@@ -739,6 +636,7 @@ print("Decoded:", decoded)`,
                 }
             }, 500);
             
+            // Detect window focus changes
             window.addEventListener('blur', function() {
                 if (isQuizActive) {
                     tabSwitchCount++;
@@ -755,6 +653,7 @@ print("Decoded:", decoded)`,
                 updateSecurityIndicator();
             });
             
+            // Monitor for screenshot attempts
             document.addEventListener('keyup', function(e) {
                 if (e.keyCode === 44 && isQuizActive) {
                     recordCheatingAttempt('screenshot_attempt');
@@ -762,6 +661,7 @@ print("Decoded:", decoded)`,
                 }
             });
             
+            // Disable printing
             window.addEventListener('beforeprint', function(e) {
                 if (isQuizActive) {
                     recordCheatingAttempt('print_attempt');
@@ -771,12 +671,14 @@ print("Decoded:", decoded)`,
                 }
             });
             
+            // Monitor visibility changes
             document.addEventListener('visibilitychange', function() {
                 if (document.hidden && isQuizActive) {
                     recordCheatingAttempt('visibility_change');
                 }
             });
             
+            // Prevent text selection outside editor
             document.addEventListener('selectstart', function(e) {
                 if (!e.target.closest('.monaco-editor') && isQuizActive) {
                     recordCheatingAttempt('text_selection');
@@ -788,12 +690,12 @@ print("Decoded:", decoded)`,
         function recordCheatingAttempt(type) {
             cheatingAttempts++;
             console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
-            
             document.getElementById('attemptCount').textContent = cheatingAttempts;
             updateSecurityIndicator(true);
             
+            // Log to server
             if (currentUser.username && currentUser.email) {
-                fetch('https://sanghamitra-learnworld.vercel.app/api/log-cheating', {
+                fetch(`${API_BASE_URL}/log-cheating`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -803,7 +705,8 @@ print("Decoded:", decoded)`,
                         cheatingType: type,
                         timestamp: new Date(),
                         currentQuestion: currentQuestionIndex + 1,
-                        totalAttempts: cheatingAttempts
+                        totalAttempts: cheatingAttempts,
+                        level: currentLevel
                     })
                 }).catch(err => console.error('Failed to log cheating attempt:', err));
             }
@@ -830,77 +733,473 @@ print("Decoded:", decoded)`,
             }
         }
 
-        async function initPyodide() {
-            const loadingText = document.querySelector('.loading-text');
+
+
+
+
+
+
+
+        // ===== LEVEL MANAGEMENT =====
+        // ===== LEVEL MANAGEMENT =====
+async function loadUserProgress() {
+    try {
+        // Get current user info
+        const sessionRes = await fetch(`${API_BASE_URL}/session-info`, {
+            credentials: 'include',
+            mode: 'cors'
+        });
+        
+        if (sessionRes.ok) {
+            const sessionData = await sessionRes.json();
+            currentUser = { 
+                username: sessionData.username || 'TestUser', 
+                email: sessionData.email || 'test@example.com' 
+            };
+            
+            // IMPORTANT: Fetch user submissions for THIS TOPIC
+            // Assuming current topic is 'Advanced Algorithms' - you might want to make this dynamic
+            const currentTopic = 'Advanced Algorithms';
+            const submissionsRes = await fetch(
+                `${GET_SUBMISSIONS}?email=${encodeURIComponent(currentUser.email)}&topic=${encodeURIComponent(currentTopic)}`, {
+                credentials: 'include',
+                mode: 'cors'
+            });
+            
+            if (submissionsRes.ok) {
+                const submissionsData = await submissionsRes.json();
+                if (submissionsData.success) {
+                    userSubmissions = submissionsData.submissions || [];
+                    console.log(`Loaded ${userSubmissions.length} submissions for topic: ${currentTopic}`);
+                }
+            }
+        }
+    } catch (error) {
+        console.log('Error loading progress:', error);
+        userSubmissions = [];
+    }
+    
+    updateLevelUI();
+}
+
+
+function getLevelScore(level, topic = 'Advanced Algorithms') {
+    // Map level to difficulty
+    const difficultyMap = {1: 'easy', 2: 'medium', 3: 'hard'};
+    const targetDifficulty = difficultyMap[level];
+    
+    // Find submissions for this topic AND level
+    const levelSubmissions = userSubmissions.filter(sub => {
+        // Check if submission matches the topic
+        if (sub.topic !== topic) return false;
+        
+        // Check both old format (level field) and new format (difficulty in questions)
+        if (sub.level === level) return true;
+        
+        // If no level field, check questions difficulty
+        if (sub.questions && sub.questions.length > 0) {
+            // All questions should have same difficulty in a level
+            const question = sub.questions[0];
+            return question.difficulty === targetDifficulty;
+        }
+        return false;
+    });
+    
+    if (levelSubmissions.length === 0) return null;
+    
+    // Get the highest score for this level and topic
+    const bestSubmission = levelSubmissions.reduce((best, current) => 
+        current.percentage > best.percentage ? current : best
+    );
+    
+    return bestSubmission.percentage;
+}
+
+function isLevelCompleted(level, topic = 'Advanced Algorithms') {
+    return getLevelScore(level, topic) !== null;
+}
+
+function updateLevelUI() {
+    // Get scores for each level FOR THIS TOPIC
+    const level1Score = getLevelScore(1, 'Advanced Algorithms');
+    const level2Score = getLevelScore(2, 'Advanced Algorithms');
+    const level3Score = getLevelScore(3, 'Advanced Algorithms');
+    
+    // Update level 1
+    const level1Status = document.getElementById('level1Status');
+    if (level1Score !== null) {
+        level1Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level1Score}%</div>`;
+    } else {
+        level1Status.innerHTML = '';
+    }
+    
+    // Update level 2
+    const level2Card = document.getElementById('level2Card');
+    const level2Btn = level2Card.querySelector('button');
+    const level2Status = document.getElementById('level2Status');
+    
+    if (level1Score !== null && level1Score >= 60) {
+        level2Card.classList.remove('locked');
+        level2Btn.disabled = false;
+        level2Btn.className = 'btn btn-success btn-level';
+        level2Btn.textContent = 'Start Level 2';
+        level2Btn.onclick = () => startLevel(2);
+        
+        if (level2Score !== null) {
+            level2Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level2Score}%</div>`;
+        } else {
+            level2Status.innerHTML = '';
+        }
+    } else {
+        level2Card.classList.add('locked');
+        level2Btn.disabled = true;
+        level2Btn.className = 'btn btn-secondary btn-level';
+        level2Btn.textContent = 'Locked';
+        level2Status.innerHTML = '';
+    }
+    
+    // Update level 3
+    const level3Card = document.getElementById('level3Card');
+    const level3Btn = level3Card.querySelector('button');
+    const level3Status = document.getElementById('level3Status');
+    
+    if (level1Score !== null && level2Score !== null && level1Score >= 60 && level2Score >= 60) {
+        level3Card.classList.remove('locked');
+        level3Btn.disabled = false;
+        level3Btn.className = 'btn btn-success btn-level';
+        level3Btn.textContent = 'Start Level 3';
+        level3Btn.onclick = () => startLevel(3);
+        
+        if (level3Score !== null) {
+            level3Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level3Score}%</div>`;
+        } else {
+            level3Status.innerHTML = '';
+        }
+    } else {
+        level3Card.classList.add('locked');
+        level3Btn.disabled = true;
+        level3Btn.className = 'btn btn-secondary btn-level';
+        level3Btn.textContent = 'Locked';
+        level3Status.innerHTML = '';
+    }
+    
+    // Update overall progress FOR THIS TOPIC
+    const completedCount = [level1Score, level2Score, level3Score].filter(score => score !== null).length;
+    document.getElementById('overallProgress').textContent = `${completedCount}/3 levels completed`;
+}
+
+async function startLevel(level) {
+    currentLevel = level;
+    const currentTopic = 'Advanced Algorithms'; // Define current topic
+    
+    // Check if level is unlocked FOR THIS TOPIC
+    const level1Score = getLevelScore(1, currentTopic);
+    const level2Score = getLevelScore(2, currentTopic);
+    
+    if (level === 2 && (level1Score === null || level1Score < 60)) {
+        alert('Please complete Level 1 with at least 60% score to unlock Level 2');
+        return;
+    }
+    
+    if (level === 3 && (level1Score === null || level2Score === null || level1Score < 60 || level2Score < 60)) {
+        alert('Please complete both Level 1 and Level 2 with at least 60% score to unlock Level 3');
+        return;
+    }
+    
+    // Hide level selection, show loading
+    document.getElementById('levelContainer').style.display = 'none';
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.querySelector('.loading-text').textContent = `Loading Level ${level} Questions...`;
+    
+    try {
+        // Fetch questions for this level
+        await fetchLevelQuestions(level);
+        
+        // Initialize quiz
+        initializeQuiz();
+        
+    } catch (error) {
+        console.error('Failed to start level:', error);
+        alert('Failed to load questions. Please try again.');
+        goToLevelSelection();
+    }
+}
+
+
+
+
+        function isLevelCompleted(level) {
+            return getLevelScore(level) !== null;
+        }
+        
+        function updateLevelUI() {
+            // Get scores for each level
+            const level1Score = getLevelScore(1);
+            const level2Score = getLevelScore(2);
+            const level3Score = getLevelScore(3);
+            
+            // Update level 1
+            const level1Status = document.getElementById('level1Status');
+            if (level1Score !== null) {
+                level1Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level1Score}%</div>`;
+            } else {
+                level1Status.innerHTML = '';
+            }
+            
+            // Update level 2
+            const level2Card = document.getElementById('level2Card');
+            const level2Btn = level2Card.querySelector('button');
+            const level2Status = document.getElementById('level2Status');
+            
+            if (level1Score !== null && level1Score >= 60) {
+                level2Card.classList.remove('locked');
+                level2Btn.disabled = false;
+                level2Btn.className = 'btn btn-success btn-level';
+                level2Btn.textContent = 'Start Level 2';
+                level2Btn.onclick = () => startLevel(2);
+                
+                if (level2Score !== null) {
+                    level2Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level2Score}%</div>`;
+                } else {
+                    level2Status.innerHTML = '';
+                }
+            } else {
+                level2Card.classList.add('locked');
+                level2Btn.disabled = true;
+                level2Btn.className = 'btn btn-secondary btn-level';
+                level2Btn.textContent = 'Locked';
+                level2Status.innerHTML = '';
+            }
+            
+            // Update level 3
+            const level3Card = document.getElementById('level3Card');
+            const level3Btn = level3Card.querySelector('button');
+            const level3Status = document.getElementById('level3Status');
+            
+            if (level1Score !== null && level2Score !== null && level1Score >= 60 && level2Score >= 60) {
+                level3Card.classList.remove('locked');
+                level3Btn.disabled = false;
+                level3Btn.className = 'btn btn-success btn-level';
+                level3Btn.textContent = 'Start Level 3';
+                level3Btn.onclick = () => startLevel(3);
+                
+                if (level3Score !== null) {
+                    level3Status.innerHTML = `<div class="completion-badge">✓ Completed: ${level3Score}%</div>`;
+                } else {
+                    level3Status.innerHTML = '';
+                }
+            } else {
+                level3Card.classList.add('locked');
+                level3Btn.disabled = true;
+                level3Btn.className = 'btn btn-secondary btn-level';
+                level3Btn.textContent = 'Locked';
+                level3Status.innerHTML = '';
+            }
+            
+            // Update overall progress
+            const completedCount = [level1Score, level2Score, level3Score].filter(score => score !== null).length;
+            document.getElementById('overallProgress').textContent = `${completedCount}/3 levels completed`;
+        }
+        
+        function selectLevel(level) {
+            const levelScore = getLevelScore(level);
+            const isUnlocked = (level === 1) || 
+                (level === 2 && getLevelScore(1) !== null && getLevelScore(1) >= 60) ||
+                (level === 3 && getLevelScore(1) !== null && getLevelScore(2) !== null && 
+                 getLevelScore(1) >= 60 && getLevelScore(2) >= 60);
+            
+            if (isUnlocked) {
+                document.querySelectorAll('.level-card').forEach(card => card.classList.remove('active'));
+                document.getElementById(`level${level}Card`).classList.add('active');
+            }
+        }
+        
+        
+        async function fetchLevelQuestions(level) {
+            const difficultyMap = {1: 'easy', 2: 'medium', 3: 'hard'};
+            const difficulty = difficultyMap[level];
             
             try {
-                loadingText.textContent = 'Loading Python interpreter...';
+                const response = await fetch(`${CODING_QUESTIONS_API}?difficulty=${difficulty}&limit=5&topic=Advanced%20Algorithms`);
                 
-                pyodide = await loadPyodide({
-                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
-                });
-                
-                loadingText.textContent = 'Python ready! Initializing quiz...';
-                pyodideReady = true;
-                
-                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-                require(['vs/editor/editor.main'], function() {
-                    setTimeout(() => initializeQuiz(), 500);
-                });
-                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.questions && data.questions.length > 0) {
+                        questions = data.questions.map(q => ({
+                            ...q,
+                            id: q.questionId,
+                            points: q.maxScore || 20,
+                            difficulty: q.difficulty || difficulty
+                        }));
+                        console.log(`✅ Loaded ${questions.length} questions for Level ${level} (${difficulty})`);
+                    } else {
+                        throw new Error('No questions found');
+                    }
+                } else {
+                    throw new Error('Failed to fetch questions');
+                }
             } catch (error) {
-                console.error('Failed to load Pyodide:', error);
-                loadingText.textContent = 'Error loading Python. Please refresh.';
-                alert('Failed to load Python environment. Please refresh the page.');
+                console.error('Error fetching questions:', error);
+                // Fallback to local questions if API fails
+                questions = getFallbackQuestions(level);
+            }
+        }
+        
+        function getFallbackQuestions(level) {
+            // Fallback questions for demo
+            const fallbackQuestions = [
+                {
+                    id: 1, questionId: 1, title: "Find Factors", 
+                    description: "Find all factors of a number", difficulty: "easy",
+                    prompt: "Write find_factors(n)", starterCode: "def find_factors(n):\n    pass",
+                    functionName: "find_factors", testCases: [{input: 12, expected: [1,2,3,4,6,12]}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 2, questionId: 2, title: "Reverse String", 
+                    description: "Reverse a string", difficulty: "easy",
+                    prompt: "Write reverse_string(s)", starterCode: "def reverse_string(s):\n    pass",
+                    functionName: "reverse_string", testCases: [{input: "hello", expected: "olleh"}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 3, questionId: 3, title: "Find Maximum", 
+                    description: "Find maximum in a list", difficulty: "easy",
+                    prompt: "Write find_maximum(lst)", starterCode: "def find_maximum(lst):\n    pass",
+                    functionName: "find_maximum", testCases: [{input: [1,5,3,9,2], expected: 9}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 4, questionId: 4, title: "Check Palindrome", 
+                    description: "Check if string is palindrome", difficulty: "easy",
+                    prompt: "Write is_palindrome(s)", starterCode: "def is_palindrome(s):\n    pass",
+                    functionName: "is_palindrome", testCases: [{input: "radar", expected: true}, {input: "hello", expected: false}],
+                    maxScore: 20, points: 20
+                },
+                {
+                    id: 5, questionId: 5, title: "Sum Even Numbers", 
+                    description: "Sum all even numbers in list", difficulty: "easy",
+                    prompt: "Write sum_even_numbers(lst)", starterCode: "def sum_even_numbers(lst):\n    pass",
+                    functionName: "sum_even_numbers", testCases: [{input: [1,2,3,4,5,6], expected: 12}],
+                    maxScore: 20, points: 20
+                }
+            ];
+            return fallbackQuestions.map(q => ({...q, difficulty: level === 1 ? 'easy' : level === 2 ? 'medium' : 'hard'}));
+        }
+        
+        function goToLevelSelection() {
+            // Reset quiz state
+            questions = [];
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            editors = {};
+            cheatingAttempts = 0;
+            tabSwitchCount = 0;
+            isQuizActive = false;
+            submittedQuizData = null;
+            
+            // Show level selection, hide other containers
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('levelContainer').style.display = 'block';
+            
+            // Reload progress from backend
+            loadUserProgress();
+            
+            // Exit fullscreen
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+        
+        function startNextLevel() {
+            const nextLevel = currentLevel + 1;
+            if (nextLevel <= 3) {
+                startLevel(nextLevel);
+            } else {
+                alert('🎉 Congratulations! You have completed all levels!');
+                goToLevelSelection();
+            }
+        }
+        
+        function retakeLevel() {
+            if (confirm(`Retake Level ${currentLevel}? Your previous score will be replaced.`)) {
+                startLevel(currentLevel);
             }
         }
 
+        // ===== QUIZ FUNCTIONS =====
+        async function initPyodide() {
+            const loadingText = document.querySelector('.loading-text');
+            try {
+                loadingText.textContent = 'Loading Python interpreter...';
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+                });
+                loadingText.textContent = 'Python ready!';
+                pyodideReady = true;
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+                require(['vs/editor/editor.main'], function() {
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').style.display = 'none';
+                        document.getElementById('quizContainer').style.display = 'block';
+                        renderCurrentQuestion();
+                    }, 500);
+                });
+            } catch (error) {
+                console.error('Failed to load Pyodide:', error);
+                alert('Failed to load Python environment. Please refresh the page.');
+            }
+        }
+        
         async function initializeQuiz() {
-            console.log('🚀 Initializing quiz...');
+            console.log(`🚀 Initializing Level ${currentLevel} quiz...`);
             
+            // Initialize anti-cheating
             initializeAntiCheating();
             
-            currentUser = { username: 'TestUser', email: 'test@example.com' };
-            userAnswers = {};
-            
+            // Get user session
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/session-info', {
+                const response = await fetch(`${API_BASE_URL}/session-info`, {
                     credentials: 'include',
                     mode: 'cors'
                 });
-                
                 if (response.ok) {
                     const data = await response.json();
                     if (data.username && data.email) {
                         currentUser = { username: data.username, email: data.email };
-                        console.log('✅ User logged in:', currentUser);
                     }
                 }
             } catch (error) {
-                console.log('ℹ️ Using test user for demo');
+                console.log('Using test user');
             }
             
+            // Start Pyodide if not already loaded
+            if (!pyodideReady) {
+                await initPyodide();
+            } else {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('quizContainer').style.display = 'block';
+                renderCurrentQuestion();
+            }
+            
+            // Enable quiz monitoring
             isQuizActive = true;
-            
-            document.getElementById('loadingOverlay').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen request declined:', err);
-                });
-            }
-            
-            renderCurrentQuestion();
-            updateProgress();
         }
-
+        
         function renderCurrentQuestion() {
+            if (!questions.length) return;
+            
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
             
             container.innerHTML = `
                 <div class="question-card">
+                    <!-- Question progress indicator -->
+                    <div class="question-number">
+                        Question ${currentQuestionIndex + 1} of ${questions.length} • Level ${currentLevel}
+                    </div>
+                    
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3>${question.title}</h3>
                         <span class="badge bg-primary">${question.points} points</span>
@@ -922,6 +1221,20 @@ print("Decoded:", decoded)`,
                         `).join('')}
                     </div>
                     <div id="testResults-${question.id}"></div>
+                    
+                    <!-- Question Navigation Buttons -->
+                    <div class="question-navigation d-flex justify-content-between mt-4">
+                        <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        <div class="text-center">
+                            <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
+                        </div>
+                        <div>
+                            ${currentQuestionIndex === questions.length - 1 ? 
+                                `<button class="btn btn-success" onclick="submitQuiz()" id="submitBtn">📊 Submit Quiz</button>` :
+                                `<button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>`
+                            }
+                        </div>
+                    </div>
                 </div>
             `;
             
@@ -940,33 +1253,26 @@ print("Decoded:", decoded)`,
                 userAnswers[question.id] = editor.getValue();
             });
         }
-
+        
         function formatTestCase(test) {
             const input = Array.isArray(test.input) ? test.input.join(', ') : test.input;
             const expected = JSON.stringify(test.expected);
             return `Input: ${input} → Expected: ${expected}`;
         }
-
+        
         async function executePythonTests(code, question) {
-            if (!pyodideReady) {
-                throw new Error('Python environment not ready');
-            }
-
-            const results = [];
+            if (!pyodideReady) throw new Error('Python environment not ready');
             
+            const results = [];
             for (let i = 0; i < question.testCases.length; i++) {
                 const testCase = question.testCases[i];
-                
                 try {
-                    await pyodide.runPythonAsync(`
-import sys
-for name in list(globals().keys()):
+                    await pyodide.runPythonAsync(`for name in list(globals().keys()):
     if not name.startswith('__') and name not in ['sys']:
         try:
             del globals()[name]
         except:
-            pass
-                    `);
+            pass`);
                     
                     await pyodide.runPythonAsync(code);
                     
@@ -980,23 +1286,15 @@ for name in list(globals().keys()):
                     }
                     
                     const result = await pyodide.runPythonAsync(functionCall);
-                    
-                    let output;
-                    if (result && typeof result === 'object' && result.toJs) {
-                        output = result.toJs({ dict_converter: Object.fromEntries });
-                    } else {
-                        output = result;
-                    }
-                    
-                    const passed = deepEqual(output, testCase.expected);
+                    let output = result && typeof result === 'object' && result.toJs ? 
+                        result.toJs({ dict_converter: Object.fromEntries }) : result;
                     
                     results.push({
-                        passed,
+                        passed: deepEqual(output, testCase.expected),
                         output,
                         expected: testCase.expected,
                         error: null
                     });
-                    
                 } catch (error) {
                     results.push({
                         passed: false,
@@ -1006,10 +1304,9 @@ for name in list(globals().keys()):
                     });
                 }
             }
-            
             return results;
         }
-
+        
         function deepEqual(a, b) {
             if (a === b) return true;
             if (a == null || b == null) return false;
@@ -1035,28 +1332,25 @@ for name in list(globals().keys()):
             
             return false;
         }
-
+        
         async function runTests() {
             if (!pyodideReady) {
                 alert('Python environment is still loading. Please wait...');
                 return;
             }
-
+            
             const question = questions[currentQuestionIndex];
             const code = editors[question.id].getValue();
             const resultsDiv = document.getElementById(`testResults-${question.id}`);
-            
             resultsDiv.innerHTML = '<h6>🔧 Running tests...</h6>';
             
             try {
                 const testResults = await executePythonTests(code, question);
-                
-                let testHtml = '<h6>Test Results:</h6>';
                 let passedCount = 0;
+                let testHtml = '<h6>Test Results:</h6>';
                 
                 testResults.forEach((result, i) => {
                     if (result.passed) passedCount++;
-                    
                     testHtml += `
                         <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
                             Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
@@ -1077,73 +1371,44 @@ for name in list(globals().keys()):
                 `;
                 
                 resultsDiv.innerHTML = testHtml;
-                
             } catch (error) {
                 console.error('Test execution error:', error);
-                resultsDiv.innerHTML = `
-                    <div class="test-result test-failed">
-                        ❌ Error: ${error.message}
-                    </div>
-                `;
+                resultsDiv.innerHTML = `<div class="test-result test-failed">❌ Error: ${error.message}</div>`;
             }
         }
-
+        
         function checkExplanations(code) {
             const comments = code.match(/#.+/g) || [];
             return comments.some(c => c.length > 20) && comments.length >= 2;
         }
-
+        
         function nextQuestion() {
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 renderCurrentQuestion();
-                updateProgress();
             }
         }
-
+        
         function previousQuestion() {
             if (currentQuestionIndex > 0) {
                 currentQuestionIndex--;
                 renderCurrentQuestion();
-                updateProgress();
             }
         }
-
-        function updateProgress() {
-            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
-            
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            prevBtn.disabled = currentQuestionIndex === 0;
-            
-            if (currentQuestionIndex === questions.length - 1) {
-                nextBtn.style.display = 'none';
-                submitBtn.style.display = 'inline-block';
-            } else {
-                nextBtn.style.display = 'inline-block';
-                submitBtn.style.display = 'none';
-            }
-        }
-
+        
         async function submitQuiz() {
             if (!confirm('Submit your quiz? Make sure you\'ve tested all answers.')) return;
-
+            
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Submitting...';
-            
             isQuizActive = false;
-
+            
             let totalScore = 0;
             const results = [];
             
             for (const question of questions) {
                 const code = userAnswers[question.id] || '';
-                
                 try {
                     const testResults = await executePythonTests(code, question);
                     const passedTests = testResults.filter(r => r.passed).length;
@@ -1153,29 +1418,34 @@ for name in list(globals().keys()):
                         Math.round((passedTests / testResults.length) * question.points) + bonus,
                         question.points
                     );
-                    
                     totalScore += score;
                     results.push({
                         questionId: question.id,
                         title: question.title,
+                        type: 'coding',
                         code,
                         score,
                         maxScore: question.points,
                         passedTests,
                         totalTests: testResults.length,
-                        hasExplanations
+                        hasExplanations,
+                        difficulty: question.difficulty,
+                        timeTaken: 0
                     });
                 } catch (error) {
                     results.push({
                         questionId: question.id,
                         title: question.title,
+                        type: 'coding',
                         code,
                         score: 0,
                         maxScore: question.points,
                         passedTests: 0,
                         totalTests: question.testCases.length,
                         hasExplanations: checkExplanations(code),
-                        error: error.message
+                        difficulty: question.difficulty,
+                        error: error.message,
+                        timeTaken: 0
                     });
                 }
             }
@@ -1183,51 +1453,75 @@ for name in list(globals().keys()):
             const maxScore = questions.reduce((sum, q) => sum + q.points, 0);
             const percentage = Math.round((totalScore / maxScore) * 100);
             
-            submittedQuizData = {
+            const quizData = {
                 username: currentUser.username,
                 email: currentUser.email,
-                topic: 'Advanced Algorithms - Scheduling & Huffman algorithms',
+                topic: 'Advanced Algorithms',
                 score: totalScore,
                 maxScore,
                 percentage,
+                level: currentLevel,
                 questions: results,
                 timestamp: new Date().toISOString(),
-                cheatingAttempts: cheatingAttempts,
+                cheatingAttempts,
                 tabSwitches: tabSwitchCount
             };
             
+            submittedQuizData = quizData;
+            
             try {
-                const response = await fetch('https://sanghamitra-learnworld.vercel.app/api/algorithm-submissions', {
+                const response = await fetch(`${SUBMISSIONS_API}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(submittedQuizData)
+                    credentials: 'include',
+                    body: JSON.stringify(quizData)
                 });
                 
                 if (response.ok) {
-                    alert('✅ Quiz submitted successfully!');
+                    console.log('Quiz submitted successfully');
+                    // Refresh user progress
+                    await loadUserProgress();
                 } else {
-                    throw new Error(`Server error: ${response.status}`);
+                    console.error('Failed to submit quiz');
                 }
             } catch (error) {
                 console.error('Submission error:', error);
-                alert('⚠️ Could not submit to server, but showing results.');
             }
             
-            showResults(submittedQuizData);
+            showResults(quizData);
         }
-
+        
         function showResults(quizData) {
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
             document.getElementById('finalScore').textContent = `${quizData.score}/${quizData.maxScore}`;
             document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            document.getElementById('levelCompletionText').textContent = `Level ${currentLevel} Completed!`;
+            
+            // Show unlock message
+            const unlockMessage = document.getElementById('unlockMessage');
+            const nextLevelBtn = document.getElementById('nextLevelBtn');
+            
+            if (currentLevel === 1 && quizData.percentage >= 60) {
+                unlockMessage.innerHTML = `<div class="alert alert-success">🎉 Level 2 Unlocked! Score ≥ 60% achieved.</div>`;
+                nextLevelBtn.style.display = 'inline-block';
+            } else if (currentLevel === 2 && quizData.percentage >= 60) {
+                unlockMessage.innerHTML = `<div class="alert alert-success">🎉 Level 3 Unlocked! Score ≥ 60% achieved.</div>`;
+                nextLevelBtn.style.display = 'inline-block';
+            } else if (currentLevel === 3) {
+                unlockMessage.innerHTML = `<div class="alert alert-success">🎊 All Levels Completed! Congratulations!</div>`;
+                nextLevelBtn.style.display = 'none';
+            } else {
+                unlockMessage.innerHTML = `<div class="alert alert-warning">⚠️ Score ${quizData.percentage}% - Need ≥ 60% to unlock next level</div>`;
+                nextLevelBtn.style.display = 'none';
+            }
             
             const detailedResults = document.getElementById('detailedResults');
             detailedResults.innerHTML = `
                 <h4>Detailed Results</h4>
                 ${quizData.cheatingAttempts > 0 ? `
                     <div class="alert alert-warning">
-                        ⚠️ Security Note: ${quizData.cheatingAttempts} suspicious activities were detected during this quiz.
+                        ⚠️ ${quizData.cheatingAttempts} suspicious activities were detected.
                     </div>
                 ` : ''}
                 ${quizData.questions.map(q => `
@@ -1238,39 +1532,17 @@ for name in list(globals().keys()):
                                 <div class="progress-bar" style="width: ${(q.score/q.maxScore)*100}%"></div>
                             </div>
                             <small>Tests: ${q.passedTests}/${q.totalTests} | ${q.hasExplanations ? '✓ Explained' : '⚠ No explanation'}</small>
-                            ${q.error ? `<div class="text-danger small mt-1">Error: ${q.error}</div>` : ''}
                         </div>
                     </div>
                 `).join('')}
             `;
         }
-
-        function restartQuiz() {
-            currentQuestionIndex = 0;
-            userAnswers = {};
-            editors = {};
-            cheatingAttempts = 0;
-            tabSwitchCount = 0;
-            isQuizActive = true;
-            submittedQuizData = null;
-            
-            document.getElementById('resultsContainer').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Quiz';
-            
-            renderCurrentQuestion();
-            updateProgress();
-        }
-
+        
         function showMyAnswers() {
             if (!submittedQuizData) {
-                alert('No quiz data found. Please submit the quiz first.');
+                alert('No quiz data found.');
                 return;
             }
-        
             const answersList = document.getElementById('answersList');
             answersList.innerHTML = submittedQuizData.questions.map(q => `
                 <div class="mb-4">
@@ -1278,7 +1550,6 @@ for name in list(globals().keys()):
                     <div class="code-block">${escapeHtml(q.code)}</div>
                 </div>
             `).join('');
-        
             document.getElementById('answersModal').style.display = 'flex';
         }
         
@@ -1291,8 +1562,23 @@ for name in list(globals().keys()):
             div.textContent = text;
             return div.innerHTML;
         }
+        
+        function goToHome() {
+            window.location.href = './iitm-pdsa.html';
+        }
 
-        window.addEventListener('DOMContentLoaded', initPyodide);
+
+
+        // ===== INITIALIZATION =====
+        window.addEventListener('DOMContentLoaded', function() {
+            // Initialize level UI
+            loadUserProgress();
+            
+            // Start loading Pyodide in background
+            initPyodide().catch(console.error);
+        });
+
+
     </script>
 </body>
 </html>
