@@ -6,8 +6,9 @@
     <title>Python Coding Quiz - 4 Questions (25 pts each)</title>
     <!-- Pyodide for Python execution -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-    <!-- Monaco Editor -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <!-- Monaco Editor - Using simpler CDN without loader issues -->
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs/editor/editor.main.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs/loader.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Anti-cheating CSS - prevents copy/paste outside editor */
@@ -36,8 +37,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-            -webkit-print-color-adjust: exact;
-            pointer-events: auto;
         }
         
         ::-webkit-scrollbar {
@@ -298,6 +297,16 @@
             font-size: 16px;
             margin-left: 10px;
         }
+        textarea.code-fallback {
+            width: 100%;
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
     </style>
 </head>
 <body>
@@ -334,7 +343,7 @@
             <small style="opacity: 0.8;">⚠️ Anti-cheating active | Write complete functions with comments</small>
         </div>
 
-        <!-- Topic Selector (optional, but allows any topic) -->
+        <!-- Topic Selector -->
         <div class="quiz-container" id="topicSelectorContainer" style="text-align: center; padding: 20px;">
             <div class="topic-selector">
                 <label for="topicSelect"><strong>Select Topic:</strong></label>
@@ -385,6 +394,7 @@
         let userAnswers = {};
         let currentUser = { username: 'QuizUser', email: 'quiz@example.com' };
         let editors = {};
+        let monacoLoaded = false;
         
         // API Configuration
         const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
@@ -394,14 +404,14 @@
         // ===== ANTI-CHEATING SYSTEM =====
         function initializeAntiCheating() {
             document.addEventListener('contextmenu', function(e) {
-                if (!e.target.closest('.monaco-editor')) {
+                if (!e.target.closest('.monaco-editor') && !e.target.closest('textarea')) {
                     e.preventDefault();
                     recordCheatingAttempt('right_click');
                     return false;
                 }
             });
             document.addEventListener('keydown', function(e) {
-                if (e.target.closest('.monaco-editor')) return true;
+                if (e.target.closest('.monaco-editor') || e.target.tagName === 'TEXTAREA') return true;
                 if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
                     (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83) || e.keyCode === 44) {
                     e.preventDefault();
@@ -473,11 +483,9 @@
             }
         }
         
-        // ===== FETCH ANY 4 QUESTIONS FROM DATABASE (any topic) =====
+        // ===== FETCH ANY 4 QUESTIONS FROM DATABASE =====
         async function fetchAny4Questions(topic = 'Python Basics') {
             try {
-                // Fetch questions from API with limit=4, based on selected topic
-                // Using topic filter to get questions related to the chosen topic
                 const url = `${CODING_QUESTIONS_API}?topic=${encodeURIComponent(topic)}&limit=4`;
                 console.log(`Fetching questions from: ${url}`);
                 const response = await fetch(url, {
@@ -489,9 +497,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success && data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
-                        // Take first 4 questions (or whatever returned)
                         let fetchedQuestions = data.questions.slice(0, 4);
-                        // Map each question to our format, each worth 25 points
                         questions = fetchedQuestions.map((q, idx) => ({
                             id: q.questionId || q.id || idx,
                             questionId: q.questionId || q.id,
@@ -501,7 +507,7 @@
                             starterCode: q.starterCode || "def solution():\n    # Write your code here\n    pass",
                             functionName: q.functionName || "solution",
                             testCases: q.testCases && Array.isArray(q.testCases) ? q.testCases : [{ input: "test", expected: "output" }],
-                            points: 25,   // EACH QUESTION = 25 POINTS
+                            points: 25,
                             maxScore: 25,
                             topic: q.topic || topic
                         }));
@@ -515,7 +521,6 @@
                 }
             } catch (error) {
                 console.error('Error fetching from database:', error);
-                // FALLBACK: provide 4 generic coding questions (each 25 points) so quiz always works
                 console.warn('Using fallback questions (database unavailable)');
                 questions = getFallbackQuestions();
                 return true;
@@ -526,29 +531,83 @@
             return [
                 {
                     id: 1, title: "Sum of Two Numbers", description: "Write a function that returns sum of two integers.",
-                    prompt: "Write function add(a, b) that returns a + b", starterCode: "def add(a, b):\n    pass",
+                    prompt: "Write function add(a, b) that returns a + b", starterCode: "def add(a, b):\n    # Your code here\n    pass",
                     functionName: "add", testCases: [{input: [3,5], expected: 8}, {input: [-1,1], expected: 0}],
                     points: 25, maxScore: 25
                 },
                 {
                     id: 2, title: "Reverse String", description: "Reverse a given string.",
-                    prompt: "Write function reverse_string(s) that returns reversed string.", starterCode: "def reverse_string(s):\n    pass",
+                    prompt: "Write function reverse_string(s) that returns reversed string.", starterCode: "def reverse_string(s):\n    # Your code here\n    pass",
                     functionName: "reverse_string", testCases: [{input: "hello", expected: "olleh"}, {input: "abc", expected: "cba"}],
                     points: 25, maxScore: 25
                 },
                 {
                     id: 3, title: "Find Maximum in List", description: "Return maximum element from list.",
-                    prompt: "Write function find_max(lst) returning max value.", starterCode: "def find_max(lst):\n    pass",
+                    prompt: "Write function find_max(lst) returning max value.", starterCode: "def find_max(lst):\n    # Your code here\n    pass",
                     functionName: "find_max", testCases: [{input: [1,5,3,9,2], expected: 9}, {input: [-5,-1,-10], expected: -1}],
                     points: 25, maxScore: 25
                 },
                 {
                     id: 4, title: "Check Even or Odd", description: "Return True if number is even, else False.",
-                    prompt: "Write function is_even(n) returning boolean.", starterCode: "def is_even(n):\n    pass",
+                    prompt: "Write function is_even(n) returning boolean.", starterCode: "def is_even(n):\n    # Your code here\n    pass",
                     functionName: "is_even", testCases: [{input: 4, expected: true}, {input: 7, expected: false}],
                     points: 25, maxScore: 25
                 }
             ];
+        }
+        
+        // ===== MONACO EDITOR SETUP =====
+        function initMonaco() {
+            return new Promise((resolve) => {
+                if (monacoLoaded) {
+                    resolve();
+                    return;
+                }
+                require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs' } });
+                require(['vs/editor/editor.main'], function() {
+                    monacoLoaded = true;
+                    console.log('Monaco editor loaded');
+                    resolve();
+                });
+            });
+        }
+        
+        function createEditor(elementId, code) {
+            const element = document.getElementById(elementId);
+            if (!element) return null;
+            
+            try {
+                if (monacoLoaded && monaco && monaco.editor) {
+                    return monaco.editor.create(element, {
+                        value: code,
+                        language: 'python',
+                        theme: 'vs-light',
+                        fontSize: 14,
+                        automaticLayout: true,
+                        minimap: { enabled: false },
+                        scrollBeyondLastLine: false
+                    });
+                }
+            } catch (e) {
+                console.warn('Monaco editor failed, using textarea fallback', e);
+            }
+            
+            // Fallback to textarea
+            const textarea = document.createElement('textarea');
+            textarea.className = 'code-fallback';
+            textarea.value = code;
+            element.innerHTML = '';
+            element.appendChild(textarea);
+            return textarea;
+        }
+        
+        function getEditorValue(editor) {
+            if (editor && editor.getValue) {
+                return editor.getValue();
+            } else if (editor && editor.value !== undefined) {
+                return editor.value;
+            }
+            return '';
         }
         
         // ===== QUIZ FUNCTIONS =====
@@ -574,41 +633,34 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
             document.querySelector('.loading-text').innerHTML = `Fetching 4 questions on "${topic}"...<br>Each question = 25 points`;
             
-            // Fetch questions from database (any topic, any difficulty, just 4 questions)
             const success = await fetchAny4Questions(topic);
             if (!success || questions.length === 0) {
-                alert('Failed to load questions. Using fallback questions.');
                 questions = getFallbackQuestions();
             }
             
-            // Ensure exactly 4 questions (if more, slice; if less, pad but we trust API)
             if (questions.length > 4) questions = questions.slice(0,4);
             while(questions.length < 4) {
                 questions.push({...getFallbackQuestions()[questions.length % 4], points:25, maxScore:25});
             }
             
-            // Initialize Monaco and Pyodide
-            if (!pyodideReady) await initPyodide();
+            await initPyodide();
+            await initMonaco();
             
-            require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
-            require(['vs/editor/editor.main'], function() {
-                document.getElementById('loadingOverlay').style.display = 'none';
-                document.getElementById('quizContainer').style.display = 'block';
-                currentQuestionIndex = 0;
-                userAnswers = {};
-                editors = {};
-                cheatingAttempts = 0;
-                tabSwitchCount = 0;
-                isQuizActive = true;
-                renderCurrentQuestion();
-            });
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            editors = {};
+            cheatingAttempts = 0;
+            tabSwitchCount = 0;
+            isQuizActive = true;
+            renderCurrentQuestion();
         }
         
         function renderCurrentQuestion() {
             if (!questions.length) return;
             const container = document.getElementById('questionContainer');
             const question = questions[currentQuestionIndex];
-            const totalPointsPossible = questions.reduce((sum, q) => sum + (q.points || 25), 0);
             
             container.innerHTML = `
                 <div class="question-card">
@@ -635,32 +687,33 @@
                     </div>
                     <div id="testResults-${question.id}"></div>
                     <div class="question-navigation d-flex justify-content-between mt-4">
-                        <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        <button class="btn btn-secondary" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
                         <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
                         ${currentQuestionIndex === questions.length - 1 ? 
                             `<button class="btn btn-success" onclick="submitQuiz()">📊 Submit Quiz (100 pts)</button>` :
-                            `<button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>`
+                            `<button class="btn" onclick="nextQuestion()">Next →</button>`
                         }
                     </div>
                 </div>
             `;
             
-            const editorElem = document.getElementById(`editor-${question.id}`);
-            if (editorElem) {
-                const editor = monaco.editor.create(editorElem, {
-                    value: userAnswers[question.id] || question.starterCode,
-                    language: 'python',
-                    theme: 'vs-light',
-                    fontSize: 14,
-                    automaticLayout: true,
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false
-                });
-                editors[question.id] = editor;
-                editor.onDidChangeModelContent(() => {
-                    userAnswers[question.id] = editor.getValue();
-                });
-            }
+            const savedCode = userAnswers[question.id] || question.starterCode;
+            const editorElemId = `editor-${question.id}`;
+            setTimeout(() => {
+                const editor = createEditor(editorElemId, savedCode);
+                if (editor) {
+                    editors[question.id] = editor;
+                    if (editor.onDidChangeModelContent) {
+                        editor.onDidChangeModelContent(() => {
+                            userAnswers[question.id] = getEditorValue(editor);
+                        });
+                    } else if (editor.addEventListener) {
+                        editor.addEventListener('input', () => {
+                            userAnswers[question.id] = editor.value;
+                        });
+                    }
+                }
+            }, 50);
         }
         
         function formatTestCase(test) {
@@ -681,7 +734,6 @@
                             try: del globals()[name]
                             except: pass`);
                     await pyodide.runPythonAsync(code);
-                    let callArgs = testCase.input;
                     let functionCall;
                     if (Array.isArray(testCase.input)) {
                         functionCall = `${question.functionName}(${testCase.input.map(v => JSON.stringify(v)).join(', ')})`;
@@ -719,7 +771,8 @@
         async function runTests() {
             if (!pyodideReady) { alert('Python loading...'); return; }
             const question = questions[currentQuestionIndex];
-            const code = editors[question.id]?.getValue() || '';
+            const editor = editors[question.id];
+            const code = getEditorValue(editor);
             const resultsDiv = document.getElementById(`testResults-${question.id}`);
             resultsDiv.innerHTML = '<h6>🔧 Running tests...</h6>';
             try {
@@ -751,7 +804,8 @@
             let totalScore = 0;
             const results = [];
             for (const q of questions) {
-                const code = userAnswers[q.id] || editors[q.id]?.getValue() || '';
+                const editor = editors[q.id];
+                const code = getEditorValue(editor);
                 try {
                     const testResults = await executePythonTests(code, q);
                     const passed = testResults.filter(r => r.passed).length;
@@ -809,8 +863,8 @@
         window.addEventListener('DOMContentLoaded', () => {
             initializeAntiCheating();
             document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
-            // Preload Pyodide
             initPyodide().catch(console.error);
+            initMonaco().catch(console.error);
         });
     </script>
 </body>
