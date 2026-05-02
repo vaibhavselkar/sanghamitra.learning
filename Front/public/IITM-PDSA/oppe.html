@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Coding Quiz - 4 Questions (25 pts each)</title>
+    <!-- Pyodide for Python execution -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Anti-cheating CSS - prevents copy/paste outside editor */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Allow text selection ONLY in code editors */
+        .monaco-editor,
+        .monaco-editor *,
+        .view-lines,
+        .view-line {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+            user-select: text !important;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            -webkit-print-color-adjust: exact;
+            pointer-events: auto;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        body.blurred {
+            filter: blur(10px);
+            pointer-events: none;
+        }
+        
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(220, 53, 69, 0.95);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            font-size: 2rem;
+            text-align: center;
+            flex-direction: column;
+        }
+        
+        .warning-overlay h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .quiz-container { padding: 30px; }
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+        .code-editor-container {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 20px 0;
+            height: 400px;
+        }
+        .test-cases {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .test-passed {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .test-failed {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .score-display {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .results-container { display: none; padding: 30px; }
+        .explanation-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(102, 126, 234, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            color: white;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        .security-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(40, 167, 69, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .security-indicator.warning {
+            background: rgba(220, 53, 69, 0.9);
+            animation: pulse 1s infinite;
+        }
+        .security-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+        .answers-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+        .answers-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80%;
+            width: 800px;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .results-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .question-number {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .results-buttons { flex-direction: column; }
+            .results-buttons .btn { width: 100%; }
+        }
+        .question-navigation {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        .topic-selector {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .topic-selector select {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="securityIndicator" class="security-indicator">
+        <div class="security-dot"></div>
+        <span id="securityText">Monitoring Active</span>
+    </div>
+    <div id="warningOverlay" class="warning-overlay">
+        <div>
+            <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
+            <p style="font-size: 1.5rem;">Please return to the quiz window</p>
+            <p style="font-size: 1rem; margin-top: 20px;">Attempts logged: <span id="attemptCount">0</span></p>
+        </div>
+    </div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading Python Environment & Questions...</div>
+        <small style="margin-top: 10px; opacity: 0.8;">Fetching 4 questions from database (each 25 points)</small>
+    </div>
+    <div id="answersModal" class="answers-modal">
+        <div class="answers-content">
+            <h3>📝 Your Submitted Answers</h3>
+            <div id="answersList"></div>
+            <div class="text-center mt-4">
+                <button class="btn btn-secondary" onclick="closeAnswersModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🐍 Python Coding Quiz</h1>
+            <p>Solve 4 coding problems | Each question: 25 points | Total: 100 points</p>
+            <small style="opacity: 0.8;">⚠️ Anti-cheating active | Write complete functions with comments</small>
+        </div>
+
+        <!-- Topic Selector (optional, but allows any topic) -->
+        <div class="quiz-container" id="topicSelectorContainer" style="text-align: center; padding: 20px;">
+            <div class="topic-selector">
+                <label for="topicSelect"><strong>Select Topic:</strong></label>
+                <select id="topicSelect" class="form-select" style="display: inline-block; width: auto;">
+                    <option value="Python Basics">Python Basics</option>
+                    <option value="Data Structures">Data Structures</option>
+                    <option value="Algorithms">Algorithms</option>
+                    <option value="Strings">Strings</option>
+                    <option value="Lists">Lists & Arrays</option>
+                    <option value="Functions">Functions</option>
+                </select>
+                <button class="btn ms-3" id="startQuizBtn">Start Quiz →</button>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer" class="quiz-container" style="display: none;">
+            <div id="questionContainer"></div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="results-container" style="display: none;">
+            <div class="score-display">
+                <h2 id="finalScore">0/100</h2>
+                <h3 id="finalPercentage">0%</h3>
+                <p id="completionText">Quiz Completed!</p>
+            </div>
+            <div id="detailedResults"></div>
+            <div class="results-buttons">
+                <button class="btn btn-secondary" onclick="resetAndRestart()">🔄 Take New Quiz</button>
+                <button class="btn btn-info" onclick="showMyAnswers()">📋 View My Answers</button>
+                <button class="btn btn-success" onclick="resetAndRestart()">✅ Try Another Topic</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== GLOBAL VARIABLES =====
+        let cheatingAttempts = 0;
+        let isQuizActive = false;
+        let devToolsWarned = false;
+        let tabSwitchCount = 0;
+        let pyodide = null;
+        let pyodideReady = false;
+        let submittedQuizData = null;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let currentUser = { username: 'QuizUser', email: 'quiz@example.com' };
+        let editors = {};
+        
+        // API Configuration
+        const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
+        const CODING_QUESTIONS_API = `${API_BASE_URL}/coding-questions`;
+        const SUBMISSIONS_API = `${API_BASE_URL}/coding-submission`;
+        
+        // ===== ANTI-CHEATING SYSTEM =====
+        function initializeAntiCheating() {
+            document.addEventListener('contextmenu', function(e) {
+                if (!e.target.closest('.monaco-editor')) {
+                    e.preventDefault();
+                    recordCheatingAttempt('right_click');
+                    return false;
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.target.closest('.monaco-editor')) return true;
+                if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
+                    (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83) || e.keyCode === 44) {
+                    e.preventDefault();
+                    recordCheatingAttempt('keyboard_shortcut');
+                    return false;
+                }
+                if (e.ctrlKey && (e.keyCode === 65 || e.keyCode === 67 || e.keyCode === 86)) {
+                    e.preventDefault();
+                    recordCheatingAttempt('copy_attempt');
+                    return false;
+                }
+            });
+            let devtools = {open: false};
+            const threshold = 160;
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > threshold || window.outerWidth - window.innerWidth > threshold) {
+                    if (!devtools.open && isQuizActive) {
+                        devtools.open = true;
+                        recordCheatingAttempt('developer_tools');
+                        if (!devToolsWarned) {
+                            alert('⚠️ Developer tools detected! This attempt has been logged.');
+                            devToolsWarned = true;
+                        }
+                    }
+                } else { devtools.open = false; }
+            }, 500);
+            window.addEventListener('blur', function() {
+                if (isQuizActive) {
+                    tabSwitchCount++;
+                    document.body.classList.add('blurred');
+                    document.getElementById('warningOverlay').style.display = 'flex';
+                    document.getElementById('attemptCount').textContent = cheatingAttempts;
+                    recordCheatingAttempt('window_blur');
+                }
+            });
+            window.addEventListener('focus', function() {
+                document.body.classList.remove('blurred');
+                document.getElementById('warningOverlay').style.display = 'none';
+                updateSecurityIndicator();
+            });
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden && isQuizActive) recordCheatingAttempt('visibility_change');
+            });
+        }
+        
+        function recordCheatingAttempt(type) {
+            cheatingAttempts++;
+            console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
+            document.getElementById('attemptCount').textContent = cheatingAttempts;
+            updateSecurityIndicator(true);
+            if (cheatingAttempts >= 10) {
+                alert('⚠️ Too many suspicious activities! Auto-submitting quiz.');
+                submitQuiz();
+            } else if (cheatingAttempts >= 5) {
+                alert(`⚠️ Warning: ${cheatingAttempts} suspicious activities detected!`);
+            }
+        }
+        
+        function updateSecurityIndicator(warning = false) {
+            const indicator = document.getElementById('securityIndicator');
+            const text = document.getElementById('securityText');
+            if (warning) {
+                indicator.classList.add('warning');
+                text.textContent = `${cheatingAttempts} Violations`;
+                setTimeout(() => {
+                    indicator.classList.remove('warning');
+                    text.textContent = 'Monitoring Active';
+                }, 3000);
+            }
+        }
+        
+        // ===== FETCH ANY 4 QUESTIONS FROM DATABASE (any topic) =====
+        async function fetchAny4Questions(topic = 'Python Basics') {
+            try {
+                // Fetch questions from API with limit=4, based on selected topic
+                // Using topic filter to get questions related to the chosen topic
+                const url = `${CODING_QUESTIONS_API}?topic=${encodeURIComponent(topic)}&limit=4`;
+                console.log(`Fetching questions from: ${url}`);
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+                        // Take first 4 questions (or whatever returned)
+                        let fetchedQuestions = data.questions.slice(0, 4);
+                        // Map each question to our format, each worth 25 points
+                        questions = fetchedQuestions.map((q, idx) => ({
+                            id: q.questionId || q.id || idx,
+                            questionId: q.questionId || q.id,
+                            title: q.title || `Problem ${idx+1}`,
+                            description: q.description || q.prompt || "Solve the problem by writing the required function.",
+                            prompt: q.prompt || q.description || "Write the function as described.",
+                            starterCode: q.starterCode || "def solution():\n    # Write your code here\n    pass",
+                            functionName: q.functionName || "solution",
+                            testCases: q.testCases && Array.isArray(q.testCases) ? q.testCases : [{ input: "test", expected: "output" }],
+                            points: 25,   // EACH QUESTION = 25 POINTS
+                            maxScore: 25,
+                            topic: q.topic || topic
+                        }));
+                        console.log(`✅ Successfully fetched ${questions.length} questions (each 25 points)`);
+                        return true;
+                    } else {
+                        throw new Error('No questions found from API');
+                    }
+                } else {
+                    throw new Error(`API responded with status ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error fetching from database:', error);
+                // FALLBACK: provide 4 generic coding questions (each 25 points) so quiz always works
+                console.warn('Using fallback questions (database unavailable)');
+                questions = getFallbackQuestions();
+                return true;
+            }
+        }
+        
+        function getFallbackQuestions() {
+            return [
+                {
+                    id: 1, title: "Sum of Two Numbers", description: "Write a function that returns sum of two integers.",
+                    prompt: "Write function add(a, b) that returns a + b", starterCode: "def add(a, b):\n    pass",
+                    functionName: "add", testCases: [{input: [3,5], expected: 8}, {input: [-1,1], expected: 0}],
+                    points: 25, maxScore: 25
+                },
+                {
+                    id: 2, title: "Reverse String", description: "Reverse a given string.",
+                    prompt: "Write function reverse_string(s) that returns reversed string.", starterCode: "def reverse_string(s):\n    pass",
+                    functionName: "reverse_string", testCases: [{input: "hello", expected: "olleh"}, {input: "abc", expected: "cba"}],
+                    points: 25, maxScore: 25
+                },
+                {
+                    id: 3, title: "Find Maximum in List", description: "Return maximum element from list.",
+                    prompt: "Write function find_max(lst) returning max value.", starterCode: "def find_max(lst):\n    pass",
+                    functionName: "find_max", testCases: [{input: [1,5,3,9,2], expected: 9}, {input: [-5,-1,-10], expected: -1}],
+                    points: 25, maxScore: 25
+                },
+                {
+                    id: 4, title: "Check Even or Odd", description: "Return True if number is even, else False.",
+                    prompt: "Write function is_even(n) returning boolean.", starterCode: "def is_even(n):\n    pass",
+                    functionName: "is_even", testCases: [{input: 4, expected: true}, {input: 7, expected: false}],
+                    points: 25, maxScore: 25
+                }
+            ];
+        }
+        
+        // ===== QUIZ FUNCTIONS =====
+        async function initPyodide() {
+            if (pyodideReady) return;
+            const loadingText = document.querySelector('.loading-text');
+            try {
+                loadingText.textContent = 'Loading Python interpreter...';
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
+                });
+                loadingText.textContent = 'Python ready!';
+                pyodideReady = true;
+            } catch (error) {
+                console.error('Pyodide error:', error);
+                alert('Failed to load Python environment. Refresh and try again.');
+            }
+        }
+        
+        async function startQuiz() {
+            const topic = document.getElementById('topicSelect').value;
+            document.getElementById('topicSelectorContainer').style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            document.querySelector('.loading-text').innerHTML = `Fetching 4 questions on "${topic}"...<br>Each question = 25 points`;
+            
+            // Fetch questions from database (any topic, any difficulty, just 4 questions)
+            const success = await fetchAny4Questions(topic);
+            if (!success || questions.length === 0) {
+                alert('Failed to load questions. Using fallback questions.');
+                questions = getFallbackQuestions();
+            }
+            
+            // Ensure exactly 4 questions (if more, slice; if less, pad but we trust API)
+            if (questions.length > 4) questions = questions.slice(0,4);
+            while(questions.length < 4) {
+                questions.push({...getFallbackQuestions()[questions.length % 4], points:25, maxScore:25});
+            }
+            
+            // Initialize Monaco and Pyodide
+            if (!pyodideReady) await initPyodide();
+            
+            require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+            require(['vs/editor/editor.main'], function() {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('quizContainer').style.display = 'block';
+                currentQuestionIndex = 0;
+                userAnswers = {};
+                editors = {};
+                cheatingAttempts = 0;
+                tabSwitchCount = 0;
+                isQuizActive = true;
+                renderCurrentQuestion();
+            });
+        }
+        
+        function renderCurrentQuestion() {
+            if (!questions.length) return;
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            const totalPointsPossible = questions.reduce((sum, q) => sum + (q.points || 25), 0);
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="question-number">
+                        Question ${currentQuestionIndex + 1} of ${questions.length} | ${question.points || 25} Points
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3>${escapeHtml(question.title)}</h3>
+                        <span class="badge bg-primary">${question.points || 25} pts</span>
+                    </div>
+                    <p class="mb-3">${escapeHtml(question.description)}</p>
+                    <div class="alert alert-info">
+                        <h6>📝 Problem Statement:</h6>
+                        <pre style="white-space: pre-wrap;">${escapeHtml(question.prompt)}</pre>
+                    </div>
+                    <div class="explanation-section">
+                        <h6>💡 Tip:</h6>
+                        <p>Include explanatory comments for better scoring (up to 20% bonus).</p>
+                    </div>
+                    <div id="editor-${question.id}" class="code-editor-container"></div>
+                    <div class="test-cases">
+                        <h6>🔍 Sample Test Cases:</h6>
+                        ${question.testCases.map((test, i) => `<div><strong>Test ${i+1}:</strong> ${formatTestCase(test)}</div>`).join('')}
+                    </div>
+                    <div id="testResults-${question.id}"></div>
+                    <div class="question-navigation d-flex justify-content-between mt-4">
+                        <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
+                        ${currentQuestionIndex === questions.length - 1 ? 
+                            `<button class="btn btn-success" onclick="submitQuiz()">📊 Submit Quiz (100 pts)</button>` :
+                            `<button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>`
+                        }
+                    </div>
+                </div>
+            `;
+            
+            const editorElem = document.getElementById(`editor-${question.id}`);
+            if (editorElem) {
+                const editor = monaco.editor.create(editorElem, {
+                    value: userAnswers[question.id] || question.starterCode,
+                    language: 'python',
+                    theme: 'vs-light',
+                    fontSize: 14,
+                    automaticLayout: true,
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false
+                });
+                editors[question.id] = editor;
+                editor.onDidChangeModelContent(() => {
+                    userAnswers[question.id] = editor.getValue();
+                });
+            }
+        }
+        
+        function formatTestCase(test) {
+            const input = Array.isArray(test.input) ? test.input.join(', ') : test.input;
+            const expected = JSON.stringify(test.expected);
+            return `Input: ${input} → Expected: ${expected}`;
+        }
+        
+        function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+        
+        async function executePythonTests(code, question) {
+            if (!pyodideReady) throw new Error('Python not ready');
+            const results = [];
+            for (let testCase of question.testCases) {
+                try {
+                    await pyodide.runPythonAsync(`for name in list(globals().keys()):
+                        if not name.startswith('__') and name not in ['sys']:
+                            try: del globals()[name]
+                            except: pass`);
+                    await pyodide.runPythonAsync(code);
+                    let callArgs = testCase.input;
+                    let functionCall;
+                    if (Array.isArray(testCase.input)) {
+                        functionCall = `${question.functionName}(${testCase.input.map(v => JSON.stringify(v)).join(', ')})`;
+                    } else {
+                        functionCall = `${question.functionName}(${JSON.stringify(testCase.input)})`;
+                    }
+                    const result = await pyodide.runPythonAsync(functionCall);
+                    let output = result && typeof result === 'object' && result.toJs ? result.toJs({ dict_converter: Object.fromEntries }) : result;
+                    results.push({ passed: deepEqual(output, testCase.expected), output, expected: testCase.expected, error: null });
+                } catch (error) {
+                    results.push({ passed: false, output: null, expected: testCase.expected, error: error.message });
+                }
+            }
+            return results;
+        }
+        
+        function deepEqual(a, b) {
+            if (a === b) return true;
+            if (a == null || b == null) return false;
+            if (typeof a !== typeof b) return false;
+            if (Array.isArray(a) && Array.isArray(b)) {
+                if (a.length !== b.length) return false;
+                for (let i = 0; i < a.length; i++) if (!deepEqual(a[i], b[i])) return false;
+                return true;
+            }
+            if (typeof a === 'object' && typeof b === 'object') {
+                const keysA = Object.keys(a).sort(), keysB = Object.keys(b).sort();
+                if (keysA.length !== keysB.length) return false;
+                for (let key of keysA) if (!deepEqual(a[key], b[key])) return false;
+                return true;
+            }
+            return false;
+        }
+        
+        async function runTests() {
+            if (!pyodideReady) { alert('Python loading...'); return; }
+            const question = questions[currentQuestionIndex];
+            const code = editors[question.id]?.getValue() || '';
+            const resultsDiv = document.getElementById(`testResults-${question.id}`);
+            resultsDiv.innerHTML = '<h6>🔧 Running tests...</h6>';
+            try {
+                const testResults = await executePythonTests(code, question);
+                let passedCount = 0;
+                let testHtml = '<h6>📊 Test Results:</h6>';
+                testResults.forEach((res, i) => {
+                    if (res.passed) passedCount++;
+                    testHtml += `<div class="test-result ${res.passed ? 'test-passed' : 'test-failed'}">
+                        Test ${i+1}: ${res.passed ? '✓ PASSED' : '✗ FAILED'}
+                        ${res.error ? `<br>Error: ${res.error}` : ''}
+                        ${!res.passed && !res.error ? `<br>Expected: ${JSON.stringify(res.expected)}<br>Got: ${JSON.stringify(res.output)}` : ''}
+                    </div>`;
+                });
+                const hasComments = (code.match(/#.+/g) || []).length >= 1;
+                testHtml += `<div class="mt-2"><strong>Score estimate:</strong> ${Math.round((passedCount/testResults.length)*25)}/${25} points (${hasComments ? '+comments bonus' : 'add comments'})</div>`;
+                resultsDiv.innerHTML = testHtml;
+            } catch (err) {
+                resultsDiv.innerHTML = `<div class="test-result test-failed">❌ Execution Error: ${err.message}</div>`;
+            }
+        }
+        
+        function nextQuestion() { if (currentQuestionIndex < questions.length-1) { currentQuestionIndex++; renderCurrentQuestion(); } }
+        function previousQuestion() { if (currentQuestionIndex > 0) { currentQuestionIndex--; renderCurrentQuestion(); } }
+        
+        async function submitQuiz() {
+            if (!confirm('Submit all answers? Each question is 25 points (total 100).')) return;
+            isQuizActive = false;
+            let totalScore = 0;
+            const results = [];
+            for (const q of questions) {
+                const code = userAnswers[q.id] || editors[q.id]?.getValue() || '';
+                try {
+                    const testResults = await executePythonTests(code, q);
+                    const passed = testResults.filter(r => r.passed).length;
+                    const baseScore = Math.round((passed / testResults.length) * 25);
+                    const hasComments = (code.match(/#.+/g) || []).length >= 1;
+                    const bonus = hasComments ? Math.min(5, Math.round(25*0.2)) : 0;
+                    let score = Math.min(baseScore + bonus, 25);
+                    totalScore += score;
+                    results.push({
+                        title: q.title, code, score, maxScore: 25, passedTests: passed, totalTests: testResults.length,
+                        hasExplanations: hasComments
+                    });
+                } catch(e) {
+                    results.push({ title: q.title, code, score: 0, maxScore: 25, error: e.message });
+                }
+            }
+            const percentage = Math.round((totalScore / 100) * 100);
+            const quizData = {
+                username: currentUser.username, email: currentUser.email, topic: document.getElementById('topicSelect').value,
+                score: totalScore, maxScore: 100, percentage, questions: results, timestamp: new Date().toISOString(),
+                cheatingAttempts, tabSwitches: tabSwitchCount
+            };
+            submittedQuizData = quizData;
+            try {
+                await fetch(SUBMISSIONS_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(quizData), credentials: 'include' });
+            } catch(e) { console.log('Submission log error'); }
+            showResults(quizData);
+        }
+        
+        function showResults(quizData) {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            document.getElementById('finalScore').textContent = `${quizData.score}/100`;
+            document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
+            const detailed = document.getElementById('detailedResults');
+            detailed.innerHTML = `<h4>Detailed Results (25 pts each)</h4>${quizData.cheatingAttempts>0?`<div class="alert alert-warning">⚠️ ${quizData.cheatingAttempts} violations detected</div>`:''}
+                ${quizData.questions.map((q,i)=>`<div class="card mb-3"><div class="card-body"><h6>Q${i+1}: ${q.title} - ${q.score}/${q.maxScore} pts</h6><div class="progress mb-2"><div class="progress-bar" style="width:${(q.score/q.maxScore)*100}%"></div></div><small>Tests passed: ${q.passedTests||0}/${q.totalTests||0} | Comments: ${q.hasExplanations?'✓':'✗'}</small></div></div>`).join('')}`;
+        }
+        
+        function showMyAnswers() {
+            if(!submittedQuizData) return;
+            const answersList = document.getElementById('answersList');
+            answersList.innerHTML = submittedQuizData.questions.map((q,i)=>`<div class="mb-4"><h5>Q${i+1}: ${q.title} (${q.score}/${q.maxScore})</h5><div class="code-block">${escapeHtml(q.code)}</div></div>`).join('');
+            document.getElementById('answersModal').style.display = 'flex';
+        }
+        function closeAnswersModal() { document.getElementById('answersModal').style.display = 'none'; }
+        function resetAndRestart() {
+            questions = []; currentQuestionIndex = 0; userAnswers = {}; editors = {};
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('topicSelectorContainer').style.display = 'block';
+            isQuizActive = false;
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeAntiCheating();
+            document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+            // Preload Pyodide
+            initPyodide().catch(console.error);
+        });
+    </script>
+</body>
+</html>
