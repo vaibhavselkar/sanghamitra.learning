@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Coding Quiz - 4 Questions (25 pts each)</title>
+    <title>Python Coding Exam</title>
     <!-- Pyodide for Python execution -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-    <!-- Monaco Editor - Using simpler CDN without loader issues -->
-    <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs/editor/editor.main.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs/loader.js"></script>
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Anti-cheating CSS - prevents copy/paste outside editor */
+        /* Anti-cheating CSS */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -37,6 +36,8 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            -webkit-print-color-adjust: exact;
+            pointer-events: auto;
         }
         
         ::-webkit-scrollbar {
@@ -83,7 +84,7 @@
         }
         
         .container {
-            max-width: 1300px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -144,12 +145,6 @@
             transition: transform 0.2s ease;
         }
         .btn:hover { transform: translateY(-2px); }
-        .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
-        }
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
-        }
         .progress-bar {
             background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             height: 8px;
@@ -202,6 +197,7 @@
             font-size: 1.2rem;
             margin-top: 20px;
         }
+        
         .security-indicator {
             position: fixed;
             top: 10px;
@@ -216,16 +212,19 @@
             align-items: center;
             gap: 8px;
         }
+        
         .security-indicator.warning {
             background: rgba(220, 53, 69, 0.9);
             animation: pulse 1s infinite;
         }
+        
         .security-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             background: white;
         }
+        
         .answers-modal {
             position: fixed;
             top: 0;
@@ -238,6 +237,7 @@
             align-items: center;
             z-index: 10001;
         }
+        
         .answers-content {
             background: white;
             border-radius: 15px;
@@ -248,6 +248,7 @@
             overflow-y: auto;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
+        
         .code-block {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -260,6 +261,7 @@
             margin: 10px 0;
             font-size: 14px;
         }
+        
         .results-buttons {
             display: flex;
             justify-content: space-between;
@@ -268,6 +270,40 @@
             flex-wrap: wrap;
             gap: 10px;
         }
+        
+        /* Start Exam Container */
+        .start-container {
+            padding: 60px 30px;
+            text-align: center;
+        }
+        .start-card {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .start-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .start-card p {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        .btn-start-exam {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            font-size: 1.3rem;
+            padding: 15px 50px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .btn-start-exam:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
         .question-number {
             background: #667eea;
             color: white;
@@ -277,35 +313,21 @@
             display: inline-block;
             margin-bottom: 10px;
         }
-        @media (max-width: 768px) {
-            .results-buttons { flex-direction: column; }
-            .results-buttons .btn { width: 100%; }
-        }
+        
         .question-navigation {
             margin-top: 25px;
             padding-top: 20px;
             border-top: 1px solid #dee2e6;
         }
-        .topic-selector {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .topic-selector select {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-            font-size: 16px;
-            margin-left: 10px;
-        }
-        textarea.code-fallback {
-            width: 100%;
-            min-height: 300px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            background: #f8f9fa;
+        
+        @media (max-width: 768px) {
+            .results-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .results-buttons .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -314,18 +336,22 @@
         <div class="security-dot"></div>
         <span id="securityText">Monitoring Active</span>
     </div>
+
     <div id="warningOverlay" class="warning-overlay">
         <div>
             <h2>⚠️ SUSPICIOUS ACTIVITY DETECTED</h2>
-            <p style="font-size: 1.5rem;">Please return to the quiz window</p>
+            <p style="font-size: 1.5rem;">Please return to the exam window</p>
+            <p style="font-size: 1.2rem;">Your activity is being monitored and logged</p>
             <p style="font-size: 1rem; margin-top: 20px;">Attempts logged: <span id="attemptCount">0</span></p>
         </div>
     </div>
+
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
-        <div class="loading-text">Loading Python Environment & Questions...</div>
-        <small style="margin-top: 10px; opacity: 0.8;">Fetching 4 questions from database (each 25 points)</small>
+        <div class="loading-text">Loading Python Environment...</div>
+        <small style="margin-top: 10px; opacity: 0.8;">This may take 10-15 seconds</small>
     </div>
+    
     <div id="answersModal" class="answers-modal">
         <div class="answers-content">
             <h3>📝 Your Submitted Answers</h3>
@@ -338,24 +364,19 @@
 
     <div class="container">
         <div class="header">
-            <h1>🐍 Python Coding Quiz</h1>
-            <p>Solve 4 coding problems | Each question: 25 points | Total: 100 points</p>
-            <small style="opacity: 0.8;">⚠️ Anti-cheating active | Write complete functions with comments</small>
+            <h1>🐍 Python Coding Exam</h1>
+            <p>Solve 4 coding problems • 25 points each • Total 100 points</p>
+            <small style="opacity: 0.8;">⚠️ Anti-cheating measures active</small>
         </div>
 
-        <!-- Topic Selector -->
-        <div class="quiz-container" id="topicSelectorContainer" style="text-align: center; padding: 20px;">
-            <div class="topic-selector">
-                <label for="topicSelect"><strong>Select Topic:</strong></label>
-                <select id="topicSelect" class="form-select" style="display: inline-block; width: auto;">
-                    <option value="Python Basics">Python Basics</option>
-                    <option value="Data Structures">Data Structures</option>
-                    <option value="Algorithms">Algorithms</option>
-                    <option value="Strings">Strings</option>
-                    <option value="Lists">Lists & Arrays</option>
-                    <option value="Functions">Functions</option>
-                </select>
-                <button class="btn ms-3" id="startQuizBtn">Start Quiz →</button>
+        <!-- Start Exam Container (replaces level selection) -->
+        <div id="startContainer" class="start-container">
+            <div class="start-card">
+                <h2>📋 Ready to begin?</h2>
+                <p>You will be presented with 4 coding questions. Each question is worth 25 points.</p>
+                <p><strong>Total Score: 100 points</strong></p>
+                <p>⚠️ Do not switch tabs or use developer tools</p>
+                <button class="btn btn-start-exam" id="startExamBtn">🚀 Start Exam</button>
             </div>
         </div>
 
@@ -369,13 +390,12 @@
             <div class="score-display">
                 <h2 id="finalScore">0/100</h2>
                 <h3 id="finalPercentage">0%</h3>
-                <p id="completionText">Quiz Completed!</p>
+                <p id="examCompletionText">Exam Completed!</p>
             </div>
             <div id="detailedResults"></div>
             <div class="results-buttons">
-                <button class="btn btn-secondary" onclick="resetAndRestart()">🔄 Take New Quiz</button>
+                <button class="btn btn-secondary" onclick="resetToStart()">⟳ Take New Exam</button>
                 <button class="btn btn-info" onclick="showMyAnswers()">📋 View My Answers</button>
-                <button class="btn btn-success" onclick="resetAndRestart()">✅ Try Another Topic</button>
             </div>
         </div>
     </div>
@@ -383,18 +403,17 @@
     <script>
         // ===== GLOBAL VARIABLES =====
         let cheatingAttempts = 0;
-        let isQuizActive = false;
+        let isExamActive = false;
         let devToolsWarned = false;
         let tabSwitchCount = 0;
         let pyodide = null;
         let pyodideReady = false;
-        let submittedQuizData = null;
+        let submittedExamData = null;
         let questions = [];
         let currentQuestionIndex = 0;
         let userAnswers = {};
-        let currentUser = { username: 'QuizUser', email: 'quiz@example.com' };
+        let currentUser = { username: 'Guest', email: 'guest@exam.com' };
         let editors = {};
-        let monacoLoaded = false;
         
         // API Configuration
         const API_BASE_URL = 'https://sanghamitra-learnworld.vercel.app/api';
@@ -404,14 +423,15 @@
         // ===== ANTI-CHEATING SYSTEM =====
         function initializeAntiCheating() {
             document.addEventListener('contextmenu', function(e) {
-                if (!e.target.closest('.monaco-editor') && !e.target.closest('textarea')) {
+                if (!e.target.closest('.monaco-editor')) {
                     e.preventDefault();
                     recordCheatingAttempt('right_click');
                     return false;
                 }
             });
+            
             document.addEventListener('keydown', function(e) {
-                if (e.target.closest('.monaco-editor') || e.target.tagName === 'TEXTAREA') return true;
+                if (e.target.closest('.monaco-editor')) return true;
                 if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
                     (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83) || e.keyCode === 44) {
                     e.preventDefault();
@@ -424,11 +444,11 @@
                     return false;
                 }
             });
+            
             let devtools = {open: false};
-            const threshold = 160;
             setInterval(function() {
-                if (window.outerHeight - window.innerHeight > threshold || window.outerWidth - window.innerWidth > threshold) {
-                    if (!devtools.open && isQuizActive) {
+                if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+                    if (!devtools.open && isExamActive) {
                         devtools.open = true;
                         recordCheatingAttempt('developer_tools');
                         if (!devToolsWarned) {
@@ -436,10 +456,13 @@
                             devToolsWarned = true;
                         }
                     }
-                } else { devtools.open = false; }
+                } else {
+                    devtools.open = false;
+                }
             }, 500);
+            
             window.addEventListener('blur', function() {
-                if (isQuizActive) {
+                if (isExamActive) {
                     tabSwitchCount++;
                     document.body.classList.add('blurred');
                     document.getElementById('warningOverlay').style.display = 'flex';
@@ -447,13 +470,18 @@
                     recordCheatingAttempt('window_blur');
                 }
             });
+            
             window.addEventListener('focus', function() {
                 document.body.classList.remove('blurred');
                 document.getElementById('warningOverlay').style.display = 'none';
                 updateSecurityIndicator();
             });
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden && isQuizActive) recordCheatingAttempt('visibility_change');
+            
+            document.addEventListener('selectstart', function(e) {
+                if (!e.target.closest('.monaco-editor') && isExamActive) {
+                    recordCheatingAttempt('text_selection');
+                    return false;
+                }
             });
         }
         
@@ -462,9 +490,10 @@
             console.warn(`Cheating attempt #${cheatingAttempts}: ${type}`);
             document.getElementById('attemptCount').textContent = cheatingAttempts;
             updateSecurityIndicator(true);
+            
             if (cheatingAttempts >= 10) {
-                alert('⚠️ Too many suspicious activities! Auto-submitting quiz.');
-                submitQuiz();
+                alert('⚠️ Too many suspicious activities detected!\n\nYour exam will be auto-submitted now.');
+                submitExam();
             } else if (cheatingAttempts >= 5) {
                 alert(`⚠️ Warning: ${cheatingAttempts} suspicious activities detected!`);
             }
@@ -482,137 +511,174 @@
                 }, 3000);
             }
         }
-        
-        // ===== FETCH ANY 4 QUESTIONS FROM DATABASE =====
-        async function fetchAny4Questions(topic = 'Python Basics') {
+
+        // ===== FETCH 4 QUESTIONS FROM DATABASE =====
+        async function fetchFourQuestions() {
             try {
-                const url = `${CODING_QUESTIONS_API}?topic=${encodeURIComponent(topic)}&limit=4`;
-                console.log(`Fetching questions from: ${url}`);
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include'
+                // Try to fetch exactly 4 questions from API with topic 'Python Basics'
+                // Using limit=4 to get exactly 4 questions
+                const response = await fetch(`${CODING_QUESTIONS_API}?topic=Python%20Basics&limit=4`, {
+                    credentials: 'include',
+                    mode: 'cors'
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.success && data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
-                        let fetchedQuestions = data.questions.slice(0, 4);
-                        questions = fetchedQuestions.map((q, idx) => ({
-                            id: q.questionId || q.id || idx,
-                            questionId: q.questionId || q.id,
-                            title: q.title || `Problem ${idx+1}`,
-                            description: q.description || q.prompt || "Solve the problem by writing the required function.",
-                            prompt: q.prompt || q.description || "Write the function as described.",
-                            starterCode: q.starterCode || "def solution():\n    # Write your code here\n    pass",
-                            functionName: q.functionName || "solution",
-                            testCases: q.testCases && Array.isArray(q.testCases) ? q.testCases : [{ input: "test", expected: "output" }],
-                            points: 25,
-                            maxScore: 25,
-                            topic: q.topic || topic
+                    if (data.success && data.questions && data.questions.length >= 4) {
+                        // Take first 4 questions
+                        questions = data.questions.slice(0, 4).map(q => ({
+                            ...q,
+                            id: q.questionId || q.id,
+                            points: 25,  // Each question 25 points
+                            maxScore: 25
                         }));
-                        console.log(`✅ Successfully fetched ${questions.length} questions (each 25 points)`);
+                        console.log(`✅ Fetched ${questions.length} questions from database`);
+                        return true;
+                    } else if (data.questions && data.questions.length > 0 && data.questions.length < 4) {
+                        // Less than 4 questions from API, use fallback to make 4
+                        console.log(`Only ${data.questions.length} questions from API, adding fallbacks`);
+                        const apiQuestions = data.questions.map(q => ({...q, points: 25, maxScore: 25}));
+                        const fallbacks = getFallbackQuestions();
+                        questions = [...apiQuestions, ...fallbacks].slice(0, 4);
                         return true;
                     } else {
-                        throw new Error('No questions found from API');
+                        throw new Error('Not enough questions in DB');
                     }
                 } else {
-                    throw new Error(`API responded with status ${response.status}`);
+                    throw new Error('API responded with error');
                 }
             } catch (error) {
-                console.error('Error fetching from database:', error);
-                console.warn('Using fallback questions (database unavailable)');
+                console.error('Error fetching questions:', error);
+                // Fallback to 4 local questions
                 questions = getFallbackQuestions();
+                console.log('Using fallback questions');
                 return true;
             }
         }
         
         function getFallbackQuestions() {
+            // 4 fallback questions, each worth 25 points
             return [
                 {
-                    id: 1, title: "Sum of Two Numbers", description: "Write a function that returns sum of two integers.",
-                    prompt: "Write function add(a, b) that returns a + b", starterCode: "def add(a, b):\n    # Your code here\n    pass",
-                    functionName: "add", testCases: [{input: [3,5], expected: 8}, {input: [-1,1], expected: 0}],
-                    points: 25, maxScore: 25
+                    id: 101,
+                    questionId: 101,
+                    title: "Sum of Two Numbers",
+                    description: "Write a function that returns the sum of two integers.",
+                    prompt: "Implement the function `add(a, b)` that returns the sum of a and b.",
+                    starterCode: "def add(a, b):\n    # Your code here\n    pass",
+                    functionName: "add",
+                    testCases: [
+                        {input: [3, 5], expected: 8},
+                        {input: [-1, 1], expected: 0},
+                        {input: [0, 0], expected: 0}
+                    ],
+                    points: 25,
+                    maxScore: 25
                 },
                 {
-                    id: 2, title: "Reverse String", description: "Reverse a given string.",
-                    prompt: "Write function reverse_string(s) that returns reversed string.", starterCode: "def reverse_string(s):\n    # Your code here\n    pass",
-                    functionName: "reverse_string", testCases: [{input: "hello", expected: "olleh"}, {input: "abc", expected: "cba"}],
-                    points: 25, maxScore: 25
+                    id: 102,
+                    questionId: 102,
+                    title: "Check Even Number",
+                    description: "Write a function that returns True if a number is even, False otherwise.",
+                    prompt: "Implement the function `is_even(n)` that returns boolean.",
+                    starterCode: "def is_even(n):\n    # Your code here\n    pass",
+                    functionName: "is_even",
+                    testCases: [
+                        {input: 4, expected: true},
+                        {input: 7, expected: false},
+                        {input: 0, expected: true}
+                    ],
+                    points: 25,
+                    maxScore: 25
                 },
                 {
-                    id: 3, title: "Find Maximum in List", description: "Return maximum element from list.",
-                    prompt: "Write function find_max(lst) returning max value.", starterCode: "def find_max(lst):\n    # Your code here\n    pass",
-                    functionName: "find_max", testCases: [{input: [1,5,3,9,2], expected: 9}, {input: [-5,-1,-10], expected: -1}],
-                    points: 25, maxScore: 25
+                    id: 103,
+                    questionId: 103,
+                    title: "Maximum of Three",
+                    description: "Write a function that returns the maximum of three numbers.",
+                    prompt: "Implement `max_of_three(a, b, c)` that returns the largest number.",
+                    starterCode: "def max_of_three(a, b, c):\n    # Your code here\n    pass",
+                    functionName: "max_of_three",
+                    testCases: [
+                        {input: [1, 5, 3], expected: 5},
+                        {input: [-1, -5, -2], expected: -1},
+                        {input: [7, 7, 7], expected: 7}
+                    ],
+                    points: 25,
+                    maxScore: 25
                 },
                 {
-                    id: 4, title: "Check Even or Odd", description: "Return True if number is even, else False.",
-                    prompt: "Write function is_even(n) returning boolean.", starterCode: "def is_even(n):\n    # Your code here\n    pass",
-                    functionName: "is_even", testCases: [{input: 4, expected: true}, {input: 7, expected: false}],
-                    points: 25, maxScore: 25
+                    id: 104,
+                    questionId: 104,
+                    title: "Reverse String",
+                    description: "Write a function that reverses a given string.",
+                    prompt: "Implement `reverse_string(s)` that returns the reversed string.",
+                    starterCode: "def reverse_string(s):\n    # Your code here\n    pass",
+                    functionName: "reverse_string",
+                    testCases: [
+                        {input: "hello", expected: "olleh"},
+                        {input: "Python", expected: "nohtyP"},
+                        {input: "", expected: ""}
+                    ],
+                    points: 25,
+                    maxScore: 25
                 }
             ];
         }
-        
-        // ===== MONACO EDITOR SETUP =====
-        function initMonaco() {
-            return new Promise((resolve) => {
-                if (monacoLoaded) {
-                    resolve();
-                    return;
-                }
-                require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs' } });
-                require(['vs/editor/editor.main'], function() {
-                    monacoLoaded = true;
-                    console.log('Monaco editor loaded');
-                    resolve();
-                });
-            });
-        }
-        
-        function createEditor(elementId, code) {
-            const element = document.getElementById(elementId);
-            if (!element) return null;
+
+        // ===== EXAM FUNCTIONS =====
+        async function startExam() {
+            // Hide start container, show loading
+            document.getElementById('startContainer').style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            document.querySelector('.loading-text').textContent = 'Loading Exam Questions...';
             
             try {
-                if (monacoLoaded && monaco && monaco.editor) {
-                    return monaco.editor.create(element, {
-                        value: code,
-                        language: 'python',
-                        theme: 'vs-light',
-                        fontSize: 14,
-                        automaticLayout: true,
-                        minimap: { enabled: false },
-                        scrollBeyondLastLine: false
-                    });
+                // Fetch 4 questions from database
+                await fetchFourQuestions();
+                
+                if (!questions.length || questions.length !== 4) {
+                    throw new Error('Failed to load 4 questions');
                 }
-            } catch (e) {
-                console.warn('Monaco editor failed, using textarea fallback', e);
+                
+                console.log(`✅ Loaded ${questions.length} questions for exam`);
+                
+                // Initialize anti-cheating
+                initializeAntiCheating();
+                
+                // Get user session if available
+                try {
+                    const sessionRes = await fetch(`${API_BASE_URL}/session-info`, {
+                        credentials: 'include',
+                        mode: 'cors'
+                    });
+                    if (sessionRes.ok) {
+                        const data = await sessionRes.json();
+                        if (data.username && data.email) {
+                            currentUser = { username: data.username, email: data.email };
+                        }
+                    }
+                } catch (e) { console.log('Using guest user'); }
+                
+                // Start Pyodide if not ready
+                if (!pyodideReady) {
+                    await initPyodide();
+                } else {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    document.getElementById('quizContainer').style.display = 'block';
+                    renderCurrentQuestion();
+                }
+                
+                isExamActive = true;
+                
+            } catch (error) {
+                console.error('Failed to start exam:', error);
+                alert('Failed to load exam questions. Please try again.');
+                resetToStart();
             }
-            
-            // Fallback to textarea
-            const textarea = document.createElement('textarea');
-            textarea.className = 'code-fallback';
-            textarea.value = code;
-            element.innerHTML = '';
-            element.appendChild(textarea);
-            return textarea;
         }
         
-        function getEditorValue(editor) {
-            if (editor && editor.getValue) {
-                return editor.getValue();
-            } else if (editor && editor.value !== undefined) {
-                return editor.value;
-            }
-            return '';
-        }
-        
-        // ===== QUIZ FUNCTIONS =====
         async function initPyodide() {
-            if (pyodideReady) return;
             const loadingText = document.querySelector('.loading-text');
             try {
                 loadingText.textContent = 'Loading Python interpreter...';
@@ -621,40 +687,18 @@
                 });
                 loadingText.textContent = 'Python ready!';
                 pyodideReady = true;
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' }});
+                require(['vs/editor/editor.main'], function() {
+                    setTimeout(() => {
+                        document.getElementById('loadingOverlay').style.display = 'none';
+                        document.getElementById('quizContainer').style.display = 'block';
+                        renderCurrentQuestion();
+                    }, 500);
+                });
             } catch (error) {
-                console.error('Pyodide error:', error);
-                alert('Failed to load Python environment. Refresh and try again.');
+                console.error('Failed to load Pyodide:', error);
+                alert('Failed to load Python environment. Please refresh the page.');
             }
-        }
-        
-        async function startQuiz() {
-            const topic = document.getElementById('topicSelect').value;
-            document.getElementById('topicSelectorContainer').style.display = 'none';
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            document.querySelector('.loading-text').innerHTML = `Fetching 4 questions on "${topic}"...<br>Each question = 25 points`;
-            
-            const success = await fetchAny4Questions(topic);
-            if (!success || questions.length === 0) {
-                questions = getFallbackQuestions();
-            }
-            
-            if (questions.length > 4) questions = questions.slice(0,4);
-            while(questions.length < 4) {
-                questions.push({...getFallbackQuestions()[questions.length % 4], points:25, maxScore:25});
-            }
-            
-            await initPyodide();
-            await initMonaco();
-            
-            document.getElementById('loadingOverlay').style.display = 'none';
-            document.getElementById('quizContainer').style.display = 'block';
-            currentQuestionIndex = 0;
-            userAnswers = {};
-            editors = {};
-            cheatingAttempts = 0;
-            tabSwitchCount = 0;
-            isQuizActive = true;
-            renderCurrentQuestion();
         }
         
         function renderCurrentQuestion() {
@@ -665,55 +709,59 @@
             container.innerHTML = `
                 <div class="question-card">
                     <div class="question-number">
-                        Question ${currentQuestionIndex + 1} of ${questions.length} | ${question.points || 25} Points
+                        Question ${currentQuestionIndex + 1} of ${questions.length} • ${question.points} points
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h3>${escapeHtml(question.title)}</h3>
-                        <span class="badge bg-primary">${question.points || 25} pts</span>
+                        <span class="badge bg-primary">${question.points} pts</span>
                     </div>
                     <p class="mb-3">${escapeHtml(question.description)}</p>
                     <div class="alert alert-info">
-                        <h6>📝 Problem Statement:</h6>
+                        <h6>📌 Problem:</h6>
                         <pre style="white-space: pre-wrap;">${escapeHtml(question.prompt)}</pre>
                     </div>
                     <div class="explanation-section">
                         <h6>💡 Tip:</h6>
-                        <p>Include explanatory comments for better scoring (up to 20% bonus).</p>
+                        <p>Add comments explaining your approach for better understanding.</p>
                     </div>
                     <div id="editor-${question.id}" class="code-editor-container"></div>
                     <div class="test-cases">
-                        <h6>🔍 Sample Test Cases:</h6>
-                        ${question.testCases.map((test, i) => `<div><strong>Test ${i+1}:</strong> ${formatTestCase(test)}</div>`).join('')}
+                        <h6>Test Cases (sample):</h6>
+                        ${question.testCases.slice(0, 2).map((test, i) => `
+                            <div><strong>Test ${i+1}:</strong> ${formatTestCase(test)}</div>
+                        `).join('')}
                     </div>
                     <div id="testResults-${question.id}"></div>
+                    
                     <div class="question-navigation d-flex justify-content-between mt-4">
-                        <button class="btn btn-secondary" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
-                        <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
-                        ${currentQuestionIndex === questions.length - 1 ? 
-                            `<button class="btn btn-success" onclick="submitQuiz()">📊 Submit Quiz (100 pts)</button>` :
-                            `<button class="btn" onclick="nextQuestion()">Next →</button>`
-                        }
+                        <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>← Previous</button>
+                        <div class="text-center">
+                            <button class="btn btn-info" onclick="runTests()">🧪 Run Tests</button>
+                        </div>
+                        <div>
+                            ${currentQuestionIndex === questions.length - 1 ? 
+                                `<button class="btn btn-success" onclick="submitExam()" id="submitBtn">📊 Submit Exam</button>` :
+                                `<button class="btn" id="nextBtn" onclick="nextQuestion()">Next →</button>`
+                            }
+                        </div>
                     </div>
                 </div>
             `;
             
-            const savedCode = userAnswers[question.id] || question.starterCode;
-            const editorElemId = `editor-${question.id}`;
-            setTimeout(() => {
-                const editor = createEditor(editorElemId, savedCode);
-                if (editor) {
-                    editors[question.id] = editor;
-                    if (editor.onDidChangeModelContent) {
-                        editor.onDidChangeModelContent(() => {
-                            userAnswers[question.id] = getEditorValue(editor);
-                        });
-                    } else if (editor.addEventListener) {
-                        editor.addEventListener('input', () => {
-                            userAnswers[question.id] = editor.value;
-                        });
-                    }
-                }
-            }, 50);
+            const editor = monaco.editor.create(document.getElementById(`editor-${question.id}`), {
+                value: userAnswers[question.id] || question.starterCode,
+                language: 'python',
+                theme: 'vs-light',
+                fontSize: 14,
+                automaticLayout: true,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false
+            });
+            
+            editors[question.id] = editor;
+            editor.onDidChangeModelContent(() => {
+                userAnswers[question.id] = editor.getValue();
+            });
         }
         
         function formatTestCase(test) {
@@ -722,12 +770,59 @@
             return `Input: ${input} → Expected: ${expected}`;
         }
         
-        function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderCurrentQuestion();
+            }
+        }
+        
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderCurrentQuestion();
+            }
+        }
+        
+        async function runTests() {
+            if (!pyodideReady) { alert('Python environment loading...'); return; }
+            const question = questions[currentQuestionIndex];
+            const code = editors[question.id].getValue();
+            const resultsDiv = document.getElementById(`testResults-${question.id}`);
+            resultsDiv.innerHTML = '<h6>🔧 Running tests...</h6>';
+            
+            try {
+                const testResults = await executePythonTests(code, question);
+                let passedCount = 0;
+                let testHtml = '<h6>📊 Test Results:</h6>';
+                testResults.forEach((result, i) => {
+                    if (result.passed) passedCount++;
+                    testHtml += `
+                        <div class="test-result ${result.passed ? 'test-passed' : 'test-failed'}">
+                            Test ${i+1}: ${result.passed ? '✓ PASSED' : '✗ FAILED'}
+                            ${result.error ? `<br>Error: ${result.error}` : ''}
+                            ${!result.passed && !result.error ? `<br>Expected: ${JSON.stringify(result.expected)}<br>Got: ${JSON.stringify(result.output)}` : ''}
+                        </div>
+                    `;
+                });
+                testHtml += `<div class="mt-2"><strong>Score for this question:</strong> ${Math.round((passedCount/testResults.length)*25)}/${25} points</div>`;
+                resultsDiv.innerHTML = testHtml;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="test-result test-failed">❌ Error: ${error.message}</div>`;
+            }
+        }
         
         async function executePythonTests(code, question) {
-            if (!pyodideReady) throw new Error('Python not ready');
             const results = [];
-            for (let testCase of question.testCases) {
+            for (let i = 0; i < question.testCases.length; i++) {
+                const testCase = question.testCases[i];
                 try {
                     await pyodide.runPythonAsync(`for name in list(globals().keys()):
                         if not name.startswith('__') and name not in ['sys']:
@@ -736,9 +831,11 @@
                     await pyodide.runPythonAsync(code);
                     let functionCall;
                     if (Array.isArray(testCase.input)) {
-                        functionCall = `${question.functionName}(${testCase.input.map(v => JSON.stringify(v)).join(', ')})`;
+                        functionCall = `${question.functionName}(${testCase.input.map(v => 
+                            typeof v === 'string' ? `"${v}"` : JSON.stringify(v)
+                        ).join(', ')})`;
                     } else {
-                        functionCall = `${question.functionName}(${JSON.stringify(testCase.input)})`;
+                        functionCall = `${question.functionName}(${typeof testCase.input === 'string' ? `"${testCase.input}"` : testCase.input})`;
                     }
                     const result = await pyodide.runPythonAsync(functionCall);
                     let output = result && typeof result === 'object' && result.toJs ? result.toJs({ dict_converter: Object.fromEntries }) : result;
@@ -753,118 +850,130 @@
         function deepEqual(a, b) {
             if (a === b) return true;
             if (a == null || b == null) return false;
-            if (typeof a !== typeof b) return false;
             if (Array.isArray(a) && Array.isArray(b)) {
                 if (a.length !== b.length) return false;
-                for (let i = 0; i < a.length; i++) if (!deepEqual(a[i], b[i])) return false;
-                return true;
+                return a.every((val, idx) => deepEqual(val, b[idx]));
             }
             if (typeof a === 'object' && typeof b === 'object') {
-                const keysA = Object.keys(a).sort(), keysB = Object.keys(b).sort();
+                const keysA = Object.keys(a).sort();
+                const keysB = Object.keys(b).sort();
                 if (keysA.length !== keysB.length) return false;
-                for (let key of keysA) if (!deepEqual(a[key], b[key])) return false;
-                return true;
+                return keysA.every(key => deepEqual(a[key], b[key]));
             }
             return false;
         }
         
-        async function runTests() {
-            if (!pyodideReady) { alert('Python loading...'); return; }
-            const question = questions[currentQuestionIndex];
-            const editor = editors[question.id];
-            const code = getEditorValue(editor);
-            const resultsDiv = document.getElementById(`testResults-${question.id}`);
-            resultsDiv.innerHTML = '<h6>🔧 Running tests...</h6>';
-            try {
-                const testResults = await executePythonTests(code, question);
-                let passedCount = 0;
-                let testHtml = '<h6>📊 Test Results:</h6>';
-                testResults.forEach((res, i) => {
-                    if (res.passed) passedCount++;
-                    testHtml += `<div class="test-result ${res.passed ? 'test-passed' : 'test-failed'}">
-                        Test ${i+1}: ${res.passed ? '✓ PASSED' : '✗ FAILED'}
-                        ${res.error ? `<br>Error: ${res.error}` : ''}
-                        ${!res.passed && !res.error ? `<br>Expected: ${JSON.stringify(res.expected)}<br>Got: ${JSON.stringify(res.output)}` : ''}
-                    </div>`;
-                });
-                const hasComments = (code.match(/#.+/g) || []).length >= 1;
-                testHtml += `<div class="mt-2"><strong>Score estimate:</strong> ${Math.round((passedCount/testResults.length)*25)}/${25} points (${hasComments ? '+comments bonus' : 'add comments'})</div>`;
-                resultsDiv.innerHTML = testHtml;
-            } catch (err) {
-                resultsDiv.innerHTML = `<div class="test-result test-failed">❌ Execution Error: ${err.message}</div>`;
-            }
-        }
-        
-        function nextQuestion() { if (currentQuestionIndex < questions.length-1) { currentQuestionIndex++; renderCurrentQuestion(); } }
-        function previousQuestion() { if (currentQuestionIndex > 0) { currentQuestionIndex--; renderCurrentQuestion(); } }
-        
-        async function submitQuiz() {
-            if (!confirm('Submit all answers? Each question is 25 points (total 100).')) return;
-            isQuizActive = false;
+        async function submitExam() {
+            if (!confirm('Submit your exam? Make sure you have tested all answers.')) return;
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.disabled = true;
+            isExamActive = false;
+            
             let totalScore = 0;
             const results = [];
-            for (const q of questions) {
-                const editor = editors[q.id];
-                const code = getEditorValue(editor);
+            for (const question of questions) {
+                const code = userAnswers[question.id] || '';
                 try {
-                    const testResults = await executePythonTests(code, q);
-                    const passed = testResults.filter(r => r.passed).length;
-                    const baseScore = Math.round((passed / testResults.length) * 25);
-                    const hasComments = (code.match(/#.+/g) || []).length >= 1;
-                    const bonus = hasComments ? Math.min(5, Math.round(25*0.2)) : 0;
-                    let score = Math.min(baseScore + bonus, 25);
+                    const testResults = await executePythonTests(code, question);
+                    const passedTests = testResults.filter(r => r.passed).length;
+                    const score = Math.round((passedTests / testResults.length) * 25);
                     totalScore += score;
                     results.push({
-                        title: q.title, code, score, maxScore: 25, passedTests: passed, totalTests: testResults.length,
-                        hasExplanations: hasComments
+                        questionId: question.id,
+                        title: question.title,
+                        code,
+                        score,
+                        maxScore: 25,
+                        passedTests,
+                        totalTests: testResults.length
                     });
-                } catch(e) {
-                    results.push({ title: q.title, code, score: 0, maxScore: 25, error: e.message });
+                } catch (error) {
+                    results.push({ questionId: question.id, title: question.title, code, score: 0, maxScore: 25, passedTests: 0, totalTests: question.testCases.length, error: error.message });
                 }
             }
+            
             const percentage = Math.round((totalScore / 100) * 100);
-            const quizData = {
-                username: currentUser.username, email: currentUser.email, topic: document.getElementById('topicSelect').value,
-                score: totalScore, maxScore: 100, percentage, questions: results, timestamp: new Date().toISOString(),
-                cheatingAttempts, tabSwitches: tabSwitchCount
+            const examData = {
+                username: currentUser.username,
+                email: currentUser.email,
+                topic: 'Python Basics Exam',
+                score: totalScore,
+                maxScore: 100,
+                percentage,
+                questions: results,
+                timestamp: new Date().toISOString(),
+                cheatingAttempts
             };
-            submittedQuizData = quizData;
+            submittedExamData = examData;
+            
             try {
-                await fetch(SUBMISSIONS_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(quizData), credentials: 'include' });
-            } catch(e) { console.log('Submission log error'); }
-            showResults(quizData);
+                await fetch(SUBMISSIONS_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(examData)
+                });
+            } catch (e) { console.log('Submission log error'); }
+            
+            showResults(examData);
         }
         
-        function showResults(quizData) {
+        function showResults(data) {
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
-            document.getElementById('finalScore').textContent = `${quizData.score}/100`;
-            document.getElementById('finalPercentage').textContent = `${quizData.percentage}%`;
-            const detailed = document.getElementById('detailedResults');
-            detailed.innerHTML = `<h4>Detailed Results (25 pts each)</h4>${quizData.cheatingAttempts>0?`<div class="alert alert-warning">⚠️ ${quizData.cheatingAttempts} violations detected</div>`:''}
-                ${quizData.questions.map((q,i)=>`<div class="card mb-3"><div class="card-body"><h6>Q${i+1}: ${q.title} - ${q.score}/${q.maxScore} pts</h6><div class="progress mb-2"><div class="progress-bar" style="width:${(q.score/q.maxScore)*100}%"></div></div><small>Tests passed: ${q.passedTests||0}/${q.totalTests||0} | Comments: ${q.hasExplanations?'✓':'✗'}</small></div></div>`).join('')}`;
+            document.getElementById('finalScore').textContent = `${data.score}/100`;
+            document.getElementById('finalPercentage').textContent = `${data.percentage}%`;
+            const detailedResults = document.getElementById('detailedResults');
+            detailedResults.innerHTML = `
+                <h4>📊 Detailed Results</h4>
+                ${data.cheatingAttempts > 0 ? `<div class="alert alert-warning">⚠️ ${data.cheatingAttempts} suspicious activities detected.</div>` : ''}
+                ${data.questions.map((q, idx) => `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6>Q${idx+1}: ${q.title}: ${q.score}/${q.maxScore} points</h6>
+                            <div class="progress mb-2"><div class="progress-bar" style="width: ${(q.score/q.maxScore)*100}%"></div></div>
+                            <small>Tests passed: ${q.passedTests || 0}/${q.totalTests || 0}</small>
+                        </div>
+                    </div>
+                `).join('')}
+                <div class="alert alert-success mt-3">🎉 Total Score: ${data.score}/100 (${data.percentage}%)</div>
+            `;
         }
         
         function showMyAnswers() {
-            if(!submittedQuizData) return;
+            if (!submittedExamData) { alert('No exam data found.'); return; }
             const answersList = document.getElementById('answersList');
-            answersList.innerHTML = submittedQuizData.questions.map((q,i)=>`<div class="mb-4"><h5>Q${i+1}: ${q.title} (${q.score}/${q.maxScore})</h5><div class="code-block">${escapeHtml(q.code)}</div></div>`).join('');
+            answersList.innerHTML = submittedExamData.questions.map(q => `
+                <div class="mb-4">
+                    <h5>${escapeHtml(q.title)} (Score: ${q.score}/${q.maxScore})</h5>
+                    <div class="code-block">${escapeHtml(q.code)}</div>
+                </div>
+            `).join('');
             document.getElementById('answersModal').style.display = 'flex';
         }
-        function closeAnswersModal() { document.getElementById('answersModal').style.display = 'none'; }
-        function resetAndRestart() {
-            questions = []; currentQuestionIndex = 0; userAnswers = {}; editors = {};
-            document.getElementById('quizContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'none';
-            document.getElementById('topicSelectorContainer').style.display = 'block';
-            isQuizActive = false;
+        
+        function closeAnswersModal() {
+            document.getElementById('answersModal').style.display = 'none';
         }
         
-        window.addEventListener('DOMContentLoaded', () => {
-            initializeAntiCheating();
-            document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+        function resetToStart() {
+            questions = [];
+            currentQuestionIndex = 0;
+            userAnswers = {};
+            editors = {};
+            cheatingAttempts = 0;
+            tabSwitchCount = 0;
+            isExamActive = false;
+            submittedExamData = null;
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('startContainer').style.display = 'block';
+        }
+        
+        // Event binding
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('startExamBtn').addEventListener('click', startExam);
             initPyodide().catch(console.error);
-            initMonaco().catch(console.error);
         });
     </script>
 </body>
